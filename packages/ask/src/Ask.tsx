@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useRenderer } from "@opentui/react"
 import { CommandProvider, useCommand } from "@tooee/commands"
 import type { AskOptions, AskInteractionHandler } from "./types.ts"
 
@@ -16,6 +17,7 @@ export function Ask(props: AskProps) {
 }
 
 function AskInner({ prompt, placeholder, defaultValue, onSubmit, interactionHandler }: AskProps) {
+  const renderer = useRenderer()
   const [value, setValue] = useState(defaultValue ?? "")
 
   useCommand({
@@ -23,7 +25,7 @@ function AskInner({ prompt, placeholder, defaultValue, onSubmit, interactionHand
     title: "Cancel",
     hotkey: "escape",
     handler: () => {
-      process.exit(0)
+      renderer.destroy()
     },
   })
 
@@ -45,13 +47,15 @@ function AskInner({ prompt, placeholder, defaultValue, onSubmit, interactionHand
     if (onSubmit) {
       onSubmit(value)
     } else {
+      renderer.destroy()
       process.stdout.write(value + "\n")
+      return
     }
-    process.exit(0)
+    renderer.destroy()
   }
 
   return (
-    <box style={{ flexDirection: "column" }}>
+    <box flexDirection="column" width="100%" height="100%">
       {prompt && (
         <text content={prompt} fg="#7aa2f7" style={{ marginBottom: 1 }} />
       )}

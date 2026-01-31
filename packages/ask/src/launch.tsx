@@ -9,7 +9,10 @@ export interface AskLaunchOptions extends AskOptions {
 }
 
 export async function launch(options: AskLaunchOptions): Promise<void> {
-  const renderer = await createCliRenderer()
+  const renderer = await createCliRenderer({
+    useAlternateScreen: true,
+    exitOnCtrlC: true,
+  })
   createRoot(renderer).render(
     <Ask
       prompt={options.prompt}

@@ -9,7 +9,10 @@ export interface ViewLaunchOptions {
 }
 
 export async function launch(options: ViewLaunchOptions): Promise<void> {
-  const renderer = await createCliRenderer()
+  const renderer = await createCliRenderer({
+    useAlternateScreen: true,
+    exitOnCtrlC: true,
+  })
   createRoot(renderer).render(
     <View contentProvider={options.contentProvider} interactionHandler={options.interactionHandler} />,
   )

@@ -19,6 +19,7 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
 }
 
 function ViewInner({ contentProvider, interactionHandler }: ViewProps) {
+  const renderer = useRenderer()
   const [content, setContent] = useState<ViewContent | null>(null)
   const [error, setError] = useState<string | null>(null)
   const scrollRef = useRef<ScrollBoxRenderable>(null)
@@ -50,7 +51,7 @@ function ViewInner({ contentProvider, interactionHandler }: ViewProps) {
     title: "Quit",
     hotkey: "q",
     handler: () => {
-      process.exit(0)
+      renderer.destroy()
     },
   })
 
@@ -109,7 +110,7 @@ function ViewInner({ contentProvider, interactionHandler }: ViewProps) {
   }
 
   return (
-    <box style={{ flexDirection: "column", flexGrow: 1 }}>
+    <box flexDirection="column" width="100%" height="100%">
       {content.title && <TitleBar title={content.title} subtitle={content.format} />}
       <scrollbox
         ref={scrollRef}

@@ -10,7 +10,10 @@ export interface RequestLaunchOptions {
 }
 
 export async function launch(options: RequestLaunchOptions): Promise<void> {
-  const renderer = await createCliRenderer()
+  const renderer = await createCliRenderer({
+    useAlternateScreen: true,
+    exitOnCtrlC: true,
+  })
   createRoot(renderer).render(
     <Request
       contentProvider={options.contentProvider}
