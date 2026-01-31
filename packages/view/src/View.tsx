@@ -1,0 +1,131 @@
+import { useState, useEffect, useRef } from "react"
+import type { ScrollBoxRenderable } from "@opentui/core"
+import { useRenderer } from "@opentui/react"
+import { MarkdownView, CodeView, StatusBar, TitleBar, useVimNavigation, copyToClipboard } from "@tooee/react"
+import { CommandProvider, useCommand } from "@tooee/commands"
+import type { ViewContent, ViewContentProvider, ViewInteractionHandler } from "./types.ts"
+
+interface ViewProps {
+  contentProvider: ViewContentProvider
+  interactionHandler?: ViewInteractionHandler
+}
+
+export function View({ contentProvider, interactionHandler }: ViewProps) {
+  return (
+    <CommandProvider>
+      <ViewInner contentProvider={contentProvider} interactionHandler={interactionHandler} />
+    </CommandProvider>
+  )
+}
+
+function ViewInner({ contentProvider, interactionHandler }: ViewProps) {
+  const [content, setContent] = useState<ViewContent | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const scrollRef = useRef<ScrollBoxRenderable>(null)
+
+  useEffect(() => {
+    const result = contentProvider.load()
+    if (result instanceof Promise) {
+      result.then(setContent).catch((e: Error) => setError(e.message))
+    } else {
+      setContent(result)
+    }
+  }, [contentProvider])
+
+  const lineCount = content?.body.split("\n").length ?? 0
+
+  const nav = useVimNavigation({
+    totalLines: lineCount,
+    viewportHeight: 40,
+  })
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = nav.scrollOffset
+    }
+  }, [nav.scrollOffset])
+
+  useCommand({
+    id: "quit",
+    title: "Quit",
+    hotkey: "q",
+    handler: () => {
+      process.exit(0)
+    },
+  })
+
+  useCommand({
+    id: "copy",
+    title: "Copy to clipboard",
+    hotkey: "y",
+    handler: () => {
+      if (content) {
+        void copyToClipboard(content.body)
+      }
+    },
+  })
+
+  // Register custom actions
+  if (interactionHandler) {
+    for (const action of interactionHandler.actions) {
+      useCommand({
+        id: action.id,
+        title: action.title,
+        hotkey: action.hotkey,
+        handler: () => {
+          if (content) {
+            action.handler(content)
+          }
+        },
+      })
+    }
+  }
+
+  if (error) {
+    return (
+      <box style={{ flexDirection: "column" }}>
+        <text content={`Error: ${error}`} fg="#f7768e" />
+      </box>
+    )
+  }
+
+  if (!content) {
+    return (
+      <box>
+        <text content="Loading..." fg="#565f89" />
+      </box>
+    )
+  }
+
+  const renderContent = () => {
+    switch (content.format) {
+      case "markdown":
+        return <MarkdownView content={content.body} />
+      case "code":
+        return <CodeView content={content.body} language={content.language} />
+      case "text":
+        return <text content={content.body} fg="#c0caf5" />
+    }
+  }
+
+  return (
+    <box style={{ flexDirection: "column", flexGrow: 1 }}>
+      {content.title && <TitleBar title={content.title} subtitle={content.format} />}
+      <scrollbox
+        ref={scrollRef}
+        style={{ flexGrow: 1 }}
+        focused
+      >
+        {renderContent()}
+      </scrollbox>
+      <StatusBar
+        items={[
+          { label: "Format:", value: content.format },
+          { label: "Lines:", value: String(lineCount) },
+          { label: "Scroll:", value: String(nav.scrollOffset) },
+          ...(nav.searchActive ? [{ label: "Search:", value: nav.searchQuery }] : []),
+        ]}
+      />
+    </box>
+  )
+}

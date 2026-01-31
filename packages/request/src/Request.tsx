@@ -1,0 +1,180 @@
+import { useState, useEffect, useRef, useCallback } from "react"
+import type { ScrollBoxRenderable } from "@opentui/core"
+import { MarkdownView, StatusBar, copyToClipboard, useVimNavigation } from "@tooee/react"
+import { CommandProvider, useCommand } from "@tooee/commands"
+import type { RequestContentProvider, RequestInteractionHandler } from "./types.ts"
+
+type Phase = "input" | "streaming" | "complete"
+
+interface RequestProps {
+  contentProvider: RequestContentProvider
+  interactionHandler?: RequestInteractionHandler
+  initialInput?: string
+}
+
+export function Request(props: RequestProps) {
+  return (
+    <CommandProvider>
+      <RequestInner {...props} />
+    </CommandProvider>
+  )
+}
+
+function RequestInner({ contentProvider, interactionHandler, initialInput }: RequestProps) {
+  const [phase, setPhase] = useState<Phase>(initialInput ? "streaming" : "input")
+  const [input, setInput] = useState(initialInput ?? "")
+  const [response, setResponse] = useState("")
+  const [autoScroll, setAutoScroll] = useState(true)
+  const abortRef = useRef<AbortController | null>(null)
+  const scrollRef = useRef<ScrollBoxRenderable>(null)
+
+  const lineCount = response.split("\n").length
+
+  const nav = useVimNavigation({
+    totalLines: lineCount,
+    viewportHeight: 40,
+  })
+
+  useEffect(() => {
+    if (scrollRef.current && !autoScroll) {
+      scrollRef.current.scrollTop = nav.scrollOffset
+    }
+  }, [nav.scrollOffset, autoScroll])
+
+  const startStream = useCallback(async (query: string) => {
+    setPhase("streaming")
+    setResponse("")
+    setAutoScroll(true)
+    const abort = new AbortController()
+    abortRef.current = abort
+
+    try {
+      for await (const chunk of contentProvider.submit(query)) {
+        if (abort.signal.aborted) break
+        setResponse((prev) => prev + chunk.delta)
+      }
+      if (!abort.signal.aborted) {
+        setPhase("complete")
+      }
+    } catch {
+      setPhase("complete")
+    }
+  }, [contentProvider])
+
+  useEffect(() => {
+    if (initialInput) {
+      void startStream(initialInput)
+    }
+  }, [initialInput, startStream])
+
+  useCommand({
+    id: "quit",
+    title: "Quit",
+    hotkey: "q",
+    when: () => phase !== "input",
+    handler: () => {
+      abortRef.current?.abort()
+      process.exit(0)
+    },
+  })
+
+  useCommand({
+    id: "copy",
+    title: "Copy response",
+    hotkey: "y",
+    when: () => phase === "complete",
+    handler: () => {
+      void copyToClipboard(response)
+    },
+  })
+
+  useCommand({
+    id: "cancel-stream",
+    title: "Cancel stream",
+    hotkey: "ctrl+c",
+    when: () => phase === "streaming",
+    handler: () => {
+      abortRef.current?.abort()
+      setPhase("complete")
+    },
+  })
+
+  useCommand({
+    id: "new-request",
+    title: "New request",
+    hotkey: "ctrl+n",
+    when: () => phase === "complete",
+    handler: () => {
+      setPhase("input")
+      setInput("")
+      setResponse("")
+    },
+  })
+
+  // Register custom actions
+  if (interactionHandler) {
+    for (const action of interactionHandler.actions) {
+      useCommand({
+        id: action.id,
+        title: action.title,
+        hotkey: action.hotkey,
+        when: () => phase === "complete",
+        handler: () => {
+          action.handler(input, response)
+        },
+      })
+    }
+  }
+
+  const handleSubmit = () => {
+    if (input.trim()) {
+      void startStream(input)
+    }
+  }
+
+  if (phase === "input") {
+    return (
+      <box style={{ flexDirection: "column" }}>
+        <text content="Enter your request:" fg="#7aa2f7" style={{ marginBottom: 1 }} />
+        <input
+          value={input}
+          onChange={setInput}
+          onSubmit={handleSubmit}
+          placeholder="Type your request..."
+          textColor="#c0caf5"
+          focused
+        />
+      </box>
+    )
+  }
+
+  return (
+    <box style={{ flexDirection: "column", flexGrow: 1 }}>
+      <scrollbox
+        ref={scrollRef}
+        style={{ flexGrow: 1 }}
+        stickyScroll={autoScroll}
+        stickyStart="bottom"
+        focused
+      >
+        <MarkdownView content={response} />
+        {phase === "streaming" && (
+          <text content="▍" fg="#7aa2f7" />
+        )}
+      </scrollbox>
+      <StatusBar
+        items={[
+          { label: "Status:", value: phase === "streaming" ? "streaming" : "complete" },
+          { label: "Lines:", value: String(lineCount) },
+          ...(phase === "streaming"
+            ? [{ label: "Ctrl+C", value: "cancel" }]
+            : [
+                { label: "y", value: "copy" },
+                { label: "Ctrl+N", value: "new" },
+                { label: "q", value: "quit" },
+              ]),
+        ]}
+      />
+    </box>
+  )
+}
