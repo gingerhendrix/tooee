@@ -59,9 +59,9 @@ export interface ThemeProviderProps {
 
 export function ThemeProvider({ theme, children }: ThemeProviderProps) {
   return (
-    <ThemeContext value={theme ?? defaultTheme}>
+    <ThemeContext.Provider value={theme ?? defaultTheme}>
       {children}
-    </ThemeContext>
+    </ThemeContext.Provider>
   )
 }
 

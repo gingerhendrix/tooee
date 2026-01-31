@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useRenderer } from "@opentui/react"
-import { CommandProvider, useCommand } from "@tooee/commands"
+import { CommandProvider, useCommand, useActions } from "@tooee/commands"
+import type { ActionDefinition } from "@tooee/commands"
 import type { AskOptions, AskInteractionHandler } from "./types.ts"
 
 interface AskProps extends AskOptions {
@@ -29,19 +30,16 @@ function AskInner({ prompt, placeholder, defaultValue, onSubmit, interactionHand
     },
   })
 
-  // Register custom actions
-  if (interactionHandler) {
-    for (const action of interactionHandler.actions) {
-      useCommand({
-        id: action.id,
-        title: action.title,
-        hotkey: action.hotkey,
-        handler: () => {
-          action.handler(value)
-        },
-      })
-    }
-  }
+  const customActions: ActionDefinition[] | undefined = interactionHandler?.actions.map((action) => ({
+    id: action.id,
+    title: action.title,
+    hotkey: action.hotkey,
+    handler: () => {
+      action.handler(value)
+    },
+  }))
+
+  useActions(customActions)
 
   const handleSubmit = () => {
     if (onSubmit) {

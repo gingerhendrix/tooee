@@ -36,9 +36,9 @@ export function CommandProvider({ children, leader }: CommandProviderProps) {
   }
 
   return (
-    <CommandContext value={{ registry: registryRef.current, leaderKey: leader }}>
+    <CommandContext.Provider value={{ registry: registryRef.current, leaderKey: leader }}>
       {children}
-    </CommandContext>
+    </CommandContext.Provider>
   )
 }
 

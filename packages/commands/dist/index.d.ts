@@ -7,4 +7,6 @@ export { CommandProvider, useCommandContext } from "./context.tsx";
 export type { CommandProviderProps } from "./context.tsx";
 export { useCommand } from "./use-command.ts";
 export type { UseCommandOptions } from "./use-command.ts";
+export { useActions } from "./use-actions.ts";
+export type { ActionDefinition } from "./use-actions.ts";
 //# sourceMappingURL=index.d.ts.map

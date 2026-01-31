@@ -29,11 +29,11 @@ export function useCommand(options: UseCommandOptions): void {
     const command: Command = {
       id: options.id,
       title: options.title,
-      handler: options.handler,
+      handler: (...args: Parameters<Command["handler"]>) => optionsRef.current.handler(...args),
       hotkey: options.hotkey,
       category: options.category,
       icon: options.icon,
-      when: options.when,
+      when: optionsRef.current.when ? () => optionsRef.current.when!() : undefined,
       hidden: options.hidden,
     }
     return registry.register(command)

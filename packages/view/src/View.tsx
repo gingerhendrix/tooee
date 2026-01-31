@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { useRenderer } from "@opentui/react"
 import { MarkdownView, CodeView, StatusBar, TitleBar, useVimNavigation, copyToClipboard } from "@tooee/react"
-import { CommandProvider, useCommand } from "@tooee/commands"
+import { CommandProvider, useCommand, useActions } from "@tooee/commands"
+import type { ActionDefinition } from "@tooee/commands"
 import type { ViewContent, ViewContentProvider, ViewInteractionHandler } from "./types.ts"
 
 interface ViewProps {
@@ -66,21 +67,18 @@ function ViewInner({ contentProvider, interactionHandler }: ViewProps) {
     },
   })
 
-  // Register custom actions
-  if (interactionHandler) {
-    for (const action of interactionHandler.actions) {
-      useCommand({
-        id: action.id,
-        title: action.title,
-        hotkey: action.hotkey,
-        handler: () => {
-          if (content) {
-            action.handler(content)
-          }
-        },
-      })
-    }
-  }
+  const customActions: ActionDefinition[] | undefined = interactionHandler?.actions.map((action) => ({
+    id: action.id,
+    title: action.title,
+    hotkey: action.hotkey,
+    handler: () => {
+      if (content) {
+        action.handler(content)
+      }
+    },
+  }))
+
+  useActions(customActions)
 
   if (error) {
     return (

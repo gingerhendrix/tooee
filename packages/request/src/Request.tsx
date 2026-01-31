@@ -2,7 +2,8 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { useRenderer } from "@opentui/react"
 import { MarkdownView, StatusBar, copyToClipboard, useVimNavigation } from "@tooee/react"
-import { CommandProvider, useCommand } from "@tooee/commands"
+import { CommandProvider, useCommand, useActions } from "@tooee/commands"
+import type { ActionDefinition } from "@tooee/commands"
 import type { RequestContentProvider, RequestInteractionHandler } from "./types.ts"
 
 type Phase = "input" | "streaming" | "complete"
@@ -36,6 +37,17 @@ function RequestInner({ contentProvider, interactionHandler, initialInput }: Req
     totalLines: lineCount,
     viewportHeight: 40,
   })
+
+  const prevScrollOffset = useRef(nav.scrollOffset)
+
+  useEffect(() => {
+    if (nav.scrollOffset !== prevScrollOffset.current) {
+      prevScrollOffset.current = nav.scrollOffset
+      if (autoScroll) {
+        setAutoScroll(false)
+      }
+    }
+  }, [nav.scrollOffset, autoScroll])
 
   useEffect(() => {
     if (scrollRef.current && !autoScroll) {
@@ -113,20 +125,17 @@ function RequestInner({ contentProvider, interactionHandler, initialInput }: Req
     },
   })
 
-  // Register custom actions
-  if (interactionHandler) {
-    for (const action of interactionHandler.actions) {
-      useCommand({
-        id: action.id,
-        title: action.title,
-        hotkey: action.hotkey,
-        when: () => phase === "complete",
-        handler: () => {
-          action.handler(input, response)
-        },
-      })
-    }
-  }
+  const customActions: ActionDefinition[] | undefined = interactionHandler?.actions.map((action) => ({
+    id: action.id,
+    title: action.title,
+    hotkey: action.hotkey,
+    when: () => phase === "complete",
+    handler: () => {
+      action.handler(input, response)
+    },
+  }))
+
+  useActions(customActions)
 
   const handleSubmit = () => {
     if (input.trim()) {
