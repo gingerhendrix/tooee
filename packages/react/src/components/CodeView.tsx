@@ -1,4 +1,4 @@
-import { getDefaultSyntaxStyle } from "../theme.tsx"
+import { useTheme } from "../theme.tsx"
 
 interface CodeViewProps {
   content: string
@@ -7,13 +7,13 @@ interface CodeViewProps {
 }
 
 export function CodeView({ content, language, showLineNumbers = true }: CodeViewProps) {
-  const syntaxStyle = getDefaultSyntaxStyle()
+  const { syntax, theme } = useTheme()
 
   const codeElement = (
     <code
       content={content}
       filetype={language}
-      syntaxStyle={syntaxStyle}
+      syntaxStyle={syntax}
     />
   )
 
@@ -22,18 +22,18 @@ export function CodeView({ content, language, showLineNumbers = true }: CodeView
       style={{
         flexDirection: "column",
         border: true,
-        borderColor: "#414868",
-        backgroundColor: "#16161e",
+        borderColor: theme.borderSubtle,
+        backgroundColor: theme.backgroundElement,
         padding: 1,
       }}
     >
       {language && (
-        <text content={language} style={{ fg: "#565f89", marginBottom: 1 }} />
+        <text content={language} style={{ fg: theme.textMuted, marginBottom: 1 }} />
       )}
       {showLineNumbers ? (
         <line-number
-          fg="#565f89"
-          bg="#16161e"
+          fg={theme.textMuted}
+          bg={theme.backgroundElement}
           paddingRight={1}
           showLineNumbers
         >

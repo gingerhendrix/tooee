@@ -12,8 +12,17 @@ export { useSelection } from "./hooks/use-selection.ts"
 export type { SelectionOptions, SelectionState } from "./hooks/use-selection.ts"
 
 // Theme
-export { ThemeProvider, useTheme, defaultTheme, getDefaultSyntaxStyle } from "./theme.tsx"
-export type { Theme, SyntaxTheme, ThemeProviderProps } from "./theme.tsx"
+export {
+  ThemeProvider,
+  useTheme,
+  defaultTheme,
+  getDefaultSyntaxStyle,
+  resolveTheme,
+  buildSyntaxStyle,
+  loadThemes,
+  getThemeNames,
+} from "./theme.tsx"
+export type { Theme, ThemeJSON, ResolvedTheme, ThemeProviderProps } from "./theme.tsx"
 
 // Clipboard
 export { copyToClipboard, readClipboard, readClipboardText } from "./clipboard.ts"

@@ -1,40 +1,42 @@
 import { marked, type Token, type Tokens } from "marked"
 import type { ReactNode } from "react"
-import { getDefaultSyntaxStyle } from "../theme.tsx"
+import { useTheme, type ResolvedTheme } from "../theme.tsx"
+import type { SyntaxStyle } from "@opentui/core"
 
 interface MarkdownViewProps {
   content: string
 }
 
 export function MarkdownView({ content }: MarkdownViewProps) {
+  const { theme, syntax } = useTheme()
   const tokens = marked.lexer(content)
-  return <TokenList tokens={tokens} />
+  return <TokenList tokens={tokens} theme={theme} syntax={syntax} />
 }
 
-function TokenList({ tokens }: { tokens: Token[] }) {
+function TokenList({ tokens, theme, syntax }: { tokens: Token[]; theme: ResolvedTheme; syntax: SyntaxStyle }) {
   return (
     <box style={{ flexDirection: "column" }}>
       {tokens.map((token, index) => (
-        <TokenRenderer key={index} token={token} />
+        <TokenRenderer key={index} token={token} theme={theme} syntax={syntax} />
       ))}
     </box>
   )
 }
 
-function TokenRenderer({ token }: { token: Token }): ReactNode {
+function TokenRenderer({ token, theme, syntax }: { token: Token; theme: ResolvedTheme; syntax: SyntaxStyle }): ReactNode {
   switch (token.type) {
     case "heading":
-      return <HeadingRenderer token={token as Tokens.Heading} />
+      return <HeadingRenderer token={token as Tokens.Heading} theme={theme} />
     case "paragraph":
-      return <ParagraphRenderer token={token as Tokens.Paragraph} />
+      return <ParagraphRenderer token={token as Tokens.Paragraph} theme={theme} />
     case "code":
-      return <CodeBlockRenderer token={token as Tokens.Code} />
+      return <CodeBlockRenderer token={token as Tokens.Code} theme={theme} syntax={syntax} />
     case "blockquote":
-      return <BlockquoteRenderer token={token as Tokens.Blockquote} />
+      return <BlockquoteRenderer token={token as Tokens.Blockquote} theme={theme} />
     case "list":
-      return <ListRenderer token={token as Tokens.List} />
+      return <ListRenderer token={token as Tokens.List} theme={theme} />
     case "hr":
-      return <HorizontalRule />
+      return <HorizontalRule theme={theme} />
     case "space":
       return <box style={{ height: 1 }} />
     case "html":
@@ -44,7 +46,7 @@ function TokenRenderer({ token }: { token: Token }): ReactNode {
         return (
           <text
             content={token.text}
-            style={{ fg: "#c0caf5", marginBottom: 1 }}
+            style={{ fg: theme.markdownText, marginBottom: 1 }}
           />
         )
       }
@@ -52,14 +54,14 @@ function TokenRenderer({ token }: { token: Token }): ReactNode {
   }
 }
 
-function HeadingRenderer({ token }: { token: Tokens.Heading }) {
+function HeadingRenderer({ token, theme }: { token: Tokens.Heading; theme: ResolvedTheme }) {
   const headingColors: Record<number, string> = {
-    1: "#7aa2f7",
-    2: "#bb9af7",
-    3: "#7dcfff",
-    4: "#c0caf5",
-    5: "#a9b1d6",
-    6: "#9aa5ce",
+    1: theme.markdownHeading,
+    2: theme.secondary,
+    3: theme.accent,
+    4: theme.text,
+    5: theme.textMuted,
+    6: theme.textMuted,
   }
 
   const prefixes: Record<number, string> = {
@@ -75,52 +77,50 @@ function HeadingRenderer({ token }: { token: Tokens.Heading }) {
 
   return (
     <box style={{ marginTop: 1, marginBottom: 1 }}>
-      <text style={{ fg: headingColors[token.depth] || "#c0caf5" }}>
-        <span fg="#565f89">{prefixes[token.depth]}</span>
+      <text style={{ fg: headingColors[token.depth] || theme.text }}>
+        <span fg={theme.textMuted}>{prefixes[token.depth]}</span>
         <strong>{headingText}</strong>
       </text>
     </box>
   )
 }
 
-function ParagraphRenderer({ token }: { token: Tokens.Paragraph }) {
+function ParagraphRenderer({ token, theme }: { token: Tokens.Paragraph; theme: ResolvedTheme }) {
   return (
     <box style={{ marginBottom: 1 }}>
-      <text style={{ fg: "#c0caf5" }}>
-        <InlineTokens tokens={token.tokens || []} />
+      <text style={{ fg: theme.markdownText }}>
+        <InlineTokens tokens={token.tokens || []} theme={theme} />
       </text>
     </box>
   )
 }
 
-function CodeBlockRenderer({ token }: { token: Tokens.Code }) {
-  const syntaxStyle = getDefaultSyntaxStyle()
-
+function CodeBlockRenderer({ token, theme, syntax }: { token: Tokens.Code; theme: ResolvedTheme; syntax: SyntaxStyle }) {
   return (
     <box
       style={{
         marginTop: 1,
         marginBottom: 1,
         border: true,
-        borderColor: "#414868",
-        backgroundColor: "#16161e",
+        borderColor: theme.borderSubtle,
+        backgroundColor: theme.backgroundElement,
         padding: 1,
         flexDirection: "column",
       }}
     >
       {token.lang && (
-        <text content={token.lang} style={{ fg: "#565f89", marginBottom: 1 }} />
+        <text content={token.lang} style={{ fg: theme.textMuted, marginBottom: 1 }} />
       )}
       <code
         content={token.text}
         filetype={token.lang}
-        syntaxStyle={syntaxStyle}
+        syntaxStyle={syntax}
       />
     </box>
   )
 }
 
-function BlockquoteRenderer({ token }: { token: Tokens.Blockquote }) {
+function BlockquoteRenderer({ token, theme }: { token: Tokens.Blockquote; theme: ResolvedTheme }) {
   const quoteText = token.tokens
     ? token.tokens
         .map((t) => {
@@ -134,13 +134,13 @@ function BlockquoteRenderer({ token }: { token: Tokens.Blockquote }) {
 
   return (
     <box style={{ marginTop: 1, marginBottom: 1, paddingLeft: 2 }}>
-      <text style={{ fg: "#7aa2f7" }} content="│ " />
-      <text style={{ fg: "#9aa5ce" }} content={quoteText} />
+      <text style={{ fg: theme.markdownBlockQuote }} content="│ " />
+      <text style={{ fg: theme.textMuted }} content={quoteText} />
     </box>
   )
 }
 
-function ListRenderer({ token }: { token: Tokens.List }) {
+function ListRenderer({ token, theme }: { token: Tokens.List; theme: ResolvedTheme }) {
   return (
     <box style={{ marginBottom: 1, marginLeft: 2, flexDirection: "column" }}>
       {token.items.map((item, index) => (
@@ -149,6 +149,7 @@ function ListRenderer({ token }: { token: Tokens.List }) {
           item={item}
           ordered={token.ordered}
           index={index + (token.start || 1)}
+          theme={theme}
         />
       ))}
     </box>
@@ -159,36 +160,38 @@ function ListItemRenderer({
   item,
   ordered,
   index,
+  theme,
 }: {
   item: Tokens.ListItem
   ordered: boolean
   index: number
+  theme: ResolvedTheme
 }) {
   const bullet = ordered ? `${index}. ` : "- "
   const itemContent = item.tokens || []
 
   return (
     <box style={{ flexDirection: "row" }}>
-      <text style={{ fg: "#7aa2f7" }} content={bullet} />
+      <text style={{ fg: theme.markdownListItem }} content={bullet} />
       <box style={{ flexShrink: 1, flexDirection: "column" }}>
         {itemContent.map((token, idx) => {
           if (token.type === "text" && "tokens" in token && token.tokens) {
             return (
-              <text key={idx} style={{ fg: "#c0caf5" }}>
-                <InlineTokens tokens={token.tokens} />
+              <text key={idx} style={{ fg: theme.markdownText }}>
+                <InlineTokens tokens={token.tokens} theme={theme} />
               </text>
             )
           }
           if (token.type === "paragraph" && token.tokens) {
             return (
-              <text key={idx} style={{ fg: "#c0caf5" }}>
-                <InlineTokens tokens={token.tokens} />
+              <text key={idx} style={{ fg: theme.markdownText }}>
+                <InlineTokens tokens={token.tokens} theme={theme} />
               </text>
             )
           }
           if ("text" in token && typeof token.text === "string") {
             return (
-              <text key={idx} style={{ fg: "#c0caf5" }} content={token.text} />
+              <text key={idx} style={{ fg: theme.markdownText }} content={token.text} />
             )
           }
           return null
@@ -198,10 +201,10 @@ function ListItemRenderer({
   )
 }
 
-function HorizontalRule() {
+function HorizontalRule({ theme }: { theme: ResolvedTheme }) {
   return (
     <box style={{ marginTop: 1, marginBottom: 1 }}>
-      <text style={{ fg: "#414868" }} content={"─".repeat(40)} />
+      <text style={{ fg: theme.markdownHorizontalRule }} content={"─".repeat(40)} />
     </box>
   )
 }
@@ -219,7 +222,7 @@ function getPlainText(tokens: Token[]): string {
     .join("")
 }
 
-function InlineTokens({ tokens }: { tokens: Token[] }): ReactNode {
+function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme }): ReactNode {
   const result: ReactNode[] = []
 
   for (let i = 0; i < tokens.length; i++) {
@@ -245,7 +248,7 @@ function InlineTokens({ tokens }: { tokens: Token[] }): ReactNode {
         break
       case "codespan":
         result.push(
-          <span key={key} fg="#9ece6a" bg="#1f2335">
+          <span key={key} fg={theme.markdownCode} bg={theme.backgroundPanel}>
             {` ${(token as Tokens.Codespan).text} `}
           </span>,
         )
@@ -254,7 +257,7 @@ function InlineTokens({ tokens }: { tokens: Token[] }): ReactNode {
         const linkToken = token as Tokens.Link
         result.push(
           <u key={key}>
-            <a href={linkToken.href} fg="#7aa2f7">
+            <a href={linkToken.href} fg={theme.markdownLink}>
               {getPlainText(linkToken.tokens || [])}
             </a>
           </u>,
