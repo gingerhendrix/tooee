@@ -1,4 +1,5 @@
 import { type ReactNode } from "react";
+import { SyntaxStyle } from "@opentui/core";
 export interface SyntaxTheme {
     keyword: string;
     string: string;
@@ -30,4 +31,5 @@ export interface ThemeProviderProps {
 }
 export declare function ThemeProvider({ theme, children }: ThemeProviderProps): ReactNode;
 export declare function useTheme(): Theme;
+export declare function getDefaultSyntaxStyle(): SyntaxStyle;
 //# sourceMappingURL=theme.d.ts.map

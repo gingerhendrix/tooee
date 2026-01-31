@@ -1,3 +1,5 @@
+import { getDefaultSyntaxStyle } from "../theme.tsx"
+
 interface CodeViewProps {
   content: string
   language?: string
@@ -5,7 +7,15 @@ interface CodeViewProps {
 }
 
 export function CodeView({ content, language, showLineNumbers = true }: CodeViewProps) {
-  const lines = content.split("\n")
+  const syntaxStyle = getDefaultSyntaxStyle()
+
+  const codeElement = (
+    <code
+      content={content}
+      filetype={language}
+      syntaxStyle={syntaxStyle}
+    />
+  )
 
   return (
     <box
@@ -20,17 +30,18 @@ export function CodeView({ content, language, showLineNumbers = true }: CodeView
       {language && (
         <text content={language} style={{ fg: "#565f89", marginBottom: 1 }} />
       )}
-      {lines.map((line, index) => (
-        <box key={index} style={{ flexDirection: "row" }}>
-          {showLineNumbers && (
-            <text
-              content={String(index + 1).padStart(4, " ") + " "}
-              style={{ fg: "#565f89" }}
-            />
-          )}
-          <text content={line} style={{ fg: "#9ece6a" }} />
-        </box>
-      ))}
+      {showLineNumbers ? (
+        <line-number
+          fg="#565f89"
+          bg="#16161e"
+          paddingRight={1}
+          showLineNumbers
+        >
+          {codeElement}
+        </line-number>
+      ) : (
+        codeElement
+      )}
     </box>
   )
 }

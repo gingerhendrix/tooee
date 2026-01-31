@@ -1,4 +1,5 @@
 import { createContext, useContext, type ReactNode } from "react"
+import { RGBA, SyntaxStyle } from "@opentui/core"
 
 export interface SyntaxTheme {
   keyword: string
@@ -67,4 +68,24 @@ export function ThemeProvider({ theme, children }: ThemeProviderProps) {
 
 export function useTheme(): Theme {
   return useContext(ThemeContext)
+}
+
+let _defaultSyntaxStyle: SyntaxStyle | undefined
+
+export function getDefaultSyntaxStyle(): SyntaxStyle {
+  if (!_defaultSyntaxStyle) {
+    _defaultSyntaxStyle = SyntaxStyle.fromStyles({
+      keyword: { fg: RGBA.fromHex("#bb9af7"), bold: true },
+      string: { fg: RGBA.fromHex("#9ece6a") },
+      comment: { fg: RGBA.fromHex("#565f89"), italic: true },
+      number: { fg: RGBA.fromHex("#ff9e64") },
+      function: { fg: RGBA.fromHex("#7aa2f7") },
+      operator: { fg: RGBA.fromHex("#89ddff") },
+      type: { fg: RGBA.fromHex("#2ac3de") },
+      variable: { fg: RGBA.fromHex("#c0caf5") },
+      punctuation: { fg: RGBA.fromHex("#a9b1d6") },
+      default: { fg: RGBA.fromHex("#c0caf5") },
+    })
+  }
+  return _defaultSyntaxStyle
 }

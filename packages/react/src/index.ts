@@ -12,7 +12,7 @@ export { useSelection } from "./hooks/use-selection.ts"
 export type { SelectionOptions, SelectionState } from "./hooks/use-selection.ts"
 
 // Theme
-export { ThemeProvider, useTheme, defaultTheme } from "./theme.tsx"
+export { ThemeProvider, useTheme, defaultTheme, getDefaultSyntaxStyle } from "./theme.tsx"
 export type { Theme, SyntaxTheme, ThemeProviderProps } from "./theme.tsx"
 
 // Clipboard

@@ -1,5 +1,6 @@
 import { marked, type Token, type Tokens } from "marked"
 import type { ReactNode } from "react"
+import { getDefaultSyntaxStyle } from "../theme.tsx"
 
 interface MarkdownViewProps {
   content: string
@@ -93,6 +94,8 @@ function ParagraphRenderer({ token }: { token: Tokens.Paragraph }) {
 }
 
 function CodeBlockRenderer({ token }: { token: Tokens.Code }) {
+  const syntaxStyle = getDefaultSyntaxStyle()
+
   return (
     <box
       style={{
@@ -108,7 +111,11 @@ function CodeBlockRenderer({ token }: { token: Tokens.Code }) {
       {token.lang && (
         <text content={token.lang} style={{ fg: "#565f89", marginBottom: 1 }} />
       )}
-      <text content={token.text} style={{ fg: "#9ece6a" }} />
+      <code
+        content={token.text}
+        filetype={token.lang}
+        syntaxStyle={syntaxStyle}
+      />
     </box>
   )
 }
