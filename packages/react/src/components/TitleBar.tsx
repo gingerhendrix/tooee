@@ -1,22 +1,25 @@
+import { useTheme } from "../theme.tsx"
+
 interface TitleBarProps {
   title: string
   subtitle?: string
 }
 
 export function TitleBar({ title, subtitle }: TitleBarProps) {
+  const { theme } = useTheme()
   return (
     <box
       style={{
         flexDirection: "row",
-        backgroundColor: "#1f2335",
+        backgroundColor: theme.backgroundPanel,
         padding: 0,
         paddingLeft: 1,
         paddingRight: 1,
       }}
     >
-      <text content={title} style={{ fg: "#7aa2f7" }} />
+      <text content={title} style={{ fg: theme.primary }} />
       {subtitle && (
-        <text content={` — ${subtitle}`} style={{ fg: "#565f89" }} />
+        <text content={` — ${subtitle}`} style={{ fg: theme.textMuted }} />
       )}
     </box>
   )
