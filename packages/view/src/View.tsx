@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
-import { MarkdownView, CodeView, AppLayout, useTheme } from "@tooee/react"
-import { useActions } from "@tooee/commands"
+import { MarkdownView, CodeView, AppLayout, CommandPalette, useTheme } from "@tooee/react"
+import { useActions, useCommandContext } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
-import { useThemeCommands, useQuitCommand, useCopyCommand, useModalNavigationCommands } from "@tooee/shell"
+import { useThemeCommands, useQuitCommand, useCopyCommand, useModalNavigationCommands, useCommandPalette } from "@tooee/shell"
 import { useConfig } from "@tooee/config"
 import { marked } from "marked"
 import type { ViewContent, ViewContentProvider, ViewInteractionHandler } from "./types.ts"
@@ -70,6 +70,9 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
   const { name: themeName } = useThemeCommands()
   useQuitCommand()
   useCopyCommand({ getText: () => content?.body })
+
+  const palette = useCommandPalette()
+  const { invoke } = useCommandContext()
 
   const customActions: ActionDefinition[] | undefined = interactionHandler?.actions.map((action) => ({
     id: action.id,
@@ -139,6 +142,17 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
     }
   }
 
+  const paletteOverlay = palette.isOpen ? (
+    <CommandPalette
+      commands={palette.entries}
+      onSelect={(id) => {
+        palette.close()
+        invoke(id)
+      }}
+      onClose={palette.close}
+    />
+  ) : undefined
+
   return (
     <AppLayout
       titleBar={content.title ? { title: content.title, subtitle: content.format } : { title: content.format }}
@@ -153,7 +167,7 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
         ],
       }}
       scrollRef={scrollRef}
-      scrollProps={{ focused: !nav.searchActive }}
+      scrollProps={{ focused: !nav.searchActive && !palette.isOpen }}
       searchBar={{
         active: nav.searchActive,
         query: nav.searchQuery,
@@ -165,6 +179,7 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
         matchCount: nav.matchingLines.length,
         currentMatch: nav.currentMatchIndex,
       }}
+      overlay={paletteOverlay}
     >
       {renderContent()}
     </AppLayout>

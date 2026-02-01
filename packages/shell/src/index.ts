@@ -4,3 +4,5 @@ export type { ModalNavigationState, ModalNavigationOptions, Position } from "./m
 export { findMatchingLines } from "./search.ts"
 export { TooeeProvider } from "./provider.tsx"
 export { launchCli } from "./launch.tsx"
+export { useCommandPalette } from "./command-palette.ts"
+export type { CommandPaletteState } from "./command-palette.ts"
