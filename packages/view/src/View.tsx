@@ -30,7 +30,6 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
 
   const nav = useModalNavigationCommands({
     totalLines: lineCount,
-    viewportHeight: 40,
     getText: () => content?.body,
   })
 

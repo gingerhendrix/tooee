@@ -29,7 +29,6 @@ export function Request({ contentProvider, interactionHandler, initialInput }: R
 
   const nav = useModalNavigationCommands({
     totalLines: lineCount,
-    viewportHeight: 40,
     getText: () => response,
   })
 

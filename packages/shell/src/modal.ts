@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react"
 import { useCommand, useMode, useSetMode, type Mode } from "@tooee/commands"
 import { copyToClipboard } from "@tooee/react"
+import { useTerminalDimensions } from "@opentui/react"
 
 export interface Position {
   line: number
@@ -20,12 +21,13 @@ export interface ModalNavigationState {
 
 export interface ModalNavigationOptions {
   totalLines: number
-  viewportHeight: number
+  viewportHeight?: number
   getText?: () => string | undefined
 }
 
 export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalNavigationState {
-  const { totalLines, viewportHeight, getText } = opts
+  const { height: terminalHeight } = useTerminalDimensions()
+  const { totalLines, viewportHeight = terminalHeight - 2, getText } = opts
   const mode = useMode()
   const setMode = useSetMode()
 
