@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { useRenderer } from "@opentui/react"
-import { MarkdownView, StatusBar, useTheme } from "@tooee/react"
+import { MarkdownView, AppLayout, useTheme } from "@tooee/react"
 import { useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import { useThemeCommands, useQuitCommand, useCopyCommand, useModalNavigationCommands } from "@tooee/shell"
@@ -148,21 +148,10 @@ export function Request({ contentProvider, interactionHandler, initialInput }: R
   }
 
   return (
-    <box flexDirection="column" width="100%" height="100%">
-      <scrollbox
-        ref={scrollRef}
-        style={{ flexGrow: 1 }}
-        stickyScroll={autoScroll}
-        stickyStart="bottom"
-        focused
-      >
-        <MarkdownView content={response} />
-        {phase === "streaming" && (
-          <text content="▍" fg={theme.primary} />
-        )}
-      </scrollbox>
-      <StatusBar
-        items={[
+    <AppLayout
+      titleBar={{ title: "Response", subtitle: phase === "streaming" ? "streaming..." : "complete" }}
+      statusBar={{
+        items: [
           { label: "Theme:", value: themeName },
           { label: "Status:", value: phase === "streaming" ? "streaming" : "complete" },
           { label: "Lines:", value: String(lineCount) },
@@ -173,8 +162,15 @@ export function Request({ contentProvider, interactionHandler, initialInput }: R
                 { label: "Ctrl+N", value: "new" },
                 { label: "q", value: "quit" },
               ]),
-        ]}
-      />
-    </box>
+        ],
+      }}
+      scrollRef={scrollRef}
+      scrollProps={{ stickyScroll: autoScroll, stickyStart: "bottom", focused: true }}
+    >
+      <MarkdownView content={response} />
+      {phase === "streaming" && (
+        <text content="▍" fg={theme.primary} />
+      )}
+    </AppLayout>
   )
 }

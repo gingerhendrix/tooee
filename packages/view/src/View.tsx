@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
-import { MarkdownView, CodeView, StatusBar, TitleBar, useTheme } from "@tooee/react"
+import { MarkdownView, CodeView, AppLayout, useTheme } from "@tooee/react"
 import { useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import { useThemeCommands, useQuitCommand, useCopyCommand, useModalNavigationCommands } from "@tooee/shell"
@@ -84,25 +84,22 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
   }
 
   return (
-    <box flexDirection="column" width="100%" height="100%">
-      {content.title && <TitleBar title={content.title} subtitle={content.format} />}
-      <scrollbox
-        ref={scrollRef}
-        style={{ flexGrow: 1 }}
-        focused
-      >
-        {renderContent()}
-      </scrollbox>
-      <StatusBar
-        items={[
+    <AppLayout
+      titleBar={content.title ? { title: content.title, subtitle: content.format } : { title: content.format }}
+      statusBar={{
+        items: [
           { label: "Theme:", value: themeName },
           { label: "Format:", value: content.format },
           { label: "Lines:", value: String(lineCount) },
           { label: "Mode:", value: nav.mode },
           { label: "Scroll:", value: String(nav.scrollOffset) },
           ...(nav.searchActive ? [{ label: "Search:", value: nav.searchQuery }] : []),
-        ]}
-      />
-    </box>
+        ],
+      }}
+      scrollRef={scrollRef}
+      scrollProps={{ focused: true }}
+    >
+      {renderContent()}
+    </AppLayout>
   )
 }
