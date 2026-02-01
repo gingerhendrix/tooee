@@ -1,5 +1,13 @@
-import { createContext, useContext, useRef, type ReactNode } from "react"
-import type { Command, CommandRegistry } from "./types.ts"
+import { createContext, useContext, useRef, useCallback, type ReactNode } from "react"
+import { useKeyboard } from "@opentui/react"
+import type { Command, CommandRegistry, ParsedHotkey } from "./types.ts"
+import type { Mode } from "./mode.tsx"
+import { ModeProvider, useMode } from "./mode.tsx"
+import { parseHotkey } from "./parse.ts"
+import { matchStep } from "./match.ts"
+import { SequenceTracker } from "./sequence.ts"
+
+const DEFAULT_MODES: Mode[] = ["command", "cursor"]
 
 interface CommandContextValue {
   registry: CommandRegistry
@@ -11,10 +19,22 @@ const CommandContext = createContext<CommandContextValue | null>(null)
 export interface CommandProviderProps {
   children: ReactNode
   leader?: string
+  initialMode?: Mode
 }
 
-export function CommandProvider({ children, leader }: CommandProviderProps) {
+export function CommandProvider({ children, leader, initialMode }: CommandProviderProps) {
+  return (
+    <ModeProvider initialMode={initialMode}>
+      <CommandDispatcher leader={leader}>
+        {children}
+      </CommandDispatcher>
+    </ModeProvider>
+  )
+}
+
+function CommandDispatcher({ children, leader }: { children: ReactNode; leader?: string }) {
   const registryRef = useRef<CommandRegistry | null>(null)
+  const mode = useMode()
 
   if (registryRef.current === null) {
     const commands = new Map<string, Command>()
@@ -34,6 +54,71 @@ export function CommandProvider({ children, leader }: CommandProviderProps) {
       },
     }
   }
+
+  const trackerRef = useRef(new SequenceTracker())
+  const parseCacheRef = useRef(new Map<string, ParsedHotkey>())
+
+  const getParsedHotkey = useCallback((hotkey: string) => {
+    const cache = parseCacheRef.current
+    const cacheKey = `${hotkey}:${leader ?? ""}`
+    let parsed = cache.get(cacheKey)
+    if (!parsed) {
+      parsed = parseHotkey(hotkey, leader)
+      cache.set(cacheKey, parsed)
+    }
+    return parsed
+  }, [leader])
+
+  useKeyboard((event) => {
+    if (event.defaultPrevented) return
+
+    const registry = registryRef.current
+    if (!registry) return
+
+    const currentMode = mode
+
+    // Collect eligible commands with their parsed hotkeys
+    const singleStepCandidates: { command: Command; parsed: ParsedHotkey }[] = []
+    const multiStepHotkeys: ParsedHotkey[] = []
+    const multiStepCommands: Command[] = []
+
+    for (const command of registry.commands.values()) {
+      const commandModes = command.modes ?? DEFAULT_MODES
+      if (!commandModes.includes(currentMode)) continue
+      if (command.when && !command.when()) continue
+
+      const hotkey = command.defaultHotkey ?? command.hotkey
+      if (!hotkey) continue
+
+      const parsed = getParsedHotkey(hotkey)
+
+      if (parsed.steps.length === 1) {
+        singleStepCandidates.push({ command, parsed })
+      } else {
+        multiStepHotkeys.push(parsed)
+        multiStepCommands.push(command)
+      }
+    }
+
+    // Check multi-step sequences first (they consume buffer state)
+    if (multiStepHotkeys.length > 0) {
+      const idx = trackerRef.current.feed(event, multiStepHotkeys)
+      if (idx >= 0) {
+        event.preventDefault()
+        multiStepCommands[idx]!.handler()
+        return
+      }
+    }
+
+    // Check single-step matches
+    for (const { command, parsed } of singleStepCandidates) {
+      if (matchStep(event, parsed.steps[0]!)) {
+        event.preventDefault()
+        command.handler()
+        return
+      }
+    }
+  })
 
   return (
     <CommandContext.Provider value={{ registry: registryRef.current, leaderKey: leader }}>

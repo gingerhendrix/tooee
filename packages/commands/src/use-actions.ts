@@ -1,21 +1,19 @@
 import { useEffect, useMemo, useRef } from "react"
-import { useKeyboard } from "@opentui/react"
 import { useCommandRegistry } from "./context.tsx"
-import { parseHotkey } from "./parse.ts"
-import { matchStep } from "./match.ts"
-import { SequenceTracker } from "./sequence.ts"
-import type { Command, ParsedHotkey } from "./types.ts"
+import type { Command } from "./types.ts"
+import type { Mode } from "./mode.tsx"
 
 export interface ActionDefinition {
   id: string
   title: string
   hotkey?: string
+  modes?: Mode[]
   handler: () => void
   when?: () => boolean
 }
 
 export function useActions(actions: ActionDefinition[] | undefined): void {
-  const { registry, leaderKey } = useCommandRegistry()
+  const { registry } = useCommandRegistry()
   const actionsRef = useRef(actions)
   actionsRef.current = actions
 
@@ -23,31 +21,6 @@ export function useActions(actions: ActionDefinition[] | undefined): void {
     () => actions?.map((a) => `${a.id}:${a.hotkey ?? ""}`).join(",") ?? "",
     [actions],
   )
-
-  const parsedRef = useRef<{ parsed: ParsedHotkey; index: number }[]>([])
-  const trackerRef = useRef<SequenceTracker | null>(null)
-
-  useEffect(() => {
-    const current = actionsRef.current
-    if (!current || current.length === 0) {
-      parsedRef.current = []
-      trackerRef.current = null
-      return
-    }
-
-    const parsed: { parsed: ParsedHotkey; index: number }[] = []
-    let needsTracker = false
-    for (let i = 0; i < current.length; i++) {
-      const action = current[i]!
-      if (action.hotkey) {
-        const p = parseHotkey(action.hotkey, leaderKey)
-        parsed.push({ parsed: p, index: i })
-        if (p.steps.length > 1) needsTracker = true
-      }
-    }
-    parsedRef.current = parsed
-    trackerRef.current = needsTracker ? new SequenceTracker() : null
-  }, [key, leaderKey])
 
   useEffect(() => {
     const current = actionsRef.current
@@ -58,6 +31,7 @@ export function useActions(actions: ActionDefinition[] | undefined): void {
         id: action.id,
         title: action.title,
         hotkey: action.hotkey,
+        modes: action.modes,
         handler: () => actionsRef.current?.[i]?.handler(),
         when: action.when ? () => actionsRef.current?.[i]?.when?.() ?? false : undefined,
       }
@@ -70,34 +44,4 @@ export function useActions(actions: ActionDefinition[] | undefined): void {
       }
     }
   }, [key, registry])
-
-  useKeyboard((event) => {
-    const current = actionsRef.current
-    if (!current || current.length === 0) return
-    if (event.defaultPrevented) return
-
-    for (const { parsed, index } of parsedRef.current) {
-      const action = current[index]
-      if (!action) continue
-      if (action.when && !action.when()) continue
-
-      if (parsed.steps.length === 1) {
-        if (matchStep(event, parsed.steps[0]!)) {
-          event.preventDefault()
-          action.handler()
-          return
-        }
-      } else {
-        const tracker = trackerRef.current
-        if (tracker) {
-          const idx = tracker.feed(event, [parsed])
-          if (idx === 0) {
-            event.preventDefault()
-            action.handler()
-            return
-          }
-        }
-      }
-    }
-  })
 }

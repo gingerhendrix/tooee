@@ -1,4 +1,7 @@
 export type { Command, ParsedHotkey, ParsedStep } from "./types.ts"
+export type { Mode } from "./mode.tsx"
+export { ModeProvider, useMode, useSetMode } from "./mode.tsx"
+export type { ModeProviderProps } from "./mode.tsx"
 export { parseHotkey } from "./parse.ts"
 export { matchStep } from "./match.ts"
 export { SequenceTracker } from "./sequence.ts"

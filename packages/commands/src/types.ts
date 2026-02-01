@@ -1,11 +1,16 @@
+import type { Mode } from "./mode.tsx"
+
 export interface Command {
   id: string
   title: string
   handler: () => void
   hotkey?: string
-  category?: string
-  icon?: string
+  defaultHotkey?: string
+  modes?: Mode[]
   when?: () => boolean
+  category?: string
+  group?: string
+  icon?: string
   hidden?: boolean
 }
 
