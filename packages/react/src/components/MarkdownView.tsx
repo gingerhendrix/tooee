@@ -16,7 +16,7 @@ export function MarkdownView({ content }: MarkdownViewProps) {
 function TokenList({ tokens, theme, syntax }: { tokens: Token[]; theme: ResolvedTheme; syntax: SyntaxStyle }) {
   return (
     <box style={{ flexDirection: "column" }}>
-      {tokens.map((token, index) => (
+      {tokens.filter((t) => t.type !== "space").map((token, index) => (
         <TokenRenderer key={index} token={token} theme={theme} syntax={syntax} />
       ))}
     </box>
@@ -38,7 +38,7 @@ function TokenRenderer({ token, theme, syntax }: { token: Token; theme: Resolved
     case "hr":
       return <HorizontalRule theme={theme} />
     case "space":
-      return <box style={{ height: 1 }} />
+      return null
     case "html":
       return null
     default:
@@ -46,7 +46,7 @@ function TokenRenderer({ token, theme, syntax }: { token: Token; theme: Resolved
         return (
           <text
             content={token.text}
-            style={{ fg: theme.markdownText, marginBottom: 1 }}
+            style={{ fg: theme.markdownText, marginBottom: 1, marginTop: 0 }}
           />
         )
       }
@@ -76,7 +76,7 @@ function HeadingRenderer({ token, theme }: { token: Tokens.Heading; theme: Resol
   const headingText = getPlainText(token.tokens || [])
 
   return (
-    <box style={{ marginTop: 1, marginBottom: 1 }}>
+    <box style={{ marginTop: 1, marginBottom: 0 }}>
       <text style={{ fg: headingColors[token.depth] || theme.text }}>
         <span fg={theme.textMuted}>{prefixes[token.depth]}</span>
         <strong>{headingText}</strong>
@@ -99,7 +99,7 @@ function CodeBlockRenderer({ token, theme, syntax }: { token: Tokens.Code; theme
   return (
     <box
       style={{
-        marginTop: 1,
+        marginTop: 0,
         marginBottom: 1,
         border: true,
         borderColor: theme.borderSubtle,
@@ -133,7 +133,7 @@ function BlockquoteRenderer({ token, theme }: { token: Tokens.Blockquote; theme:
     : ""
 
   return (
-    <box style={{ marginTop: 1, marginBottom: 1, paddingLeft: 2 }}>
+    <box style={{ marginTop: 0, marginBottom: 1, paddingLeft: 2 }}>
       <text style={{ fg: theme.markdownBlockQuote }} content="│ " />
       <text style={{ fg: theme.textMuted }} content={quoteText} />
     </box>
@@ -203,7 +203,7 @@ function ListItemRenderer({
 
 function HorizontalRule({ theme }: { theme: ResolvedTheme }) {
   return (
-    <box style={{ marginTop: 1, marginBottom: 1 }}>
+    <box style={{ marginTop: 0, marginBottom: 1 }}>
       <text style={{ fg: theme.markdownHorizontalRule }} content={"─".repeat(40)} />
     </box>
   )
