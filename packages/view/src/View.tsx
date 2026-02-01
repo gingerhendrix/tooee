@@ -56,7 +56,7 @@ function ViewInner({ contentProvider, interactionHandler }: ViewProps) {
     },
   })
 
-  const { nextTheme, name: themeName } = useThemeSwitcher()
+  const { nextTheme, prevTheme, name: themeName } = useThemeSwitcher()
 
   useCommand({
     id: "cycle-theme",
@@ -64,6 +64,15 @@ function ViewInner({ contentProvider, interactionHandler }: ViewProps) {
     hotkey: "t",
     handler: () => {
       nextTheme()
+    },
+  })
+
+  useCommand({
+    id: "cycle-theme-prev",
+    title: "Previous theme",
+    hotkey: "shift+t",
+    handler: () => {
+      prevTheme()
     },
   })
 

@@ -22,7 +22,7 @@ function AskInner({ prompt, placeholder, defaultValue, onSubmit, interactionHand
   const renderer = useRenderer()
   const [value, setValue] = useState(defaultValue ?? "")
 
-  const { nextTheme, name: themeName } = useThemeSwitcher()
+  const { nextTheme, prevTheme, name: themeName } = useThemeSwitcher()
 
   useCommand({
     id: "cycle-theme",
@@ -30,6 +30,15 @@ function AskInner({ prompt, placeholder, defaultValue, onSubmit, interactionHand
     hotkey: "t",
     handler: () => {
       nextTheme()
+    },
+  })
+
+  useCommand({
+    id: "cycle-theme-prev",
+    title: "Previous theme",
+    hotkey: "shift+t",
+    handler: () => {
+      prevTheme()
     },
   })
 

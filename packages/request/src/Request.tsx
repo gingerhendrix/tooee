@@ -81,7 +81,7 @@ function RequestInner({ contentProvider, interactionHandler, initialInput }: Req
     }
   }, [initialInput, startStream])
 
-  const { nextTheme, name: themeName } = useThemeSwitcher()
+  const { nextTheme, prevTheme, name: themeName } = useThemeSwitcher()
 
   useCommand({
     id: "cycle-theme",
@@ -90,6 +90,16 @@ function RequestInner({ contentProvider, interactionHandler, initialInput }: Req
     when: () => phase !== "input",
     handler: () => {
       nextTheme()
+    },
+  })
+
+  useCommand({
+    id: "cycle-theme-prev",
+    title: "Previous theme",
+    hotkey: "shift+t",
+    when: () => phase !== "input",
+    handler: () => {
+      prevTheme()
     },
   })
 
