@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { useRenderer } from "@opentui/react"
-import { MarkdownView, StatusBar, copyToClipboard, useVimNavigation } from "@tooee/react"
+import { MarkdownView, StatusBar, copyToClipboard, useVimNavigation, useThemeSwitcher } from "@tooee/react"
 import { CommandProvider, useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import type { RequestContentProvider, RequestInteractionHandler } from "./types.ts"
@@ -80,6 +80,18 @@ function RequestInner({ contentProvider, interactionHandler, initialInput }: Req
       void startStream(initialInput)
     }
   }, [initialInput, startStream])
+
+  const { nextTheme, name: themeName } = useThemeSwitcher()
+
+  useCommand({
+    id: "cycle-theme",
+    title: "Next theme",
+    hotkey: "t",
+    when: () => phase !== "input",
+    handler: () => {
+      nextTheme()
+    },
+  })
 
   useCommand({
     id: "quit",
@@ -175,6 +187,7 @@ function RequestInner({ contentProvider, interactionHandler, initialInput }: Req
       </scrollbox>
       <StatusBar
         items={[
+          { label: "Theme:", value: themeName },
           { label: "Status:", value: phase === "streaming" ? "streaming" : "complete" },
           { label: "Lines:", value: String(lineCount) },
           ...(phase === "streaming"

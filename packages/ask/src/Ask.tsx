@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useRenderer } from "@opentui/react"
+import { useThemeSwitcher } from "@tooee/react"
 import { CommandProvider, useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import type { AskOptions, AskInteractionHandler } from "./types.ts"
@@ -20,6 +21,17 @@ export function Ask(props: AskProps) {
 function AskInner({ prompt, placeholder, defaultValue, onSubmit, interactionHandler }: AskProps) {
   const renderer = useRenderer()
   const [value, setValue] = useState(defaultValue ?? "")
+
+  const { nextTheme, name: themeName } = useThemeSwitcher()
+
+  useCommand({
+    id: "cycle-theme",
+    title: "Next theme",
+    hotkey: "t",
+    handler: () => {
+      nextTheme()
+    },
+  })
 
   useCommand({
     id: "cancel",
@@ -65,6 +77,7 @@ function AskInner({ prompt, placeholder, defaultValue, onSubmit, interactionHand
         textColor="#c0caf5"
         focused
       />
+      <text content={`Theme: ${themeName}`} fg="#565f89" style={{ marginTop: 1 }} />
     </box>
   )
 }

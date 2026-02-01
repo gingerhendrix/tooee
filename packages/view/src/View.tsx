@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { useRenderer } from "@opentui/react"
-import { MarkdownView, CodeView, StatusBar, TitleBar, useVimNavigation, copyToClipboard } from "@tooee/react"
+import { MarkdownView, CodeView, StatusBar, TitleBar, useVimNavigation, copyToClipboard, useThemeSwitcher } from "@tooee/react"
 import { CommandProvider, useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import type { ViewContent, ViewContentProvider, ViewInteractionHandler } from "./types.ts"
@@ -53,6 +53,17 @@ function ViewInner({ contentProvider, interactionHandler }: ViewProps) {
     hotkey: "q",
     handler: () => {
       renderer.destroy()
+    },
+  })
+
+  const { nextTheme, name: themeName } = useThemeSwitcher()
+
+  useCommand({
+    id: "cycle-theme",
+    title: "Next theme",
+    hotkey: "t",
+    handler: () => {
+      nextTheme()
     },
   })
 
@@ -119,6 +130,7 @@ function ViewInner({ contentProvider, interactionHandler }: ViewProps) {
       </scrollbox>
       <StatusBar
         items={[
+          { label: "Theme:", value: themeName },
           { label: "Format:", value: content.format },
           { label: "Lines:", value: String(lineCount) },
           { label: "Scroll:", value: String(nav.scrollOffset) },

@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from "react"
 import { RGBA, SyntaxStyle } from "@opentui/core"
 import { readFileSync, readdirSync, existsSync } from "fs"
 import { join, basename, dirname } from "path"
@@ -358,6 +358,124 @@ export function ThemeProvider({ name, mode, theme: themeProp, children }: ThemeP
 
 export function useTheme(): ThemeContextValue {
   return useContext(ThemeContext)
+}
+
+// ---------------------------------------------------------------------------
+// Config persistence (~/.config/tooee/config.json)
+// ---------------------------------------------------------------------------
+
+interface TooeeConfig {
+  theme?: string
+  mode?: "dark" | "light"
+}
+
+function getConfigPath(): string {
+  const xdg = process.env.XDG_CONFIG_HOME ?? join(process.env.HOME ?? "", ".config")
+  return join(xdg, "tooee", "config.json")
+}
+
+function readConfig(): TooeeConfig {
+  try {
+    const path = getConfigPath()
+    if (!existsSync(path)) return {}
+    const content = readFileSync(path, "utf-8")
+    return JSON.parse(content) as TooeeConfig
+  } catch {
+    return {}
+  }
+}
+
+function writeConfig(config: TooeeConfig): void {
+  const path = getConfigPath()
+  const dir = dirname(path)
+  const { mkdirSync, writeFileSync } = require("fs") as typeof import("fs")
+  try {
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(path, JSON.stringify(config, null, 2) + "\n")
+  } catch {
+    // ignore write errors
+  }
+}
+
+// ---------------------------------------------------------------------------
+// ThemeSwitcherProvider + useThemeSwitcher
+// ---------------------------------------------------------------------------
+
+interface ThemeSwitcherContextValue extends ThemeContextValue {
+  nextTheme: () => void
+  prevTheme: () => void
+  setTheme: (name: string) => void
+  allThemes: string[]
+}
+
+const ThemeSwitcherContext = createContext<ThemeSwitcherContextValue | null>(null)
+
+export interface ThemeSwitcherProviderProps {
+  children: ReactNode
+}
+
+export function ThemeSwitcherProvider({ children }: ThemeSwitcherProviderProps) {
+  const config = readConfig()
+  const allThemes = getThemeNames()
+  const [themeName, setThemeName] = useState(config.theme ?? DEFAULT_THEME_NAME)
+  const [mode, setMode] = useState<"dark" | "light">(config.mode ?? DEFAULT_MODE)
+
+  const theme = buildTheme(themeName, mode)
+
+  const nextTheme = useCallback(() => {
+    setThemeName((current) => {
+      const idx = allThemes.indexOf(current)
+      const next = allThemes[(idx + 1) % allThemes.length]
+      return next
+    })
+  }, [allThemes])
+
+  const prevTheme = useCallback(() => {
+    setThemeName((current) => {
+      const idx = allThemes.indexOf(current)
+      const prev = allThemes[(idx - 1 + allThemes.length) % allThemes.length]
+      return prev
+    })
+  }, [allThemes])
+
+  const setThemeByName = useCallback((name: string) => {
+    setThemeName(name)
+  }, [])
+
+  // Persist when theme changes (but not on initial load)
+  const isInitial = useRef(true)
+  useEffect(() => {
+    if (isInitial.current) {
+      isInitial.current = false
+      return
+    }
+    writeConfig({ theme: themeName, mode })
+  }, [themeName, mode])
+
+  const value: ThemeSwitcherContextValue = {
+    theme: theme.colors,
+    syntax: theme.syntax,
+    name: theme.name,
+    mode,
+    nextTheme,
+    prevTheme,
+    setTheme: setThemeByName,
+    allThemes,
+  }
+
+  return (
+    <ThemeSwitcherContext.Provider value={value}>
+      <ThemeContext.Provider value={{ theme: theme.colors, syntax: theme.syntax, name: theme.name, mode }}>
+        {children}
+      </ThemeContext.Provider>
+    </ThemeSwitcherContext.Provider>
+  )
+}
+
+export function useThemeSwitcher(): ThemeSwitcherContextValue {
+  const ctx = useContext(ThemeSwitcherContext)
+  if (!ctx) throw new Error("useThemeSwitcher must be used within ThemeSwitcherProvider")
+  return ctx
 }
 
 // ---------------------------------------------------------------------------
