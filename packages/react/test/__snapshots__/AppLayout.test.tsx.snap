@@ -1,0 +1,15 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`snapshot full layout 1`] = `
+" Test App — snapshot                                        
+Main content area                                          █
+                                                           █
+                                                           █
+                                                           █
+                                                            
+                                                            
+                                                            
+                                                            
+ Mode cmd  Line 1                                           
+"
+`;

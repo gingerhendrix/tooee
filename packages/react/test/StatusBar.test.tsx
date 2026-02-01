@@ -1,0 +1,72 @@
+import { testRender } from "@opentui/react/test-utils"
+import { test, expect, afterEach } from "bun:test"
+import { ThemeSwitcherProvider } from "@tooee/react"
+import { StatusBar } from "../src/components/StatusBar.tsx"
+
+let testSetup: Awaited<ReturnType<typeof testRender>>
+
+afterEach(() => {
+  testSetup?.renderer.destroy()
+})
+
+test("renders label:value pairs", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <StatusBar items={[{ label: "Mode", value: "command" }]} />
+    </ThemeSwitcherProvider>,
+    { width: 80, height: 24 },
+  )
+  await testSetup.renderOnce()
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toContain("Mode")
+  expect(frame).toContain("command")
+})
+
+test("renders multiple items", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <StatusBar
+        items={[
+          { label: "Mode", value: "command" },
+          { label: "Line", value: "42" },
+        ]}
+      />
+    </ThemeSwitcherProvider>,
+    { width: 80, height: 24 },
+  )
+  await testSetup.renderOnce()
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toContain("Mode")
+  expect(frame).toContain("command")
+  expect(frame).toContain("Line")
+  expect(frame).toContain("42")
+})
+
+test("renders label without value", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <StatusBar items={[{ label: "Ready" }]} />
+    </ThemeSwitcherProvider>,
+    { width: 80, height: 24 },
+  )
+  await testSetup.renderOnce()
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toContain("Ready")
+})
+
+test("snapshot", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <StatusBar
+        items={[
+          { label: "Mode", value: "command" },
+          { label: "Theme", value: "dracula" },
+        ]}
+      />
+    </ThemeSwitcherProvider>,
+    { width: 60, height: 3 },
+  )
+  await testSetup.renderOnce()
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toMatchSnapshot()
+})
