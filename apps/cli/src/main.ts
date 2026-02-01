@@ -1,3 +1,4 @@
+#!/usr/bin/env bun
 import { launch as launchView, createFileProvider, createStdinProvider } from "@tooee/view"
 import { launch as launchAsk } from "@tooee/ask"
 
