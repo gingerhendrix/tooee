@@ -5,6 +5,8 @@ export { StatusBar } from "./components/StatusBar.tsx"
 export type { StatusBarItem } from "./components/StatusBar.tsx"
 export { TitleBar } from "./components/TitleBar.tsx"
 export { AppLayout } from "./components/AppLayout.tsx"
+export { CommandPalette } from "./components/CommandPalette.tsx"
+export type { CommandPaletteEntry } from "./components/CommandPalette.tsx"
 
 // Theme
 export {

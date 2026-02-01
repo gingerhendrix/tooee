@@ -14,23 +14,31 @@ interface AppLayoutProps {
     stickyStart?: "bottom" | "top"
     focused?: boolean
   }
+  overlay?: ReactNode
   children: ReactNode
 }
 
-export function AppLayout({ titleBar, statusBar, scrollRef, scrollProps, children }: AppLayoutProps) {
+export function AppLayout({ titleBar, statusBar, scrollRef, scrollProps, overlay, children }: AppLayoutProps) {
   const { theme } = useTheme()
   return (
     <box flexDirection="column" width="100%" height="100%" backgroundColor={theme.background}>
       {titleBar && <TitleBar title={titleBar.title} subtitle={titleBar.subtitle} />}
-      <scrollbox
-        ref={scrollRef}
-        style={{ flexGrow: 1 }}
-        stickyScroll={scrollProps?.stickyScroll}
-        stickyStart={scrollProps?.stickyStart}
-        focused={scrollProps?.focused ?? true}
-      >
-        {children}
-      </scrollbox>
+      <box style={{ flexGrow: 1, position: "relative" }}>
+        <scrollbox
+          ref={scrollRef}
+          style={{ flexGrow: 1 }}
+          stickyScroll={scrollProps?.stickyScroll}
+          stickyStart={scrollProps?.stickyStart}
+          focused={scrollProps?.focused ?? true}
+        >
+          {children}
+        </scrollbox>
+        {overlay && (
+          <box position="absolute" left={0} top={0} width="100%" height="100%">
+            {overlay}
+          </box>
+        )}
+      </box>
       <StatusBar items={statusBar.items} />
     </box>
   )

@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
-import { MarkdownView, CodeView, AppLayout, useTheme } from "@tooee/react"
-import { useActions } from "@tooee/commands"
+import { MarkdownView, CodeView, AppLayout, CommandPalette, useTheme } from "@tooee/react"
+import { useActions, useCommandContext } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
-import { useThemeCommands, useQuitCommand, useCopyCommand, useModalNavigationCommands } from "@tooee/shell"
+import { useThemeCommands, useQuitCommand, useCopyCommand, useModalNavigationCommands, useCommandPalette } from "@tooee/shell"
 import type { ViewContent, ViewContentProvider, ViewInteractionHandler } from "./types.ts"
 
 interface ViewProps {
@@ -42,6 +42,9 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
   const { name: themeName } = useThemeCommands()
   useQuitCommand()
   useCopyCommand({ getText: () => content?.body })
+
+  const palette = useCommandPalette()
+  const { invoke } = useCommandContext()
 
   const customActions: ActionDefinition[] | undefined = interactionHandler?.actions.map((action) => ({
     id: action.id,
@@ -83,6 +86,17 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
     }
   }
 
+  const paletteOverlay = palette.isOpen ? (
+    <CommandPalette
+      commands={palette.entries}
+      onSelect={(id) => {
+        palette.close()
+        invoke(id)
+      }}
+      onClose={palette.close}
+    />
+  ) : undefined
+
   return (
     <AppLayout
       titleBar={content.title ? { title: content.title, subtitle: content.format } : { title: content.format }}
@@ -97,7 +111,8 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
         ],
       }}
       scrollRef={scrollRef}
-      scrollProps={{ focused: true }}
+      scrollProps={{ focused: !palette.isOpen }}
+      overlay={paletteOverlay}
     >
       {renderContent()}
     </AppLayout>
