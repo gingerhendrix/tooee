@@ -46,7 +46,7 @@ function TokenRenderer({ token, theme, syntax }: { token: Token; theme: Resolved
         return (
           <text
             content={token.text}
-            style={{ fg: theme.markdownText, marginBottom: 1, marginTop: 0 }}
+            style={{ fg: theme.markdownText, marginBottom: 1, marginTop: 0, marginLeft: 1, marginRight: 1 }}
           />
         )
       }
@@ -76,7 +76,7 @@ function HeadingRenderer({ token, theme }: { token: Tokens.Heading; theme: Resol
   const headingText = getPlainText(token.tokens || [])
 
   return (
-    <box style={{ marginTop: 1, marginBottom: 0 }}>
+    <box style={{ marginTop: 1, marginBottom: 1 }}>
       <text style={{ fg: headingColors[token.depth] || theme.text }}>
         <span fg={theme.textMuted}>{prefixes[token.depth]}</span>
         <strong>{headingText}</strong>
@@ -87,7 +87,7 @@ function HeadingRenderer({ token, theme }: { token: Tokens.Heading; theme: Resol
 
 function ParagraphRenderer({ token, theme }: { token: Tokens.Paragraph; theme: ResolvedTheme }) {
   return (
-    <box style={{ marginBottom: 1 }}>
+    <box style={{ marginBottom: 1, marginLeft: 1, marginRight: 1 }}>
       <text style={{ fg: theme.markdownText }}>
         <InlineTokens tokens={token.tokens || []} theme={theme} />
       </text>
@@ -101,16 +101,14 @@ function CodeBlockRenderer({ token, theme, syntax }: { token: Tokens.Code; theme
       style={{
         marginTop: 0,
         marginBottom: 1,
+        marginLeft: 1,
+        marginRight: 1,
         border: true,
-        borderColor: theme.borderSubtle,
+        borderColor: theme.border,
         backgroundColor: theme.backgroundElement,
-        padding: 1,
         flexDirection: "column",
       }}
     >
-      {token.lang && (
-        <text content={token.lang} style={{ fg: theme.textMuted, marginBottom: 1 }} />
-      )}
       <code
         content={token.text}
         filetype={token.lang}
@@ -133,7 +131,7 @@ function BlockquoteRenderer({ token, theme }: { token: Tokens.Blockquote; theme:
     : ""
 
   return (
-    <box style={{ marginTop: 0, marginBottom: 1, paddingLeft: 2 }}>
+    <box style={{ marginTop: 0, marginBottom: 1, marginLeft: 1, marginRight: 1, paddingLeft: 2 }}>
       <text style={{ fg: theme.markdownBlockQuote }} content="│ " />
       <text style={{ fg: theme.textMuted }} content={quoteText} />
     </box>
@@ -142,7 +140,7 @@ function BlockquoteRenderer({ token, theme }: { token: Tokens.Blockquote; theme:
 
 function ListRenderer({ token, theme }: { token: Tokens.List; theme: ResolvedTheme }) {
   return (
-    <box style={{ marginBottom: 1, marginLeft: 2, flexDirection: "column" }}>
+    <box style={{ marginBottom: 1, marginLeft: 3, marginRight: 1, flexDirection: "column" }}>
       {token.items.map((item, index) => (
         <ListItemRenderer
           key={index}
@@ -203,7 +201,7 @@ function ListItemRenderer({
 
 function HorizontalRule({ theme }: { theme: ResolvedTheme }) {
   return (
-    <box style={{ marginTop: 0, marginBottom: 1 }}>
+    <box style={{ marginTop: 0, marginBottom: 1, marginLeft: 1, marginRight: 1 }}>
       <text style={{ fg: theme.markdownHorizontalRule }} content={"─".repeat(40)} />
     </box>
   )

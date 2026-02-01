@@ -21,17 +21,11 @@ export function CodeView({ content, language, showLineNumbers = true }: CodeView
     <box
       style={{
         flexDirection: "column",
-        border: true,
-        borderColor: theme.borderSubtle,
-        backgroundColor: theme.backgroundElement,
-        padding: 1,
       }}
     >
-      {language && (
-        <text content={language} style={{ fg: theme.textMuted, marginBottom: 1 }} />
-      )}
       {showLineNumbers ? (
         <line-number
+          key={theme.textMuted + theme.backgroundElement}
           fg={theme.textMuted}
           bg={theme.backgroundElement}
           paddingRight={1}

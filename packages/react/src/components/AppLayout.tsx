@@ -3,6 +3,7 @@ import type { ScrollBoxRenderable } from "@opentui/core"
 import { TitleBar } from "./TitleBar.tsx"
 import { StatusBar } from "./StatusBar.tsx"
 import type { StatusBarItem } from "./StatusBar.tsx"
+import { useTheme } from "../theme.tsx"
 
 interface AppLayoutProps {
   titleBar?: { title: string; subtitle?: string }
@@ -17,8 +18,9 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ titleBar, statusBar, scrollRef, scrollProps, children }: AppLayoutProps) {
+  const { theme } = useTheme()
   return (
-    <box flexDirection="column" width="100%" height="100%">
+    <box flexDirection="column" width="100%" height="100%" backgroundColor={theme.background}>
       {titleBar && <TitleBar title={titleBar.title} subtitle={titleBar.subtitle} />}
       <scrollbox
         ref={scrollRef}

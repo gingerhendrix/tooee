@@ -11,6 +11,7 @@ export function TitleBar({ title, subtitle }: TitleBarProps) {
     <box
       style={{
         flexDirection: "row",
+        flexShrink: 0,
         backgroundColor: theme.backgroundPanel,
         padding: 0,
         paddingLeft: 1,
