@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { useRenderer } from "@opentui/react"
-import { MarkdownView, StatusBar, copyToClipboard, useVimNavigation, useThemeSwitcher } from "@tooee/react"
+import { MarkdownView, StatusBar, useVimNavigation } from "@tooee/react"
 import { useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
+import { useThemeCommands, useQuitCommand, useCopyCommand } from "@tooee/shell"
 import type { RequestContentProvider, RequestInteractionHandler } from "./types.ts"
 
 type Phase = "input" | "streaming" | "complete"
@@ -73,47 +74,19 @@ export function Request({ contentProvider, interactionHandler, initialInput }: R
     }
   }, [initialInput, startStream])
 
-  const { nextTheme, prevTheme, name: themeName } = useThemeSwitcher()
+  const { name: themeName } = useThemeCommands({ when: () => phase !== "input" })
 
-  useCommand({
-    id: "cycle-theme",
-    title: "Next theme",
-    hotkey: "t",
+  useQuitCommand({
     when: () => phase !== "input",
-    handler: () => {
-      nextTheme()
-    },
-  })
-
-  useCommand({
-    id: "cycle-theme-prev",
-    title: "Previous theme",
-    hotkey: "shift+t",
-    when: () => phase !== "input",
-    handler: () => {
-      prevTheme()
-    },
-  })
-
-  useCommand({
-    id: "quit",
-    title: "Quit",
-    hotkey: "q",
-    when: () => phase !== "input",
-    handler: () => {
+    onQuit: () => {
       abortRef.current?.abort()
       renderer.destroy()
     },
   })
 
-  useCommand({
-    id: "copy",
-    title: "Copy response",
-    hotkey: "y",
+  useCopyCommand({
+    getText: () => response,
     when: () => phase === "complete",
-    handler: () => {
-      void copyToClipboard(response)
-    },
   })
 
   useCommand({

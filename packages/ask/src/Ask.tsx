@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { useRenderer } from "@opentui/react"
-import { useThemeSwitcher } from "@tooee/react"
 import { useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
+import { useThemeCommands } from "@tooee/shell"
 import type { AskOptions, AskInteractionHandler } from "./types.ts"
 
 interface AskProps extends AskOptions {
@@ -14,25 +14,7 @@ export function Ask({ prompt, placeholder, defaultValue, onSubmit, interactionHa
   const renderer = useRenderer()
   const [value, setValue] = useState(defaultValue ?? "")
 
-  const { nextTheme, prevTheme, name: themeName } = useThemeSwitcher()
-
-  useCommand({
-    id: "cycle-theme",
-    title: "Next theme",
-    hotkey: "t",
-    handler: () => {
-      nextTheme()
-    },
-  })
-
-  useCommand({
-    id: "cycle-theme-prev",
-    title: "Previous theme",
-    hotkey: "shift+t",
-    handler: () => {
-      prevTheme()
-    },
-  })
+  const { name: themeName } = useThemeCommands()
 
   useCommand({
     id: "cancel",

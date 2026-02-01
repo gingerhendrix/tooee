@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
-import { useRenderer } from "@opentui/react"
-import { MarkdownView, CodeView, StatusBar, TitleBar, useVimNavigation, copyToClipboard, useThemeSwitcher } from "@tooee/react"
-import { useCommand, useActions } from "@tooee/commands"
+import { MarkdownView, CodeView, StatusBar, TitleBar, useVimNavigation } from "@tooee/react"
+import { useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
+import { useThemeCommands, useQuitCommand, useCopyCommand } from "@tooee/shell"
 import type { ViewContent, ViewContentProvider, ViewInteractionHandler } from "./types.ts"
 
 interface ViewProps {
@@ -12,7 +12,6 @@ interface ViewProps {
 }
 
 export function View({ contentProvider, interactionHandler }: ViewProps) {
-  const renderer = useRenderer()
   const [content, setContent] = useState<ViewContent | null>(null)
   const [error, setError] = useState<string | null>(null)
   const scrollRef = useRef<ScrollBoxRenderable>(null)
@@ -39,45 +38,9 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
     }
   }, [nav.scrollOffset])
 
-  useCommand({
-    id: "quit",
-    title: "Quit",
-    hotkey: "q",
-    handler: () => {
-      renderer.destroy()
-    },
-  })
-
-  const { nextTheme, prevTheme, name: themeName } = useThemeSwitcher()
-
-  useCommand({
-    id: "cycle-theme",
-    title: "Next theme",
-    hotkey: "t",
-    handler: () => {
-      nextTheme()
-    },
-  })
-
-  useCommand({
-    id: "cycle-theme-prev",
-    title: "Previous theme",
-    hotkey: "shift+t",
-    handler: () => {
-      prevTheme()
-    },
-  })
-
-  useCommand({
-    id: "copy",
-    title: "Copy to clipboard",
-    hotkey: "y",
-    handler: () => {
-      if (content) {
-        void copyToClipboard(content.body)
-      }
-    },
-  })
+  const { name: themeName } = useThemeCommands()
+  useQuitCommand()
+  useCopyCommand({ getText: () => content?.body })
 
   const customActions: ActionDefinition[] | undefined = interactionHandler?.actions.map((action) => ({
     id: action.id,

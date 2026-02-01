@@ -1,7 +1,4 @@
-import { createCliRenderer } from "@opentui/core"
-import { createRoot } from "@opentui/react"
-import { ThemeSwitcherProvider } from "@tooee/react"
-import { CommandProvider } from "@tooee/commands"
+import { launchCli } from "@tooee/shell"
 import { View } from "./View.tsx"
 import type { ViewContentProvider, ViewInteractionHandler } from "./types.ts"
 
@@ -11,15 +8,7 @@ export interface ViewLaunchOptions {
 }
 
 export async function launch(options: ViewLaunchOptions): Promise<void> {
-  const renderer = await createCliRenderer({
-    useAlternateScreen: true,
-    exitOnCtrlC: true,
-  })
-  createRoot(renderer).render(
-    <ThemeSwitcherProvider>
-      <CommandProvider>
-        <View contentProvider={options.contentProvider} interactionHandler={options.interactionHandler} />
-      </CommandProvider>
-    </ThemeSwitcherProvider>,
+  await launchCli(
+    <View contentProvider={options.contentProvider} interactionHandler={options.interactionHandler} />,
   )
 }

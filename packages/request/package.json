@@ -8,7 +8,8 @@
   },
   "dependencies": {
     "@tooee/react": "workspace:*",
-    "@tooee/commands": "workspace:*"
+    "@tooee/commands": "workspace:*",
+    "@tooee/shell": "workspace:*"
   },
   "peerDependencies": {
     "@opentui/core": "^0.1.67",
