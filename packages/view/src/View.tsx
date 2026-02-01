@@ -97,7 +97,18 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
         ],
       }}
       scrollRef={scrollRef}
-      scrollProps={{ focused: true }}
+      scrollProps={{ focused: !nav.searchActive }}
+      searchBar={{
+        active: nav.searchActive,
+        query: nav.searchQuery,
+        onQueryChange: nav.setSearchQuery,
+        onSubmit: nav.submitSearch,
+        onCancel: () => {
+          nav.setSearchQuery("")
+        },
+        matchCount: nav.matchingLines.length,
+        currentMatch: nav.currentMatchIndex,
+      }}
     >
       {renderContent()}
     </AppLayout>

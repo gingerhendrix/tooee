@@ -3,9 +3,15 @@ import type { ScrollBoxRenderable } from "@opentui/core"
 import { TitleBar } from "./TitleBar.tsx"
 import { StatusBar } from "./StatusBar.tsx"
 import type { StatusBarItem } from "./StatusBar.tsx"
+import { SearchBar } from "./SearchBar.tsx"
+import type { SearchBarProps } from "./SearchBar.tsx"
 import { useTheme } from "../theme.tsx"
 
-interface AppLayoutProps {
+export interface AppLayoutSearchBar extends SearchBarProps {
+  active: boolean
+}
+
+export interface AppLayoutProps {
   titleBar?: { title: string; subtitle?: string }
   statusBar: { items: StatusBarItem[] }
   scrollRef?: RefObject<ScrollBoxRenderable | null>
@@ -14,10 +20,11 @@ interface AppLayoutProps {
     stickyStart?: "bottom" | "top"
     focused?: boolean
   }
+  searchBar?: AppLayoutSearchBar
   children: ReactNode
 }
 
-export function AppLayout({ titleBar, statusBar, scrollRef, scrollProps, children }: AppLayoutProps) {
+export function AppLayout({ titleBar, statusBar, scrollRef, scrollProps, searchBar, children }: AppLayoutProps) {
   const { theme } = useTheme()
   return (
     <box flexDirection="column" width="100%" height="100%" backgroundColor={theme.background}>
@@ -31,7 +38,18 @@ export function AppLayout({ titleBar, statusBar, scrollRef, scrollProps, childre
       >
         {children}
       </scrollbox>
-      <StatusBar items={statusBar.items} />
+      {searchBar?.active ? (
+        <SearchBar
+          query={searchBar.query}
+          onQueryChange={searchBar.onQueryChange}
+          onSubmit={searchBar.onSubmit}
+          onCancel={searchBar.onCancel}
+          matchCount={searchBar.matchCount}
+          currentMatch={searchBar.currentMatch}
+        />
+      ) : (
+        <StatusBar items={statusBar.items} />
+      )}
     </box>
   )
 }

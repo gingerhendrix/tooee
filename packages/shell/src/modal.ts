@@ -1,7 +1,8 @@
-import { useState, useCallback, useRef, useEffect } from "react"
+import { useState, useCallback, useRef, useEffect, useMemo } from "react"
 import { useCommand, useMode, useSetMode, type Mode } from "@tooee/commands"
 import { copyToClipboard } from "@tooee/react"
 import { useTerminalDimensions } from "@opentui/react"
+import { findMatchingLines } from "./search.ts"
 
 export interface Position {
   line: number
@@ -17,6 +18,9 @@ export interface ModalNavigationState {
   searchQuery: string
   searchActive: boolean
   setSearchQuery: (query: string) => void
+  matchingLines: number[]
+  currentMatchIndex: number
+  submitSearch: () => void
 }
 
 export interface ModalNavigationOptions {
@@ -36,6 +40,40 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   const [selectionAnchor, setSelectionAnchor] = useState<Position | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [searchActive, setSearchActive] = useState(false)
+  const [matchingLines, setMatchingLines] = useState<number[]>([])
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0)
+
+  // Incremental search: recompute matches when query changes while search is active
+  const searchQueryRef = useRef(searchQuery)
+  searchQueryRef.current = searchQuery
+  const matchingLinesRef = useRef(matchingLines)
+  matchingLinesRef.current = matchingLines
+
+  useEffect(() => {
+    if (!searchActive) return
+    const text = getText?.()
+    if (!text || !searchQuery) {
+      setMatchingLines([])
+      setCurrentMatchIndex(0)
+      return
+    }
+    const matches = findMatchingLines(text, searchQuery)
+    setMatchingLines(matches)
+    setCurrentMatchIndex(0)
+    if (matches.length > 0) {
+      // Auto-jump to first match
+      const line = matches[0]
+      setScrollOffset((offset) => {
+        if (line < offset || line >= offset + viewportHeight) {
+          return Math.max(0, Math.min(line, Math.max(0, totalLines - viewportHeight)))
+        }
+        return offset
+      })
+      if (mode === "cursor" || mode === "select") {
+        setCursor((c) => c ? { line, col: 0 } : c)
+      }
+    }
+  }, [searchQuery, searchActive]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const maxScroll = Math.max(0, totalLines - viewportHeight)
   const maxLine = Math.max(0, totalLines - 1)
@@ -143,7 +181,14 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     modes: ["command"],
     when: () => !searchActive,
     handler: () => {
-      // Stub: actual matching depends on content
+      const matches = matchingLinesRef.current
+      if (matches.length === 0) return
+      setCurrentMatchIndex((idx) => {
+        const next = (idx + 1) % matches.length
+        const line = matches[next]
+        setScrollOffset(Math.max(0, Math.min(line, maxScroll)))
+        return next
+      })
     },
   })
 
@@ -154,7 +199,14 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     modes: ["command"],
     when: () => !searchActive,
     handler: () => {
-      // Stub: actual matching depends on content
+      const matches = matchingLinesRef.current
+      if (matches.length === 0) return
+      setCurrentMatchIndex((idx) => {
+        const next = (idx - 1 + matches.length) % matches.length
+        const line = matches[next]
+        setScrollOffset(Math.max(0, Math.min(line, maxScroll)))
+        return next
+      })
     },
   })
 
@@ -260,7 +312,15 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     modes: ["cursor"],
     when: () => !searchActive,
     handler: () => {
-      // Stub
+      const matches = matchingLinesRef.current
+      if (matches.length === 0) return
+      setCurrentMatchIndex((idx) => {
+        const next = (idx + 1) % matches.length
+        const line = matches[next]
+        setCursor({ line, col: 0 })
+        scrollToCursor(line)
+        return next
+      })
     },
   })
 
@@ -271,7 +331,15 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     modes: ["cursor"],
     when: () => !searchActive,
     handler: () => {
-      // Stub
+      const matches = matchingLinesRef.current
+      if (matches.length === 0) return
+      setCurrentMatchIndex((idx) => {
+        const next = (idx - 1 + matches.length) % matches.length
+        const line = matches[next]
+        setCursor({ line, col: 0 })
+        scrollToCursor(line)
+        return next
+      })
     },
   })
 
@@ -365,6 +433,8 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     handler: () => {
       setSearchActive(false)
       setSearchQuery("")
+      setMatchingLines([])
+      setCurrentMatchIndex(0)
     },
   })
 
@@ -376,6 +446,10 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
       }
     : null
 
+  const submitSearch = useCallback(() => {
+    setSearchActive(false)
+  }, [])
+
   return {
     mode,
     setMode,
@@ -385,5 +459,8 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     searchQuery,
     searchActive,
     setSearchQuery,
+    matchingLines,
+    currentMatchIndex,
+    submitSearch,
   }
 }

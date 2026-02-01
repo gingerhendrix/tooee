@@ -5,6 +5,9 @@ export { StatusBar } from "./components/StatusBar.tsx"
 export type { StatusBarItem } from "./components/StatusBar.tsx"
 export { TitleBar } from "./components/TitleBar.tsx"
 export { AppLayout } from "./components/AppLayout.tsx"
+export type { AppLayoutProps, AppLayoutSearchBar } from "./components/AppLayout.tsx"
+export { SearchBar } from "./components/SearchBar.tsx"
+export type { SearchBarProps } from "./components/SearchBar.tsx"
 
 // Theme
 export {
