@@ -1,1 +1,0 @@
-{"version":3,"file":"TitleBar.d.ts","sourceRoot":"","sources":["../../src/components/TitleBar.tsx"],"names":[],"mappings":"AAAA,UAAU,aAAa;IACrB,KAAK,EAAE,MAAM,CAAA;IACb,QAAQ,CAAC,EAAE,MAAM,CAAA;CAClB;AAED,wBAAgB,QAAQ,CAAC,EAAE,KAAK,EAAE,QAAQ,EAAE,EAAE,aAAa,6BAiB1D"}
