@@ -7,6 +7,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
+    "@tooee/config": "workspace:*",
     "marked": "^16.3.0"
   },
   "peerDependencies": {

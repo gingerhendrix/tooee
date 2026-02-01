@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from "react"
 import { RGBA, SyntaxStyle } from "@opentui/core"
+import { writeGlobalConfig } from "@tooee/config"
 import { readFileSync, readdirSync, existsSync } from "fs"
 import { join, basename, dirname } from "path"
 
@@ -361,43 +362,6 @@ export function useTheme(): ThemeContextValue {
 }
 
 // ---------------------------------------------------------------------------
-// Config persistence (~/.config/tooee/config.json)
-// ---------------------------------------------------------------------------
-
-interface TooeeConfig {
-  theme?: string
-  mode?: "dark" | "light"
-}
-
-function getConfigPath(): string {
-  const xdg = process.env.XDG_CONFIG_HOME ?? join(process.env.HOME ?? "", ".config")
-  return join(xdg, "tooee", "config.json")
-}
-
-function readConfig(): TooeeConfig {
-  try {
-    const path = getConfigPath()
-    if (!existsSync(path)) return {}
-    const content = readFileSync(path, "utf-8")
-    return JSON.parse(content) as TooeeConfig
-  } catch {
-    return {}
-  }
-}
-
-function writeConfig(config: TooeeConfig): void {
-  const path = getConfigPath()
-  const dir = dirname(path)
-  const { mkdirSync, writeFileSync } = require("fs") as typeof import("fs")
-  try {
-    mkdirSync(dir, { recursive: true })
-    writeFileSync(path, JSON.stringify(config, null, 2) + "\n")
-  } catch {
-    // ignore write errors
-  }
-}
-
-// ---------------------------------------------------------------------------
 // ThemeSwitcherProvider + useThemeSwitcher
 // ---------------------------------------------------------------------------
 
@@ -411,14 +375,15 @@ interface ThemeSwitcherContextValue extends ThemeContextValue {
 const ThemeSwitcherContext = createContext<ThemeSwitcherContextValue | null>(null)
 
 export interface ThemeSwitcherProviderProps {
+  initialTheme?: string
+  initialMode?: "dark" | "light"
   children: ReactNode
 }
 
-export function ThemeSwitcherProvider({ children }: ThemeSwitcherProviderProps) {
-  const config = readConfig()
+export function ThemeSwitcherProvider({ initialTheme, initialMode, children }: ThemeSwitcherProviderProps) {
   const allThemes = getThemeNames()
-  const [themeName, setThemeName] = useState(config.theme ?? DEFAULT_THEME_NAME)
-  const [mode, setMode] = useState<"dark" | "light">(config.mode ?? DEFAULT_MODE)
+  const [themeName, setThemeName] = useState(initialTheme ?? DEFAULT_THEME_NAME)
+  const [mode, setMode] = useState<"dark" | "light">(initialMode ?? DEFAULT_MODE)
 
   const theme = buildTheme(themeName, mode)
 
@@ -449,7 +414,7 @@ export function ThemeSwitcherProvider({ children }: ThemeSwitcherProviderProps) 
       isInitial.current = false
       return
     }
-    writeConfig({ theme: themeName, mode })
+    writeGlobalConfig({ theme: { name: themeName, mode } })
   }, [themeName, mode])
 
   const value: ThemeSwitcherContextValue = {
