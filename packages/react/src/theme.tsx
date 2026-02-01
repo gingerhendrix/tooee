@@ -68,6 +68,9 @@ export interface ResolvedTheme {
   markdownImage: string
   markdownImageText: string
   markdownCodeBlock: string
+  // Cursor/Selection
+  cursorLine: string
+  selection: string
   // Syntax
   syntaxComment: string
   syntaxKeyword: string
@@ -85,6 +88,7 @@ const RESOLVED_KEYS: (keyof ResolvedTheme)[] = [
   "primary", "secondary", "accent", "error", "warning", "success", "info",
   "text", "textMuted", "background", "backgroundPanel", "backgroundElement",
   "border", "borderActive", "borderSubtle",
+  "cursorLine", "selection",
   "diffAdded", "diffRemoved", "diffContext", "diffHunkHeader",
   "diffHighlightAdded", "diffHighlightRemoved", "diffAddedBg", "diffRemovedBg",
   "diffContextBg", "diffLineNumber", "diffAddedLineNumberBg", "diffRemovedLineNumberBg",
@@ -110,6 +114,8 @@ const FALLBACKS: Record<string, string> = {
   background: "#1e1e1e",
   backgroundPanel: "#1e1e1e",
   backgroundElement: "#1e1e1e",
+  cursorLine: "#1e1e1e",
+  selection: "#1e1e1e",
   border: "#808080",
   borderActive: "#808080",
   borderSubtle: "#808080",
@@ -173,6 +179,9 @@ export function resolveTheme(json: ThemeJSON, mode: "dark" | "light"): ResolvedT
     const val = json.theme[key]
     result[key] = val !== undefined ? resolveColor(val) : (FALLBACKS[key] ?? "#808080")
   }
+  // Dynamic fallbacks that reference other resolved keys
+  if (json.theme["cursorLine"] === undefined) result.cursorLine = result.backgroundElement
+  if (json.theme["selection"] === undefined) result.selection = result.backgroundPanel
   return result as unknown as ResolvedTheme
 }
 
@@ -352,6 +361,7 @@ const hardcodedDefaultTheme: Theme = (() => {
     error: "#f7768e", warning: "#e0af68", success: "#9ece6a", info: "#7aa2f7",
     text: "#c0caf5", textMuted: "#565f89",
     background: "#1a1b26", backgroundPanel: "#1e2030", backgroundElement: "#222436",
+    cursorLine: "#222436", selection: "#1e2030",
     border: "#565f89", borderActive: "#737aa2", borderSubtle: "#414868",
     diffAdded: "#4fd6be", diffRemoved: "#c53b53", diffContext: "#828bb8",
     diffHunkHeader: "#828bb8", diffHighlightAdded: "#b8db87", diffHighlightRemoved: "#e26a75",

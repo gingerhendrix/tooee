@@ -5,22 +5,60 @@ import type { SyntaxStyle } from "@opentui/core"
 
 interface MarkdownViewProps {
   content: string
+  activeBlock?: number
+  selectedBlocks?: { start: number; end: number }
+  matchingBlocks?: Set<number>
+  currentMatchBlock?: number
 }
 
-export function MarkdownView({ content }: MarkdownViewProps) {
+export function MarkdownView({
+  content,
+  activeBlock,
+  selectedBlocks,
+  matchingBlocks,
+  currentMatchBlock,
+}: MarkdownViewProps) {
   const { theme, syntax } = useTheme()
   const tokens = marked.lexer(content)
-  return <TokenList tokens={tokens} theme={theme} syntax={syntax} />
-}
+  const blocks = tokens.filter((t) => t.type !== "space")
 
-function TokenList({ tokens, theme, syntax }: { tokens: Token[]; theme: ResolvedTheme; syntax: SyntaxStyle }) {
   return (
     <box style={{ flexDirection: "column" }}>
-      {tokens.filter((t) => t.type !== "space").map((token, index) => (
-        <TokenRenderer key={index} token={token} theme={theme} syntax={syntax} />
-      ))}
+      {blocks.map((token, index) => {
+        const accentColor = getBlockAccentColor(index, theme, activeBlock, selectedBlocks, matchingBlocks, currentMatchBlock)
+        const blockContent = (
+          <TokenRenderer key={index} token={token} theme={theme} syntax={syntax} />
+        )
+
+        if (accentColor) {
+          return (
+            <box key={index} style={{ flexDirection: "row" }}>
+              <text content="▎" fg={accentColor} />
+              <box style={{ flexGrow: 1, flexDirection: "column" }}>{blockContent}</box>
+            </box>
+          )
+        }
+
+        return <box key={index}>{blockContent}</box>
+      })}
     </box>
   )
+}
+
+function getBlockAccentColor(
+  index: number,
+  theme: ResolvedTheme,
+  activeBlock?: number,
+  selectedBlocks?: { start: number; end: number },
+  matchingBlocks?: Set<number>,
+  currentMatchBlock?: number,
+): string | null {
+  // Priority: cursor > current match > match > selection
+  if (activeBlock === index) return theme.cursorLine
+  if (currentMatchBlock === index) return theme.primary
+  if (matchingBlocks?.has(index)) return theme.warning
+  if (selectedBlocks && index >= selectedBlocks.start && index <= selectedBlocks.end) return theme.selection
+  return null
 }
 
 function TokenRenderer({ token, theme, syntax }: { token: Token; theme: ResolvedTheme; syntax: SyntaxStyle }): ReactNode {

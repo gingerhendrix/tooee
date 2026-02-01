@@ -23,11 +23,13 @@ export interface ModalNavigationOptions {
   totalLines: number
   viewportHeight?: number
   getText?: () => string | undefined
+  blockCount?: number
+  blockLineMap?: number[]
 }
 
 export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalNavigationState {
   const { height: terminalHeight } = useTerminalDimensions()
-  const { totalLines, viewportHeight = terminalHeight - 2, getText } = opts
+  const { totalLines, viewportHeight = terminalHeight - 2, getText, blockCount, blockLineMap } = opts
   const mode = useMode()
   const setMode = useSetMode()
 
@@ -37,6 +39,8 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   const [searchQuery, setSearchQuery] = useState("")
   const [searchActive, setSearchActive] = useState(false)
 
+  const isBlockMode = blockCount != null
+  const cursorMax = isBlockMode ? Math.max(0, blockCount - 1) : Math.max(0, totalLines - 1)
   const maxScroll = Math.max(0, totalLines - viewportHeight)
   const maxLine = Math.max(0, totalLines - 1)
 
@@ -48,6 +52,11 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   const clampLine = useCallback(
     (value: number) => Math.max(0, Math.min(value, maxLine)),
     [maxLine],
+  )
+
+  const clampCursor = useCallback(
+    (value: number) => Math.max(0, Math.min(value, cursorMax)),
+    [cursorMax],
   )
 
   // When entering cursor mode, initialize cursor
@@ -67,13 +76,14 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   }, [mode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Scroll to keep cursor visible
-  const scrollToCursor = useCallback((line: number) => {
+  const scrollToCursor = useCallback((cursorIndex: number) => {
+    const line = isBlockMode && blockLineMap ? (blockLineMap[cursorIndex] ?? 0) : cursorIndex
     setScrollOffset((offset) => {
       if (line < offset) return line
       if (line >= offset + viewportHeight) return clampScroll(line - viewportHeight + 1)
       return offset
     })
-  }, [viewportHeight, clampScroll])
+  }, [viewportHeight, clampScroll, isBlockMode, blockLineMap])
 
   // === COMMAND MODE ===
 
@@ -168,7 +178,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     handler: () => {
       setCursor((c) => {
         if (!c) return c
-        const next = clampLine(c.line + 1)
+        const next = clampCursor(c.line + 1)
         scrollToCursor(next)
         return { line: next, col: 0 }
       })
@@ -183,7 +193,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     handler: () => {
       setCursor((c) => {
         if (!c) return c
-        const next = clampLine(c.line - 1)
+        const next = clampCursor(c.line - 1)
         scrollToCursor(next)
         return { line: next, col: 0 }
       })
@@ -198,7 +208,8 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     handler: () => {
       setCursor((c) => {
         if (!c) return c
-        const next = clampLine(c.line + Math.floor(viewportHeight / 2))
+        const step = isBlockMode ? Math.floor(cursorMax / 4) || 1 : Math.floor(viewportHeight / 2)
+        const next = clampCursor(c.line + step)
         scrollToCursor(next)
         return { line: next, col: 0 }
       })
@@ -213,7 +224,8 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     handler: () => {
       setCursor((c) => {
         if (!c) return c
-        const next = clampLine(c.line - Math.floor(viewportHeight / 2))
+        const step = isBlockMode ? Math.floor(cursorMax / 4) || 1 : Math.floor(viewportHeight / 2)
+        const next = clampCursor(c.line - step)
         scrollToCursor(next)
         return { line: next, col: 0 }
       })
@@ -237,8 +249,13 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     hotkey: "shift+g",
     modes: ["cursor"],
     handler: () => {
-      setCursor({ line: maxLine, col: 0 })
-      setScrollOffset(maxScroll)
+      setCursor({ line: cursorMax, col: 0 })
+      if (isBlockMode && blockLineMap) {
+        const line = blockLineMap[cursorMax] ?? 0
+        setScrollOffset(clampScroll(line))
+      } else {
+        setScrollOffset(maxScroll)
+      }
     },
   })
 
@@ -285,7 +302,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     handler: () => {
       setCursor((c) => {
         if (!c) return c
-        const next = clampLine(c.line + 1)
+        const next = clampCursor(c.line + 1)
         scrollToCursor(next)
         return { line: next, col: 0 }
       })
@@ -300,7 +317,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     handler: () => {
       setCursor((c) => {
         if (!c) return c
-        const next = clampLine(c.line - 1)
+        const next = clampCursor(c.line - 1)
         scrollToCursor(next)
         return { line: next, col: 0 }
       })
@@ -316,12 +333,26 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
       if (!getText || !selectionAnchor || !cursor) return
       const text = getText()
       if (!text) return
-      const lines = text.split("\n")
-      const startLine = Math.min(selectionAnchor.line, cursor.line)
-      const endLine = Math.max(selectionAnchor.line, cursor.line)
-      const selected = lines.slice(startLine, endLine + 1).join("\n")
-      if (selected) {
-        void copyToClipboard(selected)
+
+      if (isBlockMode && blockLineMap) {
+        // Block-based copy: use blockLineMap to find line ranges
+        const startBlock = Math.min(selectionAnchor.line, cursor.line)
+        const endBlock = Math.max(selectionAnchor.line, cursor.line)
+        const startLine = blockLineMap[startBlock] ?? 0
+        const endLine = endBlock + 1 < blockLineMap.length ? (blockLineMap[endBlock + 1] ?? text.split("\n").length) : text.split("\n").length
+        const lines = text.split("\n")
+        const selected = lines.slice(startLine, endLine).join("\n")
+        if (selected) {
+          void copyToClipboard(selected)
+        }
+      } else {
+        const lines = text.split("\n")
+        const startLine = Math.min(selectionAnchor.line, cursor.line)
+        const endLine = Math.max(selectionAnchor.line, cursor.line)
+        const selected = lines.slice(startLine, endLine + 1).join("\n")
+        if (selected) {
+          void copyToClipboard(selected)
+        }
       }
       setMode("command")
     },
