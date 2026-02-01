@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { useRenderer } from "@opentui/react"
-import { MarkdownView, StatusBar } from "@tooee/react"
+import { MarkdownView, StatusBar, useTheme } from "@tooee/react"
 import { useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import { useThemeCommands, useQuitCommand, useCopyCommand, useModalNavigationCommands } from "@tooee/shell"
@@ -17,6 +17,7 @@ interface RequestProps {
 
 export function Request({ contentProvider, interactionHandler, initialInput }: RequestProps) {
   const renderer = useRenderer()
+  const { theme } = useTheme()
   const [phase, setPhase] = useState<Phase>(initialInput ? "streaming" : "input")
   const [input, setInput] = useState(initialInput ?? "")
   const [response, setResponse] = useState("")
@@ -134,13 +135,13 @@ export function Request({ contentProvider, interactionHandler, initialInput }: R
   if (phase === "input") {
     return (
       <box flexDirection="column" width="100%" height="100%">
-        <text content="Enter your request:" fg="#7aa2f7" style={{ marginBottom: 1 }} />
+        <text content="Enter your request:" fg={theme.primary} style={{ marginBottom: 1 }} />
         <input
           value={input}
           onChange={setInput}
           onSubmit={handleSubmit}
           placeholder="Type your request..."
-          textColor="#c0caf5"
+          textColor={theme.text}
           focused
         />
       </box>
@@ -158,7 +159,7 @@ export function Request({ contentProvider, interactionHandler, initialInput }: R
       >
         <MarkdownView content={response} />
         {phase === "streaming" && (
-          <text content="▍" fg="#7aa2f7" />
+          <text content="▍" fg={theme.primary} />
         )}
       </scrollbox>
       <StatusBar

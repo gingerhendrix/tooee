@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useRenderer } from "@opentui/react"
 import { useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
+import { useTheme } from "@tooee/react"
 import { useThemeCommands } from "@tooee/shell"
 import type { AskOptions, AskInteractionHandler } from "./types.ts"
 
@@ -14,6 +15,7 @@ export function Ask({ prompt, placeholder, defaultValue, onSubmit, interactionHa
   const renderer = useRenderer()
   const [value, setValue] = useState(defaultValue ?? "")
 
+  const { theme } = useTheme()
   const { name: themeName } = useThemeCommands()
 
   useCommand({
@@ -50,17 +52,17 @@ export function Ask({ prompt, placeholder, defaultValue, onSubmit, interactionHa
   return (
     <box flexDirection="column" width="100%" height="100%">
       {prompt && (
-        <text content={prompt} fg="#7aa2f7" style={{ marginBottom: 1 }} />
+        <text content={prompt} fg={theme.primary} style={{ marginBottom: 1 }} />
       )}
       <input
         value={value}
         onChange={setValue}
         onSubmit={handleSubmit}
         placeholder={placeholder}
-        textColor="#c0caf5"
+        textColor={theme.text}
         focused
       />
-      <text content={`Theme: ${themeName}`} fg="#565f89" style={{ marginTop: 1 }} />
+      <text content={`Theme: ${themeName}`} fg={theme.textMuted} style={{ marginTop: 1 }} />
     </box>
   )
 }

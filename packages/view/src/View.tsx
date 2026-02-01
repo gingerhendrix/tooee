@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
-import { MarkdownView, CodeView, StatusBar, TitleBar } from "@tooee/react"
+import { MarkdownView, CodeView, StatusBar, TitleBar, useTheme } from "@tooee/react"
 import { useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import { useThemeCommands, useQuitCommand, useCopyCommand, useModalNavigationCommands } from "@tooee/shell"
@@ -12,6 +12,7 @@ interface ViewProps {
 }
 
 export function View({ contentProvider, interactionHandler }: ViewProps) {
+  const { theme } = useTheme()
   const [content, setContent] = useState<ViewContent | null>(null)
   const [error, setError] = useState<string | null>(null)
   const scrollRef = useRef<ScrollBoxRenderable>(null)
@@ -59,7 +60,7 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
   if (error) {
     return (
       <box style={{ flexDirection: "column" }}>
-        <text content={`Error: ${error}`} fg="#f7768e" />
+        <text content={`Error: ${error}`} fg={theme.error} />
       </box>
     )
   }
@@ -67,7 +68,7 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
   if (!content) {
     return (
       <box>
-        <text content="Loading..." fg="#565f89" />
+        <text content="Loading..." fg={theme.textMuted} />
       </box>
     )
   }
@@ -79,7 +80,7 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
       case "code":
         return <CodeView content={content.body} language={content.language} />
       case "text":
-        return <text content={content.body} fg="#c0caf5" />
+        return <text content={content.body} fg={theme.text} />
     }
   }
 

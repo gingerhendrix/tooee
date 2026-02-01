@@ -8,7 +8,6 @@ export interface UseCommandOptions {
   title: string
   handler: () => void
   hotkey?: string
-  defaultHotkey?: string
   modes?: Mode[]
   category?: string
   group?: string
@@ -27,8 +26,7 @@ export function useCommand(options: UseCommandOptions): void {
       id: options.id,
       title: options.title,
       handler: (...args: Parameters<Command["handler"]>) => optionsRef.current.handler(...args),
-      hotkey: options.hotkey,
-      defaultHotkey: options.defaultHotkey,
+      defaultHotkey: options.hotkey,
       modes: options.modes,
       category: options.category,
       group: options.group,
@@ -37,5 +35,5 @@ export function useCommand(options: UseCommandOptions): void {
       hidden: options.hidden,
     }
     return registry.register(command)
-  }, [options.id, options.title, options.hotkey, options.defaultHotkey, options.modes, options.category, options.group, options.icon, options.hidden, registry])
+  }, [options.id, options.title, options.hotkey, options.modes, options.category, options.group, options.icon, options.hidden, registry])
 }

@@ -78,7 +78,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "scroll-down",
     title: "Scroll down",
-    defaultHotkey: "j",
+    hotkey: "j",
     modes: ["command"],
     handler: () => setScrollOffset((o) => clampScroll(o + 1)),
   })
@@ -86,7 +86,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "scroll-up",
     title: "Scroll up",
-    defaultHotkey: "k",
+    hotkey: "k",
     modes: ["command"],
     handler: () => setScrollOffset((o) => clampScroll(o - 1)),
   })
@@ -94,7 +94,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "scroll-half-down",
     title: "Scroll half page down",
-    defaultHotkey: "ctrl+d",
+    hotkey: "ctrl+d",
     modes: ["command"],
     handler: () => setScrollOffset((o) => clampScroll(o + Math.floor(viewportHeight / 2))),
   })
@@ -102,7 +102,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "scroll-half-up",
     title: "Scroll half page up",
-    defaultHotkey: "ctrl+u",
+    hotkey: "ctrl+u",
     modes: ["command"],
     handler: () => setScrollOffset((o) => clampScroll(o - Math.floor(viewportHeight / 2))),
   })
@@ -110,7 +110,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "scroll-top",
     title: "Scroll to top",
-    defaultHotkey: "gg",
+    hotkey: "gg",
     modes: ["command"],
     handler: () => setScrollOffset(0),
   })
@@ -118,7 +118,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "scroll-bottom",
     title: "Scroll to bottom",
-    defaultHotkey: "shift+g",
+    hotkey: "shift+g",
     modes: ["command"],
     handler: () => setScrollOffset(maxScroll),
   })
@@ -126,7 +126,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "search-start",
     title: "Search",
-    defaultHotkey: "/",
+    hotkey: "/",
     modes: ["command"],
     handler: () => {
       setSearchActive(true)
@@ -137,7 +137,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "search-next",
     title: "Next match",
-    defaultHotkey: "n",
+    hotkey: "n",
     modes: ["command"],
     when: () => !searchActive,
     handler: () => {
@@ -148,7 +148,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "search-prev",
     title: "Previous match",
-    defaultHotkey: "shift+n",
+    hotkey: "shift+n",
     modes: ["command"],
     when: () => !searchActive,
     handler: () => {
@@ -161,7 +161,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "cursor-down",
     title: "Cursor down",
-    defaultHotkey: "j",
+    hotkey: "j",
     modes: ["cursor"],
     handler: () => {
       setCursor((c) => {
@@ -176,7 +176,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "cursor-up",
     title: "Cursor up",
-    defaultHotkey: "k",
+    hotkey: "k",
     modes: ["cursor"],
     handler: () => {
       setCursor((c) => {
@@ -191,7 +191,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "cursor-half-down",
     title: "Cursor half page down",
-    defaultHotkey: "ctrl+d",
+    hotkey: "ctrl+d",
     modes: ["cursor"],
     handler: () => {
       setCursor((c) => {
@@ -206,7 +206,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "cursor-half-up",
     title: "Cursor half page up",
-    defaultHotkey: "ctrl+u",
+    hotkey: "ctrl+u",
     modes: ["cursor"],
     handler: () => {
       setCursor((c) => {
@@ -221,7 +221,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "cursor-top",
     title: "Cursor to top",
-    defaultHotkey: "gg",
+    hotkey: "gg",
     modes: ["cursor"],
     handler: () => {
       setCursor({ line: 0, col: 0 })
@@ -232,7 +232,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "cursor-bottom",
     title: "Cursor to bottom",
-    defaultHotkey: "shift+g",
+    hotkey: "shift+g",
     modes: ["cursor"],
     handler: () => {
       setCursor({ line: maxLine, col: 0 })
@@ -243,7 +243,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "cursor-search-start",
     title: "Search",
-    defaultHotkey: "/",
+    hotkey: "/",
     modes: ["cursor"],
     handler: () => {
       setSearchActive(true)
@@ -254,7 +254,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "cursor-search-next",
     title: "Next match",
-    defaultHotkey: "n",
+    hotkey: "n",
     modes: ["cursor"],
     when: () => !searchActive,
     handler: () => {
@@ -265,7 +265,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "cursor-search-prev",
     title: "Previous match",
-    defaultHotkey: "shift+n",
+    hotkey: "shift+n",
     modes: ["cursor"],
     when: () => !searchActive,
     handler: () => {
@@ -278,7 +278,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "select-down",
     title: "Extend selection down",
-    defaultHotkey: "j",
+    hotkey: "j",
     modes: ["select"],
     handler: () => {
       setCursor((c) => {
@@ -293,7 +293,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "select-up",
     title: "Extend selection up",
-    defaultHotkey: "k",
+    hotkey: "k",
     modes: ["select"],
     handler: () => {
       setCursor((c) => {
@@ -308,7 +308,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "select-copy",
     title: "Copy selection",
-    defaultHotkey: "y",
+    hotkey: "y",
     modes: ["select"],
     handler: () => {
       if (!getText || !selectionAnchor || !cursor) return
@@ -328,7 +328,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "select-cancel",
     title: "Cancel selection",
-    defaultHotkey: "escape",
+    hotkey: "escape",
     modes: ["select"],
     handler: () => setMode("cursor"),
   })
@@ -338,7 +338,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "enter-select",
     title: "Enter select mode",
-    defaultHotkey: "v",
+    hotkey: "v",
     modes: ["cursor"],
     handler: () => setMode("select"),
   })
@@ -346,7 +346,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "exit-to-command",
     title: "Exit to command mode",
-    defaultHotkey: "escape",
+    hotkey: "escape",
     modes: ["cursor"],
     when: () => !searchActive,
     handler: () => setMode("command"),
@@ -357,7 +357,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "search-cancel",
     title: "Cancel search",
-    defaultHotkey: "escape",
+    hotkey: "escape",
     modes: ["command", "cursor", "select"],
     when: () => searchActive,
     handler: () => {

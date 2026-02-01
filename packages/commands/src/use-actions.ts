@@ -30,7 +30,7 @@ export function useActions(actions: ActionDefinition[] | undefined): void {
       const command: Command = {
         id: action.id,
         title: action.title,
-        hotkey: action.hotkey,
+        defaultHotkey: action.hotkey,
         modes: action.modes,
         handler: () => actionsRef.current?.[i]?.handler(),
         when: action.when ? () => actionsRef.current?.[i]?.when?.() ?? false : undefined,

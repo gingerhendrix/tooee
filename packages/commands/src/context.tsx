@@ -88,7 +88,7 @@ function CommandDispatcher({ children, leader, keymap }: { children: ReactNode; 
       if (!commandModes.includes(currentMode)) continue
       if (command.when && !command.when()) continue
 
-      const hotkey = keymap?.[command.id] ?? command.defaultHotkey ?? command.hotkey
+      const hotkey = keymap?.[command.id] ?? command.defaultHotkey
       if (!hotkey) continue
 
       const parsed = getParsedHotkey(hotkey)

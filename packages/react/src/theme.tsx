@@ -254,10 +254,6 @@ export function getThemeNames(): string[] {
   return Array.from(loadThemes().keys()).sort()
 }
 
-// ---------------------------------------------------------------------------
-// Backward-compatible Theme type (maps to ResolvedTheme)
-// ---------------------------------------------------------------------------
-
 export interface Theme {
   name: string
   mode: "dark" | "light"
@@ -441,17 +437,4 @@ export function useThemeSwitcher(): ThemeSwitcherContextValue {
   const ctx = useContext(ThemeSwitcherContext)
   if (!ctx) throw new Error("useThemeSwitcher must be used within ThemeSwitcherProvider")
   return ctx
-}
-
-// ---------------------------------------------------------------------------
-// Backward-compatible getDefaultSyntaxStyle (fallback when no provider)
-// ---------------------------------------------------------------------------
-
-let _defaultSyntaxStyle: SyntaxStyle | undefined
-
-export function getDefaultSyntaxStyle(): SyntaxStyle {
-  if (!_defaultSyntaxStyle) {
-    _defaultSyntaxStyle = defaultTheme.syntax
-  }
-  return _defaultSyntaxStyle
 }

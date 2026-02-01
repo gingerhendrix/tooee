@@ -4,7 +4,6 @@ export interface Command {
   id: string
   title: string
   handler: () => void
-  hotkey?: string
   defaultHotkey?: string
   modes?: Mode[]
   when?: () => boolean
