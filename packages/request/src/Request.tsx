@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { useRenderer } from "@opentui/react"
-import { MarkdownView, StatusBar, useVimNavigation } from "@tooee/react"
+import { MarkdownView, StatusBar } from "@tooee/react"
 import { useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
-import { useThemeCommands, useQuitCommand, useCopyCommand } from "@tooee/shell"
+import { useThemeCommands, useQuitCommand, useCopyCommand, useModalNavigationCommands } from "@tooee/shell"
 import type { RequestContentProvider, RequestInteractionHandler } from "./types.ts"
 
 type Phase = "input" | "streaming" | "complete"
@@ -26,9 +26,10 @@ export function Request({ contentProvider, interactionHandler, initialInput }: R
 
   const lineCount = response.split("\n").length
 
-  const nav = useVimNavigation({
+  const nav = useModalNavigationCommands({
     totalLines: lineCount,
     viewportHeight: 40,
+    getText: () => response,
   })
 
   const prevScrollOffset = useRef(nav.scrollOffset)

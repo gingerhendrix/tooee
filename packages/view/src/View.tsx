@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
-import { MarkdownView, CodeView, StatusBar, TitleBar, useVimNavigation } from "@tooee/react"
+import { MarkdownView, CodeView, StatusBar, TitleBar } from "@tooee/react"
 import { useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
-import { useThemeCommands, useQuitCommand, useCopyCommand } from "@tooee/shell"
+import { useThemeCommands, useQuitCommand, useCopyCommand, useModalNavigationCommands } from "@tooee/shell"
 import type { ViewContent, ViewContentProvider, ViewInteractionHandler } from "./types.ts"
 
 interface ViewProps {
@@ -27,9 +27,10 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
 
   const lineCount = content?.body.split("\n").length ?? 0
 
-  const nav = useVimNavigation({
+  const nav = useModalNavigationCommands({
     totalLines: lineCount,
     viewportHeight: 40,
+    getText: () => content?.body,
   })
 
   useEffect(() => {
@@ -97,6 +98,7 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
           { label: "Theme:", value: themeName },
           { label: "Format:", value: content.format },
           { label: "Lines:", value: String(lineCount) },
+          { label: "Mode:", value: nav.mode },
           { label: "Scroll:", value: String(nav.scrollOffset) },
           ...(nav.searchActive ? [{ label: "Search:", value: nav.searchQuery }] : []),
         ]}
