@@ -26,7 +26,7 @@ function TooeeProviderInner({ children, leader }: { children: ReactNode; leader?
       initialTheme={config.theme?.name}
       initialMode={config.theme?.mode}
     >
-      <CommandProvider leader={leader}>
+      <CommandProvider leader={leader} keymap={config.keys}>
         {children}
       </CommandProvider>
     </ThemeSwitcherProvider>

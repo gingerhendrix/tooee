@@ -19,20 +19,21 @@ const CommandContext = createContext<CommandContextValue | null>(null)
 export interface CommandProviderProps {
   children: ReactNode
   leader?: string
+  keymap?: Record<string, string>
   initialMode?: Mode
 }
 
-export function CommandProvider({ children, leader, initialMode }: CommandProviderProps) {
+export function CommandProvider({ children, leader, keymap, initialMode }: CommandProviderProps) {
   return (
     <ModeProvider initialMode={initialMode}>
-      <CommandDispatcher leader={leader}>
+      <CommandDispatcher leader={leader} keymap={keymap}>
         {children}
       </CommandDispatcher>
     </ModeProvider>
   )
 }
 
-function CommandDispatcher({ children, leader }: { children: ReactNode; leader?: string }) {
+function CommandDispatcher({ children, leader, keymap }: { children: ReactNode; leader?: string; keymap?: Record<string, string> }) {
   const registryRef = useRef<CommandRegistry | null>(null)
   const mode = useMode()
 
@@ -87,7 +88,7 @@ function CommandDispatcher({ children, leader }: { children: ReactNode; leader?:
       if (!commandModes.includes(currentMode)) continue
       if (command.when && !command.when()) continue
 
-      const hotkey = command.defaultHotkey ?? command.hotkey
+      const hotkey = keymap?.[command.id] ?? command.defaultHotkey ?? command.hotkey
       if (!hotkey) continue
 
       const parsed = getParsedHotkey(hotkey)
