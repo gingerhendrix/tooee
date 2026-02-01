@@ -1,6 +1,7 @@
 import { createCliRenderer } from "@opentui/core"
 import { createRoot } from "@opentui/react"
 import { ThemeSwitcherProvider } from "@tooee/react"
+import { CommandProvider } from "@tooee/commands"
 import { Request } from "./Request.tsx"
 import type { RequestContentProvider, RequestInteractionHandler } from "./types.ts"
 
@@ -17,11 +18,13 @@ export async function launch(options: RequestLaunchOptions): Promise<void> {
   })
   createRoot(renderer).render(
     <ThemeSwitcherProvider>
-      <Request
+      <CommandProvider>
+        <Request
         contentProvider={options.contentProvider}
         interactionHandler={options.interactionHandler}
         initialInput={options.initialInput}
       />
+      </CommandProvider>
     </ThemeSwitcherProvider>,
   )
 }

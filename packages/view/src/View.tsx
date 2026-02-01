@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { useRenderer } from "@opentui/react"
 import { MarkdownView, CodeView, StatusBar, TitleBar, useVimNavigation, copyToClipboard, useThemeSwitcher } from "@tooee/react"
-import { CommandProvider, useCommand, useActions } from "@tooee/commands"
+import { useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import type { ViewContent, ViewContentProvider, ViewInteractionHandler } from "./types.ts"
 
@@ -12,14 +12,6 @@ interface ViewProps {
 }
 
 export function View({ contentProvider, interactionHandler }: ViewProps) {
-  return (
-    <CommandProvider>
-      <ViewInner contentProvider={contentProvider} interactionHandler={interactionHandler} />
-    </CommandProvider>
-  )
-}
-
-function ViewInner({ contentProvider, interactionHandler }: ViewProps) {
   const renderer = useRenderer()
   const [content, setContent] = useState<ViewContent | null>(null)
   const [error, setError] = useState<string | null>(null)

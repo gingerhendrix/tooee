@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useRenderer } from "@opentui/react"
 import { useThemeSwitcher } from "@tooee/react"
-import { CommandProvider, useCommand, useActions } from "@tooee/commands"
+import { useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import type { AskOptions, AskInteractionHandler } from "./types.ts"
 
@@ -10,15 +10,7 @@ interface AskProps extends AskOptions {
   interactionHandler?: AskInteractionHandler
 }
 
-export function Ask(props: AskProps) {
-  return (
-    <CommandProvider>
-      <AskInner {...props} />
-    </CommandProvider>
-  )
-}
-
-function AskInner({ prompt, placeholder, defaultValue, onSubmit, interactionHandler }: AskProps) {
+export function Ask({ prompt, placeholder, defaultValue, onSubmit, interactionHandler }: AskProps) {
   const renderer = useRenderer()
   const [value, setValue] = useState(defaultValue ?? "")
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { useRenderer } from "@opentui/react"
 import { MarkdownView, StatusBar, copyToClipboard, useVimNavigation, useThemeSwitcher } from "@tooee/react"
-import { CommandProvider, useCommand, useActions } from "@tooee/commands"
+import { useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import type { RequestContentProvider, RequestInteractionHandler } from "./types.ts"
 
@@ -14,15 +14,7 @@ interface RequestProps {
   initialInput?: string
 }
 
-export function Request(props: RequestProps) {
-  return (
-    <CommandProvider>
-      <RequestInner {...props} />
-    </CommandProvider>
-  )
-}
-
-function RequestInner({ contentProvider, interactionHandler, initialInput }: RequestProps) {
+export function Request({ contentProvider, interactionHandler, initialInput }: RequestProps) {
   const renderer = useRenderer()
   const [phase, setPhase] = useState<Phase>(initialInput ? "streaming" : "input")
   const [input, setInput] = useState(initialInput ?? "")
