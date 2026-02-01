@@ -39,7 +39,7 @@ describe("navigation", () => {
   // NOTE: gg (scroll-to-top) hotkey is defined as "gg" in modal.ts but
   // the command system expects space-separated sequences ("g g"). This
   // means the gg binding doesn't currently match keyboard input.
-  test.skip("gg jumps to top", async () => {
+  test("gg jumps to top", async () => {
     session = await launchView("long.md")
     for (let i = 0; i < 5; i++) {
       await session.press("j")

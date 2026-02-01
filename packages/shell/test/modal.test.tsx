@@ -60,7 +60,7 @@ test("k scrolls up in command mode", async () => {
 
 // Note: "gg" hotkey in modal.ts is parsed as single step key "gg" by parseHotkey,
 // which won't match sequential "g" key events. Hotkey should be "g g" (space-separated).
-test.skip("gg scrolls to top", async () => {
+test("gg scrolls to top", async () => {
   testSetup = await setup()
   await press(testSetup, "j")
   await press(testSetup, "j")

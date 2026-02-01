@@ -112,7 +112,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "scroll-top",
     title: "Scroll to top",
-    hotkey: "gg",
+    hotkey: "g g",
     modes: ["command"],
     handler: () => setScrollOffset(0),
   })
@@ -223,7 +223,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   useCommand({
     id: "cursor-top",
     title: "Cursor to top",
-    hotkey: "gg",
+    hotkey: "g g",
     modes: ["cursor"],
     handler: () => {
       setCursor({ line: 0, col: 0 })
