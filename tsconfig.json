@@ -18,6 +18,7 @@
     "types": ["bun"]
   },
   "references": [
+    { "path": "packages/config" },
     { "path": "packages/commands" },
     { "path": "packages/react" },
     { "path": "packages/shell" },
