@@ -26,14 +26,14 @@ export function MarkdownView({
   return (
     <box style={{ flexDirection: "column" }}>
       {blocks.map((token, index) => {
-        const accentColor = getBlockAccentColor(index, theme, activeBlock, selectedBlocks, matchingBlocks, currentMatchBlock)
+        const { accent: accentColor, background: bgColor } = getBlockStyle(index, theme, activeBlock, selectedBlocks, matchingBlocks, currentMatchBlock)
         const blockContent = (
           <TokenRenderer key={index} token={token} theme={theme} syntax={syntax} />
         )
 
         if (accentColor) {
           return (
-            <box key={index} style={{ flexDirection: "row" }}>
+            <box key={index} style={{ flexDirection: "row" }} backgroundColor={bgColor ?? undefined}>
               <text content="▎" fg={accentColor} />
               <box style={{ flexGrow: 1, flexDirection: "column" }}>{blockContent}</box>
             </box>
@@ -46,21 +46,22 @@ export function MarkdownView({
   )
 }
 
-function getBlockAccentColor(
+function getBlockStyle(
   index: number,
   theme: ResolvedTheme,
   activeBlock?: number,
   selectedBlocks?: { start: number; end: number },
   matchingBlocks?: Set<number>,
   currentMatchBlock?: number,
-): string | null {
+): { accent: string | null; background: string | null } {
   // Priority: cursor > current match > match > selection
-  // Use visible accent colors (not background colors) for the ▎ marker
-  if (activeBlock === index) return theme.primary
-  if (currentMatchBlock === index) return theme.accent
-  if (matchingBlocks?.has(index)) return theme.warning
-  if (selectedBlocks && index >= selectedBlocks.start && index <= selectedBlocks.end) return theme.secondary
-  return null
+  if (activeBlock === index) return { accent: theme.primary, background: theme.backgroundElement }
+  if (currentMatchBlock === index) return { accent: theme.accent, background: null }
+  if (matchingBlocks?.has(index)) return { accent: theme.warning, background: null }
+  if (selectedBlocks && index >= selectedBlocks.start && index <= selectedBlocks.end) {
+    return { accent: theme.secondary, background: theme.backgroundPanel }
+  }
+  return { accent: null, background: null }
 }
 
 function TokenRenderer({ token, theme, syntax }: { token: Token; theme: ResolvedTheme; syntax: SyntaxStyle }): ReactNode {

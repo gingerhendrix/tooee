@@ -12,6 +12,8 @@ export { CommandPalette } from "./components/CommandPalette.tsx"
 export type { CommandPaletteEntry } from "./components/CommandPalette.tsx"
 export { Table } from "./components/Table.tsx"
 export type { TableProps } from "./components/Table.tsx"
+export { ThemePicker } from "./components/ThemePicker.tsx"
+export type { ThemePickerEntry } from "./components/ThemePicker.tsx"
 
 // Theme
 export {

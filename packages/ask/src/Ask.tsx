@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useRenderer } from "@opentui/react"
 import { useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
-import { useTheme } from "@tooee/react"
+import { useTheme, ThemePicker } from "@tooee/react"
 import { useThemeCommands } from "@tooee/shell"
 import type { AskOptions, AskInteractionHandler } from "./types.ts"
 
@@ -16,7 +16,7 @@ export function Ask({ prompt, placeholder, defaultValue, onSubmit, interactionHa
   const [value, setValue] = useState(defaultValue ?? "")
 
   const { theme } = useTheme()
-  const { name: themeName } = useThemeCommands()
+  const { name: themeName, picker: themePicker } = useThemeCommands()
 
   useCommand({
     id: "cancel",
@@ -63,6 +63,15 @@ export function Ask({ prompt, placeholder, defaultValue, onSubmit, interactionHa
         focused
       />
       <text content={`Theme: ${themeName}`} fg={theme.textMuted} style={{ marginTop: 1 }} />
+      {themePicker.isOpen && (
+        <ThemePicker
+          entries={themePicker.entries}
+          currentTheme={themeName}
+          onSelect={themePicker.confirm}
+          onClose={themePicker.close}
+          onNavigate={themePicker.preview}
+        />
+      )}
     </box>
   )
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
-import { MarkdownView, CodeView, AppLayout, CommandPalette, useTheme } from "@tooee/react"
+import { MarkdownView, CodeView, AppLayout, CommandPalette, ThemePicker, useTheme } from "@tooee/react"
 import { useActions, useCommandContext } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import { useThemeCommands, useQuitCommand, useCopyCommand, useModalNavigationCommands, useCommandPalette } from "@tooee/shell"
@@ -67,7 +67,7 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
     }
   }, [nav.scrollOffset])
 
-  const { name: themeName } = useThemeCommands()
+  const { name: themeName, picker: themePicker } = useThemeCommands()
   useQuitCommand()
   useCopyCommand({ getText: () => content?.body })
 
@@ -188,6 +188,14 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
       }}
       onClose={palette.close}
     />
+  ) : themePicker.isOpen ? (
+    <ThemePicker
+      entries={themePicker.entries}
+      currentTheme={themeName}
+      onSelect={themePicker.confirm}
+      onClose={themePicker.close}
+      onNavigate={themePicker.preview}
+    />
   ) : undefined
 
   return (
@@ -204,7 +212,7 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
         ],
       }}
       scrollRef={scrollRef}
-      scrollProps={{ focused: !nav.searchActive && !palette.isOpen }}
+      scrollProps={{ focused: !nav.searchActive && !palette.isOpen && !themePicker.isOpen }}
       searchBar={{
         active: nav.searchActive,
         query: nav.searchQuery,

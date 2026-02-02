@@ -67,6 +67,54 @@ test("renders markdown table", async () => {
   expect(frame).toContain("Bob")
 })
 
+test("selected blocks have accent marker", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <MarkdownView
+        content={"# Heading\n\nParagraph one\n\nParagraph two\n\nParagraph three"}
+        selectedBlocks={{ start: 1, end: 2 }}
+      />
+    </ThemeSwitcherProvider>,
+    { width: 80, height: 24 },
+  )
+  await testSetup.renderOnce()
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toContain("▎")
+  expect(frame).toContain("Paragraph one")
+  expect(frame).toContain("Paragraph two")
+})
+
+test("active block has accent marker", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <MarkdownView
+        content={"# Heading\n\nParagraph one\n\nParagraph two"}
+        activeBlock={1}
+      />
+    </ThemeSwitcherProvider>,
+    { width: 80, height: 24 },
+  )
+  await testSetup.renderOnce()
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toContain("▎")
+})
+
+test("selected blocks snapshot", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <MarkdownView
+        content={"# Title\n\nFirst paragraph\n\nSecond paragraph\n\nThird paragraph"}
+        activeBlock={1}
+        selectedBlocks={{ start: 1, end: 2 }}
+      />
+    </ThemeSwitcherProvider>,
+    { width: 60, height: 20 },
+  )
+  await testSetup.renderOnce()
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toMatchSnapshot()
+})
+
 test("snapshot", async () => {
   testSetup = await testRender(
     <ThemeSwitcherProvider>
