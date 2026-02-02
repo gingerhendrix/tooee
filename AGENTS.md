@@ -172,4 +172,5 @@ Themes are JSON files with color definitions across `ui`, `syntax`, `diff`, and 
 
 ## Documentation
 
-For OpenTUI primitives (elements, hooks, types, tsconfig), see [docs/opentui-guide.md](docs/opentui-guide.md).
+- [docs/opentui-guide.md](docs/opentui-guide.md) — OpenTUI primitives (elements, hooks, types, tsconfig)
+- [docs/testing.md](docs/testing.md) — Testing guide (component tests with testRender, e2e tests with tuistory)

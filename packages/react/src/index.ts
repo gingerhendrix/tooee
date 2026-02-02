@@ -29,6 +29,10 @@ export {
 } from "./theme.tsx"
 export type { Theme, ThemeJSON, ResolvedTheme, ThemeProviderProps, ThemeSwitcherProviderProps } from "./theme.tsx"
 
+// Overlay
+export { OverlayContext, useOverlay, useCurrentOverlay, useHasOverlay } from "./overlay-context.tsx"
+export type { OverlayContextValue } from "./overlay-context.tsx"
+
 // Clipboard
 export { copyToClipboard, readClipboard, readClipboardText } from "./clipboard.ts"
 export type { ClipboardContent } from "./clipboard.ts"

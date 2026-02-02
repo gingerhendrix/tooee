@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import { ConfigProvider, useConfig, type TooeeConfig } from "@tooee/config"
 import { ThemeSwitcherProvider } from "@tooee/react"
 import { CommandProvider, type Mode } from "@tooee/commands"
+import { OverlayProvider } from "./overlay.tsx"
 
 export interface TooeeProviderProps {
   children: ReactNode
@@ -28,7 +29,9 @@ function TooeeProviderInner({ children, leader, initialMode }: { children: React
       initialMode={config.theme?.mode}
     >
       <CommandProvider leader={leader} keymap={config.keys} initialMode={initialMode}>
-        {children}
+        <OverlayProvider>
+          {children}
+        </OverlayProvider>
       </CommandProvider>
     </ThemeSwitcherProvider>
   )
