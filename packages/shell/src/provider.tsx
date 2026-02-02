@@ -1,32 +1,33 @@
 import type { ReactNode } from "react"
 import { ConfigProvider, useConfig, type TooeeConfig } from "@tooee/config"
 import { ThemeSwitcherProvider } from "@tooee/react"
-import { CommandProvider } from "@tooee/commands"
+import { CommandProvider, type Mode } from "@tooee/commands"
 
 export interface TooeeProviderProps {
   children: ReactNode
   leader?: string
   config?: Partial<TooeeConfig>
+  initialMode?: Mode
 }
 
-export function TooeeProvider({ children, leader, config: configOverrides }: TooeeProviderProps) {
+export function TooeeProvider({ children, leader, config: configOverrides, initialMode }: TooeeProviderProps) {
   return (
     <ConfigProvider overrides={configOverrides}>
-      <TooeeProviderInner leader={leader}>
+      <TooeeProviderInner leader={leader} initialMode={initialMode}>
         {children}
       </TooeeProviderInner>
     </ConfigProvider>
   )
 }
 
-function TooeeProviderInner({ children, leader }: { children: ReactNode; leader?: string }) {
+function TooeeProviderInner({ children, leader, initialMode }: { children: ReactNode; leader?: string; initialMode?: Mode }) {
   const config = useConfig()
   return (
     <ThemeSwitcherProvider
       initialTheme={config.theme?.name}
       initialMode={config.theme?.mode}
     >
-      <CommandProvider leader={leader} keymap={config.keys}>
+      <CommandProvider leader={leader} keymap={config.keys} initialMode={initialMode}>
         {children}
       </CommandProvider>
     </ThemeSwitcherProvider>

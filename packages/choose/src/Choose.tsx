@@ -3,6 +3,7 @@ import type { ScrollBoxRenderable } from "@opentui/core"
 import { useKeyboard } from "@opentui/react"
 import { AppLayout, useTheme } from "@tooee/react"
 import { useThemeCommands } from "@tooee/shell"
+import { useMode, useSetMode, useCommand } from "@tooee/commands"
 import type { ChooseItem, ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.ts"
 import { fuzzyFilter, type FuzzyMatch } from "./fuzzy.ts"
 
@@ -47,6 +48,26 @@ export function Choose({ contentProvider, options, onConfirm, onCancel }: Choose
   }, [filterQuery, items])
 
   const { name: themeName } = useThemeCommands()
+  const mode = useMode()
+  const setMode = useSetMode()
+
+  // Register a/i to return to insert mode from command mode
+  useCommand({
+    id: "choose:insert-mode-a",
+    title: "Insert mode",
+    hotkey: "a",
+    modes: ["command"],
+    handler: () => setMode("insert"),
+    hidden: true,
+  })
+  useCommand({
+    id: "choose:insert-mode-i",
+    title: "Insert mode",
+    hotkey: "i",
+    modes: ["command"],
+    handler: () => setMode("insert"),
+    hidden: true,
+  })
 
   const moveUp = useCallback(() => {
     setActiveIndex((i) => Math.max(0, i - 1))
@@ -90,7 +111,13 @@ export function Choose({ contentProvider, options, onConfirm, onCancel }: Choose
 
   useKeyboard((key) => {
     if (key.name === "escape") {
-      onCancel()
+      if (mode === "insert") {
+        // Switch to command mode (allows theme switching, quit, etc.)
+        setMode("command")
+      } else {
+        // In command mode, escape cancels
+        onCancel()
+      }
       return
     }
     if (key.name === "return") {
@@ -134,8 +161,10 @@ export function Choose({ contentProvider, options, onConfirm, onCancel }: Choose
   }
 
   const selectedCount = selectedIndices.size
-  const hintParts = ["↑↓ navigate", "Enter confirm", "Esc cancel"]
-  if (multi) hintParts.splice(2, 0, "Tab toggle")
+  const hintParts = mode === "insert"
+    ? ["↑↓ navigate", "Enter confirm", "Esc commands"]
+    : ["i insert", "Esc quit", "Enter confirm"]
+  if (multi && mode === "insert") hintParts.splice(2, 0, "Tab toggle")
   const hint = hintParts.join("  ")
 
   return (
@@ -157,7 +186,7 @@ export function Choose({ contentProvider, options, onConfirm, onCancel }: Choose
         <box flexDirection="row" height={1} style={{ paddingLeft: 1, paddingRight: 1 }}>
           <text content="> " fg={theme.accent} />
           <input
-            focused
+            focused={mode === "insert"}
             placeholder={options?.placeholder ?? "Filter..."}
             onInput={setFilterQuery}
             backgroundColor="transparent"

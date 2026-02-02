@@ -44,6 +44,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   const [searchActive, setSearchActive] = useState(false)
   const [matchingLines, setMatchingLines] = useState<number[]>([])
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0)
+  const preSearchModeRef = useRef<Mode>("command")
 
   // Incremental search: recompute matches when query changes while search is active
   const searchQueryRef = useRef(searchQuery)
@@ -179,8 +180,10 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     hotkey: "/",
     modes: ["command"],
     handler: () => {
+      preSearchModeRef.current = mode
       setSearchActive(true)
       setSearchQuery("")
+      setMode("insert")
     },
   })
 
@@ -317,8 +320,10 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     hotkey: "/",
     modes: ["cursor"],
     handler: () => {
+      preSearchModeRef.current = mode
       setSearchActive(true)
       setSearchQuery("")
+      setMode("insert")
     },
   })
 
@@ -437,6 +442,14 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   // === MODE TRANSITIONS ===
 
   useCommand({
+    id: "enter-cursor",
+    title: "Enter cursor mode",
+    hotkey: "v",
+    modes: ["command"],
+    handler: () => setMode("cursor"),
+  })
+
+  useCommand({
     id: "enter-select",
     title: "Enter select mode",
     hotkey: "v",
@@ -459,13 +472,14 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     id: "search-cancel",
     title: "Cancel search",
     hotkey: "escape",
-    modes: ["command", "cursor", "select"],
+    modes: ["command", "cursor", "select", "insert"],
     when: () => searchActive,
     handler: () => {
       setSearchActive(false)
       setSearchQuery("")
       setMatchingLines([])
       setCurrentMatchIndex(0)
+      setMode(preSearchModeRef.current)
     },
   })
 
@@ -479,7 +493,8 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
 
   const submitSearch = useCallback(() => {
     setSearchActive(false)
-  }, [])
+    setMode(preSearchModeRef.current)
+  }, [setMode])
 
   return {
     mode,

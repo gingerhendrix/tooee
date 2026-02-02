@@ -41,7 +41,7 @@ export async function launch(opts: ChooseLaunchOptions): Promise<ChooseResult | 
     }).then((r) => {
       renderer = r
       createRoot(r).render(
-        <TooeeProvider>
+        <TooeeProvider initialMode="insert">
           <Choose
             contentProvider={opts.contentProvider}
             options={opts.options}

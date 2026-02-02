@@ -54,10 +54,11 @@ function getBlockAccentColor(
   currentMatchBlock?: number,
 ): string | null {
   // Priority: cursor > current match > match > selection
-  if (activeBlock === index) return theme.cursorLine
-  if (currentMatchBlock === index) return theme.primary
+  // Use visible accent colors (not background colors) for the ▎ marker
+  if (activeBlock === index) return theme.primary
+  if (currentMatchBlock === index) return theme.accent
   if (matchingBlocks?.has(index)) return theme.warning
-  if (selectedBlocks && index >= selectedBlocks.start && index <= selectedBlocks.end) return theme.selection
+  if (selectedBlocks && index >= selectedBlocks.start && index <= selectedBlocks.end) return theme.secondary
   return null
 }
 

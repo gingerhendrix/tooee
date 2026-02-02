@@ -87,6 +87,37 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
 
   useActions(customActions)
 
+  const matchingLinesSet = useMemo(
+    () => (nav.matchingLines.length > 0 ? new Set(nav.matchingLines) : undefined),
+    [nav.matchingLines],
+  )
+  const currentMatchLine = nav.matchingLines.length > 0 ? nav.matchingLines[nav.currentMatchIndex] : undefined
+
+  // For markdown: convert matching lines to matching blocks
+  const matchingBlocks = useMemo(() => {
+    if (!matchingLinesSet || !blockLineMap || blockLineMap.length === 0) return undefined
+    const blocks = new Set<number>()
+    for (const line of matchingLinesSet) {
+      let blockIdx = 0
+      for (let i = blockLineMap.length - 1; i >= 0; i--) {
+        if (blockLineMap[i] <= line) {
+          blockIdx = i
+          break
+        }
+      }
+      blocks.add(blockIdx)
+    }
+    return blocks.size > 0 ? blocks : undefined
+  }, [matchingLinesSet, blockLineMap])
+
+  const currentMatchBlock = useMemo(() => {
+    if (currentMatchLine == null || !blockLineMap || blockLineMap.length === 0) return undefined
+    for (let i = blockLineMap.length - 1; i >= 0; i--) {
+      if (blockLineMap[i] <= currentMatchLine) return i
+    }
+    return 0
+  }, [currentMatchLine, blockLineMap])
+
   if (error) {
     return (
       <box style={{ flexDirection: "column" }}>
@@ -116,6 +147,8 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
             content={content.body}
             activeBlock={cursorLine}
             selectedBlocks={selectionStart != null && selectionEnd != null ? { start: selectionStart, end: selectionEnd } : undefined}
+            matchingBlocks={matchingBlocks}
+            currentMatchBlock={currentMatchBlock}
           />
         )
       case "code":
@@ -127,6 +160,8 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
             cursor={cursorLine}
             selectionStart={selectionStart}
             selectionEnd={selectionEnd}
+            matchingLines={matchingLinesSet}
+            currentMatchLine={currentMatchLine}
           />
         )
       case "text":
@@ -137,6 +172,8 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
             cursor={cursorLine}
             selectionStart={selectionStart}
             selectionEnd={selectionEnd}
+            matchingLines={matchingLinesSet}
+            currentMatchLine={currentMatchLine}
           />
         )
     }
