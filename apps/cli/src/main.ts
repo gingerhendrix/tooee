@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
-import { launch as launchView, createFileProvider, createStdinProvider } from "@tooee/view"
+import { launch as launchView, launchDirectory, createFileProvider, createStdinProvider } from "@tooee/view"
+import { statSync } from "fs"
 import { launch as launchAsk } from "@tooee/ask"
 import { launch as launchChoose, createStdinChooseProvider } from "@tooee/choose"
 
@@ -25,6 +26,17 @@ function printUsage(): void {
 switch (command) {
   case "view": {
     const filePath = args[0]
+    if (filePath) {
+      try {
+        const stat = statSync(filePath)
+        if (stat.isDirectory()) {
+          launchDirectory({ dirPath: filePath })
+          break
+        }
+      } catch {
+        // Fall through to file provider which will show its own error
+      }
+    }
     const contentProvider = filePath
       ? createFileProvider(filePath)
       : createStdinProvider()
