@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { useRenderer } from "@opentui/react"
-import { MarkdownView, AppLayout, useTheme } from "@tooee/react"
+import { MarkdownView, AppLayout, ThemePicker, useTheme } from "@tooee/react"
 import { useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import { useThemeCommands, useQuitCommand, useCopyCommand, useModalNavigationCommands } from "@tooee/shell"
@@ -75,7 +75,7 @@ export function Request({ contentProvider, interactionHandler, initialInput }: R
     }
   }, [initialInput, startStream])
 
-  const { name: themeName } = useThemeCommands({ when: () => phase !== "input" })
+  const { name: themeName, picker: themePicker } = useThemeCommands({ when: () => phase !== "input" })
 
   useQuitCommand({
     when: () => phase !== "input",
@@ -165,7 +165,16 @@ export function Request({ contentProvider, interactionHandler, initialInput }: R
         ],
       }}
       scrollRef={scrollRef}
-      scrollProps={{ stickyScroll: autoScroll, stickyStart: "bottom", focused: true }}
+      scrollProps={{ stickyScroll: autoScroll, stickyStart: "bottom", focused: !themePicker.isOpen }}
+      overlay={themePicker.isOpen ? (
+        <ThemePicker
+          entries={themePicker.entries}
+          currentTheme={themeName}
+          onSelect={themePicker.confirm}
+          onClose={themePicker.close}
+          onNavigate={themePicker.preview}
+        />
+      ) : undefined}
     >
       <MarkdownView content={response} />
       {phase === "streaming" && (

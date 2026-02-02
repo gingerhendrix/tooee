@@ -3,13 +3,17 @@ import { test, expect, afterEach } from "bun:test"
 import { act } from "react"
 import { TooeeProvider, useThemeCommands, useQuitCommand } from "@tooee/shell"
 import { useTheme } from "@tooee/react"
+import { useMode } from "@tooee/commands"
 
 function ThemeHarness() {
-  useThemeCommands()
+  const { picker } = useThemeCommands()
   const { name: themeName } = useTheme()
+  const mode = useMode()
   return (
     <box>
       <text content={`theme:${themeName}`} />
+      <text content={`open:${picker.isOpen}`} />
+      <text content={`mode:${mode}`} />
     </box>
   )
 }
@@ -29,41 +33,22 @@ afterEach(() => {
   testSetup?.renderer.destroy()
 })
 
-function getThemeName(frame: string): string | undefined {
-  return frame.match(/theme:(\S+)/)?.[1]
-}
-
-test("theme cycling with t changes theme", async () => {
+test("t opens theme picker", async () => {
   testSetup = await testRender(
     <TooeeProvider>
       <ThemeHarness />
     </TooeeProvider>,
-    { width: 60, height: 24 },
+    { width: 60, height: 24, kittyKeyboard: true },
   )
   await testSetup.renderOnce()
-  const initialTheme = getThemeName(testSetup.captureCharFrame())
-  expect(initialTheme).toBeTruthy()
+  await testSetup.renderOnce()
+  expect(testSetup.captureCharFrame()).toContain("open:false")
 
   await act(async () => { testSetup.mockInput.pressKey("t") })
   await testSetup.renderOnce()
-  const newTheme = getThemeName(testSetup.captureCharFrame())
-  expect(newTheme).not.toBe(initialTheme)
-})
-
-test("shift+t cycles theme backwards", async () => {
-  testSetup = await testRender(
-    <TooeeProvider>
-      <ThemeHarness />
-    </TooeeProvider>,
-    { width: 60, height: 24 },
-  )
-  await testSetup.renderOnce()
-  const initialTheme = getThemeName(testSetup.captureCharFrame())
-
-  await act(async () => { testSetup.mockInput.pressKey("T", { shift: true }) })
-  await testSetup.renderOnce()
-  const newTheme = getThemeName(testSetup.captureCharFrame())
-  expect(newTheme).not.toBe(initialTheme)
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toContain("open:true")
+  expect(frame).toContain("mode:insert")
 })
 
 test("q calls onQuit handler", async () => {
@@ -72,7 +57,7 @@ test("q calls onQuit handler", async () => {
     <TooeeProvider>
       <QuitHarness onQuit={() => { quitCalled = true }} />
     </TooeeProvider>,
-    { width: 60, height: 24 },
+    { width: 60, height: 24, kittyKeyboard: true },
   )
   await testSetup.renderOnce()
   expect(testSetup.captureCharFrame()).toContain("quit-harness")

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { useKeyboard } from "@opentui/react"
-import { AppLayout, useTheme } from "@tooee/react"
+import { AppLayout, ThemePicker, useTheme } from "@tooee/react"
 import { useThemeCommands } from "@tooee/shell"
 import { useMode, useSetMode, useCommand } from "@tooee/commands"
 import type { ChooseItem, ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.ts"
@@ -47,7 +47,7 @@ export function Choose({ contentProvider, options, onConfirm, onCancel }: Choose
     setActiveIndex(0)
   }, [filterQuery, items])
 
-  const { name: themeName } = useThemeCommands()
+  const { name: themeName, picker: themePicker } = useThemeCommands()
   const mode = useMode()
   const setMode = useSetMode()
 
@@ -180,6 +180,15 @@ export function Choose({ contentProvider, options, onConfirm, onCancel }: Choose
       }}
       scrollRef={scrollRef}
       scrollProps={{ focused: false }}
+      overlay={themePicker.isOpen ? (
+        <ThemePicker
+          entries={themePicker.entries}
+          currentTheme={themeName}
+          onSelect={themePicker.confirm}
+          onClose={themePicker.close}
+          onNavigate={themePicker.preview}
+        />
+      ) : undefined}
     >
       <box flexDirection="column">
         {/* Filter input row */}
