@@ -6,6 +6,7 @@ import type { StatusBarItem } from "./StatusBar.tsx"
 import { SearchBar } from "./SearchBar.tsx"
 import type { SearchBarProps } from "./SearchBar.tsx"
 import { useTheme } from "../theme.tsx"
+import { useCurrentOverlay } from "../overlay-context.tsx"
 
 export interface AppLayoutSearchBar extends SearchBarProps {
   active: boolean
@@ -27,6 +28,8 @@ export interface AppLayoutProps {
 
 export function AppLayout({ titleBar, statusBar, scrollRef, scrollProps, searchBar, overlay, children }: AppLayoutProps) {
   const { theme } = useTheme()
+  const contextOverlay = useCurrentOverlay()
+  const activeOverlay = overlay ?? contextOverlay
   return (
     <box flexDirection="column" width="100%" height="100%" backgroundColor={theme.background}>
       {titleBar && <TitleBar title={titleBar.title} subtitle={titleBar.subtitle} />}
@@ -40,9 +43,9 @@ export function AppLayout({ titleBar, statusBar, scrollRef, scrollProps, searchB
         >
           {children}
         </scrollbox>
-        {overlay && (
+        {activeOverlay && (
           <box position="absolute" left={0} top={0} width="100%" height="100%">
-            {overlay}
+            {activeOverlay}
           </box>
         )}
       </box>
