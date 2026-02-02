@@ -48,6 +48,16 @@ describe("search e2e", () => {
     expect(afterText).toMatch(/Mode:\s*command/)
   }, 20000)
 
-  // Escape key in e2e is unreliable due to ANSI sequence ambiguity.
-  test.skip("Escape cancels search", () => {})
+  test("Escape cancels search", async () => {
+    session = await launchView("long.md")
+    await session.press("/")
+    await new Promise((r) => setTimeout(r, 300))
+    await session.type("Section")
+    await new Promise((r) => setTimeout(r, 300))
+    // Send kitty-encoded Escape (raw \x1b is ambiguous)
+    await session.writeRaw("\x1b[27u")
+    await session.waitForText(/Mode:\s*command/, { timeout: 5000 })
+    const text = await session.text()
+    expect(text).toMatch(/Mode:\s*command/)
+  }, 20000)
 })
