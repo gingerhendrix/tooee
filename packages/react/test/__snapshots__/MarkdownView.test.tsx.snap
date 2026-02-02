@@ -23,3 +23,27 @@ exports[`snapshot 1`] = `
                                                             
 "
 `;
+
+exports[`selected blocks snapshot 1`] = `
+"                                                            
+# Title                                                     
+                                                            
+▎ First paragraph                                           
+                                                            
+▎ Second paragraph                                          
+                                                            
+ Third paragraph                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+"
+`;
