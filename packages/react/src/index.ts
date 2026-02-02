@@ -37,8 +37,26 @@ export type {
 } from "./theme.tsx"
 
 // Overlay
-export { OverlayContext, useOverlay, useCurrentOverlay, useHasOverlay } from "./overlay-context.tsx"
-export type { OverlayContextValue } from "./overlay-context.tsx"
+export {
+  OverlayContext,
+  OverlayControllerContext,
+  OverlayStateContext,
+  useOverlay,
+  useOverlayState,
+  useCurrentOverlay,
+  useHasOverlay,
+} from "./overlay-context.tsx"
+export type {
+  OverlayContextValue,
+  OverlayId,
+  OverlayCloseReason,
+  OverlayOpenOptions,
+  OverlayRenderArgs,
+  OverlayRenderer,
+  OverlayHandle,
+  OverlayController,
+  OverlayState,
+} from "./overlay-context.tsx"
 
 // Clipboard
 export { copyToClipboard, readClipboard, readClipboardText } from "./clipboard.ts"

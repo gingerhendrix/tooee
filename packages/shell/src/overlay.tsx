@@ -1,40 +1,158 @@
-import { useState, useCallback, useMemo } from "react"
+import { useState, useCallback, useMemo, useRef } from "react"
 import type { ReactNode } from "react"
-import { OverlayContext } from "@tooee/react"
+import {
+  OverlayControllerContext,
+  OverlayStateContext,
+  type OverlayId,
+  type OverlayCloseReason,
+  type OverlayOpenOptions,
+  type OverlayRenderer,
+  type OverlayHandle,
+  type OverlayController,
+} from "@tooee/react"
+import { useMode, useSetMode } from "@tooee/commands"
+
+interface OverlayEntry {
+  id: OverlayId
+  render: OverlayRenderer<any>
+  payload: any
+  options: OverlayOpenOptions
+  prevMode: string
+}
 
 export function OverlayProvider({ children }: { children: ReactNode }) {
-  const [overlays, setOverlays] = useState<Map<string, ReactNode>>(new Map())
+  const [stack, setStack] = useState<OverlayEntry[]>([])
+  const stackRef = useRef(stack)
+  stackRef.current = stack
 
-  const show = useCallback((id: string, content: ReactNode) => {
-    setOverlays((prev) => {
-      const next = new Map(prev)
-      next.delete(id) // Remove first to re-insert at end (maintains stack order)
-      next.set(id, content)
+  const mode = useMode()
+  const setMode = useSetMode()
+  const modeRef = useRef(mode)
+  modeRef.current = mode
+
+  const removeEntry = useCallback((id: OverlayId, reason: OverlayCloseReason) => {
+    setStack((prev) => {
+      const idx = prev.findIndex((e) => e.id === id)
+      if (idx === -1) return prev
+      const entry = prev[idx]
+      entry.options.onClose?.(reason)
+      if (entry.options.restoreMode !== false) {
+        // Use setTimeout to avoid setState-during-render
+        const prevMode = entry.prevMode
+        setTimeout(() => setMode(prevMode as any), 0)
+      }
+      const next = [...prev]
+      next.splice(idx, 1)
       return next
+    })
+  }, [setMode])
+
+  const open = useCallback(<TPayload,>(
+    id: OverlayId,
+    render: OverlayRenderer<TPayload>,
+    payload: TPayload,
+    options: OverlayOpenOptions = {},
+  ): OverlayHandle<TPayload> => {
+    const prevMode = modeRef.current
+    const overlayMode = options.mode === undefined ? "insert" : options.mode
+
+    setStack((prev) => {
+      // Remove existing entry with same id if present
+      const filtered = prev.filter((e) => e.id !== id)
+      const entry: OverlayEntry = { id, render: render as OverlayRenderer<any>, payload, options, prevMode }
+      return [...filtered, entry]
+    })
+
+    if (overlayMode !== null) {
+      setMode(overlayMode as any)
+    }
+
+    const handle: OverlayHandle<TPayload> = {
+      id,
+      close: (reason: OverlayCloseReason = "close") => removeEntry(id, reason),
+      update: (next) => {
+        setStack((prev) => {
+          const idx = prev.findIndex((e) => e.id === id)
+          if (idx === -1) return prev
+          const entry = prev[idx]
+          const newPayload = typeof next === "function" ? (next as (p: TPayload) => TPayload)(entry.payload) : next
+          const updated = [...prev]
+          updated[idx] = { ...entry, payload: newPayload }
+          return updated
+        })
+      },
+    }
+
+    return handle
+  }, [setMode, removeEntry])
+
+  const update = useCallback(<TPayload,>(id: OverlayId, next: TPayload | ((prev: TPayload) => TPayload)) => {
+    setStack((prev) => {
+      const idx = prev.findIndex((e) => e.id === id)
+      if (idx === -1) return prev
+      const entry = prev[idx]
+      const newPayload = typeof next === "function" ? (next as (p: TPayload) => TPayload)(entry.payload) : next
+      const updated = [...prev]
+      updated[idx] = { ...entry, payload: newPayload }
+      return updated
     })
   }, [])
 
-  const hide = useCallback((id: string) => {
-    setOverlays((prev) => {
-      if (!prev.has(id)) return prev
-      const next = new Map(prev)
-      next.delete(id)
-      return next
-    })
+  const show = useCallback((id: OverlayId, content: ReactNode, options?: OverlayOpenOptions) => {
+    // Back-compat: show() defaults to no mode change (unlike open() which defaults to "insert")
+    open(id, () => content, undefined, { mode: null, ...options })
+  }, [open])
+
+  const hide = useCallback((id: OverlayId) => {
+    removeEntry(id, "close")
+  }, [removeEntry])
+
+  const closeTop = useCallback((reason: OverlayCloseReason = "close") => {
+    const current = stackRef.current
+    if (current.length === 0) return
+    const top = current[current.length - 1]
+    removeEntry(top.id, reason)
+  }, [removeEntry])
+
+  const isOpen = useCallback((id: OverlayId) => {
+    return stackRef.current.some((e) => e.id === id)
   }, [])
 
-  const value = useMemo(() => {
-    let current: ReactNode | null = null
-    for (const [, content] of overlays) {
-      current = content
-    }
-    return {
-      show,
-      hide,
-      current,
-      hasOverlay: overlays.size > 0,
-    }
-  }, [overlays, show, hide])
+  const topId = stack.length > 0 ? stack[stack.length - 1].id : null
 
-  return <OverlayContext value={value}>{children}</OverlayContext>
+  const controller = useMemo<OverlayController>(() => ({
+    open,
+    update,
+    show,
+    hide,
+    closeTop,
+    isOpen,
+    topId,
+  }), [open, update, show, hide, closeTop, isOpen, topId])
+
+  // Render the topmost overlay
+  const topEntry = stack.length > 0 ? stack[stack.length - 1] : null
+  const current = topEntry
+    ? topEntry.render({
+        id: topEntry.id,
+        payload: topEntry.payload,
+        isTop: true,
+        close: (reason: OverlayCloseReason = "close") => removeEntry(topEntry.id, reason),
+        update: (next) => update(topEntry.id, next),
+      })
+    : null
+
+  const state = useMemo(() => ({
+    current,
+    hasOverlay: stack.length > 0,
+    stack: stack.map((e) => e.id),
+  }), [current, stack])
+
+  return (
+    <OverlayControllerContext value={controller}>
+      <OverlayStateContext value={state}>
+        {children}
+      </OverlayStateContext>
+    </OverlayControllerContext>
+  )
 }
