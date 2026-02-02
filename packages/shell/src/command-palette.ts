@@ -1,9 +1,10 @@
-import { useState, useMemo, useCallback, useRef } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 import { createElement } from "react"
-import { useCommandContext, useCommand, useSetMode, useMode } from "@tooee/commands"
+import { useCommandContext, useCommand, useMode } from "@tooee/commands"
 import type { Mode } from "@tooee/commands"
-import { CommandPalette, useOverlay } from "@tooee/react"
+import { useOverlay } from "@tooee/react"
 import type { CommandPaletteEntry } from "@tooee/react"
+import { CommandPaletteOverlay } from "./CommandPaletteOverlay.tsx"
 
 const DEFAULT_MODES: Mode[] = ["command", "cursor"]
 const OVERLAY_ID = "command-palette"
@@ -16,18 +17,11 @@ export interface CommandPaletteState {
 }
 
 export function useCommandPalette(): CommandPaletteState {
-  const [isOpen, setIsOpen] = useState(false)
-  const { commands, invoke } = useCommandContext()
-  const setMode = useSetMode()
+  const { commands } = useCommandContext()
   const mode = useMode()
-  const launchModeRef = useRef<Mode>("command")
   const overlay = useOverlay()
-
-  const close = useCallback(() => {
-    setIsOpen(false)
-    overlay.hide(OVERLAY_ID)
-    setMode("command")
-  }, [setMode, overlay])
+  const [isOpen, setIsOpen] = useState(false)
+  const launchModeRef = useRef<Mode>(mode)
 
   const launchMode = launchModeRef.current
   const entries = useMemo(() => {
@@ -46,28 +40,25 @@ export function useCommandPalette(): CommandPaletteState {
       }))
   }, [commands, launchMode])
 
+  const close = useCallback(() => {
+    setIsOpen(false)
+    overlay.hide(OVERLAY_ID)
+  }, [overlay])
+
   const open = useCallback(() => {
     launchModeRef.current = mode
     setIsOpen(true)
-    setMode("insert")
-    overlay.show(
+    overlay.open(
       OVERLAY_ID,
-      createElement(CommandPalette, {
-        commands: entries,
-        onSelect: (id: string) => {
-          setIsOpen(false)
-          overlay.hide(OVERLAY_ID)
-          setMode("command")
-          invoke(id)
-        },
-        onClose: () => {
-          setIsOpen(false)
-          overlay.hide(OVERLAY_ID)
-          setMode("command")
-        },
-      }),
+      ({ close }) =>
+        createElement(CommandPaletteOverlay, {
+          launchMode: mode,
+          close: () => close(),
+        }),
+      null,
+      { mode: "insert", dismissOnEscape: true },
     )
-  }, [setMode, mode, overlay, entries, invoke])
+  }, [overlay, mode])
 
   useCommand({
     id: "command-palette",

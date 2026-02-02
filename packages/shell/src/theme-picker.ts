@@ -1,8 +1,7 @@
-import { useState, useCallback, useRef } from "react"
+import { useCallback, useRef, useState } from "react"
 import { createElement } from "react"
-import { useSetMode, useMode } from "@tooee/commands"
-import { useThemeSwitcher, ThemePicker, useOverlay } from "@tooee/react"
-import type { Mode } from "@tooee/commands"
+import { useThemeSwitcher, useOverlay } from "@tooee/react"
+import { ThemePickerOverlay } from "./ThemePickerOverlay.tsx"
 
 export interface ThemePickerEntry {
   id: string
@@ -23,13 +22,10 @@ export interface ThemePickerState {
 const OVERLAY_ID = "theme-picker"
 
 export function useThemePicker(): ThemePickerState {
-  const [isOpen, setIsOpen] = useState(false)
   const { allThemes, setTheme, name: currentTheme } = useThemeSwitcher()
-  const setMode = useSetMode()
-  const mode = useMode()
-  const originalThemeRef = useRef<string>(currentTheme)
-  const launchModeRef = useRef<Mode>("command")
   const overlay = useOverlay()
+  const [isOpen, setIsOpen] = useState(false)
+  const originalThemeRef = useRef<string>(currentTheme)
 
   const entries: ThemePickerEntry[] = allThemes.map((name) => ({
     id: name,
@@ -40,18 +36,13 @@ export function useThemePicker(): ThemePickerState {
     setTheme(originalThemeRef.current)
     setIsOpen(false)
     overlay.hide(OVERLAY_ID)
-    setMode("command")
-  }, [setTheme, setMode, overlay])
+  }, [setTheme, overlay])
 
-  const confirm = useCallback(
-    (name: string) => {
-      setTheme(name)
-      setIsOpen(false)
-      overlay.hide(OVERLAY_ID)
-      setMode("command")
-    },
-    [setTheme, setMode, overlay],
-  )
+  const confirm = useCallback((name: string) => {
+    setTheme(name)
+    setIsOpen(false)
+    overlay.hide(OVERLAY_ID)
+  }, [setTheme, overlay])
 
   const preview = useCallback(
     (name: string) => {
@@ -62,32 +53,18 @@ export function useThemePicker(): ThemePickerState {
 
   const open = useCallback(() => {
     originalThemeRef.current = currentTheme
-    launchModeRef.current = mode
     setIsOpen(true)
-    setMode("insert")
-    overlay.show(
+    overlay.open(
       OVERLAY_ID,
-      createElement(ThemePicker, {
-        entries,
-        currentTheme,
-        onSelect: (name: string) => {
-          setTheme(name)
-          setIsOpen(false)
-          overlay.hide(OVERLAY_ID)
-          setMode("command")
-        },
-        onClose: () => {
-          setTheme(originalThemeRef.current)
-          setIsOpen(false)
-          overlay.hide(OVERLAY_ID)
-          setMode("command")
-        },
-        onNavigate: (name: string) => {
-          setTheme(name)
-        },
-      }),
+      ({ close }) =>
+        createElement(ThemePickerOverlay, {
+          originalTheme: currentTheme,
+          close: () => close(),
+        }),
+      null,
+      { mode: "insert", dismissOnEscape: true },
     )
-  }, [currentTheme, setMode, mode, overlay, entries, setTheme])
+  }, [overlay, currentTheme])
 
   return {
     isOpen,
