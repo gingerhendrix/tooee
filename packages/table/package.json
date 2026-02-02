@@ -1,17 +1,16 @@
 {
-  "name": "@tooee/cli",
+  "name": "@tooee/table",
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "bin": {
-    "tooee": "./src/main.ts"
+  "exports": {
+    ".": "./src/index.ts"
   },
   "dependencies": {
-    "@tooee/view": "workspace:*",
-    "@tooee/ask": "workspace:*",
-    "@tooee/request": "workspace:*",
-    "@tooee/choose": "workspace:*",
-    "@tooee/table": "workspace:*"
+    "@tooee/react": "workspace:*",
+    "@tooee/commands": "workspace:*",
+    "@tooee/config": "workspace:*",
+    "@tooee/shell": "workspace:*"
   },
   "peerDependencies": {
     "@opentui/core": "^0.1.67",
