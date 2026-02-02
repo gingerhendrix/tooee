@@ -2,6 +2,7 @@
 import { launch as launchView, createFileProvider, createStdinProvider } from "@tooee/view"
 import { launch as launchAsk } from "@tooee/ask"
 import { launch as launchChoose, createStdinChooseProvider } from "@tooee/choose"
+import { launch as launchTable, createFileProvider as createTableFileProvider, createStdinProvider as createTableStdinProvider } from "@tooee/table"
 
 const [command, ...args] = process.argv.slice(2)
 
@@ -12,6 +13,7 @@ function printUsage(): void {
   console.log("  view [file]    Display markdown, code, or text")
   console.log("  ask [prompt]   Gather user input")
   console.log("  choose         Select items from a filterable list (stdin)")
+  console.log("  table [file]   Display tabular data (CSV, TSV, JSON)")
   console.log("  request        Input → streaming response (library only)")
   console.log("")
   console.log("Examples:")
@@ -20,6 +22,8 @@ function printUsage(): void {
   console.log('  tooee ask "Search for:"')
   console.log('  echo -e "foo\\nbar\\nbaz" | tooee choose')
   console.log('  echo -e "foo\\nbar\\nbaz" | tooee choose --multi')
+  console.log("  tooee table data.csv")
+  console.log("  cat data.csv | tooee table")
 }
 
 switch (command) {
@@ -51,6 +55,15 @@ switch (command) {
     } else {
       process.exit(1)
     }
+    break
+  }
+
+  case "table": {
+    const filePath = args[0]
+    const contentProvider = filePath
+      ? createTableFileProvider(filePath)
+      : createTableStdinProvider()
+    launchTable({ contentProvider })
     break
   }
 

@@ -26,6 +26,7 @@
     { "path": "packages/ask" },
     { "path": "packages/request" },
     { "path": "packages/choose" },
+    { "path": "packages/table" },
     { "path": "apps/cli" }
   ]
 }

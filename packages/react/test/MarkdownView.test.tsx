@@ -48,6 +48,25 @@ test("renders code blocks", async () => {
   expect(frame).toContain("const x = 1")
 })
 
+test("renders markdown table", async () => {
+  const md = `| Name | Age | City |
+| --- | --- | --- |
+| Alice | 30 | London |
+| Bob | 25 | Paris |`
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <MarkdownView content={md} />
+    </ThemeSwitcherProvider>,
+    { width: 60, height: 20 },
+  )
+  await testSetup.renderOnce()
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toContain("Name")
+  expect(frame).toContain("Alice")
+  expect(frame).toContain("London")
+  expect(frame).toContain("Bob")
+})
+
 test("snapshot", async () => {
   testSetup = await testRender(
     <ThemeSwitcherProvider>

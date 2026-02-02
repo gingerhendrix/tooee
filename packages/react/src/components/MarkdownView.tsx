@@ -2,6 +2,7 @@ import { marked, type Token, type Tokens } from "marked"
 import type { ReactNode } from "react"
 import { useTheme, type ResolvedTheme } from "../theme.tsx"
 import type { SyntaxStyle } from "@opentui/core"
+import { Table } from "./Table.tsx"
 
 interface MarkdownViewProps {
   content: string
@@ -74,6 +75,8 @@ function TokenRenderer({ token, theme, syntax }: { token: Token; theme: Resolved
       return <BlockquoteRenderer token={token as Tokens.Blockquote} theme={theme} />
     case "list":
       return <ListRenderer token={token as Tokens.List} theme={theme} />
+    case "table":
+      return <MarkdownTableRenderer token={token as Tokens.Table} theme={theme} />
     case "hr":
       return <HorizontalRule theme={theme} />
     case "space":
@@ -236,6 +239,12 @@ function ListItemRenderer({
       </box>
     </box>
   )
+}
+
+function MarkdownTableRenderer({ token, theme }: { token: Tokens.Table; theme: ResolvedTheme }) {
+  const headers = token.header.map((cell) => getPlainText(cell.tokens))
+  const rows = token.rows.map((row) => row.map((cell) => getPlainText(cell.tokens)))
+  return <Table headers={headers} rows={rows} />
 }
 
 function HorizontalRule({ theme }: { theme: ResolvedTheme }) {

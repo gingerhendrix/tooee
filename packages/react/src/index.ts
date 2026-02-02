@@ -10,6 +10,8 @@ export { SearchBar } from "./components/SearchBar.tsx"
 export type { SearchBarProps } from "./components/SearchBar.tsx"
 export { CommandPalette } from "./components/CommandPalette.tsx"
 export type { CommandPaletteEntry } from "./components/CommandPalette.tsx"
+export { Table } from "./components/Table.tsx"
+export type { TableProps } from "./components/Table.tsx"
 
 // Theme
 export {
