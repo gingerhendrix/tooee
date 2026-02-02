@@ -1,17 +1,20 @@
-import { createContext, useContext, useRef, useCallback, type ReactNode } from "react"
+import { createContext, useContext, useRef, useCallback, useEffect, type ReactNode } from "react"
 import { useKeyboard } from "@opentui/react"
 import type { Command, CommandRegistry, ParsedHotkey } from "./types.ts"
 import type { Mode } from "./mode.tsx"
-import { ModeProvider, useMode } from "./mode.tsx"
+import { ModeProvider, useMode, useSetMode } from "./mode.tsx"
 import { parseHotkey } from "./parse.ts"
 import { matchStep } from "./match.ts"
 import { SequenceTracker } from "./sequence.ts"
 
 const DEFAULT_MODES: Mode[] = ["command", "cursor"]
 
+type ContextGetter = () => object
+
 interface CommandContextValue {
   registry: CommandRegistry
   leaderKey?: string
+  contextSources: Map<string, ContextGetter>
 }
 
 const CommandContext = createContext<CommandContextValue | null>(null)
@@ -43,7 +46,26 @@ function CommandDispatcher({
   keymap?: Record<string, string>
 }) {
   const registryRef = useRef<CommandRegistry | null>(null)
+  const contextSourcesRef = useRef(new Map<string, ContextGetter>())
   const mode = useMode()
+  const modeRef = useRef(mode)
+  modeRef.current = mode
+  const setMode = useSetMode()
+
+  const buildCtx = useCallback(() => {
+    const ctx: Record<string, any> = {
+      mode: modeRef.current,
+      setMode,
+      commands: {
+        invoke: (id: string) => registryRef.current?.invoke(id),
+        list: () => Array.from(registryRef.current?.commands.values() ?? []),
+      },
+    }
+    for (const getter of contextSourcesRef.current.values()) {
+      Object.assign(ctx, getter())
+    }
+    return ctx
+  }, [setMode])
 
   if (registryRef.current === null) {
     const commands = new Map<string, Command>()
@@ -56,9 +78,10 @@ function CommandDispatcher({
         }
       },
       invoke(id: string) {
+        const ctx = buildCtx()
         const cmd = commands.get(id)
-        if (cmd && (!cmd.when || cmd.when())) {
-          cmd.handler()
+        if (cmd && (!cmd.when || cmd.when(ctx))) {
+          cmd.handler(ctx)
         }
       },
     }
@@ -88,6 +111,7 @@ function CommandDispatcher({
     if (!registry) return
 
     const currentMode = mode
+    const ctx = buildCtx()
 
     // Collect eligible commands with their parsed hotkeys
     const singleStepCandidates: { command: Command; parsed: ParsedHotkey }[] = []
@@ -97,7 +121,7 @@ function CommandDispatcher({
     for (const command of registry.commands.values()) {
       const commandModes = command.modes ?? DEFAULT_MODES
       if (!commandModes.includes(currentMode)) continue
-      if (command.when && !command.when()) continue
+      if (command.when && !command.when(ctx)) continue
 
       const hotkey = keymap?.[command.id] ?? command.defaultHotkey
       if (!hotkey) continue
@@ -117,7 +141,7 @@ function CommandDispatcher({
       const idx = trackerRef.current.feed(event, multiStepHotkeys)
       if (idx >= 0) {
         event.preventDefault()
-        multiStepCommands[idx]!.handler()
+        multiStepCommands[idx]!.handler(ctx)
         return
       }
     }
@@ -126,14 +150,14 @@ function CommandDispatcher({
     for (const { command, parsed } of singleStepCandidates) {
       if (matchStep(event, parsed.steps[0]!)) {
         event.preventDefault()
-        command.handler()
+        command.handler(ctx)
         return
       }
     }
   })
 
   return (
-    <CommandContext.Provider value={{ registry: registryRef.current, leaderKey: leader }}>
+    <CommandContext.Provider value={{ registry: registryRef.current, leaderKey: leader, contextSources: contextSourcesRef.current }}>
       {children}
     </CommandContext.Provider>
   )
@@ -160,4 +184,31 @@ export function useCommandRegistry(): CommandContextValue {
     throw new Error("useCommandRegistry must be used within a CommandProvider")
   }
   return ctx
+}
+
+let nextContextSourceId = 0
+
+export function useProvideCommandContext(getter: () => object): void {
+  const ctx = useContext(CommandContext)
+  if (!ctx) {
+    throw new Error("useProvideCommandContext must be used within a CommandProvider")
+  }
+
+  const idRef = useRef<string | null>(null)
+  if (idRef.current === null) {
+    idRef.current = `ctx-${nextContextSourceId++}`
+  }
+
+  const getterRef = useRef(getter)
+  getterRef.current = getter
+
+  const { contextSources } = ctx
+
+  useEffect(() => {
+    const id = idRef.current!
+    contextSources.set(id, () => getterRef.current())
+    return () => {
+      contextSources.delete(id)
+    }
+  }, [contextSources])
 }

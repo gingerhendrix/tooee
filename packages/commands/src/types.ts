@@ -3,10 +3,10 @@ import type { Mode } from "./mode.tsx"
 export interface Command {
   id: string
   title: string
-  handler: () => void
+  handler: (ctx: any) => void | Promise<void>
   defaultHotkey?: string
   modes?: Mode[]
-  when?: () => boolean
+  when?: (ctx: any) => boolean
   category?: string
   group?: string
   icon?: string
