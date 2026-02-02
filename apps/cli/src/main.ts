@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import { launch as launchView, createFileProvider, createStdinProvider } from "@tooee/view"
 import { launch as launchAsk } from "@tooee/ask"
-import { launch as launchChoose, createStaticProvider } from "@tooee/choose"
+import { launch as launchChoose, createStdinChooseProvider } from "@tooee/choose"
 
 const [command, ...args] = process.argv.slice(2)
 
@@ -42,10 +42,7 @@ switch (command) {
     const multi = args.includes("--multi") || args.includes("-m")
     const promptIdx = args.indexOf("--prompt")
     const prompt = promptIdx !== -1 ? args[promptIdx + 1] : undefined
-    // Read stdin eagerly before renderer takes over stdin for keyboard input
-    const stdinText = await new Response(Bun.stdin.stream() as unknown as ReadableStream).text()
-    const items = stdinText.split("\n").filter((line) => line.length > 0).map((line) => ({ text: line }))
-    const contentProvider = createStaticProvider(items)
+    const contentProvider = createStdinChooseProvider()
     const result = await launchChoose({ contentProvider, options: { multi, prompt } })
     if (result) {
       for (const item of result.items) {
