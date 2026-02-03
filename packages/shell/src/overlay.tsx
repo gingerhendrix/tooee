@@ -10,7 +10,7 @@ import {
   type OverlayHandle,
   type OverlayController,
 } from "@tooee/react"
-import { useMode, useSetMode } from "@tooee/commands"
+import { useMode, useSetMode, useProvideCommandContext, useCommand } from "@tooee/commands"
 
 interface OverlayEntry {
   id: OverlayId
@@ -129,6 +129,28 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
     isOpen,
     topId,
   }), [open, update, show, hide, closeTop, isOpen, topId])
+
+  useProvideCommandContext(() => ({
+    overlay: {
+      open: controller.open,
+      show: controller.show,
+      hide: controller.hide,
+      update: controller.update,
+      closeTop: controller.closeTop,
+      isOpen: controller.isOpen,
+      topId: controller.topId,
+    },
+  }))
+
+  useCommand({
+    id: "overlay.close-top",
+    title: "Close overlay",
+    hotkey: "Escape",
+    modes: ["insert"],
+    hidden: true,
+    when: () => topId !== null,
+    handler: () => closeTop("escape"),
+  })
 
   // Render the topmost overlay
   const topEntry = stack.length > 0 ? stack[stack.length - 1] : null
