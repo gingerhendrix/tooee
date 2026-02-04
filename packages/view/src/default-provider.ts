@@ -4,6 +4,9 @@ function detectFormat(filePath: string): { format: ViewContent["format"]; langua
   const ext = filePath.split(".").pop()?.toLowerCase()
   if (!ext) return { format: "text" }
 
+  const imageExts = new Set(["png", "jpg", "jpeg", "gif", "webp", "bmp", "tiff", "tif"])
+  if (imageExts.has(ext)) return { format: "image" }
+
   const markdownExts = new Set(["md", "mdx", "markdown"])
   if (markdownExts.has(ext)) return { format: "markdown" }
 
@@ -44,10 +47,16 @@ function detectFormat(filePath: string): { format: ViewContent["format"]; langua
 export function createFileProvider(filePath: string): ViewContentProvider {
   return {
     async load(): Promise<ViewContent> {
-      const file = Bun.file(filePath)
-      const body = await file.text()
       const { format, language } = detectFormat(filePath)
       const title = filePath.split("/").pop()
+
+      // For images, the body is the file path (ImageView handles loading)
+      if (format === "image") {
+        return { body: filePath, format, title }
+      }
+
+      const file = Bun.file(filePath)
+      const body = await file.text()
       return { body, format, language, title }
     },
   }

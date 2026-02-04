@@ -1,9 +1,18 @@
 #!/usr/bin/env bun
-import { launch as launchView, launchDirectory, createFileProvider, createStdinProvider } from "@tooee/view"
+import {
+  launch as launchView,
+  launchDirectory,
+  createFileProvider,
+  createStdinProvider,
+} from "@tooee/view"
 import { statSync } from "fs"
 import { launch as launchAsk } from "@tooee/ask"
 import { launch as launchChoose, createStdinChooseProvider } from "@tooee/choose"
-import { launch as launchTable, createFileProvider as createTableFileProvider, createStdinProvider as createTableStdinProvider } from "@tooee/table"
+import {
+  launch as launchTable,
+  createFileProvider as createTableFileProvider,
+  createStdinProvider as createTableStdinProvider,
+} from "@tooee/table"
 
 const [command, ...args] = process.argv.slice(2)
 
@@ -11,7 +20,7 @@ function printUsage(): void {
   console.log("Usage: tooee <command> [options]")
   console.log("")
   console.log("Commands:")
-  console.log("  view [file]    Display markdown, code, or text")
+  console.log("  view [file]    Display markdown, code, text, or images")
   console.log("  ask [prompt]   Gather user input")
   console.log("  choose         Select items from a filterable list (stdin)")
   console.log("  table [file]   Display tabular data (CSV, TSV, JSON)")
@@ -19,6 +28,7 @@ function printUsage(): void {
   console.log("")
   console.log("Examples:")
   console.log("  tooee view README.md")
+  console.log("  tooee view photo.png")
   console.log("  cat file.md | tooee view")
   console.log('  tooee ask "Search for:"')
   console.log('  echo -e "foo\\nbar\\nbaz" | tooee choose')
@@ -41,9 +51,7 @@ switch (command) {
         // Fall through to file provider which will show its own error
       }
     }
-    const contentProvider = filePath
-      ? createFileProvider(filePath)
-      : createStdinProvider()
+    const contentProvider = filePath ? createFileProvider(filePath) : createStdinProvider()
     launchView({ contentProvider })
     break
   }
@@ -80,7 +88,9 @@ switch (command) {
   }
 
   case "request": {
-    console.error("tooee request requires a content provider. Use as a library: import { launch } from '@tooee/request'")
+    console.error(
+      "tooee request requires a content provider. Use as a library: import { launch } from '@tooee/request'",
+    )
     process.exit(1)
     break
   }

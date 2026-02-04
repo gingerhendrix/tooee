@@ -1,9 +1,15 @@
 import { useState, useEffect, useRef, useMemo } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
-import { MarkdownView, CodeView, AppLayout, useTheme, useHasOverlay } from "@tooee/react"
+import { MarkdownView, CodeView, ImageView, AppLayout, useTheme, useHasOverlay } from "@tooee/react"
 import { useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
-import { useThemeCommands, useQuitCommand, useCopyCommand, useModalNavigationCommands, useCommandPalette } from "@tooee/shell"
+import {
+  useThemeCommands,
+  useQuitCommand,
+  useCopyCommand,
+  useModalNavigationCommands,
+  useCommandPalette,
+} from "@tooee/shell"
 import { useConfig } from "@tooee/config"
 import { marked } from "marked"
 import type { ViewContent, ViewContentProvider, ViewInteractionHandler } from "./types.ts"
@@ -33,7 +39,8 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
 
   // For markdown: compute block count and block-to-line mapping
   const { blockCount, blockLineMap } = useMemo(() => {
-    if (!content || content.format !== "markdown") return { blockCount: undefined, blockLineMap: undefined }
+    if (!content || content.format !== "markdown")
+      return { blockCount: undefined, blockLineMap: undefined }
     const tokens = marked.lexer(content.body)
     const blocks = tokens.filter((t) => t.type !== "space")
     const lineMap: number[] = []
@@ -71,18 +78,20 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
   useQuitCommand()
   useCopyCommand({ getText: () => content?.body })
 
-  const palette = useCommandPalette()
+  const _palette = useCommandPalette()
 
-  const customActions: ActionDefinition[] | undefined = interactionHandler?.actions.map((action) => ({
-    id: action.id,
-    title: action.title,
-    hotkey: action.hotkey,
-    handler: () => {
-      if (content) {
-        action.handler(content)
-      }
-    },
-  }))
+  const customActions: ActionDefinition[] | undefined = interactionHandler?.actions.map(
+    (action) => ({
+      id: action.id,
+      title: action.title,
+      hotkey: action.hotkey,
+      handler: () => {
+        if (content) {
+          action.handler(content)
+        }
+      },
+    }),
+  )
 
   useActions(customActions)
 
@@ -90,7 +99,8 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
     () => (nav.matchingLines.length > 0 ? new Set(nav.matchingLines) : undefined),
     [nav.matchingLines],
   )
-  const currentMatchLine = nav.matchingLines.length > 0 ? nav.matchingLines[nav.currentMatchIndex] : undefined
+  const currentMatchLine =
+    nav.matchingLines.length > 0 ? nav.matchingLines[nav.currentMatchIndex] : undefined
 
   // For markdown: convert matching lines to matching blocks
   const matchingBlocks = useMemo(() => {
@@ -145,7 +155,11 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
           <MarkdownView
             content={content.body}
             activeBlock={cursorLine}
-            selectedBlocks={selectionStart != null && selectionEnd != null ? { start: selectionStart, end: selectionEnd } : undefined}
+            selectedBlocks={
+              selectionStart != null && selectionEnd != null
+                ? { start: selectionStart, end: selectionEnd }
+                : undefined
+            }
             matchingBlocks={matchingBlocks}
             currentMatchBlock={currentMatchBlock}
           />
@@ -175,6 +189,8 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
             currentMatchLine={currentMatchLine}
           />
         )
+      case "image":
+        return <ImageView src={content.body} />
     }
   }
 
@@ -182,7 +198,11 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
 
   return (
     <AppLayout
-      titleBar={content.title ? { title: content.title, subtitle: content.format } : { title: content.format }}
+      titleBar={
+        content.title
+          ? { title: content.title, subtitle: content.format }
+          : { title: content.format }
+      }
       statusBar={{
         items: [
           { label: "Theme:", value: themeName },

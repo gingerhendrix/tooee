@@ -1,6 +1,7 @@
 // Components
 export { MarkdownView } from "./components/MarkdownView.tsx"
 export { CodeView } from "./components/CodeView.tsx"
+export { ImageView } from "./components/ImageView.tsx"
 export { StatusBar } from "./components/StatusBar.tsx"
 export type { StatusBarItem } from "./components/StatusBar.tsx"
 export { TitleBar } from "./components/TitleBar.tsx"
@@ -27,7 +28,13 @@ export {
   loadThemes,
   getThemeNames,
 } from "./theme.tsx"
-export type { Theme, ThemeJSON, ResolvedTheme, ThemeProviderProps, ThemeSwitcherProviderProps } from "./theme.tsx"
+export type {
+  Theme,
+  ThemeJSON,
+  ResolvedTheme,
+  ThemeProviderProps,
+  ThemeSwitcherProviderProps,
+} from "./theme.tsx"
 
 // Overlay
 export { OverlayContext, useOverlay, useCurrentOverlay, useHasOverlay } from "./overlay-context.tsx"
