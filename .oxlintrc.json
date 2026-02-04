@@ -1,0 +1,46 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "unicorn"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "rules": {
+    // Allow unused vars prefixed with underscore
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
+    // Allow console in this TUI app context
+    "no-console": "off",
+    // Using custom JSX runtime (@opentui/react), not traditional React
+    "react/react-in-jsx-scope": "off",
+    // Array index keys are often fine in this TUI context where items don't have stable IDs
+    "react/no-array-index-key": "off",
+    // Await in loops is intentional for sequential operations (e2e tests, streaming)
+    "no-await-in-loop": "off",
+    // Function scoping warnings - sometimes inner functions make sense for readability
+    "unicorn/consistent-function-scoping": "off",
+    // Using .sort() on new arrays is fine
+    "unicorn/no-array-sort": "off"
+  },
+  "settings": {
+    "react": {
+      "formComponents": [],
+      "linkComponents": [],
+      "componentWrapperFunctions": []
+    }
+  },
+  "env": {
+    "builtin": true
+  },
+  "globals": {
+    "Bun": "readonly"
+  },
+  "ignorePatterns": ["node_modules", "dist", "*.d.ts"]
+}
