@@ -1,0 +1,12 @@
+{
+  "name": "@tooee/examples",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@tooee/ask": "workspace:*",
+    "@tooee/choose": "workspace:*",
+    "@tooee/request": "workspace:*",
+    "@tooee/table": "workspace:*",
+    "@tooee/view": "workspace:*"
+  }
+}
