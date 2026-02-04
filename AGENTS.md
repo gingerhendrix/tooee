@@ -105,6 +105,7 @@ useCommand({
 **Hotkey format**: modifier keys (`ctrl+`, `alt+`, `shift+`), sequences (`g g`), leader keys (`<leader>n`).
 
 **Keymap overrides**: set `keys` in config to remap commands:
+
 ```json
 { "keys": { "view.scroll-down": "ctrl+d" } }
 ```
@@ -116,6 +117,7 @@ The `CommandProvider` handles keyboard dispatch, sequence tracking, and mode fil
 `@tooee/react` manages themes.
 
 **Theme sources** (merged in order):
+
 1. Bundled: `packages/react/src/themes/*.json` (39 themes)
 2. Global: `~/.config/tooee/themes/*.json`
 3. Project: `.tooee/themes/*.json`
@@ -133,11 +135,13 @@ The `CommandProvider` handles keyboard dispatch, sequence tracking, and mode fil
 **`launchCli()`**: creates an OpenTUI renderer and root element for CLI usage.
 
 **Standard command hooks**:
+
 - `useThemeCommands()` — `t`/`T` to cycle themes
 - `useQuitCommand()` — `q` to exit
 - `useCopyCommand()` — `y` to copy
 
 **`useModalNavigationCommands()`**: complete modal navigation system providing:
+
 - **Command mode**: `j`/`k` scroll, `gg`/`G` jump, `/` search, `n`/`N` next/prev match, `c` enter cursor mode
 - **Cursor mode**: `j`/`k` move cursor, `v` enter select, `Escape` back to command
 - **Select mode**: `j`/`k` extend selection, `y` copy selection, `Escape` back to cursor

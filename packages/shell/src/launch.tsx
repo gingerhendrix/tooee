@@ -11,7 +11,5 @@ export async function launchCli(
     useAlternateScreen: opts?.useAlternateScreen ?? true,
     exitOnCtrlC: opts?.exitOnCtrlC ?? true,
   })
-  createRoot(renderer).render(
-    <TooeeProvider>{node}</TooeeProvider>,
-  )
+  createRoot(renderer).render(<TooeeProvider>{node}</TooeeProvider>)
 }

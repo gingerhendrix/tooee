@@ -5,6 +5,7 @@ How to test terminal user interfaces built with OpenTUI.
 ## Overview
 
 OpenTUI provides:
+
 - **Test Renderer**: Headless renderer for testing
 - **Snapshot Testing**: Verify visual output
 - **Interaction Testing**: Simulate user input
@@ -31,8 +32,8 @@ Create a test renderer for headless testing:
 import { createTestRenderer } from "@opentui/core/testing"
 
 const testSetup = await createTestRenderer({
-  width: 80,     // Terminal width
-  height: 24,    // Terminal height
+  width: 80, // Terminal width
+  height: 24, // Terminal height
 })
 ```
 
@@ -50,15 +51,15 @@ test("renders text", async () => {
     width: 40,
     height: 10,
   })
-  
+
   const text = new TextRenderable(testSetup.renderer, {
     id: "greeting",
     content: "Hello, World!",
   })
-  
+
   testSetup.renderer.root.add(text)
   await testSetup.renderOnce()
-  
+
   expect(testSetup.captureCharFrame()).toContain("Hello, World!")
 })
 ```
@@ -83,20 +84,22 @@ test("component matches snapshot", async () => {
     width: 40,
     height: 10,
   })
-  
+
   const box = new BoxRenderable(testSetup.renderer, {
     id: "box",
     border: true,
     width: 20,
     height: 5,
   })
-  box.add(new TextRenderable(testSetup.renderer, {
-    content: "Content",
-  }))
-  
+  box.add(
+    new TextRenderable(testSetup.renderer, {
+      content: "Content",
+    }),
+  )
+
   testSetup.renderer.root.add(box)
   await testSetup.renderOnce()
-  
+
   expect(testSetup.captureCharFrame()).toMatchSnapshot()
 })
 ```
@@ -112,6 +115,7 @@ import { testRender } from "@opentui/react/test-utils"
 ```
 
 This utility:
+
 - Creates a headless test renderer
 - Sets up the React Act environment automatically
 - Handles proper unmounting on destroy
@@ -128,14 +132,11 @@ function Greeting({ name }: { name: string }) {
 }
 
 test("Greeting renders name", async () => {
-  const testSetup = await testRender(
-    <Greeting name="World" />,
-    { width: 80, height: 24 }
-  )
-  
+  const testSetup = await testRender(<Greeting name="World" />, { width: 80, height: 24 })
+
   await testSetup.renderOnce()
   const frame = testSetup.captureCharFrame()
-  
+
   expect(frame).toContain("Hello, World!")
 })
 ```
@@ -159,12 +160,12 @@ test("component matches snapshot", async () => {
     <box style={{ width: 20, height: 5, border: true }}>
       <text>Content</text>
     </box>,
-    { width: 25, height: 8 }
+    { width: 25, height: 8 },
   )
-  
+
   await testSetup.renderOnce()
   const frame = testSetup.captureCharFrame()
-  
+
   expect(frame).toMatchSnapshot()
 })
 ```
@@ -194,14 +195,11 @@ function Counter() {
 }
 
 test("Counter shows initial value", async () => {
-  testSetup = await testRender(
-    <Counter />,
-    { width: 20, height: 5 }
-  )
-  
+  testSetup = await testRender(<Counter />, { width: 20, height: 5 })
+
   await testSetup.renderOnce()
   const frame = testSetup.captureCharFrame()
-  
+
   expect(frame).toContain("Count: 0")
 })
 ```
@@ -246,12 +244,12 @@ describe("MyComponent", () => {
 
 The `testRender` function returns a test setup object with these properties:
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `renderer` | `Renderer` | The headless renderer instance |
-| `renderOnce` | `() => Promise<void>` | Triggers a single render cycle |
-| `captureCharFrame` | `() => string` | Captures current output as text |
-| `resize` | `(width, height) => void` | Resize the virtual terminal |
+| Property           | Type                      | Description                     |
+| ------------------ | ------------------------- | ------------------------------- |
+| `renderer`         | `Renderer`                | The headless renderer instance  |
+| `renderOnce`       | `() => Promise<void>`     | Triggers a single render cycle  |
+| `captureCharFrame` | `() => string`            | Captures current output as text |
+| `resize`           | `(width, height) => void` | Resize the virtual terminal     |
 
 ## Solid Testing
 
@@ -276,14 +274,11 @@ function Greeting(props: { name: string }) {
 }
 
 test("Greeting renders name", async () => {
-  const testSetup = await testRender(
-    () => <Greeting name="World" />,
-    { width: 80, height: 24 }
-  )
-  
+  const testSetup = await testRender(() => <Greeting name="World" />, { width: 80, height: 24 })
+
   await testSetup.renderOnce()
   const frame = testSetup.captureCharFrame()
-  
+
   expect(frame).toContain("Hello, World!")
 })
 ```
@@ -309,12 +304,12 @@ test("component matches snapshot", async () => {
         <text>Content</text>
       </box>
     ),
-    { width: 25, height: 8 }
+    { width: 25, height: 8 },
   )
-  
+
   await testSetup.renderOnce()
   const frame = testSetup.captureCharFrame()
-  
+
   expect(frame).toMatchSnapshot()
 })
 ```
@@ -357,10 +352,10 @@ test("responds to keyboard", async () => {
     width: 40,
     height: 10,
   })
-  
+
   // Create component that responds to keys
   // ...
-  
+
   // Simulate keypress
   testSetup.renderer.keyInput.emit("keypress", {
     name: "enter",
@@ -372,10 +367,10 @@ test("responds to keyboard", async () => {
     eventType: "press",
     repeated: false,
   })
-  
+
   // Render after the keypress
   await testSetup.renderOnce()
-  
+
   expect(testSetup.captureCharFrame()).toContain("Selected")
 })
 ```
@@ -400,15 +395,15 @@ test("input receives focus", async () => {
     width: 40,
     height: 10,
   })
-  
+
   const input = new InputRenderable(testSetup.renderer, {
     id: "test-input",
     placeholder: "Type here",
   })
   testSetup.renderer.root.add(input)
-  
+
   input.focus()
-  
+
   expect(input.isFocused()).toBe(true)
 })
 ```
@@ -461,21 +456,18 @@ afterEach(() => {
 })
 
 test("shows loading state", async () => {
-  testSetup = await testRender(
-    <DataLoader loading={true} />,
-    { width: 40, height: 10 }
-  )
-  
+  testSetup = await testRender(<DataLoader loading={true} />, { width: 40, height: 10 })
+
   await testSetup.renderOnce()
   expect(testSetup.captureCharFrame()).toContain("Loading...")
 })
 
 test("shows data when loaded", async () => {
-  testSetup = await testRender(
-    <DataLoader loading={false} data={["Item 1", "Item 2"]} />,
-    { width: 40, height: 10 }
-  )
-  
+  testSetup = await testRender(<DataLoader loading={false} data={["Item 1", "Item 2"]} />, {
+    width: 40,
+    height: 10,
+  })
+
   await testSetup.renderOnce()
   const frame = testSetup.captureCharFrame()
   expect(frame).toContain("Item 1")
@@ -488,16 +480,13 @@ test("shows data when loaded", async () => {
 ```tsx
 test("renders all items", async () => {
   const items = ["Apple", "Banana", "Cherry"]
-  
-  testSetup = await testRender(
-    <ItemList items={items} />,
-    { width: 40, height: 10 }
-  )
-  
+
+  testSetup = await testRender(<ItemList items={items} />, { width: 40, height: 10 })
+
   await testSetup.renderOnce()
   const frame = testSetup.captureCharFrame()
-  
-  items.forEach(item => {
+
+  items.forEach((item) => {
     expect(frame).toContain(item)
   })
 })
@@ -509,9 +498,9 @@ test("renders all items", async () => {
 test("matches layout snapshot", async () => {
   testSetup = await testRender(
     <AppLayout />,
-    { width: 120, height: 40 }  // Larger viewport
+    { width: 120, height: 40 }, // Larger viewport
   )
-  
+
   await testSetup.renderOnce()
   expect(testSetup.captureCharFrame()).toMatchSnapshot()
 })
@@ -525,17 +514,14 @@ test("matches layout snapshot", async () => {
 import { testRender } from "@opentui/react/test-utils"
 
 test("debug output", async () => {
-  const testSetup = await testRender(
-    <MyComponent />,
-    { width: 40, height: 10 }
-  )
-  
+  const testSetup = await testRender(<MyComponent />, { width: 40, height: 10 })
+
   await testSetup.renderOnce()
   const frame = testSetup.captureCharFrame()
-  
+
   // Print to see what's rendered
   console.log(frame)
-  
+
   expect(frame).toContain("expected")
 })
 ```
@@ -590,8 +576,8 @@ Be consistent with test dimensions for stable snapshots:
 
 ```typescript
 const testSetup = await createTestRenderer({
-  width: 80,   // Standard width
-  height: 24,  // Standard height
+  width: 80, // Standard width
+  height: 24, // Standard height
 })
 ```
 

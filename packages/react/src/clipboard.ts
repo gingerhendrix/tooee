@@ -34,9 +34,7 @@ export async function readClipboard(): Promise<ClipboardContent | undefined> {
   if (os === "win32" || release().includes("WSL")) {
     const script =
       "Add-Type -AssemblyName System.Windows.Forms; $img = [System.Windows.Forms.Clipboard]::GetImage(); if ($img) { $ms = New-Object System.IO.MemoryStream; $img.Save($ms, [System.Drawing.Imaging.ImageFormat]::Png); [System.Convert]::ToBase64String($ms.ToArray()) }"
-    const base64 = await $`powershell.exe -command "${script}"`
-      .nothrow()
-      .text()
+    const base64 = await $`powershell.exe -command "${script}"`.nothrow().text()
     if (base64) {
       const imageBuffer = Buffer.from(base64.trim(), "base64")
       if (imageBuffer.length > 0) {
@@ -56,9 +54,7 @@ export async function readClipboard(): Promise<ClipboardContent | undefined> {
       }
     }
     if (Bun.which("xclip")) {
-      const x11 = await $`xclip -selection clipboard -t image/png -o`
-        .nothrow()
-        .arrayBuffer()
+      const x11 = await $`xclip -selection clipboard -t image/png -o`.nothrow().arrayBuffer()
       if (x11 && x11.byteLength > 0) {
         return {
           data: Buffer.from(x11).toString("base64"),
@@ -90,26 +86,17 @@ export async function readClipboardText(): Promise<string | undefined> {
       return result || undefined
     }
     if (Bun.which("xclip")) {
-      const result = await $`xclip -selection clipboard -o`
-        .nothrow()
-        .quiet()
-        .text()
+      const result = await $`xclip -selection clipboard -o`.nothrow().quiet().text()
       return result || undefined
     }
     if (Bun.which("xsel")) {
-      const result = await $`xsel --clipboard --output`
-        .nothrow()
-        .quiet()
-        .text()
+      const result = await $`xsel --clipboard --output`.nothrow().quiet().text()
       return result || undefined
     }
   }
 
   if (os === "win32") {
-    const result = await $`powershell -command "Get-Clipboard"`
-      .nothrow()
-      .quiet()
-      .text()
+    const result = await $`powershell -command "Get-Clipboard"`.nothrow().quiet().text()
     return result || undefined
   }
 
@@ -126,9 +113,7 @@ function getCopyMethod(): (text: string) => Promise<void> {
   if (os === "darwin" && Bun.which("osascript")) {
     copyMethod = async (text: string) => {
       const escaped = text.replace(/\\/g, "\\\\").replace(/"/g, '\\"')
-      await $`osascript -e 'set the clipboard to "${escaped}"'`
-        .nothrow()
-        .quiet()
+      await $`osascript -e 'set the clipboard to "${escaped}"'`.nothrow().quiet()
     }
     return copyMethod
   }
@@ -178,9 +163,7 @@ function getCopyMethod(): (text: string) => Promise<void> {
   if (os === "win32") {
     copyMethod = async (text: string) => {
       const escaped = text.replace(/"/g, '""')
-      await $`powershell -command "Set-Clipboard -Value \"${escaped}\""`
-        .nothrow()
-        .quiet()
+      await $`powershell -command "Set-Clipboard -Value \"${escaped}\""`.nothrow().quiet()
     }
     return copyMethod
   }

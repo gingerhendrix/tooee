@@ -6,9 +6,5 @@
     "rootDir": "./src"
   },
   "include": ["./src"],
-  "references": [
-    { "path": "../react" },
-    { "path": "../commands" },
-    { "path": "../shell" }
-  ]
+  "references": [{ "path": "../react" }, { "path": "../commands" }, { "path": "../shell" }]
 }

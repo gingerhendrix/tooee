@@ -1,4 +1,12 @@
-import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from "react"
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  type ReactNode,
+} from "react"
 import { RGBA, SyntaxStyle } from "@opentui/core"
 import { writeGlobalConfig } from "@tooee/config"
 import { readFileSync, readdirSync, existsSync } from "fs"
@@ -85,19 +93,58 @@ export interface ResolvedTheme {
 
 // All keys of ResolvedTheme for iteration
 const RESOLVED_KEYS: (keyof ResolvedTheme)[] = [
-  "primary", "secondary", "accent", "error", "warning", "success", "info",
-  "text", "textMuted", "background", "backgroundPanel", "backgroundElement",
-  "border", "borderActive", "borderSubtle",
-  "cursorLine", "selection",
-  "diffAdded", "diffRemoved", "diffContext", "diffHunkHeader",
-  "diffHighlightAdded", "diffHighlightRemoved", "diffAddedBg", "diffRemovedBg",
-  "diffContextBg", "diffLineNumber", "diffAddedLineNumberBg", "diffRemovedLineNumberBg",
-  "markdownText", "markdownHeading", "markdownLink", "markdownLinkText",
-  "markdownCode", "markdownBlockQuote", "markdownEmph", "markdownStrong",
-  "markdownHorizontalRule", "markdownListItem", "markdownListEnumeration",
-  "markdownImage", "markdownImageText", "markdownCodeBlock",
-  "syntaxComment", "syntaxKeyword", "syntaxFunction", "syntaxVariable",
-  "syntaxString", "syntaxNumber", "syntaxType", "syntaxOperator", "syntaxPunctuation",
+  "primary",
+  "secondary",
+  "accent",
+  "error",
+  "warning",
+  "success",
+  "info",
+  "text",
+  "textMuted",
+  "background",
+  "backgroundPanel",
+  "backgroundElement",
+  "border",
+  "borderActive",
+  "borderSubtle",
+  "cursorLine",
+  "selection",
+  "diffAdded",
+  "diffRemoved",
+  "diffContext",
+  "diffHunkHeader",
+  "diffHighlightAdded",
+  "diffHighlightRemoved",
+  "diffAddedBg",
+  "diffRemovedBg",
+  "diffContextBg",
+  "diffLineNumber",
+  "diffAddedLineNumberBg",
+  "diffRemovedLineNumberBg",
+  "markdownText",
+  "markdownHeading",
+  "markdownLink",
+  "markdownLinkText",
+  "markdownCode",
+  "markdownBlockQuote",
+  "markdownEmph",
+  "markdownStrong",
+  "markdownHorizontalRule",
+  "markdownListItem",
+  "markdownListEnumeration",
+  "markdownImage",
+  "markdownImageText",
+  "markdownCodeBlock",
+  "syntaxComment",
+  "syntaxKeyword",
+  "syntaxFunction",
+  "syntaxVariable",
+  "syntaxString",
+  "syntaxNumber",
+  "syntaxType",
+  "syntaxOperator",
+  "syntaxPunctuation",
 ]
 
 // Fallbacks used when a theme key is missing
@@ -193,67 +240,195 @@ function getSyntaxRules(resolved: ResolvedTheme) {
   return [
     { scope: ["default"], style: { foreground: RGBA.fromHex(resolved.text) } },
     { scope: ["prompt"], style: { foreground: RGBA.fromHex(resolved.accent) } },
-    { scope: ["comment", "comment.documentation"], style: { foreground: RGBA.fromHex(resolved.syntaxComment), italic: true } },
+    {
+      scope: ["comment", "comment.documentation"],
+      style: { foreground: RGBA.fromHex(resolved.syntaxComment), italic: true },
+    },
     { scope: ["string", "symbol"], style: { foreground: RGBA.fromHex(resolved.syntaxString) } },
     { scope: ["number", "boolean"], style: { foreground: RGBA.fromHex(resolved.syntaxNumber) } },
     { scope: ["character.special"], style: { foreground: RGBA.fromHex(resolved.syntaxString) } },
-    { scope: ["keyword.return", "keyword.conditional", "keyword.repeat", "keyword.coroutine"], style: { foreground: RGBA.fromHex(resolved.syntaxKeyword), italic: true } },
-    { scope: ["keyword.type"], style: { foreground: RGBA.fromHex(resolved.syntaxType), bold: true, italic: true } },
-    { scope: ["keyword.function", "function.method"], style: { foreground: RGBA.fromHex(resolved.syntaxFunction) } },
-    { scope: ["keyword"], style: { foreground: RGBA.fromHex(resolved.syntaxKeyword), italic: true } },
+    {
+      scope: ["keyword.return", "keyword.conditional", "keyword.repeat", "keyword.coroutine"],
+      style: { foreground: RGBA.fromHex(resolved.syntaxKeyword), italic: true },
+    },
+    {
+      scope: ["keyword.type"],
+      style: { foreground: RGBA.fromHex(resolved.syntaxType), bold: true, italic: true },
+    },
+    {
+      scope: ["keyword.function", "function.method"],
+      style: { foreground: RGBA.fromHex(resolved.syntaxFunction) },
+    },
+    {
+      scope: ["keyword"],
+      style: { foreground: RGBA.fromHex(resolved.syntaxKeyword), italic: true },
+    },
     { scope: ["keyword.import"], style: { foreground: RGBA.fromHex(resolved.syntaxKeyword) } },
-    { scope: ["operator", "keyword.operator", "punctuation.delimiter"], style: { foreground: RGBA.fromHex(resolved.syntaxOperator) } },
-    { scope: ["keyword.conditional.ternary"], style: { foreground: RGBA.fromHex(resolved.syntaxOperator) } },
-    { scope: ["variable", "variable.parameter", "function.method.call", "function.call"], style: { foreground: RGBA.fromHex(resolved.syntaxVariable) } },
-    { scope: ["variable.member", "function", "constructor"], style: { foreground: RGBA.fromHex(resolved.syntaxFunction) } },
+    {
+      scope: ["operator", "keyword.operator", "punctuation.delimiter"],
+      style: { foreground: RGBA.fromHex(resolved.syntaxOperator) },
+    },
+    {
+      scope: ["keyword.conditional.ternary"],
+      style: { foreground: RGBA.fromHex(resolved.syntaxOperator) },
+    },
+    {
+      scope: ["variable", "variable.parameter", "function.method.call", "function.call"],
+      style: { foreground: RGBA.fromHex(resolved.syntaxVariable) },
+    },
+    {
+      scope: ["variable.member", "function", "constructor"],
+      style: { foreground: RGBA.fromHex(resolved.syntaxFunction) },
+    },
     { scope: ["type", "module"], style: { foreground: RGBA.fromHex(resolved.syntaxType) } },
     { scope: ["constant"], style: { foreground: RGBA.fromHex(resolved.syntaxNumber) } },
     { scope: ["property"], style: { foreground: RGBA.fromHex(resolved.syntaxVariable) } },
     { scope: ["class"], style: { foreground: RGBA.fromHex(resolved.syntaxType) } },
     { scope: ["parameter"], style: { foreground: RGBA.fromHex(resolved.syntaxVariable) } },
-    { scope: ["punctuation", "punctuation.bracket"], style: { foreground: RGBA.fromHex(resolved.syntaxPunctuation) } },
-    { scope: ["variable.builtin", "type.builtin", "function.builtin", "module.builtin", "constant.builtin"], style: { foreground: RGBA.fromHex(resolved.error) } },
+    {
+      scope: ["punctuation", "punctuation.bracket"],
+      style: { foreground: RGBA.fromHex(resolved.syntaxPunctuation) },
+    },
+    {
+      scope: [
+        "variable.builtin",
+        "type.builtin",
+        "function.builtin",
+        "module.builtin",
+        "constant.builtin",
+      ],
+      style: { foreground: RGBA.fromHex(resolved.error) },
+    },
     { scope: ["variable.super"], style: { foreground: RGBA.fromHex(resolved.error) } },
-    { scope: ["string.escape", "string.regexp"], style: { foreground: RGBA.fromHex(resolved.syntaxKeyword) } },
-    { scope: ["keyword.directive"], style: { foreground: RGBA.fromHex(resolved.syntaxKeyword), italic: true } },
-    { scope: ["punctuation.special"], style: { foreground: RGBA.fromHex(resolved.syntaxOperator) } },
-    { scope: ["keyword.modifier"], style: { foreground: RGBA.fromHex(resolved.syntaxKeyword), italic: true } },
-    { scope: ["keyword.exception"], style: { foreground: RGBA.fromHex(resolved.syntaxKeyword), italic: true } },
+    {
+      scope: ["string.escape", "string.regexp"],
+      style: { foreground: RGBA.fromHex(resolved.syntaxKeyword) },
+    },
+    {
+      scope: ["keyword.directive"],
+      style: { foreground: RGBA.fromHex(resolved.syntaxKeyword), italic: true },
+    },
+    {
+      scope: ["punctuation.special"],
+      style: { foreground: RGBA.fromHex(resolved.syntaxOperator) },
+    },
+    {
+      scope: ["keyword.modifier"],
+      style: { foreground: RGBA.fromHex(resolved.syntaxKeyword), italic: true },
+    },
+    {
+      scope: ["keyword.exception"],
+      style: { foreground: RGBA.fromHex(resolved.syntaxKeyword), italic: true },
+    },
     // Markdown
-    { scope: ["markup.heading", "markup.heading.1", "markup.heading.2", "markup.heading.3", "markup.heading.4", "markup.heading.5", "markup.heading.6"], style: { foreground: RGBA.fromHex(resolved.markdownHeading), bold: true } },
-    { scope: ["markup.bold", "markup.strong"], style: { foreground: RGBA.fromHex(resolved.markdownStrong), bold: true } },
-    { scope: ["markup.italic"], style: { foreground: RGBA.fromHex(resolved.markdownEmph), italic: true } },
+    {
+      scope: [
+        "markup.heading",
+        "markup.heading.1",
+        "markup.heading.2",
+        "markup.heading.3",
+        "markup.heading.4",
+        "markup.heading.5",
+        "markup.heading.6",
+      ],
+      style: { foreground: RGBA.fromHex(resolved.markdownHeading), bold: true },
+    },
+    {
+      scope: ["markup.bold", "markup.strong"],
+      style: { foreground: RGBA.fromHex(resolved.markdownStrong), bold: true },
+    },
+    {
+      scope: ["markup.italic"],
+      style: { foreground: RGBA.fromHex(resolved.markdownEmph), italic: true },
+    },
     { scope: ["markup.list"], style: { foreground: RGBA.fromHex(resolved.markdownListItem) } },
-    { scope: ["markup.quote"], style: { foreground: RGBA.fromHex(resolved.markdownBlockQuote), italic: true } },
-    { scope: ["markup.raw", "markup.raw.block"], style: { foreground: RGBA.fromHex(resolved.markdownCode) } },
-    { scope: ["markup.raw.inline"], style: { foreground: RGBA.fromHex(resolved.markdownCode), background: RGBA.fromHex(resolved.background) } },
-    { scope: ["markup.link"], style: { foreground: RGBA.fromHex(resolved.markdownLink), underline: true } },
-    { scope: ["markup.link.label"], style: { foreground: RGBA.fromHex(resolved.markdownLinkText), underline: true } },
-    { scope: ["markup.link.url"], style: { foreground: RGBA.fromHex(resolved.markdownLink), underline: true } },
+    {
+      scope: ["markup.quote"],
+      style: { foreground: RGBA.fromHex(resolved.markdownBlockQuote), italic: true },
+    },
+    {
+      scope: ["markup.raw", "markup.raw.block"],
+      style: { foreground: RGBA.fromHex(resolved.markdownCode) },
+    },
+    {
+      scope: ["markup.raw.inline"],
+      style: {
+        foreground: RGBA.fromHex(resolved.markdownCode),
+        background: RGBA.fromHex(resolved.background),
+      },
+    },
+    {
+      scope: ["markup.link"],
+      style: { foreground: RGBA.fromHex(resolved.markdownLink), underline: true },
+    },
+    {
+      scope: ["markup.link.label"],
+      style: { foreground: RGBA.fromHex(resolved.markdownLinkText), underline: true },
+    },
+    {
+      scope: ["markup.link.url"],
+      style: { foreground: RGBA.fromHex(resolved.markdownLink), underline: true },
+    },
     { scope: ["label"], style: { foreground: RGBA.fromHex(resolved.markdownLinkText) } },
     { scope: ["spell", "nospell"], style: { foreground: RGBA.fromHex(resolved.text) } },
     { scope: ["conceal"], style: { foreground: RGBA.fromHex(resolved.textMuted) } },
-    { scope: ["string.special", "string.special.url"], style: { foreground: RGBA.fromHex(resolved.markdownLink), underline: true } },
+    {
+      scope: ["string.special", "string.special.url"],
+      style: { foreground: RGBA.fromHex(resolved.markdownLink), underline: true },
+    },
     { scope: ["character"], style: { foreground: RGBA.fromHex(resolved.syntaxString) } },
     { scope: ["float"], style: { foreground: RGBA.fromHex(resolved.syntaxNumber) } },
-    { scope: ["comment.error"], style: { foreground: RGBA.fromHex(resolved.error), italic: true, bold: true } },
-    { scope: ["comment.warning"], style: { foreground: RGBA.fromHex(resolved.warning), italic: true, bold: true } },
-    { scope: ["comment.todo", "comment.note"], style: { foreground: RGBA.fromHex(resolved.info), italic: true, bold: true } },
+    {
+      scope: ["comment.error"],
+      style: { foreground: RGBA.fromHex(resolved.error), italic: true, bold: true },
+    },
+    {
+      scope: ["comment.warning"],
+      style: { foreground: RGBA.fromHex(resolved.warning), italic: true, bold: true },
+    },
+    {
+      scope: ["comment.todo", "comment.note"],
+      style: { foreground: RGBA.fromHex(resolved.info), italic: true, bold: true },
+    },
     { scope: ["namespace"], style: { foreground: RGBA.fromHex(resolved.syntaxType) } },
     { scope: ["field"], style: { foreground: RGBA.fromHex(resolved.syntaxVariable) } },
-    { scope: ["type.definition"], style: { foreground: RGBA.fromHex(resolved.syntaxType), bold: true } },
+    {
+      scope: ["type.definition"],
+      style: { foreground: RGBA.fromHex(resolved.syntaxType), bold: true },
+    },
     { scope: ["keyword.export"], style: { foreground: RGBA.fromHex(resolved.syntaxKeyword) } },
     { scope: ["attribute", "annotation"], style: { foreground: RGBA.fromHex(resolved.warning) } },
     { scope: ["tag"], style: { foreground: RGBA.fromHex(resolved.error) } },
     { scope: ["tag.attribute"], style: { foreground: RGBA.fromHex(resolved.syntaxKeyword) } },
     { scope: ["tag.delimiter"], style: { foreground: RGBA.fromHex(resolved.syntaxOperator) } },
     { scope: ["markup.strikethrough"], style: { foreground: RGBA.fromHex(resolved.textMuted) } },
-    { scope: ["markup.underline"], style: { foreground: RGBA.fromHex(resolved.text), underline: true } },
+    {
+      scope: ["markup.underline"],
+      style: { foreground: RGBA.fromHex(resolved.text), underline: true },
+    },
     { scope: ["markup.list.checked"], style: { foreground: RGBA.fromHex(resolved.success) } },
     { scope: ["markup.list.unchecked"], style: { foreground: RGBA.fromHex(resolved.textMuted) } },
-    { scope: ["diff.plus"], style: { foreground: RGBA.fromHex(resolved.diffAdded), background: RGBA.fromHex(resolved.diffAddedBg) } },
-    { scope: ["diff.minus"], style: { foreground: RGBA.fromHex(resolved.diffRemoved), background: RGBA.fromHex(resolved.diffRemovedBg) } },
-    { scope: ["diff.delta"], style: { foreground: RGBA.fromHex(resolved.diffContext), background: RGBA.fromHex(resolved.diffContextBg) } },
+    {
+      scope: ["diff.plus"],
+      style: {
+        foreground: RGBA.fromHex(resolved.diffAdded),
+        background: RGBA.fromHex(resolved.diffAddedBg),
+      },
+    },
+    {
+      scope: ["diff.minus"],
+      style: {
+        foreground: RGBA.fromHex(resolved.diffRemoved),
+        background: RGBA.fromHex(resolved.diffRemovedBg),
+      },
+    },
+    {
+      scope: ["diff.delta"],
+      style: {
+        foreground: RGBA.fromHex(resolved.diffContext),
+        background: RGBA.fromHex(resolved.diffContextBg),
+      },
+    },
     { scope: ["error"], style: { foreground: RGBA.fromHex(resolved.error), bold: true } },
     { scope: ["warning"], style: { foreground: RGBA.fromHex(resolved.warning), bold: true } },
     { scope: ["info"], style: { foreground: RGBA.fromHex(resolved.info) } },
@@ -357,24 +532,58 @@ function buildTheme(name: string, mode: "dark" | "light"): Theme {
 
 const hardcodedDefaultTheme: Theme = (() => {
   const colors: ResolvedTheme = {
-    primary: "#7aa2f7", secondary: "#bb9af7", accent: "#7dcfff",
-    error: "#f7768e", warning: "#e0af68", success: "#9ece6a", info: "#7aa2f7",
-    text: "#c0caf5", textMuted: "#565f89",
-    background: "#1a1b26", backgroundPanel: "#1e2030", backgroundElement: "#222436",
-    cursorLine: "#222436", selection: "#1e2030",
-    border: "#565f89", borderActive: "#737aa2", borderSubtle: "#414868",
-    diffAdded: "#4fd6be", diffRemoved: "#c53b53", diffContext: "#828bb8",
-    diffHunkHeader: "#828bb8", diffHighlightAdded: "#b8db87", diffHighlightRemoved: "#e26a75",
-    diffAddedBg: "#20303b", diffRemovedBg: "#37222c", diffContextBg: "#1e2030",
-    diffLineNumber: "#222436", diffAddedLineNumberBg: "#1b2b34", diffRemovedLineNumberBg: "#2d1f26",
-    markdownText: "#c0caf5", markdownHeading: "#bb9af7", markdownLink: "#7aa2f7",
-    markdownLinkText: "#7dcfff", markdownCode: "#9ece6a", markdownBlockQuote: "#e0af68",
-    markdownEmph: "#e0af68", markdownStrong: "#ff966c", markdownHorizontalRule: "#565f89",
-    markdownListItem: "#7aa2f7", markdownListEnumeration: "#7dcfff",
-    markdownImage: "#7aa2f7", markdownImageText: "#7dcfff", markdownCodeBlock: "#c0caf5",
-    syntaxComment: "#565f89", syntaxKeyword: "#bb9af7", syntaxFunction: "#7aa2f7",
-    syntaxVariable: "#c0caf5", syntaxString: "#9ece6a", syntaxNumber: "#ff9e64",
-    syntaxType: "#2ac3de", syntaxOperator: "#89ddff", syntaxPunctuation: "#a9b1d6",
+    primary: "#7aa2f7",
+    secondary: "#bb9af7",
+    accent: "#7dcfff",
+    error: "#f7768e",
+    warning: "#e0af68",
+    success: "#9ece6a",
+    info: "#7aa2f7",
+    text: "#c0caf5",
+    textMuted: "#565f89",
+    background: "#1a1b26",
+    backgroundPanel: "#1e2030",
+    backgroundElement: "#222436",
+    cursorLine: "#222436",
+    selection: "#1e2030",
+    border: "#565f89",
+    borderActive: "#737aa2",
+    borderSubtle: "#414868",
+    diffAdded: "#4fd6be",
+    diffRemoved: "#c53b53",
+    diffContext: "#828bb8",
+    diffHunkHeader: "#828bb8",
+    diffHighlightAdded: "#b8db87",
+    diffHighlightRemoved: "#e26a75",
+    diffAddedBg: "#20303b",
+    diffRemovedBg: "#37222c",
+    diffContextBg: "#1e2030",
+    diffLineNumber: "#222436",
+    diffAddedLineNumberBg: "#1b2b34",
+    diffRemovedLineNumberBg: "#2d1f26",
+    markdownText: "#c0caf5",
+    markdownHeading: "#bb9af7",
+    markdownLink: "#7aa2f7",
+    markdownLinkText: "#7dcfff",
+    markdownCode: "#9ece6a",
+    markdownBlockQuote: "#e0af68",
+    markdownEmph: "#e0af68",
+    markdownStrong: "#ff966c",
+    markdownHorizontalRule: "#565f89",
+    markdownListItem: "#7aa2f7",
+    markdownListEnumeration: "#7dcfff",
+    markdownImage: "#7aa2f7",
+    markdownImageText: "#7dcfff",
+    markdownCodeBlock: "#c0caf5",
+    syntaxComment: "#565f89",
+    syntaxKeyword: "#bb9af7",
+    syntaxFunction: "#7aa2f7",
+    syntaxVariable: "#c0caf5",
+    syntaxString: "#9ece6a",
+    syntaxNumber: "#ff9e64",
+    syntaxType: "#2ac3de",
+    syntaxOperator: "#89ddff",
+    syntaxPunctuation: "#a9b1d6",
   }
   return { name: DEFAULT_THEME_NAME, mode: DEFAULT_MODE, colors, syntax: buildSyntaxStyle(colors) }
 })()
@@ -411,17 +620,18 @@ export interface ThemeProviderProps {
 
 export function ThemeProvider({ name, mode, theme: themeProp, children }: ThemeProviderProps) {
   const resolved = themeProp
-    ? { theme: themeProp.colors, syntax: themeProp.syntax, name: themeProp.name, mode: themeProp.mode }
+    ? {
+        theme: themeProp.colors,
+        syntax: themeProp.syntax,
+        name: themeProp.name,
+        mode: themeProp.mode,
+      }
     : (() => {
         const t = buildTheme(name ?? DEFAULT_THEME_NAME, mode ?? DEFAULT_MODE)
         return { theme: t.colors, syntax: t.syntax, name: t.name, mode: t.mode }
       })()
 
-  return (
-    <ThemeContext.Provider value={resolved}>
-      {children}
-    </ThemeContext.Provider>
-  )
+  return <ThemeContext.Provider value={resolved}>{children}</ThemeContext.Provider>
 }
 
 export function useTheme(): ThemeContextValue {
@@ -447,10 +657,14 @@ export interface ThemeSwitcherProviderProps {
   children: ReactNode
 }
 
-export function ThemeSwitcherProvider({ initialTheme, initialMode, children }: ThemeSwitcherProviderProps) {
+export function ThemeSwitcherProvider({
+  initialTheme,
+  initialMode,
+  children,
+}: ThemeSwitcherProviderProps) {
   const allThemes = getThemeNames()
   const [themeName, setThemeName] = useState(initialTheme ?? DEFAULT_THEME_NAME)
-  const [mode, setMode] = useState<"dark" | "light">(initialMode ?? DEFAULT_MODE)
+  const [mode, _setMode] = useState<"dark" | "light">(initialMode ?? DEFAULT_MODE)
 
   const theme = buildTheme(themeName, mode)
 
@@ -497,7 +711,9 @@ export function ThemeSwitcherProvider({ initialTheme, initialMode, children }: T
 
   return (
     <ThemeSwitcherContext.Provider value={value}>
-      <ThemeContext.Provider value={{ theme: theme.colors, syntax: theme.syntax, name: theme.name, mode }}>
+      <ThemeContext.Provider
+        value={{ theme: theme.colors, syntax: theme.syntax, name: theme.name, mode }}
+      >
         {children}
       </ThemeContext.Provider>
     </ThemeSwitcherContext.Provider>

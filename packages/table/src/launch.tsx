@@ -7,7 +7,5 @@ export interface TableLaunchOptions {
 }
 
 export async function launch(options: TableLaunchOptions): Promise<void> {
-  await launchCli(
-    <TableApp contentProvider={options.contentProvider} />,
-  )
+  await launchCli(<TableApp contentProvider={options.contentProvider} />)
 }

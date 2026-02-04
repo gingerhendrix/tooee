@@ -43,16 +43,22 @@ export function useThemePicker(): ThemePickerState {
     setMode("command")
   }, [setTheme, setMode, overlay])
 
-  const confirm = useCallback((name: string) => {
-    setTheme(name)
-    setIsOpen(false)
-    overlay.hide(OVERLAY_ID)
-    setMode("command")
-  }, [setTheme, setMode, overlay])
+  const confirm = useCallback(
+    (name: string) => {
+      setTheme(name)
+      setIsOpen(false)
+      overlay.hide(OVERLAY_ID)
+      setMode("command")
+    },
+    [setTheme, setMode, overlay],
+  )
 
-  const preview = useCallback((name: string) => {
-    setTheme(name)
-  }, [setTheme])
+  const preview = useCallback(
+    (name: string) => {
+      setTheme(name)
+    },
+    [setTheme],
+  )
 
   const open = useCallback(() => {
     originalThemeRef.current = currentTheme
@@ -83,5 +89,14 @@ export function useThemePicker(): ThemePickerState {
     )
   }, [currentTheme, setMode, mode, overlay, entries, setTheme])
 
-  return { isOpen, open, close, confirm, preview, entries, originalTheme: originalThemeRef.current, currentTheme }
+  return {
+    isOpen,
+    open,
+    close,
+    confirm,
+    preview,
+    entries,
+    originalTheme: originalThemeRef.current,
+    currentTheme,
+  }
 }

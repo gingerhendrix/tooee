@@ -26,14 +26,25 @@ export function MarkdownView({
   return (
     <box style={{ flexDirection: "column" }}>
       {blocks.map((token, index) => {
-        const { accent: accentColor, background: bgColor } = getBlockStyle(index, theme, activeBlock, selectedBlocks, matchingBlocks, currentMatchBlock)
+        const { accent: accentColor, background: bgColor } = getBlockStyle(
+          index,
+          theme,
+          activeBlock,
+          selectedBlocks,
+          matchingBlocks,
+          currentMatchBlock,
+        )
         const blockContent = (
           <TokenRenderer key={index} token={token} theme={theme} syntax={syntax} />
         )
 
         if (accentColor) {
           return (
-            <box key={index} style={{ flexDirection: "row" }} backgroundColor={bgColor ?? undefined}>
+            <box
+              key={index}
+              style={{ flexDirection: "row" }}
+              backgroundColor={bgColor ?? undefined}
+            >
               <text content="▎" fg={accentColor} />
               <box style={{ flexGrow: 1, flexDirection: "column" }}>{blockContent}</box>
             </box>
@@ -64,7 +75,15 @@ function getBlockStyle(
   return { accent: null, background: null }
 }
 
-function TokenRenderer({ token, theme, syntax }: { token: Token; theme: ResolvedTheme; syntax: SyntaxStyle }): ReactNode {
+function TokenRenderer({
+  token,
+  theme,
+  syntax,
+}: {
+  token: Token
+  theme: ResolvedTheme
+  syntax: SyntaxStyle
+}): ReactNode {
   switch (token.type) {
     case "heading":
       return <HeadingRenderer token={token as Tokens.Heading} theme={theme} />
@@ -89,7 +108,13 @@ function TokenRenderer({ token, theme, syntax }: { token: Token; theme: Resolved
         return (
           <text
             content={token.text}
-            style={{ fg: theme.markdownText, marginBottom: 1, marginTop: 0, marginLeft: 1, marginRight: 1 }}
+            style={{
+              fg: theme.markdownText,
+              marginBottom: 1,
+              marginTop: 0,
+              marginLeft: 1,
+              marginRight: 1,
+            }}
           />
         )
       }
@@ -138,7 +163,15 @@ function ParagraphRenderer({ token, theme }: { token: Tokens.Paragraph; theme: R
   )
 }
 
-function CodeBlockRenderer({ token, theme, syntax }: { token: Tokens.Code; theme: ResolvedTheme; syntax: SyntaxStyle }) {
+function CodeBlockRenderer({
+  token,
+  theme,
+  syntax,
+}: {
+  token: Tokens.Code
+  theme: ResolvedTheme
+  syntax: SyntaxStyle
+}) {
   return (
     <box
       style={{
@@ -152,11 +185,7 @@ function CodeBlockRenderer({ token, theme, syntax }: { token: Tokens.Code; theme
         flexDirection: "column",
       }}
     >
-      <code
-        content={token.text}
-        filetype={token.lang}
-        syntaxStyle={syntax}
-      />
+      <code content={token.text} filetype={token.lang} syntaxStyle={syntax} />
     </box>
   )
 }
@@ -165,8 +194,7 @@ function BlockquoteRenderer({ token, theme }: { token: Tokens.Blockquote; theme:
   const quoteText = token.tokens
     ? token.tokens
         .map((t) => {
-          const innerTokens =
-            "tokens" in t ? (t as { tokens?: Token[] }).tokens : undefined
+          const innerTokens = "tokens" in t ? (t as { tokens?: Token[] }).tokens : undefined
           const textContent = "text" in t ? (t as { text?: string }).text : ""
           return getPlainText(innerTokens || []) || textContent || ""
         })
@@ -231,9 +259,7 @@ function ListItemRenderer({
             )
           }
           if ("text" in token && typeof token.text === "string") {
-            return (
-              <text key={idx} style={{ fg: theme.markdownText }} content={token.text} />
-            )
+            return <text key={idx} style={{ fg: theme.markdownText }} content={token.text} />
           }
           return null
         })}
@@ -242,7 +268,13 @@ function ListItemRenderer({
   )
 }
 
-function MarkdownTableRenderer({ token, theme }: { token: Tokens.Table; theme: ResolvedTheme }) {
+function MarkdownTableRenderer({
+  token,
+  theme: _theme,
+}: {
+  token: Tokens.Table
+  theme: ResolvedTheme
+}) {
   const headers = token.header.map((cell) => getPlainText(cell.tokens))
   const rows = token.rows.map((row) => row.map((cell) => getPlainText(cell.tokens)))
   return <Table headers={headers} rows={rows} />
@@ -261,8 +293,7 @@ function getPlainText(tokens: Token[]): string {
     .map((token) => {
       if (token.type === "text") return token.text
       if (token.type === "codespan") return (token as Tokens.Codespan).text
-      if ("tokens" in token && token.tokens)
-        return getPlainText(token.tokens as Token[])
+      if ("tokens" in token && token.tokens) return getPlainText(token.tokens as Token[])
       if ("text" in token) return (token as { text: string }).text
       return ""
     })
@@ -283,15 +314,11 @@ function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme
         break
       case "strong":
         result.push(
-          <strong key={key}>
-            {getPlainText((token as Tokens.Strong).tokens || [])}
-          </strong>,
+          <strong key={key}>{getPlainText((token as Tokens.Strong).tokens || [])}</strong>,
         )
         break
       case "em":
-        result.push(
-          <em key={key}>{getPlainText((token as Tokens.Em).tokens || [])}</em>,
-        )
+        result.push(<em key={key}>{getPlainText((token as Tokens.Em).tokens || [])}</em>)
         break
       case "codespan":
         result.push(
@@ -321,10 +348,7 @@ function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme
         result.push(" ")
         break
       default:
-        if (
-          "text" in token &&
-          typeof (token as { text?: string }).text === "string"
-        ) {
+        if ("text" in token && typeof (token as { text?: string }).text === "string") {
           result.push((token as { text: string }).text)
         }
         break

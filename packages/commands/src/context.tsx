@@ -33,7 +33,15 @@ export function CommandProvider({ children, leader, keymap, initialMode }: Comma
   )
 }
 
-function CommandDispatcher({ children, leader, keymap }: { children: ReactNode; leader?: string; keymap?: Record<string, string> }) {
+function CommandDispatcher({
+  children,
+  leader,
+  keymap,
+}: {
+  children: ReactNode
+  leader?: string
+  keymap?: Record<string, string>
+}) {
   const registryRef = useRef<CommandRegistry | null>(null)
   const mode = useMode()
 
@@ -59,16 +67,19 @@ function CommandDispatcher({ children, leader, keymap }: { children: ReactNode; 
   const trackerRef = useRef(new SequenceTracker())
   const parseCacheRef = useRef(new Map<string, ParsedHotkey>())
 
-  const getParsedHotkey = useCallback((hotkey: string) => {
-    const cache = parseCacheRef.current
-    const cacheKey = `${hotkey}:${leader ?? ""}`
-    let parsed = cache.get(cacheKey)
-    if (!parsed) {
-      parsed = parseHotkey(hotkey, leader)
-      cache.set(cacheKey, parsed)
-    }
-    return parsed
-  }, [leader])
+  const getParsedHotkey = useCallback(
+    (hotkey: string) => {
+      const cache = parseCacheRef.current
+      const cacheKey = `${hotkey}:${leader ?? ""}`
+      let parsed = cache.get(cacheKey)
+      if (!parsed) {
+        parsed = parseHotkey(hotkey, leader)
+        cache.set(cacheKey, parsed)
+      }
+      return parsed
+    },
+    [leader],
+  )
 
   useKeyboard((event) => {
     if (event.defaultPrevented) return

@@ -15,9 +15,9 @@ import { useRenderer } from "@opentui/solid"
 
 function App() {
   const renderer = useRenderer()
-  
+
   const handleExit = () => {
-    renderer.destroy()  // Cleans up and exits properly
+    renderer.destroy() // Cleans up and exits properly
   }
 }
 ```
@@ -92,7 +92,7 @@ const [count, setCount] = createSignal(0)
 ```tsx
 // WRONG - Breaks reactivity
 function Component(props: { value: number }) {
-  const { value } = props  // Destructured once, never updates!
+  const { value } = props // Destructured once, never updates!
   return <text>{value}</text>
 }
 
@@ -117,12 +117,12 @@ function Component(props: { value: number; other: string }) {
 const [count, setCount] = createSignal(0)
 
 createEffect(() => {
-  console.log("Count changed")  // Never runs after initial!
+  console.log("Count changed") // Never runs after initial!
 })
 
 // CORRECT - Access the signal
 createEffect(() => {
-  console.log("Count:", count())  // Runs when count changes
+  console.log("Count:", count()) // Runs when count changes
 })
 ```
 
@@ -248,19 +248,19 @@ Show requires fallback for proper rendering:
 // WRONG - Interval never cleared
 function Timer() {
   const [time, setTime] = createSignal(0)
-  
-  setInterval(() => setTime(t => t + 1), 1000)
-  
+
+  setInterval(() => setTime((t) => t + 1), 1000)
+
   return <text>{time()}</text>
 }
 
 // CORRECT
 function Timer() {
   const [time, setTime] = createSignal(0)
-  
-  const interval = setInterval(() => setTime(t => t + 1), 1000)
+
+  const interval = setInterval(() => setTime((t) => t + 1), 1000)
   onCleanup(() => clearInterval(interval))
-  
+
   return <text>{time()}</text>
 }
 ```
@@ -270,10 +270,10 @@ function Timer() {
 ```tsx
 createEffect(() => {
   const subscription = subscribe(data())
-  
+
   // WRONG - No cleanup
   // subscription stays active
-  
+
   // CORRECT
   onCleanup(() => subscription.unsubscribe())
 })
@@ -289,17 +289,17 @@ createEffect(() => {
 const [state, setState] = createStore({ items: [] })
 
 // WRONG - Direct mutation
-state.items.push(newItem)  // Won't trigger updates!
+state.items.push(newItem) // Won't trigger updates!
 
 // CORRECT - Use setState
-setState("items", items => [...items, newItem])
+setState("items", (items) => [...items, newItem])
 ```
 
 ### Nested Updates
 
 ```tsx
 const [state, setState] = createStore({
-  user: { profile: { name: "John" } }
+  user: { profile: { name: "John" } },
 })
 
 // WRONG
@@ -321,12 +321,12 @@ import { onMount } from "solid-js"
 
 function App() {
   const renderer = useRenderer()
-  
+
   onMount(() => {
     renderer.console.show()
     console.log("Now visible!")
   })
-  
+
   return <box>{/* ... */}</box>
 }
 ```

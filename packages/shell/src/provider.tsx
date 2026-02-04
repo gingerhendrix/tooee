@@ -11,7 +11,12 @@ export interface TooeeProviderProps {
   initialMode?: Mode
 }
 
-export function TooeeProvider({ children, leader, config: configOverrides, initialMode }: TooeeProviderProps) {
+export function TooeeProvider({
+  children,
+  leader,
+  config: configOverrides,
+  initialMode,
+}: TooeeProviderProps) {
   return (
     <ConfigProvider overrides={configOverrides}>
       <TooeeProviderInner leader={leader} initialMode={initialMode}>
@@ -21,17 +26,20 @@ export function TooeeProvider({ children, leader, config: configOverrides, initi
   )
 }
 
-function TooeeProviderInner({ children, leader, initialMode }: { children: ReactNode; leader?: string; initialMode?: Mode }) {
+function TooeeProviderInner({
+  children,
+  leader,
+  initialMode,
+}: {
+  children: ReactNode
+  leader?: string
+  initialMode?: Mode
+}) {
   const config = useConfig()
   return (
-    <ThemeSwitcherProvider
-      initialTheme={config.theme?.name}
-      initialMode={config.theme?.mode}
-    >
+    <ThemeSwitcherProvider initialTheme={config.theme?.name} initialMode={config.theme?.mode}>
       <CommandProvider leader={leader} keymap={config.keys} initialMode={initialMode}>
-        <OverlayProvider>
-          {children}
-        </OverlayProvider>
+        <OverlayProvider>{children}</OverlayProvider>
       </CommandProvider>
     </ThemeSwitcherProvider>
   )

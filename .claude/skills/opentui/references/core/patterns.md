@@ -67,25 +67,29 @@ Create factory functions for reusable UI pieces:
 // Imperative factory
 function createLabeledInput(
   renderer: RenderContext,
-  props: { id: string; label: string; placeholder: string }
+  props: { id: string; label: string; placeholder: string },
 ) {
   const container = new BoxRenderable(renderer, {
     id: `${props.id}-container`,
     flexDirection: "row",
     gap: 1,
   })
-  
-  container.add(new TextRenderable(renderer, {
-    id: `${props.id}-label`,
-    content: props.label,
-  }))
-  
-  container.add(new InputRenderable(renderer, {
-    id: `${props.id}-input`,
-    placeholder: props.placeholder,
-    width: 20,
-  }))
-  
+
+  container.add(
+    new TextRenderable(renderer, {
+      id: `${props.id}-label`,
+      content: props.label,
+    }),
+  )
+
+  container.add(
+    new InputRenderable(renderer, {
+      id: `${props.id}-input`,
+      placeholder: props.placeholder,
+      width: 20,
+    }),
+  )
+
   return container
 }
 
@@ -115,8 +119,8 @@ import { delegate, Box, Input, Text } from "@opentui/core"
 
 const form = delegate(
   {
-    focus: "email-input",     // Route .focus() to this child
-    blur: "email-input",      // Route .blur() to this child
+    focus: "email-input", // Route .focus() to this child
+    blur: "email-input", // Route .blur() to this child
   },
   Box(
     { border: true, padding: 1 },
@@ -142,11 +146,11 @@ renderer.keyInput.on("keypress", (key) => {
     renderer.destroy()
     process.exit(0)
   }
-  
+
   if (key.ctrl && key.name === "c") {
     // Ctrl+C handling (if exitOnCtrlC is false)
   }
-  
+
   if (key.name === "tab") {
     // Tab navigation
     focusNext()
@@ -217,17 +221,17 @@ Manage state in closures or objects:
 // Closure-based state
 function createCounter(renderer: RenderContext) {
   let count = 0
-  
+
   const display = new TextRenderable(renderer, {
     id: "count",
     content: `Count: ${count}`,
   })
-  
+
   const increment = () => {
     count++
     display.setContent(`Count: ${count}`)
   }
-  
+
   return { display, increment }
 }
 
@@ -235,23 +239,23 @@ function createCounter(renderer: RenderContext) {
 class CounterWidget {
   private count = 0
   private display: TextRenderable
-  
+
   constructor(renderer: RenderContext) {
     this.display = new TextRenderable(renderer, {
       id: "count",
       content: this.formatCount(),
     })
   }
-  
+
   private formatCount() {
     return `Count: ${this.count}`
   }
-  
+
   increment() {
     this.count++
     this.display.setContent(this.formatCount())
   }
-  
+
   getRenderable() {
     return this.display
   }
@@ -266,17 +270,17 @@ Track and manage focus across components:
 class FocusManager {
   private focusables: Renderable[] = []
   private currentIndex = 0
-  
+
   register(renderable: Renderable) {
     this.focusables.push(renderable)
   }
-  
+
   focusNext() {
     this.focusables[this.currentIndex]?.blur()
     this.currentIndex = (this.currentIndex + 1) % this.focusables.length
     this.focusables[this.currentIndex]?.focus()
   }
-  
+
   focusPrevious() {
     this.focusables[this.currentIndex]?.blur()
     this.currentIndex = (this.currentIndex - 1 + this.focusables.length) % this.focusables.length
@@ -309,9 +313,11 @@ const renderer = await createCliRenderer()
 // Track intervals/timeouts
 const intervals: Timer[] = []
 
-intervals.push(setInterval(() => {
-  updateClock()
-}, 1000))
+intervals.push(
+  setInterval(() => {
+    updateClock()
+  }, 1000),
+)
 
 // Cleanup on exit
 process.on("SIGINT", () => {
@@ -338,19 +344,19 @@ async function createDashboard(renderer: RenderContext) {
     id: "stats",
     content: "Loading...",
   })
-  
+
   // Poll for updates
   const updateStats = async () => {
     const data = await fetchStats()
     statsText.setContent(`CPU: ${data.cpu}% | Memory: ${data.memory}%`)
   }
-  
+
   // Initial load
   await updateStats()
-  
+
   // Periodic updates
   setInterval(updateStats, 5000)
-  
+
   return statsText
 }
 ```
@@ -387,22 +393,22 @@ function createSplitView(renderer: RenderContext, ratio = 0.3) {
     width: "100%",
     height: "100%",
   })
-  
+
   const left = new BoxRenderable(renderer, {
     id: "left",
     width: `${ratio * 100}%`,
     border: true,
   })
-  
+
   const right = new BoxRenderable(renderer, {
     id: "right",
     flexGrow: 1,
     border: true,
   })
-  
+
   container.add(left)
   container.add(right)
-  
+
   return { container, left, right }
 }
 ```

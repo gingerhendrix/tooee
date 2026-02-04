@@ -44,7 +44,9 @@ test("t opens theme picker", async () => {
   await testSetup.renderOnce()
   expect(testSetup.captureCharFrame()).toContain("open:false")
 
-  await act(async () => { testSetup.mockInput.pressKey("t") })
+  await act(async () => {
+    testSetup.mockInput.pressKey("t")
+  })
   await testSetup.renderOnce()
   const frame = testSetup.captureCharFrame()
   expect(frame).toContain("open:true")
@@ -55,14 +57,20 @@ test("q calls onQuit handler", async () => {
   let quitCalled = false
   testSetup = await testRender(
     <TooeeProvider>
-      <QuitHarness onQuit={() => { quitCalled = true }} />
+      <QuitHarness
+        onQuit={() => {
+          quitCalled = true
+        }}
+      />
     </TooeeProvider>,
     { width: 60, height: 24, kittyKeyboard: true },
   )
   await testSetup.renderOnce()
   expect(testSetup.captureCharFrame()).toContain("quit-harness")
 
-  await act(async () => { testSetup.mockInput.pressKey("q") })
+  await act(async () => {
+    testSetup.mockInput.pressKey("q")
+  })
   await testSetup.renderOnce()
   expect(quitCalled).toBe(true)
 })

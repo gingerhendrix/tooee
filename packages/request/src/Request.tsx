@@ -4,7 +4,12 @@ import { useRenderer } from "@opentui/react"
 import { MarkdownView, AppLayout, ThemePicker, useTheme } from "@tooee/react"
 import { useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
-import { useThemeCommands, useQuitCommand, useCopyCommand, useModalNavigationCommands } from "@tooee/shell"
+import {
+  useThemeCommands,
+  useQuitCommand,
+  useCopyCommand,
+  useModalNavigationCommands,
+} from "@tooee/shell"
 import type { RequestContentProvider, RequestInteractionHandler } from "./types.ts"
 
 type Phase = "input" | "streaming" | "complete"
@@ -49,25 +54,28 @@ export function Request({ contentProvider, interactionHandler, initialInput }: R
     }
   }, [nav.scrollOffset, autoScroll])
 
-  const startStream = useCallback(async (query: string) => {
-    setPhase("streaming")
-    setResponse("")
-    setAutoScroll(true)
-    const abort = new AbortController()
-    abortRef.current = abort
+  const startStream = useCallback(
+    async (query: string) => {
+      setPhase("streaming")
+      setResponse("")
+      setAutoScroll(true)
+      const abort = new AbortController()
+      abortRef.current = abort
 
-    try {
-      for await (const chunk of contentProvider.submit(query)) {
-        if (abort.signal.aborted) break
-        setResponse((prev) => prev + chunk.delta)
-      }
-      if (!abort.signal.aborted) {
+      try {
+        for await (const chunk of contentProvider.submit(query)) {
+          if (abort.signal.aborted) break
+          setResponse((prev) => prev + chunk.delta)
+        }
+        if (!abort.signal.aborted) {
+          setPhase("complete")
+        }
+      } catch {
         setPhase("complete")
       }
-    } catch {
-      setPhase("complete")
-    }
-  }, [contentProvider])
+    },
+    [contentProvider],
+  )
 
   useEffect(() => {
     if (initialInput) {
@@ -75,7 +83,9 @@ export function Request({ contentProvider, interactionHandler, initialInput }: R
     }
   }, [initialInput, startStream])
 
-  const { name: themeName, picker: themePicker } = useThemeCommands({ when: () => phase !== "input" })
+  const { name: themeName, picker: themePicker } = useThemeCommands({
+    when: () => phase !== "input",
+  })
 
   useQuitCommand({
     when: () => phase !== "input",
@@ -113,15 +123,17 @@ export function Request({ contentProvider, interactionHandler, initialInput }: R
     },
   })
 
-  const customActions: ActionDefinition[] | undefined = interactionHandler?.actions.map((action) => ({
-    id: action.id,
-    title: action.title,
-    hotkey: action.hotkey,
-    when: () => phase === "complete",
-    handler: () => {
-      action.handler(input, response)
-    },
-  }))
+  const customActions: ActionDefinition[] | undefined = interactionHandler?.actions.map(
+    (action) => ({
+      id: action.id,
+      title: action.title,
+      hotkey: action.hotkey,
+      when: () => phase === "complete",
+      handler: () => {
+        action.handler(input, response)
+      },
+    }),
+  )
 
   useActions(customActions)
 
@@ -149,7 +161,10 @@ export function Request({ contentProvider, interactionHandler, initialInput }: R
 
   return (
     <AppLayout
-      titleBar={{ title: "Response", subtitle: phase === "streaming" ? "streaming..." : "complete" }}
+      titleBar={{
+        title: "Response",
+        subtitle: phase === "streaming" ? "streaming..." : "complete",
+      }}
       statusBar={{
         items: [
           { label: "Theme:", value: themeName },
@@ -165,21 +180,25 @@ export function Request({ contentProvider, interactionHandler, initialInput }: R
         ],
       }}
       scrollRef={scrollRef}
-      scrollProps={{ stickyScroll: autoScroll, stickyStart: "bottom", focused: !themePicker.isOpen }}
-      overlay={themePicker.isOpen ? (
-        <ThemePicker
-          entries={themePicker.entries}
-          currentTheme={themeName}
-          onSelect={themePicker.confirm}
-          onClose={themePicker.close}
-          onNavigate={themePicker.preview}
-        />
-      ) : undefined}
+      scrollProps={{
+        stickyScroll: autoScroll,
+        stickyStart: "bottom",
+        focused: !themePicker.isOpen,
+      }}
+      overlay={
+        themePicker.isOpen ? (
+          <ThemePicker
+            entries={themePicker.entries}
+            currentTheme={themeName}
+            onSelect={themePicker.confirm}
+            onClose={themePicker.close}
+            onNavigate={themePicker.preview}
+          />
+        ) : undefined
+      }
     >
       <MarkdownView content={response} />
-      {phase === "streaming" && (
-        <text content="▍" fg={theme.primary} />
-      )}
+      {phase === "streaming" && <text content="▍" fg={theme.primary} />}
     </AppLayout>
   )
 }

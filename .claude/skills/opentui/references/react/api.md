@@ -11,7 +11,7 @@ import { createCliRenderer } from "@opentui/core"
 import { createRoot } from "@opentui/react"
 
 const renderer = await createCliRenderer({
-  exitOnCtrlC: false,  // Handle Ctrl+C yourself
+  exitOnCtrlC: false, // Handle Ctrl+C yourself
 })
 
 const root = createRoot(renderer)
@@ -30,15 +30,15 @@ import { useEffect } from "react"
 
 function App() {
   const renderer = useRenderer()
-  
+
   useEffect(() => {
     // Access renderer properties
     console.log(`Terminal: ${renderer.width}x${renderer.height}`)
-    
+
     // Show debug console
     renderer.console.show()
   }, [renderer])
-  
+
   return <text>Hello</text>
 }
 ```
@@ -52,26 +52,26 @@ import { useKeyboard, useRenderer } from "@opentui/react"
 
 function App() {
   const renderer = useRenderer()
-  
+
   useKeyboard((key) => {
     if (key.name === "escape") {
-      renderer.destroy()  // Never use process.exit() directly!
+      renderer.destroy() // Never use process.exit() directly!
     }
     if (key.ctrl && key.name === "s") {
       saveDocument()
     }
   })
-  
+
   return <text>Press ESC to exit</text>
 }
 
 // With release events
 function GameControls() {
   const [pressed, setPressed] = useState(new Set<string>())
-  
+
   useKeyboard(
     (event) => {
-      setPressed(keys => {
+      setPressed((keys) => {
         const newKeys = new Set(keys)
         if (event.eventType === "release") {
           newKeys.delete(event.name)
@@ -81,17 +81,19 @@ function GameControls() {
         return newKeys
       })
     },
-    { release: true }  // Include release events
+    { release: true }, // Include release events
   )
-  
+
   return <text>Pressed: {Array.from(pressed).join(", ")}</text>
 }
 ```
 
 **Options:**
+
 - `release?: boolean` - Include key release events (default: false)
 
 **KeyEvent properties:**
+
 - `name: string` - Key name ("a", "escape", "f1", etc.)
 - `sequence: string` - Raw escape sequence
 - `ctrl: boolean` - Ctrl modifier
@@ -112,7 +114,7 @@ function App() {
   useOnResize((width, height) => {
     console.log(`Resized to ${width}x${height}`)
   })
-  
+
   return <text>Resize the terminal</text>
 }
 ```
@@ -126,7 +128,7 @@ import { useTerminalDimensions } from "@opentui/react"
 
 function ResponsiveLayout() {
   const { width, height } = useTerminalDimensions()
-  
+
   return (
     <box flexDirection={width > 80 ? "row" : "column"}>
       <box flexGrow={1}>
@@ -150,12 +152,12 @@ import { useEffect, useState } from "react"
 
 function AnimatedBox() {
   const [width, setWidth] = useState(0)
-  
+
   const timeline = useTimeline({
     duration: 2000,
     loop: false,
   })
-  
+
   useEffect(() => {
     timeline.add(
       { width: 0 },
@@ -166,15 +168,16 @@ function AnimatedBox() {
         onUpdate: (anim) => {
           setWidth(Math.round(anim.targets[0].width))
         },
-      }
+      },
     )
   }, [timeline])
-  
+
   return <box style={{ width, height: 3, backgroundColor: "#6a5acd" }} />
 }
 ```
 
 **Options:**
+
 - `duration?: number` - Default duration (ms)
 - `loop?: boolean` - Loop the timeline
 - `autoplay?: boolean` - Auto-start (default: true)
@@ -182,6 +185,7 @@ function AnimatedBox() {
 - `onPause?: () => void` - Pause callback
 
 **Timeline methods:**
+
 - `add(target, properties, startTime?)` - Add animation
 - `play()` - Start playback
 - `pause()` - Pause playback
@@ -193,10 +197,10 @@ function AnimatedBox() {
 
 ```tsx
 <text
-  content="Hello"           // Or use children
-  fg="#FFFFFF"              // Foreground color
-  bg="#000000"              // Background color
-  selectable={true}         // Allow text selection
+  content="Hello" // Or use children
+  fg="#FFFFFF" // Foreground color
+  bg="#000000" // Background color
+  selectable={true} // Allow text selection
 >
   {/* Use nested modifier tags for styling */}
   <span fg="red">Red</span>
@@ -215,31 +219,26 @@ function AnimatedBox() {
 ```tsx
 <box
   // Borders
-  border                    // Enable border
-  borderStyle="single"      // single | double | rounded | bold
+  border // Enable border
+  borderStyle="single" // single | double | rounded | bold
   borderColor="#FFFFFF"
   title="Title"
-  titleAlignment="center"   // left | center | right
-  
+  titleAlignment="center" // left | center | right
   // Colors
   backgroundColor="#1a1a2e"
-  
   // Layout (see layout/REFERENCE.md)
   flexDirection="row"
   justifyContent="center"
   alignItems="center"
   gap={2}
-  
   // Spacing
   padding={2}
   paddingTop={1}
   margin={1}
-  
   // Dimensions
   width={40}
   height={10}
   flexGrow={1}
-  
   // Events
   onMouseDown={(e) => {}}
   onMouseUp={(e) => {}}
@@ -253,7 +252,7 @@ function AnimatedBox() {
 
 ```tsx
 <scrollbox
-  focused                   // Enable keyboard scrolling
+  focused // Enable keyboard scrolling
   style={{
     rootOptions: { backgroundColor: "#24283b" },
     wrapperOptions: { backgroundColor: "#1f2335" },
@@ -284,7 +283,7 @@ function AnimatedBox() {
   value={value}
   onChange={(newValue) => setValue(newValue)}
   placeholder="Enter text..."
-  focused                   // Start focused
+  focused // Start focused
   width={30}
   backgroundColor="#1a1a1a"
   textColor="#FFFFFF"
@@ -343,7 +342,7 @@ function AnimatedBox() {
 ```tsx
 <ascii-font
   text="TITLE"
-  font="tiny"               // tiny | block | slick | shade
+  font="tiny" // tiny | block | slick | shade
   color="#FFFFFF"
 />
 ```
@@ -351,12 +350,7 @@ function AnimatedBox() {
 ### Code Component
 
 ```tsx
-<code
-  code={sourceCode}
-  language="typescript"
-  showLineNumbers
-  highlightLines={[1, 5, 10]}
-/>
+<code code={sourceCode} language="typescript" showLineNumbers highlightLines={[1, 5, 10]} />
 ```
 
 ### Line Number Component
@@ -367,9 +361,7 @@ function AnimatedBox() {
   language="typescript"
   startLine={1}
   highlightedLines={[5]}
-  diagnostics={[
-    { line: 3, severity: "error", message: "Syntax error" }
-  ]}
+  diagnostics={[{ line: 3, severity: "error", message: "Syntax error" }]}
 />
 ```
 
@@ -380,7 +372,7 @@ function AnimatedBox() {
   oldCode={originalCode}
   newCode={modifiedCode}
   language="typescript"
-  mode="unified"            // unified | split
+  mode="unified" // unified | split
   showLineNumbers
 />
 ```
@@ -394,10 +386,10 @@ import type {
   BoxProps,
   InputProps,
   SelectProps,
-  
+
   // Hook types
   KeyEvent,
-  
+
   // From core
   CliRenderer,
 } from "@opentui/react"

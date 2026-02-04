@@ -28,12 +28,12 @@ function AppLayout() {
       <box height={3} borderStyle="single" borderBottom>
         <text>Header</text>
       </box>
-      
+
       {/* Content - fills remaining space */}
       <box flexGrow={1}>
         <text>Main Content</text>
       </box>
-      
+
       {/* Footer - fixed height */}
       <box height={1}>
         <text>Status: Ready</text>
@@ -53,7 +53,7 @@ function SidebarLayout() {
       <box width={25} borderStyle="single" borderRight>
         <text>Sidebar</text>
       </box>
-      
+
       {/* Main - fills remaining space */}
       <box flexGrow={1}>
         <text>Main Content</text>
@@ -69,10 +69,10 @@ Responsive based on terminal width:
 
 ```tsx
 function ResponsiveSidebar() {
-  const dims = useTerminalDimensions()  // React: useTerminalDimensions()
+  const dims = useTerminalDimensions() // React: useTerminalDimensions()
   const showSidebar = dims.width > 60
   const sidebarWidth = Math.min(30, Math.floor(dims.width * 0.3))
-  
+
   return (
     <box flexDirection="row" width="100%" height="100%">
       {showSidebar && (
@@ -111,12 +111,7 @@ function ResponsiveSidebar() {
 ### Both Axes
 
 ```tsx
-<box
-  width="100%"
-  height="100%"
-  justifyContent="center"
-  alignItems="center"
->
+<box width="100%" height="100%" justifyContent="center" alignItems="center">
   <box width={40} height={10} border>
     <text>Centered both ways</text>
   </box>
@@ -130,7 +125,7 @@ Centered overlay:
 ```tsx
 function Modal({ children, visible }) {
   if (!visible) return null
-  
+
   return (
     <box
       position="absolute"
@@ -142,14 +137,7 @@ function Modal({ children, visible }) {
       alignItems="center"
       backgroundColor="rgba(0,0,0,0.5)"
     >
-      <box
-        width={50}
-        height={15}
-        border
-        borderStyle="double"
-        backgroundColor="#1a1a2e"
-        padding={2}
-      >
+      <box width={50} height={15} border borderStyle="double" backgroundColor="#1a1a2e" padding={2}>
         {children}
       </box>
     </box>
@@ -164,7 +152,7 @@ Using flexWrap:
 ```tsx
 function Grid({ items, columns = 3 }) {
   const itemWidth = `${Math.floor(100 / columns)}%`
-  
+
   return (
     <box flexDirection="row" flexWrap="wrap" width="100%">
       {items.map((item, i) => (
@@ -224,9 +212,7 @@ function FormField({ label, children }) {
       <box width={15}>
         <text>{label}:</text>
       </box>
-      <box flexGrow={1}>
-        {children}
-      </box>
+      <box flexGrow={1}>{children}</box>
     </box>
   )
 }
@@ -263,9 +249,7 @@ function TabBar({ tabs, activeIndex, onSelect }) {
           backgroundColor={i === activeIndex ? "#333" : "transparent"}
           onMouseDown={() => onSelect(i)}
         >
-          <text fg={i === activeIndex ? "#fff" : "#888"}>
-            {tab}
-          </text>
+          <text fg={i === activeIndex ? "#fff" : "#888"}>{tab}</text>
         </box>
       ))}
     </box>
@@ -286,7 +270,7 @@ function StickyFooterLayout() {
         {/* Your content here */}
         <text>Content that might be short</text>
       </box>
-      
+
       {/* Footer pushed to bottom */}
       <box height={1}>
         <text fg="#888">Press ? for help | q to quit</text>
@@ -325,12 +309,12 @@ Different layouts based on terminal size:
 ```tsx
 function ResponsiveApp() {
   const { width, height } = useTerminalDimensions()
-  
+
   // Define breakpoints
   const isSmall = width < 60
   const isMedium = width >= 60 && width < 100
   const isLarge = width >= 100
-  
+
   if (isSmall) {
     // Mobile-like: stacked layout
     return (
@@ -340,23 +324,33 @@ function ResponsiveApp() {
       </box>
     )
   }
-  
+
   if (isMedium) {
     // Tablet-like: sidebar + content
     return (
       <box flexDirection="row">
-        <box width={20}><Navigation /></box>
-        <box flexGrow={1}><Content /></box>
+        <box width={20}>
+          <Navigation />
+        </box>
+        <box flexGrow={1}>
+          <Content />
+        </box>
       </box>
     )
   }
-  
+
   // Large: full layout
   return (
     <box flexDirection="row">
-      <box width={25}><Navigation /></box>
-      <box flexGrow={1}><Content /></box>
-      <box width={30}><Sidebar /></box>
+      <box width={25}>
+        <Navigation />
+      </box>
+      <box flexGrow={1}>
+        <Content />
+      </box>
+      <box width={30}>
+        <Sidebar />
+      </box>
     </box>
   )
 }
@@ -372,11 +366,7 @@ function EqualColumns() {
         <text>Short content</text>
       </box>
       <box flexGrow={1} border>
-        <text>
-          Longer content that
-          spans multiple lines
-          and takes up space
-        </text>
+        <text>Longer content that spans multiple lines and takes up space</text>
       </box>
       <box flexGrow={1} border>
         <text>Medium content</text>
@@ -402,7 +392,7 @@ function Divider() {
 }
 
 // Usage
-<box flexDirection="column">
+;<box flexDirection="column">
   <text>Section 1</text>
   <Spacer size={2} />
   <Divider />

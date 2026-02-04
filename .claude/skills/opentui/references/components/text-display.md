@@ -46,6 +46,7 @@ const text = new TextRenderable(renderer, {
 ```
 
 **Available attributes:**
+
 - `TextAttributes.BOLD`
 - `TextAttributes.DIM`
 - `TextAttributes.ITALIC`
@@ -134,7 +135,9 @@ Inline styled text:
   </span>
   and
   <span fg="#FF0000">
-    <em><u>italic underlined red</u></em>
+    <em>
+      <u>italic underlined red</u>
+    </em>
   </span>
 </text>
 ```
@@ -159,15 +162,15 @@ const text = new TextRenderable(renderer, {
 
 ### Style Functions
 
-| Function | Description |
-|----------|-------------|
-| `bold(text)` | Bold text |
-| `italic(text)` | Italic text |
-| `underline(text)` | Underlined text |
-| `dim(text)` | Dimmed text |
-| `strikethrough(text)` | Strikethrough text |
-| `fg(color)(text)` | Set foreground color |
-| `bg(color)(text)` | Set background color |
+| Function              | Description          |
+| --------------------- | -------------------- |
+| `bold(text)`          | Bold text            |
+| `italic(text)`        | Italic text          |
+| `underline(text)`     | Underlined text      |
+| `dim(text)`           | Dimmed text          |
+| `strikethrough(text)` | Strikethrough text   |
+| `fg(color)(text)`     | Set foreground color |
+| `bg(color)(text)`     | Set background color |
 
 ## ASCII Font Component
 
@@ -192,22 +195,18 @@ const title = new ASCIIFontRenderable(renderer, {
 
 ### Available Fonts
 
-| Font | Description |
-|------|-------------|
-| `tiny` | Compact ASCII font |
+| Font    | Description         |
+| ------- | ------------------- |
+| `tiny`  | Compact ASCII font  |
 | `block` | Block-style letters |
-| `slick` | Sleek modern style |
-| `shade` | Shaded 3D effect |
+| `slick` | Sleek modern style  |
+| `shade` | Shaded 3D effect    |
 
 ### Styling
 
 ```tsx
 // React
-<ascii-font
-  text="HELLO"
-  font="block"
-  color="#00FF00"
-/>
+;<ascii-font text="HELLO" font="block" color="#00FF00" />
 
 // Core
 import { RGBA } from "@opentui/core"
@@ -259,14 +258,14 @@ import { RGBA } from "@opentui/core"
 
 // From hex string (most common)
 const red = RGBA.fromHex("#FF0000")
-const shortHex = RGBA.fromHex("#F00")       // Short form supported
+const shortHex = RGBA.fromHex("#F00") // Short form supported
 
 // From integers (0-255 range for each channel)
-const green = RGBA.fromInts(0, 255, 0, 255)   // r, g, b, a
+const green = RGBA.fromInts(0, 255, 0, 255) // r, g, b, a
 const semiGreen = RGBA.fromInts(0, 255, 0, 128) // 50% transparent
 
 // From normalized floats (0.0-1.0 range)
-const blue = RGBA.fromValues(0.0, 0.0, 1.0, 1.0)  // r, g, b, a
+const blue = RGBA.fromValues(0.0, 0.0, 1.0, 1.0) // r, g, b, a
 const overlay = RGBA.fromValues(0.1, 0.1, 0.1, 0.7) // Dark semi-transparent
 
 // Common use cases
@@ -277,6 +276,7 @@ const shadowColor = RGBA.fromValues(0.0, 0.0, 0.0, 0.5) // 50% black
 ```
 
 **When to use each method:**
+
 - `fromHex()` - When working with design specs or CSS colors
 - `fromInts()` - When you have 8-bit color values (0-255)
 - `fromValues()` - When doing color math or interpolation (normalized 0.0-1.0)
@@ -307,8 +307,7 @@ Text wraps based on parent container:
 ```tsx
 <box width={40}>
   <text>
-    This long text will wrap when it reaches the edge of the 
-    40-character wide parent container.
+    This long text will wrap when it reaches the edge of the 40-character wide parent container.
   </text>
 </box>
 ```

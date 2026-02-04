@@ -26,8 +26,14 @@ async function setup(totalLines = 100) {
   return s
 }
 
-async function press(s: Awaited<ReturnType<typeof testRender>>, key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
-  await act(async () => { s.mockInput.pressKey(key, modifiers) })
+async function press(
+  s: Awaited<ReturnType<typeof testRender>>,
+  key: string,
+  modifiers?: { ctrl?: boolean; shift?: boolean },
+) {
+  await act(async () => {
+    s.mockInput.pressKey(key, modifiers)
+  })
   await s.renderOnce()
 }
 
@@ -66,8 +72,12 @@ test("gg scrolls to top", async () => {
   await press(testSetup, "j")
   await press(testSetup, "j")
   expect(testSetup.captureCharFrame()).toContain("scroll:3")
-  await act(async () => { testSetup.mockInput.pressKey("g") })
-  await act(async () => { testSetup.mockInput.pressKey("g") })
+  await act(async () => {
+    testSetup.mockInput.pressKey("g")
+  })
+  await act(async () => {
+    testSetup.mockInput.pressKey("g")
+  })
   await testSetup.renderOnce()
   expect(testSetup.captureCharFrame()).toContain("scroll:0")
 })

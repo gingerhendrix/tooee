@@ -11,14 +11,14 @@ import { createSignal } from "solid-js"
 
 function Counter() {
   const [count, setCount] = createSignal(0)
-  
+
   return (
     <box flexDirection="row" gap={2}>
       <text>Count: {count()}</text>
-      <box border onMouseDown={() => setCount(c => c - 1)}>
+      <box border onMouseDown={() => setCount((c) => c - 1)}>
         <text>-</text>
       </box>
-      <box border onMouseDown={() => setCount(c => c + 1)}>
+      <box border onMouseDown={() => setCount((c) => c + 1)}>
         <text>+</text>
       </box>
     </box>
@@ -36,11 +36,11 @@ import { createSignal, createMemo } from "solid-js"
 function PriceCalculator() {
   const [quantity, setQuantity] = createSignal(1)
   const [price, setPrice] = createSignal(9.99)
-  
+
   // Derived value - only recalculates when dependencies change
   const total = createMemo(() => quantity() * price())
   const formatted = createMemo(() => `$${total().toFixed(2)}`)
-  
+
   return (
     <box flexDirection="column">
       <text>Quantity: {quantity()}</text>
@@ -60,25 +60,21 @@ import { createSignal, createEffect, onCleanup } from "solid-js"
 
 function AutoSave() {
   const [content, setContent] = createSignal("")
-  
+
   createEffect(() => {
     const text = content()
-    
+
     // Debounced save
     const timeout = setTimeout(() => {
       saveToFile(text)
     }, 1000)
-    
+
     // Cleanup on next run or disposal
     onCleanup(() => clearTimeout(timeout))
   })
-  
+
   return (
-    <textarea
-      value={content()}
-      onInput={setContent}
-      placeholder="Auto-saves after 1 second..."
-    />
+    <textarea value={content()} onInput={setContent} placeholder="Auto-saves after 1 second..." />
   )
 }
 ```
@@ -102,30 +98,29 @@ function App() {
     items: [],
     settings: { theme: "dark" },
   })
-  
+
   const addItem = (name: string) => {
-    setState("items", items => [
-      ...items,
-      { id: Date.now(), name, done: false }
-    ])
+    setState("items", (items) => [...items, { id: Date.now(), name, done: false }])
   }
-  
+
   const toggleItem = (id: number) => {
-    setState("items", item => item.id === id, "done", done => !done)
+    setState(
+      "items",
+      (item) => item.id === id,
+      "done",
+      (done) => !done,
+    )
   }
-  
+
   const setTheme = (theme: "dark" | "light") => {
     setState("settings", "theme", theme)
   }
-  
+
   return (
     <box backgroundColor={state.settings.theme === "dark" ? "#1a1a2e" : "#f0f0f0"}>
       <For each={state.items}>
         {(item) => (
-          <text
-            fg={item.done ? "#888" : "#fff"}
-            onMouseDown={() => toggleItem(item.id)}
-          >
+          <text fg={item.done ? "#888" : "#fff"} onMouseDown={() => toggleItem(item.id)}>
             {item.done ? "[x]" : "[ ]"} {item.name}
           </text>
         )}
@@ -153,7 +148,7 @@ type StoreContextValue = [
   {
     increment: () => void
     addItem: (item: string) => void
-  }
+  },
 ]
 
 const StoreContext = createContext<StoreContextValue>()
@@ -163,17 +158,13 @@ const StoreProvider: ParentComponent = (props) => {
     count: 0,
     items: [],
   })
-  
+
   const actions = {
-    increment: () => setState("count", c => c + 1),
-    addItem: (item: string) => setState("items", i => [...i, item]),
+    increment: () => setState("count", (c) => c + 1),
+    addItem: (item: string) => setState("items", (i) => [...i, item]),
   }
-  
-  return (
-    <StoreContext.Provider value={[state, actions]}>
-      {props.children}
-    </StoreContext.Provider>
-  )
+
+  return <StoreContext.Provider value={[state, actions]}>{props.children}</StoreContext.Provider>
 }
 
 function useStore() {
@@ -202,17 +193,14 @@ import { Show, createSignal } from "solid-js"
 
 function ToggleableContent() {
   const [visible, setVisible] = createSignal(false)
-  
+
   return (
     <box flexDirection="column">
-      <box border onMouseDown={() => setVisible(v => !v)}>
+      <box border onMouseDown={() => setVisible((v) => !v)}>
         <text>Toggle</text>
       </box>
-      
-      <Show
-        when={visible()}
-        fallback={<text fg="#888">Content is hidden</text>}
-      >
+
+      <Show when={visible()} fallback={<text fg="#888">Content is hidden</text>}>
         <text fg="#0f0">Content is visible!</text>
       </Show>
     </box>
@@ -230,15 +218,11 @@ function TodoList() {
     { id: 1, text: "Learn Solid", done: false },
     { id: 2, text: "Build TUI", done: false },
   ])
-  
+
   const toggle = (id: number) => {
-    setTodos(todos =>
-      todos.map(t =>
-        t.id === id ? { ...t, done: !t.done } : t
-      )
-    )
+    setTodos((todos) => todos.map((t) => (t.id === id ? { ...t, done: !t.done } : t)))
   }
-  
+
   return (
     <box flexDirection="column">
       <For each={todos()}>
@@ -264,12 +248,14 @@ import { Index, createSignal } from "solid-js"
 
 function StringList() {
   const [items, setItems] = createSignal(["apple", "banana", "cherry"])
-  
+
   return (
     <box flexDirection="column">
       <Index each={items()}>
         {(item, index) => (
-          <text>{index}: {item()}</text>
+          <text>
+            {index}: {item()}
+          </text>
         )}
       </Index>
     </box>
@@ -286,7 +272,7 @@ type Status = "idle" | "loading" | "success" | "error"
 
 function StatusDisplay() {
   const [status, setStatus] = createSignal<Status>("idle")
-  
+
   return (
     <Switch>
       <Match when={status() === "idle"}>
@@ -317,25 +303,20 @@ import { useKeyboard } from "@opentui/solid"
 function FocusableForm() {
   const [focusIndex, setFocusIndex] = createSignal(0)
   const fields = ["name", "email", "message"]
-  
+
   useKeyboard((key) => {
     if (key.name === "tab") {
-      setFocusIndex(i => (i + 1) % fields.length)
+      setFocusIndex((i) => (i + 1) % fields.length)
     }
     if (key.shift && key.name === "tab") {
-      setFocusIndex(i => (i - 1 + fields.length) % fields.length)
+      setFocusIndex((i) => (i - 1 + fields.length) % fields.length)
     }
   })
-  
+
   return (
     <box flexDirection="column" gap={1}>
       <Index each={fields}>
-        {(field, i) => (
-          <input
-            placeholder={`Enter ${field()}...`}
-            focused={i === focusIndex()}
-          />
-        )}
+        {(field, i) => <input placeholder={`Enter ${field()}...`} focused={i === focusIndex()} />}
       </Index>
     </box>
   )
@@ -354,16 +335,16 @@ function App() {
     if (key.name === "escape") {
       process.exit(0)
     }
-    
+
     if (key.ctrl && key.name === "s") {
       save()
     }
-    
+
     // Vim-style
     if (key.name === "j") moveDown()
     if (key.name === "k") moveUp()
   })
-  
+
   return <box>{/* ... */}</box>
 }
 ```
@@ -377,7 +358,7 @@ import { useTerminalDimensions } from "@opentui/solid"
 
 function ResponsiveLayout() {
   const dims = useTerminalDimensions()
-  
+
   return (
     <box flexDirection={dims().width > 80 ? "row" : "column"}>
       <box flexGrow={1}>
@@ -405,15 +386,11 @@ async function fetchData() {
 
 function DataDisplay() {
   const [data] = createResource(fetchData)
-  
+
   return (
     <Suspense fallback={<text>Loading...</text>}>
       <Show when={data()}>
-        {(items) => (
-          <For each={items()}>
-            {(item) => <text>{item.name}</text>}
-          </For>
-        )}
+        {(items) => <For each={items()}>{(item) => <text>{item.name}</text>}</For>}
       </Show>
     </Suspense>
   )
@@ -427,20 +404,12 @@ import { createResource, Show, ErrorBoundary } from "solid-js"
 
 function SafeDataDisplay() {
   const [data] = createResource(fetchData)
-  
+
   return (
     <ErrorBoundary fallback={(err) => <text fg="red">Error: {err.message}</text>}>
-      <Show
-        when={!data.loading}
-        fallback={<text>Loading...</text>}
-      >
-        <Show
-          when={!data.error}
-          fallback={<text fg="red">Failed to load</text>}
-        >
-          <For each={data()}>
-            {(item) => <text>{item.name}</text>}
-          </For>
+      <Show when={!data.loading} fallback={<text>Loading...</text>}>
+        <Show when={!data.error} fallback={<text fg="red">Failed to load</text>}>
+          <For each={data()}>{(item) => <text>{item.name}</text>}</For>
         </Show>
       </Show>
     </ErrorBoundary>
@@ -464,15 +433,13 @@ const Panel: ParentComponent<{ title: string }> = (props) => {
   return (
     <box border padding={1} flexDirection="column">
       <text fg="#0ff">{props.title}</text>
-      <box marginTop={1}>
-        {props.children}
-      </box>
+      <box marginTop={1}>{props.children}</box>
     </box>
   )
 }
 
 // Usage
-<Panel title="Settings">
+;<Panel title="Settings">
   <text>Panel content here</text>
 </Panel>
 ```
@@ -490,7 +457,7 @@ interface ButtonProps {
 
 function Button(props: ButtonProps) {
   const [local, rest] = splitProps(props, ["label", "onClick"])
-  
+
   return (
     <box border onMouseDown={local.onClick} {...rest}>
       <text>{local.label}</text>
@@ -509,11 +476,11 @@ import { useTimeline } from "@opentui/solid"
 
 function AnimatedProgress() {
   const [width, setWidth] = createSignal(0)
-  
+
   const timeline = useTimeline({
     duration: 2000,
   })
-  
+
   onMount(() => {
     timeline.add(
       { value: 0 },
@@ -524,10 +491,10 @@ function AnimatedProgress() {
         onUpdate: (anim) => {
           setWidth(Math.round(anim.targets[0].value))
         },
-      }
+      },
     )
   })
-  
+
   return (
     <box flexDirection="column" gap={1}>
       <text>Progress: {width()}%</text>
@@ -546,13 +513,13 @@ import { createSignal, onCleanup } from "solid-js"
 
 function Clock() {
   const [time, setTime] = createSignal(new Date())
-  
+
   const interval = setInterval(() => {
     setTime(new Date())
   }, 1000)
-  
+
   onCleanup(() => clearInterval(interval))
-  
+
   return <text>{time().toLocaleTimeString()}</text>
 }
 ```

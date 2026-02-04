@@ -61,7 +61,12 @@ test("snapshot full layout", async () => {
     <ThemeSwitcherProvider>
       <AppLayout
         titleBar={{ title: "Test App", subtitle: "snapshot" }}
-        statusBar={{ items: [{ label: "Mode", value: "cmd" }, { label: "Line", value: "1" }] }}
+        statusBar={{
+          items: [
+            { label: "Mode", value: "cmd" },
+            { label: "Line", value: "1" },
+          ],
+        }}
       >
         <text content="Main content area" />
       </AppLayout>

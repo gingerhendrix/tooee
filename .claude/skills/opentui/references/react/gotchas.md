@@ -15,9 +15,9 @@ import { useRenderer } from "@opentui/react"
 
 function App() {
   const renderer = useRenderer()
-  
+
   const handleExit = () => {
-    renderer.destroy()  // Cleans up and exits properly
+    renderer.destroy() // Cleans up and exits properly
   }
 }
 ```
@@ -147,12 +147,16 @@ Multiple `useKeyboard` hooks can conflict:
 ```tsx
 // Both handlers fire - may cause issues
 function App() {
-  useKeyboard((key) => { /* parent handler */ })
+  useKeyboard((key) => {
+    /* parent handler */
+  })
   return <ChildWithKeyboard />
 }
 
 function ChildWithKeyboard() {
-  useKeyboard((key) => { /* child handler */ })
+  useKeyboard((key) => {
+    /* child handler */
+  })
   return <text>Child</text>
 }
 ```
@@ -162,7 +166,7 @@ function ChildWithKeyboard() {
 ```tsx
 function App() {
   const [handled, setHandled] = useState(false)
-  
+
   useKeyboard((key) => {
     if (handled) {
       setHandled(false)
@@ -170,7 +174,7 @@ function App() {
     }
     // Handle at app level
   })
-  
+
   return <Child onKeyHandled={() => setHandled(true)} />
 }
 ```
@@ -188,7 +192,7 @@ useEffect(() => {
 // CORRECT
 useEffect(() => {
   const interval = setInterval(() => updateData(), 1000)
-  return () => clearInterval(interval)  // Cleanup!
+  return () => clearInterval(interval) // Cleanup!
 }, [])
 ```
 
@@ -264,14 +268,10 @@ const style = useMemo(() => ({ padding: 2 }), [])
 Use React.memo for expensive components:
 
 ```tsx
-const ExpensiveList = React.memo(function ExpensiveList({ 
-  items 
-}: { 
-  items: Item[] 
-}) {
+const ExpensiveList = React.memo(function ExpensiveList({ items }: { items: Item[] }) {
   return (
     <box flexDirection="column">
-      {items.map(item => (
+      {items.map((item) => (
         <text key={item.id}>{item.name}</text>
       ))}
     </box>
@@ -287,25 +287,25 @@ Don't update state during render:
 // WRONG
 function Component({ value }: { value: number }) {
   const [count, setCount] = useState(0)
-  
+
   // This causes infinite loop!
   if (value > 10) {
     setCount(value)
   }
-  
+
   return <text>{count}</text>
 }
 
 // CORRECT
 function Component({ value }: { value: number }) {
   const [count, setCount] = useState(0)
-  
+
   useEffect(() => {
     if (value > 10) {
       setCount(value)
     }
   }, [value])
-  
+
   return <text>{count}</text>
 }
 ```
@@ -322,12 +322,12 @@ import { useEffect } from "react"
 
 function App() {
   const renderer = useRenderer()
-  
+
   useEffect(() => {
     renderer.console.show()
     console.log("Now you can see this!")
   }, [renderer])
-  
+
   return <box>{/* ... */}</box>
 }
 ```
@@ -339,13 +339,13 @@ Check if component is in the tree:
 ```tsx
 // WRONG - Conditional returns nothing
 function MaybeComponent({ show }: { show: boolean }) {
-  if (!show) return  // Returns undefined!
+  if (!show) return // Returns undefined!
   return <text>Visible</text>
 }
 
 // CORRECT
 function MaybeComponent({ show }: { show: boolean }) {
-  if (!show) return null  // Explicit null
+  if (!show) return null // Explicit null
   return <text>Visible</text>
 }
 ```
@@ -404,7 +404,7 @@ Renderer not initialized:
 
 ```tsx
 // WRONG
-const renderer = createCliRenderer()  // Missing await!
+const renderer = createCliRenderer() // Missing await!
 createRoot(renderer).render(<App />)
 
 // CORRECT
@@ -418,7 +418,7 @@ Hooks called outside component:
 
 ```tsx
 // WRONG
-const dimensions = useTerminalDimensions()  // Outside component!
+const dimensions = useTerminalDimensions() // Outside component!
 
 function App() {
   return <text>{dimensions.width}</text>

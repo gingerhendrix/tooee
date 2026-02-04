@@ -5,6 +5,7 @@ OpenTUI provides a timeline-based animation system for smooth property transitio
 ## Overview
 
 Animations in OpenTUI use:
+
 - **Timeline**: Orchestrates multiple animations
 - **Animation Engine**: Manages timelines and rendering
 - **Easing Functions**: Control animation curves
@@ -23,11 +24,11 @@ import { useEffect, useState } from "react"
 
 function AnimatedBox() {
   const [width, setWidth] = useState(0)
-  
+
   const timeline = useTimeline({
     duration: 2000,
   })
-  
+
   useEffect(() => {
     timeline.add(
       { width: 0 },
@@ -38,17 +39,11 @@ function AnimatedBox() {
         onUpdate: (anim) => {
           setWidth(Math.round(anim.targets[0].width))
         },
-      }
+      },
     )
   }, [])
-  
-  return (
-    <box
-      width={width}
-      height={3}
-      backgroundColor="#6a5acd"
-    />
-  )
+
+  return <box width={width} height={3} backgroundColor="#6a5acd" />
 }
 ```
 
@@ -60,11 +55,11 @@ import { createSignal, onMount } from "solid-js"
 
 function AnimatedBox() {
   const [width, setWidth] = createSignal(0)
-  
+
   const timeline = useTimeline({
     duration: 2000,
   })
-  
+
   onMount(() => {
     timeline.add(
       { width: 0 },
@@ -75,17 +70,11 @@ function AnimatedBox() {
         onUpdate: (anim) => {
           setWidth(Math.round(anim.targets[0].width))
         },
-      }
+      },
     )
   })
-  
-  return (
-    <box
-      width={width()}
-      height={3}
-      backgroundColor="#6a5acd"
-    />
-  )
+
+  return <box width={width()} height={3} backgroundColor="#6a5acd" />
 }
 ```
 
@@ -111,7 +100,7 @@ timeline.add(
     onUpdate: (anim) => {
       box.setLeft(Math.round(anim.targets[0].x))
     },
-  }
+  },
 )
 
 engine.addTimeline(timeline)
@@ -121,11 +110,11 @@ engine.addTimeline(timeline)
 
 ```typescript
 const timeline = useTimeline({
-  duration: 2000,         // Total duration in ms
-  loop: false,            // Loop the timeline
-  autoplay: true,         // Start automatically
-  onComplete: () => {},   // Called when timeline completes
-  onPause: () => {},      // Called when timeline pauses
+  duration: 2000, // Total duration in ms
+  loop: false, // Loop the timeline
+  autoplay: true, // Start automatically
+  onComplete: () => {}, // Called when timeline completes
+  onPause: () => {}, // Called when timeline pauses
 })
 ```
 
@@ -149,12 +138,12 @@ timeline.duration         // Total duration
 
 ```typescript
 timeline.add(
-  { value: 0 },           // Target object with initial values
+  { value: 0 }, // Target object with initial values
   {
-    value: 100,           // Final value
-    duration: 1000,       // Animation duration in ms
-    ease: "linear",       // Easing function
-    delay: 0,             // Delay before starting
+    value: 100, // Final value
+    duration: 1000, // Animation duration in ms
+    ease: "linear", // Easing function
+    delay: 0, // Delay before starting
     onUpdate: (anim) => {
       // Called each frame
       const current = anim.targets[0].value
@@ -163,7 +152,7 @@ timeline.add(
       // Called when this animation completes
     },
   },
-  0                       // Start time in timeline (optional)
+  0, // Start time in timeline (optional)
 )
 ```
 
@@ -173,65 +162,65 @@ Available easing functions:
 
 ### Linear
 
-| Name | Description |
-|------|-------------|
+| Name     | Description    |
+| -------- | -------------- |
 | `linear` | Constant speed |
 
 ### Quad (Power of 2)
 
-| Name | Description |
-|------|-------------|
-| `easeInQuad` | Slow start |
-| `easeOutQuad` | Slow end |
+| Name            | Description        |
+| --------------- | ------------------ |
+| `easeInQuad`    | Slow start         |
+| `easeOutQuad`   | Slow end           |
 | `easeInOutQuad` | Slow start and end |
 
 ### Cubic (Power of 3)
 
-| Name | Description |
-|------|-------------|
-| `easeInCubic` | Slower start |
-| `easeOutCubic` | Slower end |
+| Name             | Description          |
+| ---------------- | -------------------- |
+| `easeInCubic`    | Slower start         |
+| `easeOutCubic`   | Slower end           |
 | `easeInOutCubic` | Slower start and end |
 
 ### Quart (Power of 4)
 
-| Name | Description |
-|------|-------------|
-| `easeInQuart` | Even slower start |
-| `easeOutQuart` | Even slower end |
+| Name             | Description               |
+| ---------------- | ------------------------- |
+| `easeInQuart`    | Even slower start         |
+| `easeOutQuart`   | Even slower end           |
 | `easeInOutQuart` | Even slower start and end |
 
 ### Expo (Exponential)
 
-| Name | Description |
-|------|-------------|
-| `easeInExpo` | Exponential start |
-| `easeOutExpo` | Exponential end |
+| Name            | Description               |
+| --------------- | ------------------------- |
+| `easeInExpo`    | Exponential start         |
+| `easeOutExpo`   | Exponential end           |
 | `easeInOutExpo` | Exponential start and end |
 
 ### Back (Overshoot)
 
-| Name | Description |
-|------|-------------|
-| `easeInBack` | Pull back, then forward |
-| `easeOutBack` | Overshoot, then settle |
-| `easeInOutBack` | Both |
+| Name            | Description             |
+| --------------- | ----------------------- |
+| `easeInBack`    | Pull back, then forward |
+| `easeOutBack`   | Overshoot, then settle  |
+| `easeInOutBack` | Both                    |
 
 ### Elastic
 
-| Name | Description |
-|------|-------------|
-| `easeInElastic` | Elastic start |
-| `easeOutElastic` | Elastic end (bouncy) |
-| `easeInOutElastic` | Both |
+| Name               | Description          |
+| ------------------ | -------------------- |
+| `easeInElastic`    | Elastic start        |
+| `easeOutElastic`   | Elastic end (bouncy) |
+| `easeInOutElastic` | Both                 |
 
 ### Bounce
 
-| Name | Description |
-|------|-------------|
-| `easeInBounce` | Bounce at start |
-| `easeOutBounce` | Bounce at end |
-| `easeInOutBounce` | Both |
+| Name              | Description     |
+| ----------------- | --------------- |
+| `easeInBounce`    | Bounce at start |
+| `easeOutBounce`   | Bounce at end   |
+| `easeInOutBounce` | Both            |
 
 ## Patterns
 
@@ -241,9 +230,9 @@ Available easing functions:
 function ProgressBar({ progress }: { progress: number }) {
   const [width, setWidth] = useState(0)
   const maxWidth = 50
-  
+
   const timeline = useTimeline()
-  
+
   useEffect(() => {
     timeline.add(
       { value: width },
@@ -254,10 +243,10 @@ function ProgressBar({ progress }: { progress: number }) {
         onUpdate: (anim) => {
           setWidth(Math.round(anim.targets[0].value))
         },
-      }
+      },
     )
   }, [progress])
-  
+
   return (
     <box flexDirection="column" gap={1}>
       <text>Progress: {progress}%</text>
@@ -274,9 +263,9 @@ function ProgressBar({ progress }: { progress: number }) {
 ```tsx
 function FadeIn({ children }) {
   const [opacity, setOpacity] = useState(0)
-  
+
   const timeline = useTimeline()
-  
+
   useEffect(() => {
     timeline.add(
       { opacity: 0 },
@@ -287,15 +276,11 @@ function FadeIn({ children }) {
         onUpdate: (anim) => {
           setOpacity(anim.targets[0].opacity)
         },
-      }
+      },
     )
   }, [])
-  
-  return (
-    <box style={{ opacity }}>
-      {children}
-    </box>
-  )
+
+  return <box style={{ opacity }}>{children}</box>
 }
 ```
 
@@ -305,15 +290,15 @@ function FadeIn({ children }) {
 function Spinner() {
   const [frame, setFrame] = useState(0)
   const frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setFrame(f => (f + 1) % frames.length)
+      setFrame((f) => (f + 1) % frames.length)
     }, 80)
-    
+
     return () => clearInterval(interval)
   }, [])
-  
+
   return <text>{frames[frame]} Loading...</text>
 }
 ```
@@ -323,7 +308,7 @@ function Spinner() {
 ```tsx
 function StaggeredList({ items }) {
   const [visibleCount, setVisibleCount] = useState(0)
-  
+
   useEffect(() => {
     let count = 0
     const interval = setInterval(() => {
@@ -333,10 +318,10 @@ function StaggeredList({ items }) {
         clearInterval(interval)
       }
     }, 100)
-    
+
     return () => clearInterval(interval)
   }, [items.length])
-  
+
   return (
     <box flexDirection="column">
       {items.slice(0, visibleCount).map((item, i) => (
@@ -352,9 +337,9 @@ function StaggeredList({ items }) {
 ```tsx
 function SlideIn({ children, from = "left" }) {
   const [offset, setOffset] = useState(from === "left" ? -20 : 20)
-  
+
   const timeline = useTimeline()
-  
+
   useEffect(() => {
     timeline.add(
       { offset: from === "left" ? -20 : 20 },
@@ -365,10 +350,10 @@ function SlideIn({ children, from = "left" }) {
         onUpdate: (anim) => {
           setOffset(Math.round(anim.targets[0].offset))
         },
-      }
+      },
     )
   }, [])
-  
+
   return (
     <box position="relative" left={offset}>
       {children}

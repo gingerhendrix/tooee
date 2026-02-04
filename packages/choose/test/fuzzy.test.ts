@@ -1,5 +1,5 @@
 import { test, expect, describe } from "bun:test"
-import { fuzzyFilter, type FuzzyMatch } from "../src/fuzzy.ts"
+import { fuzzyFilter } from "../src/fuzzy.ts"
 import type { ChooseItem } from "../src/types.ts"
 
 function items(...texts: string[]): ChooseItem[] {

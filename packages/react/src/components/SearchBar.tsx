@@ -9,14 +9,22 @@ export interface SearchBarProps {
   currentMatch?: number
 }
 
-export function SearchBar({ query, onQueryChange, onSubmit, onCancel, matchCount, currentMatch }: SearchBarProps) {
+export function SearchBar({
+  query,
+  onQueryChange,
+  onSubmit,
+  onCancel: _onCancel,
+  matchCount,
+  currentMatch,
+}: SearchBarProps) {
   const { theme } = useTheme()
 
-  const matchDisplay = matchCount !== undefined && matchCount > 0
-    ? `${(currentMatch ?? 0) + 1}/${matchCount}`
-    : matchCount === 0 && query.length > 0
-      ? "No matches"
-      : ""
+  const matchDisplay =
+    matchCount !== undefined && matchCount > 0
+      ? `${(currentMatch ?? 0) + 1}/${matchCount}`
+      : matchCount === 0 && query.length > 0
+        ? "No matches"
+        : ""
 
   return (
     <box
@@ -41,9 +49,7 @@ export function SearchBar({ query, onQueryChange, onSubmit, onCancel, matchCount
         cursorStyle={{ style: "line", blinking: true }}
         style={{ flexGrow: 1 }}
       />
-      {matchDisplay ? (
-        <text content={` ${matchDisplay}`} style={{ fg: theme.textMuted }} />
-      ) : null}
+      {matchDisplay ? <text content={` ${matchDisplay}`} style={{ fg: theme.textMuted }} /> : null}
     </box>
   )
 }

@@ -9,7 +9,9 @@ const TEST_DIR = resolve(import.meta.dir, "../fixtures/test-dir")
 let session: Session
 
 afterEach(() => {
-  try { session?.close() } catch {}
+  try {
+    session?.close()
+  } catch {}
 })
 
 async function launchViewDir(): Promise<Session> {

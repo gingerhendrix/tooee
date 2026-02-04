@@ -87,10 +87,7 @@ test("selected blocks have accent marker", async () => {
 test("active block has accent marker", async () => {
   testSetup = await testRender(
     <ThemeSwitcherProvider>
-      <MarkdownView
-        content={"# Heading\n\nParagraph one\n\nParagraph two"}
-        activeBlock={1}
-      />
+      <MarkdownView content={"# Heading\n\nParagraph one\n\nParagraph two"} activeBlock={1} />
     </ThemeSwitcherProvider>,
     { width: 80, height: 24 },
   )
@@ -118,7 +115,11 @@ test("selected blocks snapshot", async () => {
 test("snapshot", async () => {
   testSetup = await testRender(
     <ThemeSwitcherProvider>
-      <MarkdownView content={"# Title\n\nSome paragraph text.\n\n- Item one\n- Item two\n\n```js\nconst x = 1\n```"} />
+      <MarkdownView
+        content={
+          "# Title\n\nSome paragraph text.\n\n- Item one\n- Item two\n\n```js\nconst x = 1\n```"
+        }
+      />
     </ThemeSwitcherProvider>,
     { width: 60, height: 20 },
   )

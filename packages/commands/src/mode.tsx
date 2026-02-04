@@ -18,11 +18,7 @@ export function ModeProvider({ children, initialMode = "command" }: ModeProvider
   const [mode, setModeState] = useState<Mode>(initialMode)
   const setMode = useCallback((m: Mode) => setModeState(m), [])
 
-  return (
-    <ModeContext.Provider value={{ mode, setMode }}>
-      {children}
-    </ModeContext.Provider>
-  )
+  return <ModeContext.Provider value={{ mode, setMode }}>{children}</ModeContext.Provider>
 }
 
 export function useMode(): Mode {

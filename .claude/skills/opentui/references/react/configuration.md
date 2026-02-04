@@ -32,10 +32,10 @@ bun install @opentui/react @opentui/core react
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    
+
     "jsx": "react-jsx",
     "jsxImportSource": "@opentui/react",
-    
+
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
@@ -46,6 +46,7 @@ bun install @opentui/react @opentui/core react
 ```
 
 **Critical settings:**
+
 - `jsx: "react-jsx"` - Use the new JSX transform
 - `jsxImportSource: "@opentui/react"` - Import JSX runtime from OpenTUI
 
@@ -143,17 +144,17 @@ import { createCliRenderer, ConsolePosition } from "@opentui/core"
 const renderer = await createCliRenderer({
   // Rendering
   targetFPS: 60,
-  
+
   // Behavior
-  exitOnCtrlC: true,        // Set false to handle Ctrl+C yourself
-  
+  exitOnCtrlC: true, // Set false to handle Ctrl+C yourself
+
   // Debug console
   consoleOptions: {
     position: ConsolePosition.BOTTOM,
     sizePercent: 30,
     startInDebugMode: false,
   },
-  
+
   // Cleanup
   onDestroy: () => {
     // Cleanup code
@@ -186,7 +187,7 @@ await Bun.build({
   outdir: "./dist",
   target: "bun",
   compile: {
-    target: "bun-darwin-arm64",  // or bun-linux-x64, etc.
+    target: "bun-darwin-arm64", // or bun-linux-x64, etc.
     outfile: "my-app",
   },
 })
@@ -218,11 +219,13 @@ OpenTUI React supports React DevTools for debugging.
 ### Setup
 
 1. Install DevTools as a dev dependency (must use version 7):
+
    ```bash
    bun add react-devtools-core@7 -d
    ```
 
 2. Run DevTools standalone app:
+
    ```bash
    npx react-devtools@7
    ```
@@ -249,7 +252,7 @@ import { createRoot } from "@opentui/react"
 
 export async function renderForTest(
   element: React.ReactElement,
-  options = { width: 80, height: 24 }
+  options = { width: 80, height: 24 },
 ) {
   const testSetup = await createTestRenderer(options)
   createRoot(testSetup.renderer).render(element)

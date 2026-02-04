@@ -49,16 +49,16 @@ if (error) {
 if (error) {
   console.error("Fatal error")
   await renderer.destroy()
-  process.exit(1)  // Only after destroy
+  process.exit(1) // Only after destroy
 }
 
 // BETTER - Let destroy handle exit
 const renderer = await createCliRenderer({
-  exitOnCtrlC: true,  // Handles Ctrl+C properly
+  exitOnCtrlC: true, // Handles Ctrl+C properly
 })
 
 // For programmatic exit
-renderer.destroy()  // Cleans up and exits
+renderer.destroy() // Cleans up and exits
 ```
 
 `renderer.destroy()` restores the terminal to its original state before exiting.
@@ -85,6 +85,7 @@ OpenTUI captures console output for the debug overlay. You can't see logs in the
 **Solutions:**
 
 1. **Use the console overlay:**
+
    ```typescript
    const renderer = await createCliRenderer()
    renderer.console.show()
@@ -92,6 +93,7 @@ OpenTUI captures console output for the debug overlay. You can't see logs in the
    ```
 
 2. **Toggle with keyboard:**
+
    ```typescript
    renderer.keyInput.on("keypress", (key) => {
      if (key.name === "f12") {
@@ -101,6 +103,7 @@ OpenTUI captures console output for the debug overlay. You can't see logs in the
    ```
 
 3. **Write to a file:**
+
    ```typescript
    import { appendFileSync } from "node:fs"
    function debugLog(msg: string) {
@@ -126,11 +129,11 @@ test("reproduces the issue", async () => {
     width: 40,
     height: 10,
   })
-  
+
   // Setup that reproduces the bug
   const box = new BoxRenderable(renderer, { ... })
   renderer.root.add(box)
-  
+
   // Verify with snapshot
   expect(snapshot()).toMatchSnapshot()
 })
@@ -177,11 +180,8 @@ input.focus()
 container.getRenderable("input")?.focus()
 
 // Or use delegate (constructs)
-const form = delegate(
-  { focus: "input" },
-  Box({}, Input({ id: "input" })),
-)
-form.focus()  // Routes to the input
+const form = delegate({ focus: "input" }, Box({}, Input({ id: "input" })))
+form.focus() // Routes to the input
 ```
 
 ## Build Requirements
@@ -253,7 +253,7 @@ const text = new TextRenderable(renderer, {
 // Contained within width
 const text = new TextRenderable(renderer, {
   content: "Very long text that might overflow the terminal...",
-  width: 40,  // Will clip or wrap based on parent
+  width: 40, // Will clip or wrap based on parent
 })
 ```
 
@@ -263,13 +263,13 @@ Check terminal capability and color format:
 
 ```typescript
 // CORRECT formats
-fg: "#FF0000"           // Hex
-fg: "red"               // CSS color name
+fg: "#FF0000" // Hex
+fg: "red" // CSS color name
 fg: RGBA.fromHex("#FF0000")
 
 // WRONG
-fg: "FF0000"            // Missing #
-fg: 0xFF0000            // Number (not supported)
+fg: "FF0000" // Missing #
+fg: 0xff0000 // Number (not supported)
 ```
 
 ## Performance
@@ -310,8 +310,8 @@ Hide elements instead of removing/re-adding:
 
 ```typescript
 // For toggling visibility
-element.setDisplay("none")   // Hidden
-element.setDisplay("flex")   // Visible
+element.setDisplay("none") // Hidden
+element.setDisplay("flex") // Visible
 
 // Instead of
 parent.remove(element)

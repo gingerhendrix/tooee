@@ -27,14 +27,16 @@ export function Ask({ prompt, placeholder, defaultValue, onSubmit, interactionHa
     },
   })
 
-  const customActions: ActionDefinition[] | undefined = interactionHandler?.actions.map((action) => ({
-    id: action.id,
-    title: action.title,
-    hotkey: action.hotkey,
-    handler: () => {
-      action.handler(value)
-    },
-  }))
+  const customActions: ActionDefinition[] | undefined = interactionHandler?.actions.map(
+    (action) => ({
+      id: action.id,
+      title: action.title,
+      hotkey: action.hotkey,
+      handler: () => {
+        action.handler(value)
+      },
+    }),
+  )
 
   useActions(customActions)
 
@@ -51,9 +53,7 @@ export function Ask({ prompt, placeholder, defaultValue, onSubmit, interactionHa
 
   return (
     <box flexDirection="column" width="100%" height="100%">
-      {prompt && (
-        <text content={prompt} fg={theme.primary} style={{ marginBottom: 1 }} />
-      )}
+      {prompt && <text content={prompt} fg={theme.primary} style={{ marginBottom: 1 }} />}
       <input
         value={value}
         onChange={setValue}

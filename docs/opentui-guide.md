@@ -37,18 +37,18 @@ createRoot(renderer).render(<App />)
 
 ```tsx
 const renderer = await createCliRenderer({
-  exitOnCtrlC: true,           // Default: handle Ctrl+C to exit (set false to handle yourself)
-  exitSignals: ["SIGINT"],     // OS signals that trigger cleanup
-  targetFps: 60,               // Render loop FPS cap
+  exitOnCtrlC: true, // Default: handle Ctrl+C to exit (set false to handle yourself)
+  exitSignals: ["SIGINT"], // OS signals that trigger cleanup
+  targetFps: 60, // Render loop FPS cap
   maxFps: 120,
-  useMouse: true,              // Enable mouse events
-  enableMouseMovement: false,  // Mouse move tracking (expensive)
-  useAlternateScreen: true,    // Use alternate terminal screen
-  useConsole: true,            // Capture console.log into overlay
+  useMouse: true, // Enable mouse events
+  enableMouseMovement: false, // Mouse move tracking (expensive)
+  useAlternateScreen: true, // Use alternate terminal screen
+  useConsole: true, // Capture console.log into overlay
   backgroundColor: "#1a1b26", // Default background color
-  onDestroy: () => {},         // Cleanup callback
+  onDestroy: () => {}, // Cleanup callback
   consoleOptions: {
-    position: "bottom",        // "top" | "bottom" | "left" | "right"
+    position: "bottom", // "top" | "bottom" | "left" | "right"
     sizePercent: 30,
     startInDebugMode: false,
   },
@@ -173,18 +173,20 @@ Scrollable container with scrollbar. See [Section 4](#4-scrollbox) for details.
 ASCII art text rendering.
 
 ```tsx
-<ascii-font text="HELLO" font="tiny" />  // fonts: "block" | "shade" | "slick" | "tiny"
+<ascii-font text="HELLO" font="tiny" /> // fonts: "block" | "shade" | "slick" | "tiny"
 ```
 
 ### Text Modifiers (must be inside `<text>`)
 
 ```tsx
 <text>
-  <span fg="red" bg="blue">Colored</span>
-  <strong>Bold</strong>  {/* alias: <b> */}
-  <em>Italic</em>        {/* alias: <i> */}
+  <span fg="red" bg="blue">
+    Colored
+  </span>
+  <strong>Bold</strong> {/* alias: <b> */}
+  <em>Italic</em> {/* alias: <i> */}
   <u>Underline</u>
-  <br />                  {/* Line break */}
+  <br /> {/* Line break */}
   <a href="https://...">Link</a>
 </text>
 ```
@@ -323,8 +325,8 @@ Unified or split diff viewer.
 ```tsx
 <diff
   diff={unifiedDiffString}
-  view="unified"         // "unified" | "split"
-  filetype="typescript"  // For syntax highlighting
+  view="unified" // "unified" | "split"
+  filetype="typescript" // For syntax highlighting
 />
 ```
 
@@ -369,25 +371,28 @@ useKeyboard((key: KeyEvent) => {
   // key.eventType: "press" | "release"
 
   if (key.name === "escape") process.exit(0)
-  if (key.ctrl && key.name === "c") { /* ... */ }
+  if (key.ctrl && key.name === "c") {
+    /* ... */
+  }
 })
 
 // With release events
 useKeyboard(
   (key) => {
-    if (key.eventType === "release") { /* key released */ }
-    else { /* key pressed */ }
+    if (key.eventType === "release") {
+      /* key released */
+    } else {
+      /* key pressed */
+    }
   },
-  { release: true }
+  { release: true },
 )
 ```
 
 **Signature:**
+
 ```ts
-function useKeyboard(
-  handler: (key: KeyEvent) => void,
-  options?: { release?: boolean }
-): void
+function useKeyboard(handler: (key: KeyEvent) => void, options?: { release?: boolean }): void
 ```
 
 ### `useTerminalDimensions()`
@@ -415,6 +420,7 @@ useOnResize((width: number, height: number) => {
 ```
 
 **Signature:**
+
 ```ts
 function useOnResize(callback: (width: number, height: number) => void): void
 ```
@@ -427,25 +433,25 @@ Create animations.
 import { useTimeline } from "@opentui/react"
 
 const timeline = useTimeline({
-  duration: 2000,     // ms
+  duration: 2000, // ms
   loop: false,
-  autoplay: true,     // default: true
+  autoplay: true, // default: true
   onComplete: () => {},
   onPause: () => {},
 })
 
 // Add animation targets
 timeline.add(
-  targetObject,          // Object with numeric properties to animate
+  targetObject, // Object with numeric properties to animate
   {
-    propertyName: 50,    // Target value
+    propertyName: 50, // Target value
     duration: 2000,
     ease: "linear",
     onUpdate: (animation) => {
       // animation.targets[0].propertyName has current value
     },
   },
-  0  // startTime offset
+  0, // startTime offset
 )
 
 timeline.play()
@@ -454,6 +460,7 @@ timeline.restart()
 ```
 
 **Signature:**
+
 ```ts
 function useTimeline(options?: {
   duration?: number
@@ -485,11 +492,13 @@ function useTimeline(options?: {
 ```tsx
 <scrollbox
   focused
-  stickyScroll        // Enable auto-scroll when new content added
+  stickyScroll // Enable auto-scroll when new content added
   stickyStart="bottom" // Start scrolled to bottom
   style={{ flexGrow: 1 }}
 >
-  {messages.map(msg => <text key={msg.id}>{msg.text}</text>)}
+  {messages.map((msg) => (
+    <text key={msg.id}>{msg.text}</text>
+  ))}
 </scrollbox>
 ```
 
@@ -519,10 +528,10 @@ interface ScrollBoxOptions extends BoxOptions {
   // Scroll behavior
   stickyScroll?: boolean
   stickyStart?: "bottom" | "top" | "left" | "right"
-  scrollX?: boolean            // Enable horizontal scrolling
-  scrollY?: boolean            // Enable vertical scrolling (default: true)
+  scrollX?: boolean // Enable horizontal scrolling
+  scrollY?: boolean // Enable vertical scrolling (default: true)
   scrollAcceleration?: ScrollAcceleration
-  viewportCulling?: boolean    // Only render visible children (performance)
+  viewportCulling?: boolean // Only render visible children (performance)
 }
 ```
 
@@ -536,8 +545,8 @@ import type { ScrollBoxRenderable } from "@opentui/core"
 const scrollRef = useRef<ScrollBoxRenderable>(null)
 
 // Read/write scroll position
-scrollRef.current.scrollTop         // get current vertical scroll position
-scrollRef.current.scrollTop = 100   // set scroll position
+scrollRef.current.scrollTop // get current vertical scroll position
+scrollRef.current.scrollTop = 100 // set scroll position
 
 // Sticky scroll control
 scrollRef.current.stickyScroll = true
@@ -597,30 +606,30 @@ const [value, setValue] = useState("")
 ```ts
 interface InputProps {
   // Content
-  value?: string              // Controlled value
-  placeholder?: string        // Placeholder text
-  maxLength?: number          // Max input length (default: 1000)
+  value?: string // Controlled value
+  placeholder?: string // Placeholder text
+  maxLength?: number // Max input length (default: 1000)
 
   // Focus
-  focused?: boolean           // Whether this input receives keystrokes
+  focused?: boolean // Whether this input receives keystrokes
 
   // Events
-  onInput?: (value: string) => void   // Every keystroke
-  onChange?: (value: string) => void   // On Enter/submit
-  onSubmit?: (value: string) => void  // On Enter/submit (same as onChange)
+  onInput?: (value: string) => void // Every keystroke
+  onChange?: (value: string) => void // On Enter/submit
+  onSubmit?: (value: string) => void // On Enter/submit (same as onChange)
 
   // Colors
-  backgroundColor?: ColorInput           // Default: "transparent"
-  textColor?: ColorInput                 // Default: "#FFFFFF"
-  focusedBackgroundColor?: ColorInput    // Default: "#1a1a1a"
-  focusedTextColor?: ColorInput          // Default: "#FFFFFF"
-  placeholderColor?: ColorInput          // Default: "#666666"
-  cursorColor?: ColorInput               // Default: "#FFFFFF"
-  cursorStyle?: { style: "block" | "bar" | "underline", blinking: boolean }
+  backgroundColor?: ColorInput // Default: "transparent"
+  textColor?: ColorInput // Default: "#FFFFFF"
+  focusedBackgroundColor?: ColorInput // Default: "#1a1a1a"
+  focusedTextColor?: ColorInput // Default: "#FFFFFF"
+  placeholderColor?: ColorInput // Default: "#666666"
+  cursorColor?: ColorInput // Default: "#FFFFFF"
+  cursorStyle?: { style: "block" | "bar" | "underline"; blinking: boolean }
 
   // Key bindings
-  keyBindings?: InputKeyBinding[]    // Custom keybindings
-  keyAliasMap?: KeyAliasMap          // Key aliases
+  keyBindings?: InputKeyBinding[] // Custom keybindings
+  keyAliasMap?: KeyAliasMap // Key aliases
 
   // Layout (all Yoga props)
   style?: Partial<InputRenderableOptions>
@@ -630,15 +639,15 @@ interface InputProps {
 
 ### Default Key Bindings
 
-| Key | Action |
-|-----|--------|
-| `←` / `Ctrl+B` | Move cursor left |
-| `→` / `Ctrl+F` | Move cursor right |
-| `Home` / `Ctrl+A` | Move to start |
-| `End` / `Ctrl+E` | Move to end |
-| `Backspace` | Delete backward |
-| `Delete` / `Ctrl+D` | Delete forward |
-| `Enter` | Submit |
+| Key                 | Action            |
+| ------------------- | ----------------- |
+| `←` / `Ctrl+B`      | Move cursor left  |
+| `→` / `Ctrl+F`      | Move cursor right |
+| `Home` / `Ctrl+A`   | Move to start     |
+| `End` / `Ctrl+E`    | Move to end       |
+| `Backspace`         | Delete backward   |
+| `Delete` / `Ctrl+D` | Delete forward    |
+| `Enter`             | Submit            |
 
 ### Styling an Input
 
@@ -661,12 +670,12 @@ interface InputProps {
 
 ### Textarea vs Input
 
-| Feature | `<input>` | `<textarea>` |
-|---------|-----------|--------------|
-| Lines | Single-line | Multi-line |
-| Submit | Enter key | Configurable |
-| Value access | `onInput` callback | `ref.current.plainText` |
-| Controlled | `value` + `onInput` | `initialValue` + ref |
+| Feature      | `<input>`           | `<textarea>`            |
+| ------------ | ------------------- | ----------------------- |
+| Lines        | Single-line         | Multi-line              |
+| Submit       | Enter key           | Configurable            |
+| Value access | `onInput` callback  | `ref.current.plainText` |
+| Controlled   | `value` + `onInput` | `initialValue` + ref    |
 
 ---
 
@@ -718,7 +727,7 @@ import type {
 
 // Events
 import type { KeyEvent } from "@opentui/core"
-import { InputRenderableEvents } from "@opentui/core"  // "input" | "change" | "enter"
+import { InputRenderableEvents } from "@opentui/core" // "input" | "change" | "enter"
 
 // Select
 import type { SelectOption, TabSelectOption } from "@opentui/core"
@@ -728,7 +737,7 @@ import type { SelectOption, TabSelectOption } from "@opentui/core"
 import { SyntaxStyle, TextAttributes } from "@opentui/core"
 
 // Layout
-import * as Yoga from "@opentui/core"  // Re-exports yoga-layout
+import * as Yoga from "@opentui/core" // Re-exports yoga-layout
 
 // Buffer (for custom renderables)
 import { OptimizedBuffer } from "@opentui/core"
@@ -787,37 +796,37 @@ import type {
 
 The foundational package. Everything render-related lives here.
 
-| Export | Description |
-|--------|-------------|
-| `createCliRenderer()` | Create the terminal renderer |
-| `CliRenderer` | Renderer class |
-| `RGBA`, `parseColor` | Color utilities |
-| `SyntaxStyle` | Syntax highlighting themes |
-| `TextAttributes` | Text formatting bitmask (BOLD, ITALIC, UNDERLINE, DIM, etc.) |
-| `OptimizedBuffer` | Low-level render buffer |
-| `*Renderable` classes | All renderable implementations |
-| `*Options` types | Options for each renderable |
-| `*Events` enums | Event name constants |
-| `Yoga` (re-export) | Yoga layout engine |
-| `t`, `bold`, `underline`, `fg` | Styled text template utilities |
+| Export                         | Description                                                  |
+| ------------------------------ | ------------------------------------------------------------ |
+| `createCliRenderer()`          | Create the terminal renderer                                 |
+| `CliRenderer`                  | Renderer class                                               |
+| `RGBA`, `parseColor`           | Color utilities                                              |
+| `SyntaxStyle`                  | Syntax highlighting themes                                   |
+| `TextAttributes`               | Text formatting bitmask (BOLD, ITALIC, UNDERLINE, DIM, etc.) |
+| `OptimizedBuffer`              | Low-level render buffer                                      |
+| `*Renderable` classes          | All renderable implementations                               |
+| `*Options` types               | Options for each renderable                                  |
+| `*Events` enums                | Event name constants                                         |
+| `Yoga` (re-export)             | Yoga layout engine                                           |
+| `t`, `bold`, `underline`, `fg` | Styled text template utilities                               |
 
 ### `@opentui/react`
 
 React reconciler and component bindings.
 
-| Export | Description |
-|--------|-------------|
-| `createRoot(renderer)` | Create React root for rendering |
-| `render()` | Deprecated — use createRoot |
-| `extend(components)` | Register custom JSX elements |
-| `useRenderer()` | Access CliRenderer |
-| `useKeyboard()` | Keyboard event hook |
-| `useTerminalDimensions()` | Reactive terminal size |
-| `useOnResize()` | Resize event hook |
-| `useTimeline()` | Animation hook |
-| `createElement` | Re-exported from React |
-| Component prop types | `TextProps`, `BoxProps`, `InputProps`, etc. |
-| Extension types | `OpenTUIComponents`, `ExtendedComponentProps` |
+| Export                    | Description                                   |
+| ------------------------- | --------------------------------------------- |
+| `createRoot(renderer)`    | Create React root for rendering               |
+| `render()`                | Deprecated — use createRoot                   |
+| `extend(components)`      | Register custom JSX elements                  |
+| `useRenderer()`           | Access CliRenderer                            |
+| `useKeyboard()`           | Keyboard event hook                           |
+| `useTerminalDimensions()` | Reactive terminal size                        |
+| `useOnResize()`           | Resize event hook                             |
+| `useTimeline()`           | Animation hook                                |
+| `createElement`           | Re-exported from React                        |
+| Component prop types      | `TextProps`, `BoxProps`, `InputProps`, etc.   |
+| Extension types           | `OpenTUIComponents`, `ExtendedComponentProps` |
 
 ### JSX Element Mapping
 
@@ -866,14 +875,14 @@ a           → LinkRenderable
 
 **Critical settings:**
 
-| Setting | Value | Why |
-|---------|-------|-----|
-| `jsx` | `"react-jsx"` | Uses the automatic JSX transform (no manual `import React`) |
-| `jsxImportSource` | `"@opentui/react"` | Routes JSX to OpenTUI's custom element types instead of HTML |
-| `moduleResolution` | `"bundler"` | Required for Bun and package exports resolution |
-| `lib` | `["ESNext", "DOM"]` | DOM needed for some React types; ESNext for modern APIs |
-| `target` | `"ESNext"` | Bun supports all modern JS features |
-| `skipLibCheck` | `true` | Avoids issues with third-party type conflicts |
+| Setting            | Value               | Why                                                          |
+| ------------------ | ------------------- | ------------------------------------------------------------ |
+| `jsx`              | `"react-jsx"`       | Uses the automatic JSX transform (no manual `import React`)  |
+| `jsxImportSource`  | `"@opentui/react"`  | Routes JSX to OpenTUI's custom element types instead of HTML |
+| `moduleResolution` | `"bundler"`         | Required for Bun and package exports resolution              |
+| `lib`              | `["ESNext", "DOM"]` | DOM needed for some React types; ESNext for modern APIs      |
+| `target`           | `"ESNext"`          | Bun supports all modern JS features                          |
+| `skipLibCheck`     | `true`              | Avoids issues with third-party type conflicts                |
 
 ### Without `jsxImportSource`
 
@@ -927,12 +936,12 @@ left / right / top / bottom: number
 
 ```tsx
 // Hex strings
-fg="#FF0000"
-backgroundColor="#1a1b26"
+fg = "#FF0000"
+backgroundColor = "#1a1b26"
 
 // CSS color names
-fg="red"
-backgroundColor="blue"
+fg = "red"
+backgroundColor = "blue"
 
 // RGBA objects (for programmatic use)
 import { RGBA } from "@opentui/core"
@@ -968,7 +977,7 @@ useKeyboard((key) => {
 const renderer = useRenderer()
 
 useEffect(() => {
-  renderer.console.show()  // Show the overlay
+  renderer.console.show() // Show the overlay
 }, [])
 
 // Now console.log() output appears in the overlay instead of corrupting the TUI
@@ -1021,7 +1030,7 @@ function App() {
 
   useKeyboard((key) => {
     if (key.name === "escape") process.exit(0)
-    if (key.name === "tab") setFocus(f => f === "input" ? "scroll" : "input")
+    if (key.name === "tab") setFocus((f) => (f === "input" ? "scroll" : "input"))
   })
 
   return (
@@ -1044,7 +1053,7 @@ function App() {
           placeholder="Type a message..."
           focused={focus === "input"}
           onSubmit={(value) => {
-            setMessages(prev => [...prev, value])
+            setMessages((prev) => [...prev, value])
           }}
         />
       </box>

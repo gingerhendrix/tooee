@@ -10,39 +10,40 @@ Creates and initializes the CLI renderer.
 import { createCliRenderer, type CliRendererConfig } from "@opentui/core"
 
 const renderer = await createCliRenderer({
-  targetFPS: 60,              // Target frames per second
-  exitOnCtrlC: true,          // Exit process on Ctrl+C
-  consoleOptions: {           // Debug console overlay
+  targetFPS: 60, // Target frames per second
+  exitOnCtrlC: true, // Exit process on Ctrl+C
+  consoleOptions: {
+    // Debug console overlay
     position: ConsolePosition.BOTTOM,
     sizePercent: 30,
     startInDebugMode: false,
   },
-  onDestroy: () => {},        // Cleanup callback
+  onDestroy: () => {}, // Cleanup callback
 })
 ```
 
 ### CliRenderer Instance
 
 ```typescript
-renderer.root              // Root renderable node
-renderer.width             // Terminal width in columns
-renderer.height            // Terminal height in rows
-renderer.keyInput          // Keyboard event emitter
-renderer.console           // Console overlay controller
+renderer.root // Root renderable node
+renderer.width // Terminal width in columns
+renderer.height // Terminal height in rows
+renderer.keyInput // Keyboard event emitter
+renderer.console // Console overlay controller
 
-renderer.start()           // Start render loop
-renderer.stop()            // Stop render loop
-renderer.destroy()         // Cleanup and exit alternate screen
-renderer.requestRender()   // Request a re-render
+renderer.start() // Start render loop
+renderer.stop() // Stop render loop
+renderer.destroy() // Cleanup and exit alternate screen
+renderer.requestRender() // Request a re-render
 ```
 
 ### Console Overlay
 
 ```typescript
-renderer.console.show()    // Show console overlay
-renderer.console.hide()    // Hide console overlay
-renderer.console.toggle()  // Toggle visibility/focus
-renderer.console.clear()   // Clear console contents
+renderer.console.show() // Show console overlay
+renderer.console.hide() // Hide console overlay
+renderer.console.toggle() // Toggle visibility/focus
+renderer.console.clear() // Clear console contents
 ```
 
 ## Renderables
@@ -53,15 +54,15 @@ All renderables extend the base `Renderable` class and share common properties.
 
 ```typescript
 interface CommonProps {
-  id?: string                    // Unique identifier
-  
+  id?: string // Unique identifier
+
   // Positioning
   position?: "relative" | "absolute"
   left?: number | string
   top?: number | string
   right?: number | string
   bottom?: number | string
-  
+
   // Dimensions
   width?: number | string | "auto"
   height?: number | string | "auto"
@@ -69,18 +70,24 @@ interface CommonProps {
   minHeight?: number
   maxWidth?: number
   maxHeight?: number
-  
+
   // Flexbox
   flexDirection?: "row" | "column" | "row-reverse" | "column-reverse"
   flexGrow?: number
   flexShrink?: number
   flexBasis?: number | string
   flexWrap?: "nowrap" | "wrap" | "wrap-reverse"
-  justifyContent?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly"
+  justifyContent?:
+    | "flex-start"
+    | "flex-end"
+    | "center"
+    | "space-between"
+    | "space-around"
+    | "space-evenly"
   alignItems?: "flex-start" | "flex-end" | "center" | "stretch" | "baseline"
   alignSelf?: "auto" | "flex-start" | "flex-end" | "center" | "stretch" | "baseline"
   alignContent?: "flex-start" | "flex-end" | "center" | "stretch" | "space-between" | "space-around"
-  
+
   // Spacing
   padding?: number
   paddingTop?: number
@@ -93,7 +100,7 @@ interface CommonProps {
   marginBottom?: number
   marginLeft?: number
   gap?: number
-  
+
   // Display
   display?: "flex" | "none"
   overflow?: "visible" | "hidden" | "scroll"
@@ -104,16 +111,16 @@ interface CommonProps {
 ### Renderable Methods
 
 ```typescript
-renderable.add(child)              // Add child renderable
-renderable.remove(child)           // Remove child renderable
-renderable.getRenderable(id)       // Find child by ID
-renderable.focus()                 // Focus this renderable
-renderable.blur()                  // Remove focus
-renderable.destroy()               // Destroy and cleanup
+renderable.add(child) // Add child renderable
+renderable.remove(child) // Remove child renderable
+renderable.getRenderable(id) // Find child by ID
+renderable.focus() // Focus this renderable
+renderable.blur() // Remove focus
+renderable.destroy() // Destroy and cleanup
 
-renderable.on(event, handler)      // Add event listener
-renderable.off(event, handler)     // Remove event listener
-renderable.emit(event, ...args)    // Emit event
+renderable.on(event, handler) // Add event listener
+renderable.off(event, handler) // Remove event listener
+renderable.emit(event, ...args) // Emit event
 ```
 
 ### TextRenderable
@@ -126,10 +133,10 @@ import { TextRenderable, TextAttributes, t, bold, fg, underline } from "@opentui
 const text = new TextRenderable(renderer, {
   id: "text",
   content: "Hello World",
-  fg: "#FFFFFF",                   // Foreground color
-  bg: "#000000",                   // Background color
+  fg: "#FFFFFF", // Foreground color
+  bg: "#000000", // Background color
   attributes: TextAttributes.BOLD | TextAttributes.UNDERLINE,
-  selectable: true,                // Allow text selection
+  selectable: true, // Allow text selection
 })
 
 // Styled text with template literals
@@ -139,6 +146,7 @@ const styled = new TextRenderable(renderer, {
 ```
 
 **TextAttributes flags:**
+
 - `TextAttributes.BOLD`
 - `TextAttributes.DIM`
 - `TextAttributes.ITALIC`
@@ -182,7 +190,7 @@ const input = new InputRenderable(renderer, {
   id: "input",
   width: 30,
   placeholder: "Enter text...",
-  value: "",                       // Initial value
+  value: "", // Initial value
   backgroundColor: "#1a1a1a",
   textColor: "#FFFFFF",
   cursorColor: "#00FF00",
@@ -193,7 +201,7 @@ input.on(InputRenderableEvents.CHANGE, (value: string) => {
   console.log("Value:", value)
 })
 
-input.focus()  // Must be focused to receive input
+input.focus() // Must be focused to receive input
 ```
 
 ### SelectRenderable
@@ -226,10 +234,11 @@ select.on(SelectRenderableEvents.SELECTION_CHANGED, (index, option) => {
   showPreview(option)
 })
 
-select.focus()  // Navigate with up/down/j/k, select with enter
+select.focus() // Navigate with up/down/j/k, select with enter
 ```
 
 **Event distinction:**
+
 - `ITEM_SELECTED` - Enter key pressed, user confirms selection
 - `SELECTION_CHANGED` - Arrow keys, user navigating/browsing options
 
@@ -261,10 +270,11 @@ tabs.on(TabSelectRenderableEvents.SELECTION_CHANGED, (index, option) => {
   console.log("Browsing tab:", option.name)
 })
 
-tabs.focus()  // Navigate with left/right/[/], select with enter
+tabs.focus() // Navigate with left/right/[/], select with enter
 ```
 
 **Event distinction** (same as SelectRenderable):
+
 - `ITEM_SELECTED` - Enter key pressed, user confirms tab
 - `SELECTION_CHANGED` - Arrow keys, user navigating tabs
 
@@ -291,13 +301,15 @@ const scrollbox = new ScrollBoxRenderable(renderer, {
 
 // Add content that exceeds viewport
 for (let i = 0; i < 100; i++) {
-  scrollbox.add(new TextRenderable(renderer, {
-    id: `line-${i}`,
-    content: `Line ${i}`,
-  }))
+  scrollbox.add(
+    new TextRenderable(renderer, {
+      id: `line-${i}`,
+      content: `Line ${i}`,
+    }),
+  )
 }
 
-scrollbox.focus()  // Scroll with arrow keys
+scrollbox.focus() // Scroll with arrow keys
 ```
 
 ### ASCIIFontRenderable
@@ -360,7 +372,7 @@ const form = delegate(
     Input({ id: "email-input", placeholder: "you@example.com" }),
   ),
 )
-form.focus()  // Focuses the input, not the box
+form.focus() // Focuses the input, not the box
 ```
 
 ## Colors (RGBA)
@@ -373,32 +385,32 @@ The `RGBA` class is exported from `@opentui/core` but works across **all framewo
 import { RGBA, parseColor } from "@opentui/core"
 
 // From hex string (most common)
-RGBA.fromHex("#FF0000")           // Full hex
-RGBA.fromHex("#F00")              // Short hex
+RGBA.fromHex("#FF0000") // Full hex
+RGBA.fromHex("#F00") // Short hex
 
 // From integers (0-255 range)
-RGBA.fromInts(255, 0, 0, 255)     // r, g, b, a - fully opaque red
-RGBA.fromInts(255, 0, 0, 128)     // 50% transparent red
-RGBA.fromInts(0, 0, 0, 0)         // Fully transparent
+RGBA.fromInts(255, 0, 0, 255) // r, g, b, a - fully opaque red
+RGBA.fromInts(255, 0, 0, 128) // 50% transparent red
+RGBA.fromInts(0, 0, 0, 0) // Fully transparent
 
 // From normalized floats (0.0-1.0 range)
-RGBA.fromValues(1.0, 0.0, 0.0, 1.0)   // Fully opaque red
-RGBA.fromValues(0.1, 0.1, 0.1, 0.7)   // Dark gray, 70% opaque
-RGBA.fromValues(0.0, 0.5, 1.0, 1.0)   // Light blue
+RGBA.fromValues(1.0, 0.0, 0.0, 1.0) // Fully opaque red
+RGBA.fromValues(0.1, 0.1, 0.1, 0.7) // Dark gray, 70% opaque
+RGBA.fromValues(0.0, 0.5, 1.0, 1.0) // Light blue
 ```
 
 ### Common Color Patterns
 
 ```typescript
 // Theme colors
-const primary = RGBA.fromHex("#7aa2f7")      // Tokyo Night blue
+const primary = RGBA.fromHex("#7aa2f7") // Tokyo Night blue
 const background = RGBA.fromHex("#1a1a2e")
 const foreground = RGBA.fromHex("#c0caf5")
 const error = RGBA.fromHex("#f7768e")
 
 // Overlays and shadows
-const modalOverlay = RGBA.fromValues(0.0, 0.0, 0.0, 0.5)  // 50% black
-const shadow = RGBA.fromInts(0, 0, 0, 77)                  // 30% black
+const modalOverlay = RGBA.fromValues(0.0, 0.0, 0.0, 0.5) // 50% black
+const shadow = RGBA.fromInts(0, 0, 0, 77) // 30% black
 
 // Borders
 const activeBorder = RGBA.fromHex("#7aa2f7")
@@ -409,19 +421,19 @@ const inactiveBorder = RGBA.fromInts(65, 72, 104, 255)
 
 ```typescript
 // Accepts multiple formats
-parseColor("#FF0000")             // Hex string
-parseColor("red")                 // CSS color name
-parseColor("transparent")         // Special values
-parseColor(RGBA.fromHex("#F00"))  // Pass-through RGBA objects
+parseColor("#FF0000") // Hex string
+parseColor("red") // CSS color name
+parseColor("transparent") // Special values
+parseColor(RGBA.fromHex("#F00")) // Pass-through RGBA objects
 ```
 
 ### When to Use Each Method
 
-| Method | Use When |
-|--------|----------|
-| `fromHex()` | Working with design specs, CSS colors, config files |
-| `fromInts()` | You have 8-bit values (0-255), common in graphics |
-| `fromValues()` | Doing color interpolation, animations, math |
+| Method         | Use When                                                |
+| -------------- | ------------------------------------------------------- |
+| `fromHex()`    | Working with design specs, CSS colors, config files     |
+| `fromInts()`   | You have 8-bit values (0-255), common in graphics       |
+| `fromValues()` | Doing color interpolation, animations, math             |
 | `parseColor()` | Accepting user input or config that could be any format |
 
 ### Using RGBA in React/Solid
@@ -434,7 +446,7 @@ import { RGBA } from "@opentui/core"
 function ThemedBox() {
   const bg = RGBA.fromHex("#1a1a2e")
   const border = RGBA.fromInts(122, 162, 247, 255)
-  
+
   return (
     <box backgroundColor={bg} borderColor={border} border>
       <text fg={RGBA.fromHex("#c0caf5")}>Works everywhere!</text>
@@ -451,13 +463,13 @@ Color props in React/Solid accept both string formats (`"#FF0000"`, `"red"`) and
 import { type KeyEvent } from "@opentui/core"
 
 renderer.keyInput.on("keypress", (key: KeyEvent) => {
-  console.log(key.name)           // "a", "escape", "f1", etc.
-  console.log(key.sequence)       // Raw escape sequence
-  console.log(key.ctrl)           // Ctrl held
-  console.log(key.shift)          // Shift held
-  console.log(key.meta)           // Alt held
-  console.log(key.option)         // Option held (macOS)
-  console.log(key.eventType)      // "press" | "release" | "repeat"
+  console.log(key.name) // "a", "escape", "f1", etc.
+  console.log(key.sequence) // Raw escape sequence
+  console.log(key.ctrl) // Ctrl held
+  console.log(key.shift) // Shift held
+  console.log(key.meta) // Alt held
+  console.log(key.option) // Option held (macOS)
+  console.log(key.eventType) // "press" | "release" | "repeat"
 })
 
 renderer.keyInput.on("paste", (text: string) => {

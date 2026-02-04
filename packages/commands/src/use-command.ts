@@ -35,5 +35,15 @@ export function useCommand(options: UseCommandOptions): void {
       hidden: options.hidden,
     }
     return registry.register(command)
-  }, [options.id, options.title, options.hotkey, options.modes, options.category, options.group, options.icon, options.hidden, registry])
+  }, [
+    options.id,
+    options.title,
+    options.hotkey,
+    options.modes,
+    options.category,
+    options.group,
+    options.icon,
+    options.hidden,
+    registry,
+  ])
 }

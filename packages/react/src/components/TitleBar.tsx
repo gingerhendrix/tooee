@@ -19,9 +19,7 @@ export function TitleBar({ title, subtitle }: TitleBarProps) {
       }}
     >
       <text content={title} style={{ fg: theme.primary }} />
-      {subtitle && (
-        <text content={` — ${subtitle}`} style={{ fg: theme.textMuted }} />
-      )}
+      {subtitle && <text content={` — ${subtitle}`} style={{ fg: theme.textMuted }} />}
     </box>
   )
 }

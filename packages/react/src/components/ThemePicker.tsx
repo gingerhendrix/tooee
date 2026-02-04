@@ -37,7 +37,13 @@ function fuzzyMatch(query: string, text: string): number | null {
   return qi === lowerQuery.length ? score : null
 }
 
-export function ThemePicker({ entries, currentTheme, onSelect, onClose, onNavigate }: ThemePickerProps) {
+export function ThemePicker({
+  entries,
+  currentTheme,
+  onSelect,
+  onClose,
+  onNavigate,
+}: ThemePickerProps) {
   const { theme } = useTheme()
   const [filter, setFilter] = useState("")
   const [activeIndex, setActiveIndex] = useState(() => {
@@ -63,13 +69,16 @@ export function ThemePicker({ entries, currentTheme, onSelect, onClose, onNaviga
     }
   }, [filtered, activeIndex, onSelect])
 
-  const navigateTo = useCallback((index: number) => {
-    setActiveIndex(index)
-    const item = filtered[index]
-    if (item) {
-      onNavigate(item.id)
-    }
-  }, [filtered, onNavigate])
+  const navigateTo = useCallback(
+    (index: number) => {
+      setActiveIndex(index)
+      const item = filtered[index]
+      if (item) {
+        onNavigate(item.id)
+      }
+    },
+    [filtered, onNavigate],
+  )
 
   useKeyboard((key) => {
     if (key.name === "escape") {

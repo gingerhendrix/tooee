@@ -17,7 +17,10 @@ const defaultValue: OverlayContextValue = {
 
 export const OverlayContext = createContext<OverlayContextValue>(defaultValue)
 
-export function useOverlay(): { show: (id: string, content: ReactNode) => void; hide: (id: string) => void } {
+export function useOverlay(): {
+  show: (id: string, content: ReactNode) => void
+  hide: (id: string) => void
+} {
   const ctx = useContext(OverlayContext)
   return { show: ctx.show, hide: ctx.hide }
 }

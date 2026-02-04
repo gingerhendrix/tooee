@@ -31,10 +31,7 @@ export function fuzzyFilter(items: ChooseItem[], query: string): FuzzyMatch[] {
   return results
 }
 
-function matchFuzzy(
-  text: string,
-  query: string,
-): { score: number; positions: number[] } | null {
+function matchFuzzy(text: string, query: string): { score: number; positions: number[] } | null {
   const positions: number[] = []
   let score = 0
   let qi = 0

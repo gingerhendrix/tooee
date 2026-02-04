@@ -128,9 +128,7 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
           >
             <text content={entry.title} fg={theme.text} style={{ flexGrow: 1 }} />
             {entry.hotkey && <text content={entry.hotkey} fg={theme.textMuted} />}
-            {entry.category && (
-              <text content={` ${entry.category}`} fg={theme.textMuted} />
-            )}
+            {entry.category && <text content={` ${entry.category}`} fg={theme.textMuted} />}
           </box>
         ))}
       </scrollbox>

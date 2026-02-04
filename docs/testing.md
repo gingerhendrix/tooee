@@ -19,19 +19,19 @@ Use OpenTUI's headless test renderer via `@opentui/react/test-utils`. These are 
 
 ### What's tested
 
-| File | Covers |
-|------|--------|
-| `react/test/TitleBar.test.tsx` | Title and subtitle rendering |
-| `react/test/StatusBar.test.tsx` | Label:value pairs |
-| `react/test/AppLayout.test.tsx` | Full layout chrome (title bar, status bar, scroll area) |
-| `react/test/MarkdownView.test.tsx` | Heading, list, code block rendering |
-| `react/test/CodeView.test.tsx` | Code content and line numbers |
-| `shell/test/modal.test.tsx` | j/k scroll, gg/G jump, ctrl+d/u, mode transitions |
-| `shell/test/search.test.tsx` | findMatchingLines, search activation/cancel/navigation |
-| `shell/test/cursor.test.tsx` | Cursor/select mode transitions, movement, selection |
-| `shell/test/command-palette.test.tsx` | Palette open/close, entry filtering |
-| `shell/test/commands.test.tsx` | Theme cycling (t/T), quit (q) |
-| `choose/test/fuzzy.test.ts` | Fuzzy filter scoring, matching, sorting |
+| File                                  | Covers                                                  |
+| ------------------------------------- | ------------------------------------------------------- |
+| `react/test/TitleBar.test.tsx`        | Title and subtitle rendering                            |
+| `react/test/StatusBar.test.tsx`       | Label:value pairs                                       |
+| `react/test/AppLayout.test.tsx`       | Full layout chrome (title bar, status bar, scroll area) |
+| `react/test/MarkdownView.test.tsx`    | Heading, list, code block rendering                     |
+| `react/test/CodeView.test.tsx`        | Code content and line numbers                           |
+| `shell/test/modal.test.tsx`           | j/k scroll, gg/G jump, ctrl+d/u, mode transitions       |
+| `shell/test/search.test.tsx`          | findMatchingLines, search activation/cancel/navigation  |
+| `shell/test/cursor.test.tsx`          | Cursor/select mode transitions, movement, selection     |
+| `shell/test/command-palette.test.tsx` | Palette open/close, entry filtering                     |
+| `shell/test/commands.test.tsx`        | Theme cycling (t/T), quit (q)                           |
+| `choose/test/fuzzy.test.ts`           | Fuzzy filter scoring, matching, sorting                 |
 
 ### Pattern
 
@@ -41,7 +41,9 @@ import { test, expect, afterEach } from "bun:test"
 
 let testSetup: Awaited<ReturnType<typeof testRender>>
 
-afterEach(() => { testSetup?.renderer.destroy() })
+afterEach(() => {
+  testSetup?.renderer.destroy()
+})
 
 test("renders content", async () => {
   testSetup = await testRender(<MyComponent />, { width: 80, height: 24 })
@@ -85,14 +87,14 @@ Use [tuistory](https://github.com/remorses/tuistory) ("Playwright for TUIs") to 
 
 ### What's tested
 
-| File | Covers |
-|------|--------|
-| `e2e/render.test.ts` | Markdown, code, and plain text rendering; status bar content |
-| `e2e/navigation.test.ts` | j/k scroll, gg jump to top, G jump to bottom, ctrl+d/u |
-| `e2e/theme.test.ts` | Theme cycling via t/T, status bar updates |
-| `e2e/quit.test.ts` | q exits the process cleanly |
-| `e2e/search.test.ts` | Search bar open, query+submit, Escape cancel |
-| `e2e/cursor.test.ts` | Cursor/select mode via v, j/k movement, Escape chains |
+| File                     | Covers                                                       |
+| ------------------------ | ------------------------------------------------------------ |
+| `e2e/render.test.ts`     | Markdown, code, and plain text rendering; status bar content |
+| `e2e/navigation.test.ts` | j/k scroll, gg jump to top, G jump to bottom, ctrl+d/u       |
+| `e2e/theme.test.ts`      | Theme cycling via t/T, status bar updates                    |
+| `e2e/quit.test.ts`       | q exits the process cleanly                                  |
+| `e2e/search.test.ts`     | Search bar open, query+submit, Escape cancel                 |
+| `e2e/cursor.test.ts`     | Cursor/select mode via v, j/k movement, Escape chains        |
 
 ### Fixtures
 
@@ -120,7 +122,11 @@ import { launchView } from "./helpers.ts"
 
 let session: Session
 
-afterEach(() => { try { session?.close() } catch {} })
+afterEach(() => {
+  try {
+    session?.close()
+  } catch {}
+})
 
 test("renders markdown heading", async () => {
   session = await launchView("sample.md")
@@ -132,13 +138,13 @@ test("renders markdown heading", async () => {
 ### tuistory API
 
 ```typescript
-await session.press("j")                  // single key
-await session.press(["ctrl", "d"])        // chord
-await session.type("search query")        // type string
-await session.waitForText("pattern")      // wait for text
-await session.waitForText(/regex/)        // regex match
-const text = await session.text()         // get terminal text
-session.close()                           // cleanup
+await session.press("j") // single key
+await session.press(["ctrl", "d"]) // chord
+await session.type("search query") // type string
+await session.waitForText("pattern") // wait for text
+await session.waitForText(/regex/) // regex match
+const text = await session.text() // get terminal text
+session.close() // cleanup
 ```
 
 ### Timeouts
@@ -180,7 +186,10 @@ Escape key simulation works reliably in component tests:
 testSetup.renderer.keyInput.emit("keypress", {
   name: "escape",
   sequence: "\x1b",
-  ctrl: false, shift: false, meta: false, option: false,
+  ctrl: false,
+  shift: false,
+  meta: false,
+  option: false,
   eventType: "press",
   repeated: false,
 })
@@ -198,6 +207,7 @@ await session.writeRaw("\x1b[27u")
 ```
 
 **Affected e2e scenarios** (skip or use workaround):
+
 - Exiting search mode (Escape to dismiss search bar)
 - Returning from cursor mode to command mode
 - Returning from select mode to cursor mode

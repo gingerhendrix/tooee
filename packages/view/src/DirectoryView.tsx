@@ -5,7 +5,11 @@ import { listDirectoryFiles, type DirectoryEntry } from "./directory-provider.ts
 import type { ViewContentProvider, ViewContent, ViewInteractionHandler } from "./types.ts"
 import { createFileProvider } from "./default-provider.ts"
 
-function createDirectoryFileProvider(entry: DirectoryEntry, index: number, total: number): ViewContentProvider {
+function createDirectoryFileProvider(
+  entry: DirectoryEntry,
+  index: number,
+  total: number,
+): ViewContentProvider {
   const inner = createFileProvider(entry.path)
   return {
     async load(): Promise<ViewContent> {
@@ -28,7 +32,10 @@ export function DirectoryView({ dirPath, interactionHandler }: DirectoryViewProp
   const [currentIndex, setCurrentIndex] = useState(0)
 
   const contentProvider = useMemo(
-    () => files.length > 0 ? createDirectoryFileProvider(files[currentIndex], currentIndex, files.length) : null,
+    () =>
+      files.length > 0
+        ? createDirectoryFileProvider(files[currentIndex], currentIndex, files.length)
+        : null,
     [files, currentIndex],
   )
 
@@ -56,10 +63,5 @@ export function DirectoryView({ dirPath, interactionHandler }: DirectoryViewProp
     )
   }
 
-  return (
-    <View
-      contentProvider={contentProvider}
-      interactionHandler={interactionHandler}
-    />
-  )
+  return <View contentProvider={contentProvider} interactionHandler={interactionHandler} />
 }

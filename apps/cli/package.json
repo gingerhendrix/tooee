@@ -2,21 +2,19 @@
   "name": "@tooee/cli",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "bin": {
     "tooee": "./src/main.ts"
   },
-  "dependencies": {
-    "@tooee/view": "workspace:*",
-    "@tooee/ask": "workspace:*",
-    "@tooee/request": "workspace:*",
-    "@tooee/choose": "workspace:*",
-    "@tooee/table": "workspace:*"
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
   },
-  "peerDependencies": {
-    "@opentui/core": "^0.1.67",
-    "@opentui/react": "^0.1.67",
-    "react": "^18.0.0 || ^19.0.0"
+  "dependencies": {
+    "@tooee/ask": "workspace:*",
+    "@tooee/choose": "workspace:*",
+    "@tooee/request": "workspace:*",
+    "@tooee/table": "workspace:*",
+    "@tooee/view": "workspace:*"
   },
   "devDependencies": {
     "@opentui/core": "^0.1.67",
@@ -25,7 +23,9 @@
     "@types/react": "^19.1.10",
     "typescript": "^5.8.3"
   },
-  "scripts": {
-    "typecheck": "tsc --noEmit"
+  "peerDependencies": {
+    "@opentui/core": "^0.1.67",
+    "@opentui/react": "^0.1.67",
+    "react": "^18.0.0 || ^19.0.0"
   }
 }

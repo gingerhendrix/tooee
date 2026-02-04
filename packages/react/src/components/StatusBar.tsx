@@ -25,9 +25,7 @@ export function StatusBar({ items }: StatusBarProps) {
       {items.map((item, index) => (
         <box key={index} style={{ marginRight: 2, flexDirection: "row" }}>
           <text content={item.label} style={{ fg: theme.textMuted }} />
-          {item.value && (
-            <text content={` ${item.value}`} style={{ fg: theme.text }} />
-          )}
+          {item.value && <text content={` ${item.value}`} style={{ fg: theme.text }} />}
         </box>
       ))}
     </box>

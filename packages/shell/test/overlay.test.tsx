@@ -10,25 +10,55 @@ function OverlayHarness() {
   const current = useCurrentOverlay()
   const has = useHasOverlay()
 
-  useCommand({ id: "test.show-a", title: "Show A", hotkey: "a", modes: ["command"], handler: () => {
-    overlay.show("a", <text content="overlay-a" />)
-  }})
+  useCommand({
+    id: "test.show-a",
+    title: "Show A",
+    hotkey: "a",
+    modes: ["command"],
+    handler: () => {
+      overlay.show("a", <text content="overlay-a" />)
+    },
+  })
 
-  useCommand({ id: "test.show-b", title: "Show B", hotkey: "b", modes: ["command"], handler: () => {
-    overlay.show("b", <text content="overlay-b" />)
-  }})
+  useCommand({
+    id: "test.show-b",
+    title: "Show B",
+    hotkey: "b",
+    modes: ["command"],
+    handler: () => {
+      overlay.show("b", <text content="overlay-b" />)
+    },
+  })
 
-  useCommand({ id: "test.hide-a", title: "Hide A", hotkey: "x", modes: ["command"], handler: () => {
-    overlay.hide("a")
-  }})
+  useCommand({
+    id: "test.hide-a",
+    title: "Hide A",
+    hotkey: "x",
+    modes: ["command"],
+    handler: () => {
+      overlay.hide("a")
+    },
+  })
 
-  useCommand({ id: "test.hide-b", title: "Hide B", hotkey: "y", modes: ["command"], handler: () => {
-    overlay.hide("b")
-  }})
+  useCommand({
+    id: "test.hide-b",
+    title: "Hide B",
+    hotkey: "y",
+    modes: ["command"],
+    handler: () => {
+      overlay.hide("b")
+    },
+  })
 
-  useCommand({ id: "test.replace-a", title: "Replace A", hotkey: "r", modes: ["command"], handler: () => {
-    overlay.show("a", <text content="overlay-a-replaced" />)
-  }})
+  useCommand({
+    id: "test.replace-a",
+    title: "Replace A",
+    hotkey: "r",
+    modes: ["command"],
+    handler: () => {
+      overlay.show("a", <text content="overlay-a-replaced" />)
+    },
+  })
 
   return (
     <box flexDirection="column">
@@ -41,13 +71,25 @@ function OverlayHarness() {
 function AppLayoutOverlayHarness() {
   const overlay = useOverlay()
 
-  useCommand({ id: "test.show-overlay", title: "Show", hotkey: "s", modes: ["command"], handler: () => {
-    overlay.show("test", <text content="OVERLAY_CONTENT" />)
-  }})
+  useCommand({
+    id: "test.show-overlay",
+    title: "Show",
+    hotkey: "s",
+    modes: ["command"],
+    handler: () => {
+      overlay.show("test", <text content="OVERLAY_CONTENT" />)
+    },
+  })
 
-  useCommand({ id: "test.hide-overlay", title: "Hide", hotkey: "h", modes: ["command"], handler: () => {
-    overlay.hide("test")
-  }})
+  useCommand({
+    id: "test.hide-overlay",
+    title: "Hide",
+    hotkey: "h",
+    modes: ["command"],
+    handler: () => {
+      overlay.hide("test")
+    },
+  })
 
   return (
     <AppLayout statusBar={{ items: [{ label: "Mode:", value: "command" }] }}>
@@ -57,17 +99,20 @@ function AppLayoutOverlayHarness() {
 }
 
 async function setup(component: React.ReactNode) {
-  const s = await testRender(
-    <TooeeProvider>{component}</TooeeProvider>,
-    { width: 80, height: 24, kittyKeyboard: true },
-  )
+  const s = await testRender(<TooeeProvider>{component}</TooeeProvider>, {
+    width: 80,
+    height: 24,
+    kittyKeyboard: true,
+  })
   await s.renderOnce()
   await s.renderOnce()
   return s
 }
 
 async function press(s: Awaited<ReturnType<typeof testRender>>, key: string) {
-  await act(async () => { s.mockInput.pressKey(key) })
+  await act(async () => {
+    s.mockInput.pressKey(key)
+  })
   await s.renderOnce()
 }
 

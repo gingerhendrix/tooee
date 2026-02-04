@@ -42,22 +42,30 @@ async function setup() {
 }
 
 async function pressKey(s: Awaited<ReturnType<typeof testRender>>, key: string) {
-  await act(async () => { s.mockInput.pressKey(key) })
+  await act(async () => {
+    s.mockInput.pressKey(key)
+  })
   await s.renderOnce()
 }
 
 async function pressArrow(s: Awaited<ReturnType<typeof testRender>>, dir: "up" | "down") {
-  await act(async () => { s.mockInput.pressArrow(dir) })
+  await act(async () => {
+    s.mockInput.pressArrow(dir)
+  })
   await s.renderOnce()
 }
 
 async function pressEnter(s: Awaited<ReturnType<typeof testRender>>) {
-  await act(async () => { s.mockInput.pressEnter() })
+  await act(async () => {
+    s.mockInput.pressEnter()
+  })
   await s.renderOnce()
 }
 
 async function pressEscape(s: Awaited<ReturnType<typeof testRender>>) {
-  await act(async () => { s.mockInput.pressEscape() })
+  await act(async () => {
+    s.mockInput.pressEscape()
+  })
   await s.renderOnce()
 }
 

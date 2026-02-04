@@ -8,12 +8,12 @@ Use this reference when you need to find the right component category or compare
 
 ## Component Categories
 
-| Category | Components | File |
-|----------|------------|------|
-| Text & Display | text, ascii-font, styled text | [text-display.md](./text-display.md) |
-| Containers | box, scrollbox, borders | [containers.md](./containers.md) |
-| Inputs | input, textarea, select, tab-select | [inputs.md](./inputs.md) |
-| Code & Diff | code, line-number, diff | [code-diff.md](./code-diff.md) |
+| Category       | Components                          | File                                 |
+| -------------- | ----------------------------------- | ------------------------------------ |
+| Text & Display | text, ascii-font, styled text       | [text-display.md](./text-display.md) |
+| Containers     | box, scrollbox, borders             | [containers.md](./containers.md)     |
+| Inputs         | input, textarea, select, tab-select | [inputs.md](./inputs.md)             |
+| Code & Diff    | code, line-number, diff             | [code-diff.md](./code-diff.md)       |
 
 ## Component Chooser
 
@@ -29,19 +29,19 @@ Need a component?
 
 Components have different names across frameworks:
 
-| Concept | Core (Class) | React (JSX) | Solid (JSX) |
-|---------|--------------|-------------|-------------|
-| Text | `TextRenderable` | `<text>` | `<text>` |
-| Box | `BoxRenderable` | `<box>` | `<box>` |
-| ScrollBox | `ScrollBoxRenderable` | `<scrollbox>` | `<scrollbox>` |
-| Input | `InputRenderable` | `<input>` | `<input>` |
-| Textarea | `TextareaRenderable` | `<textarea>` | `<textarea>` |
-| Select | `SelectRenderable` | `<select>` | `<select>` |
-| Tab Select | `TabSelectRenderable` | `<tab-select>` | `<tab_select>` |
-| ASCII Font | `ASCIIFontRenderable` | `<ascii-font>` | `<ascii_font>` |
-| Code | `CodeRenderable` | `<code>` | `<code>` |
+| Concept     | Core (Class)           | React (JSX)     | Solid (JSX)     |
+| ----------- | ---------------------- | --------------- | --------------- |
+| Text        | `TextRenderable`       | `<text>`        | `<text>`        |
+| Box         | `BoxRenderable`        | `<box>`         | `<box>`         |
+| ScrollBox   | `ScrollBoxRenderable`  | `<scrollbox>`   | `<scrollbox>`   |
+| Input       | `InputRenderable`      | `<input>`       | `<input>`       |
+| Textarea    | `TextareaRenderable`   | `<textarea>`    | `<textarea>`    |
+| Select      | `SelectRenderable`     | `<select>`      | `<select>`      |
+| Tab Select  | `TabSelectRenderable`  | `<tab-select>`  | `<tab_select>`  |
+| ASCII Font  | `ASCIIFontRenderable`  | `<ascii-font>`  | `<ascii_font>`  |
+| Code        | `CodeRenderable`       | `<code>`        | `<code>`        |
 | Line Number | `LineNumberRenderable` | `<line-number>` | `<line_number>` |
-| Diff | `DiffRenderable` | `<diff>` | `<diff>` |
+| Diff        | `DiffRenderable`       | `<diff>`        | `<diff>`        |
 
 **Note**: Solid uses underscores (`tab_select`) while React uses hyphens (`tab-select`).
 
@@ -51,25 +51,25 @@ All components share these layout properties (see [Layout](../layout/REFERENCE.m
 
 ```tsx
 // Positioning
-position="relative" | "absolute"
-left, top, right, bottom
+position = "relative" | "absolute"
+;(left, top, right, bottom)
 
 // Dimensions
-width, height
-minWidth, maxWidth, minHeight, maxHeight
+;(width, height)
+;(minWidth, maxWidth, minHeight, maxHeight)
 
 // Flexbox
-flexDirection, flexGrow, flexShrink, flexBasis
-justifyContent, alignItems, alignSelf
-flexWrap, gap
+;(flexDirection, flexGrow, flexShrink, flexBasis)
+;(justifyContent, alignItems, alignSelf)
+;(flexWrap, gap)
 
 // Spacing
-padding, paddingTop, paddingRight, paddingBottom, paddingLeft
-margin, marginTop, marginRight, marginBottom, marginLeft
+;(padding, paddingTop, paddingRight, paddingBottom, paddingLeft)
+;(margin, marginTop, marginRight, marginBottom, marginLeft)
 
 // Display
-display="flex" | "none"
-overflow="visible" | "hidden" | "scroll"
+display = "flex" | "none"
+overflow = "visible" | "hidden" | "scroll"
 zIndex
 ```
 

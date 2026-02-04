@@ -18,7 +18,7 @@ export function ConfigProvider({
   overrides?: Partial<TooeeConfig>
   children: ReactNode
 }) {
-  const config = useMemo(() => loadConfig(overrides), [])
+  const config = useMemo(() => loadConfig(overrides), [overrides])
   return <ConfigContext.Provider value={config}>{children}</ConfigContext.Provider>
 }
 

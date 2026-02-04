@@ -15,7 +15,10 @@ export interface DirectoryLaunchOptions {
 
 export async function launch(options: ViewLaunchOptions): Promise<void> {
   await launchCli(
-    <View contentProvider={options.contentProvider} interactionHandler={options.interactionHandler} />,
+    <View
+      contentProvider={options.contentProvider}
+      interactionHandler={options.interactionHandler}
+    />,
   )
 }
 

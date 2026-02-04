@@ -1,17 +1,37 @@
 import { readdirSync, statSync } from "fs"
-import { join, basename } from "path"
+import { join } from "path"
 import type { ViewContentProvider } from "./types.ts"
 import { createFileProvider } from "./default-provider.ts"
 
 const SUPPORTED_EXTENSIONS = new Set([
-  "md", "mdx", "markdown",
-  "ts", "tsx", "js", "jsx",
-  "json", "txt", "css", "html",
-  "yaml", "yml", "toml",
-  "sh", "bash", "zsh",
-  "go", "rs", "py", "rb",
-  "c", "cpp", "h", "hpp",
-  "java", "kt", "swift",
+  "md",
+  "mdx",
+  "markdown",
+  "ts",
+  "tsx",
+  "js",
+  "jsx",
+  "json",
+  "txt",
+  "css",
+  "html",
+  "yaml",
+  "yml",
+  "toml",
+  "sh",
+  "bash",
+  "zsh",
+  "go",
+  "rs",
+  "py",
+  "rb",
+  "c",
+  "cpp",
+  "h",
+  "hpp",
+  "java",
+  "kt",
+  "swift",
   "sql",
 ])
 

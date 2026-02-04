@@ -12,7 +12,9 @@ describe("parseCSV", () => {
   })
 
   test("quoted fields", () => {
-    const result = parseCSV('name,bio\nAlice,"Likes ""coding"" and tea"\nBob,"Lives in Paris, France"')
+    const result = parseCSV(
+      'name,bio\nAlice,"Likes ""coding"" and tea"\nBob,"Lives in Paris, France"',
+    )
     expect(result.headers).toEqual(["name", "bio"])
     expect(result.rows[0]).toEqual(["Alice", 'Likes "coding" and tea'])
     expect(result.rows[1]).toEqual(["Bob", "Lives in Paris, France"])

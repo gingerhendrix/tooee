@@ -86,17 +86,17 @@ export function parseAuto(input: string): TableContent {
   let rows: string[][]
   switch (format) {
     case "csv":
-      ({ headers, rows } = parseCSV(input))
+      ;({ headers, rows } = parseCSV(input))
       break
     case "tsv":
-      ({ headers, rows } = parseTSV(input))
+      ;({ headers, rows } = parseTSV(input))
       break
     case "json":
-      ({ headers, rows } = parseJSON(input))
+      ;({ headers, rows } = parseJSON(input))
       break
     default:
       // Fall back to CSV
-      ({ headers, rows } = parseCSV(input))
+      ;({ headers, rows } = parseCSV(input))
       break
   }
   return { headers, rows, format }

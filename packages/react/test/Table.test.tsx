@@ -115,26 +115,26 @@ describe("Table component", () => {
   })
 })
 
+const defaultOptions = { minColumnWidth: 4, maxColumnWidth: 50, sampleSize: 100 }
+
 describe("Table utilities", () => {
   test("computeColumnWidths fits within maxWidth", () => {
     const widths = computeColumnWidths(
       ["Name", "Description"],
       [["Alice", "A very long description that exceeds the threshold"]],
       40,
+      defaultOptions,
     )
     const total = widths.reduce((a, b) => a + b, 0) + widths.length + 1
     expect(total).toBeLessThanOrEqual(40)
   })
 
   test("computeColumnWidths uses natural widths when they fit", () => {
-    const widths = computeColumnWidths(
-      ["A", "B"],
-      [["xx", "yy"]],
-      80,
-    )
-    // Natural width = max(header, content) + 2 padding = 4 each
-    expect(widths[0]).toBe(4)
-    expect(widths[1]).toBe(4)
+    const widths = computeColumnWidths(["A", "B"], [["xx", "yy"]], 80, defaultOptions)
+    // Natural width = max(header, content, minColumnWidth) + 2 padding
+    // With minColumnWidth=4, content "xx" (2 chars) is bumped to 4, then +2 padding = 6
+    expect(widths[0]).toBe(6)
+    expect(widths[1]).toBe(6)
   })
 
   test("truncate shortens long text", () => {

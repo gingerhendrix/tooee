@@ -72,13 +72,21 @@ async function setup() {
   return s
 }
 
-async function press(s: Awaited<ReturnType<typeof testRender>>, key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
-  await act(async () => { s.mockInput.pressKey(key, modifiers) })
+async function press(
+  s: Awaited<ReturnType<typeof testRender>>,
+  key: string,
+  modifiers?: { ctrl?: boolean; shift?: boolean },
+) {
+  await act(async () => {
+    s.mockInput.pressKey(key, modifiers)
+  })
   await s.renderOnce()
 }
 
 async function pressEscape(s: Awaited<ReturnType<typeof testRender>>) {
-  await act(async () => { s.mockInput.pressEscape() })
+  await act(async () => {
+    s.mockInput.pressEscape()
+  })
   await s.renderOnce()
 }
 

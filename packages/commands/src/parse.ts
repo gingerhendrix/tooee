@@ -57,7 +57,9 @@ export function parseHotkey(hotkey: string, leaderKey?: string): ParsedHotkey {
   // Handle leader prefix
   const leaderMatch = trimmed.match(/^<leader>(.+)$/)
   if (leaderMatch) {
-    const leaderStep = leaderKey ? parseStep(leaderKey) : { key: "x", ctrl: true, meta: false, shift: false, option: false }
+    const leaderStep = leaderKey
+      ? parseStep(leaderKey)
+      : { key: "x", ctrl: true, meta: false, shift: false, option: false }
     const followStep = parseStep(leaderMatch[1]!)
     return { steps: [leaderStep, followStep] }
   }

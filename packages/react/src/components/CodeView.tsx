@@ -57,21 +57,17 @@ export function CodeView({
         before: "▸",
         beforeColor: theme.primary,
         // Preserve search match sign if present
-        ...(matchingLines?.has(cursor) ? {
-          after: "●",
-          afterColor: cursor === currentMatchLine ? theme.primary : theme.warning,
-        } : {}),
+        ...(matchingLines?.has(cursor)
+          ? {
+              after: "●",
+              afterColor: cursor === currentMatchLine ? theme.primary : theme.warning,
+            }
+          : {}),
       })
     }
   }, [content, cursor, selectionStart, selectionEnd, matchingLines, currentMatchLine, theme])
 
-  const codeElement = (
-    <code
-      content={content}
-      filetype={language}
-      syntaxStyle={syntax}
-    />
-  )
+  const codeElement = <code content={content} filetype={language} syntaxStyle={syntax} />
 
   return (
     <box

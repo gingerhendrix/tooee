@@ -26,7 +26,15 @@ export interface AppLayoutProps {
   children: ReactNode
 }
 
-export function AppLayout({ titleBar, statusBar, scrollRef, scrollProps, searchBar, overlay, children }: AppLayoutProps) {
+export function AppLayout({
+  titleBar,
+  statusBar,
+  scrollRef,
+  scrollProps,
+  searchBar,
+  overlay,
+  children,
+}: AppLayoutProps) {
   const { theme } = useTheme()
   const contextOverlay = useCurrentOverlay()
   const activeOverlay = overlay ?? contextOverlay
