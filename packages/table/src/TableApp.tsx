@@ -1,7 +1,13 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { AppLayout, CommandPalette, Table, useTheme } from "@tooee/react"
-import { useThemeCommands, useQuitCommand, useCopyCommand, useModalNavigationCommands, useCommandPalette } from "@tooee/shell"
+import {
+  useThemeCommands,
+  useQuitCommand,
+  useCopyCommand,
+  useModalNavigationCommands,
+  useCommandPalette,
+} from "@tooee/shell"
 import { useCommandContext } from "@tooee/commands"
 import type { TableContent, TableContentProvider } from "./types.ts"
 
@@ -25,9 +31,25 @@ export function TableApp({ contentProvider }: TableAppProps) {
   }, [contentProvider])
 
   const lineCount = content ? content.rows.length + 3 : 0 // header + borders + rows
+  const rowCount = content ? content.rows.length : 0
+
+  // Visual line offset: lines 0-2 are border/header/separator, data starts at line 3
+  const VISUAL_HEADER_OFFSET = 3
+  // Search text offset: getText() has header at line 0, data rows start at line 1
+  const SEARCH_HEADER_OFFSET = 1
+
+  // Build a blockLineMap so cursor mode operates on data rows only
+  // Each "block" is a data row, blockLineMap[i] gives the visual line number for row i
+  const blockLineMap = useMemo(() => {
+    if (!content) return []
+    return content.rows.map((_, i) => i + VISUAL_HEADER_OFFSET)
+  }, [content])
 
   const nav = useModalNavigationCommands({
     totalLines: lineCount,
+    blockCount: rowCount,
+    blockLineMap,
+    searchLineOffset: SEARCH_HEADER_OFFSET,
     getText: () => {
       if (!content) return undefined
       const headerLine = content.headers.join("\t")
@@ -55,6 +77,27 @@ export function TableApp({ contentProvider }: TableAppProps) {
 
   const palette = useCommandPalette()
   const { invoke } = useCommandContext()
+
+  // With blockCount/blockLineMap, cursor.line is already the row index (0-based)
+  const cursorRow = nav.cursor?.line
+  const selectionStartRow = nav.selection?.start.line
+  const selectionEndRow = nav.selection?.end.line
+
+  // Search matches are returned as line numbers in the search text, convert to row indices
+  const matchingRowsSet = useMemo(() => {
+    if (nav.matchingLines.length === 0) return undefined
+    const rows = new Set<number>()
+    for (const line of nav.matchingLines) {
+      const row = line - SEARCH_HEADER_OFFSET
+      if (row >= 0) rows.add(row)
+    }
+    return rows.size > 0 ? rows : undefined
+  }, [nav.matchingLines])
+
+  const currentMatchRow =
+    nav.matchingLines.length > 0
+      ? nav.matchingLines[nav.currentMatchIndex] - SEARCH_HEADER_OFFSET
+      : undefined
 
   if (error) {
     return (
@@ -111,7 +154,15 @@ export function TableApp({ contentProvider }: TableAppProps) {
       }}
       overlay={paletteOverlay}
     >
-      <Table headers={content.headers} rows={content.rows} />
+      <Table
+        headers={content.headers}
+        rows={content.rows}
+        cursor={cursorRow}
+        selectionStart={selectionStartRow}
+        selectionEnd={selectionEndRow}
+        matchingRows={matchingRowsSet}
+        currentMatchRow={currentMatchRow != null && currentMatchRow >= 0 ? currentMatchRow : undefined}
+      />
     </AppLayout>
   )
 }

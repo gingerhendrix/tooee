@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect, useMemo } from "react"
+import { useState, useCallback, useRef, useEffect } from "react"
 import { useCommand, useMode, useSetMode, type Mode } from "@tooee/commands"
 import { copyToClipboard } from "@tooee/react"
 import { useTerminalDimensions } from "@opentui/react"
@@ -29,11 +29,20 @@ export interface ModalNavigationOptions {
   getText?: () => string | undefined
   blockCount?: number
   blockLineMap?: number[]
+  /** Offset to subtract from search line numbers to get block indices (for when getText has different line structure than visual) */
+  searchLineOffset?: number
 }
 
 export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalNavigationState {
   const { height: terminalHeight } = useTerminalDimensions()
-  const { totalLines, viewportHeight = terminalHeight - 2, getText, blockCount, blockLineMap } = opts
+  const {
+    totalLines,
+    viewportHeight = terminalHeight - 2,
+    getText,
+    blockCount,
+    blockLineMap,
+    searchLineOffset = 0,
+  } = opts
   const mode = useMode()
   const setMode = useSetMode()
 
@@ -73,7 +82,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
         return offset
       })
       if (mode === "cursor" || mode === "select") {
-        setCursor((c) => c ? { line, col: 0 } : c)
+        setCursor((c) => (c ? { line, col: 0 } : c))
       }
     }
   }, [searchQuery, searchActive]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -88,7 +97,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     [maxScroll],
   )
 
-  const clampLine = useCallback(
+  const _clampLine = useCallback(
     (value: number) => Math.max(0, Math.min(value, maxLine)),
     [maxLine],
   )
@@ -102,7 +111,21 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   const prevMode = useRef(mode)
   useEffect(() => {
     if (mode === "cursor" && prevMode.current !== "cursor" && prevMode.current !== "select") {
-      setCursor({ line: scrollOffset, col: 0 })
+      // If there's an active search match, start cursor there; otherwise start at scroll position
+      const matches = matchingLinesRef.current
+      if (matches.length > 0) {
+        const matchLine = matches[currentMatchIndex] ?? matches[0]
+        // In block mode, convert search line to block index using offset
+        if (isBlockMode) {
+          const blockIndex = Math.max(0, matchLine - searchLineOffset)
+          setCursor({ line: Math.min(blockIndex, cursorMax), col: 0 })
+        } else {
+          setCursor({ line: matchLine, col: 0 })
+        }
+      } else {
+        // No search match - start at top (block 0) or scroll position
+        setCursor({ line: isBlockMode ? 0 : scrollOffset, col: 0 })
+      }
     }
     if (mode === "select" && prevMode.current === "cursor" && cursor) {
       setSelectionAnchor({ ...cursor })
@@ -115,14 +138,17 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   }, [mode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Scroll to keep cursor visible
-  const scrollToCursor = useCallback((cursorIndex: number) => {
-    const line = isBlockMode && blockLineMap ? (blockLineMap[cursorIndex] ?? 0) : cursorIndex
-    setScrollOffset((offset) => {
-      if (line < offset) return line
-      if (line >= offset + viewportHeight) return clampScroll(line - viewportHeight + 1)
-      return offset
-    })
-  }, [viewportHeight, clampScroll, isBlockMode, blockLineMap])
+  const scrollToCursor = useCallback(
+    (cursorIndex: number) => {
+      const line = isBlockMode && blockLineMap ? (blockLineMap[cursorIndex] ?? 0) : cursorIndex
+      setScrollOffset((offset) => {
+        if (line < offset) return line
+        if (line >= offset + viewportHeight) return clampScroll(line - viewportHeight + 1)
+        return offset
+      })
+    },
+    [viewportHeight, clampScroll, isBlockMode, blockLineMap],
+  )
 
   // === COMMAND MODE ===
 
@@ -412,7 +438,10 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
         const startBlock = Math.min(selectionAnchor.line, cursor.line)
         const endBlock = Math.max(selectionAnchor.line, cursor.line)
         const startLine = blockLineMap[startBlock] ?? 0
-        const endLine = endBlock + 1 < blockLineMap.length ? (blockLineMap[endBlock + 1] ?? text.split("\n").length) : text.split("\n").length
+        const endLine =
+          endBlock + 1 < blockLineMap.length
+            ? (blockLineMap[endBlock + 1] ?? text.split("\n").length)
+            : text.split("\n").length
         const lines = text.split("\n")
         const selected = lines.slice(startLine, endLine).join("\n")
         if (selected) {
@@ -484,12 +513,13 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   })
 
   // Compute selection from anchor + cursor
-  const selection = selectionAnchor && cursor && mode === "select"
-    ? {
-        start: selectionAnchor.line <= cursor.line ? selectionAnchor : cursor,
-        end: selectionAnchor.line <= cursor.line ? cursor : selectionAnchor,
-      }
-    : null
+  const selection =
+    selectionAnchor && cursor && mode === "select"
+      ? {
+          start: selectionAnchor.line <= cursor.line ? selectionAnchor : cursor,
+          end: selectionAnchor.line <= cursor.line ? cursor : selectionAnchor,
+        }
+      : null
 
   const submitSearch = useCallback(() => {
     setSearchActive(false)
