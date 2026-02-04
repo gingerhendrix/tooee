@@ -51,6 +51,14 @@ export function Choose({ contentProvider, options, onConfirm, onCancel }: Choose
   const mode = useMode()
   const setMode = useSetMode()
 
+  const moveUp = useCallback(() => {
+    setActiveIndex((i) => Math.max(0, i - 1))
+  }, [])
+
+  const moveDown = useCallback(() => {
+    setActiveIndex((i) => Math.min(filteredItems.length - 1, i + 1))
+  }, [filteredItems.length])
+
   // Register a/i to return to insert mode from command mode
   useCommand({
     id: "choose:insert-mode-a",
@@ -69,27 +77,40 @@ export function Choose({ contentProvider, options, onConfirm, onCancel }: Choose
     hidden: true,
   })
 
-  const moveUp = useCallback(() => {
-    setActiveIndex((i) => Math.max(0, i - 1))
-  }, [])
+  // Register j/k for vim-style navigation in command mode
+  useCommand({
+    id: "choose:move-down",
+    title: "Move down",
+    hotkey: "j",
+    modes: ["command"],
+    handler: moveDown,
+    hidden: true,
+  })
+  useCommand({
+    id: "choose:move-up",
+    title: "Move up",
+    hotkey: "k",
+    modes: ["command"],
+    handler: moveUp,
+    hidden: true,
+  })
 
-  const moveDown = useCallback(() => {
-    setActiveIndex((i) => Math.min(filteredItems.length - 1, i + 1))
-  }, [filteredItems.length])
-
-  const toggleSelection = useCallback((index: number) => {
-    setSelectedIndices((prev) => {
-      const next = new Set(prev)
-      const origIndex = filteredItems[index]?.originalIndex
-      if (origIndex === undefined) return prev
-      if (next.has(origIndex)) {
-        next.delete(origIndex)
-      } else {
-        next.add(origIndex)
-      }
-      return next
-    })
-  }, [filteredItems])
+  const toggleSelection = useCallback(
+    (index: number) => {
+      setSelectedIndices((prev) => {
+        const next = new Set(prev)
+        const origIndex = filteredItems[index]?.originalIndex
+        if (origIndex === undefined) return prev
+        if (next.has(origIndex)) {
+          next.delete(origIndex)
+        } else {
+          next.add(origIndex)
+        }
+        return next
+      })
+    },
+    [filteredItems],
+  )
 
   const confirm = useCallback(() => {
     if (multi) {
@@ -161,9 +182,10 @@ export function Choose({ contentProvider, options, onConfirm, onCancel }: Choose
   }
 
   const selectedCount = selectedIndices.size
-  const hintParts = mode === "insert"
-    ? ["↑↓ navigate", "Enter confirm", "Esc commands"]
-    : ["i insert", "Esc quit", "Enter confirm"]
+  const hintParts =
+    mode === "insert"
+      ? ["↑↓ navigate", "Enter confirm", "Esc commands"]
+      : ["j/k navigate", "i insert", "Esc quit", "Enter confirm"]
   if (multi && mode === "insert") hintParts.splice(2, 0, "Tab toggle")
   const hint = hintParts.join("  ")
 
@@ -180,15 +202,17 @@ export function Choose({ contentProvider, options, onConfirm, onCancel }: Choose
       }}
       scrollRef={scrollRef}
       scrollProps={{ focused: false }}
-      overlay={themePicker.isOpen ? (
-        <ThemePicker
-          entries={themePicker.entries}
-          currentTheme={themeName}
-          onSelect={themePicker.confirm}
-          onClose={themePicker.close}
-          onNavigate={themePicker.preview}
-        />
-      ) : undefined}
+      overlay={
+        themePicker.isOpen ? (
+          <ThemePicker
+            entries={themePicker.entries}
+            currentTheme={themeName}
+            onSelect={themePicker.confirm}
+            onClose={themePicker.close}
+            onNavigate={themePicker.preview}
+          />
+        ) : undefined
+      }
     >
       <box flexDirection="column">
         {/* Filter input row */}
@@ -225,9 +249,7 @@ export function Choose({ contentProvider, options, onConfirm, onCancel }: Choose
                   fg={isSelected ? theme.accent : theme.textMuted}
                 />
               )}
-              {match.item.icon && (
-                <text content={`${match.item.icon} `} fg={theme.textMuted} />
-              )}
+              {match.item.icon && <text content={`${match.item.icon} `} fg={theme.textMuted} />}
               <text fg={isActive ? theme.primary : theme.text}>
                 {renderHighlightedText(match.item.text, match.positions, theme.warning)}
               </text>
