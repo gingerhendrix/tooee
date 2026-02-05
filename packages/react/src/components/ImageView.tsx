@@ -106,7 +106,7 @@ export function ImageView({ src, maxWidth, maxHeight }: ImageViewProps) {
   return (
     <box style={{ flexDirection: "column" }}>
       {rows.map((row) => (
-        <text key={row.key}>
+        <text key={row.key} height={1}>
           {row.cells.map((cell, i) => (
             <span key={i} fg={cell.fg} bg={cell.bg}>
               {cell.char}
