@@ -1,12 +1,23 @@
 import type { Mode } from "./mode.tsx"
 
+export interface CommandContextBase {
+  mode: Mode
+  setMode: (mode: Mode) => void
+  commands: { invoke: (id: string) => void; list: () => Command[] }
+}
+
+export interface CommandContext extends CommandContextBase {}
+
+export type CommandHandler = (ctx: CommandContext) => void | Promise<void>
+export type CommandWhen = (ctx: CommandContext) => boolean
+
 export interface Command {
   id: string
   title: string
-  handler: (ctx: any) => void | Promise<void>
+  handler: CommandHandler
   defaultHotkey?: string
   modes?: Mode[]
-  when?: (ctx: any) => boolean
+  when?: CommandWhen
   category?: string
   group?: string
   icon?: string

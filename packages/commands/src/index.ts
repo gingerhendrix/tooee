@@ -1,4 +1,4 @@
-export type { Command, ParsedHotkey, ParsedStep } from "./types.ts"
+export type { Command, CommandContext, CommandContextBase, CommandHandler, CommandWhen, ParsedHotkey, ParsedStep } from "./types.ts"
 export type { Mode } from "./mode.tsx"
 export { ModeProvider, useMode, useSetMode } from "./mode.tsx"
 export type { ModeProviderProps } from "./mode.tsx"

@@ -12,6 +12,12 @@ import {
 } from "@tooee/react"
 import { useMode, useSetMode, useProvideCommandContext, useCommand } from "@tooee/commands"
 
+declare module "@tooee/commands" {
+  interface CommandContext {
+    overlay: OverlayController
+  }
+}
+
 interface OverlayEntry {
   id: OverlayId
   render: OverlayRenderer<any>
@@ -31,20 +37,24 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
   modeRef.current = mode
 
   const removeEntry = useCallback((id: OverlayId, reason: OverlayCloseReason) => {
+    const current = stackRef.current
+    const idx = current.findIndex((e) => e.id === id)
+    if (idx === -1) return
+
+    const entry = current[idx]
+    entry.options.onClose?.(reason)
+
     setStack((prev) => {
-      const idx = prev.findIndex((e) => e.id === id)
-      if (idx === -1) return prev
-      const entry = prev[idx]
-      entry.options.onClose?.(reason)
-      if (entry.options.restoreMode !== false) {
-        // Use setTimeout to avoid setState-during-render
-        const prevMode = entry.prevMode
-        setTimeout(() => setMode(prevMode as any), 0)
-      }
+      const i = prev.findIndex((e) => e.id === id)
+      if (i === -1) return prev
       const next = [...prev]
-      next.splice(idx, 1)
+      next.splice(i, 1)
       return next
     })
+
+    if (entry.options.restoreMode !== false) {
+      setMode(entry.prevMode as any)
+    }
   }, [setMode])
 
   const open = useCallback(<TPayload,>(

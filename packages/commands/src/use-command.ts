@@ -1,18 +1,18 @@
 import { useEffect, useRef } from "react"
-import type { Command } from "./types.ts"
+import type { Command, CommandHandler, CommandWhen } from "./types.ts"
 import type { Mode } from "./mode.tsx"
 import { useCommandRegistry } from "./context.tsx"
 
 export interface UseCommandOptions {
   id: string
   title: string
-  handler: () => void
+  handler: CommandHandler
   hotkey?: string
   modes?: Mode[]
   category?: string
   group?: string
   icon?: string
-  when?: () => boolean
+  when?: CommandWhen
   hidden?: boolean
 }
 
@@ -31,7 +31,7 @@ export function useCommand(options: UseCommandOptions): void {
       category: options.category,
       group: options.group,
       icon: options.icon,
-      when: optionsRef.current.when ? () => optionsRef.current.when!() : undefined,
+      when: optionsRef.current.when ? (ctx) => optionsRef.current.when!(ctx) : undefined,
       hidden: options.hidden,
     }
     return registry.register(command)

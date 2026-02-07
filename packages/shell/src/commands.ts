@@ -1,12 +1,9 @@
 import { useRenderer } from "@opentui/react"
 import { copyToClipboard } from "@tooee/react"
-import { useCommand } from "@tooee/commands"
+import { useCommand, type CommandWhen } from "@tooee/commands"
 import { useThemePicker, type ThemePickerState } from "./theme-picker.ts"
 
-export function useThemeCommands(opts?: { when?: () => boolean }): {
-  name: string
-  picker: ThemePickerState
-} {
+export function useThemeCommands(opts?: { when?: CommandWhen }): { name: string; picker: ThemePickerState } {
   const picker = useThemePicker()
 
   useCommand({
@@ -24,7 +21,7 @@ export function useThemeCommands(opts?: { when?: () => boolean }): {
 
 export function useQuitCommand(opts?: {
   hotkey?: string
-  when?: () => boolean
+  when?: CommandWhen
   onQuit?: () => void
 }) {
   const renderer = useRenderer()
@@ -44,7 +41,10 @@ export function useQuitCommand(opts?: {
   })
 }
 
-export function useCopyCommand(opts: { getText: () => string | undefined; when?: () => boolean }) {
+export function useCopyCommand(opts: {
+  getText: () => string | undefined
+  when?: CommandWhen
+}) {
   useCommand({
     id: "copy",
     title: "Copy to clipboard",

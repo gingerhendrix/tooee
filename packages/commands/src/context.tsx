@@ -1,6 +1,6 @@
 import { createContext, useContext, useRef, useCallback, useEffect, type ReactNode } from "react"
 import { useKeyboard } from "@opentui/react"
-import type { Command, CommandRegistry, ParsedHotkey } from "./types.ts"
+import type { Command, CommandContext, CommandRegistry, ParsedHotkey } from "./types.ts"
 import type { Mode } from "./mode.tsx"
 import { ModeProvider, useMode, useSetMode } from "./mode.tsx"
 import { parseHotkey } from "./parse.ts"
@@ -9,7 +9,7 @@ import { SequenceTracker } from "./sequence.ts"
 
 const DEFAULT_MODES: Mode[] = ["command", "cursor"]
 
-type ContextGetter = () => object
+type ContextGetter = () => Partial<CommandContext>
 
 interface CommandContextValue {
   registry: CommandRegistry
@@ -52,7 +52,7 @@ function CommandDispatcher({
   modeRef.current = mode
   const setMode = useSetMode()
 
-  const buildCtx = useCallback(() => {
+  const buildCtx = useCallback((): CommandContext => {
     const ctx: Record<string, any> = {
       mode: modeRef.current,
       setMode,
@@ -64,7 +64,7 @@ function CommandDispatcher({
     for (const getter of contextSourcesRef.current.values()) {
       Object.assign(ctx, getter())
     }
-    return ctx
+    return ctx as CommandContext
   }, [setMode])
 
   if (registryRef.current === null) {
@@ -188,7 +188,7 @@ export function useCommandRegistry(): CommandContextValue {
 
 let nextContextSourceId = 0
 
-export function useProvideCommandContext(getter: () => object): void {
+export function useProvideCommandContext(getter: () => Partial<CommandContext>): void {
   const ctx = useContext(CommandContext)
   if (!ctx) {
     throw new Error("useProvideCommandContext must be used within a CommandProvider")

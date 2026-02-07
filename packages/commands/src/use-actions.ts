@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react"
 import { useCommandRegistry } from "./context.tsx"
-import type { Command } from "./types.ts"
+import type { Command, CommandHandler, CommandWhen } from "./types.ts"
 import type { Mode } from "./mode.tsx"
 
 export interface ActionDefinition {
@@ -8,8 +8,8 @@ export interface ActionDefinition {
   title: string
   hotkey?: string
   modes?: Mode[]
-  handler: () => void
-  when?: () => boolean
+  handler: CommandHandler
+  when?: CommandWhen
 }
 
 export function useActions(actions: ActionDefinition[] | undefined): void {
@@ -32,8 +32,8 @@ export function useActions(actions: ActionDefinition[] | undefined): void {
         title: action.title,
         defaultHotkey: action.hotkey,
         modes: action.modes,
-        handler: () => actionsRef.current?.[i]?.handler(),
-        when: action.when ? () => actionsRef.current?.[i]?.when?.() ?? false : undefined,
+        handler: (ctx) => actionsRef.current?.[i]?.handler(ctx),
+        when: action.when ? (ctx) => actionsRef.current?.[i]?.when?.(ctx) ?? false : undefined,
       }
       return registry.register(command)
     })
