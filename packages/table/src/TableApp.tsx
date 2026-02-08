@@ -161,7 +161,9 @@ export function TableApp({ contentProvider }: TableAppProps) {
         selectionStart={selectionStartRow}
         selectionEnd={selectionEndRow}
         matchingRows={matchingRowsSet}
-        currentMatchRow={currentMatchRow != null && currentMatchRow >= 0 ? currentMatchRow : undefined}
+        currentMatchRow={
+          currentMatchRow != null && currentMatchRow >= 0 ? currentMatchRow : undefined
+        }
       />
     </AppLayout>
   )

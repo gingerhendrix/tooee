@@ -53,7 +53,7 @@ describe("navigation", () => {
 
   test("G jumps to bottom", async () => {
     session = await launchView("long.md")
-    await session.press("G")
+    await session.press(["shift", "g"])
     await session.waitForText(/Scroll:\s*[1-9]/, { timeout: 5000 })
     const scroll = extractScroll(await session.text())
     expect(scroll).toBeGreaterThan(0)

@@ -2,13 +2,14 @@ import { testRender } from "@opentui/react/test-utils"
 import { test, expect, afterEach, describe } from "bun:test"
 import { act } from "react"
 import { TooeeProvider, useThemeCommands } from "@tooee/shell"
-import { ThemePicker, useTheme } from "@tooee/react"
+import { useTheme, useCurrentOverlay } from "@tooee/react"
 import { useMode } from "@tooee/commands"
 
 function ThemePickerHarness() {
   const { name: themeName, picker } = useThemeCommands()
   const mode = useMode()
   const { name: activeTheme } = useTheme()
+  const overlay = useCurrentOverlay()
 
   return (
     <box flexDirection="column">
@@ -16,15 +17,7 @@ function ThemePickerHarness() {
       <text content={`open:${picker.isOpen}`} />
       <text content={`theme:${themeName}`} />
       <text content={`active:${activeTheme}`} />
-      {picker.isOpen && (
-        <ThemePicker
-          entries={picker.entries}
-          currentTheme={themeName}
-          onSelect={picker.confirm}
-          onClose={picker.close}
-          onNavigate={picker.preview}
-        />
-      )}
+      {overlay}
     </box>
   )
 }
@@ -93,8 +86,9 @@ describe("theme picker", () => {
     await pressKey(testSetup, "t")
     expect(testSetup.captureCharFrame()).toContain("open:true")
 
-    // Navigate down to preview a different theme
-    await pressArrow(testSetup, "down")
+    // Navigate up to preview a different theme (zenburn is last alphabetically,
+    // so down does nothing — navigate up instead)
+    await pressArrow(testSetup, "up")
     const afterNav = testSetup.captureCharFrame()
     const previewedTheme = afterNav.match(/active:(\S+)/)?.[1]
     // Theme should have changed during preview
@@ -113,8 +107,8 @@ describe("theme picker", () => {
     await pressKey(testSetup, "t")
     expect(testSetup.captureCharFrame()).toContain("open:true")
 
-    // Navigate to a different theme
-    await pressArrow(testSetup, "down")
+    // Navigate up to a different theme (zenburn is last alphabetically)
+    await pressArrow(testSetup, "up")
 
     // Get the previewed theme before confirming
     const previewFrame = testSetup.captureCharFrame()

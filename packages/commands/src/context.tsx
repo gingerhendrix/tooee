@@ -157,7 +157,13 @@ function CommandDispatcher({
   })
 
   return (
-    <CommandContext.Provider value={{ registry: registryRef.current, leaderKey: leader, contextSources: contextSourcesRef.current }}>
+    <CommandContext.Provider
+      value={{
+        registry: registryRef.current,
+        leaderKey: leader,
+        contextSources: contextSourcesRef.current,
+      }}
+    >
       {children}
     </CommandContext.Provider>
   )

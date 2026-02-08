@@ -38,11 +38,14 @@ export function useThemePicker(): ThemePickerState {
     overlay.hide(OVERLAY_ID)
   }, [setTheme, overlay])
 
-  const confirm = useCallback((name: string) => {
-    setTheme(name)
-    setIsOpen(false)
-    overlay.hide(OVERLAY_ID)
-  }, [setTheme, overlay])
+  const confirm = useCallback(
+    (name: string) => {
+      setTheme(name)
+      setIsOpen(false)
+      overlay.hide(OVERLAY_ID)
+    },
+    [setTheme, overlay],
+  )
 
   const preview = useCallback(
     (name: string) => {
@@ -62,7 +65,7 @@ export function useThemePicker(): ThemePickerState {
           close: () => close(),
         }),
       null,
-      { mode: "insert", dismissOnEscape: true },
+      { mode: "insert", dismissOnEscape: true, onClose: () => setIsOpen(false) },
     )
   }, [overlay, currentTheme])
 

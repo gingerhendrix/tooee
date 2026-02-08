@@ -184,7 +184,7 @@ export function Table({
     return buildDataLine(cells, colWidths, alignments)
   })
 
-  const getRowStyle = (rowIndex: number): { fg?: string; bg?: string; prefix?: string } => {
+  const getRowStyle = (rowIndex: number): { fg?: string; bg?: string } => {
     const isCursor = cursor === rowIndex
     const isSelected =
       selectionStart != null &&
@@ -195,7 +195,6 @@ export function Table({
     const isCurrentMatch = currentMatchRow === rowIndex
 
     let bg: string | undefined
-    let prefix: string | undefined
     let fg: string | undefined = theme.text
 
     // Determine background: selection < cursor (cursor overwrites)
@@ -206,14 +205,12 @@ export function Table({
       bg = theme.cursorLine
     }
 
-    // No striping - keep background clean unless cursor/selected
-
     // Highlight match indicator on matching rows
     if (isMatch && !isCursor) {
       fg = isCurrentMatch ? theme.primary : theme.warning
     }
 
-    return { fg, bg, prefix }
+    return { fg, bg }
   }
 
   return (
@@ -223,8 +220,7 @@ export function Table({
       <text content={headerSep} fg={theme.border} />
       {dataLines.map((line, i) => {
         const style = getRowStyle(i)
-        const content = style.prefix ? style.prefix + line : line
-        return <text key={i} content={content} fg={style.fg} bg={style.bg} />
+        return <text key={i} content={line} fg={style.fg} bg={style.bg} />
       })}
       <text content={bottomBorder} fg={theme.border} />
     </box>
