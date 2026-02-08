@@ -7,6 +7,7 @@
     "examples"
   ],
   "scripts": {
+    "check": "bunx tsc -b && bunx tsc -p examples",
     "lint": "oxlint --react-plugin .",
     "lint:fix": "oxlint --react-plugin --fix .",
     "format": "oxfmt --write .",
