@@ -17,6 +17,7 @@
     "emitDeclarationOnly": true,
     "types": ["bun"]
   },
+  "files": [],
   "references": [
     { "path": "packages/config" },
     { "path": "packages/commands" },

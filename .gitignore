@@ -4,3 +4,5 @@ dist/
 bun.lock
 examples/*.d.ts
 examples/*.d.ts.map
+packages/*/test/**/*.d.ts
+packages/*/test/**/*.d.ts.map
