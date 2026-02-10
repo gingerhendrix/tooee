@@ -5,3 +5,5 @@ export { Table, computeColumnWidths, truncate, padCell, isNumeric, buildBorderLi
 export type { TableProps, ColumnWidthOptions } from "./Table.tsx"
 export { CommandPalette } from "./CommandPalette.tsx"
 export type { CommandPaletteEntry } from "./CommandPalette.tsx"
+export { parseCSV, parseTSV, parseJSON, parseAuto, detectFormat } from "./parsers.ts"
+export type { Format, TableContent } from "./parsers.ts"
