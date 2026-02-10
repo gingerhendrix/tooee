@@ -9,13 +9,18 @@ Bun monorepo with workspaces:
 ```
 packages/
   config/       # @tooee/config — layered config loading and React context
-  commands/     # @tooee/commands — modal command system with hotkeys and sequences
-  react/        # @tooee/react — components, hooks, theme system, clipboard
-  shell/        # @tooee/shell — composition layer: providers, standard commands, modal navigation
-  view/         # @tooee/view — display markdown/code/text
-  ask/          # @tooee/ask — gather input, output to stdout
+  commands/     # @tooee/commands — modal command system with hotkeys, sequences, actions
+  themes/       # @tooee/themes — theme loading, resolution, switching, ThemePicker (34 bundled themes)
+  overlays/     # @tooee/overlays — overlay context and stack management
+  clipboard/    # @tooee/clipboard — copy/read utilities
+  layout/       # @tooee/layout — AppLayout, StatusBar, TitleBar, SearchBar
+  renderers/    # @tooee/renderers — MarkdownView, CodeView, ImageView, Table, CommandPalette, table parsers
+  shell/        # @tooee/shell — composition layer: TooeeProvider, launchCli, standard commands, modal nav
+  view/         # @tooee/view — content viewing app (markdown/code/text/image/table/directory), streaming
+  ask/          # @tooee/ask — input gathering app
+  choose/       # @tooee/choose — selection app (fuzzy filtering, single/multi-select)
 apps/
-  cli/          # @tooee/cli — CLI binary (tooee view/ask/choose)
+  cli/          # @tooee/cli — CLI binary (tooee view/ask/choose/table)
 ```
 
 ## Tech Stack
@@ -31,20 +36,35 @@ apps/
 bun install          # Install dependencies
 bunx tsc -b          # Type check all packages
 bun test             # Run tests
+bun run lint         # Lint with oxlint
 ```
 
 ## Architecture
 
-### Package Dependency Graph
+### Three-Layer Pattern
 
 ```
-@tooee/config          (no @tooee deps)
-@tooee/commands        (no @tooee deps)
-@tooee/react           → config
-@tooee/shell           → config, react, commands
-@tooee/view            → react, commands, shell
-@tooee/ask             → react, commands, shell
-@tooee/cli             → view, ask, choose
+Foundation (no @tooee deps):
+  @tooee/config
+  @tooee/commands
+  @tooee/clipboard
+  @tooee/overlays
+
+Concern packages:
+  @tooee/themes      → config
+  @tooee/layout      → themes, overlays
+  @tooee/renderers   → themes
+
+Composition:
+  @tooee/shell       → config, commands, themes, overlays, clipboard, renderers
+
+App shells:
+  @tooee/view        → config, commands, shell, themes, overlays, renderers, layout
+  @tooee/ask         → commands, shell, themes
+  @tooee/choose      → commands, shell, themes, layout
+
+CLI:
+  @tooee/cli         → view, ask, choose
 ```
 
 ### App Pattern
@@ -53,9 +73,23 @@ Each app package (`view`, `ask`, `choose`) exports:
 
 - **React component** (`View`, `Ask`, `Choose`) — pure UI, receives providers as props
 - **`launch()` function** — creates an OpenTUI renderer, wraps with `TooeeProvider`, renders the component
-- **TypeScript interfaces** — content provider and interaction handler abstractions
+- **TypeScript interfaces** — `ContentProvider` for data, `ActionDefinition[]` for actions
 
-Content/interaction abstraction separates _what_ from _how_: apps don't know where data comes from or what actions do. Consumers wire in providers.
+**Unified content provider** (`@tooee/view`):
+
+```typescript
+interface ContentProvider {
+  load(): Content | Promise<Content> | AsyncIterable<ContentChunk>
+  format?: Content["format"]
+  title?: string
+}
+```
+
+Three return modes: synchronous, async, and streaming (via `AsyncIterable<ContentChunk>`).
+
+**Actions via commands**: Apps accept `actions?: ActionDefinition[]` from `@tooee/commands`. No per-app action types — callers define actions with `id`, `title`, `hotkey`, `modes`, and `handler`.
+
+**Exit via context**: `CommandContext` has `exit()` method. Apps expose state via `useProvideCommandContext`.
 
 ### Config System
 
@@ -91,13 +125,15 @@ To add a config option: extend `TooeeConfig` in `packages/config/src/types.ts`, 
 useCommand({
   id: "view.scroll-down",
   title: "Scroll down",
-  hotkey: "j",
+  defaultHotkey: "j",
   modes: ["command"],
   handler: () => scrollDown(),
 })
 ```
 
-**Command definition fields**: `id`, `title`, `handler`, `hotkey?`, `defaultHotkey?`, `modes?`, `when?`, `category?`, `group?`, `icon?`, `hidden?`
+**Command fields**: `id`, `title`, `handler`, `defaultHotkey?`, `modes?`, `when?`, `category?`, `group?`, `icon?`, `hidden?`
+
+**ActionDefinition fields**: `id`, `title`, `handler`, `hotkey?`, `modes?`, `when?` — simplified interface for caller-defined actions.
 
 **Hotkey format**: modifier keys (`ctrl+`, `alt+`, `shift+`), sequences (`g g`), leader keys (`<leader>n`).
 
@@ -111,11 +147,11 @@ The `CommandProvider` handles keyboard dispatch, sequence tracking, and mode fil
 
 ### Theme System
 
-`@tooee/react` manages themes.
+`@tooee/themes` manages themes.
 
 **Theme sources** (merged in order):
 
-1. Bundled: `packages/react/src/themes/*.json` (39 themes)
+1. Bundled: `packages/themes/src/themes/*.json` (34 themes)
 2. Global: `~/.config/tooee/themes/*.json`
 3. Project: `.tooee/themes/*.json`
 
@@ -127,7 +163,7 @@ The `CommandProvider` handles keyboard dispatch, sequence tracking, and mode fil
 
 `@tooee/shell` is the composition layer that wires everything together.
 
-**`TooeeProvider`**: root provider combining `ConfigProvider` + `ThemeSwitcherProvider` + `ModeProvider` + `CommandProvider`. All apps use this as their root.
+**`TooeeProvider`**: root provider combining `ConfigProvider` + `ThemeSwitcherProvider` + `ModeProvider` + `CommandProvider` + `OverlayProvider`. All apps use this as their root.
 
 **`launchCli()`**: creates an OpenTUI renderer and root element for CLI usage.
 
@@ -145,15 +181,18 @@ The `CommandProvider` handles keyboard dispatch, sequence tracking, and mode fil
 
 Returns `{ mode, scrollOffset, cursor, selection, searchQuery, searchActive }` for the consuming component to render.
 
+**Overlays**: `useCommandPalette()` and `useThemePicker()` manage overlay lifecycle for the command palette (`:`) and theme picker (`t`/`T`).
+
 ## Key Patterns
 
 ### Creating a New App Package
 
 1. Create `packages/<name>/src/` with `types.ts`, `<Name>.tsx`, `launch.tsx`, `index.ts`
-2. Define `<Name>ContentProvider` and `<Name>InteractionHandler` interfaces in `types.ts`
-3. Build the component accepting providers as props, using `useModalNavigationCommands()` from `@tooee/shell`
-4. Export component, `launch()`, and types from `index.ts`
-5. Add to `apps/cli/src/main.ts` if it should be a CLI subcommand
+2. Define content provider interface in `types.ts`
+3. Accept `actions?: ActionDefinition[]` from `@tooee/commands` for caller-defined actions
+4. Build the component using `useModalNavigationCommands()` from `@tooee/shell`
+5. Export component, `launch()`, and types from `index.ts`
+6. Add to `apps/cli/src/main.ts` if it should be a CLI subcommand
 
 ### Adding a New Command
 
