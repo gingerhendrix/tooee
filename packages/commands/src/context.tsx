@@ -60,6 +60,7 @@ function CommandDispatcher({
         invoke: (id: string) => registryRef.current?.invoke(id),
         list: () => Array.from(registryRef.current?.commands.values() ?? []),
       },
+      exit: () => {},
     }
     for (const getter of contextSourcesRef.current.values()) {
       Object.assign(ctx, getter())

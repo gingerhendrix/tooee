@@ -4,9 +4,12 @@ export interface CommandContextBase {
   mode: Mode
   setMode: (mode: Mode) => void
   commands: { invoke: (id: string) => void; list: () => Command[] }
+  exit: () => void
 }
 
-export interface CommandContext extends CommandContextBase {}
+export interface CommandContext extends CommandContextBase {
+  [key: string]: any
+}
 
 export type CommandHandler = (ctx: CommandContext) => void | Promise<void>
 export type CommandWhen = (ctx: CommandContext) => boolean
