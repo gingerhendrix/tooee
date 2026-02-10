@@ -1,33 +1,42 @@
 import { useState } from "react"
 import { useRenderer } from "@opentui/react"
-import { useCommand, useActions } from "@tooee/commands"
+import { useCommand, useActions, useProvideCommandContext, useCommandContext } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import { useTheme, ThemePicker } from "@tooee/themes"
 import { useThemeCommands } from "@tooee/shell"
 import type { AskOptions, AskInteractionHandler } from "./types.ts"
 
 interface AskProps extends AskOptions {
+  actions?: ActionDefinition[]
+  /** @deprecated Use actions instead */
   onSubmit?: (value: string) => void
+  /** @deprecated Use actions instead */
   interactionHandler?: AskInteractionHandler
 }
 
-export function Ask({ prompt, placeholder, defaultValue, onSubmit, interactionHandler }: AskProps) {
+export function Ask({ prompt, placeholder, defaultValue, actions, onSubmit, interactionHandler }: AskProps) {
   const renderer = useRenderer()
   const [value, setValue] = useState(defaultValue ?? "")
+  const { invoke } = useCommandContext()
 
   const { theme } = useTheme()
   const { name: themeName, picker: themePicker } = useThemeCommands()
+
+  useProvideCommandContext(() => ({
+    ask: { value },
+    exit: () => renderer.destroy(),
+  }))
 
   useCommand({
     id: "cancel",
     title: "Cancel",
     hotkey: "escape",
-    handler: () => {
-      renderer.destroy()
+    handler: (ctx) => {
+      ctx.exit()
     },
   })
 
-  const customActions: ActionDefinition[] | undefined = interactionHandler?.actions.map(
+  const legacyActions: ActionDefinition[] | undefined = interactionHandler?.actions.map(
     (action) => ({
       id: action.id,
       title: action.title,
@@ -38,16 +47,24 @@ export function Ask({ prompt, placeholder, defaultValue, onSubmit, interactionHa
     }),
   )
 
-  useActions(customActions)
+  useActions(actions ?? legacyActions)
 
   const handleSubmit = () => {
-    if (onSubmit) {
-      onSubmit(value)
-    } else {
-      renderer.destroy()
-      process.stdout.write(value + "\n")
+    // If there's a "submit" action registered, invoke it via the command system
+    if (actions?.some((a) => a.id === "submit")) {
+      invoke("submit")
       return
     }
+
+    // Legacy: use onSubmit callback
+    if (onSubmit) {
+      onSubmit(value)
+      renderer.destroy()
+      return
+    }
+
+    // Default: write to stdout and exit
+    process.stdout.write(value + "\n")
     renderer.destroy()
   }
 
