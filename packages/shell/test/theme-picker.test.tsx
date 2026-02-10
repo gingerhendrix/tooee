@@ -2,7 +2,8 @@ import { testRender } from "@opentui/react/test-utils"
 import { test, expect, afterEach, describe } from "bun:test"
 import { act } from "react"
 import { TooeeProvider, useThemeCommands } from "@tooee/shell"
-import { useTheme, useCurrentOverlay } from "@tooee/react"
+import { useTheme } from "@tooee/themes"
+import { useCurrentOverlay } from "@tooee/overlays"
 import { useMode } from "@tooee/commands"
 
 function ThemePickerHarness() {

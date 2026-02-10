@@ -1,5 +1,5 @@
 import { useRenderer } from "@opentui/react"
-import { copyToClipboard } from "@tooee/react"
+import { copyToClipboard } from "@tooee/clipboard"
 import { useCommand, type CommandWhen } from "@tooee/commands"
 import { useThemePicker, type ThemePickerState } from "./theme-picker.ts"
 

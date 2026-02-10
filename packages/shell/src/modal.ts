@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react"
 import { useCommand, useMode, useSetMode, type Mode } from "@tooee/commands"
-import { copyToClipboard } from "@tooee/react"
+import { copyToClipboard } from "@tooee/clipboard"
 import { useTerminalDimensions } from "@opentui/react"
 import { findMatchingLines } from "./search.ts"
 

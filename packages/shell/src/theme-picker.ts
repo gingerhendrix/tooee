@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react"
 import { createElement } from "react"
-import { useThemeSwitcher, useOverlay } from "@tooee/react"
+import { useThemeSwitcher } from "@tooee/themes"
+import { useOverlay } from "@tooee/overlays"
 import { ThemePickerOverlay } from "./ThemePickerOverlay.tsx"
 
 export interface ThemePickerEntry {

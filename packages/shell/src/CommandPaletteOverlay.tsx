@@ -2,7 +2,7 @@ import { createElement, useMemo } from "react"
 import type { ReactNode } from "react"
 import { useCommandContext } from "@tooee/commands"
 import type { Mode } from "@tooee/commands"
-import { CommandPalette } from "@tooee/react"
+import { CommandPalette } from "@tooee/renderers"
 
 const DEFAULT_MODES: Mode[] = ["command", "cursor"]
 

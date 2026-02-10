@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useRenderer } from "@opentui/react"
 import { useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
-import { useTheme, ThemePicker } from "@tooee/react"
+import { useTheme, ThemePicker } from "@tooee/themes"
 import { useThemeCommands } from "@tooee/shell"
 import type { AskOptions, AskInteractionHandler } from "./types.ts"
 

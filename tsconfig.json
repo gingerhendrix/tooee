@@ -20,7 +20,11 @@
   "references": [
     { "path": "packages/config" },
     { "path": "packages/commands" },
-    { "path": "packages/react" },
+    { "path": "packages/themes" },
+    { "path": "packages/overlays" },
+    { "path": "packages/clipboard" },
+    { "path": "packages/layout" },
+    { "path": "packages/renderers" },
     { "path": "packages/shell" },
     { "path": "packages/view" },
     { "path": "packages/ask" },

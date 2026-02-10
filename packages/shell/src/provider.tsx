@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import { ConfigProvider, useConfig, type TooeeConfig } from "@tooee/config"
-import { ThemeSwitcherProvider } from "@tooee/react"
+import { ThemeSwitcherProvider } from "@tooee/themes"
 import { CommandProvider, type Mode } from "@tooee/commands"
 import { OverlayProvider } from "./overlay.tsx"
 

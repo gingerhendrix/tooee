@@ -2,7 +2,7 @@ import { testRender } from "@opentui/react/test-utils"
 import { test, expect, afterEach } from "bun:test"
 import { act } from "react"
 import { TooeeProvider, useThemeCommands, useQuitCommand } from "@tooee/shell"
-import { useTheme } from "@tooee/react"
+import { useTheme } from "@tooee/themes"
 import { useMode } from "@tooee/commands"
 
 function ThemeHarness() {

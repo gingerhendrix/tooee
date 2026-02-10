@@ -2,8 +2,8 @@ import { useCallback, useMemo, useRef, useState } from "react"
 import { createElement } from "react"
 import { useCommandContext, useCommand, useMode } from "@tooee/commands"
 import type { Mode } from "@tooee/commands"
-import { useOverlay } from "@tooee/react"
-import type { CommandPaletteEntry } from "@tooee/react"
+import { useOverlay } from "@tooee/overlays"
+import type { CommandPaletteEntry } from "@tooee/renderers"
 import { CommandPaletteOverlay } from "./CommandPaletteOverlay.tsx"
 
 const DEFAULT_MODES: Mode[] = ["command", "cursor"]

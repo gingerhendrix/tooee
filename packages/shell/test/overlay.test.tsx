@@ -2,7 +2,8 @@ import { testRender } from "@opentui/react/test-utils"
 import { test, expect, afterEach, describe } from "bun:test"
 import { act } from "react"
 import { TooeeProvider } from "@tooee/shell"
-import { useOverlay, useCurrentOverlay, useHasOverlay, AppLayout } from "@tooee/react"
+import { useOverlay, useCurrentOverlay, useHasOverlay } from "@tooee/overlays"
+import { AppLayout } from "@tooee/layout"
 import { useCommand } from "@tooee/commands"
 
 function OverlayHarness() {

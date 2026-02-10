@@ -1,6 +1,6 @@
 import { createElement } from "react"
 import type { ReactNode } from "react"
-import { useThemeSwitcher, ThemePicker } from "@tooee/react"
+import { useThemeSwitcher, ThemePicker } from "@tooee/themes"
 
 export function ThemePickerOverlay({
   originalTheme,

@@ -8,7 +8,9 @@
   "include": ["./src"],
   "references": [
     { "path": "../config" },
-    { "path": "../react" },
+    { "path": "../themes" },
+    { "path": "../renderers" },
+    { "path": "../layout" },
     { "path": "../commands" },
     { "path": "../shell" }
   ]

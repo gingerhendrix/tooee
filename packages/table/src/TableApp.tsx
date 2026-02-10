@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
-import { AppLayout, CommandPalette, Table, useTheme } from "@tooee/react"
+import { AppLayout } from "@tooee/layout"
+import { CommandPalette, Table } from "@tooee/renderers"
+import { useTheme } from "@tooee/themes"
 import {
   useThemeCommands,
   useQuitCommand,

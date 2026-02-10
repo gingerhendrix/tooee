@@ -12,7 +12,9 @@
   "dependencies": {
     "@tooee/commands": "workspace:*",
     "@tooee/config": "workspace:*",
-    "@tooee/react": "workspace:*",
+    "@tooee/layout": "workspace:*",
+    "@tooee/renderers": "workspace:*",
+    "@tooee/themes": "workspace:*",
     "@tooee/shell": "workspace:*"
   },
   "devDependencies": {

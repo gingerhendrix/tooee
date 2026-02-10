@@ -12,7 +12,11 @@
   "dependencies": {
     "@tooee/commands": "workspace:*",
     "@tooee/config": "workspace:*",
-    "@tooee/react": "workspace:*"
+    "@tooee/clipboard": "workspace:*",
+    "@tooee/layout": "workspace:*",
+    "@tooee/overlays": "workspace:*",
+    "@tooee/renderers": "workspace:*",
+    "@tooee/themes": "workspace:*"
   },
   "devDependencies": {
     "@opentui/core": "^0.1.67",

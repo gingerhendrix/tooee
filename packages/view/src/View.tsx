@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
-import { MarkdownView, CodeView, ImageView, AppLayout, useTheme, useHasOverlay } from "@tooee/react"
+import { MarkdownView, CodeView, ImageView } from "@tooee/renderers"
+import { AppLayout } from "@tooee/layout"
+import { useTheme } from "@tooee/themes"
+import { useHasOverlay } from "@tooee/overlays"
 import { useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import {

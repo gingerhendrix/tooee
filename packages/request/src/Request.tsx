@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { useRenderer } from "@opentui/react"
-import { MarkdownView, AppLayout, ThemePicker, useTheme } from "@tooee/react"
+import { MarkdownView } from "@tooee/renderers"
+import { AppLayout } from "@tooee/layout"
+import { ThemePicker, useTheme } from "@tooee/themes"
 import { useCommand, useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import {

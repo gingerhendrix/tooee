@@ -9,7 +9,7 @@ import {
   type OverlayRenderer,
   type OverlayHandle,
   type OverlayController,
-} from "@tooee/react"
+} from "@tooee/overlays"
 import { useMode, useSetMode, useProvideCommandContext, useCommand } from "@tooee/commands"
 
 declare module "@tooee/commands" {
