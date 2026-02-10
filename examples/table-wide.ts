@@ -11,7 +11,7 @@
  * Controls: j/k scroll rows, h/l scroll columns, q quit, t/T cycle themes
  */
 
-import { launch, type ViewContentProvider, type ViewContent } from "@tooee/view"
+import { launch, type ContentProvider, type Content } from "@tooee/view"
 
 const headers = [
   "Title",
@@ -52,8 +52,8 @@ const rows = [
 // Serialize as TSV for the view body
 const body = [headers.join("\t"), ...rows.map((r) => r.join("\t"))].join("\n")
 
-const contentProvider: ViewContentProvider = {
-  load: (): ViewContent => ({
+const contentProvider: ContentProvider = {
+  load: (): Content => ({
     title: "Movie Database",
     body,
     format: "table",

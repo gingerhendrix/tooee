@@ -9,11 +9,11 @@
  * Controls: j/k scroll, q quit, t/T themes
  */
 
-import { launch, type ViewContentProvider } from "@tooee/view"
+import { launch, type ContentProvider } from "@tooee/view"
 
 const staged = process.argv.includes("--staged")
 
-const contentProvider: ViewContentProvider = {
+const contentProvider: ContentProvider = {
   async load() {
     const args = staged ? ["git", "diff", "--staged"] : ["git", "diff"]
     const proc = Bun.spawn(args)

@@ -9,7 +9,7 @@
  * Controls: j/k scroll, h/l columns, q quit
  */
 
-import { launch, type ViewContentProvider, type ViewContent } from "@tooee/view"
+import { launch, type ContentProvider, type Content } from "@tooee/view"
 
 interface PR {
   number: number
@@ -19,8 +19,8 @@ interface PR {
   createdAt: string
 }
 
-const contentProvider: ViewContentProvider = {
-  async load(): Promise<ViewContent> {
+const contentProvider: ContentProvider = {
+  async load(): Promise<Content> {
     const proc = Bun.spawn([
       "gh",
       "pr",

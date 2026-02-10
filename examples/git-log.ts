@@ -8,10 +8,10 @@
  * Controls: j/k scroll, h/l columns, q quit
  */
 
-import { launch, type ViewContentProvider, type ViewContent } from "@tooee/view"
+import { launch, type ContentProvider, type Content } from "@tooee/view"
 
-const contentProvider: ViewContentProvider = {
-  async load(): Promise<ViewContent> {
+const contentProvider: ContentProvider = {
+  async load(): Promise<Content> {
     // Use %x00 (null byte) as delimiter for safe parsing
     const proc = Bun.spawn(["git", "log", "--format=%h%x00%s%x00%an%x00%ar", "-n", "50"])
 

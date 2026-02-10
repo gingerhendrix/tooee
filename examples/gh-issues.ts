@@ -10,7 +10,7 @@
  */
 
 import { launch as launchChoose, type ChooseItem } from "@tooee/choose"
-import { launch as launchView, type ViewContentProvider } from "@tooee/view"
+import { launch as launchView, type ContentProvider } from "@tooee/view"
 
 interface Issue {
   number: number
@@ -55,7 +55,7 @@ const issueProvider = {
 }
 
 async function viewIssue(issueNumber: string) {
-  const contentProvider: ViewContentProvider = {
+  const contentProvider: ContentProvider = {
     async load() {
       const proc = Bun.spawn(["gh", "issue", "view", issueNumber])
       const text = await new Response(proc.stdout).text()

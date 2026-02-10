@@ -11,10 +11,10 @@
  * Controls: j/k scroll, q quit, t/T cycle themes
  */
 
-import { launch, type ViewContentProvider } from "@tooee/view"
+import { launch, type ContentProvider } from "@tooee/view"
 
 // Create a content provider with inline markdown
-const contentProvider: ViewContentProvider = {
+const contentProvider: ContentProvider = {
   load: () => ({
     title: "Tooee Example",
     format: "markdown",
