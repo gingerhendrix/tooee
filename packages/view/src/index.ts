@@ -6,6 +6,9 @@ export { createFileProvider, createStdinProvider, createTableFileProvider, creat
 export { listDirectoryFiles } from "./directory-provider.ts"
 export type { DirectoryEntry } from "./directory-provider.ts"
 export type {
+  Content,
+  ContentChunk,
+  ContentProvider,
   ViewContent,
   ViewContentProvider,
   ViewAction,

@@ -2,18 +2,19 @@ import { useState, useMemo } from "react"
 import { useCommand } from "@tooee/commands"
 import { View } from "./View.tsx"
 import { listDirectoryFiles, type DirectoryEntry } from "./directory-provider.ts"
-import type { ViewContentProvider, ViewContent, ViewInteractionHandler } from "./types.ts"
+import type { Content, ContentProvider, ViewInteractionHandler } from "./types.ts"
 import { createFileProvider } from "./default-provider.ts"
 
 function createDirectoryFileProvider(
   entry: DirectoryEntry,
   index: number,
   total: number,
-): ViewContentProvider {
+): ContentProvider {
   const inner = createFileProvider(entry.path)
   return {
-    async load(): Promise<ViewContent> {
-      const content = await inner.load()
+    async load(): Promise<Content> {
+      const result = inner.load()
+      const content = result instanceof Promise ? await result : result as Content
       return {
         ...content,
         title: `${entry.name}  (${index + 1}/${total})`,
@@ -24,10 +25,12 @@ function createDirectoryFileProvider(
 
 interface DirectoryViewProps {
   dirPath: string
+  actions?: import("@tooee/commands").ActionDefinition[]
+  /** @deprecated Use actions instead */
   interactionHandler?: ViewInteractionHandler
 }
 
-export function DirectoryView({ dirPath, interactionHandler }: DirectoryViewProps) {
+export function DirectoryView({ dirPath, actions, interactionHandler }: DirectoryViewProps) {
   const files = useMemo(() => listDirectoryFiles(dirPath), [dirPath])
   const [currentIndex, setCurrentIndex] = useState(0)
 
@@ -63,5 +66,5 @@ export function DirectoryView({ dirPath, interactionHandler }: DirectoryViewProp
     )
   }
 
-  return <View contentProvider={contentProvider} interactionHandler={interactionHandler} />
+  return <View contentProvider={contentProvider} actions={actions} interactionHandler={interactionHandler} />
 }

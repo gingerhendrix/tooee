@@ -16,27 +16,59 @@ import {
 } from "@tooee/shell"
 import { useConfig } from "@tooee/config"
 import { marked } from "marked"
-import type { ViewContent, ViewContentProvider, ViewInteractionHandler } from "./types.ts"
+import type { Content, ContentProvider, ContentChunk, ViewInteractionHandler } from "./types.ts"
 
 interface ViewProps {
-  contentProvider: ViewContentProvider
+  contentProvider: ContentProvider
+  actions?: ActionDefinition[]
+  /** @deprecated Use actions instead */
   interactionHandler?: ViewInteractionHandler
 }
 
-export function View({ contentProvider, interactionHandler }: ViewProps) {
+function isAsyncIterable(value: unknown): value is AsyncIterable<ContentChunk> {
+  return value != null && typeof value === "object" && Symbol.asyncIterator in value
+}
+
+export function View({ contentProvider, actions, interactionHandler }: ViewProps) {
   const { theme } = useTheme()
   const config = useConfig()
-  const [content, setContent] = useState<ViewContent | null>(null)
+  const [content, setContent] = useState<Content | null>(null)
+  const [streaming, setStreaming] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const scrollRef = useRef<ScrollBoxRenderable>(null)
 
   useEffect(() => {
     const result = contentProvider.load()
+
+    if (isAsyncIterable(result)) {
+      const format = contentProvider.format ?? "markdown"
+      const title = contentProvider.title
+      setContent({ body: "", format, title })
+      setStreaming(true)
+      let body = ""
+      ;(async () => {
+        try {
+          for await (const chunk of result) {
+            if (chunk.type === "append") {
+              body += chunk.data
+            } else {
+              body = chunk.data
+            }
+            setContent((prev) => (prev ? { ...prev, body } : { body, format, title }))
+          }
+        } finally {
+          setStreaming(false)
+        }
+      })()
+      return
+    }
+
     if (result instanceof Promise) {
       result.then(setContent).catch((e: Error) => setError(e.message))
-    } else {
-      setContent(result)
+      return
     }
+
+    setContent(result)
   }, [contentProvider])
 
   // Parse table content when format is "table"
@@ -129,7 +161,7 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
 
   const _palette = useCommandPalette()
 
-  const customActions: ActionDefinition[] | undefined = interactionHandler?.actions.map(
+  const legacyActions: ActionDefinition[] | undefined = interactionHandler?.actions.map(
     (action) => ({
       id: action.id,
       title: action.title,
@@ -142,7 +174,7 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
     }),
   )
 
-  useActions(customActions)
+  useActions(actions ?? legacyActions)
 
   const matchingLinesSet = useMemo(
     () => (nav.matchingLines.length > 0 ? new Set(nav.matchingLines) : undefined),
@@ -288,6 +320,7 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
       : [{ label: "Lines:", value: String(lineCount) }]),
     { label: "Mode:", value: nav.mode },
     { label: "Scroll:", value: String(nav.scrollOffset) },
+    ...(streaming ? [{ label: "Status:", value: "streaming" }] : []),
     ...(nav.searchActive ? [{ label: "Search:", value: nav.searchQuery }] : []),
   ]
 
