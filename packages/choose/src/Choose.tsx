@@ -4,18 +4,22 @@ import { useKeyboard } from "@opentui/react"
 import { AppLayout } from "@tooee/layout"
 import { ThemePicker, useTheme } from "@tooee/themes"
 import { useThemeCommands } from "@tooee/shell"
-import { useMode, useSetMode, useCommand } from "@tooee/commands"
+import { useMode, useSetMode, useCommand, useActions, useProvideCommandContext, useCommandContext } from "@tooee/commands"
+import type { ActionDefinition } from "@tooee/commands"
 import type { ChooseItem, ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.ts"
 import { fuzzyFilter, type FuzzyMatch } from "./fuzzy.ts"
 
 interface ChooseProps {
   contentProvider: ChooseContentProvider
   options?: ChooseOptions
-  onConfirm: (result: ChooseResult) => void
-  onCancel: () => void
+  actions?: ActionDefinition[]
+  /** @deprecated Use actions instead */
+  onConfirm?: (result: ChooseResult) => void
+  /** @deprecated Use actions instead */
+  onCancel?: () => void
 }
 
-export function Choose({ contentProvider, options, onConfirm, onCancel }: ChooseProps) {
+export function Choose({ contentProvider, options, actions, onConfirm, onCancel }: ChooseProps) {
   const { theme } = useTheme()
   const [items, setItems] = useState<ChooseItem[]>([])
   const [filterQuery, setFilterQuery] = useState("")
@@ -24,6 +28,7 @@ export function Choose({ contentProvider, options, onConfirm, onCancel }: Choose
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set())
   const [loading, setLoading] = useState(true)
   const scrollRef = useRef<ScrollBoxRenderable>(null)
+  const { invoke } = useCommandContext()
 
   const multi = options?.multi ?? false
 
@@ -51,6 +56,30 @@ export function Choose({ contentProvider, options, onConfirm, onCancel }: Choose
   const { name: themeName, picker: themePicker } = useThemeCommands()
   const mode = useMode()
   const setMode = useSetMode()
+
+  // Compute selected items for context
+  const getSelectedItems = useCallback((): ChooseItem[] => {
+    if (multi) {
+      const selected = Array.from(selectedIndices).map((i) => items[i])
+      if (selected.length === 0 && filteredItems[activeIndex]) {
+        return [filteredItems[activeIndex].item]
+      }
+      return selected
+    }
+    const match = filteredItems[activeIndex]
+    return match ? [match.item] : []
+  }, [multi, selectedIndices, items, filteredItems, activeIndex])
+
+  useProvideCommandContext(() => ({
+    choose: {
+      activeItem: filteredItems[activeIndex]?.item,
+      selectedItems: getSelectedItems(),
+      filterQuery,
+    },
+    exit: () => onCancel?.(),
+  }))
+
+  useActions(actions)
 
   const moveUp = useCallback(() => {
     setActiveIndex((i) => Math.max(0, i - 1))
@@ -114,22 +143,29 @@ export function Choose({ contentProvider, options, onConfirm, onCancel }: Choose
   )
 
   const confirm = useCallback(() => {
+    // If there's a "submit" action, invoke it via the command system
+    if (actions?.some((a) => a.id === "submit")) {
+      invoke("submit")
+      return
+    }
+
+    // Legacy: use onConfirm/onCancel callbacks
     if (multi) {
       const selected = Array.from(selectedIndices).map((i) => items[i])
       if (selected.length === 0 && filteredItems[activeIndex]) {
-        onConfirm({ items: [filteredItems[activeIndex].item] })
+        onConfirm?.({ items: [filteredItems[activeIndex].item] })
       } else {
-        onConfirm({ items: selected })
+        onConfirm?.({ items: selected })
       }
     } else {
       const match = filteredItems[activeIndex]
       if (match) {
-        onConfirm({ items: [match.item] })
+        onConfirm?.({ items: [match.item] })
       } else {
-        onCancel()
+        onCancel?.()
       }
     }
-  }, [multi, selectedIndices, items, filteredItems, activeIndex, onConfirm, onCancel])
+  }, [multi, selectedIndices, items, filteredItems, activeIndex, onConfirm, onCancel, actions, invoke])
 
   useKeyboard((key) => {
     if (key.name === "escape") {
@@ -138,7 +174,7 @@ export function Choose({ contentProvider, options, onConfirm, onCancel }: Choose
         setMode("command")
       } else {
         // In command mode, escape cancels
-        onCancel()
+        onCancel?.()
       }
       return
     }

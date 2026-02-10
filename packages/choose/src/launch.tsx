@@ -3,12 +3,14 @@ import * as tty from "node:tty"
 import { createCliRenderer } from "@opentui/core"
 import { createRoot } from "@opentui/react"
 import { TooeeProvider } from "@tooee/shell"
+import type { ActionDefinition } from "@tooee/commands"
 import { Choose } from "./Choose.tsx"
 import type { ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.ts"
 
 export interface ChooseLaunchOptions {
   contentProvider: ChooseContentProvider
   options?: ChooseOptions
+  actions?: ActionDefinition[]
 }
 
 export async function launch(opts: ChooseLaunchOptions): Promise<ChooseResult | null> {
@@ -45,6 +47,7 @@ export async function launch(opts: ChooseLaunchOptions): Promise<ChooseResult | 
           <Choose
             contentProvider={opts.contentProvider}
             options={opts.options}
+            actions={opts.actions}
             onConfirm={(result) => cleanup(result)}
             onCancel={() => cleanup(null)}
           />
