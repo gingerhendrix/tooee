@@ -4,6 +4,4 @@ export type { RequestLaunchOptions } from "./launch.tsx"
 export type {
   RequestChunk,
   RequestContentProvider,
-  RequestAction,
-  RequestInteractionHandler,
 } from "./types.ts"

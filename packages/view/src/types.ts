@@ -22,14 +22,3 @@ export interface ContentProvider {
 // Backward-compatible aliases
 export type ViewContent = Content
 export type ViewContentProvider = ContentProvider
-
-export interface ViewAction {
-  id: string
-  title: string
-  hotkey?: string
-  handler: (content: ViewContent) => void
-}
-
-export interface ViewInteractionHandler {
-  actions: ViewAction[]
-}

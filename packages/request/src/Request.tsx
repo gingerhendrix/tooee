@@ -12,19 +12,17 @@ import {
   useCopyCommand,
   useModalNavigationCommands,
 } from "@tooee/shell"
-import type { RequestContentProvider, RequestInteractionHandler } from "./types.ts"
+import type { RequestContentProvider } from "./types.ts"
 
 type Phase = "input" | "streaming" | "complete"
 
 interface RequestProps {
   contentProvider: RequestContentProvider
   actions?: ActionDefinition[]
-  /** @deprecated Use actions instead */
-  interactionHandler?: RequestInteractionHandler
   initialInput?: string
 }
 
-export function Request({ contentProvider, actions, interactionHandler, initialInput }: RequestProps) {
+export function Request({ contentProvider, actions, initialInput }: RequestProps) {
   const renderer = useRenderer()
   const { theme } = useTheme()
   const [phase, setPhase] = useState<Phase>(initialInput ? "streaming" : "input")
@@ -127,19 +125,7 @@ export function Request({ contentProvider, actions, interactionHandler, initialI
     },
   })
 
-  const legacyActions: ActionDefinition[] | undefined = interactionHandler?.actions.map(
-    (action) => ({
-      id: action.id,
-      title: action.title,
-      hotkey: action.hotkey,
-      when: () => phase === "complete",
-      handler: () => {
-        action.handler(input, response)
-      },
-    }),
-  )
-
-  useActions(actions ?? legacyActions)
+  useActions(actions)
 
   const handleSubmit = () => {
     if (input.trim()) {

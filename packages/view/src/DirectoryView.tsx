@@ -2,7 +2,7 @@ import { useState, useMemo } from "react"
 import { useCommand } from "@tooee/commands"
 import { View } from "./View.tsx"
 import { listDirectoryFiles, type DirectoryEntry } from "./directory-provider.ts"
-import type { Content, ContentProvider, ViewInteractionHandler } from "./types.ts"
+import type { Content, ContentProvider } from "./types.ts"
 import { createFileProvider } from "./default-provider.ts"
 
 function createDirectoryFileProvider(
@@ -26,11 +26,9 @@ function createDirectoryFileProvider(
 interface DirectoryViewProps {
   dirPath: string
   actions?: import("@tooee/commands").ActionDefinition[]
-  /** @deprecated Use actions instead */
-  interactionHandler?: ViewInteractionHandler
 }
 
-export function DirectoryView({ dirPath, actions, interactionHandler }: DirectoryViewProps) {
+export function DirectoryView({ dirPath, actions }: DirectoryViewProps) {
   const files = useMemo(() => listDirectoryFiles(dirPath), [dirPath])
   const [currentIndex, setCurrentIndex] = useState(0)
 
@@ -66,5 +64,5 @@ export function DirectoryView({ dirPath, actions, interactionHandler }: Director
     )
   }
 
-  return <View contentProvider={contentProvider} actions={actions} interactionHandler={interactionHandler} />
+  return <View contentProvider={contentProvider} actions={actions} />
 }

@@ -5,7 +5,7 @@
  * This example shows:
  * - Prompting the user with a question
  * - Using placeholder text and default values
- * - Handling the submitted value via onSubmit callback
+ * - Handling the submitted value via a submit action
  * - Output goes to stdout for shell scripting
  *
  * Run: bun examples/ask-basic.ts
@@ -25,9 +25,15 @@ launch({
   // Optional default value (uncomment to use)
   // defaultValue: "Anonymous",
 
-  // Called when user presses Enter
-  // The value is also printed to stdout for shell scripting
-  onSubmit: (value) => {
-    console.log(`Hello, ${value}!`)
-  },
+  // Actions define what happens on submit
+  actions: [
+    {
+      id: "submit",
+      title: "Submit",
+      handler: (ctx) => {
+        console.log(`Hello, ${ctx.ask.value}!`)
+        ctx.exit()
+      },
+    },
+  ],
 })

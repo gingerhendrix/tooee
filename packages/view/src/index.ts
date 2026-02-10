@@ -11,6 +11,4 @@ export type {
   ContentProvider,
   ViewContent,
   ViewContentProvider,
-  ViewAction,
-  ViewInteractionHandler,
 } from "./types.ts"

@@ -16,20 +16,18 @@ import {
 } from "@tooee/shell"
 import { useConfig } from "@tooee/config"
 import { marked } from "marked"
-import type { Content, ContentProvider, ContentChunk, ViewInteractionHandler } from "./types.ts"
+import type { Content, ContentProvider, ContentChunk } from "./types.ts"
 
 interface ViewProps {
   contentProvider: ContentProvider
   actions?: ActionDefinition[]
-  /** @deprecated Use actions instead */
-  interactionHandler?: ViewInteractionHandler
 }
 
 function isAsyncIterable(value: unknown): value is AsyncIterable<ContentChunk> {
   return value != null && typeof value === "object" && Symbol.asyncIterator in value
 }
 
-export function View({ contentProvider, actions, interactionHandler }: ViewProps) {
+export function View({ contentProvider, actions }: ViewProps) {
   const { theme } = useTheme()
   const config = useConfig()
   const [content, setContent] = useState<Content | null>(null)
@@ -161,20 +159,7 @@ export function View({ contentProvider, actions, interactionHandler }: ViewProps
 
   const _palette = useCommandPalette()
 
-  const legacyActions: ActionDefinition[] | undefined = interactionHandler?.actions.map(
-    (action) => ({
-      id: action.id,
-      title: action.title,
-      hotkey: action.hotkey,
-      handler: () => {
-        if (content) {
-          action.handler(content)
-        }
-      },
-    }),
-  )
-
-  useActions(actions ?? legacyActions)
+  useActions(actions)
 
   const matchingLinesSet = useMemo(
     () => (nav.matchingLines.length > 0 ? new Set(nav.matchingLines) : undefined),
