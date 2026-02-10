@@ -28,7 +28,7 @@
     { "path": "packages/shell" },
     { "path": "packages/view" },
     { "path": "packages/ask" },
-    { "path": "packages/request" },
+
     { "path": "packages/choose" },
     { "path": "apps/cli" }
   ]

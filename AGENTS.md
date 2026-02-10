@@ -14,9 +14,8 @@ packages/
   shell/        # @tooee/shell — composition layer: providers, standard commands, modal navigation
   view/         # @tooee/view — display markdown/code/text
   ask/          # @tooee/ask — gather input, output to stdout
-  request/      # @tooee/request — input → streaming response
 apps/
-  cli/          # @tooee/cli — CLI binary (tooee view/ask/request)
+  cli/          # @tooee/cli — CLI binary (tooee view/ask/choose)
 ```
 
 ## Tech Stack
@@ -45,15 +44,14 @@ bun test             # Run tests
 @tooee/shell           → config, react, commands
 @tooee/view            → react, commands, shell
 @tooee/ask             → react, commands, shell
-@tooee/request         → react, commands, shell
-@tooee/cli             → view, ask, request
+@tooee/cli             → view, ask, choose
 ```
 
 ### App Pattern
 
-Each app package (`view`, `ask`, `request`) exports:
+Each app package (`view`, `ask`, `choose`) exports:
 
-- **React component** (`View`, `Ask`, `Request`) — pure UI, receives providers as props
+- **React component** (`View`, `Ask`, `Choose`) — pure UI, receives providers as props
 - **`launch()` function** — creates an OpenTUI renderer, wraps with `TooeeProvider`, renders the component
 - **TypeScript interfaces** — content provider and interaction handler abstractions
 
@@ -74,7 +72,6 @@ Config shape (`TooeeConfig`):
   theme?: { name?: string; mode?: "dark" | "light" }
   keys?: Record<string, string>   // command ID → hotkey override
   view?: { wrap?: boolean; gutter?: boolean }
-  request?: { autoScroll?: boolean }
 }
 ```
 

@@ -10,7 +10,4 @@ export interface TooeeConfig {
     wrap?: boolean
     gutter?: boolean
   }
-  request?: {
-    autoScroll?: boolean
-  }
 }
