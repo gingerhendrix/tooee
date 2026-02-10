@@ -6,7 +6,8 @@ Tooee has two layers of tests: component tests (headless, fast) and e2e tests (f
 
 ```bash
 bun test                              # All tests
-bun test packages/react/test          # Component tests only
+bun test packages/layout/test         # Layout component tests
+bun test packages/renderers/test      # Renderer component tests
 bun test packages/shell/test          # Shell tests only
 bun test packages/view/test/e2e       # E2E tests only
 ```
@@ -15,23 +16,25 @@ bun test packages/view/test/e2e       # E2E tests only
 
 Use OpenTUI's headless test renderer via `@opentui/react/test-utils`. These are fast, no process spawn required.
 
-**Location**: `packages/react/test/`, `packages/shell/test/`
+**Location**: `packages/layout/test/`, `packages/renderers/test/`, `packages/shell/test/`
 
 ### What's tested
 
-| File                                  | Covers                                                  |
-| ------------------------------------- | ------------------------------------------------------- |
-| `react/test/TitleBar.test.tsx`        | Title and subtitle rendering                            |
-| `react/test/StatusBar.test.tsx`       | Label:value pairs                                       |
-| `react/test/AppLayout.test.tsx`       | Full layout chrome (title bar, status bar, scroll area) |
-| `react/test/MarkdownView.test.tsx`    | Heading, list, code block rendering                     |
-| `react/test/CodeView.test.tsx`        | Code content and line numbers                           |
-| `shell/test/modal.test.tsx`           | j/k scroll, gg/G jump, ctrl+d/u, mode transitions       |
-| `shell/test/search.test.tsx`          | findMatchingLines, search activation/cancel/navigation  |
-| `shell/test/cursor.test.tsx`          | Cursor/select mode transitions, movement, selection     |
-| `shell/test/command-palette.test.tsx` | Palette open/close, entry filtering                     |
-| `shell/test/commands.test.tsx`        | Theme cycling (t/T), quit (q)                           |
-| `choose/test/fuzzy.test.ts`           | Fuzzy filter scoring, matching, sorting                 |
+| File                                     | Covers                                                  |
+| ---------------------------------------- | ------------------------------------------------------- |
+| `layout/test/TitleBar.test.tsx`          | Title and subtitle rendering                            |
+| `layout/test/StatusBar.test.tsx`         | Label:value pairs                                       |
+| `layout/test/AppLayout.test.tsx`         | Full layout chrome (title bar, status bar, scroll area) |
+| `renderers/test/MarkdownView.test.tsx`   | Heading, list, code block rendering                     |
+| `renderers/test/CodeView.test.tsx`       | Code content and line numbers                           |
+| `renderers/test/Table.test.tsx`          | Table rendering                                         |
+| `renderers/test/parsers.test.ts`         | Table parser logic                                      |
+| `shell/test/modal.test.tsx`              | j/k scroll, gg/G jump, ctrl+d/u, mode transitions      |
+| `shell/test/search.test.tsx`             | findMatchingLines, search activation/cancel/navigation  |
+| `shell/test/cursor.test.tsx`             | Cursor/select mode transitions, movement, selection     |
+| `shell/test/command-palette.test.tsx`    | Palette open/close, entry filtering                     |
+| `shell/test/commands.test.tsx`           | Theme cycling (t/T), quit (q)                           |
+| `choose/test/fuzzy.test.ts`             | Fuzzy filter scoring, matching, sorting                 |
 
 ### Pattern
 

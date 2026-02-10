@@ -465,7 +465,7 @@ function loadJsonThemesFromDir(dir: string, target: Map<string, ThemeJSON>) {
   }
 }
 
-/** Load all bundled themes from packages/react/src/themes/ */
+/** Load all bundled themes from packages/themes/src/themes/ */
 function loadBundledThemes(): Map<string, ThemeJSON> {
   if (themeJsonCache.size > 0) return themeJsonCache
 
