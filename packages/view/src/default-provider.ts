@@ -7,6 +7,9 @@ function detectFormat(filePath: string): { format: ViewContent["format"]; langua
   const imageExts = new Set(["png", "jpg", "jpeg", "gif", "webp", "bmp", "tiff", "tif"])
   if (imageExts.has(ext)) return { format: "image" }
 
+  const tableExts = new Set(["csv", "tsv"])
+  if (tableExts.has(ext)) return { format: "table" }
+
   const markdownExts = new Set(["md", "mdx", "markdown"])
   if (markdownExts.has(ext)) return { format: "markdown" }
 
@@ -67,6 +70,26 @@ export function createStdinProvider(): ViewContentProvider {
     async load(): Promise<ViewContent> {
       const body = await new Response(Bun.stdin.stream() as unknown as ReadableStream).text()
       return { body, format: "markdown", title: "stdin" }
+    },
+  }
+}
+
+export function createTableFileProvider(filePath: string): ViewContentProvider {
+  return {
+    async load(): Promise<ViewContent> {
+      const title = filePath.split("/").pop()
+      const file = Bun.file(filePath)
+      const body = await file.text()
+      return { body, format: "table", title }
+    },
+  }
+}
+
+export function createTableStdinProvider(): ViewContentProvider {
+  return {
+    async load(): Promise<ViewContent> {
+      const body = await new Response(Bun.stdin.stream() as unknown as ReadableStream).text()
+      return { body, format: "table", title: "stdin" }
     },
   }
 }

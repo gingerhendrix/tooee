@@ -1,6 +1,6 @@
 export interface ViewContent {
   body: string
-  format: "markdown" | "code" | "text" | "image"
+  format: "markdown" | "code" | "text" | "image" | "table"
   language?: string
   title?: string
 }

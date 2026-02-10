@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
-import { MarkdownView, CodeView, ImageView } from "@tooee/renderers"
+import { MarkdownView, CodeView, ImageView, Table, parseAuto } from "@tooee/renderers"
+import type { TableContent } from "@tooee/renderers"
 import { AppLayout } from "@tooee/layout"
 import { useTheme } from "@tooee/themes"
 import { useHasOverlay } from "@tooee/overlays"
@@ -38,12 +39,38 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
     }
   }, [contentProvider])
 
-  const lineCount = content?.body.split("\n").length ?? 0
+  // Parse table content when format is "table"
+  const tableData = useMemo<TableContent | null>(() => {
+    if (!content || content.format !== "table") return null
+    return parseAuto(content.body)
+  }, [content])
+
+  // Visual line offset for table: lines 0-2 are border/header/separator, data starts at line 3
+  const TABLE_VISUAL_HEADER_OFFSET = 3
+  // Search text offset: getText() has header at line 0, data rows start at line 1
+  const TABLE_SEARCH_HEADER_OFFSET = 1
+
+  const lineCount = useMemo(() => {
+    if (!content) return 0
+    if (content.format === "table" && tableData) {
+      return tableData.rows.length + 3 // header + borders + rows
+    }
+    return content.body.split("\n").length
+  }, [content, tableData])
 
   // For markdown: compute block count and block-to-line mapping
+  // For table: each row is a block
   const { blockCount, blockLineMap } = useMemo(() => {
-    if (!content || content.format !== "markdown")
+    if (!content) return { blockCount: undefined, blockLineMap: undefined }
+
+    if (content.format === "table" && tableData) {
+      const map = tableData.rows.map((_, i) => i + TABLE_VISUAL_HEADER_OFFSET)
+      return { blockCount: tableData.rows.length, blockLineMap: map }
+    }
+
+    if (content.format !== "markdown")
       return { blockCount: undefined, blockLineMap: undefined }
+
     const tokens = marked.lexer(content.body)
     const blocks = tokens.filter((t) => t.type !== "space")
     const lineMap: number[] = []
@@ -62,13 +89,22 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
       }
     }
     return { blockCount: blocks.length, blockLineMap: lineMap }
-  }, [content])
+  }, [content, tableData])
 
   const nav = useModalNavigationCommands({
     totalLines: lineCount,
-    getText: () => content?.body,
+    getText: () => {
+      if (!content) return undefined
+      if (content.format === "table" && tableData) {
+        const headerLine = tableData.headers.join("\t")
+        const rowLines = tableData.rows.map((row) => row.join("\t"))
+        return [headerLine, ...rowLines].join("\n")
+      }
+      return content.body
+    },
     blockCount,
     blockLineMap,
+    searchLineOffset: content?.format === "table" ? TABLE_SEARCH_HEADER_OFFSET : 0,
   })
 
   useEffect(() => {
@@ -79,7 +115,17 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
 
   const { name: themeName } = useThemeCommands()
   useQuitCommand()
-  useCopyCommand({ getText: () => content?.body })
+  useCopyCommand({
+    getText: () => {
+      if (!content) return undefined
+      if (content.format === "table" && tableData) {
+        const headerLine = tableData.headers.join("\t")
+        const rowLines = tableData.rows.map((row) => row.join("\t"))
+        return [headerLine, ...rowLines].join("\n")
+      }
+      return content.body
+    },
+  })
 
   const _palette = useCommandPalette()
 
@@ -108,6 +154,7 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
   // For markdown: convert matching lines to matching blocks
   const matchingBlocks = useMemo(() => {
     if (!matchingLinesSet || !blockLineMap || blockLineMap.length === 0) return undefined
+    if (content?.format === "table") return undefined // table uses matchingRows instead
     const blocks = new Set<number>()
     for (const line of matchingLinesSet) {
       let blockIdx = 0
@@ -120,15 +167,33 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
       blocks.add(blockIdx)
     }
     return blocks.size > 0 ? blocks : undefined
-  }, [matchingLinesSet, blockLineMap])
+  }, [matchingLinesSet, blockLineMap, content?.format])
 
   const currentMatchBlock = useMemo(() => {
     if (currentMatchLine == null || !blockLineMap || blockLineMap.length === 0) return undefined
+    if (content?.format === "table") return undefined
     for (let i = blockLineMap.length - 1; i >= 0; i--) {
       if (blockLineMap[i] <= currentMatchLine) return i
     }
     return 0
-  }, [currentMatchLine, blockLineMap])
+  }, [currentMatchLine, blockLineMap, content?.format])
+
+  // For table: convert matching lines to matching row indices
+  const matchingRowsSet = useMemo(() => {
+    if (!matchingLinesSet || content?.format !== "table") return undefined
+    const rows = new Set<number>()
+    for (const line of matchingLinesSet) {
+      const row = line - TABLE_SEARCH_HEADER_OFFSET
+      if (row >= 0) rows.add(row)
+    }
+    return rows.size > 0 ? rows : undefined
+  }, [matchingLinesSet, content?.format])
+
+  const currentMatchRow = useMemo(() => {
+    if (content?.format !== "table" || currentMatchLine == null) return undefined
+    const row = currentMatchLine - TABLE_SEARCH_HEADER_OFFSET
+    return row >= 0 ? row : undefined
+  }, [content?.format, currentMatchLine])
 
   if (error) {
     return (
@@ -194,10 +259,37 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
         )
       case "image":
         return <ImageView src={content.body} />
+      case "table":
+        if (!tableData) return null
+        return (
+          <Table
+            headers={tableData.headers}
+            rows={tableData.rows}
+            cursor={cursorLine}
+            selectionStart={selectionStart}
+            selectionEnd={selectionEnd}
+            matchingRows={matchingRowsSet}
+            currentMatchRow={currentMatchRow}
+          />
+        )
     }
   }
 
   const hasOverlay = useHasOverlay()
+
+  const statusItems = [
+    { label: "Theme:", value: themeName },
+    { label: "Format:", value: content.format },
+    ...(content.format === "table" && tableData
+      ? [
+          { label: "Rows:", value: String(tableData.rows.length) },
+          { label: "Cols:", value: String(tableData.headers.length) },
+        ]
+      : [{ label: "Lines:", value: String(lineCount) }]),
+    { label: "Mode:", value: nav.mode },
+    { label: "Scroll:", value: String(nav.scrollOffset) },
+    ...(nav.searchActive ? [{ label: "Search:", value: nav.searchQuery }] : []),
+  ]
 
   return (
     <AppLayout
@@ -206,16 +298,7 @@ export function View({ contentProvider, interactionHandler }: ViewProps) {
           ? { title: content.title, subtitle: content.format }
           : { title: content.format }
       }
-      statusBar={{
-        items: [
-          { label: "Theme:", value: themeName },
-          { label: "Format:", value: content.format },
-          { label: "Lines:", value: String(lineCount) },
-          { label: "Mode:", value: nav.mode },
-          { label: "Scroll:", value: String(nav.scrollOffset) },
-          ...(nav.searchActive ? [{ label: "Search:", value: nav.searchQuery }] : []),
-        ],
-      }}
+      statusBar={{ items: statusItems }}
       scrollRef={scrollRef}
       scrollProps={{ focused: !nav.searchActive && !hasOverlay }}
       searchBar={{
