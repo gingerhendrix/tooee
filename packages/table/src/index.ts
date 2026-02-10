@@ -1,6 +1,0 @@
-export { TableApp } from "./TableApp.tsx"
-export { launch } from "./launch.tsx"
-export type { TableLaunchOptions } from "./launch.tsx"
-export { createFileProvider, createStdinProvider } from "./default-provider.ts"
-export { parseCSV, parseTSV, parseJSON, parseAuto, detectFormat } from "./parsers.ts"
-export type { TableContent, TableContentProvider } from "./types.ts"

@@ -6,7 +6,6 @@
     "@tooee/ask": "workspace:*",
     "@tooee/choose": "workspace:*",
     "@tooee/request": "workspace:*",
-    "@tooee/table": "workspace:*",
     "@tooee/view": "workspace:*"
   }
 }

@@ -8,47 +8,37 @@
  * Controls: j/k scroll, h/l columns, q quit
  */
 
-import { launch, type TableContentProvider, type TableContent } from "@tooee/table"
+import { launch, type ViewContentProvider, type ViewContent } from "@tooee/view"
 
-const contentProvider: TableContentProvider = {
-  async load(): Promise<TableContent> {
+const contentProvider: ViewContentProvider = {
+  async load(): Promise<ViewContent> {
     // Use %x00 (null byte) as delimiter for safe parsing
     const proc = Bun.spawn(["git", "log", "--format=%h%x00%s%x00%an%x00%ar", "-n", "50"])
 
     const text = await new Response(proc.stdout).text()
     const exitCode = await proc.exited
 
+    const headers = ["Hash", "Message", "Author", "Date"]
+
     if (exitCode !== 0) {
-      return {
-        headers: ["Error"],
-        rows: [["Not a git repository or git not installed"]],
-        title: "Git Log",
-        format: "unknown",
-      }
+      const body = [headers.join("\t"), ["Error", "Not a git repository or git not installed", "", ""].join("\t")].join("\n")
+      return { body, format: "table", title: "Git Log" }
     }
 
     const lines = text.trim().split("\n").filter(Boolean)
 
     if (lines.length === 0) {
-      return {
-        headers: ["Info"],
-        rows: [["No commits found"]],
-        title: "Git Log",
-        format: "unknown",
-      }
+      const body = [headers.join("\t"), ["Info", "No commits found", "", ""].join("\t")].join("\n")
+      return { body, format: "table", title: "Git Log" }
     }
 
     const rows = lines.map((line) => {
       const [hash, subject, author, date] = line.split("\x00")
-      return [hash, subject.slice(0, 60) + (subject.length > 60 ? "..." : ""), author, date]
+      return [hash, subject.slice(0, 60) + (subject.length > 60 ? "..." : ""), author, date].join("\t")
     })
 
-    return {
-      headers: ["Hash", "Message", "Author", "Date"],
-      rows,
-      title: "Git Log",
-      format: "unknown",
-    }
+    const body = [headers.join("\t"), ...rows].join("\n")
+    return { body, format: "table", title: "Git Log" }
   },
 }
 
