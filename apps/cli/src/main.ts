@@ -4,15 +4,12 @@ import {
   launchDirectory,
   createFileProvider,
   createStdinProvider,
+  createTableFileProvider,
+  createTableStdinProvider,
 } from "@tooee/view"
 import { statSync } from "fs"
 import { launch as launchAsk } from "@tooee/ask"
 import { launch as launchChoose, createStdinChooseProvider } from "@tooee/choose"
-import {
-  launch as launchTable,
-  createFileProvider as createTableFileProvider,
-  createStdinProvider as createTableStdinProvider,
-} from "@tooee/table"
 
 const [command, ...args] = process.argv.slice(2)
 
@@ -83,7 +80,7 @@ switch (command) {
     const contentProvider = filePath
       ? createTableFileProvider(filePath)
       : createTableStdinProvider()
-    launchTable({ contentProvider })
+    launchView({ contentProvider })
     break
   }
 
