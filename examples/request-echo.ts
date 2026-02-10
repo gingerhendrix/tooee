@@ -1,48 +1,38 @@
 #!/usr/bin/env bun
 /**
- * request-echo.ts - Demonstrates @tooee/request with streaming response
+ * request-echo.ts - Demonstrates streaming content with @tooee/view
  *
  * This example shows:
- * - Creating a RequestContentProvider with async streaming
- * - The submit() method returns an AsyncIterable<RequestChunk>
+ * - Creating a ContentProvider with async streaming via load()
+ * - Yielding ContentChunk objects to progressively build content
  * - Simulating streaming with character-by-character delay
- * - Using initialInput to pre-fill the input field
  *
  * Run: bun examples/request-echo.ts
- * Controls: Type input, Enter to submit, q quit, t/T cycle themes
+ * Controls: q quit, t/T cycle themes
  */
 
-import { launch, type RequestContentProvider, type RequestChunk } from "@tooee/request"
+import { launch, type ContentProvider, type ContentChunk } from "@tooee/view"
 
 // Helper to create a delay
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// Create a streaming content provider that echoes input
-const contentProvider: RequestContentProvider = {
-  // submit() must return an AsyncIterable that yields RequestChunk objects
-  async *submit(input: string): AsyncIterable<RequestChunk> {
-    // Simulate processing delay
-    yield { delta: "Processing: " }
+// Create a streaming content provider
+const contentProvider: ContentProvider = {
+  async *load(): AsyncIterable<ContentChunk> {
+    yield { type: "append", data: "Processing: " }
     await sleep(200)
 
     // Stream the response character by character
-    const response = `You said: "${input}"\n\nThis is a mock streaming response demonstrating the Request app's ability to handle async iteration.`
+    const response =
+      'This is a mock streaming response demonstrating View\'s ability to handle async iteration via ContentProvider.load().'
 
     for (const char of response) {
-      yield { delta: char }
-      // Small delay between characters to simulate streaming
+      yield { type: "append", data: char }
       await sleep(20)
     }
 
-    // Add a final newline
-    yield { delta: "\n" }
+    yield { type: "append", data: "\n" }
   },
 }
 
-// Launch the request app
-launch({
-  contentProvider,
-
-  // Optional: pre-fill the input field
-  initialInput: "Hello, Tooee!",
-})
+launch({ contentProvider })

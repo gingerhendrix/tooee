@@ -5,7 +5,6 @@
   "dependencies": {
     "@tooee/ask": "workspace:*",
     "@tooee/choose": "workspace:*",
-    "@tooee/request": "workspace:*",
     "@tooee/view": "workspace:*"
   }
 }

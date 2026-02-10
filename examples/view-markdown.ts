@@ -39,9 +39,6 @@ tooee view README.md
 
 # Get user input
 tooee ask "What's your name?"
-
-# Stream a request
-tooee request
 \`\`\`
 
 ## Keyboard Shortcuts

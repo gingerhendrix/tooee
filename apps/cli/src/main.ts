@@ -21,7 +21,7 @@ function printUsage(): void {
   console.log("  ask [prompt]   Gather user input")
   console.log("  choose         Select items from a filterable list (stdin)")
   console.log("  table [file]   Display tabular data (CSV, TSV, JSON)")
-  console.log("  request        Input → streaming response (library only)")
+
   console.log("")
   console.log("Examples:")
   console.log("  tooee view README.md")
@@ -81,14 +81,6 @@ switch (command) {
       ? createTableFileProvider(filePath)
       : createTableStdinProvider()
     launchView({ contentProvider })
-    break
-  }
-
-  case "request": {
-    console.error(
-      "tooee request requires a content provider. Use as a library: import { launch } from '@tooee/request'",
-    )
-    process.exit(1)
     break
   }
 
