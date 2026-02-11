@@ -87,9 +87,8 @@ describe("theme picker", () => {
     await pressKey(testSetup, "t")
     expect(testSetup.captureCharFrame()).toContain("open:true")
 
-    // Navigate up to preview a different theme (zenburn is last alphabetically,
-    // so down does nothing — navigate up instead)
-    await pressArrow(testSetup, "up")
+    // Navigate down to preview a different theme
+    await pressArrow(testSetup, "down")
     const afterNav = testSetup.captureCharFrame()
     const previewedTheme = afterNav.match(/active:(\S+)/)?.[1]
     // Theme should have changed during preview
@@ -108,8 +107,8 @@ describe("theme picker", () => {
     await pressKey(testSetup, "t")
     expect(testSetup.captureCharFrame()).toContain("open:true")
 
-    // Navigate up to a different theme (zenburn is last alphabetically)
-    await pressArrow(testSetup, "up")
+    // Navigate down to a different theme
+    await pressArrow(testSetup, "down")
 
     // Get the previewed theme before confirming
     const previewFrame = testSetup.captureCharFrame()
