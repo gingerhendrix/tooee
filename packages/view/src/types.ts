@@ -6,6 +6,7 @@ export type ContentFormat = Content["format"]
 
 interface BaseContent {
   title?: string
+  getTextContent?: () => string
 }
 
 export interface MarkdownContent extends BaseContent {
@@ -64,6 +65,10 @@ export type ViewContentProvider = ContentProvider
 export type { ColumnDef, TableRow } from "@tooee/renderers"
 
 export function getTextContent(content: Content): string {
+  if (content.getTextContent) {
+    return content.getTextContent()
+  }
+
   switch (content.format) {
     case "markdown":
       return content.markdown
