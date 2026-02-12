@@ -26,6 +26,19 @@ const headers = [
   "Language",
 ]
 
+const columnKeys = [
+  "title",
+  "director",
+  "year",
+  "genre",
+  "rating",
+  "runtime",
+  "budget",
+  "boxOffice",
+  "country",
+  "language",
+]
+
 const rows = [
   ["The Shawshank Redemption", "Frank Darabont", "1994", "Drama", "9.3", "142 min", "$25M", "$58.3M", "USA", "English"],
   ["The Godfather", "Francis Ford Coppola", "1972", "Crime/Drama", "9.2", "175 min", "$6M", "$250M", "USA", "English/Italian"],
@@ -49,14 +62,25 @@ const rows = [
   ["Whiplash", "Damien Chazelle", "2014", "Drama/Music", "8.5", "106 min", "$3.3M", "$49M", "USA", "English"],
 ]
 
-// Serialize as TSV for the view body
-const body = [headers.join("\t"), ...rows.map((r) => r.join("\t"))].join("\n")
+const columns = headers.map((header, index) => ({
+  key: columnKeys[index],
+  header,
+}))
+
+const tableRows = rows.map((row) => {
+  const record: Record<string, string> = {}
+  columnKeys.forEach((key, index) => {
+    record[key] = row[index] ?? ""
+  })
+  return record
+})
 
 const contentProvider: ContentProvider = {
   load: (): Content => ({
     title: "Movie Database",
-    body,
     format: "table",
+    columns,
+    rows: tableRows,
   }),
 }
 

@@ -18,7 +18,7 @@ const contentProvider: ContentProvider = {
   load: () => ({
     title: "Tooee Example",
     format: "markdown",
-    body: `# Welcome to Tooee
+    markdown: `# Welcome to Tooee
 
 Tooee is a collection of **terminal micro-apps** built on OpenTUI.
 

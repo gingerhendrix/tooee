@@ -11,4 +11,7 @@ export type {
   ContentProvider,
   ViewContent,
   ViewContentProvider,
+  ColumnDef,
+  TableRow,
 } from "./types.ts"
+export { getTextContent } from "./types.ts"

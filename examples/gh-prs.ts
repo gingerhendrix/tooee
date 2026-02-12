@@ -34,32 +34,59 @@ const contentProvider: ContentProvider = {
     const text = await new Response(proc.stdout).text()
     const exitCode = await proc.exited
 
-    const headers = ["#", "Title", "Author", "State", "Created"]
+    const columns = [
+      { key: "number", header: "#" },
+      { key: "title", header: "Title" },
+      { key: "author", header: "Author" },
+      { key: "state", header: "State" },
+      { key: "created", header: "Created" },
+    ]
 
     if (exitCode !== 0) {
-      const body = [headers.join("\t"), ["Error", "Failed to fetch PRs. Is `gh` installed and authenticated?", "", "", ""].join("\t")].join("\n")
-      return { body, format: "table", title: "Pull Requests" }
+      return {
+        format: "table",
+        title: "Pull Requests",
+        columns,
+        rows: [
+          {
+            number: "Error",
+            title: "Failed to fetch PRs. Is `gh` installed and authenticated?",
+            author: "",
+            state: "",
+            created: "",
+          },
+        ],
+      }
     }
 
     const prs: PR[] = JSON.parse(text || "[]")
 
     if (prs.length === 0) {
-      const body = [headers.join("\t"), ["Info", "No open pull requests", "", "", ""].join("\t")].join("\n")
-      return { body, format: "table", title: "Pull Requests" }
+      return {
+        format: "table",
+        title: "Pull Requests",
+        columns,
+        rows: [
+          {
+            number: "Info",
+            title: "No open pull requests",
+            author: "",
+            state: "",
+            created: "",
+          },
+        ],
+      }
     }
 
-    const rows = prs.map((pr) =>
-      [
-        String(pr.number),
-        pr.title.slice(0, 60) + (pr.title.length > 60 ? "..." : ""),
-        pr.author.login,
-        pr.state,
-        new Date(pr.createdAt).toLocaleDateString(),
-      ].join("\t"),
-    )
+    const rows = prs.map((pr) => ({
+      number: String(pr.number),
+      title: pr.title.length > 60 ? `${pr.title.slice(0, 60)}...` : pr.title,
+      author: pr.author.login,
+      state: pr.state,
+      created: new Date(pr.createdAt).toLocaleDateString(),
+    }))
 
-    const body = [headers.join("\t"), ...rows].join("\n")
-    return { body, format: "table", title: "Pull Requests" }
+    return { format: "table", columns, rows, title: "Pull Requests" }
   },
 }
 

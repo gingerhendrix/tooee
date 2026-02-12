@@ -4,7 +4,7 @@
  *
  * This example shows:
  * - Creating a ViewContentProvider with inline table data
- * - Serializing headers and rows as TSV for the view body
+ * - Defining columns and rows inline
  * - Navigation and scrolling through table data
  *
  * Run: bun examples/table-inline.ts
@@ -14,6 +14,7 @@
 import { launch, type ContentProvider, type Content } from "@tooee/view"
 
 const headers = ["Language", "Year", "Creator", "Paradigm"]
+const columnKeys = ["language", "year", "creator", "paradigm"] as const
 const rows = [
   ["TypeScript", "2012", "Anders Hejlsberg", "Multi-paradigm"],
   ["Rust", "2010", "Graydon Hoare", "Multi-paradigm"],
@@ -27,14 +28,27 @@ const rows = [
   ["Elixir", "2011", "Jose Valim", "Functional"],
 ]
 
-// Serialize as TSV for the view body
-const body = [headers.join("\t"), ...rows.map((r) => r.join("\t"))].join("\n")
+const columns = headers.map((header, index) => ({
+  key: columnKeys[index],
+  header,
+}))
+
+const tableRows = rows.map((row) => {
+  const record: Record<(typeof columnKeys)[number], string> = {
+    language: row[0] ?? "",
+    year: row[1] ?? "",
+    creator: row[2] ?? "",
+    paradigm: row[3] ?? "",
+  }
+  return record
+})
 
 const contentProvider: ContentProvider = {
   load: (): Content => ({
     title: "Programming Languages",
-    body,
     format: "table",
+    columns,
+    rows: tableRows,
   }),
 }
 

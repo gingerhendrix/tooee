@@ -4,6 +4,23 @@ import { ThemeSwitcherProvider } from "@tooee/themes"
 import { Table } from "../src/Table.tsx"
 import { computeColumnWidths, truncate, isNumeric } from "../src/Table.tsx"
 
+function createColumns(headers: string[]) {
+  return headers.map((header, index) => ({
+    key: `col_${index}`,
+    header,
+  }))
+}
+
+function createRows(columns: ReturnType<typeof createColumns>, values: string[][]) {
+  return values.map((row) => {
+    const record: Record<string, string> = {}
+    columns.forEach((column, index) => {
+      record[column.key] = row[index] ?? ""
+    })
+    return record
+  })
+}
+
 let testSetup: Awaited<ReturnType<typeof testRender>>
 
 afterEach(() => {
@@ -15,11 +32,11 @@ describe("Table component", () => {
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <Table
-          headers={["Name", "Age", "City"]}
-          rows={[
+          columns={createColumns(["Name", "Age", "City"])}
+          rows={createRows(createColumns(["Name", "Age", "City"]), [
             ["Alice", "30", "London"],
             ["Bob", "25", "Paris"],
-          ]}
+          ])}
           maxWidth={60}
         />
       </ThemeSwitcherProvider>,
@@ -40,11 +57,11 @@ describe("Table component", () => {
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <Table
-          headers={["ID", "Description"]}
-          rows={[
+          columns={createColumns(["ID", "Description"])}
+          rows={createRows(createColumns(["ID", "Description"]), [
             ["1", "A short description"],
             ["2", "Another description that is longer"],
-          ]}
+          ])}
           maxWidth={50}
         />
       </ThemeSwitcherProvider>,
@@ -60,8 +77,8 @@ describe("Table component", () => {
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <Table
-          headers={["Col"]}
-          rows={[["This is a very long string that should be truncated when displayed"]]}
+          columns={createColumns(["Col"])}
+          rows={createRows(createColumns(["Col"]), [["This is a very long string that should be truncated when displayed"]])}
           maxWidth={20}
         />
       </ThemeSwitcherProvider>,
@@ -76,12 +93,12 @@ describe("Table component", () => {
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <Table
-          headers={["Name", "Score"]}
-          rows={[
+          columns={createColumns(["Name", "Score"])}
+          rows={createRows(createColumns(["Name", "Score"]), [
             ["Alice", "100"],
             ["Bob", "95"],
             ["Carol", "87"],
-          ]}
+          ])}
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,
@@ -98,12 +115,12 @@ describe("Table component", () => {
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <Table
-          headers={["Name", "Age", "City"]}
-          rows={[
+          columns={createColumns(["Name", "Age", "City"])}
+          rows={createRows(createColumns(["Name", "Age", "City"]), [
             ["Alice", "30", "London"],
             ["Bob", "25", "Paris"],
             ["Carol", "28", "Berlin"],
-          ]}
+          ])}
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,

@@ -11,6 +11,7 @@ interface CodeViewProps {
   selectionEnd?: number
   matchingLines?: Set<number>
   currentMatchLine?: number
+  toggledLines?: Set<number>
 }
 
 export function CodeView({
@@ -22,6 +23,7 @@ export function CodeView({
   selectionEnd,
   matchingLines,
   currentMatchLine,
+  toggledLines,
 }: CodeViewProps) {
   const { syntax, theme } = useTheme()
   const lineNumRef = useRef<LineNumberRenderable>(null)
@@ -50,6 +52,18 @@ export function CodeView({
       }
     }
 
+    if (toggledLines) {
+      for (const line of toggledLines) {
+        const isSelected =
+          selectionStart != null && selectionEnd != null && line >= selectionStart && line <= selectionEnd
+        if (line === cursor || isSelected) continue
+        ref.setLineColor(line, {
+          content: theme.backgroundPanel,
+          gutter: theme.backgroundPanel,
+        })
+      }
+    }
+
     // Cursor line (overwrites selection color on cursor line)
     if (cursor != null) {
       ref.setLineColor(cursor, { content: theme.cursorLine, gutter: theme.cursorLine })
@@ -65,7 +79,16 @@ export function CodeView({
           : {}),
       })
     }
-  }, [content, cursor, selectionStart, selectionEnd, matchingLines, currentMatchLine, theme])
+  }, [
+    content,
+    cursor,
+    selectionStart,
+    selectionEnd,
+    matchingLines,
+    currentMatchLine,
+    toggledLines,
+    theme,
+  ])
 
   const codeElement = <code content={content} filetype={language} syntaxStyle={syntax} />
 

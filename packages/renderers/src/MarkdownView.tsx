@@ -10,6 +10,7 @@ interface MarkdownViewProps {
   selectedBlocks?: { start: number; end: number }
   matchingBlocks?: Set<number>
   currentMatchBlock?: number
+  toggledBlocks?: Set<number>
 }
 
 export function MarkdownView({
@@ -18,6 +19,7 @@ export function MarkdownView({
   selectedBlocks,
   matchingBlocks,
   currentMatchBlock,
+  toggledBlocks,
 }: MarkdownViewProps) {
   const { theme, syntax } = useTheme()
   const tokens = marked.lexer(content)
@@ -33,6 +35,7 @@ export function MarkdownView({
           selectedBlocks,
           matchingBlocks,
           currentMatchBlock,
+          toggledBlocks,
         )
         const blockContent = (
           <TokenRenderer key={index} token={token} theme={theme} syntax={syntax} />
@@ -64,9 +67,11 @@ function getBlockStyle(
   selectedBlocks?: { start: number; end: number },
   matchingBlocks?: Set<number>,
   currentMatchBlock?: number,
+  toggledBlocks?: Set<number>,
 ): { accent: string | null; background: string | null } {
-  // Priority: cursor > current match > match > selection
+  // Priority: cursor > toggled > current match > match > selection
   if (activeBlock === index) return { accent: theme.primary, background: theme.backgroundElement }
+  if (toggledBlocks?.has(index)) return { accent: theme.secondary, background: theme.backgroundPanel }
   if (currentMatchBlock === index) return { accent: theme.accent, background: null }
   if (matchingBlocks?.has(index)) return { accent: theme.warning, background: null }
   if (selectedBlocks && index >= selectedBlocks.start && index <= selectedBlocks.end) {
@@ -96,7 +101,7 @@ function TokenRenderer({
     case "list":
       return <ListRenderer token={token as Tokens.List} theme={theme} />
     case "table":
-      return <MarkdownTableRenderer token={token as Tokens.Table} theme={theme} />
+      return <MarkdownTableRenderer token={token as Tokens.Table} />
     case "hr":
       return <HorizontalRule theme={theme} />
     case "space":
@@ -268,16 +273,31 @@ function ListItemRenderer({
   )
 }
 
-function MarkdownTableRenderer({
-  token,
-  theme: _theme,
-}: {
-  token: Tokens.Table
-  theme: ResolvedTheme
-}) {
-  const headers = token.header.map((cell) => getPlainText(cell.tokens))
-  const rows = token.rows.map((row) => row.map((cell) => getPlainText(cell.tokens)))
-  return <Table headers={headers} rows={rows} />
+function MarkdownTableRenderer({ token }: { token: Tokens.Table }) {
+  const seen = new Map<string, number>()
+  const columns = token.header.map((cell, index) => {
+    const header = getPlainText(cell.tokens)
+    const trimmed = header.trim()
+    const base = trimmed || `column_${index + 1}`
+    const count = seen.get(base) ?? 0
+    seen.set(base, count + 1)
+    const key = count === 0 ? base : `${base}_${count + 1}`
+    return {
+      key,
+      header: trimmed || undefined,
+    }
+  })
+  const rows = token.rows.map((row) => {
+    const record: Record<string, string> = {}
+    row.forEach((cell, index) => {
+      const column = columns[index]
+      if (column) {
+        record[column.key] = getPlainText(cell.tokens)
+      }
+    })
+    return record
+  })
+  return <Table columns={columns} rows={rows} />
 }
 
 function HorizontalRule({ theme }: { theme: ResolvedTheme }) {

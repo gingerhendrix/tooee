@@ -23,25 +23,25 @@ const contentProvider: ContentProvider = {
 
     if (exitCode !== 0) {
       return {
-        body: "Not a git repository or git not installed",
         format: "text" as const,
+        text: "Not a git repository or git not installed",
         title: "Git Diff",
       }
     }
 
     if (!text.trim()) {
       return {
-        body: staged
+        format: "text" as const,
+        text: staged
           ? "No staged changes. Stage files with `git add`."
           : "No unstaged changes. Working tree is clean.",
-        format: "text" as const,
         title: "Git Diff",
       }
     }
 
     return {
-      body: text,
       format: "code" as const,
+      code: text,
       language: "diff",
       title: staged ? "Staged Changes" : "Unstaged Changes",
     }

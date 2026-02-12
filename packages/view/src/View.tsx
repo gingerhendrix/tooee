@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
-import { MarkdownView, CodeView, ImageView, Table, parseAuto } from "@tooee/renderers"
-import type { TableContent } from "@tooee/renderers"
+import { MarkdownView, CodeView, ImageView, Table } from "@tooee/renderers"
 import { AppLayout } from "@tooee/layout"
 import { useTheme } from "@tooee/themes"
 import { useHasOverlay } from "@tooee/overlays"
@@ -16,7 +15,13 @@ import {
 } from "@tooee/shell"
 import { useConfig } from "@tooee/config"
 import { marked } from "marked"
-import type { Content, ContentProvider, ContentChunk } from "./types.ts"
+import {
+  getTextContent,
+  type Content,
+  type ContentProvider,
+  type ContentChunk,
+  type ContentFormat,
+} from "./types.ts"
 
 interface ViewProps {
   contentProvider: ContentProvider
@@ -25,6 +30,62 @@ interface ViewProps {
 
 function isAsyncIterable(value: unknown): value is AsyncIterable<ContentChunk> {
   return value != null && typeof value === "object" && Symbol.asyncIterator in value
+}
+
+function createEmptyContent(format: ContentFormat, title?: string): Content {
+  switch (format) {
+    case "markdown":
+      return { format, markdown: "", title }
+    case "code":
+      return { format, code: "", title }
+    case "text":
+      return { format, text: "", title }
+    case "image":
+      return { format, src: "", title }
+    case "table":
+      return { format, columns: [], rows: [], title }
+    default:
+      return { format: "markdown", markdown: "", title }
+  }
+}
+
+function ensureContentFormat<F extends ContentFormat>(
+  current: Content | null,
+  format: F,
+  title?: string,
+): Extract<Content, { format: F }> {
+  if (!current || current.format !== format) {
+    return createEmptyContent(format, title) as Extract<Content, { format: F }>
+  }
+  return current as Extract<Content, { format: F }>
+}
+
+function applyContentChunk(current: Content | null, chunk: ContentChunk, title?: string): Content {
+  switch (chunk.type) {
+    case "replace":
+      return chunk.content
+    case "append":
+      if (chunk.format === "markdown") {
+        const target = ensureContentFormat(current, "markdown", title)
+        return { ...target, markdown: target.markdown + chunk.data }
+      }
+      if (chunk.format === "code") {
+        const target = ensureContentFormat(current, "code", title)
+        return {
+          ...target,
+          code: target.code + chunk.data,
+          language: chunk.language ?? target.language,
+        }
+      }
+      {
+        const target = ensureContentFormat(current, "text", title)
+        return { ...target, text: target.text + chunk.data }
+      }
+    case "patch":
+      return chunk.apply(current)
+    default:
+      return current ?? createEmptyContent("markdown", title)
+  }
 }
 
 export function View({ contentProvider, actions }: ViewProps) {
@@ -36,78 +97,90 @@ export function View({ contentProvider, actions }: ViewProps) {
   const scrollRef = useRef<ScrollBoxRenderable>(null)
 
   useEffect(() => {
-    const result = contentProvider.load()
+    setError(null)
+    setStreaming(false)
+    const loaded = contentProvider.load()
 
-    if (isAsyncIterable(result)) {
-      const format = contentProvider.format ?? "markdown"
+    if (isAsyncIterable(loaded)) {
+      const fallbackFormat = contentProvider.format ?? "markdown"
       const title = contentProvider.title
-      setContent({ body: "", format, title })
+      let cancelled = false
+      let current: Content | null = createEmptyContent(fallbackFormat, title)
+      setContent(current)
       setStreaming(true)
-      let body = ""
+
       ;(async () => {
         try {
-          for await (const chunk of result) {
-            if (chunk.type === "append") {
-              body += chunk.data
-            } else {
-              body = chunk.data
-            }
-            setContent((prev) => (prev ? { ...prev, body } : { body, format, title }))
+          for await (const chunk of loaded) {
+            if (cancelled) break
+            current = applyContentChunk(current, chunk, title)
+            setContent(current)
+          }
+        } catch (error) {
+          if (!cancelled && error instanceof Error) {
+            setError(error.message)
           }
         } finally {
-          setStreaming(false)
+          if (!cancelled) {
+            setStreaming(false)
+          }
         }
       })()
-      return
+
+      return () => {
+        cancelled = true
+      }
     }
 
-    if (result instanceof Promise) {
-      result.then(setContent).catch((e: Error) => setError(e.message))
-      return
+    if (loaded instanceof Promise) {
+      let active = true
+      loaded
+        .then((value) => {
+          if (active) setContent(value)
+        })
+        .catch((error: Error) => {
+          if (active) setError(error.message)
+        })
+      return () => {
+        active = false
+      }
     }
 
-    setContent(result)
+    setContent(loaded)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contentProvider])
 
-  // Parse table content when format is "table"
-  const tableData = useMemo<TableContent | null>(() => {
-    if (!content || content.format !== "table") return null
-    return parseAuto(content.body)
-  }, [content])
-
-  // Visual line offset for table: lines 0-2 are border/header/separator, data starts at line 3
   const TABLE_VISUAL_HEADER_OFFSET = 3
-  // Search text offset: getText() has header at line 0, data rows start at line 1
   const TABLE_SEARCH_HEADER_OFFSET = 1
+
+  const textContent = useMemo(() => (content ? getTextContent(content) : ""), [content])
 
   const lineCount = useMemo(() => {
     if (!content) return 0
-    if (content.format === "table" && tableData) {
-      return tableData.rows.length + 3 // header + borders + rows
+    if (content.format === "table") {
+      return content.rows.length + 3
     }
-    return content.body.split("\n").length
-  }, [content, tableData])
+    return textContent.split("\n").length
+  }, [content, textContent])
 
-  // For markdown: compute block count and block-to-line mapping
-  // For table: each row is a block
   const { blockCount, blockLineMap } = useMemo(() => {
     if (!content) return { blockCount: undefined, blockLineMap: undefined }
 
-    if (content.format === "table" && tableData) {
-      const map = tableData.rows.map((_, i) => i + TABLE_VISUAL_HEADER_OFFSET)
-      return { blockCount: tableData.rows.length, blockLineMap: map }
+    if (content.format === "table") {
+      const map = content.rows.map((_, i) => i + TABLE_VISUAL_HEADER_OFFSET)
+      return { blockCount: content.rows.length, blockLineMap: map }
     }
 
-    if (content.format !== "markdown")
+    if (content.format !== "markdown") {
       return { blockCount: undefined, blockLineMap: undefined }
+    }
 
-    const tokens = marked.lexer(content.body)
+    const tokens = marked.lexer(content.markdown)
     const blocks = tokens.filter((t) => t.type !== "space")
     const lineMap: number[] = []
     let lineOffset = 0
     for (const token of tokens) {
       if (token.type === "space") {
-        // Count lines in space tokens
         if ("raw" in token && typeof token.raw === "string") {
           lineOffset += token.raw.split("\n").length - 1
         }
@@ -119,19 +192,11 @@ export function View({ contentProvider, actions }: ViewProps) {
       }
     }
     return { blockCount: blocks.length, blockLineMap: lineMap }
-  }, [content, tableData])
+  }, [content])
 
   const nav = useModalNavigationCommands({
     totalLines: lineCount,
-    getText: () => {
-      if (!content) return undefined
-      if (content.format === "table" && tableData) {
-        const headerLine = tableData.headers.join("\t")
-        const rowLines = tableData.rows.map((row) => row.join("\t"))
-        return [headerLine, ...rowLines].join("\n")
-      }
-      return content.body
-    },
+    getText: () => (content ? textContent : undefined),
     blockCount,
     blockLineMap,
     searchLineOffset: content?.format === "table" ? TABLE_SEARCH_HEADER_OFFSET : 0,
@@ -146,15 +211,7 @@ export function View({ contentProvider, actions }: ViewProps) {
   const { name: themeName } = useThemeCommands()
   useQuitCommand()
   useCopyCommand({
-    getText: () => {
-      if (!content) return undefined
-      if (content.format === "table" && tableData) {
-        const headerLine = tableData.headers.join("\t")
-        const rowLines = tableData.rows.map((row) => row.join("\t"))
-        return [headerLine, ...rowLines].join("\n")
-      }
-      return content.body
-    },
+    getText: () => (content ? textContent : undefined),
   })
 
   const _palette = useCommandPalette()
@@ -212,6 +269,21 @@ export function View({ contentProvider, actions }: ViewProps) {
     return row >= 0 ? row : undefined
   }, [content?.format, currentMatchLine])
 
+  const toggledBlocks = useMemo(() => {
+    if (content?.format !== "markdown" || nav.toggledIndices.size === 0) return undefined
+    return new Set(nav.toggledIndices)
+  }, [content?.format, nav.toggledIndices])
+
+  const toggledRows = useMemo(() => {
+    if (content?.format !== "table" || nav.toggledIndices.size === 0) return undefined
+    return new Set(nav.toggledIndices)
+  }, [content?.format, nav.toggledIndices])
+
+  const toggledLines = useMemo(() => {
+    if (!content || (content.format !== "code" && content.format !== "text")) return undefined
+    return nav.toggledIndices.size > 0 ? new Set(nav.toggledIndices) : undefined
+  }, [content, nav.toggledIndices])
+
   if (error) {
     return (
       <box style={{ flexDirection: "column" }}>
@@ -238,7 +310,7 @@ export function View({ contentProvider, actions }: ViewProps) {
       case "markdown":
         return (
           <MarkdownView
-            content={content.body}
+            content={content.markdown}
             activeBlock={cursorLine}
             selectedBlocks={
               selectionStart != null && selectionEnd != null
@@ -247,12 +319,13 @@ export function View({ contentProvider, actions }: ViewProps) {
             }
             matchingBlocks={matchingBlocks}
             currentMatchBlock={currentMatchBlock}
+            toggledBlocks={toggledBlocks}
           />
         )
       case "code":
         return (
           <CodeView
-            content={content.body}
+            content={content.code}
             language={content.language}
             showLineNumbers={gutterConfig ?? true}
             cursor={cursorLine}
@@ -260,33 +333,35 @@ export function View({ contentProvider, actions }: ViewProps) {
             selectionEnd={selectionEnd}
             matchingLines={matchingLinesSet}
             currentMatchLine={currentMatchLine}
+            toggledLines={toggledLines}
           />
         )
       case "text":
         return (
           <CodeView
-            content={content.body}
+            content={content.text}
             showLineNumbers={gutterConfig ?? false}
             cursor={cursorLine}
             selectionStart={selectionStart}
             selectionEnd={selectionEnd}
             matchingLines={matchingLinesSet}
             currentMatchLine={currentMatchLine}
+            toggledLines={toggledLines}
           />
         )
       case "image":
-        return <ImageView src={content.body} />
+        return <ImageView src={content.src} />
       case "table":
-        if (!tableData) return null
         return (
           <Table
-            headers={tableData.headers}
-            rows={tableData.rows}
+            columns={content.columns}
+            rows={content.rows}
             cursor={cursorLine}
             selectionStart={selectionStart}
             selectionEnd={selectionEnd}
             matchingRows={matchingRowsSet}
             currentMatchRow={currentMatchRow}
+            toggledRows={toggledRows}
           />
         )
     }
@@ -297,10 +372,10 @@ export function View({ contentProvider, actions }: ViewProps) {
   const statusItems = [
     { label: "Theme:", value: themeName },
     { label: "Format:", value: content.format },
-    ...(content.format === "table" && tableData
+    ...(content.format === "table"
       ? [
-          { label: "Rows:", value: String(tableData.rows.length) },
-          { label: "Cols:", value: String(tableData.headers.length) },
+          { label: "Rows:", value: String(content.rows.length) },
+          { label: "Cols:", value: String(content.columns.length) },
         ]
       : [{ label: "Lines:", value: String(lineCount) }]),
     { label: "Mode:", value: nav.mode },

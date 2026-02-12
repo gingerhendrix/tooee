@@ -61,8 +61,8 @@ async function viewIssue(issueNumber: string) {
       const text = await new Response(proc.stdout).text()
 
       return {
-        body: text,
         format: "markdown" as const,
+        markdown: text,
         title: `Issue #${issueNumber}`,
       }
     },

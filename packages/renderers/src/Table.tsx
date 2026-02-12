@@ -1,9 +1,10 @@
 import { useTerminalDimensions } from "@opentui/react"
 import { useTheme } from "@tooee/themes"
+import type { ColumnDef, TableRow } from "./table-types.ts"
 
 export interface TableProps {
-  headers: string[]
-  rows: string[][]
+  columns: ColumnDef[]
+  rows: TableRow[]
   /** Maximum width for the table. If not provided, uses terminal width. */
   maxWidth?: number
   /** Minimum width for any column (default: 4) */
@@ -17,6 +18,7 @@ export interface TableProps {
   selectionEnd?: number
   matchingRows?: Set<number>
   currentMatchRow?: number
+  toggledRows?: Set<number>
 }
 
 const PADDING = 1
@@ -144,8 +146,20 @@ function buildDataLine(cells: string[], widths: number[], alignments: boolean[])
   return "│" + parts.join("│") + "│"
 }
 
+function formatCellValue(value: unknown): string {
+  if (value == null) return ""
+  if (typeof value === "string") return value
+  if (typeof value === "number" || typeof value === "boolean") return String(value)
+  if (value instanceof Date) return value.toISOString()
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return String(value)
+  }
+}
+
 export function Table({
-  headers,
+  columns,
   rows,
   maxWidth,
   minColumnWidth = DEFAULT_MIN_COL_WIDTH,
@@ -156,6 +170,7 @@ export function Table({
   selectionEnd,
   matchingRows,
   currentMatchRow,
+  toggledRows,
 }: TableProps) {
   const { theme } = useTheme()
   const { width: terminalWidth } = useTerminalDimensions()
@@ -163,13 +178,20 @@ export function Table({
   // Use terminal width minus margins (1 on each side) if maxWidth not provided
   const effectiveMaxWidth = maxWidth ?? terminalWidth - 2
 
-  const colWidths = computeColumnWidths(headers, rows, effectiveMaxWidth, {
+  const headers = columns.map((column) => column.header ?? column.key)
+  const normalizedRows = rows.map((row) =>
+    columns.map((column) => formatCellValue(row[column.key])),
+  )
+
+  const colWidths = computeColumnWidths(headers, normalizedRows, effectiveMaxWidth, {
     minColumnWidth,
     maxColumnWidth,
     sampleSize,
   })
-  const alignments = headers.map((_, col) => {
-    const sampleValues = rows.slice(0, 10).map((row) => row[col] ?? "")
+  const alignments = columns.map((column, colIdx) => {
+    if (column.align === "right") return true
+    if (column.align === "left") return false
+    const sampleValues = normalizedRows.slice(0, 10).map((row) => row[colIdx] ?? "")
     const numericCount = sampleValues.filter(isNumeric).length
     return numericCount > sampleValues.length / 2
   })
@@ -179,10 +201,7 @@ export function Table({
   const bottomBorder = buildBorderLine(colWidths, "└", "┴", "┘", "─")
 
   const headerLine = buildDataLine(headers, colWidths, alignments)
-  const dataLines = rows.map((row) => {
-    const cells = headers.map((_, col) => row[col] ?? "")
-    return buildDataLine(cells, colWidths, alignments)
-  })
+  const dataLines = normalizedRows.map((row) => buildDataLine(row, colWidths, alignments))
 
   const getRowStyle = (rowIndex: number): { fg?: string; bg?: string } => {
     const isCursor = cursor === rowIndex
@@ -193,6 +212,7 @@ export function Table({
       rowIndex <= selectionEnd
     const isMatch = matchingRows?.has(rowIndex)
     const isCurrentMatch = currentMatchRow === rowIndex
+    const isToggled = toggledRows?.has(rowIndex)
 
     let bg: string | undefined
     let fg: string | undefined = theme.text
@@ -200,6 +220,9 @@ export function Table({
     // Determine background: selection < cursor (cursor overwrites)
     if (isSelected) {
       bg = theme.selection
+    }
+    if (isToggled && !isCursor && !isSelected) {
+      bg = theme.backgroundPanel
     }
     if (isCursor) {
       bg = theme.cursorLine

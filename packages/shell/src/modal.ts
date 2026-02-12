@@ -15,6 +15,7 @@ export interface ModalNavigationState {
   scrollOffset: number
   cursor: Position | null
   selection: { start: Position; end: Position } | null
+  toggledIndices: Set<number>
   searchQuery: string
   searchActive: boolean
   setSearchQuery: (query: string) => void
@@ -49,6 +50,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   const [scrollOffset, setScrollOffset] = useState(0)
   const [cursor, setCursor] = useState<Position | null>(null)
   const [selectionAnchor, setSelectionAnchor] = useState<Position | null>(null)
+  const [toggledIndices, setToggledIndices] = useState<Set<number>>(new Set())
   const [searchQuery, setSearchQuery] = useState("")
   const [searchActive, setSearchActive] = useState(false)
   const [matchingLines, setMatchingLines] = useState<number[]>([])
@@ -106,6 +108,14 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     (value: number) => Math.max(0, Math.min(value, cursorMax)),
     [cursorMax],
   )
+
+  useEffect(() => {
+    setToggledIndices((prev) => {
+      const filtered = Array.from(prev).filter((index) => index <= cursorMax)
+      if (filtered.length === prev.size) return prev
+      return new Set(filtered)
+    })
+  }, [cursorMax])
 
   // When entering cursor mode, initialize cursor
   const prevMode = useRef(mode)
@@ -262,6 +272,26 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
         const next = clampCursor(c.line + 1)
         scrollToCursor(next)
         return { line: next, col: 0 }
+      })
+    },
+  })
+
+  useCommand({
+    id: "cursor-toggle",
+    title: "Toggle selection",
+    hotkey: "tab",
+    modes: ["cursor"],
+    handler: () => {
+      setToggledIndices((prev) => {
+        if (!cursor) return prev
+        const next = new Set(prev)
+        const idx = cursor.line
+        if (next.has(idx)) {
+          next.delete(idx)
+        } else {
+          next.add(idx)
+        }
+        return next
       })
     },
   })
@@ -424,6 +454,26 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   })
 
   useCommand({
+    id: "select-toggle",
+    title: "Toggle selection",
+    hotkey: "tab",
+    modes: ["select"],
+    handler: () => {
+      setToggledIndices((prev) => {
+        if (!cursor) return prev
+        const next = new Set(prev)
+        const idx = cursor.line
+        if (next.has(idx)) {
+          next.delete(idx)
+        } else {
+          next.add(idx)
+        }
+        return next
+      })
+    },
+  })
+
+  useCommand({
     id: "select-copy",
     title: "Copy selection",
     hotkey: "y",
@@ -532,6 +582,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     scrollOffset,
     cursor,
     selection,
+    toggledIndices,
     searchQuery,
     searchActive,
     setSearchQuery,

@@ -19,7 +19,7 @@ const contentProvider: ContentProvider = {
     title: "example.ts",
     format: "code",
     language: "typescript",
-    body: `/**
+    code: `/**
  * A simple reactive state management system
  */
 

@@ -1,6 +1,6 @@
 import { readdirSync, statSync } from "fs"
 import { join } from "path"
-import type { ViewContentProvider } from "./types.ts"
+import type { ContentProvider } from "./types.ts"
 import { createFileProvider } from "./default-provider.ts"
 
 const SUPPORTED_EXTENSIONS = new Set([
@@ -62,6 +62,6 @@ export function listDirectoryFiles(dirPath: string): DirectoryEntry[] {
   return files
 }
 
-export function createDirectoryFileProvider(filePath: string): ViewContentProvider {
+export function createDirectoryFileProvider(filePath: string): ContentProvider {
   return createFileProvider(filePath)
 }

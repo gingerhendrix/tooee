@@ -1,6 +1,7 @@
-import type { ViewContent, ViewContentProvider } from "./types.ts"
+import { parseAuto } from "@tooee/renderers"
+import type { Content, ContentProvider, ContentFormat } from "./types.ts"
 
-function detectFormat(filePath: string): { format: ViewContent["format"]; language?: string } {
+function detectFormat(filePath: string): { format: ContentFormat; language?: string } {
   const ext = filePath.split(".").pop()?.toLowerCase()
   if (!ext) return { format: "text" }
 
@@ -47,49 +48,63 @@ function detectFormat(filePath: string): { format: ViewContent["format"]; langua
   return { format: "text" }
 }
 
-export function createFileProvider(filePath: string): ViewContentProvider {
+export function createFileProvider(filePath: string): ContentProvider {
   return {
-    async load(): Promise<ViewContent> {
+    async load(): Promise<Content> {
       const { format, language } = detectFormat(filePath)
       const title = filePath.split("/").pop()
 
-      // For images, the body is the file path (ImageView handles loading)
       if (format === "image") {
-        return { body: filePath, format, title }
+        return { format: "image", src: filePath, title }
       }
 
       const file = Bun.file(filePath)
-      const body = await file.text()
-      return { body, format, language, title }
+      if (format === "table") {
+        const text = await file.text()
+        const parsed = parseAuto(text)
+        return { format: "table", columns: parsed.columns, rows: parsed.rows, title }
+      }
+      const text = await file.text()
+      switch (format) {
+        case "markdown":
+          return { format: "markdown", markdown: text, title }
+        case "code":
+          return { format: "code", code: text, language, title }
+        case "text":
+        default:
+          return { format: "text", text, title }
+      }
     },
   }
 }
 
-export function createStdinProvider(): ViewContentProvider {
+export function createStdinProvider(): ContentProvider {
   return {
-    async load(): Promise<ViewContent> {
-      const body = await new Response(Bun.stdin.stream() as unknown as ReadableStream).text()
-      return { body, format: "markdown", title: "stdin" }
+    async load(): Promise<Content> {
+      const text = await new Response(Bun.stdin.stream() as unknown as ReadableStream).text()
+      return { format: "markdown", markdown: text, title: "stdin" }
     },
   }
 }
 
-export function createTableFileProvider(filePath: string): ViewContentProvider {
+export function createTableFileProvider(filePath: string): ContentProvider {
   return {
-    async load(): Promise<ViewContent> {
+    async load(): Promise<Content> {
       const title = filePath.split("/").pop()
       const file = Bun.file(filePath)
-      const body = await file.text()
-      return { body, format: "table", title }
+      const text = await file.text()
+      const parsed = parseAuto(text)
+      return { format: "table", columns: parsed.columns, rows: parsed.rows, title }
     },
   }
 }
 
-export function createTableStdinProvider(): ViewContentProvider {
+export function createTableStdinProvider(): ContentProvider {
   return {
-    async load(): Promise<ViewContent> {
-      const body = await new Response(Bun.stdin.stream() as unknown as ReadableStream).text()
-      return { body, format: "table", title: "stdin" }
+    async load(): Promise<Content> {
+      const text = await new Response(Bun.stdin.stream() as unknown as ReadableStream).text()
+      const parsed = parseAuto(text)
+      return { format: "table", columns: parsed.columns, rows: parsed.rows, title: "stdin" }
     },
   }
 }

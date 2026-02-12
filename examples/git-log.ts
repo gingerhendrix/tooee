@@ -18,27 +18,59 @@ const contentProvider: ContentProvider = {
     const text = await new Response(proc.stdout).text()
     const exitCode = await proc.exited
 
-    const headers = ["Hash", "Message", "Author", "Date"]
+    const columns = [
+      { key: "hash", header: "Hash" },
+      { key: "message", header: "Message" },
+      { key: "author", header: "Author" },
+      { key: "date", header: "Date" },
+    ]
 
     if (exitCode !== 0) {
-      const body = [headers.join("\t"), ["Error", "Not a git repository or git not installed", "", ""].join("\t")].join("\n")
-      return { body, format: "table", title: "Git Log" }
+      return {
+        format: "table",
+        title: "Git Log",
+        columns,
+        rows: [
+          {
+            hash: "Error",
+            message: "Not a git repository or git not installed",
+            author: "",
+            date: "",
+          },
+        ],
+      }
     }
 
     const lines = text.trim().split("\n").filter(Boolean)
 
     if (lines.length === 0) {
-      const body = [headers.join("\t"), ["Info", "No commits found", "", ""].join("\t")].join("\n")
-      return { body, format: "table", title: "Git Log" }
+      return {
+        format: "table",
+        title: "Git Log",
+        columns,
+        rows: [
+          {
+            hash: "Info",
+            message: "No commits found",
+            author: "",
+            date: "",
+          },
+        ],
+      }
     }
 
     const rows = lines.map((line) => {
       const [hash, subject, author, date] = line.split("\x00")
-      return [hash, subject.slice(0, 60) + (subject.length > 60 ? "..." : ""), author, date].join("\t")
+      const preview = subject.length > 60 ? `${subject.slice(0, 60)}...` : subject
+      return {
+        hash,
+        message: preview,
+        author,
+        date,
+      }
     })
 
-    const body = [headers.join("\t"), ...rows].join("\n")
-    return { body, format: "table", title: "Git Log" }
+    return { format: "table", columns, rows, title: "Git Log" }
   },
 }
 
