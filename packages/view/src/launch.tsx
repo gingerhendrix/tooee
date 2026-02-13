@@ -2,11 +2,12 @@ import { launchCli } from "@tooee/shell"
 import type { ActionDefinition } from "@tooee/commands"
 import { View } from "./View.tsx"
 import { DirectoryView } from "./DirectoryView.tsx"
-import type { ContentProvider } from "./types.ts"
+import type { ContentProvider, ContentRenderer } from "./types.ts"
 
 export interface ViewLaunchOptions {
   contentProvider: ContentProvider
   actions?: ActionDefinition[]
+  renderers?: Record<string, ContentRenderer>
 }
 
 export interface DirectoryLaunchOptions {
@@ -19,6 +20,7 @@ export async function launch(options: ViewLaunchOptions): Promise<void> {
     <View
       contentProvider={options.contentProvider}
       actions={options.actions}
+      renderers={options.renderers}
     />,
   )
 }

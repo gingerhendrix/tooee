@@ -5,6 +5,8 @@
   "dependencies": {
     "@tooee/ask": "workspace:*",
     "@tooee/choose": "workspace:*",
-    "@tooee/view": "workspace:*"
+    "@tooee/themes": "workspace:*",
+    "@tooee/view": "workspace:*",
+    "react": "^19.2.4"
   }
 }

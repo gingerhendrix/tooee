@@ -2,7 +2,7 @@ import { useState, useMemo } from "react"
 import { useCommand } from "@tooee/commands"
 import { View } from "./View.tsx"
 import { listDirectoryFiles, type DirectoryEntry } from "./directory-provider.ts"
-import type { Content, ContentProvider } from "./types.ts"
+import type { AnyContent, ContentProvider } from "./types.ts"
 import { createFileProvider } from "./default-provider.ts"
 
 function createDirectoryFileProvider(
@@ -12,9 +12,9 @@ function createDirectoryFileProvider(
 ): ContentProvider {
   const inner = createFileProvider(entry.path)
   return {
-    async load(): Promise<Content> {
+    async load(): Promise<AnyContent> {
       const result = inner.load()
-      const content = result instanceof Promise ? await result : result as Content
+      const content = result instanceof Promise ? await result : result as AnyContent
       return {
         ...content,
         title: `${entry.name}  (${index + 1}/${total})`,

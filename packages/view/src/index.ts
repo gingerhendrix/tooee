@@ -6,12 +6,17 @@ export { createFileProvider, createStdinProvider, createTableFileProvider, creat
 export { listDirectoryFiles } from "./directory-provider.ts"
 export type { DirectoryEntry } from "./directory-provider.ts"
 export type {
+  AnyContent,
   Content,
   ContentChunk,
+  ContentFormat,
   ContentProvider,
+  ContentRenderer,
+  ContentRendererProps,
+  CustomContent,
   ViewContent,
   ViewContentProvider,
   ColumnDef,
   TableRow,
 } from "./types.ts"
-export { getTextContent } from "./types.ts"
+export { getTextContent, isBuiltinContent, isCustomContent } from "./types.ts"

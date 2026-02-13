@@ -1,4 +1,7 @@
+import type { ReactNode } from "react"
 import type { ColumnDef, TableRow } from "@tooee/renderers"
+
+// === Built-in content types ===
 
 export type Content = MarkdownContent | CodeContent | TextContent | ImageContent | TableContent
 
@@ -36,6 +39,32 @@ export interface TableContent extends BaseContent {
   rows: TableRow[]
 }
 
+// === Custom content ===
+
+export interface CustomContent<T = unknown> {
+  format: string
+  data: T
+  title?: string
+  getTextContent?: () => string
+}
+
+/** Content or custom content — used where custom formats are accepted */
+export type AnyContent = Content | CustomContent
+
+// === Custom renderers ===
+
+export interface ContentRendererProps {
+  content: CustomContent
+  lineCount: number
+  cursor?: number
+  selectionStart?: number
+  selectionEnd?: number
+}
+
+export type ContentRenderer = (props: ContentRendererProps) => ReactNode
+
+// === Streaming ===
+
 export type AppendableFormat = Extract<ContentFormat, "markdown" | "code" | "text">
 
 export type ContentChunk =
@@ -47,26 +76,46 @@ export type ContentChunk =
     }
   | {
       type: "replace"
-      content: Content
+      content: AnyContent
     }
   | {
       type: "patch"
-      apply: (current: Content | null) => Content
+      apply: (current: AnyContent | null) => AnyContent
     }
 
+// === Provider ===
+
 export interface ContentProvider {
-  load(): Content | Promise<Content> | AsyncIterable<ContentChunk>
-  format?: ContentFormat
+  load(): AnyContent | Promise<AnyContent> | AsyncIterable<ContentChunk>
+  format?: string
   title?: string
 }
+
+// === Compat aliases ===
 
 export type ViewContent = Content
 export type ViewContentProvider = ContentProvider
 export type { ColumnDef, TableRow } from "@tooee/renderers"
 
-export function getTextContent(content: Content): string {
+// === Utilities ===
+
+const BUILTIN_FORMATS: Set<string> = new Set(["markdown", "code", "text", "image", "table"])
+
+export function isBuiltinContent(content: AnyContent): content is Content {
+  return BUILTIN_FORMATS.has(content.format)
+}
+
+export function isCustomContent(content: AnyContent): content is CustomContent {
+  return !BUILTIN_FORMATS.has(content.format)
+}
+
+export function getTextContent(content: AnyContent): string {
   if (content.getTextContent) {
     return content.getTextContent()
+  }
+
+  if (isCustomContent(content)) {
+    return ""
   }
 
   switch (content.format) {

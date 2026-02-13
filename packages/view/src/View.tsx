@@ -17,22 +17,28 @@ import { useConfig } from "@tooee/config"
 import { marked } from "marked"
 import {
   getTextContent,
+  isBuiltinContent,
+  isCustomContent,
+  type AnyContent,
   type Content,
+  type ContentFormat,
   type ContentProvider,
   type ContentChunk,
-  type ContentFormat,
+  type ContentRenderer,
+  type CustomContent,
 } from "./types.ts"
 
 interface ViewProps {
   contentProvider: ContentProvider
   actions?: ActionDefinition[]
+  renderers?: Record<string, ContentRenderer>
 }
 
 function isAsyncIterable(value: unknown): value is AsyncIterable<ContentChunk> {
   return value != null && typeof value === "object" && Symbol.asyncIterator in value
 }
 
-function createEmptyContent(format: ContentFormat, title?: string): Content {
+function createEmptyContent(format: string, title?: string): AnyContent {
   switch (format) {
     case "markdown":
       return { format, markdown: "", title }
@@ -45,12 +51,12 @@ function createEmptyContent(format: ContentFormat, title?: string): Content {
     case "table":
       return { format, columns: [], rows: [], title }
     default:
-      return { format: "markdown", markdown: "", title }
+      return { format, data: undefined, title } as CustomContent
   }
 }
 
 function ensureContentFormat<F extends ContentFormat>(
-  current: Content | null,
+  current: AnyContent | null,
   format: F,
   title?: string,
 ): Extract<Content, { format: F }> {
@@ -60,7 +66,11 @@ function ensureContentFormat<F extends ContentFormat>(
   return current as Extract<Content, { format: F }>
 }
 
-function applyContentChunk(current: Content | null, chunk: ContentChunk, title?: string): Content {
+function applyContentChunk(
+  current: AnyContent | null,
+  chunk: ContentChunk,
+  title?: string,
+): AnyContent {
   switch (chunk.type) {
     case "replace":
       return chunk.content
@@ -88,10 +98,10 @@ function applyContentChunk(current: Content | null, chunk: ContentChunk, title?:
   }
 }
 
-export function View({ contentProvider, actions }: ViewProps) {
+export function View({ contentProvider, actions, renderers }: ViewProps) {
   const { theme } = useTheme()
   const config = useConfig()
-  const [content, setContent] = useState<Content | null>(null)
+  const [content, setContent] = useState<AnyContent | null>(null)
   const [streaming, setStreaming] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const scrollRef = useRef<ScrollBoxRenderable>(null)
@@ -105,7 +115,7 @@ export function View({ contentProvider, actions }: ViewProps) {
       const fallbackFormat = contentProvider.format ?? "markdown"
       const title = contentProvider.title
       let cancelled = false
-      let current: Content | null = createEmptyContent(fallbackFormat, title)
+      let current: AnyContent | null = createEmptyContent(fallbackFormat, title)
       setContent(current)
       setStreaming(true)
 
@@ -157,7 +167,7 @@ export function View({ contentProvider, actions }: ViewProps) {
 
   const lineCount = useMemo(() => {
     if (!content) return 0
-    if (content.format === "table") {
+    if (isBuiltinContent(content) && content.format === "table") {
       return content.rows.length + 3
     }
     return textContent.split("\n").length
@@ -165,9 +175,10 @@ export function View({ contentProvider, actions }: ViewProps) {
 
   const { blockCount, blockLineMap } = useMemo(() => {
     if (!content) return { blockCount: undefined, blockLineMap: undefined }
+    if (!isBuiltinContent(content)) return { blockCount: undefined, blockLineMap: undefined }
 
     if (content.format === "table") {
-      const map = content.rows.map((_, i) => i + TABLE_VISUAL_HEADER_OFFSET)
+      const map = content.rows.map((_: unknown, i: number) => i + TABLE_VISUAL_HEADER_OFFSET)
       return { blockCount: content.rows.length, blockLineMap: map }
     }
 
@@ -306,6 +317,32 @@ export function View({ contentProvider, actions }: ViewProps) {
   const gutterConfig = config.view?.gutter
 
   const renderContent = () => {
+    // Custom content: use registered renderer or fall back to text
+    if (isCustomContent(content)) {
+      const customRenderer = renderers?.[content.format]
+      if (customRenderer) {
+        return customRenderer({
+          content,
+          lineCount,
+          cursor: cursorLine,
+          selectionStart,
+          selectionEnd,
+        })
+      }
+      // No renderer for this custom format — fall back to text
+      const text = getTextContent(content)
+      return (
+        <CodeView
+          content={text}
+          showLineNumbers={false}
+          cursor={cursorLine}
+          selectionStart={selectionStart}
+          selectionEnd={selectionEnd}
+        />
+      )
+    }
+
+    // Built-in formats
     switch (content.format) {
       case "markdown":
         return (
@@ -372,7 +409,7 @@ export function View({ contentProvider, actions }: ViewProps) {
   const statusItems = [
     { label: "Theme:", value: themeName },
     { label: "Format:", value: content.format },
-    ...(content.format === "table"
+    ...(isBuiltinContent(content) && content.format === "table"
       ? [
           { label: "Rows:", value: String(content.rows.length) },
           { label: "Cols:", value: String(content.columns.length) },
