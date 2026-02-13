@@ -1,10 +1,19 @@
 import { testRender } from "@opentui/react/test-utils"
-import { test, expect, afterEach, describe } from "bun:test"
+import { test, expect, afterEach, describe, beforeEach } from "bun:test"
 import { act } from "react"
 import { TooeeProvider, useThemeCommands } from "@tooee/shell"
 import { useTheme } from "@tooee/themes"
 import { useCurrentOverlay } from "@tooee/overlays"
 import { useMode } from "@tooee/commands"
+import { ensureTestConfigHome, resetTestConfig } from "../../../test/support/test-config.ts"
+
+const CONFIG_NAMESPACE = "shell-theme-picker"
+const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE)
+process.env.XDG_CONFIG_HOME = TEST_CONFIG_HOME
+
+beforeEach(() => {
+  resetTestConfig(CONFIG_NAMESPACE)
+})
 
 function ThemePickerHarness() {
   const { name: themeName, picker } = useThemeCommands()

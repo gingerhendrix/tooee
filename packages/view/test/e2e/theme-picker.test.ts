@@ -19,27 +19,26 @@ describe("theme picker", () => {
   test("t opens theme picker", async () => {
     session = await launchView("sample.md")
     await session.press("t")
-    await new Promise((r) => setTimeout(r, 1000))
+    await session.waitForText("Filter themes", { timeout: 5000 })
     const text = await session.text()
-    // Theme picker should show "Filter themes" placeholder or theme names
-    expect(text).toMatch(/Filter themes|tokyonight/)
+    expect(text).toMatch(/Filter themes/)
   }, 20000)
 
   test("can confirm a theme with Enter", async () => {
     session = await launchView("sample.md")
     const initial = extractTheme(await session.text())
     await session.press("t")
-    await new Promise((r) => setTimeout(r, 500))
+    await session.waitForText("Filter themes", { timeout: 5000 })
     // Navigate down to pick a different theme
     await session.press("down")
-    await new Promise((r) => setTimeout(r, 500))
+    await new Promise((r) => setTimeout(r, 200))
     await session.press("down")
-    await new Promise((r) => setTimeout(r, 500))
+    await new Promise((r) => setTimeout(r, 200))
     await session.press("down")
-    await new Promise((r) => setTimeout(r, 500))
+    await new Promise((r) => setTimeout(r, 200))
     // Confirm
     await session.press("enter")
-    await new Promise((r) => setTimeout(r, 1000))
+    await new Promise((r) => setTimeout(r, 500))
     const after = extractTheme(await session.text())
     expect(after).not.toBe(initial)
   }, 20000)
