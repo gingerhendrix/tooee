@@ -1,12 +1,23 @@
 {
   "name": "tooee",
   "private": true,
+  "description": "Terminal micro-apps built on OpenTUI",
+  "license": "MIT",
+  "author": "Gareth Andrew",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gingerhendrix/tooee.git"
+  },
+  "homepage": "https://github.com/gingerhendrix/tooee",
+  "bugs": "https://github.com/gingerhendrix/tooee/issues",
   "workspaces": [
     "packages/*",
     "apps/*",
     "examples"
   ],
   "scripts": {
+    "build": "bunx tsc -b",
+    "clean": "rm -rf packages/*/dist apps/*/dist",
     "check": "bunx tsc -b && bunx tsc -p examples",
     "lint": "oxlint --react-plugin .",
     "lint:fix": "oxlint --react-plugin --fix .",
