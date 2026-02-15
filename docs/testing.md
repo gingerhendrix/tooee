@@ -212,7 +212,6 @@ await session.writeRaw("\x1b[27u")
 **Affected e2e scenarios** (skip or use workaround):
 
 - Exiting search mode (Escape to dismiss search bar)
-- Returning from cursor mode to command mode
 - Returning from select mode to cursor mode
 - Any test that presses Escape
 

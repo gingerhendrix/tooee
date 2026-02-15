@@ -15,7 +15,7 @@ function OverlayHarness() {
     id: "test.show-a",
     title: "Show A",
     hotkey: "a",
-    modes: ["command"],
+    modes: ["cursor"],
     handler: () => {
       overlay.show("a", <text content="overlay-a" />)
     },
@@ -25,7 +25,7 @@ function OverlayHarness() {
     id: "test.show-b",
     title: "Show B",
     hotkey: "b",
-    modes: ["command"],
+    modes: ["cursor"],
     handler: () => {
       overlay.show("b", <text content="overlay-b" />)
     },
@@ -35,7 +35,7 @@ function OverlayHarness() {
     id: "test.hide-a",
     title: "Hide A",
     hotkey: "x",
-    modes: ["command"],
+    modes: ["cursor"],
     handler: () => {
       overlay.hide("a")
     },
@@ -45,7 +45,7 @@ function OverlayHarness() {
     id: "test.hide-b",
     title: "Hide B",
     hotkey: "y",
-    modes: ["command"],
+    modes: ["cursor"],
     handler: () => {
       overlay.hide("b")
     },
@@ -55,7 +55,7 @@ function OverlayHarness() {
     id: "test.replace-a",
     title: "Replace A",
     hotkey: "r",
-    modes: ["command"],
+    modes: ["cursor"],
     handler: () => {
       overlay.show("a", <text content="overlay-a-replaced" />)
     },
@@ -76,7 +76,7 @@ function AppLayoutOverlayHarness() {
     id: "test.show-overlay",
     title: "Show",
     hotkey: "s",
-    modes: ["command"],
+    modes: ["cursor"],
     handler: () => {
       overlay.show("test", <text content="OVERLAY_CONTENT" />)
     },
@@ -86,14 +86,14 @@ function AppLayoutOverlayHarness() {
     id: "test.hide-overlay",
     title: "Hide",
     hotkey: "h",
-    modes: ["command"],
+    modes: ["cursor"],
     handler: () => {
       overlay.hide("test")
     },
   })
 
   return (
-    <AppLayout statusBar={{ items: [{ label: "Mode:", value: "command" }] }}>
+    <AppLayout statusBar={{ items: [{ label: "Mode:", value: "cursor" }] }}>
       <text content="main-content" />
     </AppLayout>
   )

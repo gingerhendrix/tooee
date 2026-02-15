@@ -30,7 +30,7 @@ test("renders title bar with title and subtitle", async () => {
 test("renders status bar with items", async () => {
   testSetup = await testRender(
     <ThemeSwitcherProvider>
-      <AppLayout statusBar={{ items: [{ label: "Mode", value: "command" }] }}>
+      <AppLayout statusBar={{ items: [{ label: "Mode", value: "cursor" }] }}>
         <text content="body" />
       </AppLayout>
     </ThemeSwitcherProvider>,
@@ -39,7 +39,7 @@ test("renders status bar with items", async () => {
   await testSetup.renderOnce()
   const frame = testSetup.captureCharFrame()
   expect(frame).toContain("Mode")
-  expect(frame).toContain("command")
+  expect(frame).toContain("cursor")
 })
 
 test("renders children in scrollable area", async () => {

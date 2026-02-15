@@ -1,7 +1,7 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
 exports[`snapshot 1`] = `
-" Mode command  Theme dracula                                
+" Mode cursor  Theme dracula                                 
                                                             
                                                             
 "

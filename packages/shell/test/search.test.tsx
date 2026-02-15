@@ -105,7 +105,7 @@ describe("search component", () => {
     expect(frame).toContain("mode:insert")
   })
 
-  test("Escape cancels search and restores command mode", async () => {
+  test("Escape cancels search and restores cursor mode", async () => {
     testSetup = await setup()
     await press(testSetup, "/")
     expect(testSetup.captureCharFrame()).toContain("search:true")
@@ -114,7 +114,7 @@ describe("search component", () => {
     await testSetup.renderOnce()
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("search:false")
-    expect(frame).toContain("mode:command")
+    expect(frame).toContain("mode:cursor")
   })
 
   test("n cycles to next match after search", async () => {

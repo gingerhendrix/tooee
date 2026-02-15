@@ -117,7 +117,7 @@ To add a config option: extend `TooeeConfig` in `packages/config/src/types.ts`, 
 
 `@tooee/commands` provides a vim-inspired modal command system.
 
-**Modes**: `"command"` | `"cursor"` | `"insert"` | `"select"`
+**Modes**: `"cursor"` | `"insert"` | `"select"`
 
 **Registering commands**: use `useCommand()` for a single command or `useActions()` for a batch:
 
@@ -126,7 +126,7 @@ useCommand({
   id: "view.scroll-down",
   title: "Scroll down",
   defaultHotkey: "j",
-  modes: ["command"],
+  modes: ["cursor"],
   handler: () => scrollDown(),
 })
 ```

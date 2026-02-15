@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react"
 
-export type Mode = "command" | "cursor" | "insert" | "select"
+export type Mode = "cursor" | "insert" | "select"
 
 interface ModeContextValue {
   mode: Mode
@@ -14,7 +14,7 @@ export interface ModeProviderProps {
   initialMode?: Mode
 }
 
-export function ModeProvider({ children, initialMode = "command" }: ModeProviderProps) {
+export function ModeProvider({ children, initialMode = "cursor" }: ModeProviderProps) {
   const [mode, setModeState] = useState<Mode>(initialMode)
   const setMode = useCallback((m: Mode) => setModeState(m), [])
 

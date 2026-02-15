@@ -12,14 +12,14 @@ afterEach(() => {
 test("renders label:value pairs", async () => {
   testSetup = await testRender(
     <ThemeSwitcherProvider>
-      <StatusBar items={[{ label: "Mode", value: "command" }]} />
+      <StatusBar items={[{ label: "Mode", value: "cursor" }]} />
     </ThemeSwitcherProvider>,
     { width: 80, height: 24 },
   )
   await testSetup.renderOnce()
   const frame = testSetup.captureCharFrame()
   expect(frame).toContain("Mode")
-  expect(frame).toContain("command")
+  expect(frame).toContain("cursor")
 })
 
 test("renders multiple items", async () => {
@@ -27,7 +27,7 @@ test("renders multiple items", async () => {
     <ThemeSwitcherProvider>
       <StatusBar
         items={[
-          { label: "Mode", value: "command" },
+          { label: "Mode", value: "cursor" },
           { label: "Line", value: "42" },
         ]}
       />
@@ -37,7 +37,7 @@ test("renders multiple items", async () => {
   await testSetup.renderOnce()
   const frame = testSetup.captureCharFrame()
   expect(frame).toContain("Mode")
-  expect(frame).toContain("command")
+  expect(frame).toContain("cursor")
   expect(frame).toContain("Line")
   expect(frame).toContain("42")
 })
@@ -59,7 +59,7 @@ test("snapshot", async () => {
     <ThemeSwitcherProvider>
       <StatusBar
         items={[
-          { label: "Mode", value: "command" },
+          { label: "Mode", value: "cursor" },
           { label: "Theme", value: "dracula" },
         ]}
       />

@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, useMemo } from "react"
+import { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { MarkdownView, CodeView, ImageView, Table } from "@tooee/renderers"
 import { AppLayout } from "@tooee/layout"
 import { useTheme } from "@tooee/themes"
 import { useHasOverlay } from "@tooee/overlays"
-import { useActions } from "@tooee/commands"
+import { useActions, useProvideCommandContext } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import {
   useThemeCommands,
@@ -105,6 +105,8 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
   const [streaming, setStreaming] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const scrollRef = useRef<ScrollBoxRenderable>(null)
+  const [reloadTrigger, setReloadTrigger] = useState(0)
+  const reload = useCallback(() => setReloadTrigger((n) => n + 1), [])
 
   useEffect(() => {
     setError(null)
@@ -158,7 +160,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
 
     setContent(loaded)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contentProvider])
+  }, [contentProvider, reloadTrigger])
 
   const TABLE_VISUAL_HEADER_OFFSET = 3
   const TABLE_SEARCH_HEADER_OFFSET = 1
@@ -211,6 +213,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
     blockCount,
     blockLineMap,
     searchLineOffset: content?.format === "table" ? TABLE_SEARCH_HEADER_OFFSET : 0,
+    multiSelect: true,
   })
 
   useEffect(() => {
@@ -228,6 +231,42 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
   const _palette = useCommandPalette()
 
   useActions(actions)
+  const hasOverlay = useHasOverlay()
+
+  function getActiveRow(): Record<string, unknown> | undefined {
+    if (!content || !isBuiltinContent(content) || content.format !== "table") return undefined
+    if (!nav.cursor) return undefined
+    return content.rows[nav.cursor.line]
+  }
+
+  function getSelectedRows(): Record<string, unknown>[] {
+    if (!content || !isBuiltinContent(content) || content.format !== "table") return []
+    if (nav.toggledIndices.size) {
+      return Array.from(nav.toggledIndices)
+        .map((i) => content.rows[i])
+        .filter(Boolean)
+    }
+    if (nav.selection) {
+      const start = nav.selection.start.line
+      const end = nav.selection.end.line
+      return content.rows.slice(start, end + 1)
+    }
+    return []
+  }
+
+  useProvideCommandContext(() => ({
+    view: {
+      content,
+      format: content?.format,
+      cursor: nav.cursor,
+      selection: nav.selection,
+      mode: nav.mode,
+      activeRow: getActiveRow(),
+      selectedRows: getSelectedRows(),
+      toggledIndices: nav.toggledIndices,
+      reload,
+    },
+  }))
 
   const matchingLinesSet = useMemo(
     () => (nav.matchingLines.length > 0 ? new Set(nav.matchingLines) : undefined),
@@ -404,7 +443,15 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
     }
   }
 
-  const hasOverlay = useHasOverlay()
+  const selectionCount =
+    nav.selection != null ? nav.selection.end.line - nav.selection.start.line + 1 : 0
+  const toggledCount = nav.toggledIndices.size
+  const selectionItems =
+    toggledCount > 0
+      ? [{ label: "Selected:", value: String(toggledCount) }]
+      : selectionCount > 0
+        ? [{ label: "Selected:", value: String(selectionCount) }]
+        : []
 
   const statusItems = [
     { label: "Theme:", value: themeName },
@@ -417,6 +464,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
       : [{ label: "Lines:", value: String(lineCount) }]),
     { label: "Mode:", value: nav.mode },
     { label: "Scroll:", value: String(nav.scrollOffset) },
+    ...selectionItems,
     ...(streaming ? [{ label: "Status:", value: "streaming" }] : []),
     ...(nav.searchActive ? [{ label: "Search:", value: nav.searchQuery }] : []),
   ]

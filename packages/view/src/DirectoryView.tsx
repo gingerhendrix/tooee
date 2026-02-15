@@ -44,7 +44,7 @@ export function DirectoryView({ dirPath, actions }: DirectoryViewProps) {
     id: "dir.next-file",
     title: "Next file",
     hotkey: "l",
-    modes: ["command"],
+    modes: ["cursor"],
     handler: () => setCurrentIndex((i) => Math.min(i + 1, files.length - 1)),
   })
 
@@ -52,7 +52,7 @@ export function DirectoryView({ dirPath, actions }: DirectoryViewProps) {
     id: "dir.prev-file",
     title: "Previous file",
     hotkey: "h",
-    modes: ["command"],
+    modes: ["cursor"],
     handler: () => setCurrentIndex((i) => Math.max(i - 1, 0)),
   })
 

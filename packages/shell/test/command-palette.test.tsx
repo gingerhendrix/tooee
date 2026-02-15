@@ -14,7 +14,7 @@ function PaletteHarness() {
     id: "test.visible",
     title: "Visible Command",
     hotkey: "t",
-    modes: ["command"],
+    modes: ["cursor"],
     handler: () => {},
   })
 
@@ -22,7 +22,7 @@ function PaletteHarness() {
     id: "test.hidden",
     title: "Hidden Command",
     hotkey: "h",
-    modes: ["command"],
+    modes: ["cursor"],
     hidden: true,
     handler: () => {},
   })
@@ -32,6 +32,14 @@ function PaletteHarness() {
     title: "Cursor Only Command",
     hotkey: "c",
     modes: ["cursor"],
+    handler: () => {},
+  })
+
+  useCommand({
+    id: "test.insert-only",
+    title: "Insert Only Command",
+    hotkey: "i",
+    modes: ["insert"],
     handler: () => {},
   })
 
@@ -69,6 +77,13 @@ async function press(
   await s.renderOnce()
 }
 
+async function pressEscape(s: Awaited<ReturnType<typeof testRender>>) {
+  await act(async () => {
+    s.mockInput.pressEscape()
+  })
+  await s.renderOnce()
+}
+
 let testSetup: Awaited<ReturnType<typeof testRender>>
 
 afterEach(() => {
@@ -84,11 +99,15 @@ describe("command palette", () => {
     expect(frame).toContain("mode:insert")
   })
 
-  test("close restores command mode", async () => {
+  test("close restores cursor mode", async () => {
     testSetup = await setup()
     await press(testSetup, ":")
     expect(testSetup.captureCharFrame()).toContain("open:true")
     expect(testSetup.captureCharFrame()).toContain("mode:insert")
+    await pressEscape(testSetup)
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("open:false")
+    expect(frame).toContain("mode:cursor")
   })
 
   test("entries exclude hidden commands", async () => {
@@ -102,13 +121,15 @@ describe("command palette", () => {
 
   test("entries are filtered to commands available in launch mode", async () => {
     testSetup = await setup()
-    // Open palette from command mode
+    // Open palette from cursor mode
     await press(testSetup, ":")
     await testSetup.renderOnce()
     const frame = testSetup.captureCharFrame()
-    // visible command registered for "command" mode should appear
+    // visible command registered for "cursor" mode should appear
     expect(frame).toContain("test.visible")
-    // cursor-only command should NOT appear when launched from command mode
-    expect(frame).not.toContain("test.cursor-only")
+    // insert-only command should NOT appear when launched from cursor mode
+    expect(frame).not.toContain("test.insert-only")
+    // cursor-only command should appear
+    expect(frame).toContain("test.cursor-only")
   })
 })

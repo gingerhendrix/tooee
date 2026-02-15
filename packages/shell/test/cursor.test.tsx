@@ -52,22 +52,15 @@ afterEach(() => {
 })
 
 describe("cursor mode", () => {
-  test("v in command mode enters cursor mode and initializes cursor at scrollOffset", async () => {
+  test("starts in cursor mode with initialized cursor", async () => {
     testSetup = await setup()
-    // Scroll down a bit first
-    await press(testSetup, "j")
-    await press(testSetup, "j")
-    expect(testSetup.captureCharFrame()).toContain("scroll:2")
-    // Enter cursor mode
-    await press(testSetup, "v")
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("mode:cursor")
-    expect(frame).toContain("cursor:2")
+    expect(frame).toContain("cursor:0")
   })
 
   test("j in cursor mode moves cursor down", async () => {
     testSetup = await setup()
-    await press(testSetup, "v")
     expect(testSetup.captureCharFrame()).toContain("cursor:0")
     await press(testSetup, "j")
     expect(testSetup.captureCharFrame()).toContain("cursor:1")
@@ -75,7 +68,6 @@ describe("cursor mode", () => {
 
   test("k in cursor mode moves cursor up", async () => {
     testSetup = await setup()
-    await press(testSetup, "v")
     await press(testSetup, "j")
     await press(testSetup, "j")
     expect(testSetup.captureCharFrame()).toContain("cursor:2")
@@ -83,28 +75,25 @@ describe("cursor mode", () => {
     expect(testSetup.captureCharFrame()).toContain("cursor:1")
   })
 
-  test("Escape in cursor mode returns to command mode", async () => {
+  test("Escape in cursor mode leaves mode unchanged", async () => {
     testSetup = await setup()
-    await press(testSetup, "v")
     expect(testSetup.captureCharFrame()).toContain("mode:cursor")
     await pressEscape(testSetup)
     const frame = testSetup.captureCharFrame()
-    expect(frame).toContain("mode:command")
-    expect(frame).toContain("cursor:null")
+    expect(frame).toContain("mode:cursor")
+    expect(frame).toContain("cursor:0")
   })
 })
 
 describe("select mode", () => {
   test("v in cursor mode enters select mode", async () => {
     testSetup = await setup()
-    await press(testSetup, "v") // command -> cursor
     await press(testSetup, "v") // cursor -> select
     expect(testSetup.captureCharFrame()).toContain("mode:select")
   })
 
   test("j in select mode extends selection", async () => {
     testSetup = await setup()
-    await press(testSetup, "v") // cursor at 0
     await press(testSetup, "j") // cursor at 1
     await press(testSetup, "v") // select, anchor at 1
     await press(testSetup, "j") // cursor at 2
@@ -115,9 +104,8 @@ describe("select mode", () => {
 
   test("k in select mode extends selection upward", async () => {
     testSetup = await setup()
-    await press(testSetup, "j") // scroll to 1
-    await press(testSetup, "j") // scroll to 2
-    await press(testSetup, "v") // cursor at 2
+    await press(testSetup, "j") // cursor at 1
+    await press(testSetup, "j") // cursor at 2
     await press(testSetup, "j") // cursor at 3
     await press(testSetup, "v") // select, anchor at 3
     await press(testSetup, "k") // cursor at 2
@@ -127,34 +115,22 @@ describe("select mode", () => {
 
   test("Escape in select mode returns to cursor mode", async () => {
     testSetup = await setup()
-    await press(testSetup, "v") // cursor
     await press(testSetup, "v") // select
     expect(testSetup.captureCharFrame()).toContain("mode:select")
     await pressEscape(testSetup)
     expect(testSetup.captureCharFrame()).toContain("mode:cursor")
   })
 
-  test("Escape in cursor then Escape again returns to command", async () => {
-    testSetup = await setup()
-    await press(testSetup, "v") // cursor
-    await press(testSetup, "v") // select
-    await pressEscape(testSetup) // cursor
-    await pressEscape(testSetup) // command
-    expect(testSetup.captureCharFrame()).toContain("mode:command")
-  })
-
   test("selection is correctly ordered when cursor moves above anchor", async () => {
     testSetup = await setup()
     await press(testSetup, "j")
     await press(testSetup, "j")
-    await press(testSetup, "v") // cursor at 2
-    await press(testSetup, "j") // cursor at 3
-    await press(testSetup, "j") // cursor at 4
-    await press(testSetup, "v") // select, anchor at 4
-    await press(testSetup, "k") // cursor at 3
+    await press(testSetup, "j")
+    await press(testSetup, "v") // select, anchor at 3
     await press(testSetup, "k") // cursor at 2
+    await press(testSetup, "k") // cursor at 1
     const frame = testSetup.captureCharFrame()
-    // anchor=4, cursor=2, so start=2, end=4
-    expect(frame).toContain("selection:2-4")
+    // anchor=3, cursor=1, so start=1, end=3
+    expect(frame).toContain("selection:1-3")
   })
 })

@@ -32,6 +32,7 @@ export interface ModalNavigationOptions {
   blockLineMap?: number[]
   /** Offset to subtract from search line numbers to get block indices (for when getText has different line structure than visual) */
   searchLineOffset?: number
+  multiSelect?: boolean
 }
 
 export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalNavigationState {
@@ -43,6 +44,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     blockCount,
     blockLineMap,
     searchLineOffset = 0,
+    multiSelect = false,
   } = opts
   const mode = useMode()
   const setMode = useSetMode()
@@ -55,7 +57,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   const [searchActive, setSearchActive] = useState(false)
   const [matchingLines, setMatchingLines] = useState<number[]>([])
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0)
-  const preSearchModeRef = useRef<Mode>("command")
+  const preSearchModeRef = useRef<Mode>("cursor")
 
   // Incremental search: recompute matches when query changes while search is active
   const searchQueryRef = useRef(searchQuery)
@@ -118,7 +120,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   }, [cursorMax])
 
   // When entering cursor mode, initialize cursor
-  const prevMode = useRef(mode)
+  const prevMode = useRef<Mode | null>(null)
   useEffect(() => {
     if (mode === "cursor" && prevMode.current !== "cursor" && prevMode.current !== "select") {
       // If there's an active search match, start cursor there; otherwise start at scroll position
@@ -140,10 +142,6 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     if (mode === "select" && prevMode.current === "cursor" && cursor) {
       setSelectionAnchor({ ...cursor })
     }
-    if (mode === "command") {
-      setCursor(null)
-      setSelectionAnchor(null)
-    }
     prevMode.current = mode
   }, [mode]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -159,105 +157,6 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     },
     [viewportHeight, clampScroll, isBlockMode, blockLineMap],
   )
-
-  // === COMMAND MODE ===
-
-  useCommand({
-    id: "scroll-down",
-    title: "Scroll down",
-    hotkey: "j",
-    modes: ["command"],
-    handler: () => setScrollOffset((o) => clampScroll(o + 1)),
-  })
-
-  useCommand({
-    id: "scroll-up",
-    title: "Scroll up",
-    hotkey: "k",
-    modes: ["command"],
-    handler: () => setScrollOffset((o) => clampScroll(o - 1)),
-  })
-
-  useCommand({
-    id: "scroll-half-down",
-    title: "Scroll half page down",
-    hotkey: "ctrl+d",
-    modes: ["command"],
-    handler: () => setScrollOffset((o) => clampScroll(o + Math.floor(viewportHeight / 2))),
-  })
-
-  useCommand({
-    id: "scroll-half-up",
-    title: "Scroll half page up",
-    hotkey: "ctrl+u",
-    modes: ["command"],
-    handler: () => setScrollOffset((o) => clampScroll(o - Math.floor(viewportHeight / 2))),
-  })
-
-  useCommand({
-    id: "scroll-top",
-    title: "Scroll to top",
-    hotkey: "g g",
-    modes: ["command"],
-    handler: () => setScrollOffset(0),
-  })
-
-  useCommand({
-    id: "scroll-bottom",
-    title: "Scroll to bottom",
-    hotkey: "shift+g",
-    modes: ["command"],
-    handler: () => setScrollOffset(maxScroll),
-  })
-
-  useCommand({
-    id: "search-start",
-    title: "Search",
-    hotkey: "/",
-    modes: ["command"],
-    handler: () => {
-      preSearchModeRef.current = mode
-      setSearchActive(true)
-      setSearchQuery("")
-      setMode("insert")
-    },
-  })
-
-  useCommand({
-    id: "search-next",
-    title: "Next match",
-    hotkey: "n",
-    modes: ["command"],
-    when: () => !searchActive,
-    handler: () => {
-      const matches = matchingLinesRef.current
-      if (matches.length === 0) return
-      setCurrentMatchIndex((idx) => {
-        const next = (idx + 1) % matches.length
-        const line = matches[next]
-        setScrollOffset(Math.max(0, Math.min(line, maxScroll)))
-        return next
-      })
-    },
-  })
-
-  useCommand({
-    id: "search-prev",
-    title: "Previous match",
-    hotkey: "shift+n",
-    modes: ["command"],
-    when: () => !searchActive,
-    handler: () => {
-      const matches = matchingLinesRef.current
-      if (matches.length === 0) return
-      setCurrentMatchIndex((idx) => {
-        const next = (idx - 1 + matches.length) % matches.length
-        const line = matches[next]
-        setScrollOffset(Math.max(0, Math.min(line, maxScroll)))
-        return next
-      })
-    },
-  })
 
   // === CURSOR MODE ===
 
@@ -281,6 +180,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     title: "Toggle selection",
     hotkey: "tab",
     modes: ["cursor"],
+    when: () => multiSelect,
     handler: () => {
       setToggledIndices((prev) => {
         if (!cursor) return prev
@@ -292,6 +192,33 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
           next.add(idx)
         }
         return next
+      })
+    },
+  })
+
+  useCommand({
+    id: "cursor-toggle-up",
+    title: "Toggle and move up",
+    hotkey: "shift+tab",
+    modes: ["cursor"],
+    when: () => multiSelect,
+    handler: () => {
+      setToggledIndices((prev) => {
+        if (!cursor) return prev
+        const next = new Set(prev)
+        const idx = cursor.line
+        if (next.has(idx)) {
+          next.delete(idx)
+        } else {
+          next.add(idx)
+        }
+        return next
+      })
+      setCursor((c) => {
+        if (!c) return c
+        const next = clampCursor(c.line - 1)
+        scrollToCursor(next)
+        return { line: next, col: 0 }
       })
     },
   })
@@ -458,6 +385,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     title: "Toggle selection",
     hotkey: "tab",
     modes: ["select"],
+    when: () => multiSelect,
     handler: () => {
       setToggledIndices((prev) => {
         if (!cursor) return prev
@@ -506,7 +434,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
           void copyToClipboard(selected)
         }
       }
-      setMode("command")
+      setMode("cursor")
     },
   })
 
@@ -521,28 +449,11 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   // === MODE TRANSITIONS ===
 
   useCommand({
-    id: "enter-cursor",
-    title: "Enter cursor mode",
-    hotkey: "v",
-    modes: ["command"],
-    handler: () => setMode("cursor"),
-  })
-
-  useCommand({
     id: "enter-select",
     title: "Enter select mode",
     hotkey: "v",
     modes: ["cursor"],
     handler: () => setMode("select"),
-  })
-
-  useCommand({
-    id: "exit-to-command",
-    title: "Exit to command mode",
-    hotkey: "escape",
-    modes: ["cursor"],
-    when: () => !searchActive,
-    handler: () => setMode("command"),
   })
 
   // === SEARCH CANCEL (any mode) ===
@@ -551,7 +462,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     id: "search-cancel",
     title: "Cancel search",
     hotkey: "escape",
-    modes: ["command", "cursor", "select", "insert"],
+    modes: ["cursor", "select", "insert"],
     when: () => searchActive,
     handler: () => {
       setSearchActive(false)

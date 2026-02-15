@@ -107,7 +107,7 @@ describe("theme picker", () => {
     await pressEscape(testSetup)
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("open:false")
-    expect(frame).toContain("mode:command")
+    expect(frame).toContain("mode:cursor")
     expect(frame).toContain(`active:${initialTheme}`)
   })
 
@@ -127,7 +127,7 @@ describe("theme picker", () => {
     await pressEnter(testSetup)
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("open:false")
-    expect(frame).toContain("mode:command")
+    expect(frame).toContain("mode:cursor")
     // Theme should stay at the previewed value
     expect(frame).toContain(`active:${previewedTheme}`)
   })

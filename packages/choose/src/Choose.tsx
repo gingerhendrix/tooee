@@ -89,12 +89,12 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
     setActiveIndex((i) => Math.min(filteredItems.length - 1, i + 1))
   }, [filteredItems.length])
 
-  // Register a/i to return to insert mode from command mode
+  // Register a/i to return to insert mode from cursor mode
   useCommand({
     id: "choose:insert-mode-a",
     title: "Insert mode",
     hotkey: "a",
-    modes: ["command"],
+    modes: ["cursor"],
     handler: () => setMode("insert"),
     hidden: true,
   })
@@ -102,17 +102,17 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
     id: "choose:insert-mode-i",
     title: "Insert mode",
     hotkey: "i",
-    modes: ["command"],
+    modes: ["cursor"],
     handler: () => setMode("insert"),
     hidden: true,
   })
 
-  // Register j/k for vim-style navigation in command mode
+  // Register j/k for vim-style navigation in cursor mode
   useCommand({
     id: "choose:move-down",
     title: "Move down",
     hotkey: "j",
-    modes: ["command"],
+    modes: ["cursor"],
     handler: moveDown,
     hidden: true,
   })
@@ -120,7 +120,7 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
     id: "choose:move-up",
     title: "Move up",
     hotkey: "k",
-    modes: ["command"],
+    modes: ["cursor"],
     handler: moveUp,
     hidden: true,
   })
@@ -170,10 +170,10 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
   useKeyboard((key) => {
     if (key.name === "escape") {
       if (mode === "insert") {
-        // Switch to command mode (allows theme switching, quit, etc.)
-        setMode("command")
+        // Switch to cursor mode (allows theme switching, quit, etc.)
+        setMode("cursor")
       } else {
-        // In command mode, escape cancels
+        // In cursor mode, escape cancels
         onCancel?.()
       }
       return

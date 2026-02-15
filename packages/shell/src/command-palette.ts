@@ -6,7 +6,7 @@ import { useOverlay } from "@tooee/overlays"
 import type { CommandPaletteEntry } from "@tooee/renderers"
 import { CommandPaletteOverlay } from "./CommandPaletteOverlay.tsx"
 
-const DEFAULT_MODES: Mode[] = ["command", "cursor"]
+const DEFAULT_MODES: Mode[] = ["cursor"]
 const OVERLAY_ID = "command-palette"
 
 export interface CommandPaletteState {
@@ -56,7 +56,7 @@ export function useCommandPalette(): CommandPaletteState {
           close: () => close(),
         }),
       null,
-      { mode: "insert", dismissOnEscape: true },
+      { mode: "insert", dismissOnEscape: true, onClose: () => setIsOpen(false) },
     )
   }, [overlay, mode])
 
@@ -64,7 +64,7 @@ export function useCommandPalette(): CommandPaletteState {
     id: "command-palette",
     title: "Command Palette",
     hotkey: ":",
-    modes: ["command"],
+    modes: ["cursor"],
     handler: open,
   })
 

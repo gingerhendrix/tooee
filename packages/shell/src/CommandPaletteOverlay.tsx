@@ -4,7 +4,7 @@ import { useCommandContext } from "@tooee/commands"
 import type { Mode } from "@tooee/commands"
 import { CommandPalette } from "@tooee/renderers"
 
-const DEFAULT_MODES: Mode[] = ["command", "cursor"]
+const DEFAULT_MODES: Mode[] = ["cursor"]
 
 export function CommandPaletteOverlay({
   launchMode,

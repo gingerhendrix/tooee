@@ -7,7 +7,7 @@ import { parseHotkey } from "./parse.ts"
 import { matchStep } from "./match.ts"
 import { SequenceTracker } from "./sequence.ts"
 
-const DEFAULT_MODES: Mode[] = ["command", "cursor"]
+const DEFAULT_MODES: Mode[] = ["cursor"]
 
 type ContextGetter = () => Partial<CommandContext>
 

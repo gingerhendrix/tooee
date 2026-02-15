@@ -43,35 +43,39 @@ afterEach(() => {
   testSetup?.renderer.destroy()
 })
 
-test("starts in command mode with scroll at 0", async () => {
+test("starts in cursor mode with cursor at 0", async () => {
   testSetup = await setup()
   const frame = testSetup.captureCharFrame()
-  expect(frame).toContain("mode:command")
+  expect(frame).toContain("mode:cursor")
+  expect(frame).toContain("scroll:0")
+  expect(frame).toContain("cursor:0")
+})
+
+test("j moves cursor down", async () => {
+  testSetup = await setup()
+  await press(testSetup, "j")
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toContain("cursor:1")
+  // Scroll stays at 0 — cursor is still within viewport (height=10)
   expect(frame).toContain("scroll:0")
 })
 
-test("j scrolls down in command mode", async () => {
-  testSetup = await setup()
-  await press(testSetup, "j")
-  expect(testSetup.captureCharFrame()).toContain("scroll:1")
-})
-
-test("k scrolls up in command mode", async () => {
+test("k moves cursor up", async () => {
   testSetup = await setup()
   await press(testSetup, "j")
   await press(testSetup, "j")
   await press(testSetup, "k")
-  expect(testSetup.captureCharFrame()).toContain("scroll:1")
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toContain("cursor:1")
+  expect(frame).toContain("scroll:0")
 })
 
-// Note: "gg" hotkey in modal.ts is parsed as single step key "gg" by parseHotkey,
-// which won't match sequential "g" key events. Hotkey should be "g g" (space-separated).
-test("gg scrolls to top", async () => {
+test("gg moves cursor to top", async () => {
   testSetup = await setup()
   await press(testSetup, "j")
   await press(testSetup, "j")
   await press(testSetup, "j")
-  expect(testSetup.captureCharFrame()).toContain("scroll:3")
+  expect(testSetup.captureCharFrame()).toContain("cursor:3")
   await act(async () => {
     testSetup.mockInput.pressKey("g")
   })
@@ -79,28 +83,37 @@ test("gg scrolls to top", async () => {
     testSetup.mockInput.pressKey("g")
   })
   await testSetup.renderOnce()
-  expect(testSetup.captureCharFrame()).toContain("scroll:0")
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toContain("cursor:0")
+  expect(frame).toContain("scroll:0")
 })
 
-test("shift+g scrolls to bottom", async () => {
+test("shift+g moves cursor to bottom", async () => {
   testSetup = await setup()
   await press(testSetup, "G", { shift: true })
-  expect(testSetup.captureCharFrame()).toContain("scroll:90")
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toContain("scroll:90")
+  expect(frame).toContain("cursor:99")
 })
 
-test("ctrl+d scrolls half page down", async () => {
+test("ctrl+d moves cursor half page down", async () => {
   testSetup = await setup()
   await press(testSetup, "d", { ctrl: true })
-  expect(testSetup.captureCharFrame()).toContain("scroll:5")
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toContain("cursor:5")
+  // Cursor at 5 is still within viewport (height=10), scroll stays at 0
+  expect(frame).toContain("scroll:0")
 })
 
-test("ctrl+u scrolls half page up", async () => {
+test("ctrl+u moves cursor half page up", async () => {
   testSetup = await setup()
   await press(testSetup, "d", { ctrl: true })
   await press(testSetup, "d", { ctrl: true })
-  expect(testSetup.captureCharFrame()).toContain("scroll:10")
+  // Cursor at 10 is outside viewport (height=10), scroll adjusts
+  expect(testSetup.captureCharFrame()).toContain("cursor:10")
   await press(testSetup, "u", { ctrl: true })
-  expect(testSetup.captureCharFrame()).toContain("scroll:5")
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toContain("cursor:5")
 })
 
 test("/ activates search", async () => {

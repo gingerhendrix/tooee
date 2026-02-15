@@ -42,7 +42,7 @@ describe("command palette", () => {
     const before = extractScroll(await session.text())
     await session.press(":")
     await session.waitForText("Filter commands", { timeout: 5000 })
-    await session.type("scroll down")
+    await session.type("cursor to bottom")
     await new Promise((r) => setTimeout(r, 200))
     await session.press("enter")
     await new Promise((r) => setTimeout(r, 500))

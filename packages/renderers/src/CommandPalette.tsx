@@ -83,10 +83,10 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
   return (
     <box
       position="absolute"
-      marginLeft="20%"
-      marginRight="20%"
-      marginTop="25%"
-      maxHeight="50%"
+      left="20%"
+      right="20%"
+      top={2}
+      maxHeight="60%"
       flexDirection="column"
       backgroundColor={theme.backgroundPanel}
       border
