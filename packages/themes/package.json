@@ -21,7 +21,7 @@
       }
     }
   },
-  "files": ["dist", "src"],
+  "files": ["dist", "src", "themes"],
   "scripts": {
     "typecheck": "tsc --noEmit"
   },

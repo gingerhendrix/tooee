@@ -465,12 +465,12 @@ function loadJsonThemesFromDir(dir: string, target: Map<string, ThemeJSON>) {
   }
 }
 
-/** Load all bundled themes from packages/themes/src/themes/ */
+/** Load all bundled themes from packages/themes/themes/ */
 function loadBundledThemes(): Map<string, ThemeJSON> {
   if (themeJsonCache.size > 0) return themeJsonCache
 
   // Bundled themes
-  const bundledDir = join(dirname(new URL(import.meta.url).pathname), "themes")
+  const bundledDir = join(dirname(new URL(import.meta.url).pathname), "..", "themes")
   loadJsonThemesFromDir(bundledDir, themeJsonCache)
 
   // XDG config: ~/.config/tooee/themes/
