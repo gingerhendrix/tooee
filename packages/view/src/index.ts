@@ -1,10 +1,10 @@
-export { View } from "./View.tsx"
-export { DirectoryView } from "./DirectoryView.tsx"
-export { launch, launchDirectory } from "./launch.tsx"
-export type { ViewLaunchOptions } from "./launch.tsx"
-export { createFileProvider, createStdinProvider, createTableFileProvider, createTableStdinProvider } from "./default-provider.ts"
-export { listDirectoryFiles } from "./directory-provider.ts"
-export type { DirectoryEntry } from "./directory-provider.ts"
+export { View } from "./View.jsx"
+export { DirectoryView } from "./DirectoryView.jsx"
+export { launch, launchDirectory } from "./launch.jsx"
+export type { ViewLaunchOptions } from "./launch.jsx"
+export { createFileProvider, createStdinProvider, createTableFileProvider, createTableStdinProvider } from "./default-provider.js"
+export { listDirectoryFiles } from "./directory-provider.js"
+export type { DirectoryEntry } from "./directory-provider.js"
 export type {
   AnyContent,
   Content,
@@ -18,5 +18,5 @@ export type {
   ViewContentProvider,
   ColumnDef,
   TableRow,
-} from "./types.ts"
-export { getTextContent, isBuiltinContent, isCustomContent } from "./types.ts"
+} from "./types.js"
+export { getTextContent, isBuiltinContent, isCustomContent } from "./types.js"

@@ -3,8 +3,9 @@ import { createElement } from "react"
 import { useCommandContext, useCommand, useMode } from "@tooee/commands"
 import type { Mode } from "@tooee/commands"
 import { useOverlay } from "@tooee/overlays"
+import type { OverlayCloseReason } from "@tooee/overlays"
 import type { CommandPaletteEntry } from "@tooee/renderers"
-import { CommandPaletteOverlay } from "./CommandPaletteOverlay.tsx"
+import { CommandPaletteOverlay } from "./CommandPaletteOverlay.jsx"
 
 const DEFAULT_MODES: Mode[] = ["cursor"]
 const OVERLAY_ID = "command-palette"
@@ -50,7 +51,7 @@ export function useCommandPalette(): CommandPaletteState {
     setIsOpen(true)
     overlay.open(
       OVERLAY_ID,
-      ({ close }) =>
+      ({ close }: { close: (reason?: OverlayCloseReason) => void }) =>
         createElement(CommandPaletteOverlay, {
           launchMode: mode,
           close: () => close(),

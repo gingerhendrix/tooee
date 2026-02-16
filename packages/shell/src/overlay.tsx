@@ -90,7 +90,7 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
       const handle: OverlayHandle<TPayload> = {
         id,
         close: (reason: OverlayCloseReason = "close") => removeEntry(id, reason),
-        update: (next) => {
+        update: (next: TPayload | ((prev: TPayload) => TPayload)) => {
           setStack((prev) => {
             const idx = prev.findIndex((e) => e.id === id)
             if (idx === -1) return prev
@@ -199,7 +199,7 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
         payload: topEntry.payload,
         isTop: true,
         close: (reason: OverlayCloseReason = "close") => removeEntry(topEntry.id, reason),
-        update: (next) => update(topEntry.id, next),
+        update: (next: any) => update(topEntry.id, next),
       })
     : null
 

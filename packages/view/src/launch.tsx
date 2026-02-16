@@ -1,8 +1,8 @@
 import { launchCli } from "@tooee/shell"
 import type { ActionDefinition } from "@tooee/commands"
-import { View } from "./View.tsx"
-import { DirectoryView } from "./DirectoryView.tsx"
-import type { ContentProvider, ContentRenderer } from "./types.ts"
+import { View } from "./View.jsx"
+import { DirectoryView } from "./DirectoryView.jsx"
+import type { ContentProvider, ContentRenderer } from "./types.js"
 
 export interface ViewLaunchOptions {
   contentProvider: ContentProvider

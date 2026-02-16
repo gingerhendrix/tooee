@@ -4,7 +4,7 @@ import { useCommand, useActions, useProvideCommandContext, useCommandContext } f
 import type { ActionDefinition } from "@tooee/commands"
 import { useTheme, ThemePicker } from "@tooee/themes"
 import { useThemeCommands } from "@tooee/shell"
-import type { AskOptions } from "./types.ts"
+import type { AskOptions } from "./types.js"
 
 interface AskProps extends AskOptions {
   actions?: ActionDefinition[]

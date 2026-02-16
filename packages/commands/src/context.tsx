@@ -1,11 +1,11 @@
 import { createContext, useContext, useRef, useCallback, useEffect, type ReactNode } from "react"
 import { useKeyboard } from "@opentui/react"
-import type { Command, CommandContext, CommandRegistry, ParsedHotkey } from "./types.ts"
-import type { Mode } from "./mode.tsx"
-import { ModeProvider, useMode, useSetMode } from "./mode.tsx"
-import { parseHotkey } from "./parse.ts"
-import { matchStep } from "./match.ts"
-import { SequenceTracker } from "./sequence.ts"
+import type { Command, CommandContext, CommandRegistry, ParsedHotkey } from "./types.js"
+import type { Mode } from "./mode.jsx"
+import { ModeProvider, useMode, useSetMode } from "./mode.jsx"
+import { parseHotkey } from "./parse.js"
+import { matchStep } from "./match.js"
+import { SequenceTracker } from "./sequence.js"
 
 const DEFAULT_MODES: Mode[] = ["cursor"]
 

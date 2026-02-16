@@ -1,6 +1,6 @@
 import { test, expect, describe } from "bun:test"
-import { fuzzyFilter } from "../src/fuzzy.ts"
-import type { ChooseItem } from "../src/types.ts"
+import { fuzzyFilter } from "../src/fuzzy.js"
+import type { ChooseItem } from "../src/types.js"
 
 function items(...texts: string[]): ChooseItem[] {
   return texts.map((text) => ({ text }))

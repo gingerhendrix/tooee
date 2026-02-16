@@ -1,6 +1,6 @@
 import { useTerminalDimensions } from "@opentui/react"
 import { useTheme } from "@tooee/themes"
-import type { ColumnDef, TableRow } from "./table-types.ts"
+import type { ColumnDef, TableRow } from "./table-types.js"
 
 export interface TableProps {
   columns: ColumnDef[]

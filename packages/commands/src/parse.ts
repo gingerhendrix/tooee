@@ -1,4 +1,4 @@
-import type { ParsedHotkey, ParsedStep } from "./types.ts"
+import type { ParsedHotkey, ParsedStep } from "./types.js"
 
 const KEY_ALIASES: Record<string, string> = {
   esc: "escape",

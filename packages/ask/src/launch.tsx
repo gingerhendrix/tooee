@@ -1,7 +1,7 @@
 import { launchCli } from "@tooee/shell"
 import type { ActionDefinition } from "@tooee/commands"
-import { Ask } from "./Ask.tsx"
-import type { AskOptions } from "./types.ts"
+import { Ask } from "./Ask.jsx"
+import type { AskOptions } from "./types.js"
 
 export interface AskLaunchOptions extends AskOptions {
   actions?: ActionDefinition[]

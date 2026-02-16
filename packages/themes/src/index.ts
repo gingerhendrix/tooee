@@ -8,14 +8,14 @@ export {
   buildSyntaxStyle,
   loadThemes,
   getThemeNames,
-} from "./theme.tsx"
+} from "./theme.js"
 export type {
   Theme,
   ThemeJSON,
   ResolvedTheme,
   ThemeProviderProps,
   ThemeSwitcherProviderProps,
-} from "./theme.tsx"
+} from "./theme.js"
 
-export { ThemePicker } from "./ThemePicker.tsx"
-export type { ThemePickerEntry } from "./ThemePicker.tsx"
+export { ThemePicker } from "./ThemePicker.jsx"
+export type { ThemePickerEntry } from "./ThemePicker.jsx"

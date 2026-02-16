@@ -2,7 +2,8 @@ import { useCallback, useRef, useState } from "react"
 import { createElement } from "react"
 import { useThemeSwitcher } from "@tooee/themes"
 import { useOverlay } from "@tooee/overlays"
-import { ThemePickerOverlay } from "./ThemePickerOverlay.tsx"
+import type { OverlayCloseReason } from "@tooee/overlays"
+import { ThemePickerOverlay } from "./ThemePickerOverlay.jsx"
 
 export interface ThemePickerEntry {
   id: string
@@ -28,7 +29,7 @@ export function useThemePicker(): ThemePickerState {
   const [isOpen, setIsOpen] = useState(false)
   const originalThemeRef = useRef<string>(currentTheme)
 
-  const entries: ThemePickerEntry[] = allThemes.map((name) => ({
+  const entries: ThemePickerEntry[] = allThemes.map((name: string) => ({
     id: name,
     title: name,
   }))
@@ -60,7 +61,7 @@ export function useThemePicker(): ThemePickerState {
     setIsOpen(true)
     overlay.open(
       OVERLAY_ID,
-      ({ close }) =>
+      ({ close }: { close: (reason?: OverlayCloseReason) => void }) =>
         createElement(ThemePickerOverlay, {
           originalTheme: currentTheme,
           close: () => close(),

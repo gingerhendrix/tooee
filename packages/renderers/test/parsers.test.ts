@@ -1,5 +1,5 @@
 import { describe, test, expect } from "bun:test"
-import { parseCSV, parseTSV, parseJSON, detectFormat, parseAuto } from "../src/parsers.ts"
+import { parseCSV, parseTSV, parseJSON, detectFormat, parseAuto } from "../src/parsers.js"
 
 describe("parseCSV", () => {
   test("basic CSV", () => {

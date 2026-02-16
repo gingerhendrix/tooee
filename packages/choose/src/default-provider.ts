@@ -1,4 +1,4 @@
-import type { ChooseItem, ChooseContentProvider } from "./types.ts"
+import type { ChooseItem, ChooseContentProvider } from "./types.js"
 
 export function createStdinChooseProvider(): ChooseContentProvider {
   return {

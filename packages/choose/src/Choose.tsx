@@ -6,8 +6,8 @@ import { ThemePicker, useTheme } from "@tooee/themes"
 import { useThemeCommands } from "@tooee/shell"
 import { useMode, useSetMode, useCommand, useActions, useProvideCommandContext, useCommandContext } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
-import type { ChooseItem, ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.ts"
-import { fuzzyFilter, type FuzzyMatch } from "./fuzzy.ts"
+import type { ChooseItem, ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.js"
+import { fuzzyFilter, type FuzzyMatch } from "./fuzzy.js"
 
 interface ChooseProps {
   contentProvider: ChooseContentProvider

@@ -1,2 +1,2 @@
-export { copyToClipboard, readClipboard, readClipboardText } from "./clipboard.ts"
-export type { ClipboardContent } from "./clipboard.ts"
+export { copyToClipboard, readClipboard, readClipboardText } from "./clipboard.js"
+export type { ClipboardContent } from "./clipboard.js"

@@ -1,9 +1,9 @@
 import { useState, useMemo } from "react"
 import { useCommand } from "@tooee/commands"
-import { View } from "./View.tsx"
-import { listDirectoryFiles, type DirectoryEntry } from "./directory-provider.ts"
-import type { AnyContent, ContentProvider } from "./types.ts"
-import { createFileProvider } from "./default-provider.ts"
+import { View } from "./View.jsx"
+import { listDirectoryFiles, type DirectoryEntry } from "./directory-provider.js"
+import type { AnyContent, ContentProvider } from "./types.js"
+import { createFileProvider } from "./default-provider.js"
 
 function createDirectoryFileProvider(
   entry: DirectoryEntry,

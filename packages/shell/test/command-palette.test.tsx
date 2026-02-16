@@ -2,7 +2,7 @@ import { testRender } from "@opentui/react/test-utils"
 import { test, expect, afterEach, describe } from "bun:test"
 import { act } from "react"
 import { TooeeProvider } from "@tooee/shell"
-import { useCommandPalette } from "../src/command-palette.ts"
+import { useCommandPalette } from "../src/command-palette.js"
 import { useCommand, useMode } from "@tooee/commands"
 
 function PaletteHarness() {

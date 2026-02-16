@@ -1,4 +1,4 @@
-export { Ask } from "./Ask.tsx"
-export { launch } from "./launch.tsx"
-export type { AskLaunchOptions } from "./launch.tsx"
-export type { AskOptions } from "./types.ts"
+export { Ask } from "./Ask.jsx"
+export { launch } from "./launch.jsx"
+export type { AskLaunchOptions } from "./launch.jsx"
+export type { AskOptions } from "./types.js"

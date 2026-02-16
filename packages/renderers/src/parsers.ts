@@ -1,4 +1,4 @@
-import type { ColumnDef, TableRow } from "./table-types.ts"
+import type { ColumnDef, TableRow } from "./table-types.js"
 
 export interface ParsedTable {
   columns: ColumnDef[]

@@ -2,7 +2,7 @@ import { testRender } from "@opentui/react/test-utils"
 import { test, expect, afterEach, describe } from "bun:test"
 import { act } from "react"
 import { TooeeProvider, useModalNavigationCommands } from "@tooee/shell"
-import { findMatchingLines } from "../src/search.ts"
+import { findMatchingLines } from "../src/search.js"
 
 // ── Unit tests for findMatchingLines ──
 

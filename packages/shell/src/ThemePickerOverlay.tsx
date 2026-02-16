@@ -10,7 +10,7 @@ export function ThemePickerOverlay({
   close: () => void
 }): ReactNode {
   const { allThemes, name: currentTheme, setTheme } = useThemeSwitcher()
-  const entries = allThemes.map((name) => ({ id: name, title: name }))
+  const entries = allThemes.map((name: string) => ({ id: name, title: name }))
 
   return createElement(ThemePicker, {
     entries,

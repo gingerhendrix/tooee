@@ -1,6 +1,6 @@
 import { launchTerminal, type Session } from "tuistory"
 import { resolve } from "path"
-import { ensureTestConfigHome, resetTestConfig } from "../../../../test/support/test-config.ts"
+import { ensureTestConfigHome, resetTestConfig } from "../../../../test/support/test-config.js"
 
 const REPO_ROOT = resolve(import.meta.dir, "../../../..")
 const CLI = resolve(REPO_ROOT, "apps/cli/src/main.ts")
@@ -12,7 +12,7 @@ export async function launchTable(fixture: string): Promise<Session> {
   resetTestConfig(CONFIG_NAMESPACE)
   const session = await launchTerminal({
     command: "bun",
-    args: [CLI, "table", fixturePath],
+    args: ["--conditions=@tooee/source", CLI, "table", fixturePath],
     cols: 80,
     rows: 24,
     cwd: REPO_ROOT,

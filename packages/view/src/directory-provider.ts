@@ -1,7 +1,7 @@
 import { readdirSync, statSync } from "fs"
 import { join } from "path"
-import type { ContentProvider } from "./types.ts"
-import { createFileProvider } from "./default-provider.ts"
+import type { ContentProvider } from "./types.js"
+import { createFileProvider } from "./default-provider.js"
 
 const SUPPORTED_EXTENSIONS = new Set([
   "md",

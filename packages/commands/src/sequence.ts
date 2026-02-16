@@ -1,6 +1,6 @@
 import type { KeyEvent } from "@opentui/core"
-import type { ParsedHotkey } from "./types.ts"
-import { matchStep } from "./match.ts"
+import type { ParsedHotkey } from "./types.js"
+import { matchStep } from "./match.js"
 
 export interface SequenceTrackerOptions {
   timeout?: number // ms, default 500

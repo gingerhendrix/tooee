@@ -26,7 +26,7 @@ import {
   type ContentChunk,
   type ContentRenderer,
   type CustomContent,
-} from "./types.ts"
+} from "./types.js"
 
 interface ViewProps {
   contentProvider: ContentProvider
@@ -269,7 +269,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
   }))
 
   const matchingLinesSet = useMemo(
-    () => (nav.matchingLines.length > 0 ? new Set(nav.matchingLines) : undefined),
+    () => (nav.matchingLines.length > 0 ? new Set<number>(nav.matchingLines) : undefined),
     [nav.matchingLines],
   )
   const currentMatchLine =
@@ -321,17 +321,17 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
 
   const toggledBlocks = useMemo(() => {
     if (content?.format !== "markdown" || nav.toggledIndices.size === 0) return undefined
-    return new Set(nav.toggledIndices)
+    return new Set<number>(nav.toggledIndices)
   }, [content?.format, nav.toggledIndices])
 
   const toggledRows = useMemo(() => {
     if (content?.format !== "table" || nav.toggledIndices.size === 0) return undefined
-    return new Set(nav.toggledIndices)
+    return new Set<number>(nav.toggledIndices)
   }, [content?.format, nav.toggledIndices])
 
   const toggledLines = useMemo(() => {
     if (!content || (content.format !== "code" && content.format !== "text")) return undefined
-    return nav.toggledIndices.size > 0 ? new Set(nav.toggledIndices) : undefined
+    return nav.toggledIndices.size > 0 ? new Set<number>(nav.toggledIndices) : undefined
   }, [content, nav.toggledIndices])
 
   if (error) {

@@ -1,7 +1,7 @@
 import { useRenderer } from "@opentui/react"
 import { copyToClipboard } from "@tooee/clipboard"
 import { useCommand, type CommandWhen } from "@tooee/commands"
-import { useThemePicker, type ThemePickerState } from "./theme-picker.ts"
+import { useThemePicker, type ThemePickerState } from "./theme-picker.js"
 
 export function useThemeCommands(opts?: { when?: CommandWhen }): {
   name: string

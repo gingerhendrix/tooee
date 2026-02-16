@@ -1,4 +1,4 @@
-import type { ChooseItem } from "./types.ts"
+import type { ChooseItem } from "./types.js"
 
 export interface FuzzyMatch {
   item: ChooseItem

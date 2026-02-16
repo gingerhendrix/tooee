@@ -1,5 +1,5 @@
 import type { KeyEvent } from "@opentui/core"
-import type { ParsedStep } from "./types.ts"
+import type { ParsedStep } from "./types.js"
 
 /**
  * Check if a KeyEvent matches a ParsedStep.

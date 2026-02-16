@@ -1,6 +1,6 @@
 import { readFileSync, mkdirSync, writeFileSync, existsSync } from "fs"
 import { join, dirname } from "path"
-import type { TooeeConfig } from "./types.ts"
+import type { TooeeConfig } from "./types.js"
 
 const DEFAULTS: TooeeConfig = {
   theme: {

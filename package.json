@@ -18,6 +18,7 @@
   "scripts": {
     "build": "bunx tsc -b",
     "clean": "rm -rf packages/*/dist apps/*/dist",
+    "test": "bun --conditions=@tooee/source test",
     "check": "bunx tsc -b && bunx tsc -p examples",
     "lint": "oxlint --react-plugin .",
     "lint:fix": "oxlint --react-plugin --fix .",

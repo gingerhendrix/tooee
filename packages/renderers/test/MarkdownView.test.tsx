@@ -1,7 +1,7 @@
 import { testRender } from "@opentui/react/test-utils"
 import { test, expect, afterEach } from "bun:test"
 import { ThemeSwitcherProvider } from "@tooee/themes"
-import { MarkdownView } from "../src/MarkdownView.tsx"
+import { MarkdownView } from "../src/MarkdownView.jsx"
 
 let testSetup: Awaited<ReturnType<typeof testRender>>
 

@@ -2,7 +2,7 @@ import { marked, type Token, type Tokens } from "marked"
 import type { ReactNode } from "react"
 import { useTheme, type ResolvedTheme } from "@tooee/themes"
 import type { SyntaxStyle } from "@opentui/core"
-import { Table } from "./Table.tsx"
+import { Table } from "./Table.jsx"
 
 interface MarkdownViewProps {
   content: string

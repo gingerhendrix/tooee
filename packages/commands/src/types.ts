@@ -1,4 +1,4 @@
-import type { Mode } from "./mode.tsx"
+import type { Mode } from "./mode.jsx"
 
 export interface CommandContextBase {
   mode: Mode

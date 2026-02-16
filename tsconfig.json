@@ -13,8 +13,7 @@
     "composite": true,
     "jsx": "react-jsx",
     "jsxImportSource": "@opentui/react",
-    "allowImportingTsExtensions": true,
-    "emitDeclarationOnly": true,
+    "customConditions": ["@tooee/source"],
     "types": ["bun"]
   },
   "files": [],

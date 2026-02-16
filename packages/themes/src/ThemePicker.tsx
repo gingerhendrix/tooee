@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from "react"
 import { useKeyboard } from "@opentui/react"
-import { useTheme } from "./theme.tsx"
+import { useTheme } from "./theme.js"
 
 export interface ThemePickerEntry {
   id: string

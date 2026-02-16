@@ -1,5 +1,5 @@
 import { parseAuto } from "@tooee/renderers"
-import type { Content, ContentFormat, ContentProvider } from "./types.ts"
+import type { Content, ContentFormat, ContentProvider } from "./types.js"
 
 function detectFormat(filePath: string): { format: ContentFormat; language?: string } {
   const ext = filePath.split(".").pop()?.toLowerCase()

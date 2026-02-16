@@ -17,7 +17,7 @@ afterEach(() => {
 async function launchViewDir(): Promise<Session> {
   const s = await launchTerminal({
     command: "bun",
-    args: [CLI, "view", TEST_DIR],
+    args: ["--conditions=@tooee/source", CLI, "view", TEST_DIR],
     cols: 80,
     rows: 24,
     cwd: REPO_ROOT,

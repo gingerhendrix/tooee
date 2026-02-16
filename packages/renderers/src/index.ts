@@ -1,6 +1,6 @@
-export { MarkdownView } from "./MarkdownView.tsx"
-export { CodeView } from "./CodeView.tsx"
-export { ImageView } from "./ImageView.tsx"
+export { MarkdownView } from "./MarkdownView.jsx"
+export { CodeView } from "./CodeView.jsx"
+export { ImageView } from "./ImageView.jsx"
 export {
   Table,
   computeColumnWidths,
@@ -10,10 +10,10 @@ export {
   buildBorderLine,
   buildDataLine,
   sampleRows,
-} from "./Table.tsx"
-export type { TableProps, ColumnWidthOptions } from "./Table.tsx"
-export type { ColumnDef, TableRow } from "./table-types.ts"
-export { CommandPalette } from "./CommandPalette.tsx"
-export type { CommandPaletteEntry } from "./CommandPalette.tsx"
-export { parseCSV, parseTSV, parseJSON, parseAuto, detectFormat } from "./parsers.ts"
-export type { Format, ParsedTable } from "./parsers.ts"
+} from "./Table.jsx"
+export type { TableProps, ColumnWidthOptions } from "./Table.jsx"
+export type { ColumnDef, TableRow } from "./table-types.js"
+export { CommandPalette } from "./CommandPalette.jsx"
+export type { CommandPaletteEntry } from "./CommandPalette.jsx"
+export { parseCSV, parseTSV, parseJSON, parseAuto, detectFormat } from "./parsers.js"
+export type { Format, ParsedTable } from "./parsers.js"
