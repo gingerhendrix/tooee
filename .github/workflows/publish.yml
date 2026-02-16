@@ -56,6 +56,9 @@ jobs:
             "
           done
 
+      # Re-resolve workspace deps after version bump
+      - run: bun install --no-frozen-lockfile
+
       - name: Pack and publish packages
         run: |
           # Publish in dependency order: foundation → concern → composition → apps
