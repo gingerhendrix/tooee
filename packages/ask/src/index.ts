@@ -1,4 +1,4 @@
-export { Ask } from "./Ask.jsx"
-export { launch } from "./launch.jsx"
-export type { AskLaunchOptions } from "./launch.jsx"
+export { Ask } from "./Ask.js"
+export { launch } from "./launch.js"
+export type { AskLaunchOptions } from "./launch.js"
 export type { AskOptions } from "./types.js"

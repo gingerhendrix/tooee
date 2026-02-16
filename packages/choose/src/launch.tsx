@@ -4,7 +4,7 @@ import { createCliRenderer } from "@opentui/core"
 import { createRoot } from "@opentui/react"
 import { TooeeProvider } from "@tooee/shell"
 import type { ActionDefinition } from "@tooee/commands"
-import { Choose } from "./Choose.jsx"
+import { Choose } from "./Choose.js"
 import type { ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.js"
 
 export interface ChooseLaunchOptions {

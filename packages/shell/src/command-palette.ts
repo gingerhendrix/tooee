@@ -5,7 +5,7 @@ import type { Mode } from "@tooee/commands"
 import { useOverlay } from "@tooee/overlays"
 import type { OverlayCloseReason } from "@tooee/overlays"
 import type { CommandPaletteEntry } from "@tooee/renderers"
-import { CommandPaletteOverlay } from "./CommandPaletteOverlay.jsx"
+import { CommandPaletteOverlay } from "./CommandPaletteOverlay.js"
 
 const DEFAULT_MODES: Mode[] = ["cursor"]
 const OVERLAY_ID = "command-palette"

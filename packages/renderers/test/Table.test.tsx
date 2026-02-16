@@ -1,8 +1,8 @@
 import { testRender } from "@opentui/react/test-utils"
 import { test, expect, describe, afterEach } from "bun:test"
 import { ThemeSwitcherProvider } from "@tooee/themes"
-import { Table } from "../src/Table.jsx"
-import { computeColumnWidths, truncate, isNumeric } from "../src/Table.jsx"
+import { Table } from "../src/Table.js"
+import { computeColumnWidths, truncate, isNumeric } from "../src/Table.js"
 
 function createColumns(headers: string[]) {
   return headers.map((header, index) => ({

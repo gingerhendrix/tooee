@@ -1,7 +1,7 @@
 import { launchCli } from "@tooee/shell"
 import type { ActionDefinition } from "@tooee/commands"
-import { View } from "./View.jsx"
-import { DirectoryView } from "./DirectoryView.jsx"
+import { View } from "./View.js"
+import { DirectoryView } from "./DirectoryView.js"
 import type { ContentProvider, ContentRenderer } from "./types.js"
 
 export interface ViewLaunchOptions {

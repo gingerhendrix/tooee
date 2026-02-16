@@ -1,7 +1,7 @@
 import { testRender } from "@opentui/react/test-utils"
 import { test, expect, afterEach } from "bun:test"
 import { ThemeSwitcherProvider } from "@tooee/themes"
-import { AppLayout } from "../src/AppLayout.jsx"
+import { AppLayout } from "../src/AppLayout.js"
 
 let testSetup: Awaited<ReturnType<typeof testRender>>
 

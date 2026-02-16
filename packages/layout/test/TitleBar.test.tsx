@@ -1,7 +1,7 @@
 import { testRender } from "@opentui/react/test-utils"
 import { test, expect, afterEach } from "bun:test"
 import { ThemeSwitcherProvider } from "@tooee/themes"
-import { TitleBar } from "../src/TitleBar.jsx"
+import { TitleBar } from "../src/TitleBar.js"
 
 let testSetup: Awaited<ReturnType<typeof testRender>>
 

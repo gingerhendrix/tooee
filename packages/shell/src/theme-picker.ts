@@ -3,7 +3,7 @@ import { createElement } from "react"
 import { useThemeSwitcher } from "@tooee/themes"
 import { useOverlay } from "@tooee/overlays"
 import type { OverlayCloseReason } from "@tooee/overlays"
-import { ThemePickerOverlay } from "./ThemePickerOverlay.jsx"
+import { ThemePickerOverlay } from "./ThemePickerOverlay.js"
 
 export interface ThemePickerEntry {
   id: string

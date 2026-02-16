@@ -6,7 +6,7 @@ export {
   useOverlayState,
   useCurrentOverlay,
   useHasOverlay,
-} from "./overlay-context.jsx"
+} from "./overlay-context.js"
 export type {
   OverlayContextValue,
   OverlayId,
@@ -17,4 +17,4 @@ export type {
   OverlayHandle,
   OverlayController,
   OverlayState,
-} from "./overlay-context.jsx"
+} from "./overlay-context.js"

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react"
 import type { Command, CommandHandler, CommandWhen } from "./types.js"
-import type { Mode } from "./mode.jsx"
-import { useCommandRegistry } from "./context.jsx"
+import type { Mode } from "./mode.js"
+import { useCommandRegistry } from "./context.js"
 
 export interface UseCommandOptions {
   id: string

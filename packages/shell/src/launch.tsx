@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import { createCliRenderer } from "@opentui/core"
 import { createRoot } from "@opentui/react"
-import { TooeeProvider } from "./provider.jsx"
+import { TooeeProvider } from "./provider.js"
 
 export async function launchCli(
   node: ReactNode,

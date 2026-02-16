@@ -17,5 +17,5 @@ export type {
   ThemeSwitcherProviderProps,
 } from "./theme.js"
 
-export { ThemePicker } from "./ThemePicker.jsx"
-export type { ThemePickerEntry } from "./ThemePicker.jsx"
+export { ThemePicker } from "./ThemePicker.js"
+export type { ThemePickerEntry } from "./ThemePicker.js"
