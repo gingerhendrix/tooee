@@ -77,7 +77,7 @@ jobs:
           for pkg in "${PACKAGES[@]}"; do
             echo "Publishing $pkg..."
             cd "$pkg"
-            TARBALL=$(bun pm pack)
+            TARBALL=$(bun pm pack --quiet)
             npm publish "$TARBALL" --provenance --access public
             rm -f "$TARBALL"
             cd "$GITHUB_WORKSPACE"
