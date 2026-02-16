@@ -1,0 +1,91 @@
+name: Publish to npm
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version bump (patch, minor, major, or explicit like 0.2.0)"
+        required: true
+        default: "patch"
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - run: npm install -g npm@latest
+
+      - run: bun install --frozen-lockfile
+
+      - run: bun run build
+
+      - name: Set version
+        run: |
+          VERSION=${{ github.event.inputs.version }}
+
+          # If it looks like a semver, use it directly; otherwise treat as bump type
+          if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            NEW_VERSION="$VERSION"
+          else
+            CURRENT=$(node -p "require('./packages/config/package.json').version")
+            NEW_VERSION=$(npx semver "$CURRENT" -i "$VERSION")
+          fi
+
+          echo "Publishing version: $NEW_VERSION"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+          # Update all package versions
+          for pkg in packages/*/package.json apps/cli/package.json; do
+            node -e "
+              const fs = require('fs');
+              const pkg = JSON.parse(fs.readFileSync('$pkg', 'utf8'));
+              pkg.version = '$NEW_VERSION';
+              fs.writeFileSync('$pkg', JSON.stringify(pkg, null, 2) + '\n');
+            "
+          done
+
+      - name: Pack and publish packages
+        run: |
+          # Publish in dependency order: foundation → concern → composition → apps
+          PACKAGES=(
+            packages/config
+            packages/commands
+            packages/clipboard
+            packages/overlays
+            packages/themes
+            packages/layout
+            packages/renderers
+            packages/shell
+            packages/view
+            packages/ask
+            packages/choose
+            apps/cli
+          )
+
+          for pkg in "${PACKAGES[@]}"; do
+            echo "Publishing $pkg..."
+            cd "$pkg"
+            TARBALL=$(bun pm pack)
+            npm publish "$TARBALL" --provenance --access public
+            rm -f "$TARBALL"
+            cd "$GITHUB_WORKSPACE"
+          done
+
+      - name: Tag release
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v$NEW_VERSION"
+          git push origin "v$NEW_VERSION"
