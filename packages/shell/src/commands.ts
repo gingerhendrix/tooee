@@ -1,6 +1,8 @@
+import { useEffect, useRef } from "react"
 import { useRenderer } from "@opentui/react"
 import { copyToClipboard } from "@tooee/clipboard"
 import { useCommand, type CommandWhen } from "@tooee/commands"
+import { useToast } from "@tooee/toasts"
 import { useThemePicker, type ThemePickerState } from "./theme-picker.js"
 
 export function useThemeCommands(opts?: { when?: CommandWhen }): {
@@ -8,6 +10,16 @@ export function useThemeCommands(opts?: { when?: CommandWhen }): {
   picker: ThemePickerState
 } {
   const picker = useThemePicker()
+  const { toast } = useToast()
+
+  // Toast when theme changes (after picker closes)
+  const prevTheme = useRef(picker.currentTheme)
+  useEffect(() => {
+    if (prevTheme.current !== picker.currentTheme && !picker.isOpen) {
+      toast({ message: `Theme: ${picker.currentTheme}`, level: "info", id: "theme-changed" })
+    }
+    prevTheme.current = picker.currentTheme
+  }, [picker.currentTheme, picker.isOpen, toast])
 
   useCommand({
     id: "cycle-theme",
@@ -50,10 +62,13 @@ export function useCopyCommand(opts: { getText: () => string | undefined; when?:
     title: "Copy to clipboard",
     hotkey: "y",
     when: opts.when,
-    handler: () => {
+    handler: (ctx) => {
       const text = opts.getText()
       if (text) {
         void copyToClipboard(text)
+        ctx.toast.toast({ message: "Copied to clipboard", level: "success" })
+      } else {
+        ctx.toast.toast({ message: "Nothing to copy", level: "warning" })
       }
     },
   })

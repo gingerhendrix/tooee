@@ -23,6 +23,7 @@
     { "path": "packages/themes" },
     { "path": "packages/overlays" },
     { "path": "packages/clipboard" },
+    { "path": "packages/toasts" },
     { "path": "packages/layout" },
     { "path": "packages/renderers" },
     { "path": "packages/shell" },

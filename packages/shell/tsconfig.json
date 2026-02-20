@@ -12,6 +12,7 @@
     { "path": "../themes" },
     { "path": "../overlays" },
     { "path": "../clipboard" },
+    { "path": "../toasts" },
     { "path": "../layout" },
     { "path": "../renderers" }
   ]

@@ -1,17 +1,17 @@
 {
-  "name": "@tooee/layout",
+  "name": "@tooee/toasts",
   "version": "0.1.0",
-  "description": "Standard app chrome (title bar, status bar) for Tooee",
+  "description": "Toast notification system for Tooee",
   "license": "MIT",
   "author": "Gareth Andrew",
   "repository": {
     "type": "git",
     "url": "https://github.com/gingerhendrix/tooee.git",
-    "directory": "packages/layout"
+    "directory": "packages/toasts"
   },
   "homepage": "https://github.com/gingerhendrix/tooee",
   "bugs": "https://github.com/gingerhendrix/tooee/issues",
-  "keywords": ["tui", "terminal", "cli", "opentui", "layout"],
+  "keywords": ["tui", "terminal", "cli", "opentui", "toasts", "notifications"],
   "type": "module",
   "exports": {
     ".": {
@@ -26,9 +26,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tooee/themes": "workspace:*",
-    "@tooee/overlays": "workspace:*",
-    "@tooee/toasts": "workspace:*"
+    "@tooee/themes": "workspace:*"
   },
   "devDependencies": {
     "@opentui/core": "^0.1.67",

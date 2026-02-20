@@ -7,6 +7,7 @@ import { SearchBar } from "./SearchBar.js"
 import type { SearchBarProps } from "./SearchBar.js"
 import { useTheme } from "@tooee/themes"
 import { useCurrentOverlay } from "@tooee/overlays"
+import { ToastContainer } from "@tooee/toasts"
 
 export interface AppLayoutSearchBar extends SearchBarProps {
   active: boolean
@@ -56,6 +57,7 @@ export function AppLayout({
             {activeOverlay}
           </box>
         )}
+        <ToastContainer />
       </box>
       {searchBar?.active ? (
         <SearchBar

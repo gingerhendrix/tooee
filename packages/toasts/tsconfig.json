@@ -6,5 +6,5 @@
     "rootDir": "./src"
   },
   "include": ["./src"],
-  "references": [{ "path": "../themes" }, { "path": "../overlays" }, { "path": "../toasts" }]
+  "references": [{ "path": "../themes" }]
 }

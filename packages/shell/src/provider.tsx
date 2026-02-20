@@ -1,8 +1,15 @@
 import type { ReactNode } from "react"
 import { ConfigProvider, useConfig, type TooeeConfig } from "@tooee/config"
 import { ThemeSwitcherProvider } from "@tooee/themes"
-import { CommandProvider, type Mode } from "@tooee/commands"
+import { CommandProvider, useProvideCommandContext, type Mode } from "@tooee/commands"
+import { ToastProvider, useToast, type ToastController } from "@tooee/toasts"
 import { OverlayProvider } from "./overlay.js"
+
+declare module "@tooee/commands" {
+  interface CommandContext {
+    toast: ToastController
+  }
+}
 
 export interface TooeeProviderProps {
   children: ReactNode
@@ -39,8 +46,22 @@ function TooeeProviderInner({
   return (
     <ThemeSwitcherProvider initialTheme={config.theme?.name} initialMode={config.theme?.mode}>
       <CommandProvider leader={leader} keymap={config.keys} initialMode={initialMode}>
-        <OverlayProvider>{children}</OverlayProvider>
+        <ToastProvider>
+          <ToastContextBridge>
+            <OverlayProvider>{children}</OverlayProvider>
+          </ToastContextBridge>
+        </ToastProvider>
       </CommandProvider>
     </ThemeSwitcherProvider>
   )
+}
+
+function ToastContextBridge({ children }: { children: ReactNode }) {
+  const toastController = useToast()
+
+  useProvideCommandContext(() => ({
+    toast: toastController,
+  }))
+
+  return <>{children}</>
 }

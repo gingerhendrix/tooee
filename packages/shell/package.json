@@ -29,6 +29,7 @@
     "@tooee/commands": "workspace:*",
     "@tooee/config": "workspace:*",
     "@tooee/clipboard": "workspace:*",
+    "@tooee/toasts": "workspace:*",
     "@tooee/layout": "workspace:*",
     "@tooee/overlays": "workspace:*",
     "@tooee/renderers": "workspace:*",
