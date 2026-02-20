@@ -1,6 +1,7 @@
 import { testRender } from "@opentui/react/test-utils"
 import { test, expect, afterEach } from "bun:test"
 import { ThemeSwitcherProvider } from "@tooee/themes"
+import { ToastProvider } from "@tooee/toasts"
 import { AppLayout } from "../src/AppLayout.js"
 
 let testSetup: Awaited<ReturnType<typeof testRender>>
@@ -12,12 +13,14 @@ afterEach(() => {
 test("renders title bar with title and subtitle", async () => {
   testSetup = await testRender(
     <ThemeSwitcherProvider>
-      <AppLayout
-        titleBar={{ title: "App Title", subtitle: "v1.0" }}
-        statusBar={{ items: [{ label: "OK" }] }}
-      >
-        <text content="body" />
-      </AppLayout>
+      <ToastProvider>
+        <AppLayout
+          titleBar={{ title: "App Title", subtitle: "v1.0" }}
+          statusBar={{ items: [{ label: "OK" }] }}
+        >
+          <text content="body" />
+        </AppLayout>
+      </ToastProvider>
     </ThemeSwitcherProvider>,
     { width: 80, height: 24 },
   )
@@ -30,9 +33,11 @@ test("renders title bar with title and subtitle", async () => {
 test("renders status bar with items", async () => {
   testSetup = await testRender(
     <ThemeSwitcherProvider>
-      <AppLayout statusBar={{ items: [{ label: "Mode", value: "cursor" }] }}>
-        <text content="body" />
-      </AppLayout>
+      <ToastProvider>
+        <AppLayout statusBar={{ items: [{ label: "Mode", value: "cursor" }] }}>
+          <text content="body" />
+        </AppLayout>
+      </ToastProvider>
     </ThemeSwitcherProvider>,
     { width: 80, height: 24 },
   )
@@ -45,9 +50,11 @@ test("renders status bar with items", async () => {
 test("renders children in scrollable area", async () => {
   testSetup = await testRender(
     <ThemeSwitcherProvider>
-      <AppLayout statusBar={{ items: [{ label: "OK" }] }}>
-        <text content="Child Content Here" />
-      </AppLayout>
+      <ToastProvider>
+        <AppLayout statusBar={{ items: [{ label: "OK" }] }}>
+          <text content="Child Content Here" />
+        </AppLayout>
+      </ToastProvider>
     </ThemeSwitcherProvider>,
     { width: 80, height: 24 },
   )
@@ -59,17 +66,19 @@ test("renders children in scrollable area", async () => {
 test("snapshot full layout", async () => {
   testSetup = await testRender(
     <ThemeSwitcherProvider>
-      <AppLayout
-        titleBar={{ title: "Test App", subtitle: "snapshot" }}
-        statusBar={{
-          items: [
-            { label: "Mode", value: "cmd" },
-            { label: "Line", value: "1" },
-          ],
-        }}
-      >
-        <text content="Main content area" />
-      </AppLayout>
+      <ToastProvider>
+        <AppLayout
+          titleBar={{ title: "Test App", subtitle: "snapshot" }}
+          statusBar={{
+            items: [
+              { label: "Mode", value: "cmd" },
+              { label: "Line", value: "1" },
+            ],
+          }}
+        >
+          <text content="Main content area" />
+        </AppLayout>
+      </ToastProvider>
     </ThemeSwitcherProvider>,
     { width: 60, height: 10 },
   )
