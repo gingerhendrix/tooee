@@ -149,13 +149,20 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   const scrollToCursor = useCallback(
     (cursorIndex: number) => {
       const line = isBlockMode && blockLineMap ? (blockLineMap[cursorIndex] ?? 0) : cursorIndex
+      // For block mode, use the end of the block to check if we need to scroll down
+      const blockEndLine =
+        isBlockMode && blockLineMap
+          ? cursorIndex + 1 < blockLineMap.length
+            ? blockLineMap[cursorIndex + 1] - 1
+            : totalLines - 1
+          : line
       setScrollOffset((offset) => {
         if (line < offset) return line
-        if (line >= offset + viewportHeight) return clampScroll(line - viewportHeight + 1)
+        if (blockEndLine >= offset + viewportHeight) return clampScroll(blockEndLine - viewportHeight + 1)
         return offset
       })
     },
-    [viewportHeight, clampScroll, isBlockMode, blockLineMap],
+    [viewportHeight, clampScroll, isBlockMode, blockLineMap, totalLines],
   )
 
   // === CURSOR MODE ===
