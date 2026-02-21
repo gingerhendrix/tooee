@@ -1,4 +1,4 @@
-import { testRender } from "@opentui/react/test-utils"
+import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach } from "bun:test"
 import { useState } from "react"
 import { ThemeSwitcherProvider } from "@tooee/themes"

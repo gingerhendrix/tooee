@@ -1,4 +1,4 @@
-import { testRender } from "@opentui/react/test-utils"
+import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach } from "bun:test"
 import { act } from "react"
 import { TooeeProvider, useThemeCommands, useQuitCommand } from "@tooee/shell"
