@@ -9,5 +9,6 @@ export interface TooeeConfig {
   view?: {
     wrap?: boolean
     gutter?: boolean
+    copyOnSelect?: boolean | "primary" | "clipboard"
   }
 }

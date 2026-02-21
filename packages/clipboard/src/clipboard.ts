@@ -177,3 +177,61 @@ function getCopyMethod(): (text: string) => Promise<void> {
 export async function copyToClipboard(text: string): Promise<void> {
   await getCopyMethod()(text)
 }
+
+let primaryCopyMethod: ((text: string) => Promise<void>) | null = null
+
+function getPrimaryCopyMethod(): (text: string) => Promise<void> {
+  if (primaryCopyMethod) return primaryCopyMethod
+
+  const os = platform()
+
+  if (os === "linux") {
+    if (process.env["WAYLAND_DISPLAY"] && Bun.which("wl-copy")) {
+      primaryCopyMethod = async (text: string) => {
+        const proc = Bun.spawn(["wl-copy", "--primary"], {
+          stdin: "pipe",
+          stdout: "ignore",
+          stderr: "ignore",
+        })
+        proc.stdin.write(text)
+        proc.stdin.end()
+        await proc.exited.catch(() => undefined)
+      }
+      return primaryCopyMethod
+    }
+    if (Bun.which("xclip")) {
+      primaryCopyMethod = async (text: string) => {
+        const proc = Bun.spawn(["xclip", "-selection", "primary"], {
+          stdin: "pipe",
+          stdout: "ignore",
+          stderr: "ignore",
+        })
+        proc.stdin.write(text)
+        proc.stdin.end()
+        await proc.exited.catch(() => undefined)
+      }
+      return primaryCopyMethod
+    }
+    if (Bun.which("xsel")) {
+      primaryCopyMethod = async (text: string) => {
+        const proc = Bun.spawn(["xsel", "--primary", "--input"], {
+          stdin: "pipe",
+          stdout: "ignore",
+          stderr: "ignore",
+        })
+        proc.stdin.write(text)
+        proc.stdin.end()
+        await proc.exited.catch(() => undefined)
+      }
+      return primaryCopyMethod
+    }
+  }
+
+  // macOS/Windows don't have PRIMARY selection — fall back to clipboard
+  primaryCopyMethod = getCopyMethod()
+  return primaryCopyMethod
+}
+
+export async function copyToPrimary(text: string): Promise<void> {
+  await getPrimaryCopyMethod()(text)
+}

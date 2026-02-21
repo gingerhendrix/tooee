@@ -4,6 +4,7 @@ import { ThemeSwitcherProvider } from "@tooee/themes"
 import { CommandProvider, useProvideCommandContext, type Mode } from "@tooee/commands"
 import { ToastProvider, useToast, type ToastController } from "@tooee/toasts"
 import { OverlayProvider } from "./overlay.js"
+import { useCopyOnSelect } from "./copy-on-select.js"
 
 declare module "@tooee/commands" {
   interface CommandContext {
@@ -62,6 +63,8 @@ function ToastContextBridge({ children }: { children: ReactNode }) {
   useProvideCommandContext(() => ({
     toast: toastController,
   }))
+
+  useCopyOnSelect()
 
   return <>{children}</>
 }
