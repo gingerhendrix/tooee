@@ -162,53 +162,46 @@ async function setupBlock() {
 }
 
 describe("block mode scrolling", () => {
-  test("scrolls down to show full block when block extends below viewport", async () => {
+  // Block mode scroll positioning is handled by View.tsx using rendered layout,
+  // not by scrollOffset in modal.ts. scrollOffset stays at 0 for block mode.
+  test("scrollOffset stays 0 in block mode — View.tsx handles scroll via layout", async () => {
     testSetup = await setupBlock()
-    // cursor starts at block 0 (lines 0-4), scroll 0
+    // cursor starts at block 0, scroll 0
     const frame0 = testSetup.captureCharFrame()
     expect(frame0).toContain("cursor:0")
     expect(frame0).toContain("scroll:0")
 
-    // Move to block 1 (lines 5-9) — end line is 9, fits in viewport (0+10=10), no scroll
+    // Move through blocks — cursor updates but scrollOffset stays at 0
     await press(testSetup, "j")
     const frame1 = testSetup.captureCharFrame()
     expect(frame1).toContain("cursor:1")
     expect(frame1).toContain("scroll:0")
 
-    // Move to block 2 (lines 10-24, 15 lines tall)
-    // Block end is line 24, which is well past viewport (0+10=10)
-    // Should scroll so line 24 is visible: scroll = 24 - 10 + 1 = 15
     await press(testSetup, "j")
     const frame2 = testSetup.captureCharFrame()
     expect(frame2).toContain("cursor:2")
-    expect(frame2).toContain("scroll:15")
+    expect(frame2).toContain("scroll:0")
   })
 
-  test("scrolls up to show top of block", async () => {
+  test("cursor navigation works correctly in block mode", async () => {
     testSetup = await setupBlock()
-    // Navigate to block 2 to push scroll forward
+    // Navigate forward and back
     await press(testSetup, "j") // block 1
-    await press(testSetup, "j") // block 2, scroll adjusts to 15
+    await press(testSetup, "j") // block 2
 
-    // Move back to block 1 (starts at line 5) — line 5 < scroll 15, so scroll to 5
-    await press(testSetup, "k")
+    await press(testSetup, "k") // back to block 1
     expect(testSetup.captureCharFrame()).toContain("cursor:1")
-    expect(testSetup.captureCharFrame()).toContain("scroll:5")
 
-    // Move back to block 0 (starts at line 0) — line 0 < scroll 5, so scroll to 0
-    await press(testSetup, "k")
+    await press(testSetup, "k") // back to block 0
     expect(testSetup.captureCharFrame()).toContain("cursor:0")
-    expect(testSetup.captureCharFrame()).toContain("scroll:0")
   })
 
-  test("last block scrolls correctly using totalLines for end", async () => {
+  test("G jumps cursor to last block", async () => {
     testSetup = await setupBlock()
-    // Jump to last block with shift+g
     await press(testSetup, "G", { shift: true })
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("cursor:4")
-    // Block 4 starts at line 40, ends at line 49 (totalLines-1)
-    // scroll should be clamped to maxScroll = 50-10 = 40
-    expect(frame).toContain("scroll:40")
+    // scrollOffset stays at 0 — View.tsx handles actual scroll positioning
+    expect(frame).toContain("scroll:0")
   })
 })

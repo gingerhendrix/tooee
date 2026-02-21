@@ -47,21 +47,20 @@ describe("navigation", () => {
     }
     await new Promise((r) => setTimeout(r, 500))
     const scrolledText = await session.text()
-    expect(extractScroll(scrolledText)).toBeGreaterThan(0)
-    // gg should move cursor to top and scroll to 0
+    expect(scrolledText).not.toMatch(/section 2\./i)
+    // gg should move cursor to top — early sections should reappear
     await session.type("gg")
-    await session.waitForText(/Scroll:\s*0/, { timeout: 5000 })
-    const scroll = extractScroll(await session.text())
-    expect(scroll).toBe(0)
+    await session.waitForText(/section 2\./i, { timeout: 5000 })
+    expect(await session.text()).toMatch(/section 2\./i)
   }, 20000)
 
   test("G jumps to bottom", async () => {
     session = await launchView("long.md")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     await session.press(["shift", "g"])
-    await session.waitForText(/Scroll:\s*[1-9]/, { timeout: 5000 })
-    const scroll = extractScroll(await session.text())
-    expect(scroll).toBeGreaterThan(0)
+    await session.waitForText("Section 70", { timeout: 5000 })
+    const text = await session.text()
+    expect(text).toContain("Section 70")
   }, 20000)
 
   test("ctrl+d moves cursor half page down", async () => {

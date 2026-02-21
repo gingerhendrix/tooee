@@ -39,14 +39,13 @@ describe("command palette", () => {
   test("selecting a command executes it", async () => {
     // Use long.md so there's enough content to actually scroll
     session = await launchView("long.md")
-    const before = extractScroll(await session.text())
     await session.press(":")
     await session.waitForText("Filter commands", { timeout: 5000 })
     await session.type("cursor to bottom")
     await new Promise((r) => setTimeout(r, 200))
     await session.press("enter")
-    await new Promise((r) => setTimeout(r, 500))
-    const after = extractScroll(await session.text())
-    expect(after).toBeGreaterThan(before)
+    await session.waitForText("Section 70", { timeout: 5000 })
+    const text = await session.text()
+    expect(text).toContain("Section 70")
   }, 20000)
 })

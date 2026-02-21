@@ -119,25 +119,27 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     })
   }, [cursorMax])
 
-  // When entering cursor mode, initialize cursor
+  // When entering cursor mode, initialize cursor if not already set
   const prevMode = useRef<Mode | null>(null)
   useEffect(() => {
     if (mode === "cursor" && prevMode.current !== "cursor" && prevMode.current !== "select") {
-      // If there's an active search match, start cursor there; otherwise start at scroll position
-      const matches = matchingLinesRef.current
-      if (matches.length > 0) {
-        const matchLine = matches[currentMatchIndex] ?? matches[0]
-        // In block mode, convert search line to block index using offset
-        if (isBlockMode) {
-          const blockIndex = Math.max(0, matchLine - searchLineOffset)
-          setCursor({ line: Math.min(blockIndex, cursorMax), col: 0 })
-        } else {
-          setCursor({ line: matchLine, col: 0 })
+      setCursor((existing) => {
+        // If cursor already exists (e.g. set by a command via palette), preserve it
+        if (existing) return existing
+        // If there's an active search match, start cursor there; otherwise start at scroll position
+        const matches = matchingLinesRef.current
+        if (matches.length > 0) {
+          const matchLine = matches[currentMatchIndex] ?? matches[0]
+          // In block mode, convert search line to block index using offset
+          if (isBlockMode) {
+            const blockIndex = Math.max(0, matchLine - searchLineOffset)
+            return { line: Math.min(blockIndex, cursorMax), col: 0 }
+          }
+          return { line: matchLine, col: 0 }
         }
-      } else {
         // No search match - start at top (block 0) or scroll position
-        setCursor({ line: isBlockMode ? 0 : scrollOffset, col: 0 })
-      }
+        return { line: isBlockMode ? 0 : scrollOffset, col: 0 }
+      })
     }
     if (mode === "select" && prevMode.current === "cursor" && cursor) {
       setSelectionAnchor({ ...cursor })
@@ -148,21 +150,14 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   // Scroll to keep cursor visible
   const scrollToCursor = useCallback(
     (cursorIndex: number) => {
-      const line = isBlockMode && blockLineMap ? (blockLineMap[cursorIndex] ?? 0) : cursorIndex
-      // For block mode, use the end of the block to check if we need to scroll down
-      const blockEndLine =
-        isBlockMode && blockLineMap
-          ? cursorIndex + 1 < blockLineMap.length
-            ? blockLineMap[cursorIndex + 1] - 1
-            : totalLines - 1
-          : line
+      if (isBlockMode) return // View.tsx handles block scroll via rendered layout
       setScrollOffset((offset) => {
-        if (line < offset) return line
-        if (blockEndLine >= offset + viewportHeight) return clampScroll(blockEndLine - viewportHeight + 1)
+        if (cursorIndex < offset) return cursorIndex
+        if (cursorIndex >= offset + viewportHeight) return clampScroll(cursorIndex - viewportHeight + 1)
         return offset
       })
     },
-    [viewportHeight, clampScroll, isBlockMode, blockLineMap, totalLines],
+    [viewportHeight, clampScroll, isBlockMode],
   )
 
   // === CURSOR MODE ===
@@ -295,10 +290,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     modes: ["cursor"],
     handler: () => {
       setCursor({ line: cursorMax, col: 0 })
-      if (isBlockMode && blockLineMap) {
-        const line = blockLineMap[cursorMax] ?? 0
-        setScrollOffset(clampScroll(line))
-      } else {
+      if (!isBlockMode) {
         setScrollOffset(maxScroll)
       }
     },

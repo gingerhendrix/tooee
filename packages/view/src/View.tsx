@@ -217,10 +217,35 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
   })
 
   useEffect(() => {
-    if (scrollRef.current) {
+    if (!scrollRef.current) return
+
+    if (blockCount != null && nav.cursor != null) {
+      // Block mode: use rendered layout to scroll cursor block into view
+      const blockIndex = nav.cursor.line
+      const contentChildren = scrollRef.current.content.getChildren()
+      const wrapperBox = contentChildren[0]
+      if (!wrapperBox) return
+      const blockChildren = wrapperBox.getChildren()
+      // Table has header elements before data rows (border, header, separator)
+      const childOffset = content?.format === "table" ? TABLE_VISUAL_HEADER_OFFSET : 0
+      const blockChild = blockChildren[blockIndex + childOffset]
+      if (!blockChild) return
+
+      const blockTop = blockChild.y
+      const blockBottom = blockTop + blockChild.height
+      const viewportHeight = scrollRef.current.viewport.height
+      const currentScroll = scrollRef.current.scrollTop
+
+      if (blockTop < currentScroll) {
+        scrollRef.current.scrollTop = blockTop
+      } else if (blockBottom > currentScroll + viewportHeight) {
+        scrollRef.current.scrollTop = blockBottom - viewportHeight
+      }
+    } else {
+      // Non-block mode: use scrollOffset directly (source lines ≈ rendered rows)
       scrollRef.current.scrollTop = nav.scrollOffset
     }
-  }, [nav.scrollOffset])
+  }, [nav.scrollOffset, nav.cursor, blockCount])
 
   const { name: themeName } = useThemeCommands()
   useQuitCommand()
