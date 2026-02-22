@@ -1,6 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach } from "bun:test"
-import { useState } from "react"
+import { useEffect } from "react"
+import { act } from "react"
 import { ThemeSwitcherProvider } from "@tooee/themes"
 import { ToastProvider, useToast, ToastContainer, type ToastLevel } from "@tooee/toasts"
 
@@ -12,11 +13,9 @@ afterEach(() => {
 
 /**
  * Harness that exposes toast state as text for assertions.
- * Press keys to trigger toasts:
- *   i = info, s = success, w = warning, e = error, d = dismiss
  */
 function ToastHarness() {
-  const { toast, dismiss, currentToast } = useToast()
+  const { currentToast } = useToast()
   return (
     <box>
       <text content={currentToast ? `toast:${currentToast.level}:${currentToast.message}` : "toast:none"} />
@@ -27,10 +26,9 @@ function ToastHarness() {
 
 function ToastTrigger({ level, message, id, duration }: { level: ToastLevel; message: string; id?: string; duration?: number }) {
   const { toast } = useToast()
-  // Trigger on mount
-  useState(() => {
+  useEffect(() => {
     toast({ message, level, id, duration })
-  })
+  }, [])
   return null
 }
 
@@ -58,28 +56,27 @@ test("toast appears with correct level and message", async () => {
 })
 
 test("dismiss clears the toast", async () => {
+  let toastApi: ReturnType<typeof useToast>
+
   function DismissTest() {
-    const { toast, dismiss, currentToast } = useToast()
-    const [dismissed, setDismissed] = useState(false)
-    useState(() => {
-      toast({ message: "will dismiss", level: "info" })
-    })
-    if (!dismissed) {
-      // Dismiss on next tick
-      setTimeout(() => {
-        dismiss()
-        setDismissed(true)
-      }, 0)
-    }
+    toastApi = useToast()
+    const { currentToast } = toastApi
     return <text content={currentToast ? `toast:${currentToast.message}` : "toast:none"} />
   }
 
   testSetup = await renderWithProviders(<DismissTest />)
+
+  // Show a toast
+  await act(async () => {
+    toastApi!.toast({ message: "will dismiss", level: "info" })
+  })
   await testSetup.renderOnce()
   expect(testSetup.captureCharFrame()).toContain("toast:will dismiss")
 
-  // Wait for dismiss
-  await new Promise((r) => setTimeout(r, 50))
+  // Dismiss it
+  await act(async () => {
+    toastApi!.dismiss()
+  })
   await testSetup.renderOnce()
   expect(testSetup.captureCharFrame()).toContain("toast:none")
 })
@@ -94,46 +91,52 @@ test("auto-dismisses after duration", async () => {
   await testSetup.renderOnce()
   expect(testSetup.captureCharFrame()).toContain("toast:info:auto dismiss")
 
-  // Wait for auto-dismiss
-  await new Promise((r) => setTimeout(r, 150))
+  // Wait for auto-dismiss inside act() so the timer callback is properly batched
+  await act(async () => {
+    await new Promise((r) => setTimeout(r, 150))
+  })
   await testSetup.renderOnce()
   expect(testSetup.captureCharFrame()).toContain("toast:none")
 })
 
 test("same ID replaces existing toast and resets timer", async () => {
+  let toastApi: ReturnType<typeof useToast>
+
   function DedupTest() {
-    const { toast, currentToast } = useToast()
-    const [step, setStep] = useState(0)
-    useState(() => {
-      toast({ message: "first", level: "info", id: "dedup", duration: 100 })
-    })
-    if (step === 0) {
-      // After 50ms, send another toast with the same ID
-      setTimeout(() => {
-        toast({ message: "second", level: "success", id: "dedup", duration: 100 })
-        setStep(1)
-      }, 50)
-    }
+    toastApi = useToast()
+    const { currentToast } = toastApi
     return <text content={currentToast ? `toast:${currentToast.level}:${currentToast.message}` : "toast:none"} />
   }
 
   testSetup = await renderWithProviders(<DedupTest />)
+
+  // Show first toast
+  await act(async () => {
+    toastApi!.toast({ message: "first", level: "info", id: "dedup", duration: 100 })
+  })
   await testSetup.renderOnce()
   expect(testSetup.captureCharFrame()).toContain("toast:info:first")
 
-  // Wait for replacement
-  await new Promise((r) => setTimeout(r, 80))
+  // After 50ms, send another toast with the same ID
+  await act(async () => {
+    await new Promise((r) => setTimeout(r, 50))
+    toastApi!.toast({ message: "second", level: "success", id: "dedup", duration: 100 })
+  })
   await testSetup.renderOnce()
   expect(testSetup.captureCharFrame()).toContain("toast:success:second")
 
-  // Original timer would have fired at ~100ms, but we're at ~80ms + replacement resets to 100ms more
+  // Original timer would have fired at ~100ms, but replacement resets to 100ms more
   // At 130ms total, the replacement's timer hasn't fired yet
-  await new Promise((r) => setTimeout(r, 50))
+  await act(async () => {
+    await new Promise((r) => setTimeout(r, 50))
+  })
   await testSetup.renderOnce()
   expect(testSetup.captureCharFrame()).toContain("toast:success:second")
 
   // Wait for replacement's timer to fire
-  await new Promise((r) => setTimeout(r, 100))
+  await act(async () => {
+    await new Promise((r) => setTimeout(r, 100))
+  })
   await testSetup.renderOnce()
   expect(testSetup.captureCharFrame()).toContain("toast:none")
 })
@@ -141,13 +144,11 @@ test("same ID replaces existing toast and resets timer", async () => {
 test("each level gets correct default duration", async () => {
   function DurationTest() {
     const { toast, currentToast } = useToast()
-    const [level, setLevel] = useState<ToastLevel | null>(null)
-    useState(() => {
-      // Test each level's default duration
+    useEffect(() => {
       for (const l of ["info", "success", "warning", "error"] as ToastLevel[]) {
         toast({ message: `${l} toast`, level: l })
       }
-    })
+    }, [])
     return <text content={`duration:${currentToast?.duration ?? "none"}`} />
   }
 
@@ -160,9 +161,9 @@ test("each level gets correct default duration", async () => {
 test("level defaults: info=2000, success=1500, warning=3000, error=5000", async () => {
   function SingleLevelTest({ level }: { level: ToastLevel }) {
     const { toast, currentToast } = useToast()
-    useState(() => {
+    useEffect(() => {
       toast({ message: "test", level })
-    })
+    }, [])
     return <text content={`duration:${currentToast?.duration ?? "none"}`} />
   }
 
@@ -246,9 +247,9 @@ test("ToastContainer renders nothing when no toast", async () => {
 test("defaults to info level when level not specified", async () => {
   function DefaultLevelTest() {
     const { toast, currentToast } = useToast()
-    useState(() => {
+    useEffect(() => {
       toast({ message: "no level" })
-    })
+    }, [])
     return <text content={currentToast ? `level:${currentToast.level}:dur:${currentToast.duration}` : "none"} />
   }
 
