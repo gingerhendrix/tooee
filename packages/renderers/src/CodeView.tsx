@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react"
-import type { LineNumberRenderable } from "@opentui/core"
+import { useEffect, useRef, type RefObject } from "react"
 import { useTheme } from "@tooee/themes"
+import type { RowDocumentRenderable, RowDocumentPalette, RowDocumentDecorations } from "./RowDocumentRenderable.js"
+import "./row-document.js"
 
 interface CodeViewProps {
   content: string
@@ -12,6 +13,7 @@ interface CodeViewProps {
   matchingLines?: Set<number>
   currentMatchLine?: number
   toggledLines?: Set<number>
+  docRef?: RefObject<RowDocumentRenderable | null>
 }
 
 export function CodeView({
@@ -24,94 +26,49 @@ export function CodeView({
   matchingLines,
   currentMatchLine,
   toggledLines,
+  docRef,
 }: CodeViewProps) {
   const { syntax, theme } = useTheme()
-  const lineNumRef = useRef<LineNumberRenderable>(null)
+  const internalRef = useRef<RowDocumentRenderable>(null)
+  const effectiveRef = docRef ?? internalRef
+
+  const palette: RowDocumentPalette = {
+    gutterFg: theme.textMuted,
+    gutterBg: theme.backgroundElement,
+    cursorBg: theme.cursorLine,
+    selectionBg: theme.selection,
+    matchBg: theme.warning,
+    currentMatchBg: theme.primary,
+    toggledBg: theme.backgroundPanel,
+    cursorSignFg: theme.primary,
+    matchSignFg: theme.warning,
+    currentMatchSignFg: theme.primary,
+  }
 
   useEffect(() => {
-    const ref = lineNumRef.current
-    if (!ref) return
-
-    ref.clearAllLineColors()
-    ref.clearAllLineSigns()
-
-    // Search matches
-    if (matchingLines) {
-      for (const line of matchingLines) {
-        ref.setLineSign(line, {
-          after: "●",
-          afterColor: line === currentMatchLine ? theme.primary : theme.warning,
-        })
-      }
+    const decorations: RowDocumentDecorations = {
+      cursorRow: cursor,
+      selection: selectionStart != null && selectionEnd != null
+        ? { start: selectionStart, end: selectionEnd }
+        : null,
+      matchingRows: matchingLines,
+      currentMatchRow: currentMatchLine,
+      toggledRows: toggledLines,
     }
-
-    // Selection range
-    if (selectionStart != null && selectionEnd != null) {
-      for (let i = selectionStart; i <= selectionEnd; i++) {
-        ref.setLineColor(i, { content: theme.selection, gutter: theme.selection })
-      }
-    }
-
-    if (toggledLines) {
-      for (const line of toggledLines) {
-        const isSelected =
-          selectionStart != null && selectionEnd != null && line >= selectionStart && line <= selectionEnd
-        if (line === cursor || isSelected) continue
-        ref.setLineColor(line, {
-          content: theme.backgroundPanel,
-          gutter: theme.backgroundPanel,
-        })
-      }
-    }
-
-    // Cursor line (overwrites selection color on cursor line)
-    if (cursor != null) {
-      ref.setLineColor(cursor, { content: theme.cursorLine, gutter: theme.cursorLine })
-      ref.setLineSign(cursor, {
-        before: "▸",
-        beforeColor: theme.primary,
-        // Preserve search match sign if present
-        ...(matchingLines?.has(cursor)
-          ? {
-              after: "●",
-              afterColor: cursor === currentMatchLine ? theme.primary : theme.warning,
-            }
-          : {}),
-      })
-    }
-  }, [
-    content,
-    cursor,
-    selectionStart,
-    selectionEnd,
-    matchingLines,
-    currentMatchLine,
-    toggledLines,
-    theme,
-  ])
+    effectiveRef.current?.setDecorations(decorations)
+  }, [cursor, selectionStart, selectionEnd, matchingLines, currentMatchLine, toggledLines])
 
   const codeElement = <code content={content} filetype={language} syntaxStyle={syntax} />
 
   return (
-    <box
-      style={{
-        flexDirection: "column",
-      }}
+    <row-document
+      ref={effectiveRef}
+      key={theme.textMuted + theme.backgroundElement}
+      showLineNumbers={showLineNumbers}
+      palette={palette}
+      signColumnWidth={1}
     >
-      {showLineNumbers ? (
-        <line-number
-          ref={lineNumRef}
-          key={theme.textMuted + theme.backgroundElement}
-          fg={theme.textMuted}
-          bg={theme.backgroundElement}
-          paddingRight={1}
-          showLineNumbers
-        >
-          {codeElement}
-        </line-number>
-      ) : (
-        codeElement
-      )}
-    </box>
+      {codeElement}
+    </row-document>
   )
 }

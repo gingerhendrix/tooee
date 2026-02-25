@@ -12,8 +12,8 @@ afterEach(() => {
   } catch {}
 })
 
-function extractScroll(text: string): number {
-  const match = text.match(/Scroll:\s*(\d+)/)
+function extractCursor(text: string): number {
+  const match = text.match(/Cursor:\s*(\d+)/)
   return match ? Number(match[1]) : 0
 }
 

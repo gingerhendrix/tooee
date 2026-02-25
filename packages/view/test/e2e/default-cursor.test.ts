@@ -24,9 +24,9 @@ describe("default cursor behavior", () => {
     // Pressing j should work immediately — no need to enter cursor mode
     await session.press("j")
     await new Promise((r) => setTimeout(r, 300))
-    // Scroll should still be 0 (cursor within viewport)
+    // Cursor should have moved to 1 after pressing j
     const text = await session.text()
-    expect(text).toMatch(/Scroll:\s*0/)
+    expect(text).toMatch(/Cursor:\s*1/)
     expect(text).toMatch(/Mode:\s*cursor/)
   }, 20000)
 

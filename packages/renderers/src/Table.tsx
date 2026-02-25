@@ -1,6 +1,9 @@
 import { useTerminalDimensions } from "@opentui/react"
 import { useTheme } from "@tooee/themes"
+import { useEffect, useRef, type RefObject } from "react"
 import type { ColumnDef, TableRow } from "./table-types.js"
+import type { RowDocumentRenderable, RowDocumentPalette, RowDocumentDecorations } from "./RowDocumentRenderable.js"
+import "./row-document.js"
 
 export interface TableProps {
   columns: ColumnDef[]
@@ -19,6 +22,7 @@ export interface TableProps {
   matchingRows?: Set<number>
   currentMatchRow?: number
   toggledRows?: Set<number>
+  docRef?: RefObject<RowDocumentRenderable | null>
 }
 
 const PADDING = 1
@@ -171,6 +175,7 @@ export function Table({
   matchingRows,
   currentMatchRow,
   toggledRows,
+  docRef,
 }: TableProps) {
   const { theme } = useTheme()
   const { width: terminalWidth } = useTerminalDimensions()
@@ -203,50 +208,47 @@ export function Table({
   const headerLine = buildDataLine(headers, colWidths, alignments)
   const dataLines = normalizedRows.map((row) => buildDataLine(row, colWidths, alignments))
 
-  const getRowStyle = (rowIndex: number): { fg?: string; bg?: string } => {
-    const isCursor = cursor === rowIndex
-    const isSelected =
-      selectionStart != null &&
-      selectionEnd != null &&
-      rowIndex >= selectionStart &&
-      rowIndex <= selectionEnd
-    const isMatch = matchingRows?.has(rowIndex)
-    const isCurrentMatch = currentMatchRow === rowIndex
-    const isToggled = toggledRows?.has(rowIndex)
+  const internalRef = useRef<RowDocumentRenderable>(null)
+  const effectiveRef = docRef ?? internalRef
 
-    let bg: string | undefined
-    let fg: string | undefined = theme.text
-
-    // Determine background: selection < cursor (cursor overwrites)
-    if (isSelected) {
-      bg = theme.selection
-    }
-    if (isToggled && !isCursor && !isSelected) {
-      bg = theme.backgroundPanel
-    }
-    if (isCursor) {
-      bg = theme.cursorLine
-    }
-
-    // Highlight match indicator on matching rows
-    if (isMatch && !isCursor) {
-      fg = isCurrentMatch ? theme.primary : theme.warning
-    }
-
-    return { fg, bg }
+  const palette: RowDocumentPalette = {
+    cursorBg: theme.cursorLine,
+    selectionBg: theme.selection,
+    matchBg: theme.warning,
+    currentMatchBg: theme.primary,
+    toggledBg: theme.backgroundPanel,
   }
 
+  useEffect(() => {
+    const decorations: RowDocumentDecorations = {
+      cursorRow: cursor,
+      selection: selectionStart != null && selectionEnd != null
+        ? { start: selectionStart, end: selectionEnd }
+        : null,
+      matchingRows: matchingRows,
+      currentMatchRow: currentMatchRow,
+      toggledRows: toggledRows,
+    }
+    effectiveRef.current?.setDecorations(decorations)
+  }, [cursor, selectionStart, selectionEnd, matchingRows, currentMatchRow, toggledRows])
+
   return (
-    <box style={{ flexDirection: "column", marginLeft: 1, marginRight: 1, marginBottom: 1 }}>
+    <row-document
+      ref={effectiveRef}
+      mode="multi"
+      rowChildOffset={3}
+      showGutter={false}
+      palette={palette}
+      style={{ flexDirection: "column", marginLeft: 1, marginRight: 1, marginBottom: 1 }}
+    >
       <text content={topBorder} fg={theme.border} />
       <text content={headerLine} fg={theme.primary} />
       <text content={headerSep} fg={theme.border} />
-      {dataLines.map((line, i) => {
-        const style = getRowStyle(i)
-        return <text key={i} content={line} fg={style.fg} bg={style.bg} />
-      })}
+      {dataLines.map((line, i) => (
+        <text key={i} content={line} fg={theme.text} />
+      ))}
       <text content={bottomBorder} fg={theme.border} />
-    </box>
+    </row-document>
   )
 }
 

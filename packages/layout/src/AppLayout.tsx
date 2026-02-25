@@ -43,15 +43,21 @@ export function AppLayout({
     <box flexDirection="column" width="100%" height="100%" backgroundColor={theme.background}>
       {titleBar && <TitleBar title={titleBar.title} subtitle={titleBar.subtitle} />}
       <box style={{ flexGrow: 1, position: "relative" }}>
-        <scrollbox
-          ref={scrollRef}
-          style={{ flexGrow: 1 }}
-          stickyScroll={scrollProps?.stickyScroll}
-          stickyStart={scrollProps?.stickyStart}
-          focused={scrollProps?.focused ?? true}
-        >
-          {children}
-        </scrollbox>
+        {scrollRef ? (
+          <scrollbox
+            ref={scrollRef}
+            style={{ flexGrow: 1 }}
+            stickyScroll={scrollProps?.stickyScroll}
+            stickyStart={scrollProps?.stickyStart}
+            focused={scrollProps?.focused ?? true}
+          >
+            {children}
+          </scrollbox>
+        ) : (
+          <box style={{ flexGrow: 1, overflow: "hidden" }}>
+            {children}
+          </box>
+        )}
         {activeOverlay && (
           <box position="absolute" left={0} top={0} width="100%" height="100%">
             {activeOverlay}

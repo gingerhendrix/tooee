@@ -1,83 +1,77 @@
 import { marked, type Token, type Tokens } from "marked"
-import type { ReactNode } from "react"
+import { useEffect, useRef, type ReactNode, type RefObject } from "react"
 import { useTheme, type ResolvedTheme } from "@tooee/themes"
 import type { SyntaxStyle } from "@opentui/core"
 import { Table } from "./Table.js"
+import type { RowDocumentRenderable, RowDocumentPalette, RowDocumentDecorations } from "./RowDocumentRenderable.js"
+import "./row-document.js"
 
 interface MarkdownViewProps {
   content: string
+  showLineNumbers?: boolean
   activeBlock?: number
   selectedBlocks?: { start: number; end: number }
   matchingBlocks?: Set<number>
   currentMatchBlock?: number
   toggledBlocks?: Set<number>
+  docRef?: RefObject<RowDocumentRenderable | null>
 }
 
 export function MarkdownView({
   content,
+  showLineNumbers = true,
   activeBlock,
   selectedBlocks,
   matchingBlocks,
   currentMatchBlock,
   toggledBlocks,
+  docRef,
 }: MarkdownViewProps) {
   const { theme, syntax } = useTheme()
+  const internalRef = useRef<RowDocumentRenderable>(null)
+  const effectiveRef = docRef ?? internalRef
   const tokens = marked.lexer(content)
   const blocks = tokens.filter((t) => t.type !== "space")
 
-  return (
-    <box style={{ flexDirection: "column" }}>
-      {blocks.map((token, index) => {
-        const { accent: accentColor, background: bgColor } = getBlockStyle(
-          index,
-          theme,
-          activeBlock,
-          selectedBlocks,
-          matchingBlocks,
-          currentMatchBlock,
-          toggledBlocks,
-        )
-        const blockContent = (
-          <TokenRenderer key={index} token={token} theme={theme} syntax={syntax} />
-        )
-
-        if (accentColor) {
-          return (
-            <box
-              key={index}
-              style={{ flexDirection: "row" }}
-              backgroundColor={bgColor ?? undefined}
-            >
-              <text content="▎" fg={accentColor} />
-              <box style={{ flexGrow: 1, flexDirection: "column" }}>{blockContent}</box>
-            </box>
-          )
-        }
-
-        return <box key={index}>{blockContent}</box>
-      })}
-    </box>
-  )
-}
-
-function getBlockStyle(
-  index: number,
-  theme: ResolvedTheme,
-  activeBlock?: number,
-  selectedBlocks?: { start: number; end: number },
-  matchingBlocks?: Set<number>,
-  currentMatchBlock?: number,
-  toggledBlocks?: Set<number>,
-): { accent: string | null; background: string | null } {
-  // Priority: cursor > toggled > current match > match > selection
-  if (activeBlock === index) return { accent: theme.primary, background: theme.backgroundElement }
-  if (toggledBlocks?.has(index)) return { accent: theme.secondary, background: theme.backgroundPanel }
-  if (currentMatchBlock === index) return { accent: theme.accent, background: null }
-  if (matchingBlocks?.has(index)) return { accent: theme.warning, background: null }
-  if (selectedBlocks && index >= selectedBlocks.start && index <= selectedBlocks.end) {
-    return { accent: theme.secondary, background: theme.backgroundPanel }
+  const palette: RowDocumentPalette = {
+    gutterFg: theme.textMuted,
+    gutterBg: theme.backgroundElement,
+    cursorBg: theme.cursorLine,
+    selectionBg: theme.selection,
+    matchBg: theme.warning,
+    currentMatchBg: theme.primary,
+    toggledBg: theme.backgroundPanel,
+    cursorSignFg: theme.primary,
+    matchSignFg: theme.warning,
+    currentMatchSignFg: theme.primary,
   }
-  return { accent: null, background: null }
+
+  useEffect(() => {
+    const decorations: RowDocumentDecorations = {
+      cursorRow: activeBlock,
+      selection: selectedBlocks ? { start: selectedBlocks.start, end: selectedBlocks.end } : null,
+      matchingRows: matchingBlocks,
+      currentMatchRow: currentMatchBlock,
+      toggledRows: toggledBlocks,
+    }
+    effectiveRef.current?.setDecorations(decorations)
+  }, [activeBlock, selectedBlocks, matchingBlocks, currentMatchBlock, toggledBlocks])
+
+  const blockElements = blocks.map((token, index) => (
+    <TokenRenderer key={index} token={token} theme={theme} syntax={syntax} />
+  ))
+
+  return (
+    <row-document
+      ref={effectiveRef}
+      key={theme.textMuted + theme.backgroundElement}
+      showLineNumbers={showLineNumbers}
+      palette={palette}
+      signColumnWidth={1}
+    >
+      {blockElements}
+    </row-document>
+  )
 }
 
 function TokenRenderer({

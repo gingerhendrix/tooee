@@ -2,13 +2,13 @@
 
 exports[`selected blocks snapshot 1`] = `
 "                                                            
-# Title                                                     
+1  # Title                                                  
                                                             
-▎ First paragraph                                           
+2▸  First paragraph                                         
                                                             
-▎ Second paragraph                                          
+3   Second paragraph                                        
                                                             
- Third paragraph                                            
+4   Third paragraph                                         
                                                             
                                                             
                                                             
@@ -26,16 +26,16 @@ exports[`selected blocks snapshot 1`] = `
 
 exports[`snapshot 1`] = `
 "                                                            
-# Title                                                     
+1  # Title                                                  
                                                             
- Some paragraph text.                                       
+2   Some paragraph text.                                    
                                                             
-   - Item one                                               
-   - Item two                                               
+3     - Item one                                            
+      - Item two                                            
                                                             
- ┌────────────────────────────────────────────────────────┐ 
- │const x = 1                                             │ 
- └────────────────────────────────────────────────────────┘ 
+4   ┌────────────────────────────────────────────────────┐  
+    │const x = 1                                         │  
+    └────────────────────────────────────────────────────┘  
                                                             
                                                             
                                                             

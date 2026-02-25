@@ -79,10 +79,10 @@ describe("Table component", () => {
         <Table
           columns={createColumns(["Col"])}
           rows={createRows(createColumns(["Col"]), [["This is a very long string that should be truncated when displayed"]])}
-          maxWidth={20}
+          maxWidth={30}
         />
       </ThemeSwitcherProvider>,
-      { width: 20, height: 10 },
+      { width: 30, height: 20 },
     )
     await testSetup.renderOnce()
     const frame = testSetup.captureCharFrame()

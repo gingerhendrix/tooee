@@ -1,15 +1,14 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react"
-import type { ScrollBoxRenderable } from "@opentui/core"
-import { MarkdownView, CodeView, ImageView, Table } from "@tooee/renderers"
+import { MarkdownView, CodeView, ImageView, Table, type RowDocumentRenderable } from "@tooee/renderers"
 import { AppLayout } from "@tooee/layout"
 import { useTheme } from "@tooee/themes"
-import { useHasOverlay } from "@tooee/overlays"
 import { useActions, useProvideCommandContext } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import {
   useThemeCommands,
   useQuitCommand,
   useCopyCommand,
+  useToggleLineNumbersCommand,
   useModalNavigationCommands,
   useCommandPalette,
 } from "@tooee/shell"
@@ -104,7 +103,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
   const [content, setContent] = useState<AnyContent | null>(null)
   const [streaming, setStreaming] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const scrollRef = useRef<ScrollBoxRenderable>(null)
+  const docRef = useRef<RowDocumentRenderable>(null)
   const [reloadTrigger, setReloadTrigger] = useState(0)
   const reload = useCallback(() => setReloadTrigger((n) => n + 1), [])
 
@@ -162,7 +161,6 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contentProvider, reloadTrigger])
 
-  const TABLE_VISUAL_HEADER_OFFSET = 3
   const TABLE_SEARCH_HEADER_OFFSET = 1
 
   const textContent = useMemo(() => (content ? getTextContent(content) : ""), [content])
@@ -180,7 +178,8 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
     if (!isBuiltinContent(content)) return { blockCount: undefined, blockLineMap: undefined }
 
     if (content.format === "table") {
-      const map = content.rows.map((_: unknown, i: number) => i + TABLE_VISUAL_HEADER_OFFSET)
+      // 3 = visual header lines (top border + header + separator) in Table's row-document
+      const map = content.rows.map((_: unknown, i: number) => i + 3)
       return { blockCount: content.rows.length, blockLineMap: map }
     }
 
@@ -217,46 +216,26 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
   })
 
   useEffect(() => {
-    if (!scrollRef.current) return
-
-    if (blockCount != null && nav.cursor != null) {
-      // Block mode: use rendered layout to scroll cursor block into view
-      const blockIndex = nav.cursor.line
-      const contentChildren = scrollRef.current.content.getChildren()
-      const wrapperBox = contentChildren[0]
-      if (!wrapperBox) return
-      const blockChildren = wrapperBox.getChildren()
-      // Table has header elements before data rows (border, header, separator)
-      const childOffset = content?.format === "table" ? TABLE_VISUAL_HEADER_OFFSET : 0
-      const blockChild = blockChildren[blockIndex + childOffset]
-      if (!blockChild) return
-
-      const blockTop = blockChild.y
-      const blockBottom = blockTop + blockChild.height
-      const viewportHeight = scrollRef.current.viewport.height
-      const currentScroll = scrollRef.current.scrollTop
-
-      if (blockTop < currentScroll) {
-        scrollRef.current.scrollTop = blockTop
-      } else if (blockBottom > currentScroll + viewportHeight) {
-        scrollRef.current.scrollTop = blockBottom - viewportHeight
-      }
-    } else {
-      // Non-block mode: use scrollOffset directly (source lines ≈ rendered rows)
-      scrollRef.current.scrollTop = nav.scrollOffset
+    if (nav.cursor) {
+      docRef.current?.scrollToRow(nav.cursor.line, "nearest")
     }
-  }, [nav.scrollOffset, nav.cursor, blockCount])
+  }, [nav.cursor])
+
+  const [showLineNumbers, setShowLineNumbers] = useState(config.view?.gutter ?? true)
 
   const { name: themeName } = useThemeCommands()
   useQuitCommand()
   useCopyCommand({
     getText: () => (content ? textContent : undefined),
   })
+  useToggleLineNumbersCommand({
+    showLineNumbers,
+    onToggle: () => setShowLineNumbers((v) => !v),
+  })
 
   const _palette = useCommandPalette()
 
   useActions(actions)
-  const hasOverlay = useHasOverlay()
 
   function getActiveRow(): Record<string, unknown> | undefined {
     if (!content || !isBuiltinContent(content) || content.format !== "table") return undefined
@@ -378,8 +357,6 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
   const cursorLine = nav.cursor?.line ?? undefined
   const selectionStart = nav.selection?.start.line ?? undefined
   const selectionEnd = nav.selection?.end.line ?? undefined
-  const gutterConfig = config.view?.gutter
-
   const renderContent = () => {
     // Custom content: use registered renderer or fall back to text
     if (isCustomContent(content)) {
@@ -402,6 +379,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
           cursor={cursorLine}
           selectionStart={selectionStart}
           selectionEnd={selectionEnd}
+          docRef={docRef}
         />
       )
     }
@@ -412,6 +390,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
         return (
           <MarkdownView
             content={content.markdown}
+            showLineNumbers={showLineNumbers}
             activeBlock={cursorLine}
             selectedBlocks={
               selectionStart != null && selectionEnd != null
@@ -421,6 +400,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
             matchingBlocks={matchingBlocks}
             currentMatchBlock={currentMatchBlock}
             toggledBlocks={toggledBlocks}
+            docRef={docRef}
           />
         )
       case "code":
@@ -428,26 +408,28 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
           <CodeView
             content={content.code}
             language={content.language}
-            showLineNumbers={gutterConfig ?? true}
+            showLineNumbers={showLineNumbers}
             cursor={cursorLine}
             selectionStart={selectionStart}
             selectionEnd={selectionEnd}
             matchingLines={matchingLinesSet}
             currentMatchLine={currentMatchLine}
             toggledLines={toggledLines}
+            docRef={docRef}
           />
         )
       case "text":
         return (
           <CodeView
             content={content.text}
-            showLineNumbers={gutterConfig ?? false}
+            showLineNumbers={showLineNumbers}
             cursor={cursorLine}
             selectionStart={selectionStart}
             selectionEnd={selectionEnd}
             matchingLines={matchingLinesSet}
             currentMatchLine={currentMatchLine}
             toggledLines={toggledLines}
+            docRef={docRef}
           />
         )
       case "image":
@@ -463,6 +445,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
             matchingRows={matchingRowsSet}
             currentMatchRow={currentMatchRow}
             toggledRows={toggledRows}
+            docRef={docRef}
           />
         )
     }
@@ -488,7 +471,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
         ]
       : [{ label: "Lines:", value: String(lineCount) }]),
     { label: "Mode:", value: nav.mode },
-    { label: "Scroll:", value: String(nav.scrollOffset) },
+    { label: "Cursor:", value: nav.cursor ? String(nav.cursor.line) : "-" },
     ...selectionItems,
     ...(streaming ? [{ label: "Status:", value: "streaming" }] : []),
     ...(nav.searchActive ? [{ label: "Search:", value: nav.searchQuery }] : []),
@@ -502,8 +485,6 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
           : { title: content.format }
       }
       statusBar={{ items: statusItems }}
-      scrollRef={scrollRef}
-      scrollProps={{ focused: !nav.searchActive && !hasOverlay }}
       searchBar={{
         active: nav.searchActive,
         query: nav.searchQuery,

@@ -73,3 +73,25 @@ export function useCopyCommand(opts: { getText: () => string | undefined; when?:
     },
   })
 }
+
+export function useToggleLineNumbersCommand(opts: {
+  showLineNumbers: boolean
+  onToggle: () => void
+  when?: CommandWhen
+}) {
+  useCommand({
+    id: "toggle-line-numbers",
+    title: "Toggle line numbers",
+    hotkey: "shift+l",
+    when: opts.when,
+    handler: (ctx) => {
+      opts.onToggle()
+      const next = !opts.showLineNumbers
+      ctx.toast.toast({
+        message: `Line numbers: ${next ? "on" : "off"}`,
+        level: "info",
+        id: "line-numbers-toggled",
+      })
+    },
+  })
+}

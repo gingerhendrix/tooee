@@ -8,7 +8,6 @@ function ModalHarness({ totalLines }: { totalLines: number }) {
   return (
     <box flexDirection="column">
       <text content={`mode:${nav.mode}`} />
-      <text content={`scroll:${nav.scrollOffset}`} />
       <text content={`cursor:${nav.cursor ? nav.cursor.line : "null"}`} />
       <text content={`search:${nav.searchActive}`} />
     </box>
@@ -47,7 +46,6 @@ test("starts in cursor mode with cursor at 0", async () => {
   testSetup = await setup()
   const frame = testSetup.captureCharFrame()
   expect(frame).toContain("mode:cursor")
-  expect(frame).toContain("scroll:0")
   expect(frame).toContain("cursor:0")
 })
 
@@ -56,8 +54,6 @@ test("j moves cursor down", async () => {
   await press(testSetup, "j")
   const frame = testSetup.captureCharFrame()
   expect(frame).toContain("cursor:1")
-  // Scroll stays at 0 — cursor is still within viewport (height=10)
-  expect(frame).toContain("scroll:0")
 })
 
 test("k moves cursor up", async () => {
@@ -67,7 +63,6 @@ test("k moves cursor up", async () => {
   await press(testSetup, "k")
   const frame = testSetup.captureCharFrame()
   expect(frame).toContain("cursor:1")
-  expect(frame).toContain("scroll:0")
 })
 
 test("gg moves cursor to top", async () => {
@@ -85,14 +80,12 @@ test("gg moves cursor to top", async () => {
   await testSetup.renderOnce()
   const frame = testSetup.captureCharFrame()
   expect(frame).toContain("cursor:0")
-  expect(frame).toContain("scroll:0")
 })
 
 test("shift+g moves cursor to bottom", async () => {
   testSetup = await setup()
   await press(testSetup, "G", { shift: true })
   const frame = testSetup.captureCharFrame()
-  expect(frame).toContain("scroll:90")
   expect(frame).toContain("cursor:99")
 })
 
@@ -101,15 +94,12 @@ test("ctrl+d moves cursor half page down", async () => {
   await press(testSetup, "d", { ctrl: true })
   const frame = testSetup.captureCharFrame()
   expect(frame).toContain("cursor:5")
-  // Cursor at 5 is still within viewport (height=10), scroll stays at 0
-  expect(frame).toContain("scroll:0")
 })
 
 test("ctrl+u moves cursor half page up", async () => {
   testSetup = await setup()
   await press(testSetup, "d", { ctrl: true })
   await press(testSetup, "d", { ctrl: true })
-  // Cursor at 10 is outside viewport (height=10), scroll adjusts
   expect(testSetup.captureCharFrame()).toContain("cursor:10")
   await press(testSetup, "u", { ctrl: true })
   const frame = testSetup.captureCharFrame()
@@ -144,7 +134,6 @@ function BlockHarness() {
   return (
     <box flexDirection="column">
       <text content={`mode:${nav.mode}`} />
-      <text content={`scroll:${nav.scrollOffset}`} />
       <text content={`cursor:${nav.cursor ? nav.cursor.line : "null"}`} />
     </box>
   )
@@ -162,25 +151,19 @@ async function setupBlock() {
 }
 
 describe("block mode scrolling", () => {
-  // Block mode scroll positioning is handled by View.tsx using rendered layout,
-  // not by scrollOffset in modal.ts. scrollOffset stays at 0 for block mode.
-  test("scrollOffset stays 0 in block mode — View.tsx handles scroll via layout", async () => {
+  // Scroll is managed by RowDocumentRenderable.scrollToRow(), not by the modal hook.
+  test("cursor navigates through blocks", async () => {
     testSetup = await setupBlock()
-    // cursor starts at block 0, scroll 0
     const frame0 = testSetup.captureCharFrame()
     expect(frame0).toContain("cursor:0")
-    expect(frame0).toContain("scroll:0")
 
-    // Move through blocks — cursor updates but scrollOffset stays at 0
     await press(testSetup, "j")
     const frame1 = testSetup.captureCharFrame()
     expect(frame1).toContain("cursor:1")
-    expect(frame1).toContain("scroll:0")
 
     await press(testSetup, "j")
     const frame2 = testSetup.captureCharFrame()
     expect(frame2).toContain("cursor:2")
-    expect(frame2).toContain("scroll:0")
   })
 
   test("cursor navigation works correctly in block mode", async () => {
@@ -201,7 +184,5 @@ describe("block mode scrolling", () => {
     await press(testSetup, "G", { shift: true })
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("cursor:4")
-    // scrollOffset stays at 0 — View.tsx handles actual scroll positioning
-    expect(frame).toContain("scroll:0")
   })
 })

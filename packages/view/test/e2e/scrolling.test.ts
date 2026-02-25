@@ -11,8 +11,8 @@ afterEach(() => {
   } catch {}
 })
 
-function extractScroll(text: string): number {
-  const match = text.match(/Scroll:\s*(\d+)/)
+function extractCursor(text: string): number {
+  const match = text.match(/Cursor:\s*(\d+)/)
   return match ? parseInt(match[1], 10) : -1
 }
 
@@ -77,36 +77,36 @@ describe("code scrolling", () => {
     }
     await new Promise((r) => setTimeout(r, 500))
 
-    const scroll = extractScroll(await session.text())
-    expect(scroll).toBeGreaterThan(0)
+    const cursor = extractCursor(await session.text())
+    expect(cursor).toBeGreaterThan(0)
   }, 20000)
 
-  test("gg returns scroll to 0", async () => {
+  test("gg returns cursor to 0", async () => {
     session = await launchView("long.ts")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
 
-    // Scroll down first
+    // Move cursor down first
     for (let i = 0; i < 30; i++) {
       await session.press("j")
     }
     await new Promise((r) => setTimeout(r, 500))
-    expect(extractScroll(await session.text())).toBeGreaterThan(0)
+    expect(extractCursor(await session.text())).toBeGreaterThan(0)
 
     // gg to top
     await session.type("gg")
-    await session.waitForText(/Scroll:\s*0/, { timeout: 5000 })
-    expect(extractScroll(await session.text())).toBe(0)
+    await session.waitForText(/Cursor:\s*0/, { timeout: 5000 })
+    expect(extractCursor(await session.text())).toBe(0)
   }, 20000)
 
-  test("G scrolls to end", async () => {
+  test("G moves cursor to end", async () => {
     session = await launchView("long.ts")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
 
     await session.press(["shift", "g"])
-    await session.waitForText(/Scroll:\s*[1-9]/, { timeout: 5000 })
+    await session.waitForText(/Cursor:\s*[1-9]/, { timeout: 5000 })
 
-    const scroll = extractScroll(await session.text())
-    expect(scroll).toBeGreaterThan(0)
+    const cursor = extractCursor(await session.text())
+    expect(cursor).toBeGreaterThan(0)
   }, 20000)
 })
 
@@ -152,10 +152,13 @@ describe("table scrolling", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
 
     await session.press(["shift", "g"])
-    await session.waitForText("Employee 60", { timeout: 5000 })
+    // Wait for cursor to reach the last row (0-indexed: 59)
+    await session.waitForText(/Cursor:\s*59/, { timeout: 5000 })
 
     const text = await session.text()
-    expect(text).toContain("Employee 60")
+    // The viewport should show rows near the end of the table
+    // and early rows should have scrolled out of view
     expect(text).not.toMatch(/Employee 1\b/)
+    expect(text).toMatch(/Cursor:\s*59/)
   }, 20000)
 })

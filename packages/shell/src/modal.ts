@@ -12,7 +12,6 @@ export interface Position {
 export interface ModalNavigationState {
   mode: Mode
   setMode: (mode: Mode) => void
-  scrollOffset: number
   cursor: Position | null
   selection: { start: Position; end: Position } | null
   toggledIndices: Set<number>
@@ -49,7 +48,6 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   const mode = useMode()
   const setMode = useSetMode()
 
-  const [scrollOffset, setScrollOffset] = useState(0)
   const [cursor, setCursor] = useState<Position | null>(null)
   const [selectionAnchor, setSelectionAnchor] = useState<Position | null>(null)
   const [toggledIndices, setToggledIndices] = useState<Set<number>>(new Set())
@@ -79,12 +77,6 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     if (matches.length > 0) {
       // Auto-jump to first match
       const line = matches[0]
-      setScrollOffset((offset) => {
-        if (line < offset || line >= offset + viewportHeight) {
-          return Math.max(0, Math.min(line, Math.max(0, totalLines - viewportHeight)))
-        }
-        return offset
-      })
       if (mode === "cursor" || mode === "select") {
         setCursor((c) => (c ? { line, col: 0 } : c))
       }
@@ -93,18 +85,6 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
 
   const isBlockMode = blockCount != null
   const cursorMax = isBlockMode ? Math.max(0, blockCount - 1) : Math.max(0, totalLines - 1)
-  const maxScroll = Math.max(0, totalLines - viewportHeight)
-  const maxLine = Math.max(0, totalLines - 1)
-
-  const clampScroll = useCallback(
-    (value: number) => Math.max(0, Math.min(value, maxScroll)),
-    [maxScroll],
-  )
-
-  const _clampLine = useCallback(
-    (value: number) => Math.max(0, Math.min(value, maxLine)),
-    [maxLine],
-  )
 
   const clampCursor = useCallback(
     (value: number) => Math.max(0, Math.min(value, cursorMax)),
@@ -137,8 +117,8 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
           }
           return { line: matchLine, col: 0 }
         }
-        // No search match - start at top (block 0) or scroll position
-        return { line: isBlockMode ? 0 : scrollOffset, col: 0 }
+        // No search match - start at top
+        return { line: 0, col: 0 }
       })
     }
     if (mode === "select" && prevMode.current === "cursor" && cursor) {
@@ -146,19 +126,6 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     }
     prevMode.current = mode
   }, [mode]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Scroll to keep cursor visible
-  const scrollToCursor = useCallback(
-    (cursorIndex: number) => {
-      if (isBlockMode) return // View.tsx handles block scroll via rendered layout
-      setScrollOffset((offset) => {
-        if (cursorIndex < offset) return cursorIndex
-        if (cursorIndex >= offset + viewportHeight) return clampScroll(cursorIndex - viewportHeight + 1)
-        return offset
-      })
-    },
-    [viewportHeight, clampScroll, isBlockMode],
-  )
 
   // === CURSOR MODE ===
 
@@ -170,9 +137,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     handler: () => {
       setCursor((c) => {
         if (!c) return c
-        const next = clampCursor(c.line + 1)
-        scrollToCursor(next)
-        return { line: next, col: 0 }
+        return { line: clampCursor(c.line + 1), col: 0 }
       })
     },
   })
@@ -218,9 +183,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
       })
       setCursor((c) => {
         if (!c) return c
-        const next = clampCursor(c.line - 1)
-        scrollToCursor(next)
-        return { line: next, col: 0 }
+        return { line: clampCursor(c.line - 1), col: 0 }
       })
     },
   })
@@ -233,9 +196,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     handler: () => {
       setCursor((c) => {
         if (!c) return c
-        const next = clampCursor(c.line - 1)
-        scrollToCursor(next)
-        return { line: next, col: 0 }
+        return { line: clampCursor(c.line - 1), col: 0 }
       })
     },
   })
@@ -249,9 +210,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
       setCursor((c) => {
         if (!c) return c
         const step = isBlockMode ? Math.floor(cursorMax / 4) || 1 : Math.floor(viewportHeight / 2)
-        const next = clampCursor(c.line + step)
-        scrollToCursor(next)
-        return { line: next, col: 0 }
+        return { line: clampCursor(c.line + step), col: 0 }
       })
     },
   })
@@ -265,9 +224,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
       setCursor((c) => {
         if (!c) return c
         const step = isBlockMode ? Math.floor(cursorMax / 4) || 1 : Math.floor(viewportHeight / 2)
-        const next = clampCursor(c.line - step)
-        scrollToCursor(next)
-        return { line: next, col: 0 }
+        return { line: clampCursor(c.line - step), col: 0 }
       })
     },
   })
@@ -279,7 +236,6 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     modes: ["cursor"],
     handler: () => {
       setCursor({ line: 0, col: 0 })
-      setScrollOffset(0)
     },
   })
 
@@ -290,9 +246,6 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     modes: ["cursor"],
     handler: () => {
       setCursor({ line: cursorMax, col: 0 })
-      if (!isBlockMode) {
-        setScrollOffset(maxScroll)
-      }
     },
   })
 
@@ -322,7 +275,6 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
         const next = (idx + 1) % matches.length
         const line = matches[next]
         setCursor({ line, col: 0 })
-        scrollToCursor(line)
         return next
       })
     },
@@ -341,7 +293,6 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
         const next = (idx - 1 + matches.length) % matches.length
         const line = matches[next]
         setCursor({ line, col: 0 })
-        scrollToCursor(line)
         return next
       })
     },
@@ -357,9 +308,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     handler: () => {
       setCursor((c) => {
         if (!c) return c
-        const next = clampCursor(c.line + 1)
-        scrollToCursor(next)
-        return { line: next, col: 0 }
+        return { line: clampCursor(c.line + 1), col: 0 }
       })
     },
   })
@@ -372,9 +321,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     handler: () => {
       setCursor((c) => {
         if (!c) return c
-        const next = clampCursor(c.line - 1)
-        scrollToCursor(next)
-        return { line: next, col: 0 }
+        return { line: clampCursor(c.line - 1), col: 0 }
       })
     },
   })
@@ -489,7 +436,6 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   return {
     mode,
     setMode,
-    scrollOffset,
     cursor,
     selection,
     toggledIndices,

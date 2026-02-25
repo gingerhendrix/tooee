@@ -1,4 +1,4 @@
-export { useThemeCommands, useQuitCommand, useCopyCommand } from "./commands.js"
+export { useThemeCommands, useQuitCommand, useCopyCommand, useToggleLineNumbersCommand } from "./commands.js"
 export { useModalNavigationCommands } from "./modal.js"
 export type { ModalNavigationState, ModalNavigationOptions, Position } from "./modal.js"
 export { findMatchingLines } from "./search.js"

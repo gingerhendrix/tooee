@@ -17,3 +17,9 @@ export { CommandPalette } from "./CommandPalette.js"
 export type { CommandPaletteEntry } from "./CommandPalette.js"
 export { parseCSV, parseTSV, parseJSON, parseAuto, detectFormat } from "./parsers.js"
 export type { Format, ParsedTable } from "./parsers.js"
+export { RowDocumentRenderable } from "./RowDocumentRenderable.js"
+export type {
+  RowDocumentOptions,
+  RowDocumentPalette,
+  RowDocumentDecorations,
+} from "./RowDocumentRenderable.js"

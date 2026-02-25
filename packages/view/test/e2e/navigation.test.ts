@@ -10,8 +10,8 @@ afterEach(() => {
   } catch {}
 })
 
-function extractScroll(text: string): number {
-  const match = text.match(/Scroll:\s*(\d+)/)
+function extractCursor(text: string): number {
+  const match = text.match(/Cursor:\s*(\d+)/)
   return match ? parseInt(match[1], 10) : -1
 }
 
@@ -19,12 +19,11 @@ describe("navigation", () => {
   test("j moves cursor down", async () => {
     session = await launchView("long.md")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
-    // Cursor starts at 0, pressing j moves it down — scroll stays at 0 within viewport
+    // Cursor starts at 0, pressing j moves it to 1
     await session.press("j")
     await new Promise((r) => setTimeout(r, 300))
-    // Verify we're still in cursor mode and scroll hasn't changed (cursor within viewport)
     const text = await session.text()
-    expect(extractScroll(text)).toBe(0)
+    expect(extractCursor(text)).toBe(1)
   }, 20000)
 
   test("k moves cursor up after moving down", async () => {
@@ -35,7 +34,7 @@ describe("navigation", () => {
     await session.press("k")
     await new Promise((r) => setTimeout(r, 300))
     const text = await session.text()
-    expect(extractScroll(text)).toBe(0)
+    expect(extractCursor(text)).toBe(0)
   }, 20000)
 
   test("gg moves cursor to top", async () => {
