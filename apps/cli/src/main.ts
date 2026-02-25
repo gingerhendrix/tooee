@@ -54,8 +54,10 @@ switch (command) {
   }
 
   case "ask": {
-    const prompt = args.join(" ") || undefined
-    launchAsk({ prompt })
+    const multiline = args.includes("--multiline") || args.includes("-m")
+    const filtered = args.filter((a) => a !== "--multiline" && a !== "-m")
+    const prompt = filtered.join(" ") || undefined
+    launchAsk({ prompt, multiline })
     break
   }
 

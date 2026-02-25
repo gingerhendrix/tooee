@@ -27,8 +27,10 @@
   },
   "dependencies": {
     "@tooee/commands": "workspace:*",
-    "@tooee/themes": "workspace:*",
-    "@tooee/shell": "workspace:*"
+    "@tooee/layout": "workspace:*",
+    "@tooee/overlays": "workspace:*",
+    "@tooee/shell": "workspace:*",
+    "@tooee/themes": "workspace:*"
   },
   "devDependencies": {
     "@opentui/core": "^0.1.67",
