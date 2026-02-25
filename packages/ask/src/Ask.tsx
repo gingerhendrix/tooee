@@ -2,6 +2,7 @@ import { useState, useRef } from "react"
 import type { TextareaRenderable } from "@opentui/core"
 import { useKeyboard, useRenderer } from "@opentui/react"
 import { AppLayout } from "@tooee/layout"
+import { useHasOverlay } from "@tooee/overlays"
 import { ThemePicker, useTheme } from "@tooee/themes"
 import { useThemeCommands, useQuitCommand, useCommandPalette } from "@tooee/shell"
 import { useMode, useSetMode, useCommand, useActions, useProvideCommandContext, useCommandContext } from "@tooee/commands"
@@ -25,6 +26,8 @@ export function Ask({ prompt, placeholder, defaultValue, multiline, actions }: A
 
   const mode = useMode()
   const setMode = useSetMode()
+  const hasOverlay = useHasOverlay()
+  const inputFocused = mode === "insert" && !hasOverlay
 
   const handleSubmit = () => {
     const text = multiline ? (textareaRef.current?.plainText ?? "") : value
@@ -61,6 +64,7 @@ export function Ask({ prompt, placeholder, defaultValue, multiline, actions }: A
   })
 
   useKeyboard((key) => {
+    if (hasOverlay) return
     if (key.name === "escape") {
       if (mode === "insert") {
         setMode("cursor")
@@ -69,16 +73,19 @@ export function Ask({ prompt, placeholder, defaultValue, multiline, actions }: A
       }
       return
     }
-    if (key.name === "return" && !multiline) {
-      handleSubmit()
+    if (key.name === "return") {
+      if (multiline ? key.shift : true) {
+        handleSubmit()
+      }
       return
     }
   })
 
+  const submitHint = multiline ? "Shift+Enter submit" : "Enter submit"
   const hintParts =
     mode === "insert"
-      ? ["Enter submit", "Esc commands"]
-      : ["i insert", "q quit", ": palette", "Enter submit"]
+      ? [submitHint, "Esc commands"]
+      : ["i insert", "q quit", ": palette", submitHint]
 
   return (
     <AppLayout
@@ -107,7 +114,7 @@ export function Ask({ prompt, placeholder, defaultValue, multiline, actions }: A
         {multiline ? (
           <textarea
             ref={textareaRef}
-            focused={mode === "insert"}
+            focused={inputFocused}
             initialValue={defaultValue}
             placeholder={placeholder}
             textColor={theme.text}
@@ -118,7 +125,7 @@ export function Ask({ prompt, placeholder, defaultValue, multiline, actions }: A
           />
         ) : (
           <input
-            focused={mode === "insert"}
+            focused={inputFocused}
             value={value}
             onInput={setValue}
             onSubmit={handleSubmit}
