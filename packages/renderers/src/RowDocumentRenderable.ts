@@ -253,6 +253,23 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
       }
     }
 
+    // When scrolling to the first row, include header content (pre-offset children)
+    if (row === 0 && this._rowChildOffset > 0) {
+      target = Math.min(target, 0)
+    }
+
+    // When the next row is the last logical row (e.g. bottom border),
+    // extend the scroll to include it
+    if (row + 1 === this._rowCount - 1) {
+      const next = this.getRowMetrics(row + 1)
+      if (next) {
+        const bottomEdge = next.virtualTop + next.virtualHeight
+        if (bottomEdge > target + vpHeight) {
+          target = bottomEdge - vpHeight
+        }
+      }
+    }
+
     this.scrollTop = Math.max(0, Math.round(target))
   }
 

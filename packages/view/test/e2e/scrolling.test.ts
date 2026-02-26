@@ -147,6 +147,31 @@ describe("table scrolling", () => {
     expect(await session.text()).toMatch(/Employee 1\b/)
   }, 20000)
 
+  test("gg preserves table header visibility", async () => {
+    session = await launchTable("long.csv")
+    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
+
+    // Header columns should be visible initially
+    const initial = await session.text()
+    expect(initial).toContain("name")
+    expect(initial).toContain("email")
+
+    // Scroll down past the header
+    for (let i = 0; i < 30; i++) {
+      await session.press("j")
+    }
+    await new Promise((r) => setTimeout(r, 500))
+
+    // gg back to top
+    await session.type("gg")
+    await session.waitForText(/Employee 1\b/, { timeout: 5000 })
+
+    // Header columns must still be visible after returning to top
+    const after = await session.text()
+    expect(after).toContain("name")
+    expect(after).toContain("email")
+  }, 20000)
+
   test("G scrolls to end", async () => {
     session = await launchTable("long.csv")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
