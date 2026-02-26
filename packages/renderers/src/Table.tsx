@@ -239,7 +239,7 @@ export function Table({
       rowChildOffset={3}
       showGutter={false}
       palette={palette}
-      style={{ flexGrow: 1, flexDirection: "column", marginLeft: 1, marginRight: 1, marginBottom: 1 }}
+      style={{ flexGrow: 1, marginLeft: 1, marginRight: 1, marginBottom: 1 }}
     >
       <text content={topBorder} fg={theme.border} />
       <text content={headerLine} fg={theme.primary} />
