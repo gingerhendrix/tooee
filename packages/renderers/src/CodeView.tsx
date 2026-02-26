@@ -67,6 +67,7 @@ export function CodeView({
       showLineNumbers={showLineNumbers}
       palette={palette}
       signColumnWidth={1}
+      style={{ flexGrow: 1 }}
     >
       {codeElement}
     </row-document>

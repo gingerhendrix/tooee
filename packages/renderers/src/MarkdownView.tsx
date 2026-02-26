@@ -68,6 +68,7 @@ export function MarkdownView({
       showLineNumbers={showLineNumbers}
       palette={palette}
       signColumnWidth={1}
+      style={{ flexGrow: 1 }}
     >
       {blockElements}
     </row-document>
