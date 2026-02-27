@@ -68,6 +68,7 @@ jobs:
             packages/clipboard
             packages/overlays
             packages/themes
+            packages/toasts
             packages/layout
             packages/renderers
             packages/shell
