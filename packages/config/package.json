@@ -1,6 +1,6 @@
 {
   "name": "@tooee/config",
-  "version": "0.1.0",
+  "version": "0.1.6",
   "description": "Layered configuration system for Tooee apps",
   "license": "MIT",
   "author": "Gareth Andrew",
@@ -11,7 +11,13 @@
   },
   "homepage": "https://github.com/gingerhendrix/tooee",
   "bugs": "https://github.com/gingerhendrix/tooee/issues",
-  "keywords": ["tui", "terminal", "cli", "opentui", "configuration"],
+  "keywords": [
+    "tui",
+    "terminal",
+    "cli",
+    "opentui",
+    "configuration"
+  ],
   "type": "module",
   "exports": {
     ".": {
@@ -21,7 +27,10 @@
       }
     }
   },
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
