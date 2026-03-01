@@ -29,7 +29,6 @@ describe("markdown scrolling", () => {
     for (let i = 0; i < 30; i++) {
       await session.press("j")
     }
-    await new Promise((r) => setTimeout(r, 500))
 
     // After scrolling down, early sections should no longer be visible
     const after = await session.text()
@@ -44,7 +43,6 @@ describe("markdown scrolling", () => {
     for (let i = 0; i < 30; i++) {
       await session.press("j")
     }
-    await new Promise((r) => setTimeout(r, 500))
     expect(await session.text()).not.toMatch(/section 2\./i)
 
     // gg to top — Section 2 should reappear
@@ -75,7 +73,6 @@ describe("code scrolling", () => {
     for (let i = 0; i < 30; i++) {
       await session.press("j")
     }
-    await new Promise((r) => setTimeout(r, 500))
 
     const cursor = extractCursor(await session.text())
     expect(cursor).toBeGreaterThan(0)
@@ -89,7 +86,6 @@ describe("code scrolling", () => {
     for (let i = 0; i < 30; i++) {
       await session.press("j")
     }
-    await new Promise((r) => setTimeout(r, 500))
     expect(extractCursor(await session.text())).toBeGreaterThan(0)
 
     // gg to top
@@ -123,7 +119,6 @@ describe("table scrolling", () => {
     for (let i = 0; i < 30; i++) {
       await session.press("j")
     }
-    await new Promise((r) => setTimeout(r, 500))
 
     // After scrolling, early rows should be gone
     const after = await session.text()
@@ -138,7 +133,6 @@ describe("table scrolling", () => {
     for (let i = 0; i < 30; i++) {
       await session.press("j")
     }
-    await new Promise((r) => setTimeout(r, 500))
     expect(await session.text()).not.toMatch(/Employee 1\b/)
 
     // gg to top
@@ -160,7 +154,6 @@ describe("table scrolling", () => {
     for (let i = 0; i < 30; i++) {
       await session.press("j")
     }
-    await new Promise((r) => setTimeout(r, 500))
 
     // gg back to top
     await session.type("gg")

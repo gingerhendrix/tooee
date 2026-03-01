@@ -69,11 +69,8 @@ describe("markdown gutter e2e", () => {
       await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
       // Move cursor down a few times
       await session.press("j")
-      await new Promise((r) => setTimeout(r, 300))
       await session.press("j")
-      await new Promise((r) => setTimeout(r, 300))
       await session.press("j")
-      await new Promise((r) => setTimeout(r, 300))
       const text = await session.text()
       // Should still be in cursor mode after navigation
       expect(text).toMatch(/Mode:\s*cursor/)
@@ -88,14 +85,11 @@ describe("markdown gutter e2e", () => {
       await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
       // Open search
       await session.press("/")
-      await new Promise((r) => setTimeout(r, 300))
       // Type a query that matches all sections (visible in viewport)
       await session.type("Section")
-      await new Promise((r) => setTimeout(r, 500))
       // Submit search
       await session.press("enter")
       await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
-      await new Promise((r) => setTimeout(r, 300))
       const text = await session.text()
       // Search match indicator ● should appear in the gutter
       expect(text).toContain("●")
@@ -105,9 +99,7 @@ describe("markdown gutter e2e", () => {
       session = await launchView("long.md")
       await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
       await session.press("/")
-      await new Promise((r) => setTimeout(r, 300))
       await session.type("Section")
-      await new Promise((r) => setTimeout(r, 500))
       // Match count is displayed in the search bar while it's open (N/M format)
       const text = await session.text()
       expect(text).toMatch(/\d+\/\d+/)
@@ -123,7 +115,6 @@ describe("markdown gutter e2e", () => {
       await session.waitForText(/Mode:\s*select/, { timeout: 5000 })
       // Extend selection
       await session.press("j")
-      await new Promise((r) => setTimeout(r, 300))
       const text = await session.text()
       expect(text).toMatch(/Mode:\s*select/)
     }, 20000)
