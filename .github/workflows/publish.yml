@@ -1,12 +1,9 @@
 name: Publish to npm
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Version bump (patch, minor, major, or explicit like 0.2.0)"
-        required: true
-        default: "patch"
+  push:
+    tags:
+      - "v*"
 
 permissions:
   id-token: write
@@ -31,37 +28,21 @@ jobs:
 
       - run: bun run build
 
-      - name: Set version
+      - run: bun test
+
+      - name: Extract version from tag
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+
+      - name: Verify package versions match tag
         run: |
-          VERSION=${{ github.event.inputs.version }}
-
-          # If it looks like a semver, use it directly; otherwise treat as bump type
-          if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
-            NEW_VERSION="$VERSION"
-          else
-            CURRENT=$(node -p "require('./packages/config/package.json').version")
-            NEW_VERSION=$(npx semver "$CURRENT" -i "$VERSION")
+          PKG_VERSION=$(node -p "require('./packages/config/package.json').version")
+          if [[ "$PKG_VERSION" != "$VERSION" ]]; then
+            echo "Error: tag $GITHUB_REF_NAME but packages/config has version $PKG_VERSION" >&2
+            exit 1
           fi
-
-          echo "Publishing version: $NEW_VERSION"
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-
-          # Update all package versions
-          for pkg in packages/*/package.json apps/cli/package.json; do
-            node -e "
-              const fs = require('fs');
-              const pkg = JSON.parse(fs.readFileSync('$pkg', 'utf8'));
-              pkg.version = '$NEW_VERSION';
-              fs.writeFileSync('$pkg', JSON.stringify(pkg, null, 2) + '\n');
-            "
-          done
-
-      # Re-resolve workspace deps after version bump
-      - run: bun install --no-frozen-lockfile
 
       - name: Pack and publish packages
         run: |
-          # Publish in dependency order: foundation → concern → composition → apps
           PACKAGES=(
             packages/config
             packages/commands
@@ -81,17 +62,23 @@ jobs:
           for pkg in "${PACKAGES[@]}"; do
             echo "Publishing $pkg..."
             cd "$pkg"
+
+            # Skip if already published (partial-publish recovery)
+            PKG_NAME=$(node -p "require('./package.json').name")
+            if npm view "$PKG_NAME@$VERSION" version &>/dev/null; then
+              echo "  $PKG_NAME@$VERSION already published, skipping"
+              cd "$GITHUB_WORKSPACE"
+              continue
+            fi
+
             bun pm pack --quiet
             TARBALL=$(ls *.tgz)
-            echo "Tarball: $TARBALL"
             npm publish "$TARBALL" --provenance --access public
             rm -f "$TARBALL"
             cd "$GITHUB_WORKSPACE"
           done
 
-      - name: Tag release
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag "v$NEW_VERSION"
-          git push origin "v$NEW_VERSION"
+      - name: Create GitHub Release
+        run: gh release create "$GITHUB_REF_NAME" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
