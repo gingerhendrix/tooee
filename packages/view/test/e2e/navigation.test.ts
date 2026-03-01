@@ -41,9 +41,7 @@ describe("navigation", () => {
     session = await launchView("long.md")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     // Move cursor down enough to scroll
-    for (let i = 0; i < 30; i++) {
-      await session.press("j")
-    }
+    await session.type("j".repeat(30))
     await new Promise((r) => setTimeout(r, 500))
     const scrolledText = await session.text()
     expect(scrolledText).not.toMatch(/section 2\./i)

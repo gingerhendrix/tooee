@@ -68,12 +68,7 @@ describe("markdown gutter e2e", () => {
       session = await launchView("long.md")
       await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
       // Move cursor down a few times
-      await session.press("j")
-      await new Promise((r) => setTimeout(r, 300))
-      await session.press("j")
-      await new Promise((r) => setTimeout(r, 300))
-      await session.press("j")
-      await new Promise((r) => setTimeout(r, 300))
+      await session.type("jjj")
       const text = await session.text()
       // Should still be in cursor mode after navigation
       expect(text).toMatch(/Mode:\s*cursor/)

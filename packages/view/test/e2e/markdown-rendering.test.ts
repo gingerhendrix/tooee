@@ -51,9 +51,7 @@ describe("markdown table rendering", () => {
     session = await launchView("mixed-content.md")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     // Scroll down past the table to see the paragraph after it
-    for (let i = 0; i < 8; i++) {
-      await session.press("j")
-    }
+    await session.type("j".repeat(8))
     await new Promise((r) => setTimeout(r, 500))
     const text = await session.text()
     expect(text).toContain("This paragraph appears after the table.")
@@ -83,9 +81,7 @@ describe("mixed content positioning", () => {
     session = await launchView("mixed-content.md")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     // Navigate down to see content after the table
-    for (let i = 0; i < 10; i++) {
-      await session.press("j")
-    }
+    await session.type("j".repeat(10))
     await new Promise((r) => setTimeout(r, 500))
     const text = await session.text()
     expect(text).toContain("paragraph appears after the table")
@@ -94,9 +90,7 @@ describe("mixed content positioning", () => {
   test("second code block also renders correctly", async () => {
     session = await launchView("mixed-content.md")
     // Navigate down to see second code block
-    for (let i = 0; i < 15; i++) {
-      await session.press("j")
-    }
+    await session.type("j".repeat(15))
     await new Promise((r) => setTimeout(r, 500))
     const text = await session.text()
     expect(text).toContain("simple line one")

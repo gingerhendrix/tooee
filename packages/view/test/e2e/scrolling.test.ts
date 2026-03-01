@@ -26,9 +26,7 @@ describe("markdown scrolling", () => {
     expect(before).toMatch(/section 2\./i)
 
     // Press j enough times to move cursor past viewport (24 rows, ~22 viewport)
-    for (let i = 0; i < 30; i++) {
-      await session.press("j")
-    }
+    await session.type("j".repeat(30))
     await new Promise((r) => setTimeout(r, 500))
 
     // After scrolling down, early sections should no longer be visible
@@ -41,9 +39,7 @@ describe("markdown scrolling", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
 
     // Scroll down first
-    for (let i = 0; i < 30; i++) {
-      await session.press("j")
-    }
+    await session.type("j".repeat(30))
     await new Promise((r) => setTimeout(r, 500))
     expect(await session.text()).not.toMatch(/section 2\./i)
 
@@ -72,9 +68,7 @@ describe("code scrolling", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
 
     // Press j enough times to go past viewport
-    for (let i = 0; i < 30; i++) {
-      await session.press("j")
-    }
+    await session.type("j".repeat(30))
     await new Promise((r) => setTimeout(r, 500))
 
     const cursor = extractCursor(await session.text())
@@ -86,9 +80,7 @@ describe("code scrolling", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
 
     // Move cursor down first
-    for (let i = 0; i < 30; i++) {
-      await session.press("j")
-    }
+    await session.type("j".repeat(30))
     await new Promise((r) => setTimeout(r, 500))
     expect(extractCursor(await session.text())).toBeGreaterThan(0)
 
@@ -120,9 +112,7 @@ describe("table scrolling", () => {
     expect(before).toMatch(/Employee 1\b/)
 
     // Press j enough times to go past viewport
-    for (let i = 0; i < 30; i++) {
-      await session.press("j")
-    }
+    await session.type("j".repeat(30))
     await new Promise((r) => setTimeout(r, 500))
 
     // After scrolling, early rows should be gone
@@ -135,9 +125,7 @@ describe("table scrolling", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
 
     // Scroll down first
-    for (let i = 0; i < 30; i++) {
-      await session.press("j")
-    }
+    await session.type("j".repeat(30))
     await new Promise((r) => setTimeout(r, 500))
     expect(await session.text()).not.toMatch(/Employee 1\b/)
 
@@ -157,9 +145,7 @@ describe("table scrolling", () => {
     expect(initial).toContain("email")
 
     // Scroll down past the header
-    for (let i = 0; i < 30; i++) {
-      await session.press("j")
-    }
+    await session.type("j".repeat(30))
     await new Promise((r) => setTimeout(r, 500))
 
     // gg back to top
