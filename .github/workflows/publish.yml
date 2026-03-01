@@ -24,7 +24,7 @@ jobs:
 
       - run: npm install -g npm@latest
 
-      - run: bun install --frozen-lockfile
+      - run: bun install
 
       - run: bun run build
 
