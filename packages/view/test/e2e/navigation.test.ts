@@ -21,7 +21,6 @@ describe("navigation", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     // Cursor starts at 0, pressing j moves it to 1
     await session.press("j")
-    await new Promise((r) => setTimeout(r, 300))
     const text = await session.text()
     expect(extractCursor(text)).toBe(1)
   }, 20000)
@@ -30,9 +29,7 @@ describe("navigation", () => {
     session = await launchView("long.md")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     await session.press("j")
-    await new Promise((r) => setTimeout(r, 300))
     await session.press("k")
-    await new Promise((r) => setTimeout(r, 300))
     const text = await session.text()
     expect(extractCursor(text)).toBe(0)
   }, 20000)
@@ -62,7 +59,6 @@ describe("navigation", () => {
     session = await launchView("long.md")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     await session.press(["ctrl", "d"])
-    await new Promise((r) => setTimeout(r, 500))
     // Half page jump may push cursor past viewport, causing scroll
     const text = await session.text()
     // Just verify the command works without error
@@ -74,12 +70,9 @@ describe("navigation", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     // Move down first
     await session.press(["ctrl", "d"])
-    await new Promise((r) => setTimeout(r, 300))
     await session.press(["ctrl", "d"])
-    await new Promise((r) => setTimeout(r, 300))
     // Move back up
     await session.press(["ctrl", "u"])
-    await new Promise((r) => setTimeout(r, 500))
     const text = await session.text()
     expect(text).toContain("Mode: cursor")
   }, 20000)

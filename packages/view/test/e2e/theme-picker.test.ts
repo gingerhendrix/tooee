@@ -31,14 +31,10 @@ describe("theme picker", () => {
     await session.waitForText("Filter themes", { timeout: 5000 })
     // Navigate down to pick a different theme
     await session.press("down")
-    await new Promise((r) => setTimeout(r, 200))
     await session.press("down")
-    await new Promise((r) => setTimeout(r, 200))
     await session.press("down")
-    await new Promise((r) => setTimeout(r, 200))
     // Confirm
     await session.press("enter")
-    await new Promise((r) => setTimeout(r, 500))
     const after = extractTheme(await session.text())
     expect(after).not.toBe(initial)
   }, 20000)

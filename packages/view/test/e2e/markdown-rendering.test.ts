@@ -52,7 +52,6 @@ describe("markdown table rendering", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     // Scroll down past the table to see the paragraph after it
     await session.type("j".repeat(8))
-    await new Promise((r) => setTimeout(r, 500))
     const text = await session.text()
     expect(text).toContain("This paragraph appears after the table.")
   }, 20000)
@@ -82,7 +81,6 @@ describe("mixed content positioning", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     // Navigate down to see content after the table
     await session.type("j".repeat(10))
-    await new Promise((r) => setTimeout(r, 500))
     const text = await session.text()
     expect(text).toContain("paragraph appears after the table")
   }, 20000)
@@ -91,7 +89,6 @@ describe("mixed content positioning", () => {
     session = await launchView("mixed-content.md")
     // Navigate down to see second code block
     await session.type("j".repeat(15))
-    await new Promise((r) => setTimeout(r, 500))
     const text = await session.text()
     expect(text).toContain("simple line one")
     expect(text).toContain("simple line two")
@@ -121,7 +118,6 @@ describe("scroll isolation on code blocks", () => {
     // Scroll down using mouse wheel at a position within the code block area
     // The code block is roughly at rows 5-10, column 30
     await session.scrollDown(3, 30, 7)
-    await new Promise((r) => setTimeout(r, 300))
 
     const after = await session.text()
 

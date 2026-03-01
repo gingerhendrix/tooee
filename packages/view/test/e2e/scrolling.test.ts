@@ -27,7 +27,6 @@ describe("markdown scrolling", () => {
 
     // Press j enough times to move cursor past viewport (24 rows, ~22 viewport)
     await session.type("j".repeat(30))
-    await new Promise((r) => setTimeout(r, 500))
 
     // After scrolling down, early sections should no longer be visible
     const after = await session.text()
@@ -68,7 +67,6 @@ describe("code scrolling", () => {
 
     // Press j enough times to go past viewport
     await session.type("j".repeat(30))
-    await new Promise((r) => setTimeout(r, 500))
 
     const cursor = extractCursor(await session.text())
     expect(cursor).toBeGreaterThan(0)
@@ -111,7 +109,6 @@ describe("table scrolling", () => {
 
     // Press j enough times to go past viewport
     await session.type("j".repeat(30))
-    await new Promise((r) => setTimeout(r, 500))
 
     // After scrolling, early rows should be gone
     const after = await session.text()
