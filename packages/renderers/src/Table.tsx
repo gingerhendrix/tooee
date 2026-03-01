@@ -155,6 +155,15 @@ export function Table({
     sampleSize,
   })
 
+  // Detect right-aligned columns: explicit align prop or auto-detect numeric
+  const alignments = columns.map((column, colIdx) => {
+    if (column.align === "right") return true
+    if (column.align === "left") return false
+    const sampleValues = normalizedRows.slice(0, 10).map((row) => row[colIdx] ?? "")
+    const numericCount = sampleValues.filter(isNumeric).length
+    return numericCount > sampleValues.length / 2
+  })
+
   const internalRef = useRef<RowDocumentRenderable>(null)
   const effectiveRef = docRef ?? internalRef
 
@@ -215,19 +224,25 @@ export function Table({
       {/* Data rows */}
       {normalizedRows.map((row, i) => (
         <box key={i} style={{ flexDirection: "row" }}>
-          {row.map((cell, j) => (
-            <text
-              key={j}
-              content={cell}
-              wrapMode="word"
-              style={{
-                width: colWidths[j],
-                paddingLeft: PADDING,
-                paddingRight: PADDING,
-              }}
-              fg={theme.text}
-            />
-          ))}
+          {row.map((cell, j) => {
+            const contentWidth = colWidths[j] - PADDING * 2
+            const displayCell = alignments[j] && cell.length <= contentWidth
+              ? cell.padStart(contentWidth)
+              : cell
+            return (
+              <text
+                key={j}
+                content={displayCell}
+                wrapMode="word"
+                style={{
+                  width: colWidths[j],
+                  paddingLeft: PADDING,
+                  paddingRight: PADDING,
+                }}
+                fg={theme.text}
+              />
+            )
+          })}
         </box>
       ))}
     </row-document>

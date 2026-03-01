@@ -136,6 +136,29 @@ describe("Table component", () => {
     expect(frame).not.toContain("\u2518") // ┘
   })
 
+  test("numbers right-aligned", async () => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <Table
+          columns={createColumns(["Name", "Score"])}
+          rows={createRows(createColumns(["Name", "Score"]), [
+            ["Alice", "100"],
+            ["Bob", "95"],
+            ["Carol", "87"],
+          ])}
+          maxWidth={40}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 40, height: 15 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    // Numbers should have leading spaces (right-aligned)
+    expect(frame).toContain("100")
+    expect(frame).toContain(" 95")
+    expect(frame).toContain(" 87")
+  })
+
   test("snapshot", async () => {
     testSetup = await testRender(
       <ThemeSwitcherProvider>

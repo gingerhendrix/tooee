@@ -3,9 +3,9 @@
 exports[`Table component snapshot 1`] = `
 " Name   Age   City                      
  ─────  ────  ──────                    
- Alice  30    London                    
- Bob    25    Paris                     
- Carol  28    Berlin                    
+ Alice    30  London                    
+ Bob      25  Paris                     
+ Carol    28  Berlin                    
                                         
                                         
                                         

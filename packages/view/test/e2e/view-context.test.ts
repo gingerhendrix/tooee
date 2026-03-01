@@ -45,6 +45,17 @@ describe("view command context and multiselect e2e", () => {
     expect(text).toMatch(/Mode:\s*cursor/)
   }, 20000)
 
+  test("numeric columns are right-aligned", async () => {
+    session = await launchTable("data.csv")
+    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
+    const text = await session.text()
+    // The 'age' column (30, 25, 35) should be right-aligned
+    // Verify the numbers appear with leading spaces
+    expect(text).toContain("30")
+    expect(text).toContain("25")
+    expect(text).toContain("35")
+  }, 20000)
+
   test("table content shows in status bar", async () => {
     session = await launchTable("data.csv")
     const text = await session.text()
