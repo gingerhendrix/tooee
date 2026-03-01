@@ -28,14 +28,15 @@ describe("theme picker", () => {
     session = await launchView("sample.md")
     const initial = extractTheme(await session.text())
     await session.press("t")
-    await session.waitForText("Filter themes", { timeout: 5000 })
-    // Navigate down to pick a different theme
-    await session.press("down")
-    await session.press("down")
-    await session.press("down")
-    // Confirm
+    await session.waitForText("Filter themes", { timeout: 10000 })
+    // Type to filter the list to a specific theme, then select it
+    const target = initial === "dracula" ? "solarized" : "dracula"
+    await session.type(target)
+    await session.waitForText(target, { timeout: 10000 })
     await session.press("enter")
+    // Wait for theme picker to close and theme to apply
+    await session.waitForText(`Theme: ${target}`, { timeout: 10000 })
     const after = extractTheme(await session.text())
-    expect(after).not.toBe(initial)
+    expect(after).toBe(target)
   }, 20000)
 })
