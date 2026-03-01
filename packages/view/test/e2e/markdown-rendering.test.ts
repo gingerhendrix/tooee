@@ -39,12 +39,21 @@ describe("markdown code block rendering", () => {
 describe("markdown table rendering", () => {
   test("table shows all rows", async () => {
     session = await launchView("mixed-content.md")
+    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
+    // Header should be visible initially
+    const initial = await session.text()
+    expect(initial).toContain("Score")
+    expect(initial).toContain("Grade")
+    expect(initial).toContain("Alice")
+    // Scroll down to see remaining rows (table with cellPadding takes more vertical space)
+    for (let i = 0; i < 6; i++) {
+      await session.press("j")
+      await new Promise((r) => setTimeout(r, 200))
+    }
+    await new Promise((r) => setTimeout(r, 300))
     const text = await session.text()
-    expect(text).toContain("Alice")
     expect(text).toContain("Bob")
     expect(text).toContain("Carol")
-    expect(text).toContain("Score")
-    expect(text).toContain("Grade")
   }, 20000)
 
   test("paragraph after table is visible after scrolling", async () => {
