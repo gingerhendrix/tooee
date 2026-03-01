@@ -1,6 +1,6 @@
 {
   "name": "@tooee/shell",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Composition layer wiring Tooee apps together",
   "license": "MIT",
   "author": "Gareth Andrew",

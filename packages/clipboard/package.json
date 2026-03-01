@@ -1,6 +1,6 @@
 {
   "name": "@tooee/clipboard",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Cross-platform clipboard operations for Tooee",
   "license": "MIT",
   "author": "Gareth Andrew",

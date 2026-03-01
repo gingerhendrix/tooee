@@ -1,6 +1,6 @@
 {
   "name": "@tooee/renderers",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Content renderers (markdown, code, image, table) for Tooee",
   "license": "MIT",
   "author": "Gareth Andrew",
