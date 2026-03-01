@@ -3,7 +3,7 @@ import { useEffect, useRef, type ReactNode, type RefObject } from "react"
 import { useTerminalDimensions } from "@opentui/react"
 import { useTheme, type ResolvedTheme } from "@tooee/themes"
 import type { SyntaxStyle } from "@opentui/core"
-import { computeColumnWidths, buildBorderLine, buildDataLine, isNumeric } from "./Table.js"
+import { computeColumnWidths, isNumeric } from "./Table.js"
 import type { RowDocumentRenderable, RowDocumentPalette, RowDocumentDecorations } from "./RowDocumentRenderable.js"
 import "./row-document.js"
 
@@ -293,27 +293,28 @@ function MarkdownTableRenderer({ token }: { token: Tokens.Table }) {
     sampleSize: 100,
   })
 
-  const alignments = headers.map((_header, colIdx) => {
-    const sampleValues = rowData.slice(0, 10).map((row) => row[colIdx] ?? "")
-    const numericCount = sampleValues.filter(isNumeric).length
-    return numericCount > sampleValues.length / 2
-  })
-
-  const topBorder = buildBorderLine(colWidths, "\u250c", "\u252c", "\u2510", "\u2500")
-  const headerSep = buildBorderLine(colWidths, "\u251c", "\u253c", "\u2524", "\u2500")
-  const bottomBorder = buildBorderLine(colWidths, "\u2514", "\u2534", "\u2518", "\u2500")
-  const headerLine = buildDataLine(headers, colWidths, alignments)
-  const dataLines = rowData.map((row) => buildDataLine(row, colWidths, alignments))
-
   return (
     <box style={{ marginLeft: 1, marginRight: 1, marginBottom: 1, flexDirection: "column" }}>
-      <text content={topBorder} style={{ fg: theme.border }} />
-      <text content={headerLine} style={{ fg: theme.primary }} />
-      <text content={headerSep} style={{ fg: theme.border }} />
-      {dataLines.map((line, i) => (
-        <text key={i} content={line} style={{ fg: theme.text }} />
+      {/* Header */}
+      <box style={{ flexDirection: "row" }}>
+        {headers.map((h, i) => (
+          <text key={i} content={h} style={{ width: colWidths[i], paddingLeft: 1, paddingRight: 1 }} fg={theme.primary} />
+        ))}
+      </box>
+      {/* Underline */}
+      <box style={{ flexDirection: "row" }}>
+        {colWidths.map((w, i) => (
+          <text key={i} content={"\u2500".repeat(w - 2)} style={{ width: w, paddingLeft: 1, paddingRight: 1 }} fg={theme.border} />
+        ))}
+      </box>
+      {/* Data */}
+      {rowData.map((row, i) => (
+        <box key={i} style={{ flexDirection: "row" }}>
+          {row.map((cell, j) => (
+            <text key={j} content={cell} wrapMode="word" style={{ width: colWidths[j], paddingLeft: 1, paddingRight: 1 }} fg={theme.text} />
+          ))}
+        </box>
       ))}
-      <text content={bottomBorder} style={{ fg: theme.border }} />
     </box>
   )
 }

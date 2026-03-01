@@ -76,14 +76,14 @@ exports[`inline table rendering table snapshot 1`] = `
 "                                                            
 1  # Data                                                   
                                                             
-2   ┌───────┬──────┬────────┐                               
-    │ Name  │  Age │ City   │                               
-    ├───────┼──────┼────────┤                               
-    │ Alice │   30 │ London │                               
-    │ Bob   │   25 │ Paris  │                               
-    └───────┴──────┴────────┘                               
+2   Name   Age   City                                       
+    ─────  ────  ──────                                     
+    Alice  30    London                                     
+    Bob    25    Paris                                      
                                                             
 3   Summary text.                                           
+                                                            
+                                                            
                                                             
                                                             
                                                             
@@ -108,14 +108,14 @@ exports[`mixed content rendering mixed content snapshot 1`] = `
                                                             
 3   Summary of results:                                     
                                                             
-4   ┌────────┬───────┐                                      
-    │ Metric │ Value │                                      
-    ├────────┼───────┤                                      
-    │ Count  │ 42    │                                      
-    │ Rate   │ 99%   │                                      
-    └────────┴───────┘                                      
+4   Metric  Value                                           
+    ──────  ─────                                           
+    Count   42                                              
+    Rate    99%                                             
                                                             
 5   Done.                                                   
+                                                            
+                                                            
                                                             
                                                             
                                                             

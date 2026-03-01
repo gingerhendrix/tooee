@@ -2,7 +2,7 @@ import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, describe, afterEach } from "bun:test"
 import { ThemeSwitcherProvider } from "@tooee/themes"
 import { Table } from "../src/Table.js"
-import { computeColumnWidths, truncate, isNumeric } from "../src/Table.js"
+import { computeColumnWidths, isNumeric } from "../src/Table.js"
 
 function createColumns(headers: string[]) {
   return headers.map((header, index) => ({
@@ -73,12 +73,12 @@ describe("Table component", () => {
     expect(frame).toContain("Description")
   })
 
-  test("long content is truncated", async () => {
+  test("long content wraps instead of truncating", async () => {
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <Table
           columns={createColumns(["Col"])}
-          rows={createRows(createColumns(["Col"]), [["This is a very long string that should be truncated when displayed"]])}
+          rows={createRows(createColumns(["Col"]), [["This is a very long string that should wrap when displayed"]])}
           maxWidth={30}
         />
       </ThemeSwitcherProvider>,
@@ -86,29 +86,54 @@ describe("Table component", () => {
     )
     await testSetup.renderOnce()
     const frame = testSetup.captureCharFrame()
-    expect(frame).toContain("…")
+    // Content should wrap, not truncate -- no ellipsis
+    expect(frame).not.toContain("\u2026")
+    // The full text should be present across multiple lines
+    expect(frame).toContain("This")
+    expect(frame).toContain("long")
+    expect(frame).toContain("string")
   })
 
-  test("numbers right-aligned", async () => {
+  test("renders header underline", async () => {
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <Table
-          columns={createColumns(["Name", "Score"])}
-          rows={createRows(createColumns(["Name", "Score"]), [
-            ["Alice", "100"],
-            ["Bob", "95"],
-            ["Carol", "87"],
+          columns={createColumns(["Name", "Age"])}
+          rows={createRows(createColumns(["Name", "Age"]), [
+            ["Alice", "30"],
           ])}
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 15 },
+      { width: 40, height: 10 },
     )
     await testSetup.renderOnce()
     const frame = testSetup.captureCharFrame()
-    // Numbers should have leading spaces (right-aligned)
-    expect(frame).toContain("100")
-    expect(frame).toContain("95")
+    // Should have horizontal line separator under header
+    expect(frame).toContain("\u2500")
+  })
+
+  test("renders without box-drawing borders", async () => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <Table
+          columns={createColumns(["Name", "Age"])}
+          rows={createRows(createColumns(["Name", "Age"]), [
+            ["Alice", "30"],
+          ])}
+          maxWidth={40}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 40, height: 10 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    // No box-drawing vertical borders or corners
+    expect(frame).not.toContain("\u2502") // │
+    expect(frame).not.toContain("\u250c") // ┌
+    expect(frame).not.toContain("\u2510") // ┐
+    expect(frame).not.toContain("\u2514") // └
+    expect(frame).not.toContain("\u2518") // ┘
   })
 
   test("snapshot", async () => {
@@ -142,7 +167,8 @@ describe("Table utilities", () => {
       40,
       defaultOptions,
     )
-    const total = widths.reduce((a, b) => a + b, 0) + widths.length + 1
+    // No border overhead -- total column widths should fit within maxWidth
+    const total = widths.reduce((a, b) => a + b, 0)
     expect(total).toBeLessThanOrEqual(40)
   })
 
@@ -152,11 +178,6 @@ describe("Table utilities", () => {
     // With minColumnWidth=4, content "xx" (2 chars) is bumped to 4, then +2 padding = 6
     expect(widths[0]).toBe(6)
     expect(widths[1]).toBe(6)
-  })
-
-  test("truncate shortens long text", () => {
-    expect(truncate("Hello World", 8)).toBe("Hello…")
-    expect(truncate("Hi", 8)).toBe("Hi")
   })
 
   test("isNumeric detects numbers", () => {

@@ -274,10 +274,8 @@ describe("inline table rendering", () => {
     expect(frame).toContain("Alice")
     expect(frame).toContain("Bob")
     expect(frame).toContain("Carol")
-    // Table borders should be present
-    expect(frame).toContain("\u250c") // top-left corner
-    expect(frame).toContain("\u2514") // bottom-left corner
-    expect(frame).toContain("\u2502") // vertical bar
+    // Header underline should be present (clean minimal style, no box borders)
+    expect(frame).toContain("\u2500") // horizontal line under header
   })
 
   test("table with many rows shows all content", async () => {

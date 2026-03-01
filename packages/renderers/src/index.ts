@@ -4,11 +4,7 @@ export { ImageView } from "./ImageView.js"
 export {
   Table,
   computeColumnWidths,
-  truncate,
-  padCell,
   isNumeric,
-  buildBorderLine,
-  buildDataLine,
   sampleRows,
 } from "./Table.js"
 export type { TableProps, ColumnWidthOptions } from "./Table.js"

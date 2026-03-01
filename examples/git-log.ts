@@ -13,7 +13,7 @@ import { launch, type ContentProvider, type Content } from "@tooee/view"
 const contentProvider: ContentProvider = {
   async load(): Promise<Content> {
     // Use %x00 (null byte) as delimiter for safe parsing
-    const proc = Bun.spawn(["git", "log", "--format=%h%x00%s%x00%an%x00%ar", "-n", "50"])
+    const proc = Bun.spawn(["git", "log", "--format=%h%x00%s%x00%an%x00%ar"])
 
     const text = await new Response(proc.stdout).text()
     const exitCode = await proc.exited
@@ -61,7 +61,7 @@ const contentProvider: ContentProvider = {
 
     const rows = lines.map((line) => {
       const [hash, subject, author, date] = line.split("\x00")
-      const preview = subject.length > 60 ? `${subject.slice(0, 60)}...` : subject
+      const preview = subject.length > 120 ? `${subject.slice(0, 120)}...` : subject
       return {
         hash,
         message: preview,

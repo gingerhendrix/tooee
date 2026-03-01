@@ -168,7 +168,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
   const lineCount = useMemo(() => {
     if (!content) return 0
     if (isBuiltinContent(content) && content.format === "table") {
-      return content.rows.length + 3
+      return content.rows.length + 2
     }
     return textContent.split("\n").length
   }, [content, textContent])
@@ -178,8 +178,8 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
     if (!isBuiltinContent(content)) return { blockCount: undefined, blockLineMap: undefined }
 
     if (content.format === "table") {
-      // 3 = visual header lines (top border + header + separator) in Table's row-document
-      const map = content.rows.map((_: unknown, i: number) => i + 3)
+      // 2 = visual header children (header row + underline) in Table's row-document
+      const map = content.rows.map((_: unknown, i: number) => i + 2)
       return { blockCount: content.rows.length, blockLineMap: map }
     }
 
