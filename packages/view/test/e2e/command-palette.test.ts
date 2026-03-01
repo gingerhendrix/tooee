@@ -31,6 +31,7 @@ describe("command palette", () => {
     await session.press(":")
     await session.waitForText("Filter commands", { timeout: 5000 })
     session.writeRaw(ESCAPE_SEQUENCE)
+    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     const text = await session.text()
     expect(text).not.toMatch(/Filter commands/)
   }, 20000)
