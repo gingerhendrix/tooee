@@ -1,11 +1,10 @@
 import { marked, type Token, type Tokens } from "marked"
-import { useEffect, useRef, type ReactNode, type RefObject } from "react"
-import { useTerminalDimensions } from "@opentui/react"
+import { useEffect, useMemo, useRef, type ReactNode, type RefObject } from "react"
 import { useTheme, type ResolvedTheme } from "@tooee/themes"
-import type { SyntaxStyle } from "@opentui/core"
-import { computeColumnWidths, isNumeric } from "./Table.js"
+import type { SyntaxStyle, TextTableContent, TextTableCellContent } from "@opentui/core"
 import type { RowDocumentRenderable, RowDocumentPalette, RowDocumentDecorations } from "./RowDocumentRenderable.js"
 import "./row-document.js"
+import "./text-table.js"
 
 interface MarkdownViewProps {
   content: string
@@ -277,44 +276,32 @@ function ListItemRenderer({
 
 function MarkdownTableRenderer({ token }: { token: Tokens.Table }) {
   const { theme } = useTheme()
-  const { width: terminalWidth } = useTerminalDimensions()
 
-  const headers = token.header.map((cell) => getPlainText(cell.tokens).trim())
-  const rowData = token.rows.map((row) =>
-    row.map((cell) => getPlainText(cell.tokens)),
-  )
-
-  // Account for gutter + margins when computing available width
-  const effectiveMaxWidth = terminalWidth - 4
-
-  const colWidths = computeColumnWidths(headers, rowData, effectiveMaxWidth, {
-    minColumnWidth: 4,
-    maxColumnWidth: 50,
-    sampleSize: 100,
-  })
+  const content: TextTableContent = useMemo(() => {
+    const headerRow: TextTableCellContent[] = token.header.map(cell => [
+      { __isChunk: true as const, text: getPlainText(cell.tokens).trim() }
+    ])
+    const dataRows = token.rows.map(row =>
+      row.map(cell => [
+        { __isChunk: true as const, text: getPlainText(cell.tokens) }
+      ] as TextTableCellContent)
+    )
+    return [headerRow, ...dataRows]
+  }, [token])
 
   return (
-    <box style={{ marginLeft: 1, marginRight: 1, marginBottom: 1, flexDirection: "column" }}>
-      {/* Header */}
-      <box style={{ flexDirection: "row" }}>
-        {headers.map((h, i) => (
-          <text key={i} content={h} style={{ width: colWidths[i], paddingLeft: 1, paddingRight: 1 }} fg={theme.primary} />
-        ))}
-      </box>
-      {/* Underline */}
-      <box style={{ flexDirection: "row" }}>
-        {colWidths.map((w, i) => (
-          <text key={i} content={"\u2500".repeat(w - 2)} style={{ width: w, paddingLeft: 1, paddingRight: 1 }} fg={theme.border} />
-        ))}
-      </box>
-      {/* Data */}
-      {rowData.map((row, i) => (
-        <box key={i} style={{ flexDirection: "row" }}>
-          {row.map((cell, j) => (
-            <text key={j} content={cell} wrapMode="word" style={{ width: colWidths[j], paddingLeft: 1, paddingRight: 1 }} fg={theme.text} />
-          ))}
-        </box>
-      ))}
+    <box style={{ marginLeft: 1, marginRight: 1, marginBottom: 1 }}>
+      <text-table
+        content={content}
+        wrapMode="word"
+        columnWidthMode="full"
+        cellPadding={1}
+        border={true}
+        borderStyle="single"
+        borderColor={theme.border}
+        fg={theme.text}
+        style={{ width: "100%" }}
+      />
     </box>
   )
 }

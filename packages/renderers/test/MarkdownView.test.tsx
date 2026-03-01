@@ -287,7 +287,7 @@ describe("inline table rendering", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 30 },
+      { width: 60, height: 50 },
     )
     await testSetup.renderOnce()
     const frame = testSetup.captureCharFrame()
