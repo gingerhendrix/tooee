@@ -38,10 +38,9 @@ describe("markdown scrolling", () => {
     session = await launchView("long.md")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
 
-    // Scroll down first
-    await session.type("j".repeat(30))
-    await new Promise((r) => setTimeout(r, 500))
-    expect(await session.text()).not.toMatch(/section 2\./i)
+    // Jump to end to set up a "not at top" state
+    await session.press(["shift", "g"])
+    await session.waitForText("Section 70", { timeout: 5000 })
 
     // gg to top — Section 2 should reappear
     await session.type("gg")
@@ -79,10 +78,9 @@ describe("code scrolling", () => {
     session = await launchView("long.ts")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
 
-    // Move cursor down first
-    await session.type("j".repeat(30))
-    await new Promise((r) => setTimeout(r, 500))
-    expect(extractCursor(await session.text())).toBeGreaterThan(0)
+    // Jump to end to set up a "not at top" state
+    await session.press(["shift", "g"])
+    await session.waitForText(/Cursor:\s*[1-9]/, { timeout: 5000 })
 
     // gg to top
     await session.type("gg")
@@ -124,10 +122,9 @@ describe("table scrolling", () => {
     session = await launchTable("long.csv")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
 
-    // Scroll down first
-    await session.type("j".repeat(30))
-    await new Promise((r) => setTimeout(r, 500))
-    expect(await session.text()).not.toMatch(/Employee 1\b/)
+    // Jump to end to set up a "not at top" state
+    await session.press(["shift", "g"])
+    await session.waitForText(/Cursor:\s*59/, { timeout: 5000 })
 
     // gg to top
     await session.type("gg")
@@ -144,9 +141,9 @@ describe("table scrolling", () => {
     expect(initial).toContain("name")
     expect(initial).toContain("email")
 
-    // Scroll down past the header
-    await session.type("j".repeat(30))
-    await new Promise((r) => setTimeout(r, 500))
+    // Jump to end past the header
+    await session.press(["shift", "g"])
+    await session.waitForText(/Cursor:\s*59/, { timeout: 5000 })
 
     // gg back to top
     await session.type("gg")

@@ -40,11 +40,9 @@ describe("navigation", () => {
   test("gg moves cursor to top", async () => {
     session = await launchView("long.md")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
-    // Move cursor down enough to scroll
-    await session.type("j".repeat(30))
-    await new Promise((r) => setTimeout(r, 500))
-    const scrolledText = await session.text()
-    expect(scrolledText).not.toMatch(/section 2\./i)
+    // Jump to end to set up a "not at top" state
+    await session.press(["shift", "g"])
+    await session.waitForText("Section 70", { timeout: 5000 })
     // gg should move cursor to top — early sections should reappear
     await session.type("gg")
     await session.waitForText(/section 2\./i, { timeout: 5000 })
