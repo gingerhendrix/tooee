@@ -68,9 +68,8 @@ export function Ask({ prompt, placeholder, defaultValue, multiline, actions }: A
     if (key.name === "escape") {
       if (mode === "insert") {
         setMode("cursor")
-      } else {
-        renderer.destroy()
       }
+      // In cursor mode, escape does nothing - use 'q' to quit
       return
     }
     if (key.name === "return") {

@@ -47,3 +47,85 @@ exports[`snapshot 1`] = `
                                                             
 "
 `;
+
+exports[`code block height multi-line code block snapshot 1`] = `
+"                                                            
+1  # Code                                                   
+                                                            
+2   ┌────────────────────────────────────────────────────┐  
+    │function greet(name) {                              │  
+    │  console.log(\`Hello, \${name}!\`)                    │  
+    │  return true                                       │  
+    │}                                                   │  
+    └────────────────────────────────────────────────────┘  
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+"
+`;
+
+exports[`inline table rendering table snapshot 1`] = `
+"                                                            
+1  # Data                                                   
+                                                            
+2   ┌───────┬──────┬────────┐                               
+    │ Name  │  Age │ City   │                               
+    ├───────┼──────┼────────┤                               
+    │ Alice │   30 │ London │                               
+    │ Bob   │   25 │ Paris  │                               
+    └───────┴──────┴────────┘                               
+                                                            
+3   Summary text.                                           
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+"
+`;
+
+exports[`mixed content rendering mixed content snapshot 1`] = `
+"                                                            
+1  # Report                                                 
+                                                            
+2   ┌────────────────────────────────────────────────────┐  
+    │alpha                                               │  
+    │beta                                                │  
+    │gamma                                               │  
+    └────────────────────────────────────────────────────┘  
+                                                            
+3   Summary of results:                                     
+                                                            
+4   ┌────────┬───────┐                                      
+    │ Metric │ Value │                                      
+    ├────────┼───────┤                                      
+    │ Count  │ 42    │                                      
+    │ Rate   │ 99%   │                                      
+    └────────┴───────┘                                      
+                                                            
+5   Done.                                                   
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+"
+`;

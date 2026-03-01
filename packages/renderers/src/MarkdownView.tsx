@@ -1,8 +1,9 @@
 import { marked, type Token, type Tokens } from "marked"
 import { useEffect, useRef, type ReactNode, type RefObject } from "react"
+import { useTerminalDimensions } from "@opentui/react"
 import { useTheme, type ResolvedTheme } from "@tooee/themes"
 import type { SyntaxStyle } from "@opentui/core"
-import { Table } from "./Table.js"
+import { computeColumnWidths, buildBorderLine, buildDataLine, isNumeric } from "./Table.js"
 import type { RowDocumentRenderable, RowDocumentPalette, RowDocumentDecorations } from "./RowDocumentRenderable.js"
 import "./row-document.js"
 
@@ -172,6 +173,7 @@ function CodeBlockRenderer({
   theme: ResolvedTheme
   syntax: SyntaxStyle
 }) {
+  const lineCount = token.text.split("\n").length
   return (
     <box
       style={{
@@ -185,7 +187,12 @@ function CodeBlockRenderer({
         flexDirection: "column",
       }}
     >
-      <code content={token.text} filetype={token.lang} syntaxStyle={syntax} />
+      <code
+        content={token.text}
+        filetype={token.lang}
+        syntaxStyle={syntax}
+        style={{ height: lineCount }}
+      />
     </box>
   )
 }
@@ -269,30 +276,46 @@ function ListItemRenderer({
 }
 
 function MarkdownTableRenderer({ token }: { token: Tokens.Table }) {
-  const seen = new Map<string, number>()
-  const columns = token.header.map((cell, index) => {
-    const header = getPlainText(cell.tokens)
-    const trimmed = header.trim()
-    const base = trimmed || `column_${index + 1}`
-    const count = seen.get(base) ?? 0
-    seen.set(base, count + 1)
-    const key = count === 0 ? base : `${base}_${count + 1}`
-    return {
-      key,
-      header: trimmed || undefined,
-    }
+  const { theme } = useTheme()
+  const { width: terminalWidth } = useTerminalDimensions()
+
+  const headers = token.header.map((cell) => getPlainText(cell.tokens).trim())
+  const rowData = token.rows.map((row) =>
+    row.map((cell) => getPlainText(cell.tokens)),
+  )
+
+  // Account for gutter + margins when computing available width
+  const effectiveMaxWidth = terminalWidth - 4
+
+  const colWidths = computeColumnWidths(headers, rowData, effectiveMaxWidth, {
+    minColumnWidth: 4,
+    maxColumnWidth: 50,
+    sampleSize: 100,
   })
-  const rows = token.rows.map((row) => {
-    const record: Record<string, string> = {}
-    row.forEach((cell, index) => {
-      const column = columns[index]
-      if (column) {
-        record[column.key] = getPlainText(cell.tokens)
-      }
-    })
-    return record
+
+  const alignments = headers.map((_header, colIdx) => {
+    const sampleValues = rowData.slice(0, 10).map((row) => row[colIdx] ?? "")
+    const numericCount = sampleValues.filter(isNumeric).length
+    return numericCount > sampleValues.length / 2
   })
-  return <Table columns={columns} rows={rows} />
+
+  const topBorder = buildBorderLine(colWidths, "\u250c", "\u252c", "\u2510", "\u2500")
+  const headerSep = buildBorderLine(colWidths, "\u251c", "\u253c", "\u2524", "\u2500")
+  const bottomBorder = buildBorderLine(colWidths, "\u2514", "\u2534", "\u2518", "\u2500")
+  const headerLine = buildDataLine(headers, colWidths, alignments)
+  const dataLines = rowData.map((row) => buildDataLine(row, colWidths, alignments))
+
+  return (
+    <box style={{ marginLeft: 1, marginRight: 1, marginBottom: 1, flexDirection: "column" }}>
+      <text content={topBorder} style={{ fg: theme.border }} />
+      <text content={headerLine} style={{ fg: theme.primary }} />
+      <text content={headerSep} style={{ fg: theme.border }} />
+      {dataLines.map((line, i) => (
+        <text key={i} content={line} style={{ fg: theme.text }} />
+      ))}
+      <text content={bottomBorder} style={{ fg: theme.border }} />
+    </box>
+  )
 }
 
 function HorizontalRule({ theme }: { theme: ResolvedTheme }) {

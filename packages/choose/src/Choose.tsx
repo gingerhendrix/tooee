@@ -3,7 +3,7 @@ import type { ScrollBoxRenderable } from "@opentui/core"
 import { useKeyboard } from "@opentui/react"
 import { AppLayout } from "@tooee/layout"
 import { ThemePicker, useTheme } from "@tooee/themes"
-import { useThemeCommands } from "@tooee/shell"
+import { useThemeCommands, useQuitCommand } from "@tooee/shell"
 import { useMode, useSetMode, useCommand, useActions, useProvideCommandContext, useCommandContext } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import type { ChooseItem, ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.js"
@@ -54,6 +54,7 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
   }, [filterQuery, items])
 
   const { name: themeName, picker: themePicker } = useThemeCommands()
+  useQuitCommand({ onQuit: () => onCancel?.() })
   const mode = useMode()
   const setMode = useSetMode()
 
@@ -183,10 +184,12 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
       return
     }
     if (key.name === "up" || (key.ctrl && key.name === "p")) {
+      key.preventDefault()
       moveUp()
       return
     }
     if (key.name === "down" || (key.ctrl && key.name === "n")) {
+      key.preventDefault()
       moveDown()
       return
     }
@@ -205,8 +208,8 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
   // Auto-scroll to keep active item visible
   useEffect(() => {
     if (scrollRef.current && filteredItems.length > 0) {
-      // Each item is ~1 line tall; approximate scroll
-      scrollRef.current.scrollTop = Math.max(0, activeIndex - 5)
+      // +1 accounts for the filter input row at the top of scroll content
+      scrollRef.current.scrollTop = Math.max(0, (activeIndex + 1) - 5)
     }
   }, [activeIndex, filteredItems.length])
 
@@ -222,7 +225,7 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
   const hintParts =
     mode === "insert"
       ? ["↑↓ navigate", "Enter confirm", "Esc commands"]
-      : ["j/k navigate", "i insert", "Esc quit", "Enter confirm"]
+      : ["j/k navigate", "i insert", "Esc/q quit", "Enter confirm"]
   if (multi && mode === "insert") hintParts.splice(2, 0, "Tab toggle")
   const hint = hintParts.join("  ")
 
@@ -267,6 +270,13 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
           />
           <text content={` ${filteredItems.length}/${items.length}`} fg={theme.textMuted} />
         </box>
+
+        {/* Empty state message */}
+        {filteredItems.length === 0 && !loading && options?.emptyMessage && (
+          <box height={1} style={{ paddingLeft: 2, paddingTop: 1 }}>
+            <text content={options.emptyMessage} fg={theme.textMuted} />
+          </box>
+        )}
 
         {/* Item list */}
         {filteredItems.map((match, idx) => {
