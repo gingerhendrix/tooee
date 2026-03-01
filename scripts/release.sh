@@ -53,7 +53,7 @@ done
 bun install --no-frozen-lockfile
 
 # Commit, tag, push
-git add packages/*/package.json apps/cli/package.json bun.lock
+git add packages/*/package.json apps/cli/package.json
 git commit -m "v$NEW_VERSION"
 git tag "v$NEW_VERSION"
 git push origin main "v$NEW_VERSION"
