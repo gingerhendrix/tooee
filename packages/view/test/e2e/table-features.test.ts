@@ -76,6 +76,23 @@ describe("table selection mode", () => {
   }, 20000)
 })
 
+describe("table sticky header", () => {
+  test("header stays visible when scrolled down", async () => {
+    session = await launchTable("long.csv")
+    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
+    // Header should be visible initially
+    expect(await session.text()).toContain("name")
+    // Scroll down significantly
+    for (let i = 0; i < 20; i++) {
+      await session.press("j")
+    }
+    await session.waitForText(/Cursor:\s*(1\d|2\d)/, { timeout: 5000 })
+    const text = await session.text()
+    // Header should STILL be visible at the top (sticky)
+    expect(text).toContain("name")
+  }, 20000)
+})
+
 describe("markdown inline table", () => {
   test("markdown table has native borders", async () => {
     session = await launchView("mixed-content.md")

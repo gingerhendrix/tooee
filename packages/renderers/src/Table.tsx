@@ -189,15 +189,8 @@ export function Table({
   }, [cursor, selectionStart, selectionEnd, matchingRows, currentMatchRow, toggledRows])
 
   return (
-    <row-document
-      ref={effectiveRef}
-      mode="multi"
-      rowChildOffset={2}
-      showGutter={false}
-      palette={palette}
-      style={{ flexGrow: 1, marginLeft: 1, marginRight: 1, marginBottom: 1 }}
-    >
-      {/* Header row */}
+    <box style={{ flexDirection: "column", flexGrow: 1, marginLeft: 1, marginRight: 1, marginBottom: 1 }}>
+      {/* Fixed header row — outside row-document so it stays visible */}
       <box style={{ flexDirection: "row" }}>
         {headers.map((h, i) => (
           <text
@@ -209,7 +202,7 @@ export function Table({
         ))}
       </box>
 
-      {/* Header underline */}
+      {/* Fixed header underline */}
       <box style={{ flexDirection: "row" }}>
         {colWidths.map((w, i) => (
           <text
@@ -221,34 +214,43 @@ export function Table({
         ))}
       </box>
 
-      {/* Data rows */}
-      {normalizedRows.map((row, i) => (
-        <box key={i} style={{ flexDirection: "row" }}>
-          {row.map((cell, j) => {
-            const contentWidth = colWidths[j] - PADDING * 2
-            // NOTE: cell.length uses JS string length, not terminal display width.
-            // CJK characters and emoji would break this guard and padStart.
-            // Acceptable for now since table data is typically ASCII.
-            const displayCell = alignments[j] && cell.length <= contentWidth
-              ? cell.padStart(contentWidth)
-              : cell
-            return (
-              <text
-                key={j}
-                content={displayCell}
-                wrapMode="word"
-                style={{
-                  width: colWidths[j],
-                  paddingLeft: PADDING,
-                  paddingRight: PADDING,
-                }}
-                fg={theme.text}
-              />
-            )
-          })}
-        </box>
-      ))}
-    </row-document>
+      {/* Scrollable data rows */}
+      <row-document
+        ref={effectiveRef}
+        mode="multi"
+        rowChildOffset={0}
+        showGutter={false}
+        palette={palette}
+        style={{ flexGrow: 1 }}
+      >
+        {normalizedRows.map((row, i) => (
+          <box key={i} style={{ flexDirection: "row" }}>
+            {row.map((cell, j) => {
+              const contentWidth = colWidths[j] - PADDING * 2
+              // NOTE: cell.length uses JS string length, not terminal display width.
+              // CJK characters and emoji would break this guard and padStart.
+              // Acceptable for now since table data is typically ASCII.
+              const displayCell = alignments[j] && cell.length <= contentWidth
+                ? cell.padStart(contentWidth)
+                : cell
+              return (
+                <text
+                  key={j}
+                  content={displayCell}
+                  wrapMode="word"
+                  style={{
+                    width: colWidths[j],
+                    paddingLeft: PADDING,
+                    paddingRight: PADDING,
+                  }}
+                  fg={theme.text}
+                />
+              )
+            })}
+          </box>
+        ))}
+      </row-document>
+    </box>
   )
 }
 
