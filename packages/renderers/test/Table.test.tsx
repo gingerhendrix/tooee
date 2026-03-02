@@ -182,6 +182,74 @@ describe("Table component", () => {
 
 const defaultOptions = { minColumnWidth: 4, maxColumnWidth: 50, sampleSize: 100 }
 
+describe("fill mode", () => {
+  test("fill mode expands columns to fill available width", () => {
+    const widths = computeColumnWidths(
+      ["A", "B"],
+      [["xx", "yy"]],
+      80,
+      { ...defaultOptions, columnWidthMode: "fill" },
+    )
+    const total = widths.reduce((a, b) => a + b, 0)
+    expect(total).toBe(80)
+  })
+
+  test("fill mode distributes extra space proportionally", () => {
+    const widths = computeColumnWidths(
+      ["A", "B"],
+      [["xx", "yy"]],
+      80,
+      { ...defaultOptions, columnWidthMode: "fill" },
+    )
+    // Both columns should get equal extra space (same natural width)
+    expect(widths[0]).toBe(widths[1])
+  })
+
+  test("content mode (default) does not expand columns", () => {
+    const widths = computeColumnWidths(
+      ["A", "B"],
+      [["xx", "yy"]],
+      80,
+      defaultOptions,
+    )
+    const total = widths.reduce((a, b) => a + b, 0)
+    expect(total).toBeLessThan(80)
+  })
+
+  test("fill mode has no effect when columns exceed available width", () => {
+    const widths = computeColumnWidths(
+      ["Name", "Very Long Description Header"],
+      [["Alice", "A very long description that exceeds the threshold"]],
+      30,
+      { ...defaultOptions, columnWidthMode: "fill" },
+    )
+    const total = widths.reduce((a, b) => a + b, 0)
+    expect(total).toBeLessThanOrEqual(30)
+  })
+
+  test("fill mode table render", async () => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <Table
+          columns={createColumns(["Name", "Age"])}
+          rows={createRows(createColumns(["Name", "Age"]), [
+            ["Alice", "30"],
+            ["Bob", "25"],
+          ])}
+          maxWidth={60}
+          columnWidthMode="fill"
+        />
+      </ThemeSwitcherProvider>,
+      { width: 60, height: 10 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("Alice")
+    expect(frame).toContain("Bob")
+    expect(frame).toMatchSnapshot()
+  })
+})
+
 describe("Table utilities", () => {
   test("computeColumnWidths fits within maxWidth", () => {
     const widths = computeColumnWidths(

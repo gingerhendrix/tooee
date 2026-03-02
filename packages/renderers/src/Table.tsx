@@ -23,6 +23,8 @@ export interface TableProps {
   currentMatchRow?: number
   toggledRows?: Set<number>
   docRef?: RefObject<RowDocumentRenderable | null>
+  /** Column width mode: "content" sizes to content (default), "fill" expands to fill available width */
+  columnWidthMode?: "content" | "fill"
 }
 
 const PADDING = 1
@@ -38,6 +40,7 @@ interface ColumnWidthOptions {
   minColumnWidth: number
   maxColumnWidth: number
   sampleSize: number
+  columnWidthMode?: "content" | "fill"
 }
 
 function sampleRows(rows: string[][], sampleSize: number): string[][] {
@@ -76,8 +79,14 @@ function computeColumnWidths(
   // No border overhead -- flexbox rows don't have border characters
   const totalNatural = naturalWidths.reduce((a, b) => a + b, 0)
 
-  // If everything fits, use natural widths
+  // If everything fits, use natural widths (or distribute extra space in fill mode)
   if (totalNatural <= maxWidth) {
+    if (options.columnWidthMode === "fill" && totalNatural < maxWidth) {
+      const extra = maxWidth - totalNatural
+      const perCol = Math.floor(extra / colCount)
+      const remainder = extra - perCol * colCount
+      return naturalWidths.map((w, i) => w + perCol + (i < remainder ? 1 : 0))
+    }
     return naturalWidths
   }
 
@@ -137,6 +146,7 @@ export function Table({
   currentMatchRow,
   toggledRows,
   docRef,
+  columnWidthMode = "content",
 }: TableProps) {
   const { theme } = useTheme()
   const { width: terminalWidth } = useTerminalDimensions()
@@ -153,6 +163,7 @@ export function Table({
     minColumnWidth,
     maxColumnWidth,
     sampleSize,
+    columnWidthMode,
   })
 
   // Detect right-aligned columns: explicit align prop or auto-detect numeric
