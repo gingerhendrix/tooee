@@ -191,7 +191,7 @@ export function Table({
   return (
     <box style={{ flexDirection: "column", flexGrow: 1, marginLeft: 1, marginRight: 1, marginBottom: 1 }}>
       {/* Fixed header row — outside row-document so it stays visible */}
-      <box style={{ flexDirection: "row" }}>
+      <box style={{ flexDirection: "row", flexShrink: 0 }}>
         {headers.map((h, i) => (
           <text
             key={i}
@@ -203,7 +203,7 @@ export function Table({
       </box>
 
       {/* Fixed header underline */}
-      <box style={{ flexDirection: "row" }}>
+      <box style={{ flexDirection: "row", flexShrink: 0 }}>
         {colWidths.map((w, i) => (
           <text
             key={i}
