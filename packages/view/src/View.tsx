@@ -439,6 +439,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
           <Table
             columns={content.columns}
             rows={content.rows}
+            showLineNumbers={showLineNumbers}
             cursor={cursorLine}
             selectionStart={selectionStart}
             selectionEnd={selectionEnd}

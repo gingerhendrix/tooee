@@ -16,6 +16,8 @@ export interface TableProps {
   maxColumnWidth?: number
   /** Number of rows to sample for width calculation (default: 100) */
   sampleSize?: number
+  /** Show line numbers in the gutter (default: true) */
+  showLineNumbers?: boolean
   cursor?: number
   selectionStart?: number
   selectionEnd?: number
@@ -120,6 +122,22 @@ function computeColumnWidths(
   })
 }
 
+/**
+ * Pre-compute gutter width to subtract from available column space.
+ * Mirrors RowDocumentRenderable._computeGutterWidth logic.
+ */
+function computeGutterWidth(rowCount: number, showLineNumbers: boolean): number {
+  let width = 0
+  if (showLineNumbers) {
+    // lineNumberStart defaults to 1, so max line number = rowCount
+    const maxLineNum = rowCount
+    width += Math.max(String(maxLineNum).length, 1)
+  }
+  width += 1 // signColumnWidth
+  width += 1 // gutterPaddingRight (default)
+  return width
+}
+
 function formatCellValue(value: unknown): string {
   if (value == null) return ""
   if (typeof value === "string") return value
@@ -139,6 +157,7 @@ export function Table({
   minColumnWidth = DEFAULT_MIN_COL_WIDTH,
   maxColumnWidth = DEFAULT_MAX_COL_WIDTH,
   sampleSize = DEFAULT_SAMPLE_SIZE,
+  showLineNumbers = true,
   cursor,
   selectionStart,
   selectionEnd,
@@ -152,7 +171,9 @@ export function Table({
   const { width: terminalWidth } = useTerminalDimensions()
 
   // Use terminal width minus margins (1 on each side) if maxWidth not provided
-  const effectiveMaxWidth = maxWidth ?? terminalWidth - 2
+  // Subtract gutter width since RowDocumentRenderable applies it as content paddingLeft
+  const gutterWidth = computeGutterWidth(rows.length, showLineNumbers)
+  const effectiveMaxWidth = (maxWidth ?? terminalWidth - 2) - gutterWidth
 
   const headers = columns.map((column) => column.header ?? column.key)
   const normalizedRows = rows.map((row) =>
@@ -179,6 +200,11 @@ export function Table({
   const effectiveRef = docRef ?? internalRef
 
   const palette: RowDocumentPalette = {
+    gutterFg: theme.textMuted,
+    gutterBg: theme.backgroundElement,
+    cursorSignFg: theme.primary,
+    matchSignFg: theme.warning,
+    currentMatchSignFg: theme.primary,
     cursorBg: theme.cursorLine,
     selectionBg: theme.selection,
     matchBg: theme.warning,
@@ -204,7 +230,9 @@ export function Table({
       ref={effectiveRef}
       mode="multi"
       rowChildOffset={2}
-      showGutter={false}
+      showGutter={true}
+      showLineNumbers={showLineNumbers}
+      signColumnWidth={1}
       palette={palette}
       style={{ flexGrow: 1, marginLeft: 1, marginRight: 1, marginBottom: 1 }}
     >

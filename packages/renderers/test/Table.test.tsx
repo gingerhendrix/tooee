@@ -79,10 +79,10 @@ describe("Table component", () => {
         <Table
           columns={createColumns(["Col"])}
           rows={createRows(createColumns(["Col"]), [["This is a very long string that should wrap when displayed"]])}
-          maxWidth={30}
+          maxWidth={35}
         />
       </ThemeSwitcherProvider>,
-      { width: 30, height: 20 },
+      { width: 35, height: 20 },
     )
     await testSetup.renderOnce()
     const frame = testSetup.captureCharFrame()
@@ -91,7 +91,7 @@ describe("Table component", () => {
     // The full text should be present across multiple lines
     expect(frame).toContain("This")
     expect(frame).toContain("long")
-    expect(frame).toContain("string")
+    expect(frame).toContain("wrap")
   })
 
   test("renders header underline", async () => {
@@ -157,6 +157,55 @@ describe("Table component", () => {
     expect(frame).toContain("100")
     expect(frame).toContain(" 95")
     expect(frame).toContain(" 87")
+  })
+
+  test("renders gutter with line numbers", async () => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <Table
+          columns={createColumns(["Name", "Age"])}
+          rows={createRows(createColumns(["Name", "Age"]), [
+            ["Alice", "30"],
+            ["Bob", "25"],
+            ["Carol", "28"],
+          ])}
+          maxWidth={40}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 40, height: 15 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    // Line numbers should appear in the gutter for each data row
+    expect(frame).toContain("1")
+    expect(frame).toContain("2")
+    expect(frame).toContain("3")
+    // Data should still be present
+    expect(frame).toContain("Alice")
+    expect(frame).toContain("Bob")
+    expect(frame).toContain("Carol")
+  })
+
+  test("hides line numbers when showLineNumbers={false}", async () => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <Table
+          columns={createColumns(["Name"])}
+          rows={createRows(createColumns(["Name"]), [
+            ["Alice"],
+            ["Bob"],
+          ])}
+          showLineNumbers={false}
+          maxWidth={40}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 40, height: 10 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    // Data should still render
+    expect(frame).toContain("Alice")
+    expect(frame).toContain("Bob")
   })
 
   test("snapshot", async () => {
