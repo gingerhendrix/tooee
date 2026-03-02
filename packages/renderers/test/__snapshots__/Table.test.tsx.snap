@@ -20,10 +20,10 @@ exports[`Table component snapshot 1`] = `
 `;
 
 exports[`fill mode fill mode table render 1`] = `
-" Name                           Age                         
- ─────────────────────────────  ──────────────────────────  
- Alice                                                   3  
- Bob                                                     2  
+"    Name                         Age                        
+    ───────────────────────────  ────────────────────────── 
+ 1  Alice                                                3  
+ 2  Bob                                                  2  
                                                             
                                                             
                                                             
