@@ -45,12 +45,9 @@ describe("markdown table rendering", () => {
     expect(initial).toContain("Score")
     expect(initial).toContain("Grade")
     expect(initial).toContain("Alice")
-    // Scroll down to see remaining rows (table with cellPadding takes more vertical space)
-    for (let i = 0; i < 6; i++) {
-      await session.press("j")
-      await new Promise((r) => setTimeout(r, 200))
-    }
-    await new Promise((r) => setTimeout(r, 300))
+    // Scroll down to see remaining rows
+    await session.type("j".repeat(6))
+    await session.waitForText("Carol", { timeout: 5000 })
     const text = await session.text()
     expect(text).toContain("Bob")
     expect(text).toContain("Carol")
@@ -61,6 +58,7 @@ describe("markdown table rendering", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     // Scroll down past the table to see the paragraph after it
     await session.type("j".repeat(8))
+    await session.waitForText("This paragraph appears after the table.", { timeout: 5000 })
     const text = await session.text()
     expect(text).toContain("This paragraph appears after the table.")
   }, 20000)
@@ -90,6 +88,7 @@ describe("mixed content positioning", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     // Navigate down to see content after the table
     await session.type("j".repeat(10))
+    await session.waitForText("paragraph appears after the table", { timeout: 5000 })
     const text = await session.text()
     expect(text).toContain("paragraph appears after the table")
   }, 20000)
@@ -98,6 +97,7 @@ describe("mixed content positioning", () => {
     session = await launchView("mixed-content.md")
     // Navigate down to see second code block
     await session.type("j".repeat(15))
+    await session.waitForText("simple line one", { timeout: 5000 })
     const text = await session.text()
     expect(text).toContain("simple line one")
     expect(text).toContain("simple line two")

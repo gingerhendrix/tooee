@@ -1,6 +1,7 @@
 import { marked, type Token, type Tokens } from "marked"
 import { useEffect, useMemo, useRef, type ReactNode, type RefObject } from "react"
 import { useTheme, type ResolvedTheme } from "@tooee/themes"
+import { bold as boldChunk } from "@opentui/core"
 import type { SyntaxStyle, TextTableContent, TextTableCellContent } from "@opentui/core"
 import type { RowDocumentRenderable, RowDocumentPalette, RowDocumentDecorations } from "./RowDocumentRenderable.js"
 import "./row-document.js"
@@ -279,7 +280,7 @@ function MarkdownTableRenderer({ token }: { token: Tokens.Table }) {
 
   const content: TextTableContent = useMemo(() => {
     const headerRow: TextTableCellContent[] = token.header.map(cell => [
-      { __isChunk: true as const, text: getPlainText(cell.tokens).trim() }
+      boldChunk(getPlainText(cell.tokens).trim())
     ])
     const dataRows = token.rows.map(row =>
       row.map(cell => [
@@ -294,13 +295,12 @@ function MarkdownTableRenderer({ token }: { token: Tokens.Table }) {
       <text-table
         content={content}
         wrapMode="word"
-        columnWidthMode="full"
-        cellPadding={1}
+        columnWidthMode="content"
+        cellPadding={0}
         border={true}
         borderStyle="single"
         borderColor={theme.border}
         fg={theme.text}
-        style={{ width: "100%" }}
       />
     </box>
   )

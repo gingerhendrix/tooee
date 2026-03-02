@@ -226,6 +226,9 @@ export function Table({
         <box key={i} style={{ flexDirection: "row" }}>
           {row.map((cell, j) => {
             const contentWidth = colWidths[j] - PADDING * 2
+            // NOTE: cell.length uses JS string length, not terminal display width.
+            // CJK characters and emoji would break this guard and padStart.
+            // Acceptable for now since table data is typically ASCII.
             const displayCell = alignments[j] && cell.length <= contentWidth
               ? cell.padStart(contentWidth)
               : cell

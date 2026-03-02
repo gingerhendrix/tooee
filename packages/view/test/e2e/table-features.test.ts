@@ -30,10 +30,9 @@ describe("table search", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     // Open search
     await session.press("/")
-    await new Promise((r) => setTimeout(r, 300))
     await session.type("Alice")
-    await new Promise((r) => setTimeout(r, 500))
     // Should show match count
+    await session.waitForText(/\d+\/\d+/, { timeout: 5000 })
     const text = await session.text()
     expect(text).toMatch(/\d+\/\d+/)
   }, 20000)
@@ -42,14 +41,13 @@ describe("table search", () => {
     session = await launchTable("long.csv")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     await session.press("/")
-    await new Promise((r) => setTimeout(r, 300))
     await session.type("Employee")
-    await new Promise((r) => setTimeout(r, 500))
+    await session.waitForText(/\d+\/\d+/, { timeout: 5000 })
     await session.press("enter")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     // Press n to go to next match
     await session.press("n")
-    await new Promise((r) => setTimeout(r, 500))
+    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     const text = await session.text()
     expect(text).toMatch(/Mode:\s*cursor/)
   }, 20000)
@@ -60,7 +58,7 @@ describe("table selection mode", () => {
     session = await launchTable("data.csv")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     await session.press("v")
-    await new Promise((r) => setTimeout(r, 300))
+    await session.waitForText(/Mode:\s*select/, { timeout: 5000 })
     const text = await session.text()
     expect(text).toMatch(/Mode:\s*select/)
   }, 20000)
@@ -69,9 +67,9 @@ describe("table selection mode", () => {
     session = await launchTable("data.csv")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     await session.press("v")
-    await new Promise((r) => setTimeout(r, 300))
+    await session.waitForText(/Mode:\s*select/, { timeout: 5000 })
     await session.press("j")
-    await new Promise((r) => setTimeout(r, 300))
+    await session.waitForText(/Selected\s*:?\s*2/, { timeout: 5000 })
     const text = await session.text()
     expect(text).toMatch(/Mode:\s*select/)
     expect(text).toMatch(/Selected\s*:?\s*2/)
@@ -90,10 +88,8 @@ describe("markdown inline table", () => {
     expect(text).toContain("Name")
     expect(text).toContain("Alice")
     // Scroll down to see more table rows
-    for (let i = 0; i < 10; i++) {
-      await session.press("j")
-    }
-    await new Promise((r) => setTimeout(r, 500))
+    await session.type("j".repeat(10))
+    await session.waitForText("Carol", { timeout: 5000 })
     const scrolled = await session.text()
     expect(scrolled).toContain("Carol")
   }, 20000)
@@ -102,10 +98,8 @@ describe("markdown inline table", () => {
     session = await launchView("mixed-content.md")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     // Navigate down past the table
-    for (let i = 0; i < 8; i++) {
-      await session.press("j")
-    }
-    await new Promise((r) => setTimeout(r, 500))
+    await session.type("j".repeat(8))
+    await session.waitForText("This paragraph appears after the table.", { timeout: 5000 })
     const text = await session.text()
     expect(text).toContain("This paragraph appears after the table.")
   }, 20000)
