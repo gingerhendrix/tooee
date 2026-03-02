@@ -30,6 +30,7 @@ export interface TableProps {
 }
 
 const PADDING = 1
+const MARGIN = 1 // horizontal margin on each side of the table
 const DEFAULT_MIN_COL_WIDTH = 4
 const DEFAULT_MAX_COL_WIDTH = 50
 const DEFAULT_SAMPLE_SIZE = 100
@@ -69,9 +70,10 @@ function computeColumnWidths(
   const sampledRows = sampleRows(rows, sampleSize)
 
   // Calculate natural width for each column (header + content + padding)
+  // Use Bun.stringWidth for correct display width with CJK/emoji
   const naturalWidths = headers.map((header, col) => {
-    const headerLen = header.length
-    const maxRowLen = sampledRows.reduce((max, row) => Math.max(max, (row[col] ?? "").length), 0)
+    const headerLen = Bun.stringWidth(header)
+    const maxRowLen = sampledRows.reduce((max, row) => Math.max(max, Bun.stringWidth(row[col] ?? "")), 0)
     const contentWidth = Math.max(headerLen, maxRowLen)
     // Apply min/max constraints before adding padding
     const constrainedWidth = Math.min(maxColumnWidth, Math.max(minColumnWidth, contentWidth))
@@ -170,10 +172,9 @@ export function Table({
   const { theme } = useTheme()
   const { width: terminalWidth } = useTerminalDimensions()
 
-  // Use terminal width minus margins (1 on each side) if maxWidth not provided
-  // Subtract gutter width since RowDocumentRenderable applies it as content paddingLeft
+  // Compute available content width: start with total space, subtract margins and gutter
   const gutterWidth = computeGutterWidth(rows.length, showLineNumbers)
-  const effectiveMaxWidth = (maxWidth ?? terminalWidth - 2) - gutterWidth
+  const effectiveMaxWidth = Math.max(0, (maxWidth ?? terminalWidth) - MARGIN * 2 - gutterWidth)
 
   const headers = columns.map((column) => column.header ?? column.key)
   const normalizedRows = rows.map((row) =>
@@ -226,7 +227,7 @@ export function Table({
   }, [cursor, selectionStart, selectionEnd, matchingRows, currentMatchRow, toggledRows])
 
   return (
-    <box style={{ flexDirection: "column", flexGrow: 1, marginLeft: 1, marginRight: 1, marginBottom: 1 }}>
+    <box style={{ flexDirection: "column", flexGrow: 1, marginLeft: MARGIN, marginRight: MARGIN, marginBottom: MARGIN }}>
       {/* Fixed header row — outside row-document so it stays visible */}
       <box style={{ flexDirection: "row", flexShrink: 0, paddingLeft: gutterWidth }}>
         {headers.map((h, i) => (
@@ -266,11 +267,9 @@ export function Table({
           <box key={i} style={{ flexDirection: "row" }}>
             {row.map((cell, j) => {
               const contentWidth = colWidths[j] - PADDING * 2
-              // NOTE: cell.length uses JS string length, not terminal display width.
-              // CJK characters and emoji would break this guard and padStart.
-              // Acceptable for now since table data is typically ASCII.
-              const displayCell = alignments[j] && cell.length <= contentWidth
-                ? cell.padStart(contentWidth)
+              const cellWidth = Bun.stringWidth(cell)
+              const displayCell = alignments[j] && cellWidth <= contentWidth
+                ? " ".repeat(contentWidth - cellWidth) + cell
                 : cell
               return (
                 <text

@@ -285,7 +285,6 @@ describe("fill mode", () => {
             ["Alice", "30"],
             ["Bob", "25"],
           ])}
-          maxWidth={60}
           columnWidthMode="fill"
         />
       </ThemeSwitcherProvider>,
