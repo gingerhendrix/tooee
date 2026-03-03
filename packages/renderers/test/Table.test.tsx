@@ -229,7 +229,7 @@ describe("Table component", () => {
   })
 })
 
-const defaultOptions = { minColumnWidth: 4, maxColumnWidth: 50, sampleSize: 100 }
+const defaultOptions = { minColumnWidth: 4, maxColumnWidth: 80, sampleSize: 100 }
 
 describe("fill mode", () => {
   test("fill mode expands columns to fill available width", () => {

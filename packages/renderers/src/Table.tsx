@@ -32,7 +32,7 @@ export interface TableProps {
 const PADDING = 1
 const MARGIN = 1 // horizontal margin on each side of the table
 const DEFAULT_MIN_COL_WIDTH = 4
-const DEFAULT_MAX_COL_WIDTH = 50
+const DEFAULT_MAX_COL_WIDTH = 80
 const DEFAULT_SAMPLE_SIZE = 100
 
 function isNumeric(value: string): boolean {
