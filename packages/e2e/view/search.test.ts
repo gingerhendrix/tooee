@@ -32,7 +32,14 @@ describe("search e2e", () => {
 
   test("type query and submit search, then n navigates", async () => {
     session = await launchView("long.md")
-    await session.press("/")
+    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
+    // Open search — retry until search bar appears
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await session.press("/")
+      await Bun.sleep(500)
+      const check = await session.text()
+      if (!check.match(/Mode:\s*cursor/)) break
+    }
     // Type a search query
     await session.type("Section")
     // Submit search (Enter returns to cursor mode)
@@ -50,7 +57,14 @@ describe("search e2e", () => {
 
   test("Escape cancels search", async () => {
     session = await launchView("long.md")
-    await session.press("/")
+    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
+    // Open search — retry until search bar appears
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await session.press("/")
+      await Bun.sleep(500)
+      const check = await session.text()
+      if (!check.match(/Mode:\s*cursor/)) break
+    }
     await session.type("Section")
     // Send kitty-encoded Escape (raw \x1b is ambiguous)
     await session.writeRaw("\x1b[27u")

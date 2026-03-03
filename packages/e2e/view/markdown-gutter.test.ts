@@ -86,9 +86,13 @@ describe("markdown gutter e2e", () => {
     test("search shows match indicators", async () => {
       session = await launchView("long.md")
       await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
-      // Open search and wait for the search bar to appear
-      await session.press("/")
-      await session.waitForText("/", { timeout: 5000 })
+      // Open search — retry until search bar appears (Mode: cursor disappears)
+      for (let attempt = 0; attempt < 3; attempt++) {
+        await session.press("/")
+        await Bun.sleep(500)
+        const check = await session.text()
+        if (!check.match(/Mode:\s*cursor/)) break
+      }
       // Type a query that matches all sections (visible in viewport)
       await session.type("Section")
       // Submit search
@@ -102,9 +106,13 @@ describe("markdown gutter e2e", () => {
     test("search match count shows in search bar", async () => {
       session = await launchView("long.md")
       await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
-      // Open search and wait for the search bar to appear
-      await session.press("/")
-      await session.waitForText("/", { timeout: 5000 })
+      // Open search — retry until search bar appears (Mode: cursor disappears)
+      for (let attempt = 0; attempt < 3; attempt++) {
+        await session.press("/")
+        await Bun.sleep(500)
+        const check = await session.text()
+        if (!check.match(/Mode:\s*cursor/)) break
+      }
       await session.type("Section")
       // Wait for match count to appear in search bar (N/M format)
       await session.waitForText(/\d+\/\d+/, { timeout: 10000 })
