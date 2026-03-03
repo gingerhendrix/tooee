@@ -43,10 +43,11 @@ jobs:
 
       - name: Pack and publish packages
         run: |
+          # Note: packages/router needs manual first publish before adding here
+          # (npm OIDC provenance doesn't support new package creation)
           PACKAGES=(
             packages/config
             packages/commands
-            packages/router
             packages/clipboard
             packages/overlays
             packages/themes
