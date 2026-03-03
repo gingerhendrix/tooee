@@ -46,6 +46,7 @@ jobs:
           PACKAGES=(
             packages/config
             packages/commands
+            packages/router
             packages/clipboard
             packages/overlays
             packages/themes

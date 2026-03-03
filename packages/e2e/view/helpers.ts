@@ -19,7 +19,10 @@ export async function launchView(fixture: string): Promise<Session> {
     cwd: REPO_ROOT,
     env: { ...process.env, XDG_CONFIG_HOME: TEST_CONFIG_HOME },
   })
-  // Wait for the app to be ready — status bar shows "Format:"
+  // Wait for the app to be ready — status bar shows "Format:" and "Mode:"
   await session.waitForText("Format:", { timeout: 15000 })
+  await session.waitForText(/Mode:/, { timeout: 5000 })
+  // Buffer for key handler registration after render (prevents CI flakes)
+  await Bun.sleep(150)
   return session
 }

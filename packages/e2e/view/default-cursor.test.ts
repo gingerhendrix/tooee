@@ -23,7 +23,8 @@ describe("default cursor behavior", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     // Pressing j should work immediately — no need to enter cursor mode
     await session.press("j")
-    // Cursor should have moved to 1 after pressing j
+    // Wait for cursor to update before asserting
+    await session.waitForText(/Cursor:\s*1/, { timeout: 5000 })
     const text = await session.text()
     expect(text).toMatch(/Cursor:\s*1/)
     expect(text).toMatch(/Mode:\s*cursor/)

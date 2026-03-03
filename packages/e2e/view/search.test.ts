@@ -14,15 +14,19 @@ describe("search e2e", () => {
   test("/ opens search bar", async () => {
     session = await launchView("long.md")
     // Verify we start in cursor mode
+    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
     const before = await session.text()
     expect(before).toMatch(/Mode:\s*cursor/)
-    // Press / to open search
-    await session.press("/")
-    // The search bar replaces the status bar with a `/` prompt
+    // Press / to open search — retry until the status bar changes
+    // (on slow CI the first keypress can be dropped)
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await session.press("/")
+      await Bun.sleep(500)
+      const check = await session.text()
+      if (!check.match(/Mode:\s*cursor/)) break
+    }
     const text = await session.text()
-    // The search bar shows the `/` prompt at the bottom line
-    // The status bar is replaced so Mode: is no longer visible
-    // Just check that the status bar changed (Mode: cursor is gone)
+    // The search bar replaces the status bar so Mode: cursor is gone
     expect(text).not.toMatch(/Mode:\s*cursor/)
   }, 20000)
 

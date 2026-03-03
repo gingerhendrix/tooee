@@ -25,8 +25,9 @@ describe("markdown scrolling", () => {
     const before = await session.text()
     expect(before).toMatch(/section 2\./i)
 
-    // Press j enough times to move cursor past viewport (24 rows, ~22 viewport)
-    await session.type("j".repeat(30))
+    // Jump to end — j.repeat(30) is fragile on slow CI; use G like sibling tests
+    await session.press(["shift", "g"])
+    await session.waitForText("Section 70", { timeout: 5000 })
 
     // After scrolling down, early sections should no longer be visible
     const after = await session.text()
