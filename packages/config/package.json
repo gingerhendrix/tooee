@@ -1,6 +1,6 @@
 {
   "name": "@tooee/config",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Layered configuration system for Tooee apps",
   "license": "MIT",
   "author": "Gareth Andrew",

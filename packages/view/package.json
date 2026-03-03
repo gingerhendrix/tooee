@@ -1,6 +1,6 @@
 {
   "name": "@tooee/view",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Terminal content viewer for markdown, code, images, and tables",
   "license": "MIT",
   "author": "Gareth Andrew",

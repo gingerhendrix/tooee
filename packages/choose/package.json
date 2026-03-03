@@ -1,6 +1,6 @@
 {
   "name": "@tooee/choose",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Terminal selection with fuzzy filtering",
   "license": "MIT",
   "author": "Gareth Andrew",

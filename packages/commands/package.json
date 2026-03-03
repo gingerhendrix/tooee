@@ -1,6 +1,6 @@
 {
   "name": "@tooee/commands",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Vim-inspired modal command system for Tooee",
   "license": "MIT",
   "author": "Gareth Andrew",

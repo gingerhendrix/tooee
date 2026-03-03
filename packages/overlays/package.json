@@ -1,6 +1,6 @@
 {
   "name": "@tooee/overlays",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Overlay stack management for Tooee",
   "license": "MIT",
   "author": "Gareth Andrew",

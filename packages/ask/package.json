@@ -1,6 +1,6 @@
 {
   "name": "@tooee/ask",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Terminal text input gathering",
   "license": "MIT",
   "author": "Gareth Andrew",
