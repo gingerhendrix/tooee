@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,
+    "rootDir": "."
+  },
+  "include": ["."],
+  "references": [
+    { "path": "../commands" },
+    { "path": "../router" },
+    { "path": "../shell" },
+    { "path": "../view" }
+  ]
+}

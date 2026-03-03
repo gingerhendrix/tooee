@@ -1,14 +1,15 @@
 import { launchTerminal, type Session } from "tuistory"
 import { resolve } from "path"
-import { ensureTestConfigHome, resetTestConfig } from "../../../../test/support/test-config.js"
+import { ensureTestConfigHome, resetTestConfig } from "../support/test-config.js"
 
-const REPO_ROOT = resolve(import.meta.dir, "../../../..")
+const REPO_ROOT = resolve(import.meta.dir, "../../..")
 const CLI = resolve(REPO_ROOT, "apps/cli/src/main.ts")
+export const VIEW_FIXTURES = resolve(REPO_ROOT, "packages/view/test/fixtures")
 const CONFIG_NAMESPACE = "view-e2e"
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE)
 
 export async function launchView(fixture: string): Promise<Session> {
-  const fixturePath = resolve(import.meta.dir, "../fixtures", fixture)
+  const fixturePath = resolve(VIEW_FIXTURES, fixture)
   resetTestConfig(CONFIG_NAMESPACE)
   const session = await launchTerminal({
     command: "bun",

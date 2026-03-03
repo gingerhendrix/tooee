@@ -8,6 +8,7 @@ const KEY_ALIASES: Record<string, string> = {
   space: " ",
   tab: "tab",
   backspace: "backspace",
+  plus: "+",
 }
 
 function normalizeKey(key: string): string {
