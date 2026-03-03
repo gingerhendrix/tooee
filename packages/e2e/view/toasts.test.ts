@@ -1,9 +1,9 @@
 import { describe, test, expect, afterEach } from "bun:test"
 import { launchTerminal, type Session } from "tuistory"
 import { resolve } from "path"
-import { ensureTestConfigHome, resetTestConfig } from "../../../../test/support/test-config.js"
+import { ensureTestConfigHome, resetTestConfig } from "../support/test-config.js"
 
-const REPO_ROOT = resolve(import.meta.dir, "../../../..")
+const REPO_ROOT = resolve(import.meta.dir, "../../..")
 const DEMO = resolve(REPO_ROOT, "examples/toasts-demo.ts")
 const CONFIG_NAMESPACE = "toasts-e2e"
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE)

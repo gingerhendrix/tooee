@@ -1,0 +1,20 @@
+{
+  "name": "@tooee/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "description": "End-to-end tests for Tooee packages",
+  "type": "module",
+  "devDependencies": {
+    "@opentui/core": "^0.1.67",
+    "@opentui/react": "^0.1.67",
+    "@tooee/commands": "workspace:*",
+    "@tooee/router": "workspace:*",
+    "@tooee/shell": "workspace:*",
+    "@tooee/view": "workspace:*",
+    "@types/bun": "^1.3.8",
+    "@types/react": "^19.1.10",
+    "react": "^19.0.0",
+    "tuistory": "^0.0.9",
+    "typescript": "^5.8.3"
+  }
+}
