@@ -32,7 +32,7 @@ export function guardTerminalHealth(renderer: CliRenderer): void {
 
 export async function launchCli(
   node: ReactNode,
-  opts?: { useAlternateScreen?: boolean; exitOnCtrlC?: boolean },
+  opts?: { useAlternateScreen?: boolean; exitOnCtrlC?: boolean; leader?: string },
 ): Promise<void> {
   const renderer = await createCliRenderer({
     useAlternateScreen: opts?.useAlternateScreen ?? true,
@@ -41,5 +41,5 @@ export async function launchCli(
 
   guardTerminalHealth(renderer)
 
-  createRoot(renderer).render(<TooeeProvider>{node}</TooeeProvider>)
+  createRoot(renderer).render(<TooeeProvider leader={opts?.leader}>{node}</TooeeProvider>)
 }
