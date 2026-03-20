@@ -8,6 +8,7 @@
   "include": ["./src"],
   "references": [
     { "path": "../config" },
+    { "path": "../marks" },
     { "path": "../themes" },
     { "path": "../overlays" },
     { "path": "../renderers" },

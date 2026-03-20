@@ -41,6 +41,7 @@
     "@tooee/commands": "workspace:*",
     "@tooee/config": "workspace:*",
     "@tooee/layout": "workspace:*",
+    "@tooee/marks": "workspace:*",
     "@tooee/overlays": "workspace:*",
     "@tooee/renderers": "workspace:*",
     "@tooee/themes": "workspace:*",

@@ -13,6 +13,7 @@ import {
   useCommandPalette,
 } from "@tooee/shell"
 import { useConfig } from "@tooee/config"
+import { MarkSetBuilder, createMarkState, MarkPriorities } from "@tooee/marks"
 import { marked } from "marked"
 import {
   getTextContent,
@@ -332,10 +333,67 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
     return new Set<number>(nav.toggledIndices)
   }, [content?.format, nav.toggledIndices])
 
-  const toggledLines = useMemo(() => {
+  // Build MarkState from nav state for code/text formats
+  const codeMarkState = useMemo(() => {
     if (!content || (content.format !== "code" && content.format !== "text")) return undefined
-    return nav.toggledIndices.size > 0 ? new Set<number>(nav.toggledIndices) : undefined
-  }, [content, nav.toggledIndices])
+
+    const sets = []
+
+    if (nav.matchingLines.length > 0) {
+      const builder = new MarkSetBuilder()
+      for (const line of nav.matchingLines) {
+        builder.addLine(line, {
+          background: theme.warning,
+          signBefore: "●",
+          foreground: theme.warning,
+        })
+      }
+      sets.push(builder.build("search", MarkPriorities.SEARCH_MATCH))
+    }
+
+    if (nav.toggledIndices.size > 0) {
+      const builder = new MarkSetBuilder()
+      for (const line of nav.toggledIndices) {
+        builder.addLine(line, { background: theme.backgroundPanel })
+      }
+      sets.push(builder.build("toggled", MarkPriorities.TOGGLED))
+    }
+
+    if (nav.selection) {
+      const builder = new MarkSetBuilder()
+      builder.addRange(
+        { line: nav.selection.start.line },
+        { line: nav.selection.end.line },
+        { background: theme.selection },
+      )
+      sets.push(builder.build("selection", MarkPriorities.SELECTION))
+    }
+
+    if (nav.matchingLines.length > 0) {
+      const currentLine = nav.matchingLines[nav.currentMatchIndex]
+      if (currentLine != null) {
+        const builder = new MarkSetBuilder()
+        builder.addLine(currentLine, {
+          background: theme.primary,
+          signBefore: "●",
+          foreground: theme.primary,
+        })
+        sets.push(builder.build("currentMatch", MarkPriorities.CURRENT_MATCH))
+      }
+    }
+
+    if (nav.cursor) {
+      const builder = new MarkSetBuilder()
+      builder.addLine(nav.cursor.line, {
+        background: theme.cursorLine,
+        signBefore: "▸",
+        foreground: theme.primary,
+      })
+      sets.push(builder.build("cursor", MarkPriorities.CURSOR))
+    }
+
+    return sets.length > 0 ? createMarkState(sets) : undefined
+  }, [content, nav.cursor, nav.selection, nav.matchingLines, nav.currentMatchIndex, nav.toggledIndices, theme])
 
   if (error) {
     return (
@@ -408,12 +466,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
             content={content.code}
             language={content.language}
             showLineNumbers={showLineNumbers}
-            cursor={cursorLine}
-            selectionStart={selectionStart}
-            selectionEnd={selectionEnd}
-            matchingLines={matchingLinesSet}
-            currentMatchLine={currentMatchLine}
-            toggledLines={toggledLines}
+            marks={codeMarkState}
             docRef={docRef}
           />
         )
@@ -422,12 +475,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
           <CodeView
             content={content.text}
             showLineNumbers={showLineNumbers}
-            cursor={cursorLine}
-            selectionStart={selectionStart}
-            selectionEnd={selectionEnd}
-            matchingLines={matchingLinesSet}
-            currentMatchLine={currentMatchLine}
-            toggledLines={toggledLines}
+            marks={codeMarkState}
             docRef={docRef}
           />
         )
