@@ -146,6 +146,42 @@ describe("updateMarkState", () => {
 
     expect(updated.namespaces).toEqual(["a"])
   })
+
+  test("throws on namespace mismatch between arg and newSet", () => {
+    const state = createMarkState([buildSet("a", 100, [1])])
+    const wrongSet = buildSet("b", 200, [2])
+
+    expect(() => updateMarkState(state, "a", wrongSet)).toThrow(
+      /namespace mismatch/i,
+    )
+  })
+})
+
+describe("equal-priority tie behavior", () => {
+  test("marks with equal priority maintain stable order from sets", () => {
+    const a = buildSet("a", 100, [5])
+    const b = buildSet("b", 100, [5])
+    const state = createMarkState([a, b])
+
+    const marks = state.marksAtLine(5)
+    expect(marks).toHaveLength(2)
+    // Both have priority 100 — stable sort preserves insertion order
+    expect(marks[0].priority).toBe(100)
+    expect(marks[1].priority).toBe(100)
+  })
+})
+
+describe("duplicate namespaces in createMarkState", () => {
+  test("both sets with same namespace are kept", () => {
+    const a1 = buildSet("a", 100, [1])
+    const a2 = buildSet("a", 200, [2])
+    const state = createMarkState([a1, a2])
+
+    // Both are present (createMarkState doesn't deduplicate)
+    expect(state.sets).toHaveLength(2)
+    expect(state.marksAtLine(1)).toHaveLength(1)
+    expect(state.marksAtLine(2)).toHaveLength(1)
+  })
 })
 
 describe("getSet", () => {

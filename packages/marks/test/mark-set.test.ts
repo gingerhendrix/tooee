@@ -32,6 +32,37 @@ describe("MarkSet", () => {
       new MarkSet("test", 100, input)
       expect(input[0].range.from.line).toBe(5)
     })
+
+    test("freezes marks so they cannot be mutated", () => {
+      const set = new MarkSet("test", 100, [mark(1)])
+      const items = [...set]
+      expect(() => {
+        ;(items[0] as any).style = { background: "hacked" }
+      }).toThrow()
+      expect(() => {
+        ;(items[0].style as any).background = "hacked"
+      }).toThrow()
+      expect(() => {
+        ;(items[0].range as any).from = { line: 999 }
+      }).toThrow()
+      expect(() => {
+        ;(items[0].range.from as any).line = 999
+      }).toThrow()
+    })
+
+    test("handles inverted range (start > end) gracefully", () => {
+      // Inverted range: from.line > to.line — treated as a zero-width mark
+      const inverted: Mark = {
+        range: { from: { line: 10 }, to: { line: 5 } },
+        style: { background: "inv" },
+      }
+      const set = new MarkSet("test", 100, [inverted])
+      expect(set.size).toBe(1)
+      // The mark starts at 10, ends at 5 — won't match lines 5-10
+      // because from > to makes the range empty
+      expect(set.marksAtLine(7)).toHaveLength(0)
+      expect(set.marksAtLine(10)).toHaveLength(1) // from.line matches
+    })
   })
 
   describe("marksAtLine", () => {
@@ -78,6 +109,21 @@ describe("MarkSet", () => {
       expect(set.marksAtLine(51)).toHaveLength(0)
       expect(set.marksAtLine(0)).toHaveLength(1)
       expect(set.marksAtLine(198)).toHaveLength(1)
+    })
+
+    test("backward scan finds long-range marks behind short ones", () => {
+      // Regression: ensure early termination doesn't skip long-range marks
+      // that appear before short-range marks in sorted order.
+      const set = new MarkSet("test", 100, [
+        mark(1, 100), // long range starting early
+        mark(10, 12), // short range in the middle
+        mark(20, 21), // another short range
+      ])
+      // Line 50 is only covered by the first mark (1-100)
+      expect(set.marksAtLine(50)).toHaveLength(1)
+      expect(set.marksAtLine(50)[0].range.from.line).toBe(1)
+      // Line 11 is covered by marks 1-100 and 10-12
+      expect(set.marksAtLine(11)).toHaveLength(2)
     })
   })
 

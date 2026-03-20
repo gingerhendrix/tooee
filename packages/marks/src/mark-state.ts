@@ -53,6 +53,11 @@ export function updateMarkState(
   namespace: string,
   newSet: MarkSet | null,
 ): MarkState {
+  if (newSet && newSet.namespace !== namespace) {
+    throw new Error(
+      `Namespace mismatch: expected "${namespace}", got "${newSet.namespace}"`,
+    )
+  }
   const filtered = state.sets.filter((s) => s.namespace !== namespace)
   if (newSet) {
     filtered.push(newSet)
