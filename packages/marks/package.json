@@ -1,0 +1,42 @@
+{
+  "name": "@tooee/marks",
+  "version": "0.1.9",
+  "description": "Unified decoration/annotation system for Tooee renderers",
+  "license": "MIT",
+  "author": "Gareth Andrew",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gingerhendrix/tooee.git",
+    "directory": "packages/marks"
+  },
+  "homepage": "https://github.com/gingerhendrix/tooee",
+  "bugs": "https://github.com/gingerhendrix/tooee/issues",
+  "keywords": [
+    "tui",
+    "terminal",
+    "cli",
+    "opentui",
+    "marks",
+    "decorations"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "@tooee/source": "./src/index.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.10",
+    "typescript": "^5.9.3"
+  }
+}
