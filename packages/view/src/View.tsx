@@ -333,6 +333,124 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
     return new Set<number>(nav.toggledIndices)
   }, [content?.format, nav.toggledIndices])
 
+  // Build MarkState from nav state for markdown format (block-based)
+  const markdownMarkState = useMemo(() => {
+    if (!content || content.format !== "markdown") return undefined
+
+    const sets = []
+
+    if (matchingBlocks && matchingBlocks.size > 0) {
+      const builder = new MarkSetBuilder()
+      for (const block of matchingBlocks) {
+        builder.addLine(block, {
+          background: theme.warning,
+          signBefore: "●",
+          foreground: theme.warning,
+        })
+      }
+      sets.push(builder.build("search", MarkPriorities.SEARCH_MATCH))
+    }
+
+    if (toggledBlocks && toggledBlocks.size > 0) {
+      const builder = new MarkSetBuilder()
+      for (const block of toggledBlocks) {
+        builder.addLine(block, { background: theme.backgroundPanel })
+      }
+      sets.push(builder.build("toggled", MarkPriorities.TOGGLED))
+    }
+
+    if (nav.selection) {
+      const builder = new MarkSetBuilder()
+      builder.addRange(
+        { line: nav.selection.start.line },
+        { line: nav.selection.end.line },
+        { background: theme.selection },
+      )
+      sets.push(builder.build("selection", MarkPriorities.SELECTION))
+    }
+
+    if (currentMatchBlock != null) {
+      const builder = new MarkSetBuilder()
+      builder.addLine(currentMatchBlock, {
+        background: theme.primary,
+        signBefore: "●",
+        foreground: theme.primary,
+      })
+      sets.push(builder.build("currentMatch", MarkPriorities.CURRENT_MATCH))
+    }
+
+    if (nav.cursor) {
+      const builder = new MarkSetBuilder()
+      builder.addLine(nav.cursor.line, {
+        background: theme.cursorLine,
+        signBefore: "▸",
+        foreground: theme.primary,
+      })
+      sets.push(builder.build("cursor", MarkPriorities.CURSOR))
+    }
+
+    return sets.length > 0 ? createMarkState(sets) : undefined
+  }, [content, matchingBlocks, toggledBlocks, currentMatchBlock, nav.cursor, nav.selection, theme])
+
+  // Build MarkState from nav state for table format (row-based)
+  const tableMarkState = useMemo(() => {
+    if (!content || content.format !== "table") return undefined
+
+    const sets = []
+
+    if (matchingRowsSet && matchingRowsSet.size > 0) {
+      const builder = new MarkSetBuilder()
+      for (const row of matchingRowsSet) {
+        builder.addLine(row, {
+          background: theme.warning,
+          signBefore: "●",
+          foreground: theme.warning,
+        })
+      }
+      sets.push(builder.build("search", MarkPriorities.SEARCH_MATCH))
+    }
+
+    if (toggledRows && toggledRows.size > 0) {
+      const builder = new MarkSetBuilder()
+      for (const row of toggledRows) {
+        builder.addLine(row, { background: theme.backgroundPanel })
+      }
+      sets.push(builder.build("toggled", MarkPriorities.TOGGLED))
+    }
+
+    if (nav.selection) {
+      const builder = new MarkSetBuilder()
+      builder.addRange(
+        { line: nav.selection.start.line },
+        { line: nav.selection.end.line },
+        { background: theme.selection },
+      )
+      sets.push(builder.build("selection", MarkPriorities.SELECTION))
+    }
+
+    if (currentMatchRow != null) {
+      const builder = new MarkSetBuilder()
+      builder.addLine(currentMatchRow, {
+        background: theme.primary,
+        signBefore: "●",
+        foreground: theme.primary,
+      })
+      sets.push(builder.build("currentMatch", MarkPriorities.CURRENT_MATCH))
+    }
+
+    if (nav.cursor) {
+      const builder = new MarkSetBuilder()
+      builder.addLine(nav.cursor.line, {
+        background: theme.cursorLine,
+        signBefore: "▸",
+        foreground: theme.primary,
+      })
+      sets.push(builder.build("cursor", MarkPriorities.CURSOR))
+    }
+
+    return sets.length > 0 ? createMarkState(sets) : undefined
+  }, [content, matchingRowsSet, toggledRows, currentMatchRow, nav.cursor, nav.selection, theme])
+
   // Build MarkState from nav state for code/text formats
   const codeMarkState = useMemo(() => {
     if (!content || (content.format !== "code" && content.format !== "text")) return undefined
@@ -448,15 +566,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
           <MarkdownView
             content={content.markdown}
             showLineNumbers={showLineNumbers}
-            activeBlock={cursorLine}
-            selectedBlocks={
-              selectionStart != null && selectionEnd != null
-                ? { start: selectionStart, end: selectionEnd }
-                : undefined
-            }
-            matchingBlocks={matchingBlocks}
-            currentMatchBlock={currentMatchBlock}
-            toggledBlocks={toggledBlocks}
+            marks={markdownMarkState}
             docRef={docRef}
           />
         )
@@ -487,12 +597,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
             columns={content.columns}
             rows={content.rows}
             showLineNumbers={showLineNumbers}
-            cursor={cursorLine}
-            selectionStart={selectionStart}
-            selectionEnd={selectionEnd}
-            matchingRows={matchingRowsSet}
-            currentMatchRow={currentMatchRow}
-            toggledRows={toggledRows}
+            marks={tableMarkState}
             docRef={docRef}
           />
         )
