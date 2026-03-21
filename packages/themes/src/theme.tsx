@@ -2,9 +2,7 @@ import {
   createContext,
   useContext,
   useState,
-  useEffect,
   useCallback,
-  useRef,
   type ReactNode,
 } from "react"
 import { RGBA, SyntaxStyle } from "@opentui/core"
@@ -645,7 +643,7 @@ export function useTheme(): ThemeContextValue {
 interface ThemeSwitcherContextValue extends ThemeContextValue {
   nextTheme: () => void
   prevTheme: () => void
-  setTheme: (name: string) => void
+  setTheme: (name: string, opts?: { persist?: boolean }) => void
   allThemes: string[]
 }
 
@@ -669,34 +667,25 @@ export function ThemeSwitcherProvider({
   const theme = buildTheme(themeName, mode)
 
   const nextTheme = useCallback(() => {
-    setThemeName((current) => {
-      const idx = allThemes.indexOf(current)
-      const next = allThemes[(idx + 1) % allThemes.length]
-      return next
-    })
-  }, [allThemes])
+    const idx = allThemes.indexOf(themeName)
+    const next = allThemes[(idx + 1) % allThemes.length]
+    setThemeName(next)
+    writeGlobalConfig({ theme: { name: next, mode } })
+  }, [allThemes, mode, themeName])
 
   const prevTheme = useCallback(() => {
-    setThemeName((current) => {
-      const idx = allThemes.indexOf(current)
-      const prev = allThemes[(idx - 1 + allThemes.length) % allThemes.length]
-      return prev
-    })
-  }, [allThemes])
+    const idx = allThemes.indexOf(themeName)
+    const prev = allThemes[(idx - 1 + allThemes.length) % allThemes.length]
+    setThemeName(prev)
+    writeGlobalConfig({ theme: { name: prev, mode } })
+  }, [allThemes, mode, themeName])
 
-  const setThemeByName = useCallback((name: string) => {
+  const setThemeByName = useCallback((name: string, opts?: { persist?: boolean }) => {
     setThemeName(name)
-  }, [])
-
-  // Persist when theme changes (but not on initial load)
-  const isInitial = useRef(true)
-  useEffect(() => {
-    if (isInitial.current) {
-      isInitial.current = false
-      return
+    if (opts?.persist) {
+      writeGlobalConfig({ theme: { name, mode } })
     }
-    writeGlobalConfig({ theme: { name: themeName, mode } })
-  }, [themeName, mode])
+  }, [mode])
 
   const value: ThemeSwitcherContextValue = {
     theme: theme.colors,
