@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react"
 import { useRenderer } from "@opentui/react"
 import { copyToClipboard } from "@tooee/clipboard"
 import { useCommand, type CommandWhen } from "@tooee/commands"
@@ -12,14 +11,14 @@ export function useThemeCommands(opts?: { when?: CommandWhen }): {
   const picker = useThemePicker()
   const { toast } = useToast()
 
-  // Toast when theme changes (after picker closes)
-  const prevTheme = useRef(picker.currentTheme)
-  useEffect(() => {
-    if (prevTheme.current !== picker.currentTheme && !picker.isOpen) {
-      toast({ message: `Theme: ${picker.currentTheme}`, level: "info", id: "theme-changed" })
-    }
-    prevTheme.current = picker.currentTheme
-  }, [picker.currentTheme, picker.isOpen, toast])
+  // Wrap picker.confirm to toast on theme selection (event-driven, not effect-driven)
+  const confirmedPicker: ThemePickerState = {
+    ...picker,
+    confirm: (name: string) => {
+      picker.confirm(name)
+      toast({ message: `Theme: ${name}`, level: "info", id: "theme-changed" })
+    },
+  }
 
   useCommand({
     id: "cycle-theme",
@@ -31,7 +30,7 @@ export function useThemeCommands(opts?: { when?: CommandWhen }): {
     },
   })
 
-  return { name: picker.currentTheme, picker }
+  return { name: picker.currentTheme, picker: confirmedPicker }
 }
 
 export function useQuitCommand(opts?: {

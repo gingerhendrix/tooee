@@ -42,7 +42,7 @@ export function useThemePicker(): ThemePickerState {
 
   const confirm = useCallback(
     (name: string) => {
-      setTheme(name)
+      setTheme(name, { persist: true })
       setIsOpen(false)
       overlay.hide(OVERLAY_ID)
     },
