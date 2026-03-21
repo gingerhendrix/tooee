@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 import type { ColumnDef, TableRow } from "@tooee/renderers"
+import type { MarkSet, MarkState } from "@tooee/marks"
 
 // === Built-in content types ===
 
@@ -59,6 +60,8 @@ export interface ContentRendererProps {
   cursor?: number
   selectionStart?: number
   selectionEnd?: number
+  /** Combined mark state (nav + provider + user marks) */
+  marks?: MarkState
 }
 
 export type ContentRenderer = (props: ContentRendererProps) => ReactNode
@@ -82,6 +85,10 @@ export type ContentChunk =
       type: "patch"
       apply: (current: AnyContent | null) => AnyContent
     }
+  | {
+      type: "marks"
+      set: MarkSet
+    }
 
 // === Provider ===
 
@@ -89,6 +96,8 @@ export interface ContentProvider {
   load(): AnyContent | Promise<AnyContent> | AsyncIterable<ContentChunk>
   format?: string
   title?: string
+  /** Static marks to apply to the content. Merged with nav marks in View. */
+  marks?: MarkSet[]
 }
 
 // === Compat aliases ===

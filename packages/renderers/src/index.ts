@@ -19,3 +19,4 @@ export type {
   RowDocumentPalette,
   RowDocumentDecorations,
 } from "./RowDocumentRenderable.js"
+export { marksToDecorations } from "./marks-bridge.js"

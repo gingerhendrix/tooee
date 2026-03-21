@@ -14,6 +14,7 @@ import {
 } from "@tooee/shell"
 import { useConfig } from "@tooee/config"
 import { MarkSetBuilder, createMarkState, MarkPriorities } from "@tooee/marks"
+import type { MarkSet, MarkState } from "@tooee/marks"
 import { marked } from "marked"
 import {
   getTextContent,
@@ -108,9 +109,16 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
   const [reloadTrigger, setReloadTrigger] = useState(0)
   const reload = useCallback(() => setReloadTrigger((n) => n + 1), [])
 
+  // Provider marks: static from contentProvider.marks + streamed via marks chunks
+  const [providerMarks, setProviderMarks] = useState<MarkSet[]>([])
+  // User marks: set via useMarks / CommandContext (Phase 5)
+  const [userMarks, setUserMarks] = useState<MarkSet[]>([])
+
   useEffect(() => {
     setError(null)
     setStreaming(false)
+    // Reset provider marks on reload; initialize with static marks if provided
+    setProviderMarks(contentProvider.marks ?? [])
     const loaded = contentProvider.load()
 
     if (isAsyncIterable(loaded)) {
@@ -125,6 +133,14 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
         try {
           for await (const chunk of loaded) {
             if (cancelled) break
+            if (chunk.type === "marks") {
+              // Streamed mark set: merge by replacing any existing set with same namespace
+              setProviderMarks((prev) => {
+                const filtered = prev.filter((s) => s.namespace !== chunk.set.namespace)
+                return [...filtered, chunk.set]
+              })
+              continue
+            }
             current = applyContentChunk(current, chunk, title)
             setContent(current)
           }
@@ -258,6 +274,22 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
     return []
   }
 
+  // Phase 5: mark manipulation callbacks for action handlers
+  const setMarkSet = useCallback((set: MarkSet) => {
+    setUserMarks((prev) => {
+      const filtered = prev.filter((s) => s.namespace !== set.namespace)
+      return [...filtered, set]
+    })
+  }, [])
+
+  const clearMarkNamespace = useCallback((namespace: string) => {
+    setUserMarks((prev) => prev.filter((s) => s.namespace !== namespace))
+  }, [])
+
+  const clearAllUserMarks = useCallback(() => {
+    setUserMarks([])
+  }, [])
+
   useProvideCommandContext(() => ({
     view: {
       content,
@@ -269,6 +301,14 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
       selectedRows: getSelectedRows(),
       toggledIndices: nav.toggledIndices,
       reload,
+      // Phase 5: marks API for action handlers
+      marks: {
+        setMarkSet,
+        clearNamespace: clearMarkNamespace,
+        clearAll: clearAllUserMarks,
+        userMarks,
+        providerMarks,
+      },
     },
   }))
 
@@ -389,8 +429,11 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
       sets.push(builder.build("cursor", MarkPriorities.CURSOR))
     }
 
+    // Merge provider and user marks (nav marks take priority via higher priorities)
+    sets.push(...providerMarks, ...userMarks)
+
     return sets.length > 0 ? createMarkState(sets) : undefined
-  }, [content, matchingBlocks, toggledBlocks, currentMatchBlock, nav.cursor, nav.selection, theme])
+  }, [content, matchingBlocks, toggledBlocks, currentMatchBlock, nav.cursor, nav.selection, theme, providerMarks, userMarks])
 
   // Build MarkState from nav state for table format (row-based)
   const tableMarkState = useMemo(() => {
@@ -448,8 +491,11 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
       sets.push(builder.build("cursor", MarkPriorities.CURSOR))
     }
 
+    // Merge provider and user marks
+    sets.push(...providerMarks, ...userMarks)
+
     return sets.length > 0 ? createMarkState(sets) : undefined
-  }, [content, matchingRowsSet, toggledRows, currentMatchRow, nav.cursor, nav.selection, theme])
+  }, [content, matchingRowsSet, toggledRows, currentMatchRow, nav.cursor, nav.selection, theme, providerMarks, userMarks])
 
   // Build MarkState from nav state for code/text formats
   const codeMarkState = useMemo(() => {
@@ -510,8 +556,11 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
       sets.push(builder.build("cursor", MarkPriorities.CURSOR))
     }
 
+    // Merge provider and user marks
+    sets.push(...providerMarks, ...userMarks)
+
     return sets.length > 0 ? createMarkState(sets) : undefined
-  }, [content, nav.cursor, nav.selection, nav.matchingLines, nav.currentMatchIndex, nav.toggledIndices, theme])
+  }, [content, nav.cursor, nav.selection, nav.matchingLines, nav.currentMatchIndex, nav.toggledIndices, theme, providerMarks, userMarks])
 
   if (error) {
     return (
@@ -537,12 +586,16 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
     if (isCustomContent(content)) {
       const customRenderer = renderers?.[content.format]
       if (customRenderer) {
+        // Build a MarkState for custom renderers from provider + user marks
+        const customSets = [...providerMarks, ...userMarks]
+        const customMarks = customSets.length > 0 ? createMarkState(customSets) : undefined
         return customRenderer({
           content,
           lineCount,
           cursor: cursorLine,
           selectionStart,
           selectionEnd,
+          marks: customMarks,
         })
       }
       // No renderer for this custom format — fall back to text
