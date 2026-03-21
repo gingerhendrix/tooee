@@ -15,6 +15,7 @@ export interface ChooseResult {
 
 export interface ChooseOptions {
   multi?: boolean
+  title?: string
   prompt?: string
   placeholder?: string
   emptyMessage?: string

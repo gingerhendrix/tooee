@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { useKeyboard } from "@opentui/react"
 import { AppLayout } from "@tooee/layout"
@@ -23,7 +23,6 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
   const { theme } = useTheme()
   const [items, setItems] = useState<ChooseItem[]>([])
   const [filterQuery, setFilterQuery] = useState("")
-  const [filteredItems, setFilteredItems] = useState<FuzzyMatch[]>([])
   const [activeIndex, setActiveIndex] = useState(0)
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set())
   const [loading, setLoading] = useState(true)
@@ -37,21 +36,26 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
     if (result instanceof Promise) {
       result.then((loaded) => {
         setItems(loaded)
-        setFilteredItems(fuzzyFilter(loaded, ""))
         setLoading(false)
       })
     } else {
       setItems(result)
-      setFilteredItems(fuzzyFilter(result, ""))
       setLoading(false)
     }
   }, [contentProvider])
 
-  useEffect(() => {
-    const matches = fuzzyFilter(items, filterQuery)
-    setFilteredItems(matches)
+  // Derived state: filtered items computed from items + filterQuery (no extra render cycle)
+  const filteredItems = useMemo(
+    () => fuzzyFilter(items, filterQuery),
+    [items, filterQuery],
+  )
+
+  // Reset activeIndex when filter changes (render-time state adjustment)
+  const [prevFilterQuery, setPrevFilterQuery] = useState("")
+  if (filterQuery !== prevFilterQuery) {
+    setPrevFilterQuery(filterQuery)
     setActiveIndex(0)
-  }, [filterQuery, items])
+  }
 
   const { name: themeName, picker: themePicker } = useThemeCommands()
   useQuitCommand({ onQuit: () => onCancel?.() })
@@ -231,7 +235,7 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
 
   return (
     <AppLayout
-      titleBar={options?.prompt ? { title: options.prompt } : undefined}
+      titleBar={(options?.title ?? options?.prompt) ? { title: (options.title ?? options.prompt)! } : undefined}
       statusBar={{
         items: [
           { label: "Matches:", value: `${filteredItems.length}/${items.length}` },
