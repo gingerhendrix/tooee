@@ -47,6 +47,7 @@ jobs:
             packages/config
             packages/commands
             packages/clipboard
+            packages/router
             packages/overlays
             packages/themes
             packages/toasts
