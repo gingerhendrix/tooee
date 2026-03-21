@@ -13,7 +13,7 @@ interface AskProps extends AskOptions {
   actions?: ActionDefinition[]
 }
 
-export function Ask({ prompt, placeholder, defaultValue, multiline, actions }: AskProps) {
+export function Ask({ title, prompt, placeholder, defaultValue, multiline, actions }: AskProps) {
   const renderer = useRenderer()
   const [value, setValue] = useState(defaultValue ?? "")
   const textareaRef = useRef<TextareaRenderable>(null)
@@ -88,7 +88,7 @@ export function Ask({ prompt, placeholder, defaultValue, multiline, actions }: A
 
   return (
     <AppLayout
-      titleBar={prompt ? { title: prompt } : undefined}
+      titleBar={(title ?? prompt) ? { title: (title ?? prompt)! } : undefined}
       statusBar={{
         items: [
           { label: "Mode:", value: mode },

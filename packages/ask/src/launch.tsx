@@ -20,6 +20,7 @@ export async function launch(options: AskLaunchOptions): Promise<void> {
   createRoot(renderer).render(
     <TooeeProvider initialMode="insert">
       <Ask
+        title={options.title}
         prompt={options.prompt}
         placeholder={options.placeholder}
         defaultValue={options.defaultValue}
