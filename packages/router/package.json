@@ -1,6 +1,6 @@
 {
   "name": "@tooee/router",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Stack-based router for Tooee terminal apps",
   "license": "MIT",
   "author": "Gareth Andrew",

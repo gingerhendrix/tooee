@@ -59,8 +59,6 @@ jobs:
             packages/choose
             apps/cli
           )
-          # NOTE: packages/router excluded — npm returns 404 on PUT for @tooee/router.
-          # Re-add after manual first publish or npm support investigation.
 
           for pkg in "${PACKAGES[@]}"; do
             echo "Publishing $pkg..."
