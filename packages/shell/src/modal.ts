@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react"
+import { useState, useCallback, useRef, useEffect, useMemo } from "react"
 import { useCommand, useMode, useSetMode, type Mode } from "@tooee/commands"
 import { copyToClipboard } from "@tooee/clipboard"
 import { useTerminalDimensions } from "@opentui/react"
@@ -53,35 +53,38 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
   const [toggledIndices, setToggledIndices] = useState<Set<number>>(new Set())
   const [searchQuery, setSearchQuery] = useState("")
   const [searchActive, setSearchActive] = useState(false)
-  const [matchingLines, setMatchingLines] = useState<number[]>([])
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0)
   const preSearchModeRef = useRef<Mode>("cursor")
 
-  // Incremental search: recompute matches when query changes while search is active
+  // Track the "committed" search query (persists after search bar closes)
+  const [committedQuery, setCommittedQuery] = useState("")
+
+  // Derived state: search matches computed from committed query + content
+  const matchingLines = useMemo(() => {
+    if (!committedQuery) return []
+    const text = getText?.()
+    return text ? findMatchingLines(text, committedQuery) : []
+  }, [committedQuery]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Live-update committed query while search bar is open
+  useEffect(() => {
+    if (searchActive && searchQuery) {
+      setCommittedQuery(searchQuery)
+    }
+  }, [searchActive, searchQuery])
+
   const searchQueryRef = useRef(searchQuery)
   searchQueryRef.current = searchQuery
   const matchingLinesRef = useRef(matchingLines)
   matchingLinesRef.current = matchingLines
 
+  // Auto-jump to first match when search results change
   useEffect(() => {
-    if (!searchActive) return
-    const text = getText?.()
-    if (!text || !searchQuery) {
-      setMatchingLines([])
-      setCurrentMatchIndex(0)
-      return
-    }
-    const matches = findMatchingLines(text, searchQuery)
-    setMatchingLines(matches)
     setCurrentMatchIndex(0)
-    if (matches.length > 0) {
-      // Auto-jump to first match
-      const line = matches[0]
-      if (mode === "cursor" || mode === "select") {
-        setCursor((c) => (c ? { line, col: 0 } : c))
-      }
+    if (matchingLines.length > 0) {
+      setCursor((c) => (c ? { line: matchingLines[0], col: 0 } : c))
     }
-  }, [searchQuery, searchActive]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [matchingLines])
 
   const isBlockMode = blockCount != null
   const cursorMax = isBlockMode ? Math.max(0, blockCount - 1) : Math.max(0, totalLines - 1)
@@ -91,13 +94,15 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     [cursorMax],
   )
 
-  useEffect(() => {
+  // Clean up toggled indices when cursorMax shrinks (render-time state adjustment)
+  const [prevCursorMax, setPrevCursorMax] = useState(cursorMax)
+  if (cursorMax !== prevCursorMax) {
+    setPrevCursorMax(cursorMax)
     setToggledIndices((prev) => {
       const filtered = Array.from(prev).filter((index) => index <= cursorMax)
-      if (filtered.length === prev.size) return prev
-      return new Set(filtered)
+      return filtered.length === prev.size ? prev : new Set(filtered)
     })
-  }, [cursorMax])
+  }
 
   // When entering cursor mode, initialize cursor if not already set
   const prevMode = useRef<Mode | null>(null)
@@ -413,7 +418,7 @@ export function useModalNavigationCommands(opts: ModalNavigationOptions): ModalN
     handler: () => {
       setSearchActive(false)
       setSearchQuery("")
-      setMatchingLines([])
+      setCommittedQuery("")
       setCurrentMatchIndex(0)
       setMode(preSearchModeRef.current)
     },
