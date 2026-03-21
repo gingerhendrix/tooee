@@ -5,7 +5,6 @@ const KEY_ALIASES: Record<string, string> = {
   enter: "return",
   cr: "return",
   del: "delete",
-  space: " ",
   tab: "tab",
   backspace: "backspace",
   plus: "+",
