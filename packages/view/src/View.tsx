@@ -134,6 +134,7 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
           for await (const chunk of loaded) {
             if (cancelled) break
             if (chunk.type === "marks") {
+              if (cancelled) break
               // Streamed mark set: merge by replacing any existing set with same namespace
               setProviderMarks((prev) => {
                 const filtered = prev.filter((s) => s.namespace !== chunk.set.namespace)
