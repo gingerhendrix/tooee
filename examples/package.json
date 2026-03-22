@@ -6,6 +6,7 @@
     "@tooee/ask": "workspace:*",
     "@tooee/choose": "workspace:*",
     "@tooee/commands": "workspace:*",
+    "@tooee/marks": "workspace:*",
     "@tooee/themes": "workspace:*",
     "@tooee/toasts": "workspace:*",
     "@tooee/view": "workspace:*",
