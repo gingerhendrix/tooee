@@ -103,6 +103,28 @@ export async function readClipboardText(): Promise<string | undefined> {
   return undefined
 }
 
+export async function readPrimaryText(): Promise<string | undefined> {
+  const os = platform()
+
+  if (os === "linux") {
+    if (process.env["WAYLAND_DISPLAY"] && Bun.which("wl-paste")) {
+      const result = await $`wl-paste --primary`.nothrow().quiet().text()
+      return result || undefined
+    }
+    if (Bun.which("xclip")) {
+      const result = await $`xclip -selection primary -o`.nothrow().quiet().text()
+      return result || undefined
+    }
+    if (Bun.which("xsel")) {
+      const result = await $`xsel --primary --output`.nothrow().quiet().text()
+      return result || undefined
+    }
+  }
+
+  // macOS/Windows don't have PRIMARY selection — fall back to clipboard
+  return readClipboardText()
+}
+
 let copyMethod: ((text: string) => Promise<void>) | null = null
 
 function getCopyMethod(): (text: string) => Promise<void> {
