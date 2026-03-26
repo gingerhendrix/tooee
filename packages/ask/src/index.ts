@@ -1,4 +1,6 @@
 export { Ask } from "./Ask.js"
+export { AskOverlay } from "./AskOverlay.js"
+export type { AskOverlayProps } from "./AskOverlay.js"
 export { launch } from "./launch.js"
 export type { AskLaunchOptions } from "./launch.js"
 export type { AskOptions } from "./types.js"

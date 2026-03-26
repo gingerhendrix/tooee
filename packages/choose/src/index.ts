@@ -1,4 +1,6 @@
 export { Choose } from "./Choose.js"
+export { ChooseOverlay } from "./ChooseOverlay.js"
+export type { ChooseOverlayProps } from "./ChooseOverlay.js"
 export { launch } from "./launch.js"
 export type { ChooseLaunchOptions } from "./launch.js"
 export { createStdinChooseProvider, createStaticProvider } from "./default-provider.js"

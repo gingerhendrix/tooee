@@ -1,0 +1,152 @@
+import { useState, useRef, useCallback } from "react"
+import type { TextareaRenderable, InputRenderable, MouseEvent } from "@opentui/core"
+import { useKeyboard } from "@opentui/react"
+import { readPrimaryText } from "@tooee/clipboard"
+import { useTheme } from "@tooee/themes"
+import { useMode, useSetMode } from "@tooee/commands"
+
+export interface AskOverlayProps {
+  prompt: string
+  multiline?: boolean
+  defaultValue?: string
+  onSubmit: (value: string) => void | Promise<void>
+  onCancel: () => void
+}
+
+export function AskOverlay({
+  prompt,
+  multiline,
+  defaultValue,
+  onSubmit,
+  onCancel,
+}: AskOverlayProps) {
+  const { theme } = useTheme()
+  const mode = useMode()
+  const setMode = useSetMode()
+
+  const [value, setValue] = useState(defaultValue ?? "")
+  const textareaRef = useRef<TextareaRenderable>(null)
+  const inputRef = useRef<InputRenderable>(null)
+
+  const inputFocused = mode === "insert"
+
+  const handleSubmit = () => {
+    const text = multiline ? (textareaRef.current?.plainText ?? "") : value
+    onSubmit(text)
+  }
+
+  useKeyboard((key) => {
+    if (key.name === "escape") {
+      key.preventDefault()
+      if (mode === "insert") {
+        setMode("cursor")
+      } else {
+        onCancel()
+      }
+      return
+    }
+
+    if (mode === "cursor") {
+      if (key.raw === "i" || key.raw === "a") {
+        key.preventDefault()
+        setMode("insert")
+        return
+      }
+    }
+
+    if (key.name === "return") {
+      if (multiline ? key.shift : true) {
+        key.preventDefault()
+        handleSubmit()
+      }
+      return
+    }
+  })
+
+  // Middle-click paste from primary selection
+  const handleMouseDown = useCallback(
+    (event: MouseEvent) => {
+      if (event.button === 1) {
+        event.preventDefault()
+        void readPrimaryText().then((text) => {
+          if (!text) return
+          const target = multiline ? textareaRef.current : inputRef.current
+          target?.insertText(text)
+        })
+      }
+    },
+    [multiline],
+  )
+
+  const submitHint = multiline ? "Shift+Enter submit" : "Enter submit"
+  const hintText =
+    mode === "insert"
+      ? `${submitHint}  Esc commands`
+      : `i insert  Esc cancel  ${submitHint}`
+
+  return (
+    <box
+      position="absolute"
+      left="20%"
+      right="20%"
+      top="20%"
+      bottom="20%"
+      flexDirection="column"
+      backgroundColor={theme.backgroundPanel}
+      border
+      borderColor={theme.borderActive}
+      onMouseDown={handleMouseDown}
+    >
+      {/* Title bar */}
+      <box
+        height={1}
+        paddingLeft={1}
+        paddingRight={1}
+        backgroundColor={theme.backgroundElement}
+      >
+        <text content={prompt} fg={theme.accent} />
+      </box>
+
+      {/* Input area */}
+      <box
+        flexDirection="column"
+        style={{ flexGrow: 1, paddingLeft: 1, paddingRight: 1 }}
+      >
+        {multiline ? (
+          <textarea
+            ref={textareaRef}
+            focused={inputFocused}
+            initialValue={defaultValue}
+            textColor={theme.text}
+            placeholderColor={theme.textMuted}
+            backgroundColor="transparent"
+            onSubmit={handleSubmit}
+            style={{ flexGrow: 1 }}
+          />
+        ) : (
+          <input
+            ref={inputRef}
+            focused={inputFocused}
+            value={value}
+            onInput={setValue}
+            onSubmit={handleSubmit}
+            textColor={theme.text}
+            placeholderColor={theme.textMuted}
+            cursorColor={theme.primary}
+            backgroundColor="transparent"
+          />
+        )}
+      </box>
+
+      {/* Hint line */}
+      <box
+        height={1}
+        paddingLeft={1}
+        paddingRight={1}
+        backgroundColor={theme.backgroundElement}
+      >
+        <text content={hintText} fg={theme.textMuted} />
+      </box>
+    </box>
+  )
+}
