@@ -64,11 +64,7 @@ export interface RowDocumentOptions extends ScrollBoxOptions {
 
 function isRowContentProvider(x: unknown): x is LineInfoProvider {
   return (
-    !!x &&
-    typeof x === "object" &&
-    "lineInfo" in x &&
-    "lineCount" in x &&
-    "virtualLineCount" in x
+    !!x && typeof x === "object" && "lineInfo" in x && "lineCount" in x && "virtualLineCount" in x
   )
 }
 
@@ -182,9 +178,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     return this._virtualRowToRow.length
   }
 
-  getRowMetrics(
-    row: number,
-  ): { row: number; virtualTop: number; virtualHeight: number } | null {
+  getRowMetrics(row: number): { row: number; virtualTop: number; virtualHeight: number } | null {
     if (row < 0 || row >= this._rowCount) return null
     return {
       row,
@@ -225,10 +219,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   // scrollToRow
   // -----------------------------------------------------------------------
 
-  scrollToRow(
-    row: number,
-    align: "nearest" | "start" | "center" | "end" = "nearest",
-  ): void {
+  scrollToRow(row: number, align: "nearest" | "start" | "center" | "end" = "nearest"): void {
     const metrics = this.getRowMetrics(row)
     if (!metrics) return
 
@@ -403,8 +394,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
     // Finalize last row
     if (currentRow >= 0) {
-      rowVirtualHeights[currentRow] =
-        lineSources.length - rowVirtualStarts[currentRow]
+      rowVirtualHeights[currentRow] = lineSources.length - rowVirtualStarts[currentRow]
     }
 
     this._finishGeometry(
@@ -466,14 +456,8 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   // -----------------------------------------------------------------------
 
   private _paintDecorations(buffer: OptimizedBuffer): void {
-    const {
-      cursorRow,
-      selection,
-      matchingRows,
-      currentMatchRow,
-      toggledRows,
-      markBackgrounds,
-    } = this._deco
+    const { cursorRow, selection, matchingRows, currentMatchRow, toggledRows, markBackgrounds } =
+      this._deco
 
     const hasDecorations =
       cursorRow != null ||
@@ -588,9 +572,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
         const customSign = this._deco.signs?.get(row)
 
         if (customSign) {
-          const signFg = customSign.fg
-            ? cachedColor(customSign.fg)
-            : gutterFg
+          const signFg = customSign.fg ? cachedColor(customSign.fg) : gutterFg
           buffer.drawText(
             customSign.text.slice(0, this._signColumnWidth),
             drawX + col,

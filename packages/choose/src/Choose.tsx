@@ -4,7 +4,14 @@ import { useKeyboard } from "@opentui/react"
 import { AppLayout } from "@tooee/layout"
 import { ThemePicker, useTheme } from "@tooee/themes"
 import { useThemeCommands, useQuitCommand } from "@tooee/shell"
-import { useMode, useSetMode, useCommand, useActions, useProvideCommandContext, useCommandContext } from "@tooee/commands"
+import {
+  useMode,
+  useSetMode,
+  useCommand,
+  useActions,
+  useProvideCommandContext,
+  useCommandContext,
+} from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import type { ChooseItem, ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.js"
 import { fuzzyFilter, type FuzzyMatch } from "./fuzzy.js"
@@ -45,10 +52,7 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
   }, [contentProvider])
 
   // Derived state: filtered items computed from items + filterQuery (no extra render cycle)
-  const filteredItems = useMemo(
-    () => fuzzyFilter(items, filterQuery),
-    [items, filterQuery],
-  )
+  const filteredItems = useMemo(() => fuzzyFilter(items, filterQuery), [items, filterQuery])
 
   // Reset activeIndex when filter changes (render-time state adjustment)
   const [prevFilterQuery, setPrevFilterQuery] = useState("")
@@ -170,7 +174,17 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
         onCancel?.()
       }
     }
-  }, [multi, selectedIndices, items, filteredItems, activeIndex, onConfirm, onCancel, actions, invoke])
+  }, [
+    multi,
+    selectedIndices,
+    items,
+    filteredItems,
+    activeIndex,
+    onConfirm,
+    onCancel,
+    actions,
+    invoke,
+  ])
 
   useKeyboard((key) => {
     if (key.name === "escape") {
@@ -213,7 +227,7 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
   useEffect(() => {
     if (scrollRef.current && filteredItems.length > 0) {
       // +1 accounts for the filter input row at the top of scroll content
-      scrollRef.current.scrollTop = Math.max(0, (activeIndex + 1) - 5)
+      scrollRef.current.scrollTop = Math.max(0, activeIndex + 1 - 5)
     }
   }, [activeIndex, filteredItems.length])
 
@@ -235,7 +249,11 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
 
   return (
     <AppLayout
-      titleBar={(options?.title ?? options?.prompt) ? { title: (options.title ?? options.prompt)! } : undefined}
+      titleBar={
+        (options?.title ?? options?.prompt)
+          ? { title: (options.title ?? options.prompt)! }
+          : undefined
+      }
       statusBar={{
         items: [
           { label: "Matches:", value: `${filteredItems.length}/${items.length}` },

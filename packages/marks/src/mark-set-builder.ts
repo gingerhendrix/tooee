@@ -13,12 +13,7 @@ export class MarkSetBuilder {
     return this
   }
 
-  addRange(
-    from: MarkPosition,
-    to: MarkPosition,
-    style: MarkStyle,
-    data?: unknown,
-  ): this {
+  addRange(from: MarkPosition, to: MarkPosition, style: MarkStyle, data?: unknown): this {
     this.#marks.push({
       range: { from, to },
       style,

@@ -24,7 +24,7 @@ const contentProvider: ContentProvider = {
 
     // Stream the response character by character
     const response =
-      'This is a mock streaming response demonstrating View\'s ability to handle async iteration via ContentProvider.load().'
+      "This is a mock streaming response demonstrating View's ability to handle async iteration via ContentProvider.load()."
 
     for (const char of response) {
       yield { type: "append", format: "markdown", data: char }

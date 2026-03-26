@@ -46,10 +46,7 @@ export function ToastContainer() {
       paddingLeft={1}
       paddingRight={1}
     >
-      <text
-        content={`${icon} ${currentToast.message}`}
-        fg={theme.text}
-      />
+      <text content={`${icon} ${currentToast.message}`} fg={theme.text} />
     </box>
   )
 }

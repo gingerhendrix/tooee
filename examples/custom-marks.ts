@@ -89,28 +89,44 @@ function buildDiagnosticMarks(): MarkSet {
   const builder = new MarkSetBuilder()
 
   // Warning on line 7 (0-indexed line 6): unused field
-  builder.addLine(6, {
-    background: "#4a3800",
-    signBefore: "W",
-  }, { message: "maxConnections is declared but never used", severity: "warning" })
+  builder.addLine(
+    6,
+    {
+      background: "#4a3800",
+      signBefore: "W",
+    },
+    { message: "maxConnections is declared but never used", severity: "warning" },
+  )
 
   // Error on line 30 (0-indexed line 29): null assignment
-  builder.addLine(29, {
-    background: "#4a0000",
-    signBefore: "E",
-  }, { message: "Variable 'users' should not be null — use an empty array", severity: "error" })
+  builder.addLine(
+    29,
+    {
+      background: "#4a0000",
+      signBefore: "E",
+    },
+    { message: "Variable 'users' should not be null — use an empty array", severity: "error" },
+  )
 
   // Info on line 34 (0-indexed line 33): exposes config
-  builder.addLine(33, {
-    background: "#003040",
-    signBefore: "I",
-  }, { message: "This endpoint exposes internal configuration", severity: "info" })
+  builder.addLine(
+    33,
+    {
+      background: "#003040",
+      signBefore: "I",
+    },
+    { message: "This endpoint exposes internal configuration", severity: "info" },
+  )
 
   // Hint on line 38 (0-indexed line 37): 404 handler
-  builder.addLine(37, {
-    background: "#1a3a1a",
-    signBefore: "H",
-  }, { message: "Consider adding a helpful 404 page", severity: "hint" })
+  builder.addLine(
+    37,
+    {
+      background: "#1a3a1a",
+      signBefore: "H",
+    },
+    { message: "Consider adding a helpful 404 page", severity: "hint" },
+  )
 
   return builder.build("diagnostics", MarkPriorities.DIAGNOSTIC)
 }
@@ -121,8 +137,8 @@ function buildInitialBookmarks(): MarkSet {
   const builder = new MarkSetBuilder()
 
   // Pre-bookmark the main handler function and the server startup
-  builder.addLine(16, { signBefore: "\u2691" })  // flag on handleRequest
-  builder.addLine(42, { signBefore: "\u2691" })  // flag on serve()
+  builder.addLine(16, { signBefore: "\u2691" }) // flag on handleRequest
+  builder.addLine(42, { signBefore: "\u2691" }) // flag on serve()
 
   return builder.build("bookmarks", MarkPriorities.USER)
 }
@@ -182,10 +198,7 @@ const contentProvider: ContentProvider = {
   load: () => streamContent(),
   title: "server.ts — Custom Marks Demo",
   // Static marks applied immediately when content loads
-  marks: [
-    buildDiagnosticMarks(),
-    buildInitialBookmarks(),
-  ],
+  marks: [buildDiagnosticMarks(), buildInitialBookmarks()],
 }
 
 // === User actions: toggle bookmarks and diagnostics via keybindings ===

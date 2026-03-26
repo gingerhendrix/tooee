@@ -3,7 +3,11 @@ import { useTheme } from "@tooee/themes"
 import { useEffect, useMemo, useRef, type RefObject } from "react"
 import type { MarkState } from "@tooee/marks"
 import type { ColumnDef, TableRow } from "./table-types.js"
-import type { RowDocumentRenderable, RowDocumentPalette, RowDocumentDecorations } from "./RowDocumentRenderable.js"
+import type {
+  RowDocumentRenderable,
+  RowDocumentPalette,
+  RowDocumentDecorations,
+} from "./RowDocumentRenderable.js"
 import { marksToDecorations } from "./marks-bridge.js"
 import "./row-document.js"
 
@@ -76,7 +80,10 @@ function computeColumnWidths(
   // Use Bun.stringWidth for correct display width with CJK/emoji
   const naturalWidths = headers.map((header, col) => {
     const headerLen = Bun.stringWidth(header)
-    const maxRowLen = sampledRows.reduce((max, row) => Math.max(max, Bun.stringWidth(row[col] ?? "")), 0)
+    const maxRowLen = sampledRows.reduce(
+      (max, row) => Math.max(max, Bun.stringWidth(row[col] ?? "")),
+      0,
+    )
     const contentWidth = Math.max(headerLen, maxRowLen)
     // Apply min/max constraints before adding padding
     const constrainedWidth = Math.min(maxColumnWidth, Math.max(minColumnWidth, contentWidth))
@@ -217,26 +224,40 @@ export function Table({
     toggledBg: theme.backgroundPanel,
   }
 
-  const marksDecorations = useMemo(
-    () => marks ? marksToDecorations(marks) : null,
-    [marks],
-  )
+  const marksDecorations = useMemo(() => (marks ? marksToDecorations(marks) : null), [marks])
 
   useEffect(() => {
     const decorations: RowDocumentDecorations = marksDecorations ?? {
       cursorRow: cursor,
-      selection: selectionStart != null && selectionEnd != null
-        ? { start: selectionStart, end: selectionEnd }
-        : null,
+      selection:
+        selectionStart != null && selectionEnd != null
+          ? { start: selectionStart, end: selectionEnd }
+          : null,
       matchingRows: matchingRows,
       currentMatchRow: currentMatchRow,
       toggledRows: toggledRows,
     }
     effectiveRef.current?.setDecorations(decorations)
-  }, [marksDecorations, cursor, selectionStart, selectionEnd, matchingRows, currentMatchRow, toggledRows])
+  }, [
+    marksDecorations,
+    cursor,
+    selectionStart,
+    selectionEnd,
+    matchingRows,
+    currentMatchRow,
+    toggledRows,
+  ])
 
   return (
-    <box style={{ flexDirection: "column", flexGrow: 1, marginLeft: MARGIN, marginRight: MARGIN, marginBottom: MARGIN }}>
+    <box
+      style={{
+        flexDirection: "column",
+        flexGrow: 1,
+        marginLeft: MARGIN,
+        marginRight: MARGIN,
+        marginBottom: MARGIN,
+      }}
+    >
       {/* Fixed header row — outside row-document so it stays visible */}
       <box style={{ flexDirection: "row", flexShrink: 0, paddingLeft: gutterWidth }}>
         {headers.map((h, i) => (
@@ -277,9 +298,10 @@ export function Table({
             {row.map((cell, j) => {
               const contentWidth = colWidths[j] - PADDING * 2
               const cellWidth = Bun.stringWidth(cell)
-              const displayCell = alignments[j] && cellWidth <= contentWidth
-                ? " ".repeat(contentWidth - cellWidth) + cell
-                : cell
+              const displayCell =
+                alignments[j] && cellWidth <= contentWidth
+                  ? " ".repeat(contentWidth - cellWidth) + cell
+                  : cell
               return (
                 <text
                   key={j}
@@ -302,9 +324,5 @@ export function Table({
 }
 
 // Exported for testing and MarkdownView
-export {
-  computeColumnWidths,
-  isNumeric,
-  sampleRows,
-}
+export { computeColumnWidths, isNumeric, sampleRows }
 export type { ColumnWidthOptions }

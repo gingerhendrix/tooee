@@ -3,7 +3,13 @@ import type { ReactNode } from "react"
 
 const ScreenFocusContext = createContext({ isFocused: false })
 
-export function ScreenFocusProvider({ active, children }: { active: boolean; children: ReactNode }) {
+export function ScreenFocusProvider({
+  active,
+  children,
+}: {
+  active: boolean
+  children: ReactNode
+}) {
   const value = useMemo(() => ({ isFocused: active }), [active])
   return <ScreenFocusContext value={value}>{children}</ScreenFocusContext>
 }

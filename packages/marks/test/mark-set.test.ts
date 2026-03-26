@@ -88,10 +88,7 @@ describe("MarkSet", () => {
     })
 
     test("finds multiple marks at same line", () => {
-      const set = new MarkSet("test", 100, [
-        mark(5, 5, "a"),
-        mark(5, 5, "b"),
-      ])
+      const set = new MarkSet("test", 100, [mark(5, 5, "a"), mark(5, 5, "b")])
       expect(set.marksAtLine(5)).toHaveLength(2)
     })
 
@@ -134,12 +131,7 @@ describe("MarkSet", () => {
     })
 
     test("finds marks within range", () => {
-      const set = new MarkSet("test", 100, [
-        mark(1),
-        mark(5),
-        mark(10),
-        mark(15),
-      ])
+      const set = new MarkSet("test", 100, [mark(1), mark(5), mark(10), mark(15)])
       const result = set.marksInRange(3, 12)
       expect(result).toHaveLength(2)
       expect(result[0].range.from.line).toBe(5)

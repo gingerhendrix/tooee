@@ -4,10 +4,7 @@ export function stackReducer(state: RouterState, action: RouterAction): RouterSt
   switch (action.type) {
     case "push":
       return {
-        stack: [
-          ...state.stack,
-          { routeId: action.routeId, params: action.params ?? {} },
-        ],
+        stack: [...state.stack, { routeId: action.routeId, params: action.params ?? {} }],
       }
     case "pop":
       if (state.stack.length <= 1) return state

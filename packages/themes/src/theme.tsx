@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  type ReactNode,
-} from "react"
+import { createContext, useContext, useState, useCallback, type ReactNode } from "react"
 import { RGBA, SyntaxStyle } from "@opentui/core"
 import { writeGlobalConfig } from "@tooee/config"
 import { readFileSync, readdirSync, existsSync } from "fs"
@@ -680,12 +674,15 @@ export function ThemeSwitcherProvider({
     writeGlobalConfig({ theme: { name: prev, mode } })
   }, [allThemes, mode, themeName])
 
-  const setThemeByName = useCallback((name: string, opts?: { persist?: boolean }) => {
-    setThemeName(name)
-    if (opts?.persist) {
-      writeGlobalConfig({ theme: { name, mode } })
-    }
-  }, [mode])
+  const setThemeByName = useCallback(
+    (name: string, opts?: { persist?: boolean }) => {
+      setThemeName(name)
+      if (opts?.persist) {
+        writeGlobalConfig({ theme: { name, mode } })
+      }
+    },
+    [mode],
+  )
 
   const value: ThemeSwitcherContextValue = {
     theme: theme.colors,

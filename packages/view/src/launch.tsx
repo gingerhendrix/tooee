@@ -26,10 +26,5 @@ export async function launch(options: ViewLaunchOptions): Promise<void> {
 }
 
 export async function launchDirectory(options: DirectoryLaunchOptions): Promise<void> {
-  await launchCli(
-    <DirectoryView
-      dirPath={options.dirPath}
-      actions={options.actions}
-    />,
-  )
+  await launchCli(<DirectoryView dirPath={options.dirPath} actions={options.actions} />)
 }

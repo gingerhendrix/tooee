@@ -135,13 +135,9 @@ test("snapshot", async () => {
 
 describe("code block height", () => {
   test("multi-line code block shows all lines", async () => {
-    const code = [
-      "const a = 1",
-      "const b = 2",
-      "const c = 3",
-      "const d = 4",
-      "const e = 5",
-    ].join("\n")
+    const code = ["const a = 1", "const b = 2", "const c = 3", "const d = 4", "const e = 5"].join(
+      "\n",
+    )
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView content={`\`\`\`js\n${code}\n\`\`\``} />
@@ -182,11 +178,7 @@ describe("code block height", () => {
 
 describe("content positioning after embedded blocks", () => {
   test("paragraph after multi-line code block is visible", async () => {
-    const code = [
-      "line 1",
-      "line 2",
-      "line 3",
-    ].join("\n")
+    const code = ["line 1", "line 2", "line 3"].join("\n")
     const md = `# Heading\n\n\`\`\`\n${code}\n\`\`\`\n\nThis text follows the code block.`
     testSetup = await testRender(
       <ThemeSwitcherProvider>
@@ -279,9 +271,9 @@ describe("inline table rendering", () => {
   })
 
   test("table with many rows shows all content", async () => {
-    const rows = Array.from({ length: 8 }, (_, i) =>
-      `| Item ${i + 1} | ${(i + 1) * 10} |`,
-    ).join("\n")
+    const rows = Array.from({ length: 8 }, (_, i) => `| Item ${i + 1} | ${(i + 1) * 10} |`).join(
+      "\n",
+    )
     const md = `| Name | Value |\n| --- | --- |\n${rows}`
     testSetup = await testRender(
       <ThemeSwitcherProvider>
@@ -445,9 +437,7 @@ describe("scroll isolation", () => {
   test("code block content stays intact after scroll events", async () => {
     const code = ["line A", "line B", "line C"].join("\n")
     // Create content tall enough that the document can scroll
-    const paragraphs = Array.from({ length: 20 }, (_, i) =>
-      `Paragraph ${i + 1} text.`,
-    ).join("\n\n")
+    const paragraphs = Array.from({ length: 20 }, (_, i) => `Paragraph ${i + 1} text.`).join("\n\n")
     const md = `# Doc\n\n\`\`\`\n${code}\n\`\`\`\n\n${paragraphs}`
     testSetup = await testRender(
       <ThemeSwitcherProvider>

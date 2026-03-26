@@ -78,7 +78,9 @@ describe("Table component", () => {
       <ThemeSwitcherProvider>
         <Table
           columns={createColumns(["Col"])}
-          rows={createRows(createColumns(["Col"]), [["This is a very long string that should wrap when displayed"]])}
+          rows={createRows(createColumns(["Col"]), [
+            ["This is a very long string that should wrap when displayed"],
+          ])}
           maxWidth={35}
         />
       </ThemeSwitcherProvider>,
@@ -99,9 +101,7 @@ describe("Table component", () => {
       <ThemeSwitcherProvider>
         <Table
           columns={createColumns(["Name", "Age"])}
-          rows={createRows(createColumns(["Name", "Age"]), [
-            ["Alice", "30"],
-          ])}
+          rows={createRows(createColumns(["Name", "Age"]), [["Alice", "30"]])}
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,
@@ -118,9 +118,7 @@ describe("Table component", () => {
       <ThemeSwitcherProvider>
         <Table
           columns={createColumns(["Name", "Age"])}
-          rows={createRows(createColumns(["Name", "Age"]), [
-            ["Alice", "30"],
-          ])}
+          rows={createRows(createColumns(["Name", "Age"]), [["Alice", "30"]])}
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,
@@ -191,10 +189,7 @@ describe("Table component", () => {
       <ThemeSwitcherProvider>
         <Table
           columns={createColumns(["Name"])}
-          rows={createRows(createColumns(["Name"]), [
-            ["Alice"],
-            ["Bob"],
-          ])}
+          rows={createRows(createColumns(["Name"]), [["Alice"], ["Bob"]])}
           showLineNumbers={false}
           maxWidth={40}
         />
@@ -233,34 +228,25 @@ const defaultOptions = { minColumnWidth: 4, maxColumnWidth: 80, sampleSize: 100 
 
 describe("fill mode", () => {
   test("fill mode expands columns to fill available width", () => {
-    const widths = computeColumnWidths(
-      ["A", "B"],
-      [["xx", "yy"]],
-      80,
-      { ...defaultOptions, columnWidthMode: "fill" },
-    )
+    const widths = computeColumnWidths(["A", "B"], [["xx", "yy"]], 80, {
+      ...defaultOptions,
+      columnWidthMode: "fill",
+    })
     const total = widths.reduce((a, b) => a + b, 0)
     expect(total).toBe(80)
   })
 
   test("fill mode distributes extra space proportionally", () => {
-    const widths = computeColumnWidths(
-      ["A", "B"],
-      [["xx", "yy"]],
-      80,
-      { ...defaultOptions, columnWidthMode: "fill" },
-    )
+    const widths = computeColumnWidths(["A", "B"], [["xx", "yy"]], 80, {
+      ...defaultOptions,
+      columnWidthMode: "fill",
+    })
     // Both columns should get equal extra space (same natural width)
     expect(widths[0]).toBe(widths[1])
   })
 
   test("content mode (default) does not expand columns", () => {
-    const widths = computeColumnWidths(
-      ["A", "B"],
-      [["xx", "yy"]],
-      80,
-      defaultOptions,
-    )
+    const widths = computeColumnWidths(["A", "B"], [["xx", "yy"]], 80, defaultOptions)
     const total = widths.reduce((a, b) => a + b, 0)
     expect(total).toBeLessThan(80)
   })

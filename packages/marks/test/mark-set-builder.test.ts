@@ -3,9 +3,7 @@ import { MarkSetBuilder } from "@tooee/marks"
 
 describe("MarkSetBuilder", () => {
   test("addLine creates single-line mark", () => {
-    const set = new MarkSetBuilder()
-      .addLine(5, { background: "red" })
-      .build("test", 100)
+    const set = new MarkSetBuilder().addLine(5, { background: "red" }).build("test", 100)
 
     expect(set.size).toBe(1)
     const marks = set.marksAtLine(5)

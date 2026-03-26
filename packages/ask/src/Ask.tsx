@@ -6,7 +6,14 @@ import { AppLayout } from "@tooee/layout"
 import { useHasOverlay } from "@tooee/overlays"
 import { ThemePicker, useTheme } from "@tooee/themes"
 import { useThemeCommands, useQuitCommand, useCommandPalette, usePasteCommands } from "@tooee/shell"
-import { useMode, useSetMode, useCommand, useActions, useProvideCommandContext, useCommandContext } from "@tooee/commands"
+import {
+  useMode,
+  useSetMode,
+  useCommand,
+  useActions,
+  useProvideCommandContext,
+  useCommandContext,
+} from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import type { AskOptions } from "./types.js"
 
@@ -50,7 +57,7 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
 
   // Paste commands (available via command palette)
   usePasteCommands({
-    getTarget: () => multiline ? textareaRef.current : inputRef.current,
+    getTarget: () => (multiline ? textareaRef.current : inputRef.current),
   })
 
   useCommand({
@@ -131,7 +138,11 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
         ) : undefined
       }
     >
-      <box flexDirection="column" style={{ paddingLeft: 1, paddingRight: 1 }} onMouseDown={handleMouseDown}>
+      <box
+        flexDirection="column"
+        style={{ paddingLeft: 1, paddingRight: 1 }}
+        onMouseDown={handleMouseDown}
+      >
         {multiline ? (
           <textarea
             ref={textareaRef}

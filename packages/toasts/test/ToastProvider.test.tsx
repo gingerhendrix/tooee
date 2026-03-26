@@ -18,13 +18,27 @@ function ToastHarness() {
   const { currentToast } = useToast()
   return (
     <box>
-      <text content={currentToast ? `toast:${currentToast.level}:${currentToast.message}` : "toast:none"} />
+      <text
+        content={
+          currentToast ? `toast:${currentToast.level}:${currentToast.message}` : "toast:none"
+        }
+      />
       <text content={`id:${currentToast?.id ?? "none"}`} />
     </box>
   )
 }
 
-function ToastTrigger({ level, message, id, duration }: { level: ToastLevel; message: string; id?: string; duration?: number }) {
+function ToastTrigger({
+  level,
+  message,
+  id,
+  duration,
+}: {
+  level: ToastLevel
+  message: string
+  id?: string
+  duration?: number
+}) {
   const { toast } = useToast()
   useEffect(() => {
     toast({ message, level, id, duration })
@@ -35,9 +49,7 @@ function ToastTrigger({ level, message, id, duration }: { level: ToastLevel; mes
 function renderWithProviders(children: React.ReactNode) {
   return testRender(
     <ThemeSwitcherProvider>
-      <ToastProvider>
-        {children}
-      </ToastProvider>
+      <ToastProvider>{children}</ToastProvider>
     </ThemeSwitcherProvider>,
     { width: 60, height: 24 },
   )
@@ -105,7 +117,13 @@ test("same ID replaces existing toast and resets timer", async () => {
   function DedupTest() {
     toastApi = useToast()
     const { currentToast } = toastApi
-    return <text content={currentToast ? `toast:${currentToast.level}:${currentToast.message}` : "toast:none"} />
+    return (
+      <text
+        content={
+          currentToast ? `toast:${currentToast.level}:${currentToast.message}` : "toast:none"
+        }
+      />
+    )
   }
 
   testSetup = await renderWithProviders(<DedupTest />)
@@ -250,7 +268,11 @@ test("defaults to info level when level not specified", async () => {
     useEffect(() => {
       toast({ message: "no level" })
     }, [])
-    return <text content={currentToast ? `level:${currentToast.level}:dur:${currentToast.duration}` : "none"} />
+    return (
+      <text
+        content={currentToast ? `level:${currentToast.level}:dur:${currentToast.duration}` : "none"}
+      />
+    )
   }
 
   testSetup = await renderWithProviders(<DefaultLevelTest />)

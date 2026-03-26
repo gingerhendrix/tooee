@@ -14,7 +14,7 @@ function createDirectoryFileProvider(
   return {
     async load(): Promise<AnyContent> {
       const result = inner.load()
-      const content = result instanceof Promise ? await result : result as AnyContent
+      const content = result instanceof Promise ? await result : (result as AnyContent)
       return {
         ...content,
         title: `${entry.name}  (${index + 1}/${total})`,

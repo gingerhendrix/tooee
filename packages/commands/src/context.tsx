@@ -1,4 +1,12 @@
-import { createContext, useContext, useRef, useCallback, useEffect, useMemo, type ReactNode } from "react"
+import {
+  createContext,
+  useContext,
+  useRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  type ReactNode,
+} from "react"
 import { useKeyboard } from "@opentui/react"
 import type { Command, CommandContext, CommandRegistry, ParsedHotkey } from "./types.js"
 import type { Mode } from "./mode.js"
@@ -166,11 +174,7 @@ function CommandDispatcher({
     [leader],
   )
 
-  return (
-    <CommandContext.Provider value={ctxValue}>
-      {children}
-    </CommandContext.Provider>
-  )
+  return <CommandContext.Provider value={ctxValue}>{children}</CommandContext.Provider>
 }
 
 export function useCommandContext(): { commands: Command[]; invoke: (id: string) => void } {

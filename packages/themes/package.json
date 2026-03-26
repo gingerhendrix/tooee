@@ -2,6 +2,16 @@
   "name": "@tooee/themes",
   "version": "0.1.11",
   "description": "Theme management with 34 bundled themes for Tooee",
+  "keywords": [
+    "cli",
+    "colors",
+    "opentui",
+    "terminal",
+    "themes",
+    "tui"
+  ],
+  "homepage": "https://github.com/gingerhendrix/tooee",
+  "bugs": "https://github.com/gingerhendrix/tooee/issues",
   "license": "MIT",
   "author": "Gareth Andrew",
   "repository": {
@@ -9,15 +19,10 @@
     "url": "https://github.com/gingerhendrix/tooee.git",
     "directory": "packages/themes"
   },
-  "homepage": "https://github.com/gingerhendrix/tooee",
-  "bugs": "https://github.com/gingerhendrix/tooee/issues",
-  "keywords": [
-    "tui",
-    "terminal",
-    "cli",
-    "opentui",
-    "themes",
-    "colors"
+  "files": [
+    "dist",
+    "src",
+    "themes"
   ],
   "type": "module",
   "exports": {
@@ -28,11 +33,6 @@
       }
     }
   },
-  "files": [
-    "dist",
-    "src",
-    "themes"
-  ],
   "scripts": {
     "typecheck": "tsc --noEmit"
   },

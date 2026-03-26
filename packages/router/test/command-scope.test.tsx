@@ -1,13 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, describe, afterEach } from "bun:test"
 import { act } from "react"
-import {
-  createRoute,
-  createRouter,
-  RouterProvider,
-  Outlet,
-  useRouterCommands,
-} from "@tooee/router"
+import { createRoute, createRouter, RouterProvider, Outlet, useRouterCommands } from "@tooee/router"
 import { CommandProvider, useCommandContext, useCommand } from "@tooee/commands"
 import type { Command } from "@tooee/commands"
 

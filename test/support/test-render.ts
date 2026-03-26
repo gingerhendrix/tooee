@@ -6,10 +6,7 @@ function setIsReactActEnvironment(isReactActEnvironment: boolean) {
   ;(globalThis as any).IS_REACT_ACT_ENVIRONMENT = isReactActEnvironment
 }
 
-export async function testRender(
-  node: React.ReactNode,
-  testRendererOptions: TestRendererOptions,
-) {
+export async function testRender(node: React.ReactNode, testRendererOptions: TestRendererOptions) {
   let root: ReturnType<typeof createRoot> | null = null
   setIsReactActEnvironment(true)
   const testSetup = await createTestRenderer({

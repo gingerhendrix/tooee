@@ -1,13 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, describe, afterEach } from "bun:test"
 import { act, useEffect } from "react"
-import {
-  createRoute,
-  createRouter,
-  RouterProvider,
-  Outlet,
-  useScreenState,
-} from "@tooee/router"
+import { createRoute, createRouter, RouterProvider, Outlet, useScreenState } from "@tooee/router"
 
 // Screen that displays saved state from useScreenState hook
 
