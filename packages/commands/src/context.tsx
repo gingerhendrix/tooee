@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useCallback, useEffect, type ReactNode } from "react"
+import { createContext, useContext, useRef, useCallback, useEffect, useMemo, type ReactNode } from "react"
 import { useKeyboard } from "@opentui/react"
 import type { Command, CommandContext, CommandRegistry, ParsedHotkey } from "./types.js"
 import type { Mode } from "./mode.js"
@@ -157,14 +157,17 @@ function CommandDispatcher({
     }
   })
 
+  const ctxValue = useMemo(
+    () => ({
+      registry: registryRef.current!,
+      leaderKey: leader,
+      contextSources: contextSourcesRef.current,
+    }),
+    [leader],
+  )
+
   return (
-    <CommandContext.Provider
-      value={{
-        registry: registryRef.current,
-        leaderKey: leader,
-        contextSources: contextSourcesRef.current,
-      }}
-    >
+    <CommandContext.Provider value={ctxValue}>
       {children}
     </CommandContext.Provider>
   )
