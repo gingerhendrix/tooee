@@ -1,5 +1,5 @@
 import { useRenderer } from "@opentui/react"
-import { copyToClipboard } from "@tooee/clipboard"
+import { copyToClipboard, readClipboardText, readPrimaryText } from "@tooee/clipboard"
 import { useCommand, type CommandWhen } from "@tooee/commands"
 import { useToast } from "@tooee/toasts"
 import { useThemePicker, type ThemePickerState } from "./theme-picker.js"
@@ -69,6 +69,46 @@ export function useCopyCommand(opts: { getText: () => string | undefined; when?:
       } else {
         ctx.toast.toast({ message: "Nothing to copy", level: "warning" })
       }
+    },
+  })
+}
+
+export function usePasteCommands(opts: {
+  getTarget: () => { insertText: (text: string) => void } | null
+  when?: CommandWhen
+}) {
+  useCommand({
+    id: "paste-clipboard",
+    title: "Paste from clipboard",
+    hotkey: "p",
+    when: opts.when,
+    handler: (ctx) => {
+      const target = opts.getTarget()
+      if (!target) return
+      void readClipboardText().then((text) => {
+        if (text) {
+          target.insertText(text)
+        } else {
+          ctx.toast.toast({ message: "Clipboard empty", level: "warning" })
+        }
+      })
+    },
+  })
+
+  useCommand({
+    id: "paste-primary",
+    title: "Paste from selection",
+    when: opts.when,
+    handler: (ctx) => {
+      const target = opts.getTarget()
+      if (!target) return
+      void readPrimaryText().then((text) => {
+        if (text) {
+          target.insertText(text)
+        } else {
+          ctx.toast.toast({ message: "Selection empty", level: "warning" })
+        }
+      })
     },
   })
 }
