@@ -385,6 +385,59 @@ Done.`
 })
 
 // ---------------------------------------------------------------------------
+// Bug fix: nested lists render sub-items
+// ---------------------------------------------------------------------------
+
+describe("nested list rendering", () => {
+  test("renders nested unordered list sub-items", async () => {
+    const md = "- First item\n  - Sub-item A\n  - Sub-item B\n- Second item\n  - Sub-item C"
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("First item")
+    expect(frame).toContain("Sub-item A")
+    expect(frame).toContain("Sub-item B")
+    expect(frame).toContain("Second item")
+    expect(frame).toContain("Sub-item C")
+  })
+
+  test("renders ordered list with nested sub-items", async () => {
+    const md = "1. Step one\n   - Detail alpha\n   - Detail beta\n2. Step two\n   - Detail gamma"
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("Step one")
+    expect(frame).toContain("Detail alpha")
+    expect(frame).toContain("Detail beta")
+    expect(frame).toContain("Step two")
+    expect(frame).toContain("Detail gamma")
+  })
+
+  test("nested list snapshot", async () => {
+    const md = "- Parent A\n  - Child 1\n  - Child 2\n- Parent B\n  - Child 3"
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 60, height: 20 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toMatchSnapshot()
+  })
+})
+
+// ---------------------------------------------------------------------------
 // Bug fix: scroll does not leak into embedded code blocks
 // ---------------------------------------------------------------------------
 

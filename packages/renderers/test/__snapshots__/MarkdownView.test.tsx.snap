@@ -129,3 +129,27 @@ exports[`mixed content rendering mixed content snapshot 1`] = `
                                                             
 "
 `;
+
+exports[`nested list rendering nested list snapshot 1`] = `
+"1     - Parent A                                            
+           - Child 1                                        
+           - Child 2                                        
+                                                            
+      - Parent B                                            
+           - Child 3                                        
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+                                                            
+"
+`;

@@ -274,6 +274,15 @@ function ListItemRenderer({
               </text>
             )
           }
+          if (token.type === "list") {
+            return (
+              <ListRenderer
+                key={idx}
+                token={token as Tokens.List}
+                theme={theme}
+              />
+            )
+          }
           if ("text" in token && typeof token.text === "string") {
             return <text key={idx} style={{ fg: theme.markdownText }} content={token.text} />
           }
