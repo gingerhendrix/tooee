@@ -36,6 +36,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@tooee/clipboard": "workspace:*",
     "@tooee/commands": "workspace:*",
     "@tooee/layout": "workspace:*",
     "@tooee/overlays": "workspace:*",

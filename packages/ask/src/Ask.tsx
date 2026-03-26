@@ -1,10 +1,11 @@
-import { useState, useRef } from "react"
-import type { TextareaRenderable } from "@opentui/core"
+import { useState, useRef, useCallback } from "react"
+import type { TextareaRenderable, InputRenderable, MouseEvent } from "@opentui/core"
 import { useKeyboard, useRenderer } from "@opentui/react"
+import { readPrimaryText } from "@tooee/clipboard"
 import { AppLayout } from "@tooee/layout"
 import { useHasOverlay } from "@tooee/overlays"
 import { ThemePicker, useTheme } from "@tooee/themes"
-import { useThemeCommands, useQuitCommand, useCommandPalette } from "@tooee/shell"
+import { useThemeCommands, useQuitCommand, useCommandPalette, usePasteCommands } from "@tooee/shell"
 import { useMode, useSetMode, useCommand, useActions, useProvideCommandContext, useCommandContext } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import type { AskOptions } from "./types.js"
@@ -17,6 +18,7 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
   const renderer = useRenderer()
   const [value, setValue] = useState(defaultValue ?? "")
   const textareaRef = useRef<TextareaRenderable>(null)
+  const inputRef = useRef<InputRenderable>(null)
   const { invoke } = useCommandContext()
 
   const { theme } = useTheme()
@@ -45,6 +47,11 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
   }))
 
   useActions(actions)
+
+  // Paste commands (available via command palette)
+  usePasteCommands({
+    getTarget: () => multiline ? textareaRef.current : inputRef.current,
+  })
 
   useCommand({
     id: "ask:insert-mode-a",
@@ -80,6 +87,21 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
     }
   })
 
+  // Middle-click paste from primary selection
+  const handleMouseDown = useCallback(
+    (event: MouseEvent) => {
+      if (event.button === 1) {
+        event.preventDefault()
+        void readPrimaryText().then((text) => {
+          if (!text) return
+          const target = multiline ? textareaRef.current : inputRef.current
+          target?.insertText(text)
+        })
+      }
+    },
+    [multiline],
+  )
+
   const submitHint = multiline ? "Shift+Enter submit" : "Enter submit"
   const hintParts =
     mode === "insert"
@@ -109,7 +131,7 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
         ) : undefined
       }
     >
-      <box flexDirection="column" style={{ paddingLeft: 1, paddingRight: 1 }}>
+      <box flexDirection="column" style={{ paddingLeft: 1, paddingRight: 1 }} onMouseDown={handleMouseDown}>
         {multiline ? (
           <textarea
             ref={textareaRef}
@@ -124,6 +146,7 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
           />
         ) : (
           <input
+            ref={inputRef}
             focused={inputFocused}
             value={value}
             onInput={setValue}
