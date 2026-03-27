@@ -31,7 +31,7 @@ export function CommandPaletteProvider({ children }: { children: ReactNode }) {
     id: "command-palette",
     title: "Command Palette",
     hotkey: ":",
-    modes: ["cursor"],
+    modes: ["cursor", "select"],
     handler: open,
   })
 
