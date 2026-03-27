@@ -41,7 +41,9 @@ export function MarkdownView({
   const palette = useDocumentDecorations(effectiveRef, {
     marks,
     cursorRow: activeBlock,
-    selection: selectedBlocks ? { start: selectedBlocks.start, end: selectedBlocks.end } : undefined,
+    selection: selectedBlocks
+      ? { start: selectedBlocks.start, end: selectedBlocks.end }
+      : undefined,
     matchingRows: matchingBlocks,
     currentMatchRow: currentMatchBlock,
     toggledRows: toggledBlocks,

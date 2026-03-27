@@ -60,19 +60,9 @@ export function useDocumentDecorations(
     ],
   )
 
-  const {
-    marks,
-    cursorRow,
-    selection,
-    matchingRows,
-    currentMatchRow,
-    toggledRows,
-  } = props
+  const { marks, cursorRow, selection, matchingRows, currentMatchRow, toggledRows } = props
 
-  const marksDecos = useMemo(
-    () => (marks ? marksToDecorations(marks) : null),
-    [marks],
-  )
+  const marksDecos = useMemo(() => (marks ? marksToDecorations(marks) : null), [marks])
 
   useEffect(() => {
     const decorations: RowDocumentDecorations = marksDecos ?? {
@@ -83,14 +73,7 @@ export function useDocumentDecorations(
       toggledRows,
     }
     ref.current?.setDecorations(decorations)
-  }, [
-    marksDecos,
-    cursorRow,
-    selection,
-    matchingRows,
-    currentMatchRow,
-    toggledRows,
-  ])
+  }, [marksDecos, cursorRow, selection, matchingRows, currentMatchRow, toggledRows])
 
   return palette
 }
