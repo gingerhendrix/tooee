@@ -29,16 +29,11 @@ export function RouterProvider({
     }
   }, []) // only on mount
 
-  const stack = useSyncExternalStore(
-    router.subscribe,
-    () => router.stack,
-  )
+  const stack = useSyncExternalStore(router.subscribe, () => router.stack)
 
   return (
     <RouterInstanceContext value={router}>
-      <RouterStackContext value={stack}>
-        {children}
-      </RouterStackContext>
+      <RouterStackContext value={stack}>{children}</RouterStackContext>
     </RouterInstanceContext>
   )
 }

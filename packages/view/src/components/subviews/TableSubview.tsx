@@ -1,0 +1,105 @@
+import { useEffect, useMemo, useRef } from "react"
+import { Table, type RowDocumentRenderable } from "@tooee/renderers"
+import { useTheme } from "@tooee/themes"
+import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
+import { useModalNavigationCommands } from "@tooee/shell"
+import type { TableContent } from "../../types.js"
+import { useContentMetrics } from "../../hooks/useContentMetrics.js"
+import { useMarkState, offsetMapper, TABLE_SEARCH_HEADER_OFFSET } from "../../hooks/useMarkState.js"
+import { useViewCommands } from "../../hooks/useViewCommands.js"
+import { SubviewLayout } from "../SubviewLayout.js"
+import type { SubviewProps } from "./types.js"
+
+interface TableSubviewProps extends SubviewProps {
+  content: TableContent
+}
+
+export function TableSubview({
+  content,
+  providerMarks,
+  userMarks,
+  setMarkSet,
+  clearMarkNamespace,
+  clearAllUserMarks,
+  reload,
+  streaming,
+  actions,
+}: TableSubviewProps) {
+  const { theme } = useTheme()
+  const docRef = useRef<RowDocumentRenderable>(null)
+
+  const { textContent, lineCount, blockCount, blockLineMap } = useContentMetrics(content)
+
+  const nav = useModalNavigationCommands({
+    totalLines: lineCount,
+    getText: () => textContent,
+    blockCount,
+    blockLineMap,
+    searchLineOffset: TABLE_SEARCH_HEADER_OFFSET,
+    multiSelect: true,
+  })
+
+  useEffect(() => {
+    if (nav.cursor) {
+      docRef.current?.scrollToRow(nav.cursor.line, "nearest")
+    }
+  }, [nav.cursor])
+
+  const { themeName, showLineNumbers } = useViewCommands({ content, textContent, actions })
+
+  const mapIndex = useMemo(() => offsetMapper(TABLE_SEARCH_HEADER_OFFSET), [])
+
+  const markState = useMarkState({
+    nav,
+    theme,
+    mapIndex,
+    providerMarks,
+    userMarks,
+  })
+
+  function getActiveRow(): Record<string, unknown> | undefined {
+    if (!nav.cursor) return undefined
+    return content.rows[nav.cursor.line]
+  }
+
+  function getSelectedRows(): Record<string, unknown>[] {
+    if (nav.toggledIndices.size) {
+      return Array.from(nav.toggledIndices)
+        .map((i) => content.rows[i])
+        .filter(Boolean)
+    }
+    if (nav.selection) {
+      const start = nav.selection.start.line
+      const end = nav.selection.end.line
+      return content.rows.slice(start, end + 1)
+    }
+    return []
+  }
+
+  useViewCommandContext({
+    content,
+    nav,
+    reload,
+    providerMarks,
+    userMarks,
+    setMarkSet,
+    clearMarkNamespace,
+    clearAllUserMarks,
+    extras: {
+      activeRow: getActiveRow(),
+      selectedRows: getSelectedRows(),
+    },
+  })
+
+  return (
+    <SubviewLayout content={content} nav={nav} streaming={streaming} themeName={themeName}>
+      <Table
+        columns={content.columns}
+        rows={content.rows}
+        showLineNumbers={showLineNumbers}
+        marks={markState}
+        docRef={docRef}
+      />
+    </SubviewLayout>
+  )
+}

@@ -1,12 +1,7 @@
 export { MarkdownView } from "./MarkdownView.js"
 export { CodeView } from "./CodeView.js"
 export { ImageView } from "./ImageView.js"
-export {
-  Table,
-  computeColumnWidths,
-  isNumeric,
-  sampleRows,
-} from "./Table.js"
+export { Table, computeColumnWidths, isNumeric, sampleRows } from "./Table.js"
 export type { TableProps, ColumnWidthOptions } from "./Table.js"
 export type { ColumnDef, TableRow } from "./table-types.js"
 export { CommandPalette } from "./CommandPalette.js"
@@ -20,3 +15,5 @@ export type {
   RowDocumentDecorations,
 } from "./RowDocumentRenderable.js"
 export { marksToDecorations } from "./marks-bridge.js"
+export { useDocumentDecorations } from "./useDocumentDecorations.js"
+export type { DocumentDecorationProps } from "./useDocumentDecorations.js"

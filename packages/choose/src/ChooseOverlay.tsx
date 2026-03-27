@@ -46,10 +46,7 @@ export function ChooseOverlay({
   }, [itemsOrLoader])
 
   // Filtered items via fuzzy matching
-  const filteredItems = useMemo(
-    () => fuzzyFilter(items, filterQuery),
-    [items, filterQuery],
-  )
+  const filteredItems = useMemo(() => fuzzyFilter(items, filterQuery), [items, filterQuery])
 
   // Reset activeIndex when filter changes
   const [prevFilterQuery, setPrevFilterQuery] = useState("")
@@ -128,9 +125,7 @@ export function ChooseOverlay({
   }, [activeIndex, filteredItems.length])
 
   const hintText =
-    mode === "insert"
-      ? "Enter confirm  Esc commands"
-      : "j/k navigate  i insert  Esc cancel"
+    mode === "insert" ? "Enter confirm  Esc commands" : "j/k navigate  i insert  Esc cancel"
 
   return (
     <box
@@ -146,12 +141,7 @@ export function ChooseOverlay({
     >
       {/* Title bar */}
       {prompt && (
-        <box
-          height={1}
-          paddingLeft={1}
-          paddingRight={1}
-          backgroundColor={theme.backgroundElement}
-        >
+        <box height={1} paddingLeft={1} paddingRight={1} backgroundColor={theme.backgroundElement}>
           <text content={prompt} fg={theme.accent} />
         </box>
       )}
@@ -173,12 +163,7 @@ export function ChooseOverlay({
       </box>
 
       {/* Scrollable item list */}
-      <scrollbox
-        ref={scrollRef}
-        flexDirection="column"
-        style={{ flexGrow: 1 }}
-        focused={false}
-      >
+      <scrollbox ref={scrollRef} flexDirection="column" style={{ flexGrow: 1 }} focused={false}>
         {loading && (
           <box height={1} style={{ paddingLeft: 2 }}>
             <text content="Loading..." fg={theme.textMuted} />
@@ -214,12 +199,7 @@ export function ChooseOverlay({
       </scrollbox>
 
       {/* Hint line */}
-      <box
-        height={1}
-        paddingLeft={1}
-        paddingRight={1}
-        backgroundColor={theme.backgroundElement}
-      >
+      <box height={1} paddingLeft={1} paddingRight={1} backgroundColor={theme.backgroundElement}>
         <text content={hintText} fg={theme.textMuted} />
       </box>
     </box>

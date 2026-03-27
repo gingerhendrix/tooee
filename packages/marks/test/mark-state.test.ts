@@ -7,11 +7,7 @@ import {
   MarkPriorities,
 } from "@tooee/marks"
 
-function buildSet(
-  namespace: string,
-  priority: number,
-  lines: number[],
-): MarkSet {
+function buildSet(namespace: string, priority: number, lines: number[]): MarkSet {
   const builder = new MarkSetBuilder()
   for (const line of lines) {
     builder.addLine(line, { background: `${namespace}-bg` })
@@ -118,11 +114,7 @@ describe("updateMarkState", () => {
       buildSet("search", 100, [1, 2, 3]),
       buildSet("cursor", 500, [1]),
     ])
-    const updated = updateMarkState(
-      state,
-      "search",
-      buildSet("search", 100, [5, 6]),
-    )
+    const updated = updateMarkState(state, "search", buildSet("search", 100, [5, 6]))
 
     expect(updated.sets).toHaveLength(2)
     expect(updated.marksAtLine(1)).toHaveLength(1) // only cursor
@@ -130,10 +122,7 @@ describe("updateMarkState", () => {
   })
 
   test("removes namespace when newSet is null", () => {
-    const state = createMarkState([
-      buildSet("a", 100, [1]),
-      buildSet("b", 200, [1]),
-    ])
+    const state = createMarkState([buildSet("a", 100, [1]), buildSet("b", 200, [1])])
     const updated = updateMarkState(state, "a", null)
 
     expect(updated.namespaces).toEqual(["b"])
@@ -151,9 +140,7 @@ describe("updateMarkState", () => {
     const state = createMarkState([buildSet("a", 100, [1])])
     const wrongSet = buildSet("b", 200, [2])
 
-    expect(() => updateMarkState(state, "a", wrongSet)).toThrow(
-      /namespace mismatch/i,
-    )
+    expect(() => updateMarkState(state, "a", wrongSet)).toThrow(/namespace mismatch/i)
   })
 })
 
@@ -186,10 +173,7 @@ describe("duplicate namespaces in createMarkState", () => {
 
 describe("getSet", () => {
   test("returns set by namespace", () => {
-    const state = createMarkState([
-      buildSet("search", 100, [1]),
-      buildSet("cursor", 500, [2]),
-    ])
+    const state = createMarkState([buildSet("search", 100, [1]), buildSet("cursor", 500, [2])])
 
     const set = state.getSet("search")
     expect(set).toBeDefined()

@@ -13,7 +13,12 @@
  */
 
 import { createElement } from "react"
-import { launch, type ContentProvider, type CustomContent, type ContentRendererProps } from "@tooee/view"
+import {
+  launch,
+  type ContentProvider,
+  type CustomContent,
+  type ContentRendererProps,
+} from "@tooee/view"
 import { useTheme } from "@tooee/themes"
 import type { ReactNode } from "react"
 
@@ -93,11 +98,7 @@ function padRight(text: string, width: number): string {
   return text + " ".repeat(width - text.length)
 }
 
-function h(
-  tag: string,
-  props: Record<string, unknown>,
-  ...children: ReactNode[]
-): ReactNode {
+function h(tag: string, props: Record<string, unknown>, ...children: ReactNode[]): ReactNode {
   return createElement(tag, props, ...children)
 }
 
@@ -190,9 +191,7 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
   return h(
     "box",
     { style: { flexDirection: "column", marginLeft: 1, marginTop: 1 } },
-    ...lines.map((line, i) =>
-      h("text", { key: i, content: line.text, fg: line.fg ?? theme.text }),
-    ),
+    ...lines.map((line, i) => h("text", { key: i, content: line.text, fg: line.fg ?? theme.text })),
   )
 }
 

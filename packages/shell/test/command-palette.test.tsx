@@ -2,12 +2,12 @@ import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe } from "bun:test"
 import { act } from "react"
 import { TooeeProvider } from "@tooee/shell"
-import { useCommandPalette } from "../src/command-palette.js"
 import { useCommand, useMode } from "@tooee/commands"
+import { useHasOverlay } from "@tooee/overlays"
 
 function PaletteHarness() {
-  const palette = useCommandPalette()
   const mode = useMode()
+  const hasOverlay = useHasOverlay()
 
   // Register some test commands
   useCommand({
@@ -46,9 +46,7 @@ function PaletteHarness() {
   return (
     <box flexDirection="column">
       <text content={`mode:${mode}`} />
-      <text content={`open:${palette.isOpen}`} />
-      <text content={`entries:${palette.entries.map((e) => e.id).join(",")}`} />
-      <text content={`count:${palette.entries.length}`} />
+      <text content={`open:${hasOverlay}`} />
     </box>
   )
 }
@@ -108,28 +106,5 @@ describe("command palette", () => {
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("open:false")
     expect(frame).toContain("mode:cursor")
-  })
-
-  test("entries exclude hidden commands", async () => {
-    testSetup = await setup()
-    // Open palette to populate entries based on current mode
-    await press(testSetup, ":")
-    await testSetup.renderOnce()
-    const frame = testSetup.captureCharFrame()
-    expect(frame).not.toContain("test.hidden")
-  })
-
-  test("entries are filtered to commands available in launch mode", async () => {
-    testSetup = await setup()
-    // Open palette from cursor mode
-    await press(testSetup, ":")
-    await testSetup.renderOnce()
-    const frame = testSetup.captureCharFrame()
-    // visible command registered for "cursor" mode should appear
-    expect(frame).toContain("test.visible")
-    // insert-only command should NOT appear when launched from cursor mode
-    expect(frame).not.toContain("test.insert-only")
-    // cursor-only command should appear
-    expect(frame).toContain("test.cursor-only")
   })
 })

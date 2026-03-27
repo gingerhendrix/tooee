@@ -2,6 +2,18 @@
   "name": "@tooee/view",
   "version": "0.1.11",
   "description": "Terminal content viewer for markdown, code, images, and tables",
+  "keywords": [
+    "cli",
+    "image",
+    "markdown",
+    "opentui",
+    "syntax-highlighting",
+    "terminal",
+    "tui",
+    "viewer"
+  ],
+  "homepage": "https://github.com/gingerhendrix/tooee",
+  "bugs": "https://github.com/gingerhendrix/tooee/issues",
   "license": "MIT",
   "author": "Gareth Andrew",
   "repository": {
@@ -9,17 +21,9 @@
     "url": "https://github.com/gingerhendrix/tooee.git",
     "directory": "packages/view"
   },
-  "homepage": "https://github.com/gingerhendrix/tooee",
-  "bugs": "https://github.com/gingerhendrix/tooee/issues",
-  "keywords": [
-    "tui",
-    "terminal",
-    "cli",
-    "opentui",
-    "markdown",
-    "syntax-highlighting",
-    "image",
-    "viewer"
+  "files": [
+    "dist",
+    "src"
   ],
   "type": "module",
   "exports": {
@@ -30,10 +34,6 @@
       }
     }
   },
-  "files": [
-    "dist",
-    "src"
-  ],
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
@@ -44,8 +44,8 @@
     "@tooee/marks": "workspace:*",
     "@tooee/overlays": "workspace:*",
     "@tooee/renderers": "workspace:*",
-    "@tooee/themes": "workspace:*",
     "@tooee/shell": "workspace:*",
+    "@tooee/themes": "workspace:*",
     "marked": "^17.0.4"
   },
   "devDependencies": {

@@ -2,6 +2,14 @@
   "name": "@tooee/cli",
   "version": "0.1.11",
   "description": "Terminal micro-apps for viewing, input, and selection",
+  "keywords": [
+    "cli",
+    "opentui",
+    "terminal",
+    "tui"
+  ],
+  "homepage": "https://github.com/gingerhendrix/tooee",
+  "bugs": "https://github.com/gingerhendrix/tooee/issues",
   "license": "MIT",
   "author": "Gareth Andrew",
   "repository": {
@@ -9,14 +17,6 @@
     "url": "https://github.com/gingerhendrix/tooee.git",
     "directory": "apps/cli"
   },
-  "homepage": "https://github.com/gingerhendrix/tooee",
-  "bugs": "https://github.com/gingerhendrix/tooee/issues",
-  "keywords": [
-    "tui",
-    "terminal",
-    "cli",
-    "opentui"
-  ],
   "bin": {
     "tooee": "./dist/main.js"
   },

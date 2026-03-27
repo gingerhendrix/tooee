@@ -1,11 +1,11 @@
 import { marked, type Token, type Tokens } from "marked"
-import { useEffect, useMemo, useRef, type ReactNode, type RefObject } from "react"
+import { useMemo, useRef, type ReactNode, type RefObject } from "react"
 import { useTheme, type ResolvedTheme } from "@tooee/themes"
 import { bold as boldChunk } from "@opentui/core"
 import type { SyntaxStyle, TextTableContent, TextTableCellContent } from "@opentui/core"
 import type { MarkState } from "@tooee/marks"
-import type { RowDocumentRenderable, RowDocumentPalette, RowDocumentDecorations } from "./RowDocumentRenderable.js"
-import { marksToDecorations } from "./marks-bridge.js"
+import type { RowDocumentRenderable } from "./RowDocumentRenderable.js"
+import { useDocumentDecorations } from "./useDocumentDecorations.js"
 import "./row-document.js"
 import "./text-table.js"
 
@@ -38,34 +38,16 @@ export function MarkdownView({
   const tokens = marked.lexer(content)
   const blocks = tokens.filter((t) => t.type !== "space")
 
-  const palette: RowDocumentPalette = {
-    gutterFg: theme.textMuted,
-    gutterBg: theme.backgroundElement,
-    cursorBg: theme.cursorLine,
-    selectionBg: theme.selection,
-    matchBg: theme.warning,
-    currentMatchBg: theme.primary,
-    toggledBg: theme.backgroundPanel,
-    cursorSignFg: theme.primary,
-    matchSignFg: theme.warning,
-    currentMatchSignFg: theme.primary,
-  }
-
-  const marksDecorations = useMemo(
-    () => marks ? marksToDecorations(marks) : null,
-    [marks],
-  )
-
-  useEffect(() => {
-    const decorations: RowDocumentDecorations = marksDecorations ?? {
-      cursorRow: activeBlock,
-      selection: selectedBlocks ? { start: selectedBlocks.start, end: selectedBlocks.end } : null,
-      matchingRows: matchingBlocks,
-      currentMatchRow: currentMatchBlock,
-      toggledRows: toggledBlocks,
-    }
-    effectiveRef.current?.setDecorations(decorations)
-  }, [marksDecorations, activeBlock, selectedBlocks, matchingBlocks, currentMatchBlock, toggledBlocks])
+  const palette = useDocumentDecorations(effectiveRef, {
+    marks,
+    cursorRow: activeBlock,
+    selection: selectedBlocks
+      ? { start: selectedBlocks.start, end: selectedBlocks.end }
+      : undefined,
+    matchingRows: matchingBlocks,
+    currentMatchRow: currentMatchBlock,
+    toggledRows: toggledBlocks,
+  })
 
   const blockElements = blocks.map((token, index) => (
     <TokenRenderer key={index} token={token} theme={theme} syntax={syntax} />
@@ -275,13 +257,7 @@ function ListItemRenderer({
             )
           }
           if (token.type === "list") {
-            return (
-              <ListRenderer
-                key={idx}
-                token={token as Tokens.List}
-                theme={theme}
-              />
-            )
+            return <ListRenderer key={idx} token={token as Tokens.List} theme={theme} />
           }
           if ("text" in token && typeof token.text === "string") {
             return <text key={idx} style={{ fg: theme.markdownText }} content={token.text} />
@@ -297,13 +273,14 @@ function MarkdownTableRenderer({ token }: { token: Tokens.Table }) {
   const { theme } = useTheme()
 
   const content: TextTableContent = useMemo(() => {
-    const headerRow: TextTableCellContent[] = token.header.map(cell => [
-      boldChunk(getPlainText(cell.tokens).trim())
+    const headerRow: TextTableCellContent[] = token.header.map((cell) => [
+      boldChunk(getPlainText(cell.tokens).trim()),
     ])
-    const dataRows = token.rows.map(row =>
-      row.map(cell => [
-        { __isChunk: true as const, text: getPlainText(cell.tokens) }
-      ] as TextTableCellContent)
+    const dataRows = token.rows.map((row) =>
+      row.map(
+        (cell) =>
+          [{ __isChunk: true as const, text: getPlainText(cell.tokens) }] as TextTableCellContent,
+      ),
     )
     return [headerRow, ...dataRows]
   }, [token])

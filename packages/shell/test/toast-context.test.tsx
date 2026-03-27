@@ -30,7 +30,13 @@ function ToastContextHarness() {
 
   return (
     <box>
-      <text content={currentToast ? `ctx-toast:${currentToast.level}:${currentToast.message}` : "ctx-toast:none"} />
+      <text
+        content={
+          currentToast
+            ? `ctx-toast:${currentToast.level}:${currentToast.message}`
+            : "ctx-toast:none"
+        }
+      />
     </box>
   )
 }

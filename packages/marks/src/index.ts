@@ -1,10 +1,4 @@
-export type {
-  MarkPosition,
-  MarkRange,
-  MarkStyle,
-  Mark,
-  MarkPriority,
-} from "./types.js"
+export type { MarkPosition, MarkRange, MarkStyle, Mark, MarkPriority } from "./types.js"
 export { MarkPriorities } from "./types.js"
 
 export { MarkSet } from "./mark-set.js"

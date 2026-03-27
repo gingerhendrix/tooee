@@ -6,5 +6,10 @@
     "rootDir": "./src"
   },
   "include": ["./src"],
-  "references": [{ "path": "../clipboard" }, { "path": "../themes" }, { "path": "../commands" }, { "path": "../shell" }]
+  "references": [
+    { "path": "../clipboard" },
+    { "path": "../themes" },
+    { "path": "../commands" },
+    { "path": "../shell" }
+  ]
 }

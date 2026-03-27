@@ -13,10 +13,7 @@ export function useCopyOnSelect() {
     const copyOnSelect = config.view?.copyOnSelect
 
     // Default: on for Linux, off elsewhere
-    const effective =
-      copyOnSelect === undefined
-        ? platform() === "linux"
-        : copyOnSelect
+    const effective = copyOnSelect === undefined ? platform() === "linux" : copyOnSelect
 
     if (!effective) return
 

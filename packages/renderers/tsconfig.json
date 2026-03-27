@@ -6,5 +6,5 @@
     "rootDir": "./src"
   },
   "include": ["./src"],
-  "references": [{ "path": "../marks" }, { "path": "../themes" }]
+  "references": [{ "path": "../fuzzy" }, { "path": "../marks" }, { "path": "../themes" }]
 }

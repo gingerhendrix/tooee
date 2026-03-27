@@ -1,8 +1,8 @@
-import { useEffect, useRef, useMemo, type RefObject } from "react"
+import { useRef, type RefObject } from "react"
 import { useTheme } from "@tooee/themes"
 import type { MarkState } from "@tooee/marks"
-import type { RowDocumentRenderable, RowDocumentPalette, RowDocumentDecorations } from "./RowDocumentRenderable.js"
-import { marksToDecorations } from "./marks-bridge.js"
+import type { RowDocumentRenderable } from "./RowDocumentRenderable.js"
+import { useDocumentDecorations } from "./useDocumentDecorations.js"
 import "./row-document.js"
 
 interface CodeViewProps {
@@ -36,36 +36,17 @@ export function CodeView({
   const internalRef = useRef<RowDocumentRenderable>(null)
   const effectiveRef = docRef ?? internalRef
 
-  const palette: RowDocumentPalette = {
-    gutterFg: theme.textMuted,
-    gutterBg: theme.backgroundElement,
-    cursorBg: theme.cursorLine,
-    selectionBg: theme.selection,
-    matchBg: theme.warning,
-    currentMatchBg: theme.primary,
-    toggledBg: theme.backgroundPanel,
-    cursorSignFg: theme.primary,
-    matchSignFg: theme.warning,
-    currentMatchSignFg: theme.primary,
-  }
-
-  const marksDecorations = useMemo(
-    () => marks ? marksToDecorations(marks) : null,
-    [marks],
-  )
-
-  useEffect(() => {
-    const decorations: RowDocumentDecorations = marksDecorations ?? {
-      cursorRow: cursor,
-      selection: selectionStart != null && selectionEnd != null
+  const palette = useDocumentDecorations(effectiveRef, {
+    marks,
+    cursorRow: cursor,
+    selection:
+      selectionStart != null && selectionEnd != null
         ? { start: selectionStart, end: selectionEnd }
-        : null,
-      matchingRows: matchingLines,
-      currentMatchRow: currentMatchLine,
-      toggledRows: toggledLines,
-    }
-    effectiveRef.current?.setDecorations(decorations)
-  }, [marksDecorations, cursor, selectionStart, selectionEnd, matchingLines, currentMatchLine, toggledLines])
+        : undefined,
+    matchingRows: matchingLines,
+    currentMatchRow: currentMatchLine,
+    toggledRows: toggledLines,
+  })
 
   const codeElement = <code content={content} filetype={language} syntaxStyle={syntax} />
 

@@ -47,7 +47,10 @@ function RouteRenderer({
     routeDef
       .loader({ params: entry.params })
       .then((result) => {
-        if (!cancelled) { setData(result); setLoading(false) }
+        if (!cancelled) {
+          setData(result)
+          setLoading(false)
+        }
       })
       .catch((err) => {
         if (!cancelled) {
@@ -55,7 +58,9 @@ function RouteRenderer({
           setLoading(false)
         }
       })
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [entry, routeDef.loader])
 
   if (error && routeDef.errorComponent) {

@@ -56,7 +56,10 @@ export function parseTSV(input: string): { columns: ColumnDef[]; rows: TableRow[
   const lines = splitLines(input)
   if (lines.length === 0) return { columns: [], rows: [] }
   const columns = createColumnDefs(lines[0].split("\t"))
-  const rows = buildRows(columns, lines.slice(1).map((line) => line.split("\t")))
+  const rows = buildRows(
+    columns,
+    lines.slice(1).map((line) => line.split("\t")),
+  )
   return { columns, rows }
 }
 

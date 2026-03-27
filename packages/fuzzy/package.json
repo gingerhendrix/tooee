@@ -1,0 +1,40 @@
+{
+  "name": "@tooee/fuzzy",
+  "version": "0.1.11",
+  "description": "Fuzzy string matching for Tooee",
+  "keywords": [
+    "filter",
+    "fuzzy",
+    "search",
+    "terminal",
+    "tui"
+  ],
+  "homepage": "https://github.com/gingerhendrix/tooee",
+  "bugs": "https://github.com/gingerhendrix/tooee/issues",
+  "license": "MIT",
+  "author": "Gareth Andrew",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gingerhendrix/tooee.git",
+    "directory": "packages/fuzzy"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "@tooee/source": "./src/index.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

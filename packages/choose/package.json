@@ -2,6 +2,17 @@
   "name": "@tooee/choose",
   "version": "0.1.11",
   "description": "Terminal selection with fuzzy filtering",
+  "keywords": [
+    "cli",
+    "fuzzy",
+    "opentui",
+    "picker",
+    "select",
+    "terminal",
+    "tui"
+  ],
+  "homepage": "https://github.com/gingerhendrix/tooee",
+  "bugs": "https://github.com/gingerhendrix/tooee/issues",
   "license": "MIT",
   "author": "Gareth Andrew",
   "repository": {
@@ -9,16 +20,9 @@
     "url": "https://github.com/gingerhendrix/tooee.git",
     "directory": "packages/choose"
   },
-  "homepage": "https://github.com/gingerhendrix/tooee",
-  "bugs": "https://github.com/gingerhendrix/tooee/issues",
-  "keywords": [
-    "tui",
-    "terminal",
-    "cli",
-    "opentui",
-    "fuzzy",
-    "select",
-    "picker"
+  "files": [
+    "dist",
+    "src"
   ],
   "type": "module",
   "exports": {
@@ -29,18 +33,15 @@
       }
     }
   },
-  "files": [
-    "dist",
-    "src"
-  ],
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@tooee/commands": "workspace:*",
+    "@tooee/fuzzy": "workspace:*",
     "@tooee/layout": "workspace:*",
-    "@tooee/themes": "workspace:*",
-    "@tooee/shell": "workspace:*"
+    "@tooee/shell": "workspace:*",
+    "@tooee/themes": "workspace:*"
   },
   "devDependencies": {
     "@opentui/core": "^0.1.86",

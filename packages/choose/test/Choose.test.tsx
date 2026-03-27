@@ -376,11 +376,13 @@ describe("Choose visual alignment", () => {
 })
 
 describe("Choose emptyMessage", () => {
-  async function setupEmpty(opts: {
-    items?: typeof ITEMS
-    emptyMessage?: string
-    onCancel?: () => void
-  } = {}) {
+  async function setupEmpty(
+    opts: {
+      items?: typeof ITEMS
+      emptyMessage?: string
+      onCancel?: () => void
+    } = {},
+  ) {
     const s = await testRender(
       <TooeeProvider initialMode="insert">
         <Choose

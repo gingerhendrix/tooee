@@ -2,6 +2,15 @@
   "name": "@tooee/layout",
   "version": "0.1.11",
   "description": "Standard app chrome (title bar, status bar) for Tooee",
+  "keywords": [
+    "cli",
+    "layout",
+    "opentui",
+    "terminal",
+    "tui"
+  ],
+  "homepage": "https://github.com/gingerhendrix/tooee",
+  "bugs": "https://github.com/gingerhendrix/tooee/issues",
   "license": "MIT",
   "author": "Gareth Andrew",
   "repository": {
@@ -9,14 +18,9 @@
     "url": "https://github.com/gingerhendrix/tooee.git",
     "directory": "packages/layout"
   },
-  "homepage": "https://github.com/gingerhendrix/tooee",
-  "bugs": "https://github.com/gingerhendrix/tooee/issues",
-  "keywords": [
-    "tui",
-    "terminal",
-    "cli",
-    "opentui",
-    "layout"
+  "files": [
+    "dist",
+    "src"
   ],
   "type": "module",
   "exports": {
@@ -27,16 +31,12 @@
       }
     }
   },
-  "files": [
-    "dist",
-    "src"
-  ],
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tooee/themes": "workspace:*",
     "@tooee/overlays": "workspace:*",
+    "@tooee/themes": "workspace:*",
     "@tooee/toasts": "workspace:*"
   },
   "devDependencies": {

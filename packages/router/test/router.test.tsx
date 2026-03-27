@@ -73,11 +73,7 @@ const nestedRoute = createRoute({
 
 // Test harness that exposes navigation controls via rendered text
 
-function NavHarness({
-  router,
-}: {
-  router: ReturnType<typeof createRouter>
-}) {
+function NavHarness({ router }: { router: ReturnType<typeof createRouter> }) {
   const nav = useNavigate()
   const current = useCurrentRoute()
   const canGoBack = useCanGoBack()

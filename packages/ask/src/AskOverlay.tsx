@@ -80,9 +80,7 @@ export function AskOverlay({
 
   const submitHint = multiline ? "Shift+Enter submit" : "Enter submit"
   const hintText =
-    mode === "insert"
-      ? `${submitHint}  Esc commands`
-      : `i insert  Esc cancel  ${submitHint}`
+    mode === "insert" ? `${submitHint}  Esc commands` : `i insert  Esc cancel  ${submitHint}`
 
   return (
     <box
@@ -98,20 +96,12 @@ export function AskOverlay({
       onMouseDown={handleMouseDown}
     >
       {/* Title bar */}
-      <box
-        height={1}
-        paddingLeft={1}
-        paddingRight={1}
-        backgroundColor={theme.backgroundElement}
-      >
+      <box height={1} paddingLeft={1} paddingRight={1} backgroundColor={theme.backgroundElement}>
         <text content={prompt} fg={theme.accent} />
       </box>
 
       {/* Input area */}
-      <box
-        flexDirection="column"
-        style={{ flexGrow: 1, paddingLeft: 1, paddingRight: 1 }}
-      >
+      <box flexDirection="column" style={{ flexGrow: 1, paddingLeft: 1, paddingRight: 1 }}>
         {multiline ? (
           <textarea
             ref={textareaRef}
@@ -139,12 +129,7 @@ export function AskOverlay({
       </box>
 
       {/* Hint line */}
-      <box
-        height={1}
-        paddingLeft={1}
-        paddingRight={1}
-        backgroundColor={theme.backgroundElement}
-      >
+      <box height={1} paddingLeft={1} paddingRight={1} backgroundColor={theme.backgroundElement}>
         <text content={hintText} fg={theme.textMuted} />
       </box>
     </box>

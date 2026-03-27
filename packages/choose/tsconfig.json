@@ -6,5 +6,11 @@
     "rootDir": "./src"
   },
   "include": ["./src"],
-  "references": [{ "path": "../themes" }, { "path": "../layout" }, { "path": "../commands" }, { "path": "../shell" }]
+  "references": [
+    { "path": "../fuzzy" },
+    { "path": "../themes" },
+    { "path": "../layout" },
+    { "path": "../commands" },
+    { "path": "../shell" }
+  ]
 }
