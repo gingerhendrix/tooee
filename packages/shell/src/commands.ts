@@ -113,6 +113,20 @@ export function usePasteCommands(opts: {
   })
 }
 
+export function useDebugConsoleCommand(opts?: { when?: CommandWhen }) {
+  const renderer = useRenderer()
+
+  useCommand({
+    id: "toggle-debug-console",
+    title: "Toggle debug console",
+    hotkey: "ctrl+shift+j",
+    when: opts?.when,
+    handler: () => {
+      renderer.console.toggle()
+    },
+  })
+}
+
 export function useToggleLineNumbersCommand(opts: {
   showLineNumbers: boolean
   onToggle: () => void

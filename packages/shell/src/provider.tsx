@@ -5,6 +5,7 @@ import { CommandProvider, useProvideCommandContext, type Mode } from "@tooee/com
 import { ToastProvider, useToast, type ToastController } from "@tooee/toasts"
 import { OverlayProvider } from "./overlay.js"
 import { useCopyOnSelect } from "./copy-on-select.js"
+import { useDebugConsoleCommand } from "./commands.js"
 
 declare module "@tooee/commands" {
   interface CommandContext {
@@ -65,6 +66,7 @@ function ToastContextBridge({ children }: { children: ReactNode }) {
   }))
 
   useCopyOnSelect()
+  useDebugConsoleCommand()
 
   return <>{children}</>
 }
