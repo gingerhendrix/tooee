@@ -5,7 +5,7 @@ import { readPrimaryText } from "@tooee/clipboard"
 import { AppLayout } from "@tooee/layout"
 import { useHasOverlay } from "@tooee/overlays"
 import { ThemePicker, useTheme } from "@tooee/themes"
-import { useThemeCommands, useQuitCommand, useCommandPalette, usePasteCommands } from "@tooee/shell"
+import { useThemeCommands, useQuitCommand, usePasteCommands } from "@tooee/shell"
 import {
   useMode,
   useSetMode,
@@ -31,7 +31,6 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
   const { theme } = useTheme()
   const { name: themeName, picker: themePicker } = useThemeCommands()
   useQuitCommand()
-  useCommandPalette()
 
   const mode = useMode()
   const setMode = useSetMode()

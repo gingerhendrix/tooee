@@ -4,7 +4,6 @@ import {
   useQuitCommand,
   useCopyCommand,
   useToggleLineNumbersCommand,
-  useCommandPalette,
 } from "@tooee/shell"
 import { useActions } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
@@ -31,7 +30,6 @@ export function useViewCommands({ content, textContent, actions }: UseViewComman
     onToggle: () => setShowLineNumbers((v) => !v),
   })
 
-  useCommandPalette()
   useActions(actions)
 
   return { themeName, showLineNumbers }
