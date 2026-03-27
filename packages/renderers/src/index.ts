@@ -9,11 +9,10 @@ export type { CommandPaletteEntry } from "./CommandPalette.js"
 export { parseCSV, parseTSV, parseJSON, parseAuto, detectFormat } from "./parsers.js"
 export type { Format, ParsedTable } from "./parsers.js"
 export { RowDocumentRenderable } from "./RowDocumentRenderable.js"
+export { computeRowDocumentGutterWidth } from "./RowDocumentRenderable.js"
 export type {
   RowDocumentOptions,
   RowDocumentPalette,
-  RowDocumentDecorations,
 } from "./RowDocumentRenderable.js"
-export { marksToDecorations } from "./marks-bridge.js"
-export { useDocumentDecorations } from "./useDocumentDecorations.js"
-export type { DocumentDecorationProps } from "./useDocumentDecorations.js"
+export type { DecorationLayer, RowDecoration } from "./DecorationLayer.js"
+export { useGutterPalette } from "./useGutterPalette.js"

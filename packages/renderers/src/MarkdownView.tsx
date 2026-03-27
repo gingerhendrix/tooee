@@ -1,11 +1,11 @@
 import { marked, type Token, type Tokens } from "marked"
-import { useMemo, useRef, type ReactNode, type RefObject } from "react"
+import { useMemo, type ReactNode, type RefObject } from "react"
 import { useTheme, type ResolvedTheme } from "@tooee/themes"
 import { bold as boldChunk } from "@opentui/core"
 import type { SyntaxStyle, TextTableContent, TextTableCellContent } from "@opentui/core"
 import type { MarkState } from "@tooee/marks"
 import type { RowDocumentRenderable } from "./RowDocumentRenderable.js"
-import { useDocumentDecorations } from "./useDocumentDecorations.js"
+import { useGutterPalette } from "./useGutterPalette.js"
 import "./row-document.js"
 import "./text-table.js"
 
@@ -13,41 +13,14 @@ interface MarkdownViewProps {
   content: string
   showLineNumbers?: boolean
   marks?: MarkState
-  activeBlock?: number
-  selectedBlocks?: { start: number; end: number }
-  matchingBlocks?: Set<number>
-  currentMatchBlock?: number
-  toggledBlocks?: Set<number>
   docRef?: RefObject<RowDocumentRenderable | null>
 }
 
-export function MarkdownView({
-  content,
-  showLineNumbers = true,
-  marks,
-  activeBlock,
-  selectedBlocks,
-  matchingBlocks,
-  currentMatchBlock,
-  toggledBlocks,
-  docRef,
-}: MarkdownViewProps) {
+export function MarkdownView({ content, showLineNumbers = true, marks, docRef }: MarkdownViewProps) {
   const { theme, syntax } = useTheme()
-  const internalRef = useRef<RowDocumentRenderable>(null)
-  const effectiveRef = docRef ?? internalRef
+  const palette = useGutterPalette()
   const tokens = marked.lexer(content)
   const blocks = tokens.filter((t) => t.type !== "space")
-
-  const palette = useDocumentDecorations(effectiveRef, {
-    marks,
-    cursorRow: activeBlock,
-    selection: selectedBlocks
-      ? { start: selectedBlocks.start, end: selectedBlocks.end }
-      : undefined,
-    matchingRows: matchingBlocks,
-    currentMatchRow: currentMatchBlock,
-    toggledRows: toggledBlocks,
-  })
 
   const blockElements = blocks.map((token, index) => (
     <TokenRenderer key={index} token={token} theme={theme} syntax={syntax} />
@@ -55,10 +28,10 @@ export function MarkdownView({
 
   return (
     <row-document
-      ref={effectiveRef}
-      key={theme.textMuted + theme.backgroundElement}
+      ref={docRef}
       showLineNumbers={showLineNumbers}
       palette={palette}
+      decorations={marks?.sets}
       signColumnWidth={1}
       style={{ flexGrow: 1 }}
     >

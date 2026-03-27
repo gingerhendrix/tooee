@@ -162,4 +162,42 @@ describe("MarkSet", () => {
       expect([...set]).toEqual([])
     })
   })
+
+  describe("forVisibleRows", () => {
+    test("clips range marks to the visible rows", () => {
+      const set = new MarkSet("test", 100, [
+        {
+          range: { from: { line: 2 }, to: { line: 5 } },
+          style: { background: "#abcdef" },
+        },
+      ])
+
+      expect([...set.forVisibleRows(3, 4)]).toEqual([
+        { row: 3, background: "#abcdef" },
+        { row: 4, background: "#abcdef" },
+      ])
+    })
+
+    test("emits gutter backgrounds and signs", () => {
+      const set = new MarkSet("test", 100, [
+        {
+          range: { from: { line: 1 }, to: { line: 1 } },
+          style: {
+            gutterBackground: "#112233",
+            signBefore: "!",
+            signAfter: ">",
+            foreground: "#445566",
+          },
+        },
+      ])
+
+      expect([...set.forVisibleRows(0, 2)]).toEqual([
+        {
+          row: 1,
+          gutterBackground: "#112233",
+          sign: { text: "!>", fg: "#445566" },
+        },
+      ])
+    })
+  })
 })

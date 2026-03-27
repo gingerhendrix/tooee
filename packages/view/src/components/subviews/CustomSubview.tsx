@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef } from "react"
 import { CodeView, type RowDocumentRenderable } from "@tooee/renderers"
+import { useTheme } from "@tooee/themes"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
 import { useModalNavigationCommands } from "@tooee/shell"
-import { createMarkState } from "@tooee/marks"
 import { getTextContent, type CustomContent, type ContentRenderer } from "../../types.js"
 import { useContentMetrics } from "../../hooks/useContentMetrics.js"
+import { identity, useMarkState } from "../../hooks/useMarkState.js"
 import { useViewCommands } from "../../hooks/useViewCommands.js"
 import { SubviewLayout } from "../SubviewLayout.js"
 import type { SubviewProps } from "./types.js"
@@ -26,6 +27,7 @@ export function CustomSubview({
   actions,
   renderers,
 }: CustomSubviewProps) {
+  const { theme } = useTheme()
   const docRef = useRef<RowDocumentRenderable>(null)
   const { textContent, lineCount } = useContentMetrics(content)
 
@@ -42,6 +44,14 @@ export function CustomSubview({
   }, [nav.cursor])
 
   const { themeName } = useViewCommands({ content, textContent, actions })
+
+  const markState = useMarkState({
+    nav,
+    theme,
+    mapIndex: identity,
+    providerMarks,
+    userMarks,
+  })
 
   useViewCommandContext({
     content,
@@ -73,8 +83,6 @@ export function CustomSubview({
 
   const customRenderer = renderers?.[content.format]
   if (customRenderer) {
-    const customSets = [...providerMarks, ...userMarks]
-    const customMarks = customSets.length > 0 ? createMarkState(customSets) : undefined
     const cursorLine = nav.cursor?.line ?? undefined
     const selectionStart = nav.selection?.start.line ?? undefined
     const selectionEnd = nav.selection?.end.line ?? undefined
@@ -87,7 +95,7 @@ export function CustomSubview({
           cursor: cursorLine,
           selectionStart,
           selectionEnd,
-          marks: customMarks,
+          marks: markState,
         })}
       </SubviewLayout>
     )
@@ -100,9 +108,7 @@ export function CustomSubview({
       <CodeView
         content={text}
         showLineNumbers={false}
-        cursor={nav.cursor?.line}
-        selectionStart={nav.selection?.start.line}
-        selectionEnd={nav.selection?.end.line}
+        marks={markState}
         docRef={docRef}
       />
     </SubviewLayout>

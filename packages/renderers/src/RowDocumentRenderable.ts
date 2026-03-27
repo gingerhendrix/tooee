@@ -8,6 +8,7 @@ import {
   RGBA,
 } from "@opentui/core"
 import type { OptimizedBuffer } from "@opentui/core"
+import type { DecorationLayer, RowDecoration } from "./DecorationLayer.js"
 
 // ---------------------------------------------------------------------------
 // Types
@@ -16,29 +17,6 @@ import type { OptimizedBuffer } from "@opentui/core"
 export interface RowDocumentPalette {
   gutterFg?: string
   gutterBg?: string
-  cursorBg?: string
-  selectionBg?: string
-  matchBg?: string
-  currentMatchBg?: string
-  toggledBg?: string
-  cursorSign?: string
-  cursorSignFg?: string
-  matchSign?: string
-  matchSignFg?: string
-  currentMatchSignFg?: string
-}
-
-export interface RowDocumentDecorations {
-  cursorRow?: number
-  selection?: { start: number; end: number } | null
-  matchingRows?: Set<number>
-  currentMatchRow?: number
-  toggledRows?: Set<number>
-  signs?: Map<number, { text: string; fg?: string }>
-  /** Per-row background overrides from marks, keyed by row number. Applied UNDER the built-in decoration backgrounds. */
-  markBackgrounds?: Map<number, string>
-  /** Per-row gutter background overrides from marks, keyed by row number. */
-  markGutterBackgrounds?: Map<number, string>
 }
 
 export interface RowDocumentOptions extends ScrollBoxOptions {
@@ -56,6 +34,7 @@ export interface RowDocumentOptions extends ScrollBoxOptions {
 
   // Colors
   palette?: RowDocumentPalette
+  decorations?: readonly DecorationLayer[]
 }
 
 // ---------------------------------------------------------------------------
@@ -83,6 +62,37 @@ function cachedColor(hex: string): RGBA {
   return c
 }
 
+function normalizePalette(palette: RowDocumentPalette = {}): Required<RowDocumentPalette> {
+  return {
+    gutterFg: palette.gutterFg ?? "#6e7681",
+    gutterBg: palette.gutterBg ?? "#0d1117",
+  }
+}
+
+function normalizeDecorationLayers(
+  layers: readonly DecorationLayer[] | undefined,
+): readonly DecorationLayer[] {
+  if (!layers || layers.length === 0) return []
+  return [...layers].sort((a, b) => a.priority - b.priority)
+}
+
+export function computeRowDocumentGutterWidth(opts: {
+  showLineNumbers: boolean
+  rowCount: number
+  lineNumberStart?: number
+  signColumnWidth?: number
+  gutterPaddingRight?: number
+}): number {
+  let width = 0
+  if (opts.showLineNumbers) {
+    const maxLineNum = (opts.lineNumberStart ?? 1) + opts.rowCount - 1
+    width += Math.max(String(maxLineNum).length, 1)
+  }
+  width += opts.signColumnWidth ?? 0
+  width += opts.gutterPaddingRight ?? 1
+  return width
+}
+
 // ---------------------------------------------------------------------------
 // RowDocumentRenderable
 // ---------------------------------------------------------------------------
@@ -97,9 +107,9 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   private _gutterPaddingRight: number
   private _rowChildOffset: number
   private _palette: Required<RowDocumentPalette>
-
-  // -- Decorations --
-  private _deco: RowDocumentDecorations = {}
+  private _layers: readonly DecorationLayer[] = []
+  private _layerGutterBgs = new Map<number, string>()
+  private _layerSigns = new Map<number, NonNullable<RowDecoration["sign"]>>()
 
   // -- Geometry arrays --
   private _rowVirtualStarts: number[] = []
@@ -120,29 +130,21 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     this._gutterPaddingRight = options.gutterPaddingRight ?? 1
     this._rowChildOffset = options.rowChildOffset ?? 0
 
-    const p = options.palette ?? {}
-    this._palette = {
-      gutterFg: p.gutterFg ?? "#6e7681",
-      gutterBg: p.gutterBg ?? "#0d1117",
-      cursorBg: p.cursorBg ?? "#1c2128",
-      selectionBg: p.selectionBg ?? "#1f3a5f",
-      matchBg: p.matchBg ?? "#3b2e00",
-      currentMatchBg: p.currentMatchBg ?? "#5a4a00",
-      toggledBg: p.toggledBg ?? "#1c2128",
-      cursorSign: p.cursorSign ?? "▸",
-      cursorSignFg: p.cursorSignFg ?? "#58a6ff",
-      matchSign: p.matchSign ?? "●",
-      matchSignFg: p.matchSignFg ?? "#d29922",
-      currentMatchSignFg: p.currentMatchSignFg ?? "#f0c000",
-    }
+    this._palette = normalizePalette(options.palette)
+    this._layers = normalizeDecorationLayers(options.decorations)
   }
 
   // -----------------------------------------------------------------------
   // Decorations
   // -----------------------------------------------------------------------
 
-  setDecorations(decorations: RowDocumentDecorations): void {
-    this._deco = decorations
+  set decorations(layers: readonly DecorationLayer[] | undefined) {
+    this._layers = normalizeDecorationLayers(layers)
+    this.requestRender()
+  }
+
+  set palette(palette: RowDocumentPalette | undefined) {
+    this._palette = normalizePalette(palette)
     this.requestRender()
   }
 
@@ -433,17 +435,13 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   private _computeGutterWidth(): number {
     if (!this._showGutter) return 0
 
-    let width = 0
-
-    if (this._showLineNumbers) {
-      const maxLineNum = this._lineNumberStart + this._rowCount - 1
-      width += Math.max(String(maxLineNum).length, 1)
-    }
-
-    width += this._signColumnWidth
-    width += this._gutterPaddingRight
-
-    return width
+    return computeRowDocumentGutterWidth({
+      showLineNumbers: this._showLineNumbers,
+      rowCount: this._rowCount,
+      lineNumberStart: this._lineNumberStart,
+      signColumnWidth: this._signColumnWidth,
+      gutterPaddingRight: this._gutterPaddingRight,
+    })
   }
 
   private _applyGutterPadding(): void {
@@ -456,18 +454,10 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   // -----------------------------------------------------------------------
 
   private _paintDecorations(buffer: OptimizedBuffer): void {
-    const { cursorRow, selection, matchingRows, currentMatchRow, toggledRows, markBackgrounds } =
-      this._deco
+    this._layerGutterBgs = new Map()
+    this._layerSigns = new Map()
 
-    const hasDecorations =
-      cursorRow != null ||
-      selection != null ||
-      (matchingRows && matchingRows.size > 0) ||
-      currentMatchRow != null ||
-      (toggledRows && toggledRows.size > 0) ||
-      (markBackgrounds && markBackgrounds.size > 0)
-
-    if (!hasDecorations) return
+    if (this._layers.length === 0) return
 
     const vpX = this.viewport.x
     const vpY = this.viewport.y
@@ -475,44 +465,32 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     const vpWidth = this.viewport.width
     const top = Math.floor(this.scrollTop)
 
+    const { firstRow, lastRow } = this.getVisibleRange()
+    const rowBgs = new Map<number, string>()
+    const rowGutterBgs = new Map<number, string>()
+    const rowSigns = new Map<number, NonNullable<RowDecoration["sign"]>>()
+
+    for (const layer of this._layers) {
+      for (const deco of layer.forVisibleRows(firstRow, lastRow)) {
+        if (deco.background) rowBgs.set(deco.row, deco.background)
+        if (deco.gutterBackground) rowGutterBgs.set(deco.row, deco.gutterBackground)
+        if (deco.sign) rowSigns.set(deco.row, deco.sign)
+      }
+    }
+
     for (let screenY = 0; screenY < vpHeight; screenY++) {
       const vRow = top + screenY
       if (vRow >= this._virtualRowToRow.length) break
 
       const row = this._virtualRowToRow[vRow]
       if (row < 0) continue // Skip gap rows (margins)
-      let bg: RGBA | null = null
-
-      // Generic mark backgrounds first (lowest layer)
-      if (markBackgrounds) {
-        const markBg = markBackgrounds.get(row)
-        if (markBg) {
-          bg = cachedColor(markBg)
-        }
-      }
-
-      // Built-in decoration backgrounds on top
-      // Priority order: currentMatch > match > selection > toggled > cursor
-      if (cursorRow != null && row === cursorRow) {
-        bg = cachedColor(this._palette.cursorBg)
-      }
-      if (toggledRows && toggledRows.has(row)) {
-        bg = cachedColor(this._palette.toggledBg)
-      }
-      if (selection && row >= selection.start && row <= selection.end) {
-        bg = cachedColor(this._palette.selectionBg)
-      }
-      if (matchingRows && matchingRows.has(row)) {
-        bg = cachedColor(this._palette.matchBg)
-      }
-      if (currentMatchRow != null && row === currentMatchRow) {
-        bg = cachedColor(this._palette.currentMatchBg)
-      }
-
-      if (bg) {
-        buffer.fillRect(vpX, vpY + screenY, vpWidth, 1, bg)
-      }
+      const bg = rowBgs.get(row)
+      if (!bg) continue
+      buffer.fillRect(vpX, vpY + screenY, vpWidth, 1, cachedColor(bg))
     }
+
+    this._layerGutterBgs = rowGutterBgs
+    this._layerSigns = rowSigns
   }
 
   // -----------------------------------------------------------------------
@@ -551,8 +529,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
       const drawX = vpX
       let col = 0
 
-      // Per-row gutter background from marks (overrides default gutterBg)
-      const rowGutterHex = this._deco.markGutterBackgrounds?.get(row)
+      const rowGutterHex = this._layerGutterBgs.get(row)
       const effectiveGutterBg = rowGutterHex ? cachedColor(rowGutterHex) : gutterBg
       if (rowGutterHex) {
         buffer.fillRect(drawX, vpY + screenY, gutterWidth, 1, effectiveGutterBg)
@@ -568,40 +545,15 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
       // Sign column
       if (this._signColumnWidth > 0) {
-        const { cursorRow, matchingRows, currentMatchRow } = this._deco
-        const customSign = this._deco.signs?.get(row)
+        const sign = this._layerSigns.get(row)
 
-        if (customSign) {
-          const signFg = customSign.fg ? cachedColor(customSign.fg) : gutterFg
+        if (sign) {
+          const signFg = sign.fg ? cachedColor(sign.fg) : gutterFg
           buffer.drawText(
-            customSign.text.slice(0, this._signColumnWidth),
+            sign.text.slice(0, this._signColumnWidth),
             drawX + col,
             vpY + screenY,
             signFg,
-            effectiveGutterBg,
-          )
-        } else if (cursorRow != null && row === cursorRow) {
-          buffer.drawText(
-            this._palette.cursorSign,
-            drawX + col,
-            vpY + screenY,
-            cachedColor(this._palette.cursorSignFg),
-            effectiveGutterBg,
-          )
-        } else if (currentMatchRow != null && row === currentMatchRow) {
-          buffer.drawText(
-            this._palette.matchSign,
-            drawX + col,
-            vpY + screenY,
-            cachedColor(this._palette.currentMatchSignFg),
-            effectiveGutterBg,
-          )
-        } else if (matchingRows && matchingRows.has(row)) {
-          buffer.drawText(
-            this._palette.matchSign,
-            drawX + col,
-            vpY + screenY,
-            cachedColor(this._palette.matchSignFg),
             effectiveGutterBg,
           )
         }

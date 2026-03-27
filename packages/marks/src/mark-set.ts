@@ -79,6 +79,41 @@ export class MarkSet {
     return results
   }
 
+  *forVisibleRows(from: number, to: number): Generator<{
+    row: number
+    background?: string
+    gutterBackground?: string
+    sign?: { text: string; fg?: string }
+  }> {
+    const marks = this.marksInRange(from, to)
+    for (const mark of marks) {
+      const startLine = Math.max(from, mark.range.from.line)
+      const endLine = Math.min(to, mark.range.to.line)
+      for (let line = startLine; line <= endLine; line++) {
+        const decoration: {
+          row: number
+          background?: string
+          gutterBackground?: string
+          sign?: { text: string; fg?: string }
+        } = { row: line }
+
+        if (mark.style.background) {
+          decoration.background = mark.style.background
+        }
+        if (mark.style.gutterBackground) {
+          decoration.gutterBackground = mark.style.gutterBackground
+        }
+
+        const signText = (mark.style.signBefore ?? "") + (mark.style.signAfter ?? "")
+        if (signText) {
+          decoration.sign = { text: signText, fg: mark.style.foreground }
+        }
+
+        yield decoration
+      }
+    }
+  }
+
   [Symbol.iterator](): Iterator<Mark> {
     return this.#marks[Symbol.iterator]()
   }

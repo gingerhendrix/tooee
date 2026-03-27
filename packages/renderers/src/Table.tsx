@@ -1,10 +1,13 @@
 import { useTerminalDimensions } from "@opentui/react"
 import { useTheme } from "@tooee/themes"
-import { useRef, type RefObject } from "react"
+import { type RefObject } from "react"
 import type { MarkState } from "@tooee/marks"
 import type { ColumnDef, TableRow } from "./table-types.js"
-import type { RowDocumentRenderable } from "./RowDocumentRenderable.js"
-import { useDocumentDecorations } from "./useDocumentDecorations.js"
+import {
+  computeRowDocumentGutterWidth,
+  type RowDocumentRenderable,
+} from "./RowDocumentRenderable.js"
+import { useGutterPalette } from "./useGutterPalette.js"
 import "./row-document.js"
 
 export interface TableProps {
@@ -21,12 +24,6 @@ export interface TableProps {
   /** Show line numbers in the gutter (default: true) */
   showLineNumbers?: boolean
   marks?: MarkState
-  cursor?: number
-  selectionStart?: number
-  selectionEnd?: number
-  matchingRows?: Set<number>
-  currentMatchRow?: number
-  toggledRows?: Set<number>
   docRef?: RefObject<RowDocumentRenderable | null>
   /** Column width mode: "content" sizes to content (default), "fill" expands to fill available width */
   columnWidthMode?: "content" | "fill"
@@ -130,22 +127,6 @@ function computeColumnWidths(
   })
 }
 
-/**
- * Pre-compute gutter width to subtract from available column space.
- * Mirrors RowDocumentRenderable._computeGutterWidth logic.
- */
-function computeGutterWidth(rowCount: number, showLineNumbers: boolean): number {
-  let width = 0
-  if (showLineNumbers) {
-    // lineNumberStart defaults to 1, so max line number = rowCount
-    const maxLineNum = rowCount
-    width += Math.max(String(maxLineNum).length, 1)
-  }
-  width += 1 // signColumnWidth
-  width += 1 // gutterPaddingRight (default)
-  return width
-}
-
 function formatCellValue(value: unknown): string {
   if (value == null) return ""
   if (typeof value === "string") return value
@@ -167,20 +148,19 @@ export function Table({
   sampleSize = DEFAULT_SAMPLE_SIZE,
   showLineNumbers = true,
   marks,
-  cursor,
-  selectionStart,
-  selectionEnd,
-  matchingRows,
-  currentMatchRow,
-  toggledRows,
   docRef,
   columnWidthMode = "content",
 }: TableProps) {
   const { theme } = useTheme()
+  const palette = useGutterPalette()
   const { width: terminalWidth } = useTerminalDimensions()
 
   // Compute available content width: start with total space, subtract margins and gutter
-  const gutterWidth = computeGutterWidth(rows.length, showLineNumbers)
+  const gutterWidth = computeRowDocumentGutterWidth({
+    showLineNumbers,
+    rowCount: rows.length,
+    signColumnWidth: 1,
+  })
   const effectiveMaxWidth = Math.max(0, (maxWidth ?? terminalWidth) - MARGIN * 2 - gutterWidth)
 
   const headers = columns.map((column) => column.header ?? column.key)
@@ -202,21 +182,6 @@ export function Table({
     const sampleValues = normalizedRows.slice(0, 10).map((row) => row[colIdx] ?? "")
     const numericCount = sampleValues.filter(isNumeric).length
     return numericCount > sampleValues.length / 2
-  })
-
-  const internalRef = useRef<RowDocumentRenderable>(null)
-  const effectiveRef = docRef ?? internalRef
-
-  const palette = useDocumentDecorations(effectiveRef, {
-    marks,
-    cursorRow: cursor,
-    selection:
-      selectionStart != null && selectionEnd != null
-        ? { start: selectionStart, end: selectionEnd }
-        : undefined,
-    matchingRows,
-    currentMatchRow,
-    toggledRows,
   })
 
   return (
@@ -255,13 +220,14 @@ export function Table({
 
       {/* Scrollable data rows */}
       <row-document
-        ref={effectiveRef}
+        ref={docRef}
         mode="multi"
         rowChildOffset={0}
         showGutter={true}
         showLineNumbers={showLineNumbers}
         signColumnWidth={1}
         palette={palette}
+        decorations={marks?.sets}
         style={{ flexGrow: 1 }}
       >
         {normalizedRows.map((row, i) => (

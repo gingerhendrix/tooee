@@ -1,6 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, describe, afterEach } from "bun:test"
 import { ThemeSwitcherProvider } from "@tooee/themes"
+import { MarkPriorities, MarkSetBuilder, createMarkState } from "@tooee/marks"
 import { MarkdownView } from "../src/MarkdownView.js"
 
 let testSetup: Awaited<ReturnType<typeof testRender>>
@@ -8,6 +9,35 @@ let testSetup: Awaited<ReturnType<typeof testRender>>
 afterEach(() => {
   testSetup?.renderer.destroy()
 })
+
+function createMarkdownMarks(opts: {
+  activeBlock?: number
+  selectedBlocks?: { start: number; end: number }
+}) {
+  const sets = []
+
+  if (opts.selectedBlocks) {
+    const builder = new MarkSetBuilder()
+    builder.addRange(
+      { line: opts.selectedBlocks.start },
+      { line: opts.selectedBlocks.end },
+      { background: "#224488" },
+    )
+    sets.push(builder.build("selection", MarkPriorities.SELECTION))
+  }
+
+  if (opts.activeBlock != null) {
+    const builder = new MarkSetBuilder()
+    builder.addLine(opts.activeBlock, {
+      background: "#111111",
+      signBefore: "▸",
+      foreground: "#ffffff",
+    })
+    sets.push(builder.build("cursor", MarkPriorities.CURSOR))
+  }
+
+  return createMarkState(sets)
+}
 
 test("renders heading text", async () => {
   testSetup = await testRender(
@@ -72,7 +102,7 @@ test("selected blocks have gutter highlight", async () => {
     <ThemeSwitcherProvider>
       <MarkdownView
         content={"# Heading\n\nParagraph one\n\nParagraph two\n\nParagraph three"}
-        selectedBlocks={{ start: 1, end: 2 }}
+        marks={createMarkdownMarks({ selectedBlocks: { start: 1, end: 2 } })}
       />
     </ThemeSwitcherProvider>,
     { width: 80, height: 24 },
@@ -86,7 +116,10 @@ test("selected blocks have gutter highlight", async () => {
 test("active block renders with gutter", async () => {
   testSetup = await testRender(
     <ThemeSwitcherProvider>
-      <MarkdownView content={"# Heading\n\nParagraph one\n\nParagraph two"} activeBlock={1} />
+      <MarkdownView
+        content={"# Heading\n\nParagraph one\n\nParagraph two"}
+        marks={createMarkdownMarks({ activeBlock: 1 })}
+      />
     </ThemeSwitcherProvider>,
     { width: 80, height: 24 },
   )
@@ -102,8 +135,7 @@ test("selected blocks snapshot", async () => {
     <ThemeSwitcherProvider>
       <MarkdownView
         content={"# Title\n\nFirst paragraph\n\nSecond paragraph\n\nThird paragraph"}
-        activeBlock={1}
-        selectedBlocks={{ start: 1, end: 2 }}
+        marks={createMarkdownMarks({ activeBlock: 1, selectedBlocks: { start: 1, end: 2 } })}
       />
     </ThemeSwitcherProvider>,
     { width: 60, height: 20 },
