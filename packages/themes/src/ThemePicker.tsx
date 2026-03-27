@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from "react"
 import { useKeyboard } from "@opentui/react"
+import { fuzzyMatch } from "@tooee/fuzzy"
 import { useTheme } from "./theme.js"
 
 export interface ThemePickerEntry {
@@ -13,28 +14,6 @@ interface ThemePickerProps {
   onSelect: (name: string) => void
   onClose: () => void
   onNavigate: (name: string) => void
-}
-
-function fuzzyMatch(query: string, text: string): number | null {
-  const lowerQuery = query.toLowerCase()
-  const lowerText = text.toLowerCase()
-
-  let qi = 0
-  let score = 0
-  let lastMatchIndex = -2
-
-  for (let ti = 0; ti < lowerText.length && qi < lowerQuery.length; ti++) {
-    if (lowerText[ti] === lowerQuery[qi]) {
-      if (ti === 0) score += 3
-      else if (" -./".includes(lowerText[ti - 1]!)) score += 2
-      else if (ti === lastMatchIndex + 1) score += 1
-
-      lastMatchIndex = ti
-      qi++
-    }
-  }
-
-  return qi === lowerQuery.length ? score : null
 }
 
 export function ThemePicker({

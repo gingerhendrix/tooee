@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from "react"
 import { useKeyboard } from "@opentui/react"
 import { useTheme } from "@tooee/themes"
+import { fuzzyMatch } from "@tooee/fuzzy"
 
 export interface CommandPaletteEntry {
   id: string
@@ -14,31 +15,6 @@ interface CommandPaletteProps {
   commands: CommandPaletteEntry[]
   onSelect: (commandId: string) => void
   onClose: () => void
-}
-
-function fuzzyMatch(query: string, text: string): number | null {
-  const lowerQuery = query.toLowerCase()
-  const lowerText = text.toLowerCase()
-
-  let qi = 0
-  let score = 0
-  let lastMatchIndex = -2
-
-  for (let ti = 0; ti < lowerText.length && qi < lowerQuery.length; ti++) {
-    if (lowerText[ti] === lowerQuery[qi]) {
-      // Start of string bonus
-      if (ti === 0) score += 3
-      // Word boundary bonus (after space, hyphen, dot, slash)
-      else if (" -./".includes(lowerText[ti - 1]!)) score += 2
-      // Consecutive bonus
-      else if (ti === lastMatchIndex + 1) score += 1
-
-      lastMatchIndex = ti
-      qi++
-    }
-  }
-
-  return qi === lowerQuery.length ? score : null
 }
 
 export function CommandPalette({ commands, onSelect, onClose }: CommandPaletteProps) {

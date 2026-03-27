@@ -37,7 +37,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tooee/config": "workspace:*"
+    "@tooee/config": "workspace:*",
+    "@tooee/fuzzy": "workspace:*"
   },
   "devDependencies": {
     "@opentui/core": "^0.1.86",
