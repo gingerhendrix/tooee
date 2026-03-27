@@ -1,14 +1,10 @@
 import { useTerminalDimensions } from "@opentui/react"
 import { useTheme } from "@tooee/themes"
-import { useEffect, useMemo, useRef, type RefObject } from "react"
+import { useRef, type RefObject } from "react"
 import type { MarkState } from "@tooee/marks"
 import type { ColumnDef, TableRow } from "./table-types.js"
-import type {
-  RowDocumentRenderable,
-  RowDocumentPalette,
-  RowDocumentDecorations,
-} from "./RowDocumentRenderable.js"
-import { marksToDecorations } from "./marks-bridge.js"
+import type { RowDocumentRenderable } from "./RowDocumentRenderable.js"
+import { useDocumentDecorations } from "./useDocumentDecorations.js"
 import "./row-document.js"
 
 export interface TableProps {
@@ -211,42 +207,17 @@ export function Table({
   const internalRef = useRef<RowDocumentRenderable>(null)
   const effectiveRef = docRef ?? internalRef
 
-  const palette: RowDocumentPalette = {
-    gutterFg: theme.textMuted,
-    gutterBg: theme.backgroundElement,
-    cursorSignFg: theme.primary,
-    matchSignFg: theme.warning,
-    currentMatchSignFg: theme.primary,
-    cursorBg: theme.cursorLine,
-    selectionBg: theme.selection,
-    matchBg: theme.warning,
-    currentMatchBg: theme.primary,
-    toggledBg: theme.backgroundPanel,
-  }
-
-  const marksDecorations = useMemo(() => (marks ? marksToDecorations(marks) : null), [marks])
-
-  useEffect(() => {
-    const decorations: RowDocumentDecorations = marksDecorations ?? {
-      cursorRow: cursor,
-      selection:
-        selectionStart != null && selectionEnd != null
-          ? { start: selectionStart, end: selectionEnd }
-          : null,
-      matchingRows: matchingRows,
-      currentMatchRow: currentMatchRow,
-      toggledRows: toggledRows,
-    }
-    effectiveRef.current?.setDecorations(decorations)
-  }, [
-    marksDecorations,
-    cursor,
-    selectionStart,
-    selectionEnd,
+  const palette = useDocumentDecorations(effectiveRef, {
+    marks,
+    cursorRow: cursor,
+    selection:
+      selectionStart != null && selectionEnd != null
+        ? { start: selectionStart, end: selectionEnd }
+        : undefined,
     matchingRows,
     currentMatchRow,
     toggledRows,
-  ])
+  })
 
   return (
     <box

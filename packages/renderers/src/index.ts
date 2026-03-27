@@ -15,3 +15,5 @@ export type {
   RowDocumentDecorations,
 } from "./RowDocumentRenderable.js"
 export { marksToDecorations } from "./marks-bridge.js"
+export { useDocumentDecorations } from "./useDocumentDecorations.js"
+export type { DocumentDecorationProps } from "./useDocumentDecorations.js"
