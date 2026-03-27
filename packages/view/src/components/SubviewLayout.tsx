@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { AppLayout } from "@tooee/layout"
+import { AppLayout, type StatusBarItem } from "@tooee/layout"
 import type { ModalNavigationState } from "@tooee/shell"
 import type { AnyContent } from "../types.js"
 
@@ -8,6 +8,7 @@ interface SubviewLayoutProps {
   nav: ModalNavigationState
   streaming: boolean
   themeName: string
+  extraStatusItems?: StatusBarItem[]
   children: ReactNode
 }
 
@@ -16,10 +17,12 @@ export function SubviewLayout({
   nav,
   streaming,
   themeName,
+  extraStatusItems,
   children,
 }: SubviewLayoutProps) {
   const statusItems = [
     { label: "Theme:", value: themeName },
+    ...(extraStatusItems ?? []),
     { label: "Mode:", value: nav.mode },
     { label: "Cursor:", value: nav.cursor ? String(nav.cursor.line) : "-" },
     ...(streaming ? [{ label: "Status:", value: "streaming" }] : []),

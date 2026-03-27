@@ -91,8 +91,26 @@ export function TableSubview({
     },
   })
 
+  const extraStatusItems = useMemo(() => {
+    const selectionCount =
+      nav.selection != null ? nav.selection.end.line - nav.selection.start.line + 1 : 0
+    const toggledCount = nav.toggledIndices.size
+    const selectionItems =
+      toggledCount > 0
+        ? [{ label: "Selected:", value: String(toggledCount) }]
+        : selectionCount > 0
+          ? [{ label: "Selected:", value: String(selectionCount) }]
+          : []
+    return [
+      { label: "Format:", value: content.format },
+      { label: "Rows:", value: String(content.rows.length) },
+      { label: "Cols:", value: String(content.columns.length) },
+      ...selectionItems,
+    ]
+  }, [content.format, content.rows.length, content.columns.length, nav.selection, nav.toggledIndices])
+
   return (
-    <SubviewLayout content={content} nav={nav} streaming={streaming} themeName={themeName}>
+    <SubviewLayout content={content} nav={nav} streaming={streaming} themeName={themeName} extraStatusItems={extraStatusItems}>
       <Table
         columns={content.columns}
         rows={content.rows}

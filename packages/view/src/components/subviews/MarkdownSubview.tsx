@@ -70,8 +70,25 @@ export function MarkdownSubview({
     clearAllUserMarks,
   })
 
+  const extraStatusItems = useMemo(() => {
+    const selectionCount =
+      nav.selection != null ? nav.selection.end.line - nav.selection.start.line + 1 : 0
+    const toggledCount = nav.toggledIndices.size
+    const selectionItems =
+      toggledCount > 0
+        ? [{ label: "Selected:", value: String(toggledCount) }]
+        : selectionCount > 0
+          ? [{ label: "Selected:", value: String(selectionCount) }]
+          : []
+    return [
+      { label: "Format:", value: content.format },
+      { label: "Lines:", value: String(lineCount) },
+      ...selectionItems,
+    ]
+  }, [content.format, lineCount, nav.selection, nav.toggledIndices])
+
   return (
-    <SubviewLayout content={content} nav={nav} streaming={streaming} themeName={themeName}>
+    <SubviewLayout content={content} nav={nav} streaming={streaming} themeName={themeName} extraStatusItems={extraStatusItems}>
       <MarkdownView
         content={content.markdown}
         showLineNumbers={showLineNumbers}

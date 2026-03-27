@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import { ImageView } from "@tooee/renderers"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
 import { useModalNavigationCommands } from "@tooee/shell"
@@ -39,8 +40,13 @@ export function ImageSubview({
     clearAllUserMarks,
   })
 
+  const extraStatusItems = useMemo(
+    () => [{ label: "Format:", value: content.format }],
+    [content.format],
+  )
+
   return (
-    <SubviewLayout content={content} nav={nav} streaming={streaming} themeName={themeName}>
+    <SubviewLayout content={content} nav={nav} streaming={streaming} themeName={themeName} extraStatusItems={extraStatusItems}>
       <ImageView src={content.src} />
     </SubviewLayout>
   )
