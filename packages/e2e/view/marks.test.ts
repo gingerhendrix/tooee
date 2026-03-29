@@ -35,10 +35,13 @@ describe("marks rendering e2e (code content)", () => {
     // Submit search
     await session.press("enter")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
-    // Should show search match count in status bar
+    // Move to next match so the first match line shows ● instead of cursor ▸
+    // (cursor sign has higher priority and overrides the search sign)
+    await session.press("n")
+    await Bun.sleep(200)
     const text = await session.text()
     expect(text).toMatch(/Mode:\s*cursor/)
-    // The search bar should show match info (● signs rendered via marks)
+    // Search match signs (●) should be visible on non-cursor match lines
     expect(text).toContain("●")
   }, 20000)
 
