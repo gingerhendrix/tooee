@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef } from "react"
+import { marked } from "marked"
 import { MarkdownView, type RowDocumentRenderable } from "@tooee/renderers"
 import { useTheme } from "@tooee/themes"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
-import { useModalNavigationCommands } from "@tooee/shell"
+import { useCopy, useNavigation, useSearch } from "@tooee/shell"
 import type { MarkdownContent } from "../../types.js"
-import { useContentMetrics } from "../../hooks/useContentMetrics.js"
-import { useMarkState, blockMapper } from "../../hooks/useMarkState.js"
+import { useMarkState } from "../../hooks/useMarkState.js"
 import { useViewCommands } from "../../hooks/useViewCommands.js"
 import { SubviewLayout } from "../SubviewLayout.js"
 import type { SubviewProps } from "./types.js"
@@ -27,16 +27,37 @@ export function MarkdownSubview({
 }: MarkdownSubviewProps) {
   const { theme } = useTheme()
   const docRef = useRef<RowDocumentRenderable>(null)
+  const textContent = content.markdown
+  const lineCount = useMemo(() => textContent.split("\n").length, [textContent])
+  const blocks = useMemo(
+    () => marked.lexer(content.markdown).filter((token) => token.type !== "space"),
+    [content.markdown],
+  )
 
-  const { textContent, lineCount, blockCount, blockLineMap } = useContentMetrics(content)
-
-  const nav = useModalNavigationCommands({
-    totalLines: lineCount,
-    getText: () => textContent,
-    blockCount,
-    blockLineMap,
+  const nav = useNavigation({
+    rowCount: blocks.length,
     multiSelect: true,
   })
+  const search = useSearch({
+    match: (query) => {
+      const lowerQuery = query.toLowerCase()
+      return blocks.flatMap((block, index) => {
+        const raw = "raw" in block && typeof block.raw === "string" ? block.raw : ""
+        return raw.toLowerCase().includes(lowerQuery) ? [index] : []
+      })
+    },
+    onJump: nav.setCursor,
+  })
+  useCopy({
+    getRowText: (index) => {
+      const block = blocks[index]
+      return block && "raw" in block && typeof block.raw === "string" ? block.raw : ""
+    },
+    cursor: nav.cursor,
+    selection: nav.selection,
+    toggledIndices: nav.toggledIndices,
+  })
+  const layoutNav = { ...nav, ...search }
 
   useEffect(() => {
     if (nav.cursor) {
@@ -46,15 +67,10 @@ export function MarkdownSubview({
 
   const { themeName, showLineNumbers } = useViewCommands({ content, textContent, actions })
 
-  const mapIndex = useMemo(
-    () => (blockLineMap ? blockMapper(blockLineMap) : (line: number) => line),
-    [blockLineMap],
-  )
-
   const markState = useMarkState({
     nav,
+    search,
     theme,
-    mapIndex,
     providerMarks,
     userMarks,
   })
@@ -88,7 +104,13 @@ export function MarkdownSubview({
   }, [content.format, lineCount, nav.selection, nav.toggledIndices])
 
   return (
-    <SubviewLayout content={content} nav={nav} streaming={streaming} themeName={themeName} extraStatusItems={extraStatusItems}>
+    <SubviewLayout
+      content={content}
+      nav={layoutNav}
+      streaming={streaming}
+      themeName={themeName}
+      extraStatusItems={extraStatusItems}
+    >
       <MarkdownView
         content={content.markdown}
         showLineNumbers={showLineNumbers}

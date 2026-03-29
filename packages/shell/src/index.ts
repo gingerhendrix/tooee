@@ -6,8 +6,12 @@ export {
   useToggleLineNumbersCommand,
   useDebugConsoleCommand,
 } from "./commands.js"
-export { useModalNavigationCommands } from "./modal/index.js"
-export type { ModalNavigationState, ModalNavigationOptions, Position } from "./modal/index.js"
+export { useNavigation } from "./navigation.js"
+export type { UseNavigationOptions, NavigationState, Position } from "./navigation.js"
+export { useSearch } from "./search-hook.js"
+export type { UseSearchOptions, SearchState } from "./search-hook.js"
+export { useCopy } from "./copy-hook.js"
+export type { UseCopyOptions } from "./copy-hook.js"
 export { findMatchingLines } from "./search.js"
 export { TooeeProvider } from "./provider.js"
 export { launchCli, guardTerminalHealth } from "./launch.js"

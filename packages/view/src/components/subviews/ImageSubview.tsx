@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 import { ImageView } from "@tooee/renderers"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
-import { useModalNavigationCommands } from "@tooee/shell"
+import { useNavigation, useSearch } from "@tooee/shell"
 import type { ImageContent } from "../../types.js"
 import { useViewCommands } from "../../hooks/useViewCommands.js"
 import { SubviewLayout } from "../SubviewLayout.js"
@@ -22,10 +22,15 @@ export function ImageSubview({
   streaming,
   actions,
 }: ImageSubviewProps) {
-  const nav = useModalNavigationCommands({
-    totalLines: 0,
+  const nav = useNavigation({
+    rowCount: 0,
     multiSelect: false,
   })
+  const search = useSearch({
+    match: () => [],
+    onJump: () => {},
+  })
+  const layoutNav = { ...nav, ...search }
 
   const { themeName } = useViewCommands({ content, textContent: content.src, actions })
 
@@ -46,7 +51,13 @@ export function ImageSubview({
   )
 
   return (
-    <SubviewLayout content={content} nav={nav} streaming={streaming} themeName={themeName} extraStatusItems={extraStatusItems}>
+    <SubviewLayout
+      content={content}
+      nav={layoutNav}
+      streaming={streaming}
+      themeName={themeName}
+      extraStatusItems={extraStatusItems}
+    >
       <ImageView src={content.src} />
     </SubviewLayout>
   )

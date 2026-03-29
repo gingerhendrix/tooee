@@ -2,10 +2,9 @@ import { useEffect, useMemo, useRef } from "react"
 import { Table, type RowDocumentRenderable } from "@tooee/renderers"
 import { useTheme } from "@tooee/themes"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
-import { useModalNavigationCommands } from "@tooee/shell"
-import type { TableContent } from "../../types.js"
-import { useContentMetrics } from "../../hooks/useContentMetrics.js"
-import { useMarkState, offsetMapper, TABLE_SEARCH_HEADER_OFFSET } from "../../hooks/useMarkState.js"
+import { useCopy, useNavigation, useSearch } from "@tooee/shell"
+import { getTextContent, type TableContent } from "../../types.js"
+import { useMarkState } from "../../hooks/useMarkState.js"
 import { useViewCommands } from "../../hooks/useViewCommands.js"
 import { SubviewLayout } from "../SubviewLayout.js"
 import type { SubviewProps } from "./types.js"
@@ -27,17 +26,33 @@ export function TableSubview({
 }: TableSubviewProps) {
   const { theme } = useTheme()
   const docRef = useRef<RowDocumentRenderable>(null)
+  const textContent = useMemo(() => getTextContent(content), [content])
 
-  const { textContent, lineCount, blockCount, blockLineMap } = useContentMetrics(content)
-
-  const nav = useModalNavigationCommands({
-    totalLines: lineCount,
-    getText: () => textContent,
-    blockCount,
-    blockLineMap,
-    searchLineOffset: TABLE_SEARCH_HEADER_OFFSET,
+  const nav = useNavigation({
+    rowCount: content.rows.length,
     multiSelect: true,
   })
+  const search = useSearch({
+    match: (query) => {
+      const lowerQuery = query.toLowerCase()
+      return content.rows.flatMap((row, index) =>
+        content.columns.some((column) => stringifyRowCell(row[column.key]).toLowerCase().includes(lowerQuery))
+          ? [index]
+          : [],
+      )
+    },
+    onJump: nav.setCursor,
+  })
+  useCopy({
+    getRowText: (index) =>
+      content.columns
+        .map((column) => stringifyRowCell(content.rows[index]?.[column.key]))
+        .join("\t"),
+    cursor: nav.cursor,
+    selection: nav.selection,
+    toggledIndices: nav.toggledIndices,
+  })
+  const layoutNav = { ...nav, ...search }
 
   useEffect(() => {
     if (nav.cursor) {
@@ -47,12 +62,10 @@ export function TableSubview({
 
   const { themeName, showLineNumbers } = useViewCommands({ content, textContent, actions })
 
-  const mapIndex = useMemo(() => offsetMapper(TABLE_SEARCH_HEADER_OFFSET), [])
-
   const markState = useMarkState({
     nav,
+    search,
     theme,
-    mapIndex,
     providerMarks,
     userMarks,
   })
@@ -110,7 +123,13 @@ export function TableSubview({
   }, [content.format, content.rows.length, content.columns.length, nav.selection, nav.toggledIndices])
 
   return (
-    <SubviewLayout content={content} nav={nav} streaming={streaming} themeName={themeName} extraStatusItems={extraStatusItems}>
+    <SubviewLayout
+      content={content}
+      nav={layoutNav}
+      streaming={streaming}
+      themeName={themeName}
+      extraStatusItems={extraStatusItems}
+    >
       <Table
         columns={content.columns}
         rows={content.rows}
@@ -120,4 +139,15 @@ export function TableSubview({
       />
     </SubviewLayout>
   )
+}
+
+function stringifyRowCell(value: unknown): string {
+  if (value == null) return ""
+  if (typeof value === "string") return value
+  if (typeof value === "number" || typeof value === "boolean") return String(value)
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return String(value)
+  }
 }

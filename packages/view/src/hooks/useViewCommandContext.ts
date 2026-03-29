@@ -1,11 +1,11 @@
 import { useProvideCommandContext } from "@tooee/commands"
-import type { ModalNavigationState } from "@tooee/shell"
+import type { NavigationState } from "@tooee/shell"
 import type { MarkSet } from "@tooee/marks"
 import type { AnyContent } from "../types.js"
 
 interface UseViewCommandContextParams {
   content: AnyContent
-  nav: ModalNavigationState
+  nav: NavigationState
   reload: () => void
   providerMarks: MarkSet[]
   userMarks: MarkSet[]

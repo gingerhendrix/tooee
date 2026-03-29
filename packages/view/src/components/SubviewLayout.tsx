@@ -1,11 +1,11 @@
 import type { ReactNode } from "react"
 import { AppLayout, type StatusBarItem } from "@tooee/layout"
-import type { ModalNavigationState } from "@tooee/shell"
+import type { NavigationState, SearchState } from "@tooee/shell"
 import type { AnyContent } from "../types.js"
 
 interface SubviewLayoutProps {
   content: AnyContent
-  nav: ModalNavigationState
+  nav: NavigationState & SearchState
   streaming: boolean
   themeName: string
   extraStatusItems?: StatusBarItem[]

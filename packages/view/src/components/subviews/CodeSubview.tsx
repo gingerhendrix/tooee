@@ -2,10 +2,9 @@ import { useEffect, useMemo, useRef } from "react"
 import { CodeView, type RowDocumentRenderable } from "@tooee/renderers"
 import { useTheme } from "@tooee/themes"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
-import { useModalNavigationCommands } from "@tooee/shell"
+import { findMatchingLines, useCopy, useNavigation, useSearch } from "@tooee/shell"
 import type { CodeContent, TextContent } from "../../types.js"
-import { useContentMetrics } from "../../hooks/useContentMetrics.js"
-import { useMarkState, identity } from "../../hooks/useMarkState.js"
+import { useMarkState } from "../../hooks/useMarkState.js"
 import { useViewCommands } from "../../hooks/useViewCommands.js"
 import { SubviewLayout } from "../SubviewLayout.js"
 import type { SubviewProps } from "./types.js"
@@ -27,14 +26,25 @@ export function CodeSubview({
 }: CodeSubviewProps) {
   const { theme } = useTheme()
   const docRef = useRef<RowDocumentRenderable>(null)
+  const textContent = content.format === "code" ? content.code : content.text
+  const lines = useMemo(() => textContent.split("\n"), [textContent])
+  const lineCount = lines.length
 
-  const { textContent, lineCount } = useContentMetrics(content)
-
-  const nav = useModalNavigationCommands({
-    totalLines: lineCount,
-    getText: () => textContent,
+  const nav = useNavigation({
+    rowCount: lineCount,
     multiSelect: true,
   })
+  const search = useSearch({
+    match: (query) => findMatchingLines(textContent, query),
+    onJump: nav.setCursor,
+  })
+  useCopy({
+    getRowText: (index) => lines[index] ?? "",
+    cursor: nav.cursor,
+    selection: nav.selection,
+    toggledIndices: nav.toggledIndices,
+  })
+  const layoutNav = { ...nav, ...search }
 
   useEffect(() => {
     if (nav.cursor) {
@@ -46,8 +56,8 @@ export function CodeSubview({
 
   const markState = useMarkState({
     nav,
+    search,
     theme,
-    mapIndex: identity,
     providerMarks,
     userMarks,
   })
@@ -83,7 +93,13 @@ export function CodeSubview({
   }, [content.format, lineCount, nav.selection, nav.toggledIndices])
 
   return (
-    <SubviewLayout content={content} nav={nav} streaming={streaming} themeName={themeName} extraStatusItems={extraStatusItems}>
+    <SubviewLayout
+      content={content}
+      nav={layoutNav}
+      streaming={streaming}
+      themeName={themeName}
+      extraStatusItems={extraStatusItems}
+    >
       <CodeView
         content={text}
         language={content.format === "code" ? content.language : undefined}
