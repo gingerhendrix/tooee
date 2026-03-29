@@ -47,6 +47,8 @@ jobs:
             packages/config
             packages/commands
             packages/clipboard
+            packages/fuzzy
+            packages/marks
             packages/router
             packages/overlays
             packages/themes
