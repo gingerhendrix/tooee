@@ -1,10 +1,8 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe } from "bun:test"
 import { act } from "react"
-import { TooeeProvider, useModalNavigationCommands } from "@tooee/shell"
-import { findMatchingLines } from "../src/search.js"
-
-// ── Unit tests for findMatchingLines ──
+import { TooeeProvider, findMatchingLines, useNavigation, useSearch, type SearchState } from "@tooee/shell"
+import { press, pressEscape, type TestSession } from "./support/test-helpers.ts"
 
 describe("findMatchingLines", () => {
   test("empty query returns empty array", () => {
@@ -40,63 +38,52 @@ describe("findMatchingLines", () => {
   })
 })
 
-// ── Component tests for search via modal navigation ──
-
 const TEST_TEXT = "alpha\nbeta\ngamma\nalpha again\ndelta"
 
+// Module-level ref for imperative access to search state from tests
+let _searchHandle: SearchState | null = null
+
 function SearchHarness() {
-  const nav = useModalNavigationCommands({
-    totalLines: 5,
-    viewportHeight: 3,
-    getText: () => TEST_TEXT,
+  const nav = useNavigation({ rowCount: TEST_TEXT.split("\n").length, viewportHeight: 3 })
+  const search = useSearch({
+    match: (query) => findMatchingLines(TEST_TEXT, query),
+    onJump: nav.setCursor,
   })
+
+  // Expose search state to test code via module-level ref
+  _searchHandle = search
+
   return (
     <box flexDirection="column">
       <text content={`mode:${nav.mode}`} />
-      <text content={`scroll:${nav.scrollOffset}`} />
-      <text content={`search:${nav.searchActive}`} />
-      <text content={`matches:${nav.matchingLines.join(",")}`} />
-      <text content={`matchIdx:${nav.currentMatchIndex}`} />
+      <text content={`cursor:${nav.cursor ? nav.cursor.line : "null"}`} />
+      <text content={`search:${search.searchActive}`} />
+      <text content={`matches:${search.matchingLines.join(",")}`} />
+      <text content={`matchIdx:${search.currentMatchIndex}`} />
+      <text content={`query:${search.searchQuery}`} />
     </box>
   )
 }
 
 async function setup() {
-  const s = await testRender(
+  const session = await testRender(
     <TooeeProvider>
       <SearchHarness />
     </TooeeProvider>,
     { width: 60, height: 24, kittyKeyboard: true },
   )
-  await s.renderOnce()
-  return s
+  await session.renderOnce()
+  return session
 }
 
-async function press(
-  s: Awaited<ReturnType<typeof testRender>>,
-  key: string,
-  modifiers?: { ctrl?: boolean; shift?: boolean },
-) {
-  await act(async () => {
-    s.mockInput.pressKey(key, modifiers)
-  })
-  await s.renderOnce()
-}
-
-async function pressEscape(s: Awaited<ReturnType<typeof testRender>>) {
-  await act(async () => {
-    s.mockInput.pressEscape()
-  })
-  await s.renderOnce()
-}
-
-let testSetup: Awaited<ReturnType<typeof testRender>>
+let testSetup: TestSession
 
 afterEach(() => {
   testSetup?.renderer.destroy()
+  _searchHandle = null
 })
 
-describe("search component", () => {
+describe("search hook", () => {
   test("/ activates search and switches to insert mode", async () => {
     testSetup = await setup()
     await press(testSetup, "/")
@@ -105,36 +92,87 @@ describe("search component", () => {
     expect(frame).toContain("mode:insert")
   })
 
+  test("search live-updates matches while typing", async () => {
+    testSetup = await setup()
+    await press(testSetup, "/")
+
+    await act(async () => {
+      _searchHandle!.setSearchQuery("alpha")
+    })
+    await testSetup.renderOnce()
+
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("search:true")
+    expect(frame).toContain("query:alpha")
+    expect(frame).toContain("matches:0,3")
+  })
+
   test("Escape cancels search and restores cursor mode", async () => {
     testSetup = await setup()
     await press(testSetup, "/")
-    expect(testSetup.captureCharFrame()).toContain("search:true")
-    // Need extra render cycles for the mode transition to settle
-    await pressEscape(testSetup)
+
+    await act(async () => {
+      _searchHandle!.setSearchQuery("alpha")
+    })
     await testSetup.renderOnce()
+
+    await pressEscape(testSetup)
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("search:false")
     expect(frame).toContain("mode:cursor")
+    expect(frame).toContain("matches:")
   })
 
-  test("n cycles to next match after search", async () => {
+  test("n and N cycle matches after submit", async () => {
     testSetup = await setup()
-    // Activate search
     await press(testSetup, "/")
-    // Simulate setting search query by typing - but since insert mode captures keys as text,
-    // we need to programmatically trigger the search. The modal hook exposes setSearchQuery
-    // but we can't call it directly. Instead, we test n/N with pre-existing matches by
-    // using the search flow: activate, set query via the effect, then submit.
-    // For this test, we'll just verify n works after search is submitted with matches.
-    // The search text input is handled by the app layer, not modal navigation.
-    // Let's cancel and verify the n/N cycling works with direct state.
+
+    await act(async () => {
+      _searchHandle!.setSearchQuery("alpha")
+    })
+    await testSetup.renderOnce()
+
+    // Submit search
+    await act(async () => {
+      _searchHandle!.submitSearch()
+    })
+    await testSetup.renderOnce()
+
+    let frame = testSetup.captureCharFrame()
+    expect(frame).toContain("search:false")
+    expect(frame).toContain("mode:cursor")
+    expect(frame).toContain("matches:0,3")
+    expect(frame).toContain("matchIdx:0")
+    expect(frame).toContain("cursor:0")
+
+    await press(testSetup, "n")
+    frame = testSetup.captureCharFrame()
+    expect(frame).toContain("matchIdx:1")
+    expect(frame).toContain("cursor:3")
+
+    await press(testSetup, "n", { shift: true })
+    frame = testSetup.captureCharFrame()
+    expect(frame).toContain("matchIdx:0")
+    expect(frame).toContain("cursor:0")
   })
 
-  test("search submit exits insert mode but keeps matches", async () => {
+  test("submitSearch exits insert mode but keeps matches", async () => {
     testSetup = await setup()
     await press(testSetup, "/")
-    expect(testSetup.captureCharFrame()).toContain("mode:insert")
-    // In the real app, Enter calls submitSearch which exits insert mode
-    // The modal hook's submitSearch sets searchActive=false and restores mode
+
+    await act(async () => {
+      _searchHandle!.setSearchQuery("alpha")
+    })
+    await testSetup.renderOnce()
+
+    await act(async () => {
+      _searchHandle!.submitSearch()
+    })
+    await testSetup.renderOnce()
+
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("mode:cursor")
+    expect(frame).toContain("search:false")
+    expect(frame).toContain("matches:0,3")
   })
 })

@@ -4,6 +4,7 @@ import { act } from "react"
 import { TooeeProvider } from "@tooee/shell"
 import { useCommand } from "@tooee/commands"
 import { useToast } from "@tooee/toasts"
+import { type TestSession } from "./support/test-helpers.ts"
 
 function ToastContextHarness() {
   const { currentToast } = useToast()
@@ -41,7 +42,7 @@ function ToastContextHarness() {
   )
 }
 
-let testSetup: Awaited<ReturnType<typeof testRender>>
+let testSetup: TestSession
 
 afterEach(() => {
   testSetup?.renderer.destroy()
@@ -54,7 +55,6 @@ test("ctx.toast is available in command handlers", async () => {
     </TooeeProvider>,
     { width: 60, height: 24, kittyKeyboard: true },
   )
-  await testSetup.renderOnce()
   await testSetup.renderOnce()
   expect(testSetup.captureCharFrame()).toContain("ctx-toast:none")
 
@@ -73,7 +73,6 @@ test("ctx.toast.dismiss works from command handler", async () => {
     </TooeeProvider>,
     { width: 60, height: 24, kittyKeyboard: true },
   )
-  await testSetup.renderOnce()
   await testSetup.renderOnce()
 
   // Show a toast

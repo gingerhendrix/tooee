@@ -1,9 +1,9 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe } from "bun:test"
-import { act } from "react"
 import { TooeeProvider } from "@tooee/shell"
 import { useCommand, useMode } from "@tooee/commands"
 import { useHasOverlay } from "@tooee/overlays"
+import { press, pressEscape, type TestSession } from "./support/test-helpers.ts"
 
 function PaletteHarness() {
   const mode = useMode()
@@ -59,30 +59,10 @@ async function setup() {
     { width: 80, height: 24, kittyKeyboard: true },
   )
   await s.renderOnce()
-  // Extra render to ensure useEffect registrations are complete
-  await s.renderOnce()
   return s
 }
 
-async function press(
-  s: Awaited<ReturnType<typeof testRender>>,
-  key: string,
-  modifiers?: { ctrl?: boolean; shift?: boolean },
-) {
-  await act(async () => {
-    s.mockInput.pressKey(key, modifiers)
-  })
-  await s.renderOnce()
-}
-
-async function pressEscape(s: Awaited<ReturnType<typeof testRender>>) {
-  await act(async () => {
-    s.mockInput.pressEscape()
-  })
-  await s.renderOnce()
-}
-
-let testSetup: Awaited<ReturnType<typeof testRender>>
+let testSetup: TestSession
 
 afterEach(() => {
   testSetup?.renderer.destroy()
@@ -100,8 +80,9 @@ describe("command palette", () => {
   test("close restores cursor mode", async () => {
     testSetup = await setup()
     await press(testSetup, ":")
-    expect(testSetup.captureCharFrame()).toContain("open:true")
-    expect(testSetup.captureCharFrame()).toContain("mode:insert")
+    const openFrame = testSetup.captureCharFrame()
+    expect(openFrame).toContain("open:true")
+    expect(openFrame).toContain("mode:insert")
     await pressEscape(testSetup)
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("open:false")

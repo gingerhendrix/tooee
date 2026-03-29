@@ -1,11 +1,11 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe, beforeEach } from "bun:test"
-import { act } from "react"
 import { TooeeProvider, useThemeCommands } from "@tooee/shell"
 import { useTheme } from "@tooee/themes"
 import { useCurrentOverlay } from "@tooee/overlays"
 import { useMode } from "@tooee/commands"
 import { ensureTestConfigHome, resetTestConfig } from "../../../test/support/test-config.js"
+import { press, pressArrow, pressEnter, pressEscape, type TestSession } from "./support/test-helpers.ts"
 
 const CONFIG_NAMESPACE = "shell-theme-picker"
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE)
@@ -40,39 +40,10 @@ async function setup() {
     { width: 80, height: 40, kittyKeyboard: true },
   )
   await s.renderOnce()
-  await s.renderOnce()
   return s
 }
 
-async function pressKey(s: Awaited<ReturnType<typeof testRender>>, key: string) {
-  await act(async () => {
-    s.mockInput.pressKey(key)
-  })
-  await s.renderOnce()
-}
-
-async function pressArrow(s: Awaited<ReturnType<typeof testRender>>, dir: "up" | "down") {
-  await act(async () => {
-    s.mockInput.pressArrow(dir)
-  })
-  await s.renderOnce()
-}
-
-async function pressEnter(s: Awaited<ReturnType<typeof testRender>>) {
-  await act(async () => {
-    s.mockInput.pressEnter()
-  })
-  await s.renderOnce()
-}
-
-async function pressEscape(s: Awaited<ReturnType<typeof testRender>>) {
-  await act(async () => {
-    s.mockInput.pressEscape()
-  })
-  await s.renderOnce()
-}
-
-let testSetup: Awaited<ReturnType<typeof testRender>>
+let testSetup: TestSession
 
 afterEach(() => {
   testSetup?.renderer.destroy()
@@ -82,7 +53,7 @@ describe("theme picker", () => {
   test("t opens theme picker and switches to insert mode", async () => {
     testSetup = await setup()
     expect(testSetup.captureCharFrame()).toContain("open:false")
-    await pressKey(testSetup, "t")
+    await press(testSetup, "t")
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("open:true")
     expect(frame).toContain("mode:insert")
@@ -93,7 +64,7 @@ describe("theme picker", () => {
     const initialFrame = testSetup.captureCharFrame()
     const initialTheme = initialFrame.match(/active:(\S+)/)?.[1]
 
-    await pressKey(testSetup, "t")
+    await press(testSetup, "t")
     expect(testSetup.captureCharFrame()).toContain("open:true")
 
     // Navigate down to preview a different theme
@@ -113,7 +84,7 @@ describe("theme picker", () => {
 
   test("Enter confirms theme selection", async () => {
     testSetup = await setup()
-    await pressKey(testSetup, "t")
+    await press(testSetup, "t")
     expect(testSetup.captureCharFrame()).toContain("open:true")
 
     // Navigate down to a different theme
@@ -134,7 +105,7 @@ describe("theme picker", () => {
 
   test("picker shows theme entries", async () => {
     testSetup = await setup()
-    await pressKey(testSetup, "t")
+    await press(testSetup, "t")
     const openFrame = testSetup.captureCharFrame()
     expect(openFrame).toContain("open:true")
     // Should show at least the first theme in the list

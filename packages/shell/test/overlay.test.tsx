@@ -1,10 +1,10 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe } from "bun:test"
-import { act } from "react"
 import { TooeeProvider } from "@tooee/shell"
 import { useOverlay, useCurrentOverlay, useHasOverlay } from "@tooee/overlays"
 import { AppLayout } from "@tooee/layout"
 import { useCommand } from "@tooee/commands"
+import { press, type TestSession } from "./support/test-helpers.ts"
 
 function OverlayHarness() {
   const overlay = useOverlay()
@@ -106,18 +106,10 @@ async function setup(component: React.ReactNode) {
     kittyKeyboard: true,
   })
   await s.renderOnce()
-  await s.renderOnce()
   return s
 }
 
-async function press(s: Awaited<ReturnType<typeof testRender>>, key: string) {
-  await act(async () => {
-    s.mockInput.pressKey(key)
-  })
-  await s.renderOnce()
-}
-
-let testSetup: Awaited<ReturnType<typeof testRender>>
+let testSetup: TestSession
 
 afterEach(() => {
   testSetup?.renderer.destroy()

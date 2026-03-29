@@ -1,51 +1,34 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe } from "bun:test"
-import { act } from "react"
-import { TooeeProvider, useModalNavigationCommands } from "@tooee/shell"
+import { TooeeProvider, useNavigation } from "@tooee/shell"
+import { press, pressTab, pressEscape, type TestSession } from "./support/test-helpers.ts"
 
-function CursorHarness({ totalLines }: { totalLines: number }) {
-  const nav = useModalNavigationCommands({ totalLines, viewportHeight: 10 })
-  const sel = nav.selection
+function CursorHarness({ rowCount }: { rowCount: number }) {
+  const nav = useNavigation({ rowCount, viewportHeight: 10, multiSelect: true })
+  const selection = nav.selection
+
   return (
     <box flexDirection="column">
       <text content={`mode:${nav.mode}`} />
-      <text content={`scroll:${nav.scrollOffset}`} />
       <text content={`cursor:${nav.cursor ? nav.cursor.line : "null"}`} />
-      <text content={`selection:${sel ? `${sel.start.line}-${sel.end.line}` : "null"}`} />
+      <text content={`selection:${selection ? `${selection.start.line}-${selection.end.line}` : "null"}`} />
+      <text content={`toggled:${Array.from(nav.toggledIndices).sort((a, b) => a - b).join(",")}`} />
     </box>
   )
 }
 
-async function setup(totalLines = 100) {
-  const s = await testRender(
+async function setup(rowCount = 100) {
+  const session = await testRender(
     <TooeeProvider>
-      <CursorHarness totalLines={totalLines} />
+      <CursorHarness rowCount={rowCount} />
     </TooeeProvider>,
     { width: 60, height: 24, kittyKeyboard: true },
   )
-  await s.renderOnce()
-  return s
+  await session.renderOnce()
+  return session
 }
 
-async function press(
-  s: Awaited<ReturnType<typeof testRender>>,
-  key: string,
-  modifiers?: { ctrl?: boolean; shift?: boolean },
-) {
-  await act(async () => {
-    s.mockInput.pressKey(key, modifiers)
-  })
-  await s.renderOnce()
-}
-
-async function pressEscape(s: Awaited<ReturnType<typeof testRender>>) {
-  await act(async () => {
-    s.mockInput.pressEscape()
-  })
-  await s.renderOnce()
-}
-
-let testSetup: Awaited<ReturnType<typeof testRender>>
+let testSetup: TestSession
 
 afterEach(() => {
   testSetup?.renderer.destroy()
@@ -61,7 +44,6 @@ describe("cursor mode", () => {
 
   test("j in cursor mode moves cursor down", async () => {
     testSetup = await setup()
-    expect(testSetup.captureCharFrame()).toContain("cursor:0")
     await press(testSetup, "j")
     expect(testSetup.captureCharFrame()).toContain("cursor:1")
   })
@@ -70,14 +52,29 @@ describe("cursor mode", () => {
     testSetup = await setup()
     await press(testSetup, "j")
     await press(testSetup, "j")
-    expect(testSetup.captureCharFrame()).toContain("cursor:2")
     await press(testSetup, "k")
     expect(testSetup.captureCharFrame()).toContain("cursor:1")
   })
 
+  test("tab toggles current row", async () => {
+    testSetup = await setup()
+    await press(testSetup, "j")
+    await pressTab(testSetup)
+    expect(testSetup.captureCharFrame()).toContain("toggled:1")
+  })
+
+  test("shift+tab toggles current row and moves up", async () => {
+    testSetup = await setup()
+    await press(testSetup, "j")
+    await press(testSetup, "j")
+    await pressTab(testSetup, { shift: true })
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("toggled:2")
+    expect(frame).toContain("cursor:1")
+  })
+
   test("Escape in cursor mode leaves mode unchanged", async () => {
     testSetup = await setup()
-    expect(testSetup.captureCharFrame()).toContain("mode:cursor")
     await pressEscape(testSetup)
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("mode:cursor")
@@ -88,15 +85,15 @@ describe("cursor mode", () => {
 describe("select mode", () => {
   test("v in cursor mode enters select mode", async () => {
     testSetup = await setup()
-    await press(testSetup, "v") // cursor -> select
+    await press(testSetup, "v")
     expect(testSetup.captureCharFrame()).toContain("mode:select")
   })
 
   test("j in select mode extends selection", async () => {
     testSetup = await setup()
-    await press(testSetup, "j") // cursor at 1
-    await press(testSetup, "v") // select, anchor at 1
-    await press(testSetup, "j") // cursor at 2
+    await press(testSetup, "j")
+    await press(testSetup, "v")
+    await press(testSetup, "j")
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("mode:select")
     expect(frame).toContain("selection:1-2")
@@ -104,19 +101,25 @@ describe("select mode", () => {
 
   test("k in select mode extends selection upward", async () => {
     testSetup = await setup()
-    await press(testSetup, "j") // cursor at 1
-    await press(testSetup, "j") // cursor at 2
-    await press(testSetup, "j") // cursor at 3
-    await press(testSetup, "v") // select, anchor at 3
-    await press(testSetup, "k") // cursor at 2
-    const frame = testSetup.captureCharFrame()
-    expect(frame).toContain("selection:2-3")
+    await press(testSetup, "j")
+    await press(testSetup, "j")
+    await press(testSetup, "j")
+    await press(testSetup, "v")
+    await press(testSetup, "k")
+    expect(testSetup.captureCharFrame()).toContain("selection:2-3")
+  })
+
+  test("tab in select mode toggles current row", async () => {
+    testSetup = await setup()
+    await press(testSetup, "j")
+    await press(testSetup, "v")
+    await pressTab(testSetup)
+    expect(testSetup.captureCharFrame()).toContain("toggled:1")
   })
 
   test("Escape in select mode returns to cursor mode", async () => {
     testSetup = await setup()
-    await press(testSetup, "v") // select
-    expect(testSetup.captureCharFrame()).toContain("mode:select")
+    await press(testSetup, "v")
     await pressEscape(testSetup)
     expect(testSetup.captureCharFrame()).toContain("mode:cursor")
   })
@@ -126,11 +129,9 @@ describe("select mode", () => {
     await press(testSetup, "j")
     await press(testSetup, "j")
     await press(testSetup, "j")
-    await press(testSetup, "v") // select, anchor at 3
-    await press(testSetup, "k") // cursor at 2
-    await press(testSetup, "k") // cursor at 1
-    const frame = testSetup.captureCharFrame()
-    // anchor=3, cursor=1, so start=1, end=3
-    expect(frame).toContain("selection:1-3")
+    await press(testSetup, "v")
+    await press(testSetup, "k")
+    await press(testSetup, "k")
+    expect(testSetup.captureCharFrame()).toContain("selection:1-3")
   })
 })

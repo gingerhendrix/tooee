@@ -4,6 +4,7 @@ import { act } from "react"
 import { TooeeProvider, useThemeCommands, useQuitCommand } from "@tooee/shell"
 import { useTheme } from "@tooee/themes"
 import { useMode } from "@tooee/commands"
+import { type TestSession } from "./support/test-helpers.ts"
 
 function ThemeHarness() {
   const { picker } = useThemeCommands()
@@ -27,7 +28,7 @@ function QuitHarness({ onQuit }: { onQuit: () => void }) {
   )
 }
 
-let testSetup: Awaited<ReturnType<typeof testRender>>
+let testSetup: TestSession
 
 afterEach(() => {
   testSetup?.renderer.destroy()
@@ -40,7 +41,6 @@ test("t opens theme picker", async () => {
     </TooeeProvider>,
     { width: 60, height: 24, kittyKeyboard: true },
   )
-  await testSetup.renderOnce()
   await testSetup.renderOnce()
   expect(testSetup.captureCharFrame()).toContain("open:false")
 
