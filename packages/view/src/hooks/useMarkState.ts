@@ -50,8 +50,8 @@ export function useMarkState({
     if (nav.selection) {
       const builder = new MarkSetBuilder()
       builder.addRange(
-        { line: nav.selection.start.line },
-        { line: nav.selection.end.line },
+        { line: nav.selection.start },
+        { line: nav.selection.end },
         { background: theme.selection },
       )
       sets.push(builder.build("selection", MarkPriorities.SELECTION))
@@ -72,9 +72,9 @@ export function useMarkState({
     }
 
     // Cursor
-    if (nav.cursor) {
+    if (nav.cursor !== null) {
       const builder = new MarkSetBuilder()
-      builder.addLine(nav.cursor.line, {
+      builder.addLine(nav.cursor, {
         background: theme.cursorLine,
         signBefore: "\u25B8",
         foreground: theme.primary,

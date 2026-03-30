@@ -49,8 +49,8 @@ export function CustomSubview({
   const layoutNav = { ...nav, ...search }
 
   useEffect(() => {
-    if (nav.cursor) {
-      docRef.current?.scrollToRow(nav.cursor.line, "nearest")
+    if (nav.cursor !== null) {
+      docRef.current?.scrollToRow(nav.cursor, "nearest")
     }
   }, [nav.cursor])
 
@@ -77,7 +77,7 @@ export function CustomSubview({
 
   const extraStatusItems = useMemo(() => {
     const selectionCount =
-      nav.selection != null ? nav.selection.end.line - nav.selection.start.line + 1 : 0
+      nav.selection != null ? nav.selection.end - nav.selection.start + 1 : 0
     const toggledCount = nav.toggledIndices.size
     const selectionItems =
       toggledCount > 0
@@ -94,9 +94,9 @@ export function CustomSubview({
 
   const customRenderer = renderers?.[content.format]
   if (customRenderer) {
-    const cursorLine = nav.cursor?.line ?? undefined
-    const selectionStart = nav.selection?.start.line ?? undefined
-    const selectionEnd = nav.selection?.end.line ?? undefined
+    const cursorLine = nav.cursor ?? undefined
+    const selectionStart = nav.selection?.start ?? undefined
+    const selectionEnd = nav.selection?.end ?? undefined
 
     return (
       <SubviewLayout

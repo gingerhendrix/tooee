@@ -1,4 +1,4 @@
-import { useProvideCommandContext } from "@tooee/commands"
+import { useProvideCommandContext, useMode } from "@tooee/commands"
 import type { NavigationState } from "@tooee/shell"
 import type { MarkSet } from "@tooee/marks"
 import type { AnyContent } from "../types.js"
@@ -27,13 +27,14 @@ export function useViewCommandContext({
   clearAllUserMarks,
   extras,
 }: UseViewCommandContextParams) {
+  const mode = useMode()
   useProvideCommandContext(() => ({
     view: {
       content,
       format: content.format,
       cursor: nav.cursor,
       selection: nav.selection,
-      mode: nav.mode,
+      mode,
       toggledIndices: nav.toggledIndices,
       reload,
       marks: {

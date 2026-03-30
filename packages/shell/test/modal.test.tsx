@@ -2,6 +2,7 @@ import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe } from "bun:test"
 import { act } from "react"
 import { TooeeProvider, useNavigation, useSearch } from "@tooee/shell"
+import { useMode } from "@tooee/commands"
 import { press, type TestSession } from "./support/test-helpers.ts"
 
 function ModalHarness({
@@ -12,6 +13,7 @@ function ModalHarness({
   isSelectable?: (index: number) => boolean
 }) {
   const nav = useNavigation({ rowCount, isSelectable, viewportHeight: 10 })
+  const mode = useMode()
   const search = useSearch({
     match: () => [],
     onJump: nav.setCursor,
@@ -19,8 +21,8 @@ function ModalHarness({
 
   return (
     <box flexDirection="column">
-      <text content={`mode:${nav.mode}`} />
-      <text content={`cursor:${nav.cursor ? nav.cursor.line : "null"}`} />
+      <text content={`mode:${mode}`} />
+      <text content={`cursor:${nav.cursor !== null ? nav.cursor : "null"}`} />
       <text content={`search:${search.searchActive}`} />
     </box>
   )

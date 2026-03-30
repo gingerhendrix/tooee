@@ -60,8 +60,8 @@ export function MarkdownSubview({
   const layoutNav = { ...nav, ...search }
 
   useEffect(() => {
-    if (nav.cursor) {
-      docRef.current?.scrollToRow(nav.cursor.line, "nearest")
+    if (nav.cursor !== null) {
+      docRef.current?.scrollToRow(nav.cursor, "nearest")
     }
   }, [nav.cursor])
 
@@ -88,7 +88,7 @@ export function MarkdownSubview({
 
   const extraStatusItems = useMemo(() => {
     const selectionCount =
-      nav.selection != null ? nav.selection.end.line - nav.selection.start.line + 1 : 0
+      nav.selection != null ? nav.selection.end - nav.selection.start + 1 : 0
     const toggledCount = nav.toggledIndices.size
     const selectionItems =
       toggledCount > 0

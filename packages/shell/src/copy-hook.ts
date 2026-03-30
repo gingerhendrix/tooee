@@ -1,11 +1,10 @@
 import { useCommand, useSetMode } from "@tooee/commands"
 import { copyToClipboard } from "@tooee/clipboard"
-import type { Position } from "./navigation.js"
 
 export interface UseCopyOptions {
   getRowText: (index: number) => string
-  cursor: Position | null
-  selection: { start: Position; end: Position } | null
+  cursor: number | null
+  selection: { start: number; end: number } | null
   toggledIndices: Set<number>
 }
 
@@ -27,12 +26,12 @@ export function useCopy({ getRowText, cursor, selection, toggledIndices }: UseCo
           .join("\n")
       } else if (selection) {
         const rows: string[] = []
-        for (let index = selection.start.line; index <= selection.end.line; index++) {
+        for (let index = selection.start; index <= selection.end; index++) {
           rows.push(getRowText(index))
         }
         text = rows.join("\n")
-      } else if (cursor) {
-        text = getRowText(cursor.line)
+      } else if (cursor !== null) {
+        text = getRowText(cursor)
       }
 
       if (text) {

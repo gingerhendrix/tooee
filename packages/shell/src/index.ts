@@ -7,7 +7,7 @@ export {
   useDebugConsoleCommand,
 } from "./commands.js"
 export { useNavigation } from "./navigation.js"
-export type { UseNavigationOptions, NavigationState, Position } from "./navigation.js"
+export type { UseNavigationOptions, NavigationState } from "./navigation.js"
 export { useSearch } from "./search-hook.js"
 export type { UseSearchOptions, SearchState } from "./search-hook.js"
 export { useCopy } from "./copy-hook.js"

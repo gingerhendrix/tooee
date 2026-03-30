@@ -1,17 +1,19 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe } from "bun:test"
 import { TooeeProvider, useNavigation } from "@tooee/shell"
+import { useMode } from "@tooee/commands"
 import { press, pressTab, pressEscape, type TestSession } from "./support/test-helpers.ts"
 
 function CursorHarness({ rowCount }: { rowCount: number }) {
   const nav = useNavigation({ rowCount, viewportHeight: 10, multiSelect: true })
+  const mode = useMode()
   const selection = nav.selection
 
   return (
     <box flexDirection="column">
-      <text content={`mode:${nav.mode}`} />
-      <text content={`cursor:${nav.cursor ? nav.cursor.line : "null"}`} />
-      <text content={`selection:${selection ? `${selection.start.line}-${selection.end.line}` : "null"}`} />
+      <text content={`mode:${mode}`} />
+      <text content={`cursor:${nav.cursor !== null ? nav.cursor : "null"}`} />
+      <text content={`selection:${selection ? `${selection.start}-${selection.end}` : "null"}`} />
       <text content={`toggled:${Array.from(nav.toggledIndices).sort((a, b) => a - b).join(",")}`} />
     </box>
   )

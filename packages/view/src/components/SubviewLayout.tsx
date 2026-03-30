@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 import { AppLayout, type StatusBarItem } from "@tooee/layout"
+import { useMode } from "@tooee/commands"
 import type { NavigationState, SearchState } from "@tooee/shell"
 import type { AnyContent } from "../types.js"
 
@@ -20,11 +21,12 @@ export function SubviewLayout({
   extraStatusItems,
   children,
 }: SubviewLayoutProps) {
+  const mode = useMode()
   const statusItems = [
     { label: "Theme:", value: themeName },
     ...(extraStatusItems ?? []),
-    { label: "Mode:", value: nav.mode },
-    { label: "Cursor:", value: nav.cursor ? String(nav.cursor.line) : "-" },
+    { label: "Mode:", value: mode },
+    { label: "Cursor:", value: nav.cursor !== null ? String(nav.cursor) : "-" },
     ...(streaming ? [{ label: "Status:", value: "streaming" }] : []),
     ...(nav.searchActive ? [{ label: "Search:", value: nav.searchQuery }] : []),
   ]

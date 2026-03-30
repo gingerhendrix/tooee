@@ -55,8 +55,8 @@ export function TableSubview({
   const layoutNav = { ...nav, ...search }
 
   useEffect(() => {
-    if (nav.cursor) {
-      docRef.current?.scrollToRow(nav.cursor.line, "nearest")
+    if (nav.cursor !== null) {
+      docRef.current?.scrollToRow(nav.cursor, "nearest")
     }
   }, [nav.cursor])
 
@@ -71,8 +71,8 @@ export function TableSubview({
   })
 
   function getActiveRow(): Record<string, unknown> | undefined {
-    if (!nav.cursor) return undefined
-    return content.rows[nav.cursor.line]
+    if (nav.cursor === null) return undefined
+    return content.rows[nav.cursor]
   }
 
   function getSelectedRows(): Record<string, unknown>[] {
@@ -82,8 +82,8 @@ export function TableSubview({
         .filter(Boolean)
     }
     if (nav.selection) {
-      const start = nav.selection.start.line
-      const end = nav.selection.end.line
+      const start = nav.selection.start
+      const end = nav.selection.end
       return content.rows.slice(start, end + 1)
     }
     return []
@@ -106,7 +106,7 @@ export function TableSubview({
 
   const extraStatusItems = useMemo(() => {
     const selectionCount =
-      nav.selection != null ? nav.selection.end.line - nav.selection.start.line + 1 : 0
+      nav.selection != null ? nav.selection.end - nav.selection.start + 1 : 0
     const toggledCount = nav.toggledIndices.size
     const selectionItems =
       toggledCount > 0

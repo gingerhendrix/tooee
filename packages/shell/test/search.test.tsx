@@ -2,6 +2,7 @@ import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe } from "bun:test"
 import { act } from "react"
 import { TooeeProvider, findMatchingLines, useNavigation, useSearch, type SearchState } from "@tooee/shell"
+import { useMode } from "@tooee/commands"
 import { press, pressEscape, type TestSession } from "./support/test-helpers.ts"
 
 describe("findMatchingLines", () => {
@@ -45,6 +46,7 @@ let _searchHandle: SearchState | null = null
 
 function SearchHarness() {
   const nav = useNavigation({ rowCount: TEST_TEXT.split("\n").length, viewportHeight: 3 })
+  const mode = useMode()
   const search = useSearch({
     match: (query) => findMatchingLines(TEST_TEXT, query),
     onJump: nav.setCursor,
@@ -55,8 +57,8 @@ function SearchHarness() {
 
   return (
     <box flexDirection="column">
-      <text content={`mode:${nav.mode}`} />
-      <text content={`cursor:${nav.cursor ? nav.cursor.line : "null"}`} />
+      <text content={`mode:${mode}`} />
+      <text content={`cursor:${nav.cursor !== null ? nav.cursor : "null"}`} />
       <text content={`search:${search.searchActive}`} />
       <text content={`matches:${search.matchingLines.join(",")}`} />
       <text content={`matchIdx:${search.currentMatchIndex}`} />
