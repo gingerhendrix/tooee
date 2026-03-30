@@ -1,13 +1,27 @@
 import { marked, type Token, type Tokens } from "marked"
 import { useMemo, type ReactNode, type RefObject } from "react"
 import { useTheme, type ResolvedTheme } from "@tooee/themes"
-import { bold as boldChunk } from "@opentui/core"
-import type { SyntaxStyle, TextTableContent, TextTableCellContent } from "@opentui/core"
+import {
+  bold as boldChunk,
+  italic as italicChunk,
+  underline as underlineChunk,
+  parseColor,
+} from "@opentui/core"
+import type {
+  SyntaxStyle,
+  TextTableContent,
+  TextTableCellContent,
+  TextChunk,
+} from "@opentui/core"
 import type { MarkState } from "@tooee/marks"
 import type { RowDocumentRenderable } from "./RowDocumentRenderable.js"
 import { useGutterPalette } from "./useGutterPalette.js"
 import "./row-document.js"
 import "./text-table.js"
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 interface MarkdownViewProps {
   content: string
@@ -16,14 +30,124 @@ interface MarkdownViewProps {
   docRef?: RefObject<RowDocumentRenderable | null>
 }
 
+/**
+ * A flattened block — all blocks exist at the top level with an indent.
+ * Nested structures (lists containing code blocks, etc.) are flattened
+ * into sibling blocks with appropriate indentation.
+ */
+interface FlatBlock {
+  token: Token
+  indent: number
+  bullet?: string // "- " or "1. " for list item lines
+  checked?: boolean // undefined = not a checkbox, true/false = checkbox state
+}
+
+// ---------------------------------------------------------------------------
+// Token flattening
+// ---------------------------------------------------------------------------
+
+function flattenTokens(tokens: Token[]): FlatBlock[] {
+  const result: FlatBlock[] = []
+  flattenTokenList(tokens, 0, result)
+  return result
+}
+
+function flattenTokenList(tokens: Token[], indent: number, result: FlatBlock[]): void {
+  for (const token of tokens) {
+    if (token.type === "space") continue
+
+    if (token.type === "list") {
+      const list = token as Tokens.List
+      for (let i = 0; i < list.items.length; i++) {
+        const item = list.items[i]
+        const bullet = list.ordered ? `${i + (list.start || 1)}. ` : "- "
+        flattenListItem(item, indent, bullet, result)
+      }
+    } else {
+      result.push({ token, indent })
+    }
+  }
+}
+
+function flattenListItem(
+  item: Tokens.ListItem,
+  indent: number,
+  bullet: string,
+  result: FlatBlock[],
+): void {
+  const checked = item.checked != null ? item.checked : undefined
+  const childTokens = item.tokens || []
+  let bulletUsed = false
+
+  for (const token of childTokens) {
+    if (token.type === "space") continue
+
+    if (token.type === "text" || token.type === "paragraph") {
+      // Inline content — attach the bullet to the first one
+      result.push({
+        token,
+        indent,
+        bullet: bulletUsed ? undefined : bullet,
+        checked: bulletUsed ? undefined : checked,
+      })
+      bulletUsed = true
+    } else if (token.type === "list") {
+      // Emit bullet line if nothing preceded this nested list
+      if (!bulletUsed) {
+        result.push({
+          token: { type: "text", raw: "", text: "", tokens: [] } as unknown as Token,
+          indent,
+          bullet,
+          checked,
+        })
+        bulletUsed = true
+      }
+      // Nested list — increase indent to align with content after bullet
+      const list = token as Tokens.List
+      for (let i = 0; i < list.items.length; i++) {
+        const subItem = list.items[i]
+        const subBullet = list.ordered ? `${i + (list.start || 1)}. ` : "- "
+        flattenListItem(subItem, indent + bullet.length, subBullet, result)
+      }
+    } else {
+      // Block content (code, table, blockquote, hr, etc.)
+      if (!bulletUsed) {
+        result.push({
+          token: { type: "text", raw: "", text: "", tokens: [] } as unknown as Token,
+          indent,
+          bullet,
+          checked,
+        })
+        bulletUsed = true
+      }
+      // Emit the block indented to align with content after the bullet
+      result.push({ token, indent: indent + bullet.length })
+    }
+  }
+
+  // List item had no content tokens — still emit the bullet
+  if (!bulletUsed) {
+    result.push({
+      token: { type: "text", raw: "", text: "", tokens: [] } as unknown as Token,
+      indent,
+      bullet,
+      checked,
+    })
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
 export function MarkdownView({ content, showLineNumbers = true, marks, docRef }: MarkdownViewProps) {
   const { theme, syntax } = useTheme()
   const palette = useGutterPalette()
   const tokens = marked.lexer(content)
-  const blocks = tokens.filter((t) => t.type !== "space")
+  const blocks = flattenTokens(tokens)
 
-  const blockElements = blocks.map((token, index) => (
-    <TokenRenderer key={index} token={token} theme={theme} syntax={syntax} />
+  const blockElements = blocks.map((block, index) => (
+    <FlatBlockRenderer key={index} block={block} theme={theme} syntax={syntax} />
   ))
 
   return (
@@ -40,32 +164,50 @@ export function MarkdownView({ content, showLineNumbers = true, marks, docRef }:
   )
 }
 
-function TokenRenderer({
-  token,
+// ---------------------------------------------------------------------------
+// Block renderer (flat)
+// ---------------------------------------------------------------------------
+
+function FlatBlockRenderer({
+  block,
   theme,
   syntax,
 }: {
-  token: Token
+  block: FlatBlock
   theme: ResolvedTheme
   syntax: SyntaxStyle
 }): ReactNode {
+  const { token, indent, bullet } = block
+
+  // List item line (has bullet)
+  if (bullet !== undefined) {
+    return <ListLineRenderer block={block} theme={theme} />
+  }
+
+  // Regular block token
   switch (token.type) {
     case "heading":
-      return <HeadingRenderer token={token as Tokens.Heading} theme={theme} />
+      return <HeadingRenderer token={token as Tokens.Heading} theme={theme} indent={indent} />
     case "paragraph":
-      return <ParagraphRenderer token={token as Tokens.Paragraph} theme={theme} />
+      return <ParagraphRenderer token={token as Tokens.Paragraph} theme={theme} indent={indent} />
     case "code":
-      return <CodeBlockRenderer token={token as Tokens.Code} theme={theme} syntax={syntax} />
+      return (
+        <CodeBlockRenderer
+          token={token as Tokens.Code}
+          theme={theme}
+          syntax={syntax}
+          indent={indent}
+        />
+      )
     case "blockquote":
-      return <BlockquoteRenderer token={token as Tokens.Blockquote} theme={theme} />
-    case "list":
-      return <ListRenderer token={token as Tokens.List} theme={theme} />
+      return (
+        <BlockquoteRenderer token={token as Tokens.Blockquote} theme={theme} indent={indent} />
+      )
     case "table":
-      return <MarkdownTableRenderer token={token as Tokens.Table} />
+      return <MarkdownTableRenderer token={token as Tokens.Table} indent={indent} />
     case "hr":
-      return <HorizontalRule theme={theme} />
+      return <HorizontalRule theme={theme} indent={indent} />
     case "space":
-      return null
     case "html":
       return null
     default:
@@ -77,7 +219,7 @@ function TokenRenderer({
               fg: theme.markdownText,
               marginBottom: 1,
               marginTop: 0,
-              marginLeft: 1,
+              marginLeft: 1 + indent,
               marginRight: 1,
             }}
           />
@@ -87,7 +229,52 @@ function TokenRenderer({
   }
 }
 
-function HeadingRenderer({ token, theme }: { token: Tokens.Heading; theme: ResolvedTheme }) {
+// ---------------------------------------------------------------------------
+// List line renderer
+// ---------------------------------------------------------------------------
+
+function ListLineRenderer({ block, theme }: { block: FlatBlock; theme: ResolvedTheme }) {
+  const { token, indent, bullet, checked } = block
+  const checkboxPrefix = checked !== undefined ? (checked ? "[x] " : "[ ] ") : ""
+
+  // Get inline tokens from the text/paragraph token
+  const inlineTokens: Token[] =
+    "tokens" in token && Array.isArray(token.tokens) ? token.tokens : []
+
+  const hasText = "text" in token && typeof token.text === "string" && token.text.length > 0
+  const hasContent = inlineTokens.length > 0 || hasText
+
+  return (
+    <box style={{ marginLeft: 1 + indent, marginRight: 1 }}>
+      <text style={{ fg: theme.markdownText }}>
+        <span fg={theme.markdownListItem}>{bullet}</span>
+        {checkboxPrefix !== "" && (
+          <span fg={checked ? theme.accent : theme.textMuted}>{checkboxPrefix}</span>
+        )}
+        {hasContent &&
+          (inlineTokens.length > 0 ? (
+            <InlineTokens tokens={inlineTokens} theme={theme} />
+          ) : hasText ? (
+            ("text" in token ? (token as { text: string }).text : "")
+          ) : null)}
+      </text>
+    </box>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Block renderers
+// ---------------------------------------------------------------------------
+
+function HeadingRenderer({
+  token,
+  theme,
+  indent,
+}: {
+  token: Tokens.Heading
+  theme: ResolvedTheme
+  indent: number
+}) {
   const headingColors: Record<number, string> = {
     1: theme.markdownHeading,
     2: theme.secondary,
@@ -106,21 +293,29 @@ function HeadingRenderer({ token, theme }: { token: Tokens.Heading; theme: Resol
     6: "###### ",
   }
 
-  const headingText = getPlainText(token.tokens || [])
-
   return (
-    <box style={{ marginTop: 1, marginBottom: 1 }}>
+    <box style={{ marginTop: 1, marginBottom: 1, marginLeft: indent }}>
       <text style={{ fg: headingColors[token.depth] || theme.text }}>
         <span fg={theme.textMuted}>{prefixes[token.depth]}</span>
-        <strong>{headingText}</strong>
+        <strong>
+          <InlineTokens tokens={token.tokens || []} theme={theme} />
+        </strong>
       </text>
     </box>
   )
 }
 
-function ParagraphRenderer({ token, theme }: { token: Tokens.Paragraph; theme: ResolvedTheme }) {
+function ParagraphRenderer({
+  token,
+  theme,
+  indent,
+}: {
+  token: Tokens.Paragraph
+  theme: ResolvedTheme
+  indent: number
+}) {
   return (
-    <box style={{ marginBottom: 1, marginLeft: 1, marginRight: 1 }}>
+    <box style={{ marginBottom: 1, marginLeft: 1 + indent, marginRight: 1 }}>
       <text style={{ fg: theme.markdownText }}>
         <InlineTokens tokens={token.tokens || []} theme={theme} />
       </text>
@@ -132,10 +327,12 @@ function CodeBlockRenderer({
   token,
   theme,
   syntax,
+  indent,
 }: {
   token: Tokens.Code
   theme: ResolvedTheme
   syntax: SyntaxStyle
+  indent: number
 }) {
   const lineCount = token.text.split("\n").length
   return (
@@ -143,7 +340,7 @@ function CodeBlockRenderer({
       style={{
         marginTop: 0,
         marginBottom: 1,
-        marginLeft: 1,
+        marginLeft: 1 + indent,
         marginRight: 1,
         border: true,
         borderColor: theme.border,
@@ -161,105 +358,72 @@ function CodeBlockRenderer({
   )
 }
 
-function BlockquoteRenderer({ token, theme }: { token: Tokens.Blockquote; theme: ResolvedTheme }) {
-  const quoteText = token.tokens
-    ? token.tokens
-        .map((t) => {
-          const innerTokens = "tokens" in t ? (t as { tokens?: Token[] }).tokens : undefined
-          const textContent = "text" in t ? (t as { text?: string }).text : ""
-          return getPlainText(innerTokens || []) || textContent || ""
-        })
-        .join("\n")
-    : ""
-
-  return (
-    <box style={{ marginTop: 0, marginBottom: 1, marginLeft: 1, marginRight: 1, paddingLeft: 2 }}>
-      <text style={{ fg: theme.markdownBlockQuote }} content="│ " />
-      <text style={{ fg: theme.textMuted }} content={quoteText} />
-    </box>
-  )
-}
-
-function ListRenderer({ token, theme }: { token: Tokens.List; theme: ResolvedTheme }) {
-  return (
-    <box style={{ marginBottom: 1, marginLeft: 3, marginRight: 1, flexDirection: "column" }}>
-      {token.items.map((item, index) => (
-        <ListItemRenderer
-          key={index}
-          item={item}
-          ordered={token.ordered}
-          index={index + (token.start || 1)}
-          theme={theme}
-        />
-      ))}
-    </box>
-  )
-}
-
-function ListItemRenderer({
-  item,
-  ordered,
-  index,
+function BlockquoteRenderer({
+  token,
   theme,
+  indent,
 }: {
-  item: Tokens.ListItem
-  ordered: boolean
-  index: number
+  token: Tokens.Blockquote
   theme: ResolvedTheme
+  indent: number
 }) {
-  const bullet = ordered ? `${index}. ` : "- "
-  const itemContent = item.tokens || []
+  // Collect inline tokens from blockquote's child paragraphs/text
+  const inlineTokens: Token[] = []
+  if (token.tokens) {
+    for (const child of token.tokens) {
+      if ("tokens" in child && Array.isArray(child.tokens)) {
+        if (inlineTokens.length > 0) {
+          inlineTokens.push({ type: "text", raw: "\n", text: "\n" } as Token)
+        }
+        inlineTokens.push(...(child.tokens as Token[]))
+      } else if ("text" in child && typeof child.text === "string") {
+        inlineTokens.push(child)
+      }
+    }
+  }
 
   return (
-    <box style={{ flexDirection: "row" }}>
-      <text style={{ fg: theme.markdownListItem }} content={bullet} />
-      <box style={{ flexShrink: 1, flexDirection: "column" }}>
-        {itemContent.map((token, idx) => {
-          if (token.type === "text" && "tokens" in token && token.tokens) {
-            return (
-              <text key={idx} style={{ fg: theme.markdownText }}>
-                <InlineTokens tokens={token.tokens} theme={theme} />
-              </text>
-            )
-          }
-          if (token.type === "paragraph" && token.tokens) {
-            return (
-              <text key={idx} style={{ fg: theme.markdownText }}>
-                <InlineTokens tokens={token.tokens} theme={theme} />
-              </text>
-            )
-          }
-          if (token.type === "list") {
-            return <ListRenderer key={idx} token={token as Tokens.List} theme={theme} />
-          }
-          if ("text" in token && typeof token.text === "string") {
-            return <text key={idx} style={{ fg: theme.markdownText }} content={token.text} />
-          }
-          return null
-        })}
-      </box>
+    <box
+      style={{
+        marginTop: 0,
+        marginBottom: 1,
+        marginLeft: 1 + indent,
+        marginRight: 1,
+        paddingLeft: 2,
+      }}
+    >
+      <text style={{ fg: theme.markdownBlockQuote }} content="│ " />
+      <text style={{ fg: theme.textMuted }}>
+        <InlineTokens tokens={inlineTokens} theme={theme} />
+      </text>
     </box>
   )
 }
 
-function MarkdownTableRenderer({ token }: { token: Tokens.Table }) {
+function MarkdownTableRenderer({ token, indent }: { token: Tokens.Table; indent: number }) {
   const { theme } = useTheme()
 
   const content: TextTableContent = useMemo(() => {
-    const headerRow: TextTableCellContent[] = token.header.map((cell) => [
-      boldChunk(getPlainText(cell.tokens).trim()),
-    ])
+    const headerRow: TextTableCellContent[] = token.header.map((cell) => {
+      const chunks = inlineTokensToChunks(cell.tokens, theme)
+      // Wrap header chunks in bold
+      return chunks.length > 0
+        ? chunks.map((c) => boldChunk(c))
+        : [boldChunk(getPlainText(cell.tokens).trim())]
+    })
     const dataRows = token.rows.map((row) =>
-      row.map(
-        (cell) =>
-          [{ __isChunk: true as const, text: getPlainText(cell.tokens) }] as TextTableCellContent,
-      ),
+      row.map((cell) => {
+        const chunks = inlineTokensToChunks(cell.tokens, theme)
+        return chunks.length > 0
+          ? chunks
+          : ([{ __isChunk: true as const, text: getPlainText(cell.tokens) }] as TextTableCellContent)
+      }),
     )
     return [headerRow, ...dataRows]
-  }, [token])
+  }, [token, theme])
 
   return (
-    <box style={{ marginLeft: 1, marginRight: 1, marginBottom: 1 }}>
+    <box style={{ marginLeft: 1 + indent, marginRight: 1, marginBottom: 1 }}>
       <text-table
         content={content}
         wrapMode="word"
@@ -274,25 +438,17 @@ function MarkdownTableRenderer({ token }: { token: Tokens.Table }) {
   )
 }
 
-function HorizontalRule({ theme }: { theme: ResolvedTheme }) {
+function HorizontalRule({ theme, indent }: { theme: ResolvedTheme; indent: number }) {
   return (
-    <box style={{ marginTop: 0, marginBottom: 1, marginLeft: 1, marginRight: 1 }}>
+    <box style={{ marginTop: 0, marginBottom: 1, marginLeft: 1 + indent, marginRight: 1 }}>
       <text style={{ fg: theme.markdownHorizontalRule }} content={"─".repeat(40)} />
     </box>
   )
 }
 
-function getPlainText(tokens: Token[]): string {
-  return tokens
-    .map((token) => {
-      if (token.type === "text") return token.text
-      if (token.type === "codespan") return (token as Tokens.Codespan).text
-      if ("tokens" in token && token.tokens) return getPlainText(token.tokens as Token[])
-      if ("text" in token) return (token as { text: string }).text
-      return ""
-    })
-    .join("")
-}
+// ---------------------------------------------------------------------------
+// Inline token rendering (React elements)
+// ---------------------------------------------------------------------------
 
 function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme }): ReactNode {
   const result: ReactNode[] = []
@@ -308,11 +464,17 @@ function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme
         break
       case "strong":
         result.push(
-          <strong key={key}>{getPlainText((token as Tokens.Strong).tokens || [])}</strong>,
+          <strong key={key}>
+            <InlineTokens tokens={(token as Tokens.Strong).tokens || []} theme={theme} />
+          </strong>,
         )
         break
       case "em":
-        result.push(<em key={key}>{getPlainText((token as Tokens.Em).tokens || [])}</em>)
+        result.push(
+          <em key={key}>
+            <InlineTokens tokens={(token as Tokens.Em).tokens || []} theme={theme} />
+          </em>,
+        )
         break
       case "codespan":
         result.push(
@@ -326,9 +488,27 @@ function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme
         result.push(
           <u key={key}>
             <a href={linkToken.href} fg={theme.markdownLink}>
-              {getPlainText(linkToken.tokens || [])}
+              <InlineTokens tokens={linkToken.tokens || []} theme={theme} />
             </a>
           </u>,
+        )
+        break
+      }
+      case "del":
+        result.push(
+          <span key={key} fg={theme.textMuted}>
+            {"~"}
+            <InlineTokens tokens={(token as Tokens.Del).tokens || []} theme={theme} />
+            {"~"}
+          </span>,
+        )
+        break
+      case "image": {
+        const imgToken = token as Tokens.Image
+        result.push(
+          <span key={key} fg={theme.textMuted}>
+            {imgToken.text || imgToken.href}
+          </span>,
         )
         break
       }
@@ -350,4 +530,74 @@ function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme
   }
 
   return <>{result}</>
+}
+
+// ---------------------------------------------------------------------------
+// Inline token rendering (TextChunks — for text-table cells)
+// ---------------------------------------------------------------------------
+
+function inlineTokensToChunks(tokens: Token[], theme: ResolvedTheme): TextChunk[] {
+  const chunks: TextChunk[] = []
+
+  for (const token of tokens) {
+    switch (token.type) {
+      case "text":
+        chunks.push({ __isChunk: true as const, text: (token as Tokens.Text).text })
+        break
+      case "strong":
+        for (const sub of inlineTokensToChunks(
+          (token as Tokens.Strong).tokens || [],
+          theme,
+        )) {
+          chunks.push(boldChunk(sub))
+        }
+        break
+      case "em":
+        for (const sub of inlineTokensToChunks((token as Tokens.Em).tokens || [], theme)) {
+          chunks.push(italicChunk(sub))
+        }
+        break
+      case "codespan":
+        chunks.push({
+          __isChunk: true as const,
+          text: ` ${(token as Tokens.Codespan).text} `,
+          fg: parseColor(theme.markdownCode),
+          bg: parseColor(theme.backgroundPanel),
+        })
+        break
+      case "link": {
+        const linkToken = token as Tokens.Link
+        for (const sub of inlineTokensToChunks(linkToken.tokens || [], theme)) {
+          chunks.push(underlineChunk({ ...sub, fg: parseColor(theme.markdownLink) }))
+        }
+        break
+      }
+      case "escape":
+        chunks.push({ __isChunk: true as const, text: (token as Tokens.Escape).text })
+        break
+      default:
+        if ("text" in token && typeof (token as { text?: string }).text === "string") {
+          chunks.push({ __isChunk: true as const, text: (token as { text: string }).text })
+        }
+        break
+    }
+  }
+
+  return chunks
+}
+
+// ---------------------------------------------------------------------------
+// Plain text extraction (only for width computation, not rendering)
+// ---------------------------------------------------------------------------
+
+function getPlainText(tokens: Token[]): string {
+  return tokens
+    .map((token) => {
+      if (token.type === "text") return token.text
+      if (token.type === "codespan") return (token as Tokens.Codespan).text
+      if ("tokens" in token && token.tokens) return getPlainText(token.tokens as Token[])
+      if ("text" in token) return (token as { text: string }).text
+      return ""
+    })
+    .join("")
 }
