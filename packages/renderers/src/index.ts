@@ -1,4 +1,5 @@
-export { MarkdownView } from "./MarkdownView.js"
+export { MarkdownView, flattenTokens } from "./MarkdownView.js"
+export type { FlatBlock } from "./MarkdownView.js"
 export { CodeView } from "./CodeView.js"
 export { ImageView } from "./ImageView.js"
 export { Table, computeColumnWidths, isNumeric, sampleRows } from "./Table.js"

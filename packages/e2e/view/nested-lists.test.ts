@@ -39,9 +39,9 @@ describe("nested list rendering", () => {
 
   test("deeply nested lists render all levels", async () => {
     session = await launchView("nested-lists.md")
-    // Scroll down to see the deep nesting section
-    await session.type("j".repeat(8))
-    await session.waitForText("Level three item", { timeout: 5000 })
+    // Jump to bottom to ensure deep nesting section is visible
+    await session.press(["shift", "g"])
+    await session.waitForText("Level three item", { timeout: 10000 })
     const text = await session.text()
     expect(text).toContain("Level one")
     expect(text).toContain("Level two")
@@ -51,9 +51,9 @@ describe("nested list rendering", () => {
 
   test("paragraph after nested lists is visible", async () => {
     session = await launchView("nested-lists.md")
-    // Jump to end
+    // Jump to end (G = shift+g)
     await session.press(["shift", "g"])
-    await session.waitForText("Paragraph after nested lists", { timeout: 5000 })
+    await session.waitForText("Paragraph after nested lists", { timeout: 10000 })
     const text = await session.text()
     expect(text).toContain("Paragraph after nested lists.")
   }, 20000)

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react"
 import { marked } from "marked"
-import { MarkdownView, type RowDocumentRenderable } from "@tooee/renderers"
+import { MarkdownView, flattenTokens, type RowDocumentRenderable } from "@tooee/renderers"
 import { useTheme } from "@tooee/themes"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
 import { useCopy, useNavigation, useSearch } from "@tooee/shell"
@@ -29,10 +29,7 @@ export function MarkdownSubview({
   const docRef = useRef<RowDocumentRenderable>(null)
   const textContent = content.markdown
   const lineCount = useMemo(() => textContent.split("\n").length, [textContent])
-  const blocks = useMemo(
-    () => marked.lexer(content.markdown).filter((token) => token.type !== "space"),
-    [content.markdown],
-  )
+  const blocks = useMemo(() => flattenTokens(marked.lexer(content.markdown)), [content.markdown])
 
   const nav = useNavigation({
     rowCount: blocks.length,
@@ -42,7 +39,8 @@ export function MarkdownSubview({
     match: (query) => {
       const lowerQuery = query.toLowerCase()
       return blocks.flatMap((block, index) => {
-        const raw = "raw" in block && typeof block.raw === "string" ? block.raw : ""
+        const { token } = block
+        const raw = "raw" in token && typeof token.raw === "string" ? token.raw : ""
         return raw.toLowerCase().includes(lowerQuery) ? [index] : []
       })
     },
@@ -51,7 +49,9 @@ export function MarkdownSubview({
   useCopy({
     getRowText: (index) => {
       const block = blocks[index]
-      return block && "raw" in block && typeof block.raw === "string" ? block.raw : ""
+      if (!block) return ""
+      const { token } = block
+      return "raw" in token && typeof token.raw === "string" ? token.raw : ""
     },
     cursor: nav.cursor,
     selection: nav.selection,

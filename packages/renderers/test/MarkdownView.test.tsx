@@ -462,6 +462,179 @@ describe("nested list rendering", () => {
 })
 
 // ---------------------------------------------------------------------------
+// Flat token rendering: code blocks, tables, blockquotes inside lists
+// ---------------------------------------------------------------------------
+
+describe("code block inside list item", () => {
+  test("code block inside list item renders code content", async () => {
+    const md = `- Setup step:\n\n  \`\`\`bash\n  npm install\n  \`\`\`\n\n- Next step`
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("Setup step")
+    expect(frame).toContain("npm install")
+    expect(frame).toContain("Next step")
+  })
+
+  test("code block inside list has border", async () => {
+    const md = `- Example:\n\n  \`\`\`js\n  const x = 1\n  \`\`\`\n`
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("const x = 1")
+    // Code block should have border characters
+    expect(frame).toContain("\u250c") // top-left corner
+    expect(frame).toContain("\u2514") // bottom-left corner
+  })
+})
+
+describe("table inside list item", () => {
+  test("table inside list item renders all cells", async () => {
+    const md = `- Data summary:\n\n  | Key | Value |\n  | --- | --- |\n  | Alpha | 100 |\n  | Beta | 200 |\n\n- Next item`
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("Data summary")
+    expect(frame).toContain("Alpha")
+    expect(frame).toContain("Beta")
+    expect(frame).toContain("100")
+    expect(frame).toContain("200")
+    expect(frame).toContain("Next item")
+  })
+})
+
+describe("blockquote inside list item", () => {
+  test("blockquote inside list item renders with quote marker", async () => {
+    const md = `- Note:\n\n  > This is an important quote\n\n- Continue`
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("Note")
+    expect(frame).toContain("important quote")
+    expect(frame).toContain("Continue")
+    // Should have the blockquote bar
+    expect(frame).toContain("\u2502")
+  })
+})
+
+describe("checkbox list items", () => {
+  test("checked and unchecked checkboxes render", async () => {
+    const md = `- [x] Completed task\n- [ ] Pending task\n- Regular item`
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("[x]")
+    expect(frame).toContain("[ ]")
+    expect(frame).toContain("Completed task")
+    expect(frame).toContain("Pending task")
+    expect(frame).toContain("Regular item")
+  })
+})
+
+describe("inline formatting preservation", () => {
+  test("heading with bold and code preserves formatting", async () => {
+    const md = `## Using **Bun** for \`testing\``
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("Bun")
+    expect(frame).toContain("testing")
+    expect(frame).toContain("Using")
+  })
+
+  test("blockquote with inline formatting preserves content", async () => {
+    const md = `> This has **bold** and \`code\` inside`
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("bold")
+    expect(frame).toContain("code")
+    expect(frame).toContain("This has")
+  })
+
+  test("strikethrough text renders with markers", async () => {
+    const md = `This has ~~deleted~~ text`
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("deleted")
+    expect(frame).toContain("~")
+  })
+
+  test("nested inline formatting renders correctly", async () => {
+    const md = `**bold with \`code\` inside** and *italic with **bold** inside*`
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("bold with")
+    expect(frame).toContain("code")
+    expect(frame).toContain("italic with")
+  })
+})
+
+describe("horizontal rule inside list item", () => {
+  test("hr inside list item renders separator", async () => {
+    const md = `- Before\n\n  ---\n\n- After`
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("Before")
+    expect(frame).toContain("After")
+    expect(frame).toContain("─") // HR character
+  })
+})
+
+// ---------------------------------------------------------------------------
 // Bug fix: scroll does not leak into embedded code blocks
 // ---------------------------------------------------------------------------
 

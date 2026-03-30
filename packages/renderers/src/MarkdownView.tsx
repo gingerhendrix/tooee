@@ -35,7 +35,7 @@ interface MarkdownViewProps {
  * Nested structures (lists containing code blocks, etc.) are flattened
  * into sibling blocks with appropriate indentation.
  */
-interface FlatBlock {
+export interface FlatBlock {
   token: Token
   indent: number
   bullet?: string // "- " or "1. " for list item lines
@@ -46,7 +46,7 @@ interface FlatBlock {
 // Token flattening
 // ---------------------------------------------------------------------------
 
-function flattenTokens(tokens: Token[]): FlatBlock[] {
+export function flattenTokens(tokens: Token[]): FlatBlock[] {
   const result: FlatBlock[] = []
   flattenTokenList(tokens, 0, result)
   return result
@@ -80,7 +80,7 @@ function flattenListItem(
   let bulletUsed = false
 
   for (const token of childTokens) {
-    if (token.type === "space") continue
+    if (token.type === "space" || token.type === "checkbox") continue
 
     if (token.type === "text" || token.type === "paragraph") {
       // Inline content — attach the bullet to the first one
