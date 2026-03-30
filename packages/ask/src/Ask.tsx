@@ -116,7 +116,7 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
 
   return (
     <AppLayout
-      titleBar={(title ?? prompt) ? { title: (title ?? prompt)! } : undefined}
+      titleBar={title ? { title } : undefined}
       statusBar={{
         items: [
           { label: "Mode:", value: mode },
@@ -139,35 +139,49 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
     >
       <box
         flexDirection="column"
-        style={{ paddingLeft: 1, paddingRight: 1 }}
+        alignItems="center"
+        justifyContent="center"
+        style={{ flexGrow: 1 }}
         onMouseDown={handleMouseDown}
       >
-        {multiline ? (
-          <textarea
-            ref={textareaRef}
-            focused={inputFocused}
-            initialValue={defaultValue}
-            placeholder={placeholder}
-            textColor={theme.text}
-            placeholderColor={theme.textMuted}
-            backgroundColor="transparent"
-            onSubmit={handleSubmit}
-            style={{ flexGrow: 1 }}
-          />
-        ) : (
-          <input
-            ref={inputRef}
-            focused={inputFocused}
-            value={value}
-            onInput={setValue}
-            onSubmit={handleSubmit}
-            placeholder={placeholder}
-            textColor={theme.text}
-            placeholderColor={theme.textMuted}
-            cursorColor={theme.primary}
-            backgroundColor="transparent"
-          />
-        )}
+        <box
+          flexDirection="column"
+          width="100%"
+          maxWidth={80}
+          style={{ flexGrow: 1, padding: 1 }}
+        >
+          {prompt && (
+            <text fg={theme.text} style={{ marginBottom: 1 }}>
+              <strong>{prompt}</strong>
+            </text>
+          )}
+          {multiline ? (
+            <textarea
+              ref={textareaRef}
+              focused={inputFocused}
+              initialValue={defaultValue}
+              placeholder={placeholder}
+              textColor={theme.text}
+              placeholderColor={theme.textMuted}
+              backgroundColor="transparent"
+              onSubmit={handleSubmit}
+              style={{ flexGrow: 1 }}
+            />
+          ) : (
+            <input
+              ref={inputRef}
+              focused={inputFocused}
+              value={value}
+              onInput={setValue}
+              onSubmit={handleSubmit}
+              placeholder={placeholder}
+              textColor={theme.text}
+              placeholderColor={theme.textMuted}
+              cursorColor={theme.primary}
+              backgroundColor="transparent"
+            />
+          )}
+        </box>
       </box>
     </AppLayout>
   )

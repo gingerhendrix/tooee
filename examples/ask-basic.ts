@@ -18,6 +18,7 @@ import { launch } from "@tooee/ask"
 launch({
   // The prompt displayed above the input field
   prompt: "What's your name?",
+  title: "Ask Example",
 
   // Placeholder text shown when input is empty
   placeholder: "Enter your name...",
@@ -31,7 +32,6 @@ launch({
       id: "submit",
       title: "Submit",
       handler: (ctx) => {
-        console.log(`Hello, ${ctx.ask.value}!`)
         ctx.exit()
       },
     },
