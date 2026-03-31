@@ -1,6 +1,6 @@
 {
   "name": "@tooee/shell",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Composition layer wiring Tooee apps together",
   "keywords": [
     "cli",
