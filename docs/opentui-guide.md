@@ -43,7 +43,6 @@ const renderer = await createCliRenderer({
   maxFps: 120,
   useMouse: true, // Enable mouse events
   enableMouseMovement: false, // Mouse move tracking (expensive)
-  useAlternateScreen: true, // Use alternate terminal screen
   useConsole: true, // Capture console.log into overlay
   backgroundColor: "#1a1b26", // Default background color
   onDestroy: () => {}, // Cleanup callback
@@ -71,7 +70,6 @@ interface CliRendererConfig {
   postProcessFns?: ((buffer: OptimizedBuffer, deltaTime: number) => void)[]
   enableMouseMovement?: boolean
   useMouse?: boolean
-  useAlternateScreen?: boolean
   useConsole?: boolean
   backgroundColor?: ColorInput
   openConsoleOnError?: boolean

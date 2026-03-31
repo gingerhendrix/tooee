@@ -37,7 +37,6 @@ export async function launch(opts: ChooseLaunchOptions): Promise<ChooseResult | 
     }
 
     createCliRenderer({
-      useAlternateScreen: true,
       exitOnCtrlC: false,
       ...(ttyStdin ? { stdin: ttyStdin as unknown as NodeJS.ReadStream } : {}),
     }).then((r) => {

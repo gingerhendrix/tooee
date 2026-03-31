@@ -1,7 +1,6 @@
 node_modules/
 dist/
 *.tsbuildinfo
-bun.lock
 examples/*.d.ts
 examples/*.d.ts.map
 packages/*/test/**/*.d.ts

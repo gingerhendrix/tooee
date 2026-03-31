@@ -32,10 +32,9 @@ export function guardTerminalHealth(renderer: CliRenderer): void {
 
 export async function launchCli(
   node: ReactNode,
-  opts?: { useAlternateScreen?: boolean; exitOnCtrlC?: boolean; leader?: string },
+  opts?: { exitOnCtrlC?: boolean; leader?: string },
 ): Promise<void> {
   const renderer = await createCliRenderer({
-    useAlternateScreen: opts?.useAlternateScreen ?? true,
     exitOnCtrlC: opts?.exitOnCtrlC ?? true,
   })
 
