@@ -30,7 +30,12 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
 
   const { theme } = useTheme()
   const { name: themeName, picker: themePicker } = useThemeCommands()
-  useQuitCommand()
+  useQuitCommand({
+    onQuit: () => {
+      renderer.destroy()
+      process.exit(0)
+    },
+  })
 
   const mode = useMode()
   const setMode = useSetMode()
