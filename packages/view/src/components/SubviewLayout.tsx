@@ -1,7 +1,8 @@
 import type { ReactNode } from "react"
 import { AppLayout, type StatusBarItem } from "@tooee/layout"
 import { useMode } from "@tooee/commands"
-import type { NavigationState, SearchState } from "@tooee/shell"
+import type { NavigationState } from "@tooee/shell"
+import type { SearchState } from "@tooee/search"
 import type { AnyContent } from "../types.js"
 
 interface SubviewLayoutProps {
@@ -39,17 +40,7 @@ export function SubviewLayout({
           : { title: content.format }
       }
       statusBar={{ items: statusItems }}
-      searchBar={{
-        active: nav.searchActive,
-        query: nav.searchQuery,
-        onQueryChange: nav.setSearchQuery,
-        onSubmit: nav.submitSearch,
-        onCancel: () => {
-          nav.setSearchQuery("")
-        },
-        matchCount: nav.matchingLines.length,
-        currentMatch: nav.currentMatchIndex,
-      }}
+      searchBar={nav}
     >
       {children}
     </AppLayout>

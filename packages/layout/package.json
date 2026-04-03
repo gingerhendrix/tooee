@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@tooee/overlays": "workspace:*",
+    "@tooee/search": "workspace:*",
     "@tooee/themes": "workspace:*",
     "@tooee/toasts": "workspace:*"
   },

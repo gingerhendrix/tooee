@@ -1,0 +1,5 @@
+export { useSearch } from "./search-hook.js"
+export type { UseSearchOptions, SearchState } from "./search-hook.js"
+export { findMatchingLines } from "./search.js"
+export { SearchBar } from "./SearchBar.js"
+export type { SearchBarProps } from "./SearchBar.js"

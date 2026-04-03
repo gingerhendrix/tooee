@@ -3,15 +3,11 @@ import type { ScrollBoxRenderable } from "@opentui/core"
 import { TitleBar } from "./TitleBar.js"
 import { StatusBar } from "./StatusBar.js"
 import type { StatusBarItem } from "./StatusBar.js"
-import { SearchBar } from "./SearchBar.js"
-import type { SearchBarProps } from "./SearchBar.js"
+import { SearchBar } from "@tooee/search"
+import type { SearchState } from "@tooee/search"
 import { useTheme } from "@tooee/themes"
 import { useCurrentOverlay } from "@tooee/overlays"
 import { ToastContainer } from "@tooee/toasts"
-
-export interface AppLayoutSearchBar extends SearchBarProps {
-  active: boolean
-}
 
 export interface AppLayoutProps {
   titleBar?: { title: string; subtitle?: string }
@@ -22,7 +18,7 @@ export interface AppLayoutProps {
     stickyStart?: "bottom" | "top"
     focused?: boolean
   }
-  searchBar?: AppLayoutSearchBar
+  searchBar?: SearchState
   overlay?: ReactNode
   children: ReactNode
 }
@@ -63,14 +59,14 @@ export function AppLayout({
         )}
         <ToastContainer />
       </box>
-      {searchBar?.active ? (
+      {searchBar?.searchActive ? (
         <SearchBar
-          query={searchBar.query}
-          onQueryChange={searchBar.onQueryChange}
-          onSubmit={searchBar.onSubmit}
-          onCancel={searchBar.onCancel}
-          matchCount={searchBar.matchCount}
-          currentMatch={searchBar.currentMatch}
+          query={searchBar.searchQuery}
+          onQueryChange={searchBar.setSearchQuery}
+          onSubmit={searchBar.submitSearch}
+          onCancel={() => searchBar.setSearchQuery("")}
+          matchCount={searchBar.matchingLines.length}
+          currentMatch={searchBar.currentMatchIndex}
         />
       ) : (
         <StatusBar items={statusBar.items} />

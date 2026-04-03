@@ -1,7 +1,8 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe } from "bun:test"
 import { act } from "react"
-import { TooeeProvider, useNavigation, useSearch } from "@tooee/shell"
+import { TooeeProvider, useNavigation } from "@tooee/shell"
+import { useSearch } from "@tooee/search"
 import { useMode } from "@tooee/commands"
 import { press, type TestSession } from "./support/test-helpers.ts"
 

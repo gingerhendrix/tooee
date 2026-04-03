@@ -1,7 +1,8 @@
 import { useMemo } from "react"
 import { MarkSetBuilder, createMarkState, MarkPriorities } from "@tooee/marks"
 import type { MarkSet, MarkState } from "@tooee/marks"
-import type { NavigationState, SearchState } from "@tooee/shell"
+import type { NavigationState } from "@tooee/shell"
+import type { SearchState } from "@tooee/search"
 import type { ResolvedTheme } from "@tooee/themes"
 
 interface UseMarkStateParams {

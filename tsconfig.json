@@ -26,6 +26,7 @@
     { "path": "packages/fuzzy" },
     { "path": "packages/marks" },
     { "path": "packages/toasts" },
+    { "path": "packages/search" },
     { "path": "packages/layout" },
     { "path": "packages/renderers" },
     { "path": "packages/shell" },

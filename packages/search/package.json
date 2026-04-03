@@ -1,10 +1,11 @@
 {
-  "name": "@tooee/shell",
+  "name": "@tooee/search",
   "version": "0.1.14",
-  "description": "Composition layer wiring Tooee apps together",
+  "description": "Search hook, utilities, and SearchBar component for Tooee",
   "keywords": [
     "cli",
     "opentui",
+    "search",
     "terminal",
     "tui"
   ],
@@ -15,7 +16,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/gingerhendrix/tooee.git",
-    "directory": "packages/shell"
+    "directory": "packages/search"
   },
   "files": [
     "dist",
@@ -34,19 +35,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tooee/clipboard": "workspace:*",
     "@tooee/commands": "workspace:*",
-    "@tooee/config": "workspace:*",
-    "@tooee/layout": "workspace:*",
-    "@tooee/overlays": "workspace:*",
-    "@tooee/renderers": "workspace:*",
-    "@tooee/themes": "workspace:*",
-    "@tooee/toasts": "workspace:*"
+    "@tooee/themes": "workspace:*"
   },
   "devDependencies": {
     "@opentui/core": "^0.1.86",
     "@opentui/react": "^0.1.86",
-    "@tooee/search": "workspace:*",
     "@types/bun": "^1.3.10",
     "@types/react": "^19.2.14",
     "typescript": "^5.9.3"
