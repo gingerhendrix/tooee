@@ -30,5 +30,4 @@ bun run lint         # Lint with oxlint
 
 ## Documentation
 
-- [docs/opentui-guide.md](docs/opentui-guide.md) — OpenTUI primitives (elements, hooks, types, tsconfig)
 - [docs/testing.md](docs/testing.md) — Testing guide (component tests with testRender, e2e tests with tuistory)
