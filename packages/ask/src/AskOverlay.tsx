@@ -40,14 +40,18 @@ export function AskOverlay({
       key.preventDefault()
       if (mode === "insert") {
         setMode("cursor")
-      } else {
-        onCancel()
       }
+      // In cursor mode, escape does nothing - use 'q' to quit/cancel.
       return
     }
 
     if (mode === "cursor") {
-      if (key.raw === "i" || key.raw === "a") {
+      if (key.name === "q" || key.raw === "q") {
+        key.preventDefault()
+        onCancel()
+        return
+      }
+      if (key.name === "i" || key.name === "a" || key.raw === "i" || key.raw === "a") {
         key.preventDefault()
         setMode("insert")
         return
@@ -80,7 +84,7 @@ export function AskOverlay({
 
   const submitHint = multiline ? "Shift+Enter submit" : "Enter submit"
   const hintText =
-    mode === "insert" ? `${submitHint}  Esc commands` : `i insert  Esc cancel  ${submitHint}`
+    mode === "insert" ? `${submitHint}  Esc commands` : `i insert  q quit  ${submitHint}`
 
   return (
     <box
