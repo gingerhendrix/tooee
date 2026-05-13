@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import type { TextareaRenderable, InputRenderable, MouseEvent } from "@opentui/core"
 import { useKeyboard, useRenderer } from "@opentui/react"
 import { readPrimaryText } from "@tooee/clipboard"
@@ -26,6 +26,7 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
   const [value, setValue] = useState(defaultValue ?? "")
   const textareaRef = useRef<TextareaRenderable>(null)
   const inputRef = useRef<InputRenderable>(null)
+  const didPositionInitialCursorRef = useRef(false)
   const { invoke } = useCommandContext()
 
   const { theme } = useTheme()
@@ -41,6 +42,16 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
   const setMode = useSetMode()
   const hasOverlay = useHasOverlay()
   const inputFocused = mode === "insert" && !hasOverlay
+
+  useEffect(() => {
+    if (didPositionInitialCursorRef.current || !defaultValue) return
+
+    const target = multiline ? textareaRef.current : inputRef.current
+    if (!target) return
+
+    target.cursorOffset = target.plainText.length
+    didPositionInitialCursorRef.current = true
+  }, [defaultValue, multiline])
 
   const handleSubmit = () => {
     const text = multiline ? (textareaRef.current?.plainText ?? "") : value
@@ -149,12 +160,7 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
         style={{ flexGrow: 1 }}
         onMouseDown={handleMouseDown}
       >
-        <box
-          flexDirection="column"
-          width="100%"
-          maxWidth={80}
-          style={{ flexGrow: 1, padding: 1 }}
-        >
+        <box flexDirection="column" width="100%" maxWidth={80} style={{ flexGrow: 1, padding: 1 }}>
           {prompt && (
             <text fg={theme.text} style={{ marginBottom: 1 }}>
               <strong>{prompt}</strong>

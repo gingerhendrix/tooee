@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import type { TextareaRenderable, InputRenderable, MouseEvent } from "@opentui/core"
 import { useKeyboard } from "@opentui/react"
 import { readPrimaryText } from "@tooee/clipboard"
@@ -27,8 +27,19 @@ export function AskOverlay({
   const [value, setValue] = useState(defaultValue ?? "")
   const textareaRef = useRef<TextareaRenderable>(null)
   const inputRef = useRef<InputRenderable>(null)
+  const didPositionInitialCursorRef = useRef(false)
 
   const inputFocused = mode === "insert"
+
+  useEffect(() => {
+    if (didPositionInitialCursorRef.current || !defaultValue) return
+
+    const target = multiline ? textareaRef.current : inputRef.current
+    if (!target) return
+
+    target.cursorOffset = target.plainText.length
+    didPositionInitialCursorRef.current = true
+  }, [defaultValue, multiline])
 
   const handleSubmit = () => {
     const text = multiline ? (textareaRef.current?.plainText ?? "") : value

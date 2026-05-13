@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test"
 import { act } from "react"
 import { TooeeProvider } from "@tooee/shell"
 import { testRender } from "../../../test/support/test-render.ts"
+import { Ask } from "../src/Ask.js"
 import { AskOverlay } from "../src/AskOverlay.js"
 
 let testSetup: Awaited<ReturnType<typeof testRender>>
@@ -10,10 +11,51 @@ afterEach(() => {
   testSetup?.renderer.destroy()
 })
 
-async function setup(opts: { onCancel?: () => void } = {}) {
+async function setupAsk(
+  opts: {
+    multiline?: boolean
+    defaultValue?: string
+    onSubmit?: (value: string) => void
+  } = {},
+) {
   const s = await testRender(
     <TooeeProvider initialMode="insert">
-      <AskOverlay prompt="Question" onSubmit={() => {}} onCancel={opts.onCancel ?? (() => {})} />
+      <Ask
+        prompt="Question"
+        multiline={opts.multiline}
+        defaultValue={opts.defaultValue}
+        actions={[
+          {
+            id: "submit",
+            title: "Submit",
+            handler: (ctx) => opts.onSubmit?.(ctx.ask.value),
+          },
+        ]}
+      />
+    </TooeeProvider>,
+    { width: 80, height: 24, kittyKeyboard: true },
+  )
+  await s.renderOnce()
+  return s
+}
+
+async function setup(
+  opts: {
+    multiline?: boolean
+    defaultValue?: string
+    onSubmit?: (value: string) => void
+    onCancel?: () => void
+  } = {},
+) {
+  const s = await testRender(
+    <TooeeProvider initialMode="insert">
+      <AskOverlay
+        prompt="Question"
+        multiline={opts.multiline}
+        defaultValue={opts.defaultValue}
+        onSubmit={opts.onSubmit ?? (() => {})}
+        onCancel={opts.onCancel ?? (() => {})}
+      />
     </TooeeProvider>,
     { width: 80, height: 24, kittyKeyboard: true },
   )
@@ -28,12 +70,98 @@ async function pressEscape() {
   await testSetup.renderOnce()
 }
 
-async function press(key: string) {
+async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
   await act(async () => {
-    testSetup.mockInput.pressKey(key)
+    testSetup.mockInput.pressKey(key, modifiers)
   })
   await testSetup.renderOnce()
 }
+
+async function pressEnter() {
+  await act(async () => {
+    testSetup.mockInput.pressEnter()
+  })
+  await testSetup.renderOnce()
+}
+
+function findEditableWithText(node: unknown, text: string): { cursorOffset: number } | undefined {
+  if (!node || typeof node !== "object") return undefined
+
+  if (
+    "plainText" in node &&
+    "cursorOffset" in node &&
+    (node as { plainText: string }).plainText === text
+  ) {
+    return node as { cursorOffset: number }
+  }
+
+  if ("getChildren" in node && typeof node.getChildren === "function") {
+    for (const child of node.getChildren()) {
+      const match = findEditableWithText(child, text)
+      if (match) return match
+    }
+  }
+
+  return undefined
+}
+
+describe("Ask default value cursor", () => {
+  test("single-line typing appends after the default value", async () => {
+    let submitted = ""
+    testSetup = await setupAsk({
+      defaultValue: "hello",
+      onSubmit: (value) => {
+        submitted = value
+      },
+    })
+
+    await press("!")
+    await pressEnter()
+
+    expect(submitted).toBe("hello!")
+  })
+
+  test("multiline cursor starts at the end of the default value", async () => {
+    const defaultValue = "hello\nworld"
+    testSetup = await setupAsk({
+      multiline: true,
+      defaultValue,
+    })
+
+    const textarea = findEditableWithText(testSetup.renderer.root, defaultValue)
+
+    expect(textarea?.cursorOffset).toBe(defaultValue.length)
+  })
+})
+
+describe("AskOverlay default value cursor", () => {
+  test("single-line typing appends after the default value", async () => {
+    let submitted = ""
+    testSetup = await setup({
+      defaultValue: "hello",
+      onSubmit: (value) => {
+        submitted = value
+      },
+    })
+
+    await press("!")
+    await pressEnter()
+
+    expect(submitted).toBe("hello!")
+  })
+
+  test("multiline cursor starts at the end of the default value", async () => {
+    const defaultValue = "hello\nworld"
+    testSetup = await setup({
+      multiline: true,
+      defaultValue,
+    })
+
+    const textarea = findEditableWithText(testSetup.renderer.root, defaultValue)
+
+    expect(textarea?.cursorOffset).toBe(defaultValue.length)
+  })
+})
 
 describe("AskOverlay escape handling", () => {
   test("escape enters cursor mode without cancelling, then remains safe", async () => {
