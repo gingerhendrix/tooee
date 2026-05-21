@@ -5,8 +5,8 @@
   "description": "End-to-end tests for Tooee packages",
   "type": "module",
   "devDependencies": {
-    "@opentui/core": "^0.1.86",
-    "@opentui/react": "^0.1.86",
+    "@opentui/core": "^0.2.15",
+    "@opentui/react": "^0.2.15",
     "@tooee/commands": "workspace:*",
     "@tooee/router": "workspace:*",
     "@tooee/shell": "workspace:*",
