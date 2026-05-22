@@ -29,7 +29,7 @@ function SavingScreen() {
   const count = savedState?.counter ?? 0
   useEffect(() => {
     saveState({ counter: count + 1 })
-  }, [])
+  }, [saveState, count])
   return (
     <box>
       <text content={`saving:count:${count}`} />

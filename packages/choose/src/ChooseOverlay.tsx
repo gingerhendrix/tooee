@@ -4,7 +4,7 @@ import { useKeyboard } from "@opentui/react"
 import { useTheme } from "@tooee/themes"
 import { useMode, useSetMode } from "@tooee/commands"
 import type { ChooseItem } from "./types.js"
-import { fuzzyFilter, type FuzzyMatch } from "./fuzzy.js"
+import { fuzzyFilter } from "./fuzzy.js"
 
 export interface ChooseOverlayProps {
   items: ChooseItem[] | (() => Promise<ChooseItem[]>)

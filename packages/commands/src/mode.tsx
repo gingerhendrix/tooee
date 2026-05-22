@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react"
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react"
 
 export type Mode = "cursor" | "insert" | "select"
 
@@ -18,7 +18,9 @@ export function ModeProvider({ children, initialMode = "cursor" }: ModeProviderP
   const [mode, setModeState] = useState<Mode>(initialMode)
   const setMode = useCallback((m: Mode) => setModeState(m), [])
 
-  return <ModeContext.Provider value={{ mode, setMode }}>{children}</ModeContext.Provider>
+  const value = useMemo<ModeContextValue>(() => ({ mode, setMode }), [mode, setMode])
+
+  return <ModeContext.Provider value={value}>{children}</ModeContext.Provider>
 }
 
 export function useMode(): Mode {

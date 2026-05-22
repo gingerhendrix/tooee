@@ -14,7 +14,7 @@ import {
 } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import type { ChooseItem, ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.js"
-import { fuzzyFilter, type FuzzyMatch } from "./fuzzy.js"
+import { fuzzyFilter } from "./fuzzy.js"
 
 interface ChooseProps {
   contentProvider: ChooseContentProvider

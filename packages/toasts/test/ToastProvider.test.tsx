@@ -42,7 +42,7 @@ function ToastTrigger({
   const { toast } = useToast()
   useEffect(() => {
     toast({ message, level, id, duration })
-  }, [])
+  }, [toast, message, level, id, duration])
   return null
 }
 
@@ -166,7 +166,7 @@ test("each level gets correct default duration", async () => {
       for (const l of ["info", "success", "warning", "error"] as ToastLevel[]) {
         toast({ message: `${l} toast`, level: l })
       }
-    }, [])
+    }, [toast])
     return <text content={`duration:${currentToast?.duration ?? "none"}`} />
   }
 
@@ -181,7 +181,7 @@ test("level defaults: info=2000, success=1500, warning=3000, error=5000", async 
     const { toast, currentToast } = useToast()
     useEffect(() => {
       toast({ message: "test", level })
-    }, [])
+    }, [toast, level])
     return <text content={`duration:${currentToast?.duration ?? "none"}`} />
   }
 
@@ -267,7 +267,7 @@ test("defaults to info level when level not specified", async () => {
     const { toast, currentToast } = useToast()
     useEffect(() => {
       toast({ message: "no level" })
-    }, [])
+    }, [toast])
     return (
       <text
         content={currentToast ? `level:${currentToast.level}:dur:${currentToast.duration}` : "none"}

@@ -1,14 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, describe, afterEach } from "bun:test"
 import { act } from "react"
-import {
-  createRoute,
-  createRouter,
-  RouterProvider,
-  Outlet,
-  useNavigate,
-  useRouteData,
-} from "@tooee/router"
+import { createRoute, createRouter, RouterProvider, Outlet, useRouteData } from "@tooee/router"
 
 // Helpers to control async loaders in tests
 
@@ -263,7 +256,7 @@ describe("route loaders", () => {
     const dataRoute = createRoute({
       id: "data",
       component: DataScreen,
-      loader: async ({ params }) => {
+      loader: async ({ params: _params }) => {
         loadCount++
         return { message: `load-${loadCount}` }
       },
@@ -358,7 +351,7 @@ describe("route loaders", () => {
     const dataRoute = createRoute({
       id: "data",
       component: DataScreen,
-      loader: ({ params }) => {
+      loader: ({ params: _params }) => {
         callCount++
         if (callCount === 1) return deferred1.promise
         return deferred2.promise

@@ -12,11 +12,6 @@ afterEach(() => {
   } catch {}
 })
 
-function extractCursor(text: string): number {
-  const match = text.match(/Cursor:\s*(\d+)/)
-  return match ? Number(match[1]) : 0
-}
-
 describe("command palette", () => {
   test(": opens the command palette", async () => {
     session = await launchView("sample.md")

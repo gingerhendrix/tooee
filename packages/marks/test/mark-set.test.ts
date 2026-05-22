@@ -29,7 +29,8 @@ describe("MarkSet", () => {
 
     test("does not mutate input array", () => {
       const input = [mark(5), mark(1)]
-      new MarkSet("test", 100, input)
+      const set = new MarkSet("test", 100, input)
+      expect(set.size).toBe(2)
       expect(input[0].range.from.line).toBe(5)
     })
 

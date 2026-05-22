@@ -23,7 +23,7 @@ export class MarkSet {
       .sort((a, b) => a.range.from.line - b.range.from.line)
       .map(deepFreezeMark)
     this.#marks = sorted
-    const maxEnd: number[] = new Array(sorted.length)
+    const maxEnd: number[] = []
     for (let i = 0; i < sorted.length; i++) {
       const end = sorted[i].range.to.line
       maxEnd[i] = i === 0 ? end : Math.max(maxEnd[i - 1], end)
@@ -79,7 +79,10 @@ export class MarkSet {
     return results
   }
 
-  *forVisibleRows(from: number, to: number): Generator<{
+  *forVisibleRows(
+    from: number,
+    to: number,
+  ): Generator<{
     row: number
     background?: string
     gutterBackground?: string

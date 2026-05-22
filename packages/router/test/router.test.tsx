@@ -6,7 +6,6 @@ import {
   createRouter,
   RouterProvider,
   Outlet,
-  useNavigate,
   useParams,
   useCurrentRoute,
   useCanGoBack,
@@ -73,8 +72,7 @@ const nestedRoute = createRoute({
 
 // Test harness that exposes navigation controls via rendered text
 
-function NavHarness({ router }: { router: ReturnType<typeof createRouter> }) {
-  const nav = useNavigate()
+function NavHarness() {
   const current = useCurrentRoute()
   const canGoBack = useCanGoBack()
 
@@ -104,7 +102,7 @@ describe("RouterProvider + Outlet", () => {
 
     testSetup = await testRender(
       <RouterProvider router={router}>
-        <NavHarness router={router} />
+        <NavHarness />
       </RouterProvider>,
       { width: 60, height: 24, kittyKeyboard: true },
     )
@@ -124,7 +122,7 @@ describe("RouterProvider + Outlet", () => {
 
     testSetup = await testRender(
       <RouterProvider router={router}>
-        <NavHarness router={router} />
+        <NavHarness />
       </RouterProvider>,
       { width: 60, height: 24, kittyKeyboard: true },
     )
@@ -149,7 +147,7 @@ describe("RouterProvider + Outlet", () => {
 
     testSetup = await testRender(
       <RouterProvider router={router}>
-        <NavHarness router={router} />
+        <NavHarness />
       </RouterProvider>,
       { width: 60, height: 24, kittyKeyboard: true },
     )
@@ -179,7 +177,7 @@ describe("RouterProvider + Outlet", () => {
 
     testSetup = await testRender(
       <RouterProvider router={router}>
-        <NavHarness router={router} />
+        <NavHarness />
       </RouterProvider>,
       { width: 60, height: 24, kittyKeyboard: true },
     )
@@ -204,7 +202,7 @@ describe("RouterProvider + Outlet", () => {
 
     testSetup = await testRender(
       <RouterProvider router={router}>
-        <NavHarness router={router} />
+        <NavHarness />
       </RouterProvider>,
       { width: 60, height: 24, kittyKeyboard: true },
     )

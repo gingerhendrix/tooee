@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useRef, useEffect } from "react"
+import { createContext, useContext, useState, useCallback, useRef, useEffect, useMemo } from "react"
 import type { ReactNode } from "react"
 import type { ToastOptions, ToastEntry, ToastController } from "./types.js"
 
@@ -59,11 +59,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     return () => clearTimer()
   }, [clearTimer])
 
-  const controller: ToastController = {
-    toast,
-    dismiss,
-    currentToast,
-  }
+  const controller = useMemo<ToastController>(
+    () => ({
+      toast,
+      dismiss,
+      currentToast,
+    }),
+    [toast, dismiss, currentToast],
+  )
 
   return <ToastContext.Provider value={controller}>{children}</ToastContext.Provider>
 }

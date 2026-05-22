@@ -1,8 +1,6 @@
 import {
   type RenderContext,
-  type LineInfo,
   type LineInfoProvider,
-  type Renderable,
   ScrollBoxRenderable,
   type ScrollBoxOptions,
   RGBA,
@@ -330,8 +328,8 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     const rowCount = children.length - offset
     const rowVirtualStarts: number[] = []
     const rowVirtualHeights: number[] = []
-    const virtualRowToRow: number[] = new Array(totalHeight).fill(-1)
-    const virtualRowWraps: number[] = new Array(totalHeight).fill(0)
+    const virtualRowToRow = Array.from({ length: totalHeight }, () => -1)
+    const virtualRowWraps = Array.from({ length: totalHeight }, () => 0)
 
     for (let i = offset; i < children.length; i++) {
       const row = i - offset

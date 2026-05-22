@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react"
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react"
 import { type SyntaxStyle } from "@opentui/core"
 import { writeGlobalConfig } from "@tooee/config"
 import type { ResolvedTheme } from "./types.js"
@@ -40,17 +40,19 @@ export interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ name, mode, theme: themeProp, children }: ThemeProviderProps) {
-  const resolved = themeProp
-    ? {
+  const resolved = useMemo<ThemeContextValue>(() => {
+    if (themeProp) {
+      return {
         theme: themeProp.colors,
         syntax: themeProp.syntax,
         name: themeProp.name,
         mode: themeProp.mode,
       }
-    : (() => {
-        const t = buildTheme(name ?? DEFAULT_THEME_NAME, mode ?? DEFAULT_MODE)
-        return { theme: t.colors, syntax: t.syntax, name: t.name, mode: t.mode }
-      })()
+    }
+
+    const t = buildTheme(name ?? DEFAULT_THEME_NAME, mode ?? DEFAULT_MODE)
+    return { theme: t.colors, syntax: t.syntax, name: t.name, mode: t.mode }
+  }, [themeProp, name, mode])
 
   return <ThemeContext.Provider value={resolved}>{children}</ThemeContext.Provider>
 }
@@ -83,11 +85,11 @@ export function ThemeSwitcherProvider({
   initialMode,
   children,
 }: ThemeSwitcherProviderProps) {
-  const allThemes = getThemeNames()
+  const allThemes = useMemo(() => getThemeNames(), [])
   const [themeName, setThemeName] = useState(initialTheme ?? DEFAULT_THEME_NAME)
   const [mode, _setMode] = useState<"dark" | "light">(initialMode ?? DEFAULT_MODE)
 
-  const theme = buildTheme(themeName, mode)
+  const theme = useMemo(() => buildTheme(themeName, mode), [themeName, mode])
 
   const nextTheme = useCallback(() => {
     const idx = allThemes.indexOf(themeName)
@@ -113,24 +115,28 @@ export function ThemeSwitcherProvider({
     [mode],
   )
 
-  const value: ThemeSwitcherContextValue = {
-    theme: theme.colors,
-    syntax: theme.syntax,
-    name: theme.name,
-    mode,
-    nextTheme,
-    prevTheme,
-    setTheme: setThemeByName,
-    allThemes,
-  }
+  const value = useMemo<ThemeSwitcherContextValue>(
+    () => ({
+      theme: theme.colors,
+      syntax: theme.syntax,
+      name: theme.name,
+      mode,
+      nextTheme,
+      prevTheme,
+      setTheme: setThemeByName,
+      allThemes,
+    }),
+    [theme, mode, nextTheme, prevTheme, setThemeByName, allThemes],
+  )
+
+  const themeValue = useMemo<ThemeContextValue>(
+    () => ({ theme: theme.colors, syntax: theme.syntax, name: theme.name, mode }),
+    [theme, mode],
+  )
 
   return (
     <ThemeSwitcherContext.Provider value={value}>
-      <ThemeContext.Provider
-        value={{ theme: theme.colors, syntax: theme.syntax, name: theme.name, mode }}
-      >
-        {children}
-      </ThemeContext.Provider>
+      <ThemeContext.Provider value={themeValue}>{children}</ThemeContext.Provider>
     </ThemeSwitcherContext.Provider>
   )
 }

@@ -61,10 +61,10 @@ export function useThemePicker(): ThemePickerState {
     setIsOpen(true)
     overlay.open(
       OVERLAY_ID,
-      ({ close }: { close: (reason?: OverlayCloseReason) => void }) =>
+      ({ close: closeOverlay }: { close: (reason?: OverlayCloseReason) => void }) =>
         createElement(ThemePickerOverlay, {
           originalTheme: currentTheme,
-          close: () => close(),
+          close: () => closeOverlay(),
         }),
       null,
       { mode: "insert", dismissOnEscape: true, onClose: () => setIsOpen(false) },

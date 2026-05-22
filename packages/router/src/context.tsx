@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useSyncExternalStore } from "react"
+import { createContext, useContext, useEffect, useRef, useSyncExternalStore } from "react"
 import type { ReactNode } from "react"
 import type { RouterInstance, StackEntry } from "./types.js"
 
@@ -23,9 +23,15 @@ export function RouterProvider({
   initialParams,
   children,
 }: RouterProviderProps) {
+  const initialRouteRef = useRef(initialRoute)
+  const initialParamsRef = useRef(initialParams)
+  const routerRef = useRef(router)
+
   useEffect(() => {
-    if (initialRoute && router.currentRoute.routeId !== initialRoute) {
-      router.reset(initialRoute, initialParams)
+    const mountInitialRoute = initialRouteRef.current
+    const mountRouter = routerRef.current
+    if (mountInitialRoute && mountRouter.currentRoute.routeId !== mountInitialRoute) {
+      mountRouter.reset(mountInitialRoute, initialParamsRef.current)
     }
   }, []) // only on mount
 

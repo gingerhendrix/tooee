@@ -61,7 +61,7 @@ function RouteRenderer({
     return () => {
       cancelled = true
     }
-  }, [entry, routeDef.loader])
+  }, [entry, routeDef])
 
   if (error && routeDef.errorComponent) {
     return createElement(routeDef.errorComponent, { error })
