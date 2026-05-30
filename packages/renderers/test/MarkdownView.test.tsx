@@ -78,6 +78,46 @@ test("renders code blocks", async () => {
   expect(frame).toContain("const x = 1")
 })
 
+test("renders mermaid fences as terminal diagrams", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <MarkdownView content={"```mermaid\ngraph TD\n  A[Agent] --> B[Stream]\n```"} />
+    </ThemeSwitcherProvider>,
+    { width: 80, height: 30 },
+  )
+  await testSetup.renderOnce()
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toContain("Agent")
+  expect(frame).toContain("Stream")
+  expect(frame).toContain("▼")
+  expect(frame).not.toContain("graph TD")
+})
+
+test("does not render non-mermaid code fences as diagrams", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <MarkdownView content={"```text\ngraph TD\n  A[Agent] --> B[Stream]\n```"} />
+    </ThemeSwitcherProvider>,
+    { width: 80, height: 24 },
+  )
+  await testSetup.renderOnce()
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toContain("graph TD")
+  expect(frame).toContain("A[Agent] --> B[Stream]")
+})
+
+test("falls back to source code for unsupported mermaid fences", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <MarkdownView content={"```mermaid\nnot a diagram ???\n```"} />
+    </ThemeSwitcherProvider>,
+    { width: 80, height: 24 },
+  )
+  await testSetup.renderOnce()
+  const frame = testSetup.captureCharFrame()
+  expect(frame).toContain("not a diagram ???")
+})
+
 test("renders markdown table", async () => {
   const md = `| Name | Age | City |
 | --- | --- | --- |

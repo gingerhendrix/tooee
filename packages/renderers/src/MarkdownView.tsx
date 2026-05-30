@@ -7,15 +7,11 @@ import {
   underline as underlineChunk,
   parseColor,
 } from "@opentui/core"
-import type {
-  SyntaxStyle,
-  TextTableContent,
-  TextTableCellContent,
-  TextChunk,
-} from "@opentui/core"
+import type { SyntaxStyle, TextTableContent, TextTableCellContent, TextChunk } from "@opentui/core"
 import type { MarkState } from "@tooee/marks"
 import type { RowDocumentRenderable } from "./RowDocumentRenderable.js"
 import { useGutterPalette } from "./useGutterPalette.js"
+import { isMermaidFence, renderMermaidForTerminal } from "./mermaid.js"
 import "./row-document.js"
 import "./text-table.js"
 
@@ -140,7 +136,12 @@ function flattenListItem(
 // Component
 // ---------------------------------------------------------------------------
 
-export function MarkdownView({ content, showLineNumbers = true, marks, docRef }: MarkdownViewProps) {
+export function MarkdownView({
+  content,
+  showLineNumbers = true,
+  marks,
+  docRef,
+}: MarkdownViewProps) {
   const { theme, syntax } = useTheme()
   const palette = useGutterPalette()
   const tokens = marked.lexer(content)
@@ -190,19 +191,18 @@ function FlatBlockRenderer({
       return <HeadingRenderer token={token as Tokens.Heading} theme={theme} indent={indent} />
     case "paragraph":
       return <ParagraphRenderer token={token as Tokens.Paragraph} theme={theme} indent={indent} />
-    case "code":
-      return (
-        <CodeBlockRenderer
-          token={token as Tokens.Code}
-          theme={theme}
-          syntax={syntax}
-          indent={indent}
-        />
-      )
+    case "code": {
+      const codeToken = token as Tokens.Code
+      if (isMermaidFence(codeToken.lang)) {
+        return (
+          <MermaidBlockRenderer token={codeToken} theme={theme} syntax={syntax} indent={indent} />
+        )
+      }
+
+      return <CodeBlockRenderer token={codeToken} theme={theme} syntax={syntax} indent={indent} />
+    }
     case "blockquote":
-      return (
-        <BlockquoteRenderer token={token as Tokens.Blockquote} theme={theme} indent={indent} />
-      )
+      return <BlockquoteRenderer token={token as Tokens.Blockquote} theme={theme} indent={indent} />
     case "table":
       return <MarkdownTableRenderer token={token as Tokens.Table} indent={indent} />
     case "hr":
@@ -238,8 +238,7 @@ function ListLineRenderer({ block, theme }: { block: FlatBlock; theme: ResolvedT
   const checkboxPrefix = checked !== undefined ? (checked ? "[x] " : "[ ] ") : ""
 
   // Get inline tokens from the text/paragraph token
-  const inlineTokens: Token[] =
-    "tokens" in token && Array.isArray(token.tokens) ? token.tokens : []
+  const inlineTokens: Token[] = "tokens" in token && Array.isArray(token.tokens) ? token.tokens : []
 
   const hasText = "text" in token && typeof token.text === "string" && token.text.length > 0
   const hasContent = inlineTokens.length > 0 || hasText
@@ -255,7 +254,11 @@ function ListLineRenderer({ block, theme }: { block: FlatBlock; theme: ResolvedT
           (inlineTokens.length > 0 ? (
             <InlineTokens tokens={inlineTokens} theme={theme} />
           ) : hasText ? (
-            ("text" in token ? (token as { text: string }).text : "")
+            "text" in token ? (
+              (token as { text: string }).text
+            ) : (
+              ""
+            )
           ) : null)}
       </text>
     </box>
@@ -358,6 +361,42 @@ function CodeBlockRenderer({
   )
 }
 
+function MermaidBlockRenderer({
+  token,
+  theme,
+  syntax,
+  indent,
+}: {
+  token: Tokens.Code
+  theme: ResolvedTheme
+  syntax: SyntaxStyle
+  indent: number
+}) {
+  const result = useMemo(() => renderMermaidForTerminal(token.text), [token.text])
+
+  if (!result.ok) {
+    return <CodeBlockRenderer token={token} theme={theme} syntax={syntax} indent={indent} />
+  }
+
+  const lineCount = result.text.split("\n").length
+  return (
+    <box
+      style={{
+        marginTop: 0,
+        marginBottom: 1,
+        marginLeft: 1 + indent,
+        marginRight: 1,
+        border: true,
+        borderColor: theme.border,
+        backgroundColor: theme.backgroundElement,
+        flexDirection: "column",
+      }}
+    >
+      <text content={result.text} style={{ fg: theme.markdownText, height: lineCount }} />
+    </box>
+  )
+}
+
 function BlockquoteRenderer({
   token,
   theme,
@@ -416,7 +455,9 @@ function MarkdownTableRenderer({ token, indent }: { token: Tokens.Table; indent:
         const chunks = inlineTokensToChunks(cell.tokens, theme)
         return chunks.length > 0
           ? chunks
-          : ([{ __isChunk: true as const, text: getPlainText(cell.tokens) }] as TextTableCellContent)
+          : ([
+              { __isChunk: true as const, text: getPlainText(cell.tokens) },
+            ] as TextTableCellContent)
       }),
     )
     return [headerRow, ...dataRows]
@@ -545,10 +586,7 @@ function inlineTokensToChunks(tokens: Token[], theme: ResolvedTheme): TextChunk[
         chunks.push({ __isChunk: true as const, text: (token as Tokens.Text).text })
         break
       case "strong":
-        for (const sub of inlineTokensToChunks(
-          (token as Tokens.Strong).tokens || [],
-          theme,
-        )) {
+        for (const sub of inlineTokensToChunks((token as Tokens.Strong).tokens || [], theme)) {
           chunks.push(boldChunk(sub))
         }
         break
