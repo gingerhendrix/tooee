@@ -3,6 +3,7 @@ import { test, expect, describe, afterEach } from "bun:test"
 import { ThemeSwitcherProvider } from "@tooee/themes"
 import { MarkPriorities, MarkSetBuilder, createMarkState } from "@tooee/marks"
 import { MarkdownView } from "../src/MarkdownView.js"
+import { ansiToStyledText, renderMermaidForTerminal } from "../src/mermaid.js"
 
 let testSetup: Awaited<ReturnType<typeof testRender>>
 
@@ -76,6 +77,34 @@ test("renders code blocks", async () => {
   await testSetup.renderOnce()
   const frame = testSetup.captureCharFrame()
   expect(frame).toContain("const x = 1")
+})
+
+test("converts mermaid ANSI output into styled plain text", () => {
+  const result = renderMermaidForTerminal("graph TD\n  A[Agent] --> B[Stream]", {
+    mode: "ansi",
+    theme: {
+      fg: "#ffffff",
+      border: "#ff0000",
+      line: "#00ff00",
+      arrow: "#0000ff",
+    },
+  })
+
+  expect(result.ok).toBe(true)
+  if (!result.ok) return
+
+  expect(result.text).toContain("Agent")
+  expect(result.text).toContain("Stream")
+  expect(result.text).not.toContain("\x1b[")
+  expect(result.content.chunks.some((chunk) => chunk.fg != null)).toBe(true)
+})
+
+test("parses truecolor SGR ANSI into StyledText chunks", () => {
+  const parsed = ansiToStyledText("plain \x1b[38;2;255;0;0mred\x1b[0m text")
+
+  expect(parsed.text).toBe("plain red text")
+  expect(parsed.content.chunks.map((chunk) => chunk.text).join("")).toBe("plain red text")
+  expect(parsed.content.chunks.some((chunk) => chunk.text === "red" && chunk.fg != null)).toBe(true)
 })
 
 test("renders mermaid fences as terminal diagrams", async () => {

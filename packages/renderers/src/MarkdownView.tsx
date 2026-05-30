@@ -372,7 +372,23 @@ function MermaidBlockRenderer({
   syntax: SyntaxStyle
   indent: number
 }) {
-  const result = useMemo(() => renderMermaidForTerminal(token.text), [token.text])
+  const mermaidTheme = useMemo(
+    () => ({
+      fg: theme.markdownText,
+      border: theme.border,
+      line: theme.textMuted,
+      arrow: theme.accent,
+      accent: theme.accent,
+      bg: theme.backgroundElement,
+      corner: theme.borderActive,
+      junction: theme.borderSubtle,
+    }),
+    [theme],
+  )
+  const result = useMemo(
+    () => renderMermaidForTerminal(token.text, { mode: "ansi", theme: mermaidTheme }),
+    [token.text, mermaidTheme],
+  )
 
   if (!result.ok) {
     return <CodeBlockRenderer token={token} theme={theme} syntax={syntax} indent={indent} />
@@ -392,7 +408,7 @@ function MermaidBlockRenderer({
         flexDirection: "column",
       }}
     >
-      <text content={result.text} style={{ fg: theme.markdownText, height: lineCount }} />
+      <text content={result.content} style={{ fg: theme.markdownText, height: lineCount }} />
     </box>
   )
 }
