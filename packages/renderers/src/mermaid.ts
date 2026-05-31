@@ -23,7 +23,7 @@ export interface MermaidRenderOptions {
   theme?: BeautifulMermaidAsciiTheme
 }
 
-const SGR_SEQUENCE = /\x1b\[([0-9;]*)m/g
+const SGR_SEQUENCE = new RegExp(String.raw`\u001B\[([0-9;]*)m`, "g")
 
 /**
  * Marked may include extra info-string content after the language. Treat only
