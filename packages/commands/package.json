@@ -1,6 +1,6 @@
 {
   "name": "@tooee/commands",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "Vim-inspired modal command system for Tooee",
   "keywords": [
     "cli",

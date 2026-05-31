@@ -1,6 +1,6 @@
 {
   "name": "@tooee/overlays",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "Overlay stack management for Tooee",
   "keywords": [
     "cli",
