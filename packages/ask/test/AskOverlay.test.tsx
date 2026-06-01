@@ -163,6 +163,124 @@ describe("AskOverlay default value cursor", () => {
   })
 })
 
+describe("Ask cursor-mode motions", () => {
+  test("h and l move the standalone single-line cursor before returning to insert mode", async () => {
+    let submitted = ""
+    testSetup = await setupAsk({
+      defaultValue: "abcd",
+      onSubmit: (value) => {
+        submitted = value
+      },
+    })
+
+    await pressEscape()
+    await press("h")
+    await press("h")
+    await press("l")
+    await press("i")
+    await press("X")
+    await pressEnter()
+
+    expect(submitted).toBe("abcXd")
+  })
+
+  test("h and l move the overlay single-line cursor before returning to insert mode", async () => {
+    let submitted = ""
+    testSetup = await setup({
+      defaultValue: "abcd",
+      onSubmit: (value) => {
+        submitted = value
+      },
+    })
+
+    await pressEscape()
+    await press("h")
+    await press("h")
+    await press("l")
+    await press("i")
+    await press("X")
+    await pressEnter()
+
+    expect(submitted).toBe("abcXd")
+  })
+
+  test("b supports standalone word-back motion", async () => {
+    let submitted = ""
+    testSetup = await setupAsk({
+      defaultValue: "one two",
+      onSubmit: (value) => {
+        submitted = value
+      },
+    })
+
+    await pressEscape()
+    await press("b")
+    await press("i")
+    await press("X")
+    await pressEnter()
+
+    expect(submitted).toBe("one Xtwo")
+  })
+
+  test("gg and G support overlay buffer motions", async () => {
+    const defaultValue = "ab\ncd"
+    testSetup = await setup({
+      multiline: true,
+      defaultValue,
+    })
+
+    await pressEscape()
+    await press("g")
+    await press("g")
+
+    const textareaAfterGg = findEditableWithText(testSetup.renderer.root, defaultValue)
+    expect(textareaAfterGg?.cursorOffset).toBe(0)
+
+    await press("g", { shift: true })
+
+    const textareaAfterG = findEditableWithText(testSetup.renderer.root, defaultValue)
+    expect(textareaAfterG?.cursorOffset).toBe(defaultValue.length)
+  })
+
+  test("j and k move the standalone multiline cursor", async () => {
+    const defaultValue = "ab\ncd"
+    testSetup = await setupAsk({
+      multiline: true,
+      defaultValue,
+    })
+
+    await pressEscape()
+    await press("k")
+
+    const textareaAfterUp = findEditableWithText(testSetup.renderer.root, defaultValue)
+    expect(textareaAfterUp?.cursorOffset).toBe(2)
+
+    await press("j")
+
+    const textareaAfterDown = findEditableWithText(testSetup.renderer.root, defaultValue)
+    expect(textareaAfterDown?.cursorOffset).toBe(defaultValue.length)
+  })
+
+  test("j and k move the overlay multiline cursor", async () => {
+    const defaultValue = "ab\ncd"
+    testSetup = await setup({
+      multiline: true,
+      defaultValue,
+    })
+
+    await pressEscape()
+    await press("k")
+
+    const textareaAfterUp = findEditableWithText(testSetup.renderer.root, defaultValue)
+    expect(textareaAfterUp?.cursorOffset).toBe(2)
+
+    await press("j")
+
+    const textareaAfterDown = findEditableWithText(testSetup.renderer.root, defaultValue)
+    expect(textareaAfterDown?.cursorOffset).toBe(defaultValue.length)
+  })
+})
+
 describe("AskOverlay escape handling", () => {
   test("escape enters cursor mode without cancelling, then remains safe", async () => {
     let cancelCount = 0

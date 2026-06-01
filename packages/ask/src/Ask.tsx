@@ -16,6 +16,7 @@ import {
 } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import type { AskOptions } from "./types.js"
+import { handleEditBufferVimMotion, type VimMotionState } from "./vim-motions.js"
 
 interface AskProps extends AskOptions {
   actions?: ActionDefinition[]
@@ -27,6 +28,7 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
   const textareaRef = useRef<TextareaRenderable>(null)
   const inputRef = useRef<InputRenderable>(null)
   const didPositionInitialCursorRef = useRef(false)
+  const vimMotionStateRef = useRef<VimMotionState>({ pendingG: false })
   const { invoke } = useCommandContext()
 
   const { theme } = useTheme()
@@ -101,6 +103,13 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
       // In cursor mode, escape does nothing - use 'q' to quit
       return
     }
+    if (mode === "cursor") {
+      const target = multiline ? textareaRef.current : inputRef.current
+      if (handleEditBufferVimMotion(key, target, vimMotionStateRef.current)) return
+    } else {
+      vimMotionStateRef.current.pendingG = false
+    }
+
     if (key.name === "return") {
       if (multiline ? key.shift : true) {
         handleSubmit()

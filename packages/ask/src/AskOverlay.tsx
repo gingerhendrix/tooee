@@ -4,6 +4,7 @@ import { useKeyboard } from "@opentui/react"
 import { readPrimaryText } from "@tooee/clipboard"
 import { useTheme } from "@tooee/themes"
 import { useMode, useSetMode } from "@tooee/commands"
+import { handleEditBufferVimMotion, type VimMotionState } from "./vim-motions.js"
 
 export interface AskOverlayProps {
   prompt: string
@@ -28,6 +29,7 @@ export function AskOverlay({
   const textareaRef = useRef<TextareaRenderable>(null)
   const inputRef = useRef<InputRenderable>(null)
   const didPositionInitialCursorRef = useRef(false)
+  const vimMotionStateRef = useRef<VimMotionState>({ pendingG: false })
 
   const inputFocused = mode === "insert"
 
@@ -67,6 +69,11 @@ export function AskOverlay({
         setMode("insert")
         return
       }
+
+      const target = multiline ? textareaRef.current : inputRef.current
+      if (handleEditBufferVimMotion(key, target, vimMotionStateRef.current)) return
+    } else {
+      vimMotionStateRef.current.pendingG = false
     }
 
     if (key.name === "return") {
