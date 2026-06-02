@@ -120,6 +120,7 @@ describe("Ask default value cursor", () => {
   test("single-line typing appends after the default value", async () => {
     let submitted = ""
     testSetup = await setupAsk({
+      multiline: false,
       defaultValue: "hello",
       onSubmit: (value) => {
         submitted = value
@@ -132,7 +133,7 @@ describe("Ask default value cursor", () => {
     expect(submitted).toBe("hello!")
   })
 
-  test("single-line Enter alone does not submit standalone Ask", async () => {
+  test("standalone Ask defaults to multiline mode", async () => {
     let submitted = ""
     testSetup = await setupAsk({
       defaultValue: "hello",
@@ -147,6 +148,23 @@ describe("Ask default value cursor", () => {
     expect(testSetup.captureCharFrame()).toContain("Shift+Enter submit")
 
     await pressShiftEnter()
+
+    expect(submitted).toBe("hello\n")
+  })
+
+  test("single-line standalone Ask submits with Enter", async () => {
+    let submitted = ""
+    testSetup = await setupAsk({
+      multiline: false,
+      defaultValue: "hello",
+      onSubmit: (value) => {
+        submitted = value
+      },
+    })
+
+    expect(testSetup.captureCharFrame()).toContain("Enter submit")
+
+    await pressEnter()
 
     expect(submitted).toBe("hello")
   })
@@ -197,6 +215,7 @@ describe("Ask cursor-mode motions", () => {
   test("keeps the standalone cursor visible in cursor mode without inserting plain text", async () => {
     let submitted = ""
     testSetup = await setupAsk({
+      multiline: false,
       defaultValue: "abcd",
       onSubmit: (value) => {
         submitted = value
@@ -241,6 +260,7 @@ describe("Ask cursor-mode motions", () => {
   test("h and l move the standalone single-line cursor before returning to insert mode", async () => {
     let submitted = ""
     testSetup = await setupAsk({
+      multiline: false,
       defaultValue: "abcd",
       onSubmit: (value) => {
         submitted = value
@@ -281,6 +301,7 @@ describe("Ask cursor-mode motions", () => {
   test("b supports standalone word-back motion", async () => {
     let submitted = ""
     testSetup = await setupAsk({
+      multiline: false,
       defaultValue: "one two",
       onSubmit: (value) => {
         submitted = value

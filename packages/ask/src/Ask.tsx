@@ -28,7 +28,14 @@ interface AskProps extends AskOptions {
   actions?: ActionDefinition[]
 }
 
-export function Ask({ title, prompt, placeholder, defaultValue, multiline, actions }: AskProps) {
+export function Ask({
+  title,
+  prompt,
+  placeholder,
+  defaultValue,
+  multiline = true,
+  actions,
+}: AskProps) {
   const renderer = useRenderer()
   const [value, setValue] = useState(defaultValue ?? "")
   const textareaRef = useRef<TextareaRenderable>(null)
@@ -121,8 +128,8 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
     }
 
     if (key.name === "return") {
-      key.preventDefault()
-      if (key.shift) {
+      if (multiline ? key.shift : true) {
+        key.preventDefault()
         handleSubmit()
       }
       return
@@ -144,7 +151,7 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
     [multiline],
   )
 
-  const submitHint = "Shift+Enter submit"
+  const submitHint = multiline ? "Shift+Enter submit" : "Enter submit"
   const hintParts =
     mode === "insert"
       ? [submitHint, "Esc commands"]
