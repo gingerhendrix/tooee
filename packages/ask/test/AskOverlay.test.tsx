@@ -84,6 +84,13 @@ async function pressEnter() {
   await testSetup.renderOnce()
 }
 
+async function pressShiftEnter() {
+  await act(async () => {
+    testSetup.mockInput.pressEnter({ shift: true })
+  })
+  await testSetup.renderOnce()
+}
+
 function cursorIsVisible(): boolean {
   return testSetup.renderer.getCursorState().visible
 }
@@ -120,9 +127,28 @@ describe("Ask default value cursor", () => {
     })
 
     await press("!")
-    await pressEnter()
+    await pressShiftEnter()
 
     expect(submitted).toBe("hello!")
+  })
+
+  test("single-line Enter alone does not submit standalone Ask", async () => {
+    let submitted = ""
+    testSetup = await setupAsk({
+      defaultValue: "hello",
+      onSubmit: (value) => {
+        submitted = value
+      },
+    })
+
+    await pressEnter()
+
+    expect(submitted).toBe("")
+    expect(testSetup.captureCharFrame()).toContain("Shift+Enter submit")
+
+    await pressShiftEnter()
+
+    expect(submitted).toBe("hello")
   })
 
   test("multiline cursor starts at the end of the default value", async () => {
@@ -185,7 +211,7 @@ describe("Ask cursor-mode motions", () => {
 
     await press("x")
     await press("i")
-    await pressEnter()
+    await pressShiftEnter()
 
     expect(submitted).toBe("abcd")
   })
@@ -227,7 +253,7 @@ describe("Ask cursor-mode motions", () => {
     await press("l")
     await press("i")
     await press("X")
-    await pressEnter()
+    await pressShiftEnter()
 
     expect(submitted).toBe("abcXd")
   })
@@ -265,7 +291,7 @@ describe("Ask cursor-mode motions", () => {
     await press("b")
     await press("i")
     await press("X")
-    await pressEnter()
+    await pressShiftEnter()
 
     expect(submitted).toBe("one Xtwo")
   })

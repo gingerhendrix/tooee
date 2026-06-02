@@ -121,7 +121,8 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
     }
 
     if (key.name === "return") {
-      if (multiline ? key.shift : true) {
+      key.preventDefault()
+      if (key.shift) {
         handleSubmit()
       }
       return
@@ -143,7 +144,7 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
     [multiline],
   )
 
-  const submitHint = multiline ? "Shift+Enter submit" : "Enter submit"
+  const submitHint = "Shift+Enter submit"
   const hintParts =
     mode === "insert"
       ? [submitHint, "Esc commands"]
