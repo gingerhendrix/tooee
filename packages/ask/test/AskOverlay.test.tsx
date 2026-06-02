@@ -84,6 +84,10 @@ async function pressEnter() {
   await testSetup.renderOnce()
 }
 
+function cursorIsVisible(): boolean {
+  return testSetup.renderer.getCursorState().visible
+}
+
 function findEditableWithText(node: unknown, text: string): { cursorOffset: number } | undefined {
   if (!node || typeof node !== "object") return undefined
 
@@ -164,6 +168,50 @@ describe("AskOverlay default value cursor", () => {
 })
 
 describe("Ask cursor-mode motions", () => {
+  test("keeps the standalone cursor visible in cursor mode without inserting plain text", async () => {
+    let submitted = ""
+    testSetup = await setupAsk({
+      defaultValue: "abcd",
+      onSubmit: (value) => {
+        submitted = value
+      },
+    })
+
+    expect(cursorIsVisible()).toBe(true)
+
+    await pressEscape()
+
+    expect(cursorIsVisible()).toBe(true)
+
+    await press("x")
+    await press("i")
+    await pressEnter()
+
+    expect(submitted).toBe("abcd")
+  })
+
+  test("keeps the overlay cursor visible in cursor mode without inserting plain text", async () => {
+    let submitted = ""
+    testSetup = await setup({
+      defaultValue: "abcd",
+      onSubmit: (value) => {
+        submitted = value
+      },
+    })
+
+    expect(cursorIsVisible()).toBe(true)
+
+    await pressEscape()
+
+    expect(cursorIsVisible()).toBe(true)
+
+    await press("x")
+    await press("i")
+    await pressEnter()
+
+    expect(submitted).toBe("abcd")
+  })
+
   test("h and l move the standalone single-line cursor before returning to insert mode", async () => {
     let submitted = ""
     testSetup = await setupAsk({

@@ -1,5 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from "react"
-import type { TextareaRenderable, InputRenderable, MouseEvent } from "@opentui/core"
+import type {
+  TextareaRenderable,
+  InputRenderable,
+  MouseEvent,
+  KeyEvent,
+  PasteEvent,
+} from "@opentui/core"
 import { useKeyboard, useRenderer } from "@opentui/react"
 import { readPrimaryText } from "@tooee/clipboard"
 import { AppLayout } from "@tooee/layout"
@@ -43,7 +49,11 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
   const mode = useMode()
   const setMode = useSetMode()
   const hasOverlay = useHasOverlay()
-  const inputFocused = mode === "insert" && !hasOverlay
+  const inputFocused = (mode === "insert" || mode === "cursor") && !hasOverlay
+
+  const preventCursorModeEditorInput = (event: KeyEvent | PasteEvent) => {
+    if (mode === "cursor") event.preventDefault()
+  }
 
   useEffect(() => {
     if (didPositionInitialCursorRef.current || !defaultValue) return
@@ -185,6 +195,8 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
               placeholderColor={theme.textMuted}
               backgroundColor="transparent"
               onSubmit={handleSubmit}
+              onKeyDown={preventCursorModeEditorInput}
+              onPaste={preventCursorModeEditorInput}
               style={{ flexGrow: 1 }}
             />
           ) : (
@@ -199,6 +211,8 @@ export function Ask({ title, prompt, placeholder, defaultValue, multiline, actio
               placeholderColor={theme.textMuted}
               cursorColor={theme.primary}
               backgroundColor="transparent"
+              onKeyDown={preventCursorModeEditorInput}
+              onPaste={preventCursorModeEditorInput}
             />
           )}
         </box>

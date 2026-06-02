@@ -1,5 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from "react"
-import type { TextareaRenderable, InputRenderable, MouseEvent } from "@opentui/core"
+import type {
+  TextareaRenderable,
+  InputRenderable,
+  MouseEvent,
+  KeyEvent,
+  PasteEvent,
+} from "@opentui/core"
 import { useKeyboard } from "@opentui/react"
 import { readPrimaryText } from "@tooee/clipboard"
 import { useTheme } from "@tooee/themes"
@@ -31,7 +37,11 @@ export function AskOverlay({
   const didPositionInitialCursorRef = useRef(false)
   const vimMotionStateRef = useRef<VimMotionState>({ pendingG: false })
 
-  const inputFocused = mode === "insert"
+  const inputFocused = mode === "insert" || mode === "cursor"
+
+  const preventCursorModeEditorInput = (event: KeyEvent | PasteEvent) => {
+    if (mode === "cursor") event.preventDefault()
+  }
 
   useEffect(() => {
     if (didPositionInitialCursorRef.current || !defaultValue) return
@@ -133,6 +143,8 @@ export function AskOverlay({
             placeholderColor={theme.textMuted}
             backgroundColor="transparent"
             onSubmit={handleSubmit}
+            onKeyDown={preventCursorModeEditorInput}
+            onPaste={preventCursorModeEditorInput}
             style={{ flexGrow: 1 }}
           />
         ) : (
@@ -146,6 +158,8 @@ export function AskOverlay({
             placeholderColor={theme.textMuted}
             cursorColor={theme.primary}
             backgroundColor="transparent"
+            onKeyDown={preventCursorModeEditorInput}
+            onPaste={preventCursorModeEditorInput}
           />
         )}
       </box>
