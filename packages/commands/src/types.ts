@@ -45,12 +45,26 @@ export interface CommandRegistry {
   invoke: (id: string) => void
 }
 
+export interface CommandGroup {
+  id: string
+  title: string
+  prefix: string
+  description?: string
+  icon?: string
+  order?: number
+}
+
+export interface RegisteredCommandGroup extends CommandGroup {
+  prefixKey: string
+}
+
 export interface CommandSequenceCandidate {
   command: Command
   hotkey: string
   steps: ParsedStep[]
   remainingSteps: ParsedStep[]
   nextStep: ParsedStep
+  group?: CommandGroup
 }
 
 export interface CommandSequenceState {

@@ -1,22 +1,34 @@
 import { useLayoutEffect, useMemo, useRef } from "react"
 import type { ReactNode } from "react"
-import { useCommandSequenceState } from "@tooee/commands"
+import { useCommandRegistry, useCommandSequenceState } from "@tooee/commands"
 import type { CommandSequenceState, ParsedStep } from "@tooee/commands"
 import { useOverlay } from "@tooee/overlays"
 import { useTheme } from "@tooee/themes"
 
 const OVERLAY_ID = "tooee.which-key"
 
-export function WhichKeyProvider({ children }: { children: ReactNode }) {
+export interface WhichKeyProviderProps {
+  children: ReactNode
+  leaderOnly?: boolean
+}
+
+export function WhichKeyProvider({ children, leaderOnly }: WhichKeyProviderProps) {
   const sequence = useCommandSequenceState()
+  const { leaderKey } = useCommandRegistry()
   const overlay = useOverlay()
   const openRef = useRef(false)
   const overlayRef = useRef(overlay)
   overlayRef.current = overlay
 
-  useLayoutEffect(() => {
-    const shouldShow = sequence !== null && sequence.candidates.length > 0
+  const effectiveLeaderOnly = leaderOnly ?? leaderKey !== undefined
+  const shouldShow =
+    sequence !== null &&
+    sequence.candidates.length > 0 &&
+    (!effectiveLeaderOnly ||
+      leaderKey === undefined ||
+      (sequence.prefix.length > 0 && formatStep(sequence.prefix[0]!) === leaderKey))
 
+  useLayoutEffect(() => {
     if (!shouldShow) {
       if (openRef.current || overlay.isOpen(OVERLAY_ID)) {
         overlay.hide(OVERLAY_ID)
@@ -37,7 +49,7 @@ export function WhichKeyProvider({ children }: { children: ReactNode }) {
       dismissOnEscape: false,
     })
     openRef.current = true
-  }, [overlay, sequence])
+  }, [overlay, sequence, shouldShow])
 
   useLayoutEffect(
     () => () => {
@@ -86,10 +98,7 @@ function summarizeCandidates(state: CommandSequenceState): { key: string; title:
   const byKey = new Map<string, string[]>()
   for (const candidate of state.candidates) {
     const key = formatStep(candidate.nextStep)
-    const label =
-      candidate.remainingSteps.length === 1
-        ? candidate.command.title
-        : `${formatStep(candidate.remainingSteps[1]!)}… ${candidate.command.title}`
+    const label = candidate.group?.title ?? fallbackCandidateLabel(candidate)
     const values = byKey.get(key) ?? []
     if (!values.includes(label)) values.push(label)
     byKey.set(key, values)
@@ -98,6 +107,15 @@ function summarizeCandidates(state: CommandSequenceState): { key: string; title:
   return Array.from(byKey.entries())
     .map(([key, titles]) => ({ key, title: titles.join(" / ") }))
     .sort((a, b) => a.key.localeCompare(b.key))
+}
+
+function fallbackCandidateLabel(candidate: CommandSequenceState["candidates"][number]): string {
+  if (candidate.remainingSteps.length === 1) return candidate.command.title
+
+  if (candidate.command.group) return candidate.command.group
+  if (candidate.command.category) return candidate.command.category
+
+  return `${formatStep(candidate.remainingSteps[1]!)}… ${candidate.command.title}`
 }
 
 function formatStep(step: ParsedStep): string {

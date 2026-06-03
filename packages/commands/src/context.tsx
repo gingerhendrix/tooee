@@ -12,9 +12,12 @@ import { useKeyboard } from "@opentui/react"
 import type {
   Command,
   CommandContext,
+  CommandGroup,
   CommandRegistry,
   CommandSequenceState,
   ParsedHotkey,
+  ParsedStep,
+  RegisteredCommandGroup,
 } from "./types.js"
 import type { Mode } from "./mode.js"
 import { ModeProvider, useMode, useSetMode } from "./mode.js"
@@ -30,6 +33,7 @@ interface CommandContextValue {
   registry: CommandRegistry
   leaderKey?: string
   contextSources: Map<string, ContextGetter>
+  groups: Map<string, RegisteredCommandGroup>
 }
 
 const CommandContext = createContext<CommandContextValue | null>(null)
@@ -63,6 +67,7 @@ function CommandDispatcher({
 }) {
   const registryRef = useRef<CommandRegistry | null>(null)
   const contextSourcesRef = useRef(new Map<string, ContextGetter>())
+  const groupsRef = useRef(new Map<string, RegisteredCommandGroup>())
   const mode = useMode()
   const modeRef = useRef(mode)
   modeRef.current = mode
@@ -178,6 +183,9 @@ function CommandDispatcher({
               steps: parsed.steps,
               remainingSteps: parsed.steps.slice(result.pending!.prefixLength),
               nextStep: parsed.steps[result.pending!.prefixLength]!,
+              group: groupsRef.current.get(
+                stepsKey(parsed.steps.slice(0, result.pending!.prefixLength + 1)),
+              ),
             })),
         })
         event.preventDefault()
@@ -208,6 +216,7 @@ function CommandDispatcher({
       registry: registryRef.current!,
       leaderKey: leader,
       contextSources: contextSourcesRef.current,
+      groups: groupsRef.current,
     }),
     [leader],
   )
@@ -244,6 +253,52 @@ export function useCommandRegistry(): CommandContextValue {
 
 export function useCommandSequenceState(): CommandSequenceState | null {
   return useContext(CommandSequenceContext)
+}
+
+export function useCommandGroup(group: CommandGroup): void {
+  const ctx = useContext(CommandContext)
+  if (!ctx) {
+    throw new Error("useCommandGroup must be used within a CommandProvider")
+  }
+
+  const groupRef = useRef(group)
+  groupRef.current = group
+  const { groups, leaderKey } = ctx
+
+  useEffect(() => {
+    const parsed = parseHotkey(groupRef.current.prefix, leaderKey)
+    const registered: RegisteredCommandGroup = {
+      ...groupRef.current,
+      prefixKey: stepsKey(parsed.steps),
+    }
+    groups.set(registered.prefixKey, registered)
+    return () => {
+      groups.delete(registered.prefixKey)
+    }
+  }, [
+    group.id,
+    group.prefix,
+    group.title,
+    group.description,
+    group.icon,
+    group.order,
+    groups,
+    leaderKey,
+  ])
+}
+
+function stepsKey(steps: ParsedStep[]): string {
+  return steps.map(formatStepKey).join(" ")
+}
+
+function formatStepKey(step: ParsedStep): string {
+  const modifiers = []
+  if (step.ctrl) modifiers.push("ctrl")
+  if (step.meta) modifiers.push("meta")
+  if (step.option) modifiers.push("option")
+  if (step.shift) modifiers.push("shift")
+  modifiers.push(step.key)
+  return modifiers.join("+")
 }
 
 let nextContextSourceId = 0

@@ -2,12 +2,14 @@ export type {
   Command,
   CommandContext,
   CommandContextBase,
+  CommandGroup,
   CommandHandler,
   CommandSequenceCandidate,
   CommandSequenceState,
   CommandWhen,
   ParsedHotkey,
   ParsedStep,
+  RegisteredCommandGroup,
 } from "./types.js"
 export type { Mode } from "./mode.js"
 export { ModeProvider, useMode, useSetMode } from "./mode.js"
@@ -23,6 +25,8 @@ export type {
 export {
   CommandProvider,
   useCommandContext,
+  useCommandGroup,
+  useCommandRegistry,
   useCommandSequenceState,
   useProvideCommandContext,
 } from "./context.js"
