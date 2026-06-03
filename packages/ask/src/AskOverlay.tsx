@@ -5,6 +5,7 @@ import type {
   MouseEvent,
   KeyEvent,
   PasteEvent,
+  CursorStyleOptions,
 } from "@opentui/core"
 import { useKeyboard } from "@opentui/react"
 import { readPrimaryText } from "@tooee/clipboard"
@@ -38,6 +39,9 @@ export function AskOverlay({
   const vimMotionStateRef = useRef<VimMotionState>({ pendingG: false })
 
   const inputFocused = mode === "insert" || mode === "cursor"
+  const cursorStyle: CursorStyleOptions =
+    mode === "cursor" ? { style: "block", blinking: false } : { style: "line", blinking: true }
+  const cursorColor = mode === "cursor" ? theme.accent : theme.primary
 
   const preventCursorModeEditorInput = (event: KeyEvent | PasteEvent) => {
     if (mode === "cursor") event.preventDefault()
@@ -141,6 +145,8 @@ export function AskOverlay({
             initialValue={defaultValue}
             textColor={theme.text}
             placeholderColor={theme.textMuted}
+            cursorColor={cursorColor}
+            cursorStyle={cursorStyle}
             backgroundColor="transparent"
             onSubmit={handleSubmit}
             onKeyDown={preventCursorModeEditorInput}
@@ -156,7 +162,8 @@ export function AskOverlay({
             onSubmit={handleSubmit}
             textColor={theme.text}
             placeholderColor={theme.textMuted}
-            cursorColor={theme.primary}
+            cursorColor={cursorColor}
+            cursorStyle={cursorStyle}
             backgroundColor="transparent"
             onKeyDown={preventCursorModeEditorInput}
             onPaste={preventCursorModeEditorInput}

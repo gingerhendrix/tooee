@@ -5,6 +5,7 @@ import type {
   MouseEvent,
   KeyEvent,
   PasteEvent,
+  CursorStyleOptions,
 } from "@opentui/core"
 import { useKeyboard, useRenderer } from "@opentui/react"
 import { readPrimaryText } from "@tooee/clipboard"
@@ -57,6 +58,9 @@ export function Ask({
   const setMode = useSetMode()
   const hasOverlay = useHasOverlay()
   const inputFocused = (mode === "insert" || mode === "cursor") && !hasOverlay
+  const cursorStyle: CursorStyleOptions =
+    mode === "cursor" ? { style: "block", blinking: false } : { style: "line", blinking: true }
+  const cursorColor = mode === "cursor" ? theme.accent : theme.primary
 
   const preventCursorModeEditorInput = (event: KeyEvent | PasteEvent) => {
     if (mode === "cursor") event.preventDefault()
@@ -201,6 +205,8 @@ export function Ask({
               placeholder={placeholder}
               textColor={theme.text}
               placeholderColor={theme.textMuted}
+              cursorColor={cursorColor}
+              cursorStyle={cursorStyle}
               backgroundColor="transparent"
               onSubmit={handleSubmit}
               onKeyDown={preventCursorModeEditorInput}
@@ -217,7 +223,8 @@ export function Ask({
               placeholder={placeholder}
               textColor={theme.text}
               placeholderColor={theme.textMuted}
-              cursorColor={theme.primary}
+              cursorColor={cursorColor}
+              cursorStyle={cursorStyle}
               backgroundColor="transparent"
               onKeyDown={preventCursorModeEditorInput}
               onPaste={preventCursorModeEditorInput}

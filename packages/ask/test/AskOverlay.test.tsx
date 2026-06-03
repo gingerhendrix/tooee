@@ -91,8 +91,12 @@ async function pressShiftEnter() {
   await testSetup.renderOnce()
 }
 
+function cursorState() {
+  return testSetup.renderer.getCursorState()
+}
+
 function cursorIsVisible(): boolean {
-  return testSetup.renderer.getCursorState().visible
+  return cursorState().visible
 }
 
 function findEditableWithText(node: unknown, text: string): { cursorOffset: number } | undefined {
@@ -223,10 +227,14 @@ describe("Ask cursor-mode motions", () => {
     })
 
     expect(cursorIsVisible()).toBe(true)
+    expect(cursorState().style).toBe("line")
+    expect(cursorState().blinking).toBe(true)
 
     await pressEscape()
 
     expect(cursorIsVisible()).toBe(true)
+    expect(cursorState().style).toBe("block")
+    expect(cursorState().blinking).toBe(false)
 
     await press("x")
     await press("i")
@@ -245,10 +253,14 @@ describe("Ask cursor-mode motions", () => {
     })
 
     expect(cursorIsVisible()).toBe(true)
+    expect(cursorState().style).toBe("line")
+    expect(cursorState().blinking).toBe(true)
 
     await pressEscape()
 
     expect(cursorIsVisible()).toBe(true)
+    expect(cursorState().style).toBe("block")
+    expect(cursorState().blinking).toBe(false)
 
     await press("x")
     await press("i")
