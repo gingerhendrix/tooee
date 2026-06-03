@@ -46,6 +46,7 @@
         "@tooee/choose": "workspace:*",
         "@tooee/commands": "workspace:*",
         "@tooee/marks": "workspace:*",
+        "@tooee/shell": "workspace:*",
         "@tooee/themes": "workspace:*",
         "@tooee/toasts": "workspace:*",
         "@tooee/view": "workspace:*",
