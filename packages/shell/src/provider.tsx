@@ -5,6 +5,7 @@ import { CommandProvider, useProvideCommandContext, type Mode } from "@tooee/com
 import { ToastProvider, useToast, type ToastController } from "@tooee/toasts"
 import { OverlayProvider } from "./overlay.js"
 import { CommandPaletteProvider } from "./command-palette-provider.js"
+import { WhichKeyProvider } from "./which-key-provider.js"
 import { useCopyOnSelect } from "./copy-on-select.js"
 import { useDebugConsoleCommand } from "./commands.js"
 
@@ -52,7 +53,9 @@ function TooeeProviderInner({
         <ToastProvider>
           <ToastContextBridge>
             <OverlayProvider>
-              <CommandPaletteProvider>{children}</CommandPaletteProvider>
+              <WhichKeyProvider>
+                <CommandPaletteProvider>{children}</CommandPaletteProvider>
+              </WhichKeyProvider>
             </OverlayProvider>
           </ToastContextBridge>
         </ToastProvider>

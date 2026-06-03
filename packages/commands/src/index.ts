@@ -3,6 +3,8 @@ export type {
   CommandContext,
   CommandContextBase,
   CommandHandler,
+  CommandSequenceCandidate,
+  CommandSequenceState,
   CommandWhen,
   ParsedHotkey,
   ParsedStep,
@@ -13,8 +15,17 @@ export type { ModeProviderProps } from "./mode.js"
 export { parseHotkey } from "./parse.js"
 export { matchStep } from "./match.js"
 export { SequenceTracker } from "./sequence.js"
-export type { SequenceTrackerOptions } from "./sequence.js"
-export { CommandProvider, useCommandContext, useProvideCommandContext } from "./context.js"
+export type {
+  SequenceFeedResult,
+  SequencePendingMatch,
+  SequenceTrackerOptions,
+} from "./sequence.js"
+export {
+  CommandProvider,
+  useCommandContext,
+  useCommandSequenceState,
+  useProvideCommandContext,
+} from "./context.js"
 export type { CommandProviderProps } from "./context.js"
 export { useCommand } from "./use-command.js"
 export type { UseCommandOptions } from "./use-command.js"

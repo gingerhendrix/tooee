@@ -5,10 +5,17 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useState,
   type ReactNode,
 } from "react"
 import { useKeyboard } from "@opentui/react"
-import type { Command, CommandContext, CommandRegistry, ParsedHotkey } from "./types.js"
+import type {
+  Command,
+  CommandContext,
+  CommandRegistry,
+  CommandSequenceState,
+  ParsedHotkey,
+} from "./types.js"
 import type { Mode } from "./mode.js"
 import { ModeProvider, useMode, useSetMode } from "./mode.js"
 import { parseHotkey } from "./parse.js"
@@ -26,6 +33,7 @@ interface CommandContextValue {
 }
 
 const CommandContext = createContext<CommandContextValue | null>(null)
+const CommandSequenceContext = createContext<CommandSequenceState | null>(null)
 
 export interface CommandProviderProps {
   children: ReactNode
@@ -59,6 +67,9 @@ function CommandDispatcher({
   const modeRef = useRef(mode)
   modeRef.current = mode
   const setMode = useSetMode()
+  const [sequenceState, setSequenceState] = useState<CommandSequenceState | null>(null)
+  const clearSequenceStateRef = useRef(() => setSequenceState(null))
+  clearSequenceStateRef.current = () => setSequenceState(null)
 
   const buildCtx = useCallback((): CommandContext => {
     const ctx: Record<string, any> = {
@@ -96,7 +107,7 @@ function CommandDispatcher({
     }
   }
 
-  const trackerRef = useRef(new SequenceTracker())
+  const trackerRef = useRef(new SequenceTracker({ onReset: () => clearSequenceStateRef.current() }))
   const parseCacheRef = useRef(new Map<string, ParsedHotkey>())
 
   const getParsedHotkey = useCallback(
@@ -124,8 +135,7 @@ function CommandDispatcher({
 
     // Collect eligible commands with their parsed hotkeys
     const singleStepCandidates: { command: Command; parsed: ParsedHotkey }[] = []
-    const multiStepHotkeys: ParsedHotkey[] = []
-    const multiStepCommands: Command[] = []
+    const multiStepCandidates: { command: Command; hotkey: string; parsed: ParsedHotkey }[] = []
 
     for (const command of registry.commands.values()) {
       const commandModes = command.modes ?? DEFAULT_MODES
@@ -140,30 +150,58 @@ function CommandDispatcher({
       if (parsed.steps.length === 1) {
         singleStepCandidates.push({ command, parsed })
       } else {
-        multiStepHotkeys.push(parsed)
-        multiStepCommands.push(command)
+        multiStepCandidates.push({ command, hotkey, parsed })
       }
     }
 
     // Check multi-step sequences first (they consume buffer state)
-    if (multiStepHotkeys.length > 0) {
-      const idx = trackerRef.current.feed(event, multiStepHotkeys)
-      if (idx >= 0) {
+    if (multiStepCandidates.length > 0) {
+      const multiStepHotkeys = multiStepCandidates.map((candidate) => candidate.parsed)
+      const result = trackerRef.current.feedWithState(event, multiStepHotkeys)
+      if (result.matchedIndex >= 0) {
         event.preventDefault()
-        multiStepCommands[idx]!.handler(ctx)
+        setSequenceState(null)
+        multiStepCandidates[result.matchedIndex]!.command.handler(ctx)
         return
       }
+
+      if (result.pending) {
+        const firstCandidate = multiStepCandidates[result.pending.indexes[0]!]!
+        setSequenceState({
+          prefix: firstCandidate.parsed.steps.slice(0, result.pending.prefixLength),
+          candidates: result.pending.indexes
+            .map((idx) => multiStepCandidates[idx]!)
+            .filter(({ command }) => !command.hidden)
+            .map(({ command, hotkey, parsed }) => ({
+              command,
+              hotkey,
+              steps: parsed.steps,
+              remainingSteps: parsed.steps.slice(result.pending!.prefixLength),
+              nextStep: parsed.steps[result.pending!.prefixLength]!,
+            })),
+        })
+        event.preventDefault()
+        return
+      }
+
+      setSequenceState(null)
     }
 
     // Check single-step matches
     for (const { command, parsed } of singleStepCandidates) {
       if (matchStep(event, parsed.steps[0]!)) {
         event.preventDefault()
+        setSequenceState(null)
         command.handler(ctx)
         return
       }
     }
   })
+
+  useEffect(() => {
+    trackerRef.current.reset()
+    setSequenceState(null)
+  }, [mode])
 
   const ctxValue = useMemo(
     () => ({
@@ -174,7 +212,11 @@ function CommandDispatcher({
     [leader],
   )
 
-  return <CommandContext.Provider value={ctxValue}>{children}</CommandContext.Provider>
+  return (
+    <CommandContext.Provider value={ctxValue}>
+      <CommandSequenceContext value={sequenceState}>{children}</CommandSequenceContext>
+    </CommandContext.Provider>
+  )
 }
 
 export function useCommandContext(): { commands: Command[]; invoke: (id: string) => void } {
@@ -198,6 +240,10 @@ export function useCommandRegistry(): CommandContextValue {
     throw new Error("useCommandRegistry must be used within a CommandProvider")
   }
   return ctx
+}
+
+export function useCommandSequenceState(): CommandSequenceState | null {
+  return useContext(CommandSequenceContext)
 }
 
 let nextContextSourceId = 0

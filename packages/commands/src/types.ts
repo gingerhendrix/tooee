@@ -44,3 +44,16 @@ export interface CommandRegistry {
   register: (command: Command) => () => void
   invoke: (id: string) => void
 }
+
+export interface CommandSequenceCandidate {
+  command: Command
+  hotkey: string
+  steps: ParsedStep[]
+  remainingSteps: ParsedStep[]
+  nextStep: ParsedStep
+}
+
+export interface CommandSequenceState {
+  prefix: ParsedStep[]
+  candidates: CommandSequenceCandidate[]
+}
