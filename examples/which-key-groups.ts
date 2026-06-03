@@ -18,12 +18,17 @@
  *   q            — quit
  */
 
-import { createElement, useMemo, useState, type ReactNode } from "react"
+import { createElement, useMemo, useState, type ComponentType, type ReactNode } from "react"
 import { useActions, useCommandGroup, type ActionDefinition } from "@tooee/commands"
+import { AppLayout } from "@tooee/layout"
 import { launchCli, useQuitCommand } from "@tooee/shell"
 import { useTheme } from "@tooee/themes"
 
-function h(tag: string, props: Record<string, unknown>, ...children: ReactNode[]): ReactNode {
+function h(
+  tag: string | ComponentType<any>,
+  props: Record<string, unknown>,
+  ...children: ReactNode[]
+): ReactNode {
   return createElement(tag, props, ...children)
 }
 
@@ -233,7 +238,7 @@ function WhichKeyGroupsDemo(): ReactNode {
     "Press q to quit.",
   ]
 
-  return h(
+  const content = h(
     "box",
     { style: { flexDirection: "column", paddingLeft: 2, paddingTop: 1 } },
     h("text", { content: "Which-key Groups Demo", fg: theme.primary, attributes: 1 }),
@@ -247,6 +252,15 @@ function WhichKeyGroupsDemo(): ReactNode {
         fg: line.startsWith("#") ? theme.primary : theme.text,
       }),
     ),
+  )
+
+  return h(
+    AppLayout,
+    {
+      titleBar: { title: "Which-key Groups Demo" },
+      statusBar: { items: [{ label: "Mode:", value: "cursor" }] },
+    },
+    content,
   )
 }
 
