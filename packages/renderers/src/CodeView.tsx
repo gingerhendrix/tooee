@@ -1,7 +1,7 @@
 import { type RefObject } from "react"
 import { useTheme } from "@tooee/themes"
 import type { MarkState } from "@tooee/marks"
-import type { RowDocumentRenderable } from "./RowDocumentRenderable.js"
+import { DEFAULT_SIGN_COLUMN_WIDTH, type RowDocumentRenderable } from "./RowDocumentRenderable.js"
 import { useGutterPalette } from "./useGutterPalette.js"
 import "./row-document.js"
 
@@ -23,7 +23,7 @@ export function CodeView({ content, language, showLineNumbers = true, marks, doc
       showLineNumbers={showLineNumbers}
       palette={palette}
       decorations={marks?.sets}
-      signColumnWidth={1}
+      signColumnWidth={DEFAULT_SIGN_COLUMN_WIDTH}
       style={{ flexGrow: 1 }}
     >
       <code content={content} filetype={language} syntaxStyle={syntax} />

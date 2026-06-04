@@ -4,6 +4,7 @@ import { type RefObject } from "react"
 import type { MarkState } from "@tooee/marks"
 import type { ColumnDef, TableRow } from "./table-types.js"
 import {
+  DEFAULT_SIGN_COLUMN_WIDTH,
   computeRowDocumentGutterWidth,
   type RowDocumentRenderable,
 } from "./RowDocumentRenderable.js"
@@ -159,7 +160,7 @@ export function Table({
   const gutterWidth = computeRowDocumentGutterWidth({
     showLineNumbers,
     rowCount: rows.length,
-    signColumnWidth: 1,
+    signColumnWidth: DEFAULT_SIGN_COLUMN_WIDTH,
   })
   const effectiveMaxWidth = Math.max(0, (maxWidth ?? terminalWidth) - MARGIN * 2 - gutterWidth)
 
@@ -225,7 +226,7 @@ export function Table({
         rowChildOffset={0}
         showGutter={true}
         showLineNumbers={showLineNumbers}
-        signColumnWidth={1}
+        signColumnWidth={DEFAULT_SIGN_COLUMN_WIDTH}
         palette={palette}
         decorations={marks?.sets}
         style={{ flexGrow: 1 }}

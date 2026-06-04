@@ -12,6 +12,8 @@ import type { DecorationLayer, RowDecoration } from "./DecorationLayer.js"
 // Types
 // ---------------------------------------------------------------------------
 
+export const DEFAULT_SIGN_COLUMN_WIDTH = 3
+
 export interface RowDocumentPalette {
   gutterFg?: string
   gutterBg?: string

@@ -9,7 +9,7 @@ import {
 } from "@opentui/core"
 import type { SyntaxStyle, TextTableContent, TextTableCellContent, TextChunk } from "@opentui/core"
 import type { MarkState } from "@tooee/marks"
-import type { RowDocumentRenderable } from "./RowDocumentRenderable.js"
+import { DEFAULT_SIGN_COLUMN_WIDTH, type RowDocumentRenderable } from "./RowDocumentRenderable.js"
 import { useGutterPalette } from "./useGutterPalette.js"
 import { isMermaidFence, renderMermaidForTerminal } from "./mermaid.js"
 import "./row-document.js"
@@ -157,7 +157,7 @@ export function MarkdownView({
       showLineNumbers={showLineNumbers}
       palette={palette}
       decorations={marks?.sets}
-      signColumnWidth={1}
+      signColumnWidth={DEFAULT_SIGN_COLUMN_WIDTH}
       style={{ flexGrow: 1 }}
     >
       {blockElements}
