@@ -17,7 +17,7 @@
     },
     "apps/cli": {
       "name": "@tooee/cli",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "bin": {
         "tooee": "./dist/main.js",
       },
@@ -59,7 +59,7 @@
     },
     "packages/ask": {
       "name": "@tooee/ask",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "dependencies": {
         "@tooee/clipboard": "workspace:*",
         "@tooee/commands": "workspace:*",
@@ -83,7 +83,7 @@
     },
     "packages/choose": {
       "name": "@tooee/choose",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "dependencies": {
         "@tooee/commands": "workspace:*",
         "@tooee/fuzzy": "workspace:*",
@@ -106,7 +106,7 @@
     },
     "packages/clipboard": {
       "name": "@tooee/clipboard",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "devDependencies": {
         "@types/bun": "^1.3.10",
         "typescript": "^5.9.3",
@@ -114,7 +114,7 @@
     },
     "packages/commands": {
       "name": "@tooee/commands",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "devDependencies": {
         "@opentui/core": "^0.2.15",
         "@opentui/react": "^0.2.15",
@@ -130,7 +130,7 @@
     },
     "packages/config": {
       "name": "@tooee/config",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "devDependencies": {
         "@opentui/react": "^0.2.15",
         "@types/bun": "^1.3.10",
@@ -143,7 +143,7 @@
     },
     "packages/e2e": {
       "name": "@tooee/e2e",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "devDependencies": {
         "@opentui/core": "^0.2.15",
         "@opentui/react": "^0.2.15",
@@ -161,14 +161,14 @@
     },
     "packages/fuzzy": {
       "name": "@tooee/fuzzy",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "devDependencies": {
         "typescript": "^5.9.3",
       },
     },
     "packages/layout": {
       "name": "@tooee/layout",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "dependencies": {
         "@tooee/overlays": "workspace:*",
         "@tooee/search": "workspace:*",
@@ -190,7 +190,7 @@
     },
     "packages/marks": {
       "name": "@tooee/marks",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "devDependencies": {
         "@types/bun": "^1.3.10",
         "typescript": "^5.9.3",
@@ -198,7 +198,7 @@
     },
     "packages/overlays": {
       "name": "@tooee/overlays",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "devDependencies": {
         "@types/bun": "^1.3.10",
         "@types/react": "^19.2.14",
@@ -210,7 +210,7 @@
     },
     "packages/renderers": {
       "name": "@tooee/renderers",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "dependencies": {
         "@tooee/fuzzy": "workspace:*",
         "@tooee/marks": "workspace:*",
@@ -234,7 +234,7 @@
     },
     "packages/router": {
       "name": "@tooee/router",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "devDependencies": {
         "@opentui/core": "^0.2.15",
         "@opentui/react": "^0.2.15",
@@ -252,7 +252,7 @@
     },
     "packages/search": {
       "name": "@tooee/search",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "dependencies": {
         "@tooee/commands": "workspace:*",
         "@tooee/themes": "workspace:*",
@@ -272,7 +272,7 @@
     },
     "packages/shell": {
       "name": "@tooee/shell",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "dependencies": {
         "@tooee/clipboard": "workspace:*",
         "@tooee/commands": "workspace:*",
@@ -299,7 +299,7 @@
     },
     "packages/themes": {
       "name": "@tooee/themes",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "dependencies": {
         "@tooee/config": "workspace:*",
         "@tooee/fuzzy": "workspace:*",
@@ -319,7 +319,7 @@
     },
     "packages/toasts": {
       "name": "@tooee/toasts",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "dependencies": {
         "@tooee/themes": "workspace:*",
       },
@@ -338,7 +338,7 @@
     },
     "packages/view": {
       "name": "@tooee/view",
-      "version": "0.1.16",
+      "version": "0.1.17",
       "dependencies": {
         "@tooee/commands": "workspace:*",
         "@tooee/config": "workspace:*",

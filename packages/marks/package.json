@@ -1,6 +1,6 @@
 {
   "name": "@tooee/marks",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "Unified decoration/annotation system for Tooee renderers",
   "keywords": [
     "cli",

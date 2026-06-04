@@ -1,6 +1,6 @@
 {
   "name": "@tooee/clipboard",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "Cross-platform clipboard operations for Tooee",
   "keywords": [
     "cli",
