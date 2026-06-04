@@ -14,8 +14,40 @@ type EditableMotionTarget = Pick<
   | "moveWordBackward"
 >
 
+export type EditableInsertTarget = Pick<
+  InputRenderable | TextareaRenderable,
+  "cursorOffset" | "insertText" | "moveCursorRight" | "plainText"
+>
+
 export interface VimMotionState {
   pendingG: boolean
+}
+
+export function appendAtCursor(target: EditableInsertTarget | null | undefined): void {
+  target?.moveCursorRight()
+}
+
+export function openLineAtCursor(
+  target: EditableInsertTarget | null | undefined,
+  position: "above" | "below",
+): void {
+  if (!target) return
+
+  const text = target.plainText
+  const cursorOffset = target.cursorOffset
+  const currentLineStart = text.lastIndexOf("\n", Math.max(0, cursorOffset - 1)) + 1
+  const currentLineEndIndex = text.indexOf("\n", cursorOffset)
+  const currentLineEnd = currentLineEndIndex === -1 ? text.length : currentLineEndIndex
+
+  if (position === "above") {
+    target.cursorOffset = currentLineStart
+    target.insertText("\n")
+    target.cursorOffset = currentLineStart
+    return
+  }
+
+  target.cursorOffset = currentLineEnd
+  target.insertText("\n")
 }
 
 function consume(key: KeyEvent): true {

@@ -16,14 +16,18 @@ import { useThemeCommands, useQuitCommand, usePasteCommands } from "@tooee/shell
 import {
   useMode,
   useSetMode,
-  useCommand,
   useActions,
   useProvideCommandContext,
   useCommandContext,
 } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import type { AskOptions } from "./types.js"
-import { handleEditBufferVimMotion, type VimMotionState } from "./vim-motions.js"
+import {
+  appendAtCursor,
+  handleEditBufferVimMotion,
+  openLineAtCursor,
+  type VimMotionState,
+} from "./vim-motions.js"
 
 interface AskProps extends AskOptions {
   actions?: ActionDefinition[]
@@ -98,23 +102,6 @@ export function Ask({
     getTarget: () => (multiline ? textareaRef.current : inputRef.current),
   })
 
-  useCommand({
-    id: "ask:insert-mode-a",
-    title: "Insert mode",
-    hotkey: "a",
-    modes: ["cursor"],
-    handler: () => setMode("insert"),
-    hidden: true,
-  })
-  useCommand({
-    id: "ask:insert-mode-i",
-    title: "Insert mode",
-    hotkey: "i",
-    modes: ["cursor"],
-    handler: () => setMode("insert"),
-    hidden: true,
-  })
-
   useKeyboard((key) => {
     if (hasOverlay) return
     if (key.name === "escape") {
@@ -126,6 +113,33 @@ export function Ask({
     }
     if (mode === "cursor") {
       const target = multiline ? textareaRef.current : inputRef.current
+      if (key.name === "i" || key.raw === "i") {
+        key.preventDefault()
+        vimMotionStateRef.current.pendingG = false
+        setMode("insert")
+        return
+      }
+      if (key.name === "a" || key.raw === "a") {
+        key.preventDefault()
+        vimMotionStateRef.current.pendingG = false
+        appendAtCursor(target)
+        setMode("insert")
+        return
+      }
+      if (multiline && ((key.name === "o" && key.shift) || key.raw === "O")) {
+        key.preventDefault()
+        vimMotionStateRef.current.pendingG = false
+        openLineAtCursor(target, "above")
+        setMode("insert")
+        return
+      }
+      if (multiline && (key.name === "o" || key.raw === "o")) {
+        key.preventDefault()
+        vimMotionStateRef.current.pendingG = false
+        openLineAtCursor(target, "below")
+        setMode("insert")
+        return
+      }
       if (handleEditBufferVimMotion(key, target, vimMotionStateRef.current)) return
     } else {
       vimMotionStateRef.current.pendingG = false

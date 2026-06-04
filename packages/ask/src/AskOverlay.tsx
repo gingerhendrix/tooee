@@ -11,7 +11,12 @@ import { useKeyboard } from "@opentui/react"
 import { readPrimaryText } from "@tooee/clipboard"
 import { useTheme } from "@tooee/themes"
 import { useMode, useSetMode } from "@tooee/commands"
-import { handleEditBufferVimMotion, type VimMotionState } from "./vim-motions.js"
+import {
+  appendAtCursor,
+  handleEditBufferVimMotion,
+  openLineAtCursor,
+  type VimMotionState,
+} from "./vim-motions.js"
 
 export interface AskOverlayProps {
   prompt: string
@@ -78,13 +83,34 @@ export function AskOverlay({
         onCancel()
         return
       }
-      if (key.name === "i" || key.name === "a" || key.raw === "i" || key.raw === "a") {
+      const target = multiline ? textareaRef.current : inputRef.current
+      if (key.name === "i" || key.raw === "i") {
         key.preventDefault()
+        vimMotionStateRef.current.pendingG = false
         setMode("insert")
         return
       }
-
-      const target = multiline ? textareaRef.current : inputRef.current
+      if (key.name === "a" || key.raw === "a") {
+        key.preventDefault()
+        vimMotionStateRef.current.pendingG = false
+        appendAtCursor(target)
+        setMode("insert")
+        return
+      }
+      if (multiline && ((key.name === "o" && key.shift) || key.raw === "O")) {
+        key.preventDefault()
+        vimMotionStateRef.current.pendingG = false
+        openLineAtCursor(target, "above")
+        setMode("insert")
+        return
+      }
+      if (multiline && (key.name === "o" || key.raw === "o")) {
+        key.preventDefault()
+        vimMotionStateRef.current.pendingG = false
+        openLineAtCursor(target, "below")
+        setMode("insert")
+        return
+      }
       if (handleEditBufferVimMotion(key, target, vimMotionStateRef.current)) return
     } else {
       vimMotionStateRef.current.pendingG = false

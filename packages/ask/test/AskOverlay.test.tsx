@@ -77,6 +77,13 @@ async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean 
   await testSetup.renderOnce()
 }
 
+async function typeText(text: string) {
+  await act(async () => {
+    await testSetup.mockInput.typeText(text)
+  })
+  await testSetup.renderOnce()
+}
+
 async function pressEnter() {
   await act(async () => {
     testSetup.mockInput.pressEnter()
@@ -308,6 +315,69 @@ describe("Ask cursor-mode motions", () => {
     await pressEnter()
 
     expect(submitted).toBe("abcXd")
+  })
+
+  test("i inserts before and a appends after the cursor", async () => {
+    let submitted = ""
+    testSetup = await setupAsk({
+      multiline: false,
+      defaultValue: "abcd",
+      onSubmit: (value) => {
+        submitted = value
+      },
+    })
+
+    await pressEscape()
+    await press("h")
+    await press("i")
+    await press("I")
+    await pressEscape()
+    await press("a")
+    await press("A")
+    await pressShiftEnter()
+
+    expect(submitted).toBe("abcIdA")
+  })
+
+  test("o and O open new multiline ask lines below and above", async () => {
+    let submitted = ""
+    testSetup = await setupAsk({
+      multiline: true,
+      defaultValue: "one\ntwo",
+      onSubmit: (value) => {
+        submitted = value
+      },
+    })
+
+    await pressEscape()
+    await press("k")
+    await press("o")
+    await typeText("below")
+    await pressEscape()
+    await press("o", { shift: true })
+    await typeText("above")
+    await pressShiftEnter()
+
+    expect(submitted).toBe("one\nabove\nbelow\ntwo")
+  })
+
+  test("o opens a new overlay line below", async () => {
+    let submitted = ""
+    testSetup = await setup({
+      multiline: true,
+      defaultValue: "one\ntwo",
+      onSubmit: (value) => {
+        submitted = value
+      },
+    })
+
+    await pressEscape()
+    await press("k")
+    await press("o")
+    await typeText("new")
+    await pressShiftEnter()
+
+    expect(submitted).toBe("one\nnew\ntwo")
   })
 
   test("b supports standalone word-back motion", async () => {
