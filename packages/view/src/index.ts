@@ -8,6 +8,7 @@ export {
   createTableFileProvider,
   createTableStdinProvider,
 } from "./default-provider.js"
+export type { CreateProviderOptions } from "./default-provider.js"
 export { listDirectoryFiles } from "./directory-provider.js"
 export type { DirectoryEntry } from "./directory-provider.js"
 export {
