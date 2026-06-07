@@ -2,8 +2,10 @@ import type { KeyEvent } from "@opentui/core"
 import type { ParsedHotkey } from "./types.js"
 import { matchStep } from "./match.js"
 
+export const DEFAULT_SEQUENCE_TIMEOUT_MS = 1500
+
 export interface SequenceTrackerOptions {
-  timeout?: number // ms, default 500
+  timeout?: number // ms, default DEFAULT_SEQUENCE_TIMEOUT_MS
   onReset?: () => void
 }
 
@@ -24,7 +26,7 @@ export class SequenceTracker {
   private onReset?: () => void
 
   constructor(options?: SequenceTrackerOptions) {
-    this.timeout = options?.timeout ?? 500
+    this.timeout = options?.timeout ?? DEFAULT_SEQUENCE_TIMEOUT_MS
     this.onReset = options?.onReset
   }
 

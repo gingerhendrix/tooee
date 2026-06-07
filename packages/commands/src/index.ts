@@ -16,7 +16,7 @@ export { ModeProvider, useMode, useSetMode } from "./mode.js"
 export type { ModeProviderProps } from "./mode.js"
 export { parseHotkey } from "./parse.js"
 export { matchStep } from "./match.js"
-export { SequenceTracker } from "./sequence.js"
+export { DEFAULT_SEQUENCE_TIMEOUT_MS, SequenceTracker } from "./sequence.js"
 export type {
   SequenceFeedResult,
   SequencePendingMatch,

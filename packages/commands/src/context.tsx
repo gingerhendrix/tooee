@@ -44,12 +44,19 @@ export interface CommandProviderProps {
   leader?: string
   keymap?: Record<string, string>
   initialMode?: Mode
+  sequenceTimeoutMs?: number
 }
 
-export function CommandProvider({ children, leader, keymap, initialMode }: CommandProviderProps) {
+export function CommandProvider({
+  children,
+  leader,
+  keymap,
+  initialMode,
+  sequenceTimeoutMs,
+}: CommandProviderProps) {
   return (
     <ModeProvider initialMode={initialMode}>
-      <CommandDispatcher leader={leader} keymap={keymap}>
+      <CommandDispatcher leader={leader} keymap={keymap} sequenceTimeoutMs={sequenceTimeoutMs}>
         {children}
       </CommandDispatcher>
     </ModeProvider>
@@ -60,10 +67,12 @@ function CommandDispatcher({
   children,
   leader,
   keymap,
+  sequenceTimeoutMs,
 }: {
   children: ReactNode
   leader?: string
   keymap?: Record<string, string>
+  sequenceTimeoutMs?: number
 }) {
   const registryRef = useRef<CommandRegistry | null>(null)
   const contextSourcesRef = useRef(new Map<string, ContextGetter>())
@@ -112,7 +121,12 @@ function CommandDispatcher({
     }
   }
 
-  const trackerRef = useRef(new SequenceTracker({ onReset: () => clearSequenceStateRef.current() }))
+  const trackerRef = useRef(
+    new SequenceTracker({
+      timeout: sequenceTimeoutMs,
+      onReset: () => clearSequenceStateRef.current(),
+    }),
+  )
   const parseCacheRef = useRef(new Map<string, ParsedHotkey>())
 
   const getParsedHotkey = useCallback(

@@ -30,15 +30,22 @@ export function guardTerminalHealth(renderer: CliRenderer): void {
   stdin.on("close", exit)
 }
 
-export async function launchCli(
-  node: ReactNode,
-  opts?: { exitOnCtrlC?: boolean; leader?: string },
-): Promise<void> {
+export interface LaunchCliOptions {
+  exitOnCtrlC?: boolean
+  leader?: string
+  sequenceTimeoutMs?: number
+}
+
+export async function launchCli(node: ReactNode, opts?: LaunchCliOptions): Promise<void> {
   const renderer = await createCliRenderer({
     exitOnCtrlC: opts?.exitOnCtrlC ?? true,
   })
 
   guardTerminalHealth(renderer)
 
-  createRoot(renderer).render(<TooeeProvider leader={opts?.leader}>{node}</TooeeProvider>)
+  createRoot(renderer).render(
+    <TooeeProvider leader={opts?.leader} sequenceTimeoutMs={opts?.sequenceTimeoutMs}>
+      {node}
+    </TooeeProvider>,
+  )
 }

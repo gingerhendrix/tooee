@@ -20,6 +20,7 @@ export interface TooeeProviderProps {
   leader?: string
   config?: Partial<TooeeConfig>
   initialMode?: Mode
+  sequenceTimeoutMs?: number
 }
 
 export function TooeeProvider({
@@ -27,10 +28,15 @@ export function TooeeProvider({
   leader,
   config: configOverrides,
   initialMode,
+  sequenceTimeoutMs,
 }: TooeeProviderProps) {
   return (
     <ConfigProvider overrides={configOverrides}>
-      <TooeeProviderInner leader={leader} initialMode={initialMode}>
+      <TooeeProviderInner
+        leader={leader}
+        initialMode={initialMode}
+        sequenceTimeoutMs={sequenceTimeoutMs}
+      >
         {children}
       </TooeeProviderInner>
     </ConfigProvider>
@@ -41,15 +47,22 @@ function TooeeProviderInner({
   children,
   leader,
   initialMode,
+  sequenceTimeoutMs,
 }: {
   children: ReactNode
   leader?: string
   initialMode?: Mode
+  sequenceTimeoutMs?: number
 }) {
   const config = useConfig()
   return (
     <ThemeSwitcherProvider initialTheme={config.theme?.name} initialMode={config.theme?.mode}>
-      <CommandProvider leader={leader} keymap={config.keys} initialMode={initialMode}>
+      <CommandProvider
+        leader={leader}
+        keymap={config.keys}
+        initialMode={initialMode}
+        sequenceTimeoutMs={sequenceTimeoutMs}
+      >
         <ToastProvider>
           <ToastContextBridge>
             <OverlayProvider>
