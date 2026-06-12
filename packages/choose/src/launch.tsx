@@ -2,7 +2,7 @@ import * as fs from "node:fs"
 import * as tty from "node:tty"
 import { createCliRenderer } from "@opentui/core"
 import { createRoot } from "@opentui/react"
-import { TooeeProvider } from "@tooee/shell"
+import { TooeeProvider, guardTerminalHealth } from "@tooee/shell"
 import type { ActionDefinition } from "@tooee/commands"
 import { Choose } from "./Choose.js"
 import type { ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.js"
@@ -39,19 +39,28 @@ export async function launch(opts: ChooseLaunchOptions): Promise<ChooseResult | 
     createCliRenderer({
       exitOnCtrlC: false,
       ...(ttyStdin ? { stdin: ttyStdin as unknown as NodeJS.ReadStream } : {}),
-    }).then((r) => {
-      renderer = r
-      createRoot(r).render(
-        <TooeeProvider initialMode="insert">
-          <Choose
-            contentProvider={opts.contentProvider}
-            options={opts.options}
-            actions={opts.actions}
-            onConfirm={(result) => cleanup(result)}
-            onCancel={() => cleanup(null)}
-          />
-        </TooeeProvider>,
-      )
     })
+      .then((r) => {
+        renderer = r
+        guardTerminalHealth(r)
+        createRoot(r).render(
+          <TooeeProvider initialMode="insert">
+            <Choose
+              contentProvider={opts.contentProvider}
+              options={opts.options}
+              actions={opts.actions}
+              onConfirm={(result) => cleanup(result)}
+              onCancel={() => cleanup(null)}
+            />
+          </TooeeProvider>,
+        )
+      })
+      .catch(() => {
+        // Renderer init failed — release /dev/tty and resolve so the caller never hangs.
+        if (ttyStdin) {
+          ttyStdin.destroy()
+        }
+        resolve(null)
+      })
   })
 }
