@@ -21,8 +21,6 @@ function createEmptyContent(format: string, title?: string): AnyContent {
       return { format, code: "", title }
     case "text":
       return { format, text: "", title }
-    case "image":
-      return { format, src: "", title }
     case "table":
       return { format, columns: [], rows: [], title }
     default:

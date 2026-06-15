@@ -1,7 +1,6 @@
 export { MarkdownView, flattenTokens } from "./MarkdownView.js"
 export type { FlatBlock } from "./MarkdownView.js"
 export { CodeView } from "./CodeView.js"
-export { ImageView } from "./ImageView.js"
 export { Table, computeColumnWidths, isNumeric, sampleRows } from "./Table.js"
 export type { TableProps, ColumnWidthOptions } from "./Table.js"
 export type { ColumnDef, TableRow } from "./table-types.js"

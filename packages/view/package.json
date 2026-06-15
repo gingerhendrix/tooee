@@ -1,10 +1,9 @@
 {
   "name": "@tooee/view",
   "version": "0.1.18",
-  "description": "Terminal content viewer for markdown, code, images, and tables",
+  "description": "Terminal content viewer for markdown, code, text, and tables",
   "keywords": [
     "cli",
-    "image",
     "markdown",
     "opentui",
     "syntax-highlighting",

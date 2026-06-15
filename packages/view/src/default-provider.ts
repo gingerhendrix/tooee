@@ -5,9 +5,6 @@ function detectFormat(filePath: string): { format: ContentFormat; language?: str
   const ext = filePath.split(".").pop()?.toLowerCase()
   if (!ext) return { format: "text" }
 
-  const imageExts = new Set(["png", "jpg", "jpeg", "gif", "webp", "bmp", "tiff", "tif"])
-  if (imageExts.has(ext)) return { format: "image" }
-
   const tableExts = new Set(["csv", "tsv"])
   if (tableExts.has(ext)) return { format: "table" }
 
@@ -53,10 +50,6 @@ export function createFileProvider(filePath: string): ContentProvider {
     async load(): Promise<Content> {
       const { format, language } = detectFormat(filePath)
       const title = filePath.split("/").pop()
-
-      if (format === "image") {
-        return { format: "image", src: filePath, title }
-      }
 
       const file = Bun.file(filePath)
       if (format === "table") {

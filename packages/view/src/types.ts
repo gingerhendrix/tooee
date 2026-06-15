@@ -4,7 +4,7 @@ import type { MarkSet, MarkState } from "@tooee/marks"
 
 // === Built-in content types ===
 
-export type Content = MarkdownContent | CodeContent | TextContent | ImageContent | TableContent
+export type Content = MarkdownContent | CodeContent | TextContent | TableContent
 
 export type ContentFormat = Content["format"]
 
@@ -27,11 +27,6 @@ export interface CodeContent extends BaseContent {
 export interface TextContent extends BaseContent {
   format: "text"
   text: string
-}
-
-export interface ImageContent extends BaseContent {
-  format: "image"
-  src: string
 }
 
 export interface TableContent extends BaseContent {
@@ -108,7 +103,7 @@ export type { ColumnDef, TableRow } from "@tooee/renderers"
 
 // === Utilities ===
 
-const BUILTIN_FORMATS: Set<string> = new Set(["markdown", "code", "text", "image", "table"])
+const BUILTIN_FORMATS: Set<string> = new Set(["markdown", "code", "text", "table"])
 
 export function isBuiltinContent(content: AnyContent): content is Content {
   return BUILTIN_FORMATS.has(content.format)
@@ -134,8 +129,6 @@ export function getTextContent(content: AnyContent): string {
       return content.code
     case "text":
       return content.text
-    case "image":
-      return content.src
     case "table": {
       const headers = content.columns.map((column) => column.header ?? column.key)
       const rowLines = content.rows.map((row) =>

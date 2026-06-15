@@ -8,7 +8,6 @@ import {
   MarkdownSubview,
   CodeSubview,
   TableSubview,
-  ImageSubview,
   CustomSubview,
 } from "./components/subviews/index.js"
 
@@ -84,7 +83,5 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
       return <CodeSubview content={content} {...shared} />
     case "table":
       return <TableSubview content={content} {...shared} />
-    case "image":
-      return <ImageSubview content={content} {...shared} />
   }
 }
