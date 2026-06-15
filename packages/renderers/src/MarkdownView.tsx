@@ -144,12 +144,16 @@ export function MarkdownView({
 }: MarkdownViewProps) {
   const { theme, syntax } = useTheme()
   const palette = useGutterPalette()
-  const tokens = marked.lexer(content)
-  const blocks = flattenTokens(tokens)
+  const tokens = useMemo(() => marked.lexer(content), [content])
+  const blocks = useMemo(() => flattenTokens(tokens), [tokens])
 
-  const blockElements = blocks.map((block, index) => (
-    <FlatBlockRenderer key={index} block={block} theme={theme} syntax={syntax} />
-  ))
+  const blockElements = useMemo(
+    () =>
+      blocks.map((block, index) => (
+        <FlatBlockRenderer key={index} block={block} theme={theme} syntax={syntax} />
+      )),
+    [blocks, theme, syntax],
+  )
 
   return (
     <row-document

@@ -1,6 +1,6 @@
 import { useTerminalDimensions } from "@opentui/react"
 import { useTheme } from "@tooee/themes"
-import { type RefObject } from "react"
+import { useMemo, type RefObject } from "react"
 import type { MarkState } from "@tooee/marks"
 import type { ColumnDef, TableRow } from "./table-types.js"
 import {
@@ -157,33 +157,84 @@ export function Table({
   const { width: terminalWidth } = useTerminalDimensions()
 
   // Compute available content width: start with total space, subtract margins and gutter
-  const gutterWidth = computeRowDocumentGutterWidth({
-    showLineNumbers,
-    rowCount: rows.length,
-    signColumnWidth: DEFAULT_SIGN_COLUMN_WIDTH,
-  })
+  const gutterWidth = useMemo(
+    () =>
+      computeRowDocumentGutterWidth({
+        showLineNumbers,
+        rowCount: rows.length,
+        signColumnWidth: DEFAULT_SIGN_COLUMN_WIDTH,
+      }),
+    [showLineNumbers, rows.length],
+  )
   const effectiveMaxWidth = Math.max(0, (maxWidth ?? terminalWidth) - MARGIN * 2 - gutterWidth)
 
-  const headers = columns.map((column) => column.header ?? column.key)
-  const normalizedRows = rows.map((row) =>
-    columns.map((column) => formatCellValue(row[column.key])),
+  const headers = useMemo(() => columns.map((column) => column.header ?? column.key), [columns])
+  const normalizedRows = useMemo(
+    () => rows.map((row) => columns.map((column) => formatCellValue(row[column.key]))),
+    [columns, rows],
   )
 
-  const colWidths = computeColumnWidths(headers, normalizedRows, effectiveMaxWidth, {
-    minColumnWidth,
-    maxColumnWidth,
-    sampleSize,
-    columnWidthMode,
-  })
+  const colWidths = useMemo(
+    () =>
+      computeColumnWidths(headers, normalizedRows, effectiveMaxWidth, {
+        minColumnWidth,
+        maxColumnWidth,
+        sampleSize,
+        columnWidthMode,
+      }),
+    [
+      headers,
+      normalizedRows,
+      effectiveMaxWidth,
+      minColumnWidth,
+      maxColumnWidth,
+      sampleSize,
+      columnWidthMode,
+    ],
+  )
 
   // Detect right-aligned columns: explicit align prop or auto-detect numeric
-  const alignments = columns.map((column, colIdx) => {
-    if (column.align === "right") return true
-    if (column.align === "left") return false
-    const sampleValues = normalizedRows.slice(0, 10).map((row) => row[colIdx] ?? "")
-    const numericCount = sampleValues.filter(isNumeric).length
-    return numericCount > sampleValues.length / 2
-  })
+  const alignments = useMemo(
+    () =>
+      columns.map((column, colIdx) => {
+        if (column.align === "right") return true
+        if (column.align === "left") return false
+        const sampleValues = normalizedRows.slice(0, 10).map((row) => row[colIdx] ?? "")
+        const numericCount = sampleValues.filter(isNumeric).length
+        return numericCount > sampleValues.length / 2
+      }),
+    [columns, normalizedRows],
+  )
+
+  const rowElements = useMemo(
+    () =>
+      normalizedRows.map((row, i) => (
+        <box key={i} style={{ flexDirection: "row" }}>
+          {row.map((cell, j) => {
+            const contentWidth = colWidths[j] - PADDING * 2
+            const cellWidth = Bun.stringWidth(cell)
+            const displayCell =
+              alignments[j] && cellWidth <= contentWidth
+                ? " ".repeat(contentWidth - cellWidth) + cell
+                : cell
+            return (
+              <text
+                key={j}
+                content={displayCell}
+                wrapMode="word"
+                style={{
+                  width: colWidths[j],
+                  paddingLeft: PADDING,
+                  paddingRight: PADDING,
+                }}
+                fg={theme.text}
+              />
+            )
+          })}
+        </box>
+      )),
+    [normalizedRows, colWidths, alignments, theme.text],
+  )
 
   return (
     <box
@@ -231,31 +282,7 @@ export function Table({
         decorations={marks?.sets}
         style={{ flexGrow: 1 }}
       >
-        {normalizedRows.map((row, i) => (
-          <box key={i} style={{ flexDirection: "row" }}>
-            {row.map((cell, j) => {
-              const contentWidth = colWidths[j] - PADDING * 2
-              const cellWidth = Bun.stringWidth(cell)
-              const displayCell =
-                alignments[j] && cellWidth <= contentWidth
-                  ? " ".repeat(contentWidth - cellWidth) + cell
-                  : cell
-              return (
-                <text
-                  key={j}
-                  content={displayCell}
-                  wrapMode="word"
-                  style={{
-                    width: colWidths[j],
-                    paddingLeft: PADDING,
-                    paddingRight: PADDING,
-                  }}
-                  fg={theme.text}
-                />
-              )
-            })}
-          </box>
-        ))}
+        {rowElements}
       </row-document>
     </box>
   )
