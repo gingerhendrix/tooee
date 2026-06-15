@@ -4,7 +4,7 @@ import { TooeeProvider } from "@tooee/shell"
 import { useOverlay, useCurrentOverlay, useHasOverlay } from "@tooee/overlays"
 import { AppLayout } from "@tooee/layout"
 import { useCommand } from "@tooee/commands"
-import { press, type TestSession } from "./support/test-helpers.ts"
+import { press, pressEscape, type TestSession } from "./support/test-helpers.ts"
 
 function OverlayHarness() {
   const overlay = useOverlay()
@@ -58,6 +58,29 @@ function OverlayHarness() {
     modes: ["cursor"],
     handler: () => {
       overlay.show("a", <text content="overlay-a-replaced" />)
+    },
+  })
+
+  useCommand({
+    id: "test.show-escape-dismissible",
+    title: "Show Escape Dismissible",
+    hotkey: "e",
+    modes: ["cursor"],
+    handler: () => {
+      overlay.show("escape", <text content="overlay-escape" />, { mode: "insert" })
+    },
+  })
+
+  useCommand({
+    id: "test.show-escape-persistent",
+    title: "Show Escape Persistent",
+    hotkey: "p",
+    modes: ["cursor"],
+    handler: () => {
+      overlay.show("persistent", <text content="overlay-persistent" />, {
+        mode: "insert",
+        dismissOnEscape: false,
+      })
     },
   })
 
@@ -176,6 +199,26 @@ describe("overlay system", () => {
     await press(testSetup, "x")
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("has:false")
+  })
+
+  test("Escape closes overlays by default", async () => {
+    testSetup = await setup(<OverlayHarness />)
+    await press(testSetup, "e")
+    expect(testSetup.captureCharFrame()).toContain("has:true")
+    await pressEscape(testSetup)
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("has:false")
+    expect(frame).toContain("current:no")
+  })
+
+  test("Escape does not close overlays with dismissOnEscape false", async () => {
+    testSetup = await setup(<OverlayHarness />)
+    await press(testSetup, "p")
+    expect(testSetup.captureCharFrame()).toContain("has:true")
+    await pressEscape(testSetup)
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("has:true")
+    expect(frame).toContain("current:yes")
   })
 
   test("overlay renders in AppLayout via context", async () => {

@@ -187,7 +187,11 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
     hotkey: "Escape",
     modes: ["insert"],
     hidden: true,
-    when: () => topId !== null,
+    when: () => {
+      const current = stackRef.current
+      const top = current.length > 0 ? current[current.length - 1] : null
+      return top !== null && top.options.dismissOnEscape !== false
+    },
     handler: () => closeTop("escape"),
   })
 
