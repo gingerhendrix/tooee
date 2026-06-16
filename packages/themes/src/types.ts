@@ -202,7 +202,8 @@ export function resolveTheme(json: ThemeJSON, mode: "dark" | "light"): ResolvedT
       if (c.startsWith("#")) return c
       if (seen.has(c)) return "#808080" // reference cycle — fall back like an unknown ref
       if (defs[c] != null) return resolveColor(defs[c] as ColorValue, new Set(seen).add(c))
-      if (json.theme[c] !== undefined) return resolveColor(json.theme[c] as ColorValue, new Set(seen).add(c))
+      if (json.theme[c] !== undefined)
+        return resolveColor(json.theme[c] as ColorValue, new Set(seen).add(c))
       return "#808080"
     }
     return resolveColor(c[mode], seen)
