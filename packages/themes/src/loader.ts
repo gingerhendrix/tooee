@@ -90,8 +90,12 @@ export function buildTheme(name: string, mode: "dark" | "light"): Theme {
     // Absolute fallback — hardcoded Tokyo Night colors
     return hardcodedDefaultTheme
   }
-  const resolved = resolveTheme(json, mode)
-  return { name, mode, colors: resolved, syntax: buildSyntaxStyle(resolved) }
+  try {
+    const resolved = resolveTheme(json, mode)
+    return { name, mode, colors: resolved, syntax: buildSyntaxStyle(resolved) }
+  } catch {
+    return hardcodedDefaultTheme
+  }
 }
 
 const hardcodedDefaultTheme: Theme = (() => {

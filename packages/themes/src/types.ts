@@ -196,15 +196,16 @@ export const FALLBACKS: Record<string, string> = {
 export function resolveTheme(json: ThemeJSON, mode: "dark" | "light"): ResolvedTheme {
   const defs = json.defs ?? {}
 
-  function resolveColor(c: ColorValue): string {
+  function resolveColor(c: ColorValue, seen: Set<string> = new Set()): string {
     if (typeof c === "string") {
       if (c === "transparent" || c === "none") return "#00000000"
       if (c.startsWith("#")) return c
-      if (defs[c] != null) return resolveColor(defs[c] as ColorValue)
-      if (json.theme[c] !== undefined) return resolveColor(json.theme[c] as ColorValue)
+      if (seen.has(c)) return "#808080" // reference cycle — fall back like an unknown ref
+      if (defs[c] != null) return resolveColor(defs[c] as ColorValue, new Set(seen).add(c))
+      if (json.theme[c] !== undefined) return resolveColor(json.theme[c] as ColorValue, new Set(seen).add(c))
       return "#808080"
     }
-    return resolveColor(c[mode])
+    return resolveColor(c[mode], seen)
   }
 
   const result = {} as Record<string, string>
