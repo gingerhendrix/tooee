@@ -37,7 +37,9 @@ export function TableSubview({
     match: (query) => {
       const lowerQuery = query.toLowerCase()
       return content.rows.flatMap((row, index) =>
-        content.columns.some((column) => stringifyRowCell(row[column.key]).toLowerCase().includes(lowerQuery))
+        content.columns.some((column) =>
+          stringifyRowCell(row[column.key]).toLowerCase().includes(lowerQuery),
+        )
           ? [index]
           : [],
       )
@@ -106,8 +108,7 @@ export function TableSubview({
   })
 
   const extraStatusItems = useMemo(() => {
-    const selectionCount =
-      nav.selection != null ? nav.selection.end - nav.selection.start + 1 : 0
+    const selectionCount = nav.selection != null ? nav.selection.end - nav.selection.start + 1 : 0
     const toggledCount = nav.toggledIndices.size
     const selectionItems =
       toggledCount > 0
@@ -121,7 +122,13 @@ export function TableSubview({
       { label: "Cols:", value: String(content.columns.length) },
       ...selectionItems,
     ]
-  }, [content.format, content.rows.length, content.columns.length, nav.selection, nav.toggledIndices])
+  }, [
+    content.format,
+    content.rows.length,
+    content.columns.length,
+    nav.selection,
+    nav.toggledIndices,
+  ])
 
   return (
     <SubviewLayout

@@ -22,9 +22,9 @@
 
 - Performance data:
 
-  | Metric | Value |
-  | --- | --- |
-  | Latency | 42ms |
+  | Metric     | Value   |
+  | ---------- | ------- |
+  | Latency    | 42ms    |
   | Throughput | 1000rps |
 
 - Analysis complete
@@ -57,9 +57,9 @@
 
 2. Second major step with a table:
 
-   | Config | Default |
-   | --- | --- |
-   | timeout | 30s |
-   | retries | 3 |
+   | Config  | Default |
+   | ------- | ------- |
+   | timeout | 30s     |
+   | retries | 3       |
 
 Final paragraph after all list content.

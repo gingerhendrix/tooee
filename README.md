@@ -2,7 +2,7 @@
 
 A framework for building TUI apps using OpenTUI and React.
 
-Tooee provides a set of common primitives for building consistent TUI experiences.  It can be used as a cli, a typescript library, or a react component library.
+Tooee provides a set of common primitives for building consistent TUI experiences. It can be used as a cli, a typescript library, or a react component library.
 
 ## Apps
 
@@ -68,4 +68,5 @@ launch({ contentProvider })
 Tooee can also be used as a React component library to build TUI apps with React.
 
 ```tsx
+
 ```

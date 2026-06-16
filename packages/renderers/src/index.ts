@@ -9,10 +9,10 @@ export type { CommandPaletteEntry } from "./CommandPalette.js"
 export { parseCSV, parseTSV, parseJSON, parseAuto, detectFormat } from "./parsers.js"
 export type { Format, ParsedTable } from "./parsers.js"
 export { RowDocumentRenderable } from "./RowDocumentRenderable.js"
-export { DEFAULT_SIGN_COLUMN_WIDTH, computeRowDocumentGutterWidth } from "./RowDocumentRenderable.js"
-export type {
-  RowDocumentOptions,
-  RowDocumentPalette,
+export {
+  DEFAULT_SIGN_COLUMN_WIDTH,
+  computeRowDocumentGutterWidth,
 } from "./RowDocumentRenderable.js"
+export type { RowDocumentOptions, RowDocumentPalette } from "./RowDocumentRenderable.js"
 export type { DecorationLayer, RowDecoration } from "./DecorationLayer.js"
 export { useGutterPalette } from "./useGutterPalette.js"

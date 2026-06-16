@@ -54,19 +54,11 @@ export function useNavigation({
       const clamped = Math.max(0, Math.min(target, maxIndex))
       if (isSelectable(clamped)) return clamped
       // Try preferred direction
-      for (
-        let i = clamped + direction;
-        direction === 1 ? i <= maxIndex : i >= 0;
-        i += direction
-      ) {
+      for (let i = clamped + direction; direction === 1 ? i <= maxIndex : i >= 0; i += direction) {
         if (isSelectable(i)) return i
       }
       // Try opposite direction
-      for (
-        let i = clamped - direction;
-        direction === 1 ? i >= 0 : i <= maxIndex;
-        i -= direction
-      ) {
+      for (let i = clamped - direction; direction === 1 ? i >= 0 : i <= maxIndex; i -= direction) {
         if (isSelectable(i)) return i
       }
       return null
@@ -104,10 +96,13 @@ export function useNavigation({
     if (rowCount <= 0) return new Set<number>()
     let needsFilter = false
     for (const i of rawToggledIndices) {
-      if (i >= rowCount) { needsFilter = true; break }
+      if (i >= rowCount) {
+        needsFilter = true
+        break
+      }
     }
     if (!needsFilter) return rawToggledIndices
-    return new Set(Array.from(rawToggledIndices).filter(i => i < rowCount))
+    return new Set(Array.from(rawToggledIndices).filter((i) => i < rowCount))
   }, [rawToggledIndices, rowCount])
 
   const setCursor = useCallback(
@@ -152,12 +147,48 @@ export function useNavigation({
 
   // --- Command registrations ---
 
-  useCommand({ id: "cursor-down", title: "Cursor down", hotkey: "j", modes: CURSOR_MODES, handler: () => moveCursor(1) })
-  useCommand({ id: "cursor-up", title: "Cursor up", hotkey: "k", modes: CURSOR_MODES, handler: () => moveCursor(-1) })
-  useCommand({ id: "cursor-half-down", title: "Cursor half page down", hotkey: "ctrl+d", modes: CURSOR_MODES, handler: () => moveCursor(Math.floor(effectiveViewportHeight / 2) || 1) })
-  useCommand({ id: "cursor-half-up", title: "Cursor half page up", hotkey: "ctrl+u", modes: CURSOR_MODES, handler: () => moveCursor(-(Math.floor(effectiveViewportHeight / 2) || 1)) })
-  useCommand({ id: "cursor-top", title: "Cursor to top", hotkey: "g g", modes: CURSOR_MODES, handler: () => jumpCursor(0, 1) })
-  useCommand({ id: "cursor-bottom", title: "Cursor to bottom", hotkey: "shift+g", modes: CURSOR_MODES, handler: () => jumpCursor(maxIndex, -1) })
+  useCommand({
+    id: "cursor-down",
+    title: "Cursor down",
+    hotkey: "j",
+    modes: CURSOR_MODES,
+    handler: () => moveCursor(1),
+  })
+  useCommand({
+    id: "cursor-up",
+    title: "Cursor up",
+    hotkey: "k",
+    modes: CURSOR_MODES,
+    handler: () => moveCursor(-1),
+  })
+  useCommand({
+    id: "cursor-half-down",
+    title: "Cursor half page down",
+    hotkey: "ctrl+d",
+    modes: CURSOR_MODES,
+    handler: () => moveCursor(Math.floor(effectiveViewportHeight / 2) || 1),
+  })
+  useCommand({
+    id: "cursor-half-up",
+    title: "Cursor half page up",
+    hotkey: "ctrl+u",
+    modes: CURSOR_MODES,
+    handler: () => moveCursor(-(Math.floor(effectiveViewportHeight / 2) || 1)),
+  })
+  useCommand({
+    id: "cursor-top",
+    title: "Cursor to top",
+    hotkey: "g g",
+    modes: CURSOR_MODES,
+    handler: () => jumpCursor(0, 1),
+  })
+  useCommand({
+    id: "cursor-bottom",
+    title: "Cursor to bottom",
+    hotkey: "shift+g",
+    modes: CURSOR_MODES,
+    handler: () => jumpCursor(maxIndex, -1),
+  })
 
   useCommand({
     id: "enter-select",
@@ -170,11 +201,47 @@ export function useNavigation({
     },
   })
 
-  useCommand({ id: "cursor-toggle", title: "Toggle selection", hotkey: "tab", modes: CURSOR_MODES, when: () => multiSelect, handler: toggleCurrent })
-  useCommand({ id: "cursor-toggle-up", title: "Toggle and move up", hotkey: "shift+tab", modes: CURSOR_MODES, when: () => multiSelect, handler: () => { toggleCurrent(); moveCursor(-1) } })
-  useCommand({ id: "select-down", title: "Extend selection down", hotkey: "j", modes: SELECT_MODES, handler: () => moveCursor(1) })
-  useCommand({ id: "select-up", title: "Extend selection up", hotkey: "k", modes: SELECT_MODES, handler: () => moveCursor(-1) })
-  useCommand({ id: "select-toggle", title: "Toggle selection", hotkey: "tab", modes: SELECT_MODES, when: () => multiSelect, handler: toggleCurrent })
+  useCommand({
+    id: "cursor-toggle",
+    title: "Toggle selection",
+    hotkey: "tab",
+    modes: CURSOR_MODES,
+    when: () => multiSelect,
+    handler: toggleCurrent,
+  })
+  useCommand({
+    id: "cursor-toggle-up",
+    title: "Toggle and move up",
+    hotkey: "shift+tab",
+    modes: CURSOR_MODES,
+    when: () => multiSelect,
+    handler: () => {
+      toggleCurrent()
+      moveCursor(-1)
+    },
+  })
+  useCommand({
+    id: "select-down",
+    title: "Extend selection down",
+    hotkey: "j",
+    modes: SELECT_MODES,
+    handler: () => moveCursor(1),
+  })
+  useCommand({
+    id: "select-up",
+    title: "Extend selection up",
+    hotkey: "k",
+    modes: SELECT_MODES,
+    handler: () => moveCursor(-1),
+  })
+  useCommand({
+    id: "select-toggle",
+    title: "Toggle selection",
+    hotkey: "tab",
+    modes: SELECT_MODES,
+    when: () => multiSelect,
+    handler: toggleCurrent,
+  })
 
   useCommand({
     id: "select-cancel",

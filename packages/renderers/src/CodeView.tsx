@@ -13,7 +13,13 @@ interface CodeViewProps {
   docRef?: RefObject<RowDocumentRenderable | null>
 }
 
-export function CodeView({ content, language, showLineNumbers = true, marks, docRef }: CodeViewProps) {
+export function CodeView({
+  content,
+  language,
+  showLineNumbers = true,
+  marks,
+  docRef,
+}: CodeViewProps) {
   const { syntax } = useTheme()
   const palette = useGutterPalette()
 

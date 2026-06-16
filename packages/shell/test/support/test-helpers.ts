@@ -14,10 +14,7 @@ export async function press(
   await session.renderOnce()
 }
 
-export async function pressTab(
-  session: TestSession,
-  modifiers?: { shift?: boolean },
-) {
+export async function pressTab(session: TestSession, modifiers?: { shift?: boolean }) {
   await act(async () => {
     session.mockInput.pressTab(modifiers)
   })

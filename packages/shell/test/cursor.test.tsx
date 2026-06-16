@@ -14,7 +14,11 @@ function CursorHarness({ rowCount }: { rowCount: number }) {
       <text content={`mode:${mode}`} />
       <text content={`cursor:${nav.cursor !== null ? nav.cursor : "null"}`} />
       <text content={`selection:${selection ? `${selection.start}-${selection.end}` : "null"}`} />
-      <text content={`toggled:${Array.from(nav.toggledIndices).sort((a, b) => a - b).join(",")}`} />
+      <text
+        content={`toggled:${Array.from(nav.toggledIndices)
+          .sort((a, b) => a - b)
+          .join(",")}`}
+      />
     </box>
   )
 }

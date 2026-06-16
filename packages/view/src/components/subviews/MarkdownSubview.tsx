@@ -88,8 +88,7 @@ export function MarkdownSubview({
   })
 
   const extraStatusItems = useMemo(() => {
-    const selectionCount =
-      nav.selection != null ? nav.selection.end - nav.selection.start + 1 : 0
+    const selectionCount = nav.selection != null ? nav.selection.end - nav.selection.start + 1 : 0
     const toggledCount = nav.toggledIndices.size
     const selectionItems =
       toggledCount > 0

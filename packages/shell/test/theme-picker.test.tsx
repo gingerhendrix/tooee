@@ -5,7 +5,13 @@ import { useTheme } from "@tooee/themes"
 import { useCurrentOverlay } from "@tooee/overlays"
 import { useMode } from "@tooee/commands"
 import { ensureTestConfigHome, resetTestConfig } from "../../../test/support/test-config.js"
-import { press, pressArrow, pressEnter, pressEscape, type TestSession } from "./support/test-helpers.ts"
+import {
+  press,
+  pressArrow,
+  pressEnter,
+  pressEscape,
+  type TestSession,
+} from "./support/test-helpers.ts"
 
 const CONFIG_NAMESPACE = "shell-theme-picker"
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE)
