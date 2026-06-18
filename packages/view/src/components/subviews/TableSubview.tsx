@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef } from "react"
-import { Table, type RowDocumentRenderable } from "@tooee/renderers"
+import { Table, type RowDocumentRenderable, type ContextMenuEntry } from "@tooee/renderers"
 import { useTheme } from "@tooee/themes"
+import { useCommandContext } from "@tooee/commands"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
-import { useCopy, useNavigation } from "@tooee/shell"
+import { useContextMenu, useCopy, useNavigation } from "@tooee/shell"
 import { useSearch } from "@tooee/search"
 import { getTextContent, type TableContent } from "../../types.js"
 import { useMarkState } from "../../hooks/useMarkState.js"
@@ -28,6 +29,8 @@ export function TableSubview({
   const { theme } = useTheme()
   const docRef = useRef<RowDocumentRenderable>(null)
   const textContent = useMemo(() => getTextContent(content), [content])
+  const contextMenu = useContextMenu()
+  const { invoke } = useCommandContext()
 
   const nav = useNavigation({
     rowCount: content.rows.length,
@@ -107,6 +110,15 @@ export function TableSubview({
     },
   })
 
+  // Row-scoped context-menu entries come from the app-provided actions.
+  const menuEntries = useMemo<ContextMenuEntry[]>(
+    () =>
+      (actions ?? [])
+        .filter((action) => !action.hidden)
+        .map((action) => ({ id: action.id, title: action.title, hotkey: action.hotkey })),
+    [actions],
+  )
+
   const extraStatusItems = useMemo(() => {
     const selectionCount = nav.selection != null ? nav.selection.end - nav.selection.start + 1 : 0
     const toggledCount = nav.toggledIndices.size
@@ -145,6 +157,10 @@ export function TableSubview({
         marks={markState}
         docRef={docRef}
         onRowClick={nav.setCursor}
+        onRowContextMenu={(index, x, y) => {
+          nav.setCursor(index)
+          contextMenu.open(x, y, menuEntries, invoke)
+        }}
       />
     </SubviewLayout>
   )
