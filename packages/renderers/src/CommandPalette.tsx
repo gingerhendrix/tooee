@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from "react"
 import { useCommand } from "@tooee/commands"
-import { useTheme } from "@tooee/themes"
+import { useTheme, CloseButton } from "@tooee/themes"
 import { fuzzyMatch } from "@tooee/fuzzy"
 
 export interface CommandPaletteEntry {
@@ -112,6 +112,7 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
           style={{ flexGrow: 1 }}
         />
         <text content={` ${filtered.length}`} fg={theme.textMuted} />
+        <CloseButton onClose={onClose} />
       </box>
 
       {/* Separator */}

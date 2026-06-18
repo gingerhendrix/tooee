@@ -8,7 +8,7 @@ import type {
   CursorStyleOptions,
 } from "@opentui/core"
 import { readPrimaryText } from "@tooee/clipboard"
-import { useTheme } from "@tooee/themes"
+import { useTheme, CloseButton } from "@tooee/themes"
 import { useCommand, useMode, useSetMode } from "@tooee/commands"
 import { appendAtCursor, openLineAtCursor, type VimMotionState } from "./vim-motions.js"
 
@@ -335,8 +335,15 @@ export function AskOverlay({
       onMouseDown={handleMouseDown}
     >
       {/* Title bar */}
-      <box height={1} paddingLeft={1} paddingRight={1} backgroundColor={theme.backgroundElement}>
-        <text content={prompt} fg={theme.accent} />
+      <box
+        flexDirection="row"
+        height={1}
+        paddingLeft={1}
+        paddingRight={1}
+        backgroundColor={theme.backgroundElement}
+      >
+        <text content={prompt} fg={theme.accent} style={{ flexGrow: 1 }} />
+        <CloseButton onClose={onCancel} />
       </box>
 
       {/* Input area */}

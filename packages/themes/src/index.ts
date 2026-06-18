@@ -11,3 +11,5 @@ export type { ThemeProviderProps, ThemeSwitcherProviderProps } from "./context.j
 
 export { ThemePicker } from "./ThemePicker.js"
 export type { ThemePickerEntry } from "./ThemePicker.js"
+
+export { CloseButton } from "./CloseButton.js"
