@@ -144,6 +144,7 @@ export function TableSubview({
         showLineNumbers={showLineNumbers}
         marks={markState}
         docRef={docRef}
+        onRowClick={nav.setCursor}
       />
     </SubviewLayout>
   )

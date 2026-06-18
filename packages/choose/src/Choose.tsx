@@ -342,6 +342,9 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
               height={1}
               backgroundColor={isActive ? theme.backgroundElement : undefined}
               style={{ paddingLeft: 1 }}
+              onMouseDown={(event) => {
+                if (event.button === 0) setActiveIndex(idx)
+              }}
             >
               {multi && (
                 <text

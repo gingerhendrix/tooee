@@ -1,6 +1,7 @@
 import { useTerminalDimensions } from "@opentui/react"
 import { useTheme } from "@tooee/themes"
 import { useMemo, type RefObject } from "react"
+import type { MouseEvent } from "@opentui/core"
 import type { MarkState } from "@tooee/marks"
 import type { ColumnDef, TableRow } from "./table-types.js"
 import {
@@ -28,6 +29,10 @@ export interface TableProps {
   docRef?: RefObject<RowDocumentRenderable | null>
   /** Column width mode: "content" sizes to content (default), "fill" expands to fill available width */
   columnWidthMode?: "content" | "fill"
+  /** Left-click on a data row (additive; keyboard navigation is unaffected). */
+  onRowClick?: (index: number) => void
+  /** Right-click on a data row — receives the row index and click coordinates. */
+  onRowContextMenu?: (index: number, x: number, y: number) => void
 }
 
 const PADDING = 1
@@ -151,6 +156,8 @@ export function Table({
   marks,
   docRef,
   columnWidthMode = "content",
+  onRowClick,
+  onRowContextMenu,
 }: TableProps) {
   const { theme } = useTheme()
   const palette = useGutterPalette()
@@ -209,7 +216,22 @@ export function Table({
   const rowElements = useMemo(
     () =>
       normalizedRows.map((row, i) => (
-        <box key={i} style={{ flexDirection: "row" }}>
+        <box
+          key={i}
+          style={{ flexDirection: "row" }}
+          onMouseDown={
+            onRowClick || onRowContextMenu
+              ? (event: MouseEvent) => {
+                  if (event.button === 0) {
+                    onRowClick?.(i)
+                  } else if (event.button === 2) {
+                    event.preventDefault()
+                    onRowContextMenu?.(i, event.x, event.y)
+                  }
+                }
+              : undefined
+          }
+        >
           {row.map((cell, j) => {
             const contentWidth = colWidths[j] - PADDING * 2
             const cellWidth = Bun.stringWidth(cell)
@@ -233,7 +255,7 @@ export function Table({
           })}
         </box>
       )),
-    [normalizedRows, colWidths, alignments, theme.text],
+    [normalizedRows, colWidths, alignments, theme.text, onRowClick, onRowContextMenu],
   )
 
   return (
