@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useRef } from "react"
+import { useState, useCallback, useMemo, useRef, Fragment } from "react"
 import type { ReactNode } from "react"
 import {
   OverlayControllerContext,
@@ -239,7 +239,16 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
             )
           }
 
-          return <box key={entry.id}>{node}</box>
+          // Wrap each entry in a keyed Fragment rather than a layout box. A box
+          // would become the containing block for the overlay's own absolute/
+          // percentage positioning (e.g. left="20%", maxHeight="60%",
+          // bottom={1}); since the overlay node is out of normal flow, that box
+          // collapses to zero size and the overlay collapses with it. A Fragment
+          // adds no layout node, so each overlay positions against the host's
+          // overlay container (AppLayout) exactly as it did before the stack
+          // change. Stacked absolutely-positioned overlays overlap, preserving
+          // covered overlays and passive-over-modal rendering.
+          return <Fragment key={entry.id}>{node}</Fragment>
         })}
       </>
     ) : null
