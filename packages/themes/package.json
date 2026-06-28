@@ -37,6 +37,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@tooee/commands": "workspace:*",
     "@tooee/config": "workspace:*",
     "@tooee/fuzzy": "workspace:*"
   },

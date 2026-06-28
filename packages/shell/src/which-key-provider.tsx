@@ -44,8 +44,8 @@ export function WhichKeyProvider({ children, leaderOnly }: WhichKeyProviderProps
     }
 
     overlay.open(OVERLAY_ID, ({ payload }) => <WhichKeyOverlay state={payload} />, sequence, {
-      mode: null,
-      restoreMode: false,
+      ownCommands: true,
+      role: "passive",
       dismissOnEscape: false,
     })
     openRef.current = true

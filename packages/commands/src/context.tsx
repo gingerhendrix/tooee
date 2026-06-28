@@ -10,11 +10,14 @@ import {
 } from "react"
 import { useKeyboard } from "@opentui/react"
 import type {
+  ActiveCommandSurface,
   Command,
   CommandContext,
   CommandGroup,
   CommandRegistry,
   CommandSequenceState,
+  CommandSurfaceEntry,
+  CommandSurfaceRole,
   ParsedHotkey,
   ParsedStep,
   RegisteredCommandGroup,
@@ -36,8 +39,45 @@ interface CommandContextValue {
   groups: Map<string, RegisteredCommandGroup>
 }
 
+interface CommandSurfaceStackValue {
+  /** Register a surface; returns an unregister function. Mutates entry.order. */
+  register: (entry: CommandSurfaceEntry) => () => void
+  /** Resolve the topmost modal surface (deepest, then most-recently registered). */
+  getActiveModalSurface: () => CommandSurfaceEntry | null
+  /** Reactive metadata for the active modal surface (for which-key/help). */
+  activeModalSurface: ActiveCommandSurface | null
+}
+
 const CommandContext = createContext<CommandContextValue | null>(null)
 const CommandSequenceContext = createContext<CommandSequenceState | null>(null)
+const CommandSurfaceStackContext = createContext<CommandSurfaceStackValue | null>(null)
+/** Nesting depth of the nearest command surface (0 at the root app). */
+const CommandSurfaceDepthContext = createContext(0)
+
+/**
+ * Build a command registry whose `invoke` resolves the command context lazily
+ * via `getCtx`, so a surface always dispatches with its own (local) mode and
+ * the current shared context sources.
+ */
+function createRegistry(getCtx: () => CommandContext): CommandRegistry {
+  const commands = new Map<string, Command>()
+  return {
+    commands,
+    register(command: Command) {
+      commands.set(command.id, command)
+      return () => {
+        commands.delete(command.id)
+      }
+    },
+    invoke(id: string) {
+      const ctx = getCtx()
+      const cmd = commands.get(id)
+      if (cmd && (!cmd.when || cmd.when(ctx))) {
+        cmd.handler(ctx)
+      }
+    },
+  }
+}
 
 export interface CommandProviderProps {
   children: ReactNode
@@ -101,25 +141,57 @@ function CommandDispatcher({
     return ctx as CommandContext
   }, [setMode])
 
+  const buildCtxRef = useRef(buildCtx)
+  buildCtxRef.current = buildCtx
+
   if (registryRef.current === null) {
-    const commands = new Map<string, Command>()
-    registryRef.current = {
-      commands,
-      register(command: Command) {
-        commands.set(command.id, command)
-        return () => {
-          commands.delete(command.id)
-        }
-      },
-      invoke(id: string) {
-        const ctx = buildCtx()
-        const cmd = commands.get(id)
-        if (cmd && (!cmd.when || cmd.when(ctx))) {
-          cmd.handler(ctx)
-        }
-      },
-    }
+    registryRef.current = createRegistry(() => buildCtxRef.current())
   }
+
+  // --- Command surface stack ----------------------------------------------
+  // The root registry above is the implicit base surface. Modal overlays push
+  // surfaces on top of it; while a modal surface is topmost, key dispatch is
+  // arbitrated to that surface only and the root (and lower surfaces) are
+  // suspended — even for keys the surface does not handle.
+  const surfaceEntriesRef = useRef<CommandSurfaceEntry[]>([])
+  const surfaceOrderRef = useRef(0)
+  const [surfaceVersion, setSurfaceVersion] = useState(0)
+
+  const registerSurface = useCallback((entry: CommandSurfaceEntry) => {
+    entry.order = surfaceOrderRef.current++
+    surfaceEntriesRef.current = [...surfaceEntriesRef.current, entry]
+    setSurfaceVersion((v) => v + 1)
+    return () => {
+      surfaceEntriesRef.current = surfaceEntriesRef.current.filter((e) => e !== entry)
+      setSurfaceVersion((v) => v + 1)
+    }
+  }, [])
+
+  const getActiveModalSurface = useCallback((): CommandSurfaceEntry | null => {
+    let best: CommandSurfaceEntry | null = null
+    for (const entry of surfaceEntriesRef.current) {
+      if (entry.role !== "modal") continue
+      if (
+        best === null ||
+        entry.depth > best.depth ||
+        (entry.depth === best.depth && entry.order > best.order)
+      ) {
+        best = entry
+      }
+    }
+    return best
+  }, [])
+
+  const activeModalSurface = useMemo<ActiveCommandSurface | null>(() => {
+    const surface = getActiveModalSurface()
+    return surface ? { id: surface.id, role: surface.role } : null
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getActiveModalSurface, surfaceVersion])
+
+  const surfaceStackValue = useMemo<CommandSurfaceStackValue>(
+    () => ({ register: registerSurface, getActiveModalSurface, activeModalSurface }),
+    [registerSurface, getActiveModalSurface, activeModalSurface],
+  )
 
   const trackerRef = useRef(
     new SequenceTracker({
@@ -146,11 +218,14 @@ function CommandDispatcher({
   useKeyboard((event) => {
     if (event.defaultPrevented) return
 
-    const registry = registryRef.current
-    if (!registry) return
+    const rootRegistry = registryRef.current
+    if (!rootRegistry) return
 
-    const currentMode = mode
-    const ctx = buildCtx()
+    // Arbitration: a topmost modal surface owns input; otherwise the root app.
+    const activeSurface = getActiveModalSurface()
+    const registry = activeSurface ? activeSurface.registry : rootRegistry
+    const currentMode = activeSurface ? activeSurface.getMode() : modeRef.current
+    const ctx = activeSurface ? activeSurface.buildCtx() : buildCtx()
 
     // Collect eligible commands with their parsed hotkeys
     const singleStepCandidates: { command: Command; parsed: ParsedHotkey }[] = []
@@ -218,12 +293,23 @@ function CommandDispatcher({
         return
       }
     }
+
+    // A modal surface swallows unhandled keys: dispatch never falls through to
+    // the root app while a modal surface is topmost.
   })
 
   useEffect(() => {
     trackerRef.current.reset()
     setSequenceState(null)
   }, [mode])
+
+  // Reset any in-flight sequence when keyboard ownership changes (e.g. a modal
+  // surface opens/closes) so partial chords don't leak across surfaces. Passive
+  // surfaces such as which-key must not clear the sequence they are displaying.
+  useEffect(() => {
+    trackerRef.current.reset()
+    setSequenceState(null)
+  }, [activeModalSurface?.id])
 
   const ctxValue = useMemo(
     () => ({
@@ -237,7 +323,123 @@ function CommandDispatcher({
 
   return (
     <CommandContext.Provider value={ctxValue}>
-      <CommandSequenceContext value={sequenceState}>{children}</CommandSequenceContext>
+      <CommandSurfaceStackContext.Provider value={surfaceStackValue}>
+        <CommandSequenceContext value={sequenceState}>{children}</CommandSequenceContext>
+      </CommandSurfaceStackContext.Provider>
+    </CommandContext.Provider>
+  )
+}
+
+export interface CommandSurfaceProviderProps {
+  children: ReactNode
+  /** Stable id for the surface (typically the overlay id). */
+  id: string
+  /** Interaction role (default "modal"). */
+  role?: CommandSurfaceRole
+  /** Initial local mode for this surface (default "cursor"). */
+  initialMode?: Mode
+}
+
+/**
+ * Mounts an overlay-owned command surface. Children registered via `useCommand`
+ * target this surface's local registry, and `useMode`/`useSetMode` read/write
+ * this surface's local mode instead of the root app's mode.
+ *
+ * While a `modal` surface is topmost it owns keyboard input and suspends the
+ * parent app's commands; a `passive` surface never becomes the keyboard owner.
+ */
+export function CommandSurfaceProvider({
+  children,
+  id,
+  role = "modal",
+  initialMode = "cursor",
+}: CommandSurfaceProviderProps) {
+  return (
+    <ModeProvider initialMode={initialMode}>
+      <CommandSurfaceInner id={id} role={role}>
+        {children}
+      </CommandSurfaceInner>
+    </ModeProvider>
+  )
+}
+
+function CommandSurfaceInner({
+  children,
+  id,
+  role,
+}: {
+  children: ReactNode
+  id: string
+  role: CommandSurfaceRole
+}) {
+  const parent = useContext(CommandContext)
+  const stack = useContext(CommandSurfaceStackContext)
+  if (!parent || !stack) {
+    throw new Error("CommandSurfaceProvider must be used within a CommandProvider")
+  }
+
+  const parentDepth = useContext(CommandSurfaceDepthContext)
+  const depth = parentDepth + 1
+
+  const mode = useMode()
+  const setMode = useSetMode()
+  const modeRef = useRef(mode)
+  modeRef.current = mode
+
+  const registryRef = useRef<CommandRegistry | null>(null)
+
+  const buildCtx = useCallback((): CommandContext => {
+    const ctx: Record<string, any> = {
+      mode: modeRef.current,
+      setMode,
+      commands: {
+        invoke: (cmdId: string) => registryRef.current?.invoke(cmdId),
+        list: () => Array.from(registryRef.current?.commands.values() ?? []),
+      },
+      exit: () => {},
+    }
+    for (const getter of parent.contextSources.values()) {
+      Object.assign(ctx, getter())
+    }
+    return ctx as CommandContext
+  }, [parent.contextSources, setMode])
+
+  const buildCtxRef = useRef(buildCtx)
+  buildCtxRef.current = buildCtx
+
+  if (registryRef.current === null) {
+    registryRef.current = createRegistry(() => buildCtxRef.current())
+  }
+
+  const { register } = stack
+  useEffect(() => {
+    const entry: CommandSurfaceEntry = {
+      id,
+      role,
+      depth,
+      order: 0,
+      registry: registryRef.current!,
+      getMode: () => modeRef.current,
+      buildCtx: () => buildCtxRef.current(),
+    }
+    return register(entry)
+  }, [register, id, role, depth])
+
+  const ctxValue = useMemo<CommandContextValue>(
+    () => ({
+      registry: registryRef.current!,
+      leaderKey: parent.leaderKey,
+      contextSources: parent.contextSources,
+      groups: parent.groups,
+    }),
+    [parent.leaderKey, parent.contextSources, parent.groups],
+  )
+
+  return (
+    <CommandContext.Provider value={ctxValue}>
+      <CommandSurfaceDepthContext.Provider value={depth}>
+        {children}
+      </CommandSurfaceDepthContext.Provider>
     </CommandContext.Provider>
   )
 }
@@ -267,6 +469,16 @@ export function useCommandRegistry(): CommandContextValue {
 
 export function useCommandSequenceState(): CommandSequenceState | null {
   return useContext(CommandSequenceContext)
+}
+
+/**
+ * Metadata for the topmost modal command surface, or null when the root app is
+ * the active surface. Intended for which-key/help to read shortcuts from the
+ * active interaction surface.
+ */
+export function useActiveCommandSurface(): ActiveCommandSurface | null {
+  const ctx = useContext(CommandSurfaceStackContext)
+  return ctx ? ctx.activeModalSurface : null
 }
 
 export function useCommandGroup(group: CommandGroup): void {

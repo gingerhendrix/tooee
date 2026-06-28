@@ -50,7 +50,7 @@ test("t opens theme picker", async () => {
   await testSetup.renderOnce()
   const frame = testSetup.captureCharFrame()
   expect(frame).toContain("open:true")
-  expect(frame).toContain("mode:insert")
+  expect(frame).toContain("mode:cursor")
 })
 
 test("q calls onQuit handler", async () => {

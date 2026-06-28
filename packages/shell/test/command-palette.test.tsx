@@ -69,12 +69,12 @@ afterEach(() => {
 })
 
 describe("command palette", () => {
-  test(": opens palette and switches to insert mode", async () => {
+  test(": opens palette without mutating root mode", async () => {
     testSetup = await setup()
     await press(testSetup, ":")
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("open:true")
-    expect(frame).toContain("mode:insert")
+    expect(frame).toContain("mode:cursor")
   })
 
   test("close restores cursor mode", async () => {
@@ -82,7 +82,7 @@ describe("command palette", () => {
     await press(testSetup, ":")
     const openFrame = testSetup.captureCharFrame()
     expect(openFrame).toContain("open:true")
-    expect(openFrame).toContain("mode:insert")
+    expect(openFrame).toContain("mode:cursor")
     await pressEscape(testSetup)
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("open:false")

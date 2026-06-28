@@ -7,6 +7,7 @@ import { SearchBar } from "@tooee/search"
 import type { SearchState } from "@tooee/search"
 import { useTheme } from "@tooee/themes"
 import { useCurrentOverlay } from "@tooee/overlays"
+import { CommandSurfaceProvider } from "@tooee/commands"
 import { ToastContainer } from "@tooee/toasts"
 
 export interface AppLayoutProps {
@@ -34,7 +35,14 @@ export function AppLayout({
 }: AppLayoutProps) {
   const { theme } = useTheme()
   const contextOverlay = useCurrentOverlay()
-  const activeOverlay = overlay ?? contextOverlay
+  const activeOverlay =
+    overlay != null ? (
+      <CommandSurfaceProvider id="app-layout.overlay" role="modal" initialMode="insert">
+        {overlay}
+      </CommandSurfaceProvider>
+    ) : (
+      contextOverlay
+    )
   return (
     <box flexDirection="column" width="100%" height="100%" backgroundColor={theme.background}>
       {titleBar && <TitleBar title={titleBar.title} subtitle={titleBar.subtitle} />}

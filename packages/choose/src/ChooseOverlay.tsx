@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
-import { useKeyboard } from "@opentui/react"
 import { useTheme } from "@tooee/themes"
-import { useMode, useSetMode } from "@tooee/commands"
+import { useCommand, useMode, useSetMode } from "@tooee/commands"
 import type { ChooseItem } from "./types.js"
 import { fuzzyFilter } from "./fuzzy.js"
 
@@ -70,51 +69,97 @@ export function ChooseOverlay({
     }
   }, [filteredItems, activeIndex, onSelect])
 
-  useKeyboard((key) => {
-    if (key.name === "escape") {
-      key.preventDefault()
-      if (mode === "insert") {
-        setMode("cursor")
-      } else {
-        onCancel()
-      }
-      return
+  const leaveInsertModeOrCancel = useCallback(() => {
+    if (mode === "insert") {
+      setMode("cursor")
+    } else {
+      onCancel()
     }
+  }, [mode, onCancel, setMode])
 
-    if (mode === "cursor") {
-      if (key.raw === "i" || key.raw === "a") {
-        key.preventDefault()
-        setMode("insert")
-        return
-      }
-      if (key.raw === "j") {
-        key.preventDefault()
-        moveDown()
-        return
-      }
-      if (key.raw === "k") {
-        key.preventDefault()
-        moveUp()
-        return
-      }
-    }
+  const enterInsertMode = useCallback(() => {
+    setMode("insert")
+  }, [setMode])
 
-    if (key.name === "return") {
-      key.preventDefault()
-      confirm()
-      return
-    }
-
-    if (key.name === "up" || (key.ctrl && key.name === "p")) {
-      key.preventDefault()
-      moveUp()
-      return
-    }
-    if (key.name === "down" || (key.ctrl && key.name === "n")) {
-      key.preventDefault()
-      moveDown()
-      return
-    }
+  useCommand({
+    id: "choose-overlay:escape",
+    title: "Back / cancel",
+    hotkey: "Escape",
+    modes: ["insert", "cursor"],
+    hidden: true,
+    handler: leaveInsertModeOrCancel,
+  })
+  useCommand({
+    id: "choose-overlay:insert-mode-i",
+    title: "Insert mode",
+    hotkey: "i",
+    modes: ["cursor"],
+    hidden: true,
+    handler: enterInsertMode,
+  })
+  useCommand({
+    id: "choose-overlay:insert-mode-a",
+    title: "Insert mode",
+    hotkey: "a",
+    modes: ["cursor"],
+    hidden: true,
+    handler: enterInsertMode,
+  })
+  useCommand({
+    id: "choose-overlay:move-down-vim",
+    title: "Move down",
+    hotkey: "j",
+    modes: ["cursor"],
+    hidden: true,
+    handler: moveDown,
+  })
+  useCommand({
+    id: "choose-overlay:move-up-vim",
+    title: "Move up",
+    hotkey: "k",
+    modes: ["cursor"],
+    hidden: true,
+    handler: moveUp,
+  })
+  useCommand({
+    id: "choose-overlay:confirm",
+    title: "Confirm",
+    hotkey: "Enter",
+    modes: ["insert", "cursor"],
+    hidden: true,
+    handler: confirm,
+  })
+  useCommand({
+    id: "choose-overlay:move-up",
+    title: "Move up",
+    hotkey: "up",
+    modes: ["insert", "cursor"],
+    hidden: true,
+    handler: moveUp,
+  })
+  useCommand({
+    id: "choose-overlay:move-up-ctrl-p",
+    title: "Move up",
+    hotkey: "ctrl+p",
+    modes: ["insert", "cursor"],
+    hidden: true,
+    handler: moveUp,
+  })
+  useCommand({
+    id: "choose-overlay:move-down",
+    title: "Move down",
+    hotkey: "down",
+    modes: ["insert", "cursor"],
+    hidden: true,
+    handler: moveDown,
+  })
+  useCommand({
+    id: "choose-overlay:move-down-ctrl-n",
+    title: "Move down",
+    hotkey: "ctrl+n",
+    modes: ["insert", "cursor"],
+    hidden: true,
+    handler: moveDown,
   })
 
   // Auto-scroll to keep active item visible

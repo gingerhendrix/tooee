@@ -56,13 +56,13 @@ afterEach(() => {
 })
 
 describe("theme picker", () => {
-  test("t opens theme picker and switches to insert mode", async () => {
+  test("t opens theme picker without mutating root mode", async () => {
     testSetup = await setup()
     expect(testSetup.captureCharFrame()).toContain("open:false")
     await press(testSetup, "t")
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("open:true")
-    expect(frame).toContain("mode:insert")
+    expect(frame).toContain("mode:cursor")
   })
 
   test("Escape closes picker and reverts theme", async () => {

@@ -7,6 +7,8 @@ export type OverlayId = string
 
 export type OverlayCloseReason = "close" | "escape" | "replaced" | "unmounted"
 
+export type OverlayRole = "modal" | "passive"
+
 export interface OverlayOpenOptions {
   /** Mode to set while overlay is active (default: "insert"). null = don't change mode. */
   mode?: string | null
@@ -14,6 +16,21 @@ export interface OverlayOpenOptions {
   restoreMode?: boolean
   /** Allow Escape to close this overlay (default: true) */
   dismissOnEscape?: boolean
+  /**
+   * Mount the overlay as an owned command surface: it gets a local command
+   * registry and local mode, and (when `role` is "modal") suspends parent app
+   * command dispatch while topmost. When set, the overlay does not mutate the
+   * host app's global mode. Overlay commands are registered with `useCommand`
+   * inside the overlay's render, exactly like a standalone app.
+   */
+  ownCommands?: boolean
+  /**
+   * Interaction role for an owned command surface (default "modal"). Only
+   * meaningful when `ownCommands` is true.
+   */
+  role?: OverlayRole
+  /** Initial local mode for an owned command surface (default "cursor"). */
+  surfaceMode?: string
   /** Lifecycle callback */
   onClose?: (reason: OverlayCloseReason) => void
 }

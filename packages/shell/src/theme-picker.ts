@@ -67,7 +67,12 @@ export function useThemePicker(): ThemePickerState {
           close: () => closeOverlay(),
         }),
       null,
-      { mode: "insert", dismissOnEscape: true, onClose: () => setIsOpen(false) },
+      {
+        ownCommands: true,
+        role: "modal",
+        surfaceMode: "insert",
+        onClose: () => setIsOpen(false),
+      },
     )
   }, [overlay, currentTheme])
 

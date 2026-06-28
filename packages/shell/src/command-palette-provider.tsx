@@ -1,7 +1,6 @@
-import { useCallback, useRef, type ReactNode } from "react"
+import { useCallback, type ReactNode } from "react"
 import { createElement } from "react"
-import { useCommand, useMode } from "@tooee/commands"
-import type { Mode } from "@tooee/commands"
+import { useCommand, useCommandContext, useMode } from "@tooee/commands"
 import { useOverlay } from "@tooee/overlays"
 import type { OverlayCloseReason } from "@tooee/overlays"
 import { CommandPaletteOverlay } from "./CommandPaletteOverlay.js"
@@ -11,21 +10,22 @@ const OVERLAY_ID = "command-palette"
 export function CommandPaletteProvider({ children }: { children: ReactNode }) {
   const mode = useMode()
   const overlay = useOverlay()
-  const launchModeRef = useRef<Mode>(mode)
+  const { commands, invoke } = useCommandContext()
 
   const open = useCallback(() => {
-    launchModeRef.current = mode
     overlay.open(
       OVERLAY_ID,
       ({ close }: { close: (reason?: OverlayCloseReason) => void }) =>
         createElement(CommandPaletteOverlay, {
+          commands,
+          invoke,
           launchMode: mode,
           close: () => close(),
         }),
       null,
-      { mode: "insert", dismissOnEscape: true },
+      { ownCommands: true, role: "modal", surfaceMode: "insert" },
     )
-  }, [overlay, mode])
+  }, [overlay, commands, invoke, mode])
 
   useCommand({
     id: "command-palette",

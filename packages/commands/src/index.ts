@@ -1,4 +1,5 @@
 export type {
+  ActiveCommandSurface,
   Command,
   CommandContext,
   CommandContextBase,
@@ -6,6 +7,8 @@ export type {
   CommandHandler,
   CommandSequenceCandidate,
   CommandSequenceState,
+  CommandSurfaceEntry,
+  CommandSurfaceRole,
   CommandWhen,
   ParsedHotkey,
   ParsedStep,
@@ -24,13 +27,15 @@ export type {
 } from "./sequence.js"
 export {
   CommandProvider,
+  CommandSurfaceProvider,
+  useActiveCommandSurface,
   useCommandContext,
   useCommandGroup,
   useCommandRegistry,
   useCommandSequenceState,
   useProvideCommandContext,
 } from "./context.js"
-export type { CommandProviderProps } from "./context.js"
+export type { CommandProviderProps, CommandSurfaceProviderProps } from "./context.js"
 export { useCommand } from "./use-command.js"
 export type { UseCommandOptions } from "./use-command.js"
 export { useActions } from "./use-actions.js"

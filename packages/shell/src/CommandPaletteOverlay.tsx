@@ -1,20 +1,21 @@
 import { createElement, useMemo } from "react"
 import type { ReactNode } from "react"
-import { useCommandContext } from "@tooee/commands"
-import type { Mode } from "@tooee/commands"
+import type { Command, Mode } from "@tooee/commands"
 import { CommandPalette } from "@tooee/renderers"
 
 const DEFAULT_MODES: Mode[] = ["cursor"]
 
 export function CommandPaletteOverlay({
+  commands,
+  invoke,
   launchMode,
   close,
 }: {
+  commands: Command[]
+  invoke: (id: string) => void
   launchMode: Mode
   close: () => void
 }): ReactNode {
-  const { commands, invoke } = useCommandContext()
-
   const entries = useMemo(
     () =>
       commands

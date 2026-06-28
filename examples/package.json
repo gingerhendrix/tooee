@@ -8,6 +8,7 @@
     "@tooee/commands": "workspace:*",
     "@tooee/layout": "workspace:*",
     "@tooee/marks": "workspace:*",
+    "@tooee/overlays": "workspace:*",
     "@tooee/shell": "workspace:*",
     "@tooee/themes": "workspace:*",
     "@tooee/toasts": "workspace:*",

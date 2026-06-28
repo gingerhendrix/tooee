@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react"
-import { useKeyboard } from "@opentui/react"
+import { useCommand } from "@tooee/commands"
 import { useTheme } from "@tooee/themes"
 import { fuzzyMatch } from "@tooee/fuzzy"
 
@@ -40,20 +40,45 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
     }
   }, [filtered, activeIndex, onSelect])
 
-  useKeyboard((key) => {
-    if (key.name === "escape") {
-      key.preventDefault()
-      onClose()
-    } else if (key.name === "return") {
-      key.preventDefault()
-      handleSelect()
-    } else if (key.name === "up") {
-      key.preventDefault()
-      setActiveIndex((i) => Math.max(0, i - 1))
-    } else if (key.name === "down") {
-      key.preventDefault()
-      setActiveIndex((i) => Math.min(filtered.length - 1, i + 1))
-    }
+  const moveUp = useCallback(() => {
+    setActiveIndex((i) => Math.max(0, i - 1))
+  }, [])
+
+  const moveDown = useCallback(() => {
+    setActiveIndex((i) => Math.min(filtered.length - 1, i + 1))
+  }, [filtered.length])
+
+  useCommand({
+    id: "command-palette:close",
+    title: "Close command palette",
+    hotkey: "Escape",
+    modes: ["insert", "cursor"],
+    hidden: true,
+    handler: onClose,
+  })
+  useCommand({
+    id: "command-palette:select",
+    title: "Run selected command",
+    hotkey: "Enter",
+    modes: ["insert", "cursor"],
+    hidden: true,
+    handler: handleSelect,
+  })
+  useCommand({
+    id: "command-palette:move-up",
+    title: "Move up",
+    hotkey: "up",
+    modes: ["insert", "cursor"],
+    hidden: true,
+    handler: moveUp,
+  })
+  useCommand({
+    id: "command-palette:move-down",
+    title: "Move down",
+    hotkey: "down",
+    modes: ["insert", "cursor"],
+    hidden: true,
+    handler: moveDown,
   })
 
   return (
@@ -74,6 +99,7 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
         <input
           focused
           placeholder="Filter commands..."
+          onSubmit={handleSelect}
           onInput={(value: string) => {
             setFilter(value)
             setActiveIndex(0)

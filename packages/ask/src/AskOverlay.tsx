@@ -7,16 +7,10 @@ import type {
   PasteEvent,
   CursorStyleOptions,
 } from "@opentui/core"
-import { useKeyboard } from "@opentui/react"
 import { readPrimaryText } from "@tooee/clipboard"
 import { useTheme } from "@tooee/themes"
-import { useMode, useSetMode } from "@tooee/commands"
-import {
-  appendAtCursor,
-  handleEditBufferVimMotion,
-  openLineAtCursor,
-  type VimMotionState,
-} from "./vim-motions.js"
+import { useCommand, useMode, useSetMode } from "@tooee/commands"
+import { appendAtCursor, openLineAtCursor, type VimMotionState } from "./vim-motions.js"
 
 export interface AskOverlayProps {
   prompt: string
@@ -67,62 +61,245 @@ export function AskOverlay({
     onSubmit(text)
   }
 
-  useKeyboard((key) => {
-    if (key.name === "escape") {
-      key.preventDefault()
-      if (mode === "insert") {
-        setMode("cursor")
-      }
-      // In cursor mode, escape does nothing - use 'q' to quit/cancel.
-      return
-    }
+  const enterInsertMode = useCallback(() => {
+    vimMotionStateRef.current.pendingG = false
+    setMode("insert")
+  }, [setMode])
 
-    if (mode === "cursor") {
-      if (key.name === "q" || key.raw === "q") {
-        key.preventDefault()
-        onCancel()
-        return
-      }
-      const target = multiline ? textareaRef.current : inputRef.current
-      if (key.name === "i" || key.raw === "i") {
-        key.preventDefault()
-        vimMotionStateRef.current.pendingG = false
-        setMode("insert")
-        return
-      }
-      if (key.name === "a" || key.raw === "a") {
-        key.preventDefault()
-        vimMotionStateRef.current.pendingG = false
-        appendAtCursor(target)
-        setMode("insert")
-        return
-      }
-      if (multiline && ((key.name === "o" && key.shift) || key.raw === "O")) {
-        key.preventDefault()
-        vimMotionStateRef.current.pendingG = false
-        openLineAtCursor(target, "above")
-        setMode("insert")
-        return
-      }
-      if (multiline && (key.name === "o" || key.raw === "o")) {
-        key.preventDefault()
-        vimMotionStateRef.current.pendingG = false
-        openLineAtCursor(target, "below")
-        setMode("insert")
-        return
-      }
-      if (handleEditBufferVimMotion(key, target, vimMotionStateRef.current)) return
-    } else {
+  const appendAndEnterInsertMode = useCallback(() => {
+    vimMotionStateRef.current.pendingG = false
+    appendAtCursor(multiline ? textareaRef.current : inputRef.current)
+    setMode("insert")
+  }, [multiline, setMode])
+
+  const openLineAbove = useCallback(() => {
+    if (!multiline) return
+    vimMotionStateRef.current.pendingG = false
+    openLineAtCursor(textareaRef.current, "above")
+    setMode("insert")
+  }, [multiline, setMode])
+
+  const openLineBelow = useCallback(() => {
+    if (!multiline) return
+    vimMotionStateRef.current.pendingG = false
+    openLineAtCursor(textareaRef.current, "below")
+    setMode("insert")
+  }, [multiline, setMode])
+
+  const leaveInsertMode = useCallback(() => {
+    vimMotionStateRef.current.pendingG = false
+    setMode("cursor")
+  }, [setMode])
+
+  useCommand({
+    id: "ask-overlay:leave-insert-mode",
+    title: "Command mode",
+    hotkey: "Escape",
+    modes: ["insert"],
+    hidden: true,
+    handler: leaveInsertMode,
+  })
+  useCommand({
+    id: "ask-overlay:cancel",
+    title: "Cancel",
+    hotkey: "q",
+    modes: ["cursor"],
+    hidden: true,
+    handler: onCancel,
+  })
+  useCommand({
+    id: "ask-overlay:insert-mode-i",
+    title: "Insert mode",
+    hotkey: "i",
+    modes: ["cursor"],
+    hidden: true,
+    handler: enterInsertMode,
+  })
+  useCommand({
+    id: "ask-overlay:insert-mode-a",
+    title: "Append",
+    hotkey: "a",
+    modes: ["cursor"],
+    hidden: true,
+    handler: appendAndEnterInsertMode,
+  })
+  useCommand({
+    id: "ask-overlay:open-line-above",
+    title: "Open line above",
+    hotkey: "shift+o",
+    modes: ["cursor"],
+    hidden: true,
+    when: () => multiline === true,
+    handler: openLineAbove,
+  })
+  useCommand({
+    id: "ask-overlay:open-line-below",
+    title: "Open line below",
+    hotkey: "o",
+    modes: ["cursor"],
+    hidden: true,
+    when: () => multiline === true,
+    handler: openLineBelow,
+  })
+  useCommand({
+    id: "ask-overlay:submit-single-line",
+    title: "Submit",
+    hotkey: "Enter",
+    modes: ["insert", "cursor"],
+    hidden: true,
+    when: () => multiline !== true,
+    handler: handleSubmit,
+  })
+  useCommand({
+    id: "ask-overlay:submit-multiline",
+    title: "Submit",
+    hotkey: "shift+Enter",
+    modes: ["insert", "cursor"],
+    hidden: true,
+    when: () => multiline === true,
+    handler: handleSubmit,
+  })
+
+  const getMotionTarget = useCallback(
+    () => (multiline ? textareaRef.current : inputRef.current),
+    [multiline],
+  )
+  const motion = useCallback(
+    (run: (target: NonNullable<ReturnType<typeof getMotionTarget>>) => void) => {
+      const target = getMotionTarget()
+      if (target) run(target as NonNullable<ReturnType<typeof getMotionTarget>>)
       vimMotionStateRef.current.pendingG = false
-    }
+    },
+    [getMotionTarget],
+  )
 
-    if (key.name === "return") {
-      if (multiline ? key.shift : true) {
-        key.preventDefault()
-        handleSubmit()
-      }
-      return
-    }
+  useCommand({
+    id: "ask-overlay:move-left",
+    title: "Move left",
+    hotkey: "h",
+    modes: ["cursor"],
+    hidden: true,
+    handler: () => motion((target) => target.moveCursorLeft()),
+  })
+  useCommand({
+    id: "ask-overlay:move-left-arrow",
+    title: "Move left",
+    hotkey: "left",
+    modes: ["cursor"],
+    hidden: true,
+    handler: () => motion((target) => target.moveCursorLeft()),
+  })
+  useCommand({
+    id: "ask-overlay:move-right",
+    title: "Move right",
+    hotkey: "l",
+    modes: ["cursor"],
+    hidden: true,
+    handler: () => motion((target) => target.moveCursorRight()),
+  })
+  useCommand({
+    id: "ask-overlay:move-right-arrow",
+    title: "Move right",
+    hotkey: "right",
+    modes: ["cursor"],
+    hidden: true,
+    handler: () => motion((target) => target.moveCursorRight()),
+  })
+  useCommand({
+    id: "ask-overlay:move-down",
+    title: "Move down",
+    hotkey: "j",
+    modes: ["cursor"],
+    hidden: true,
+    handler: () => motion((target) => target.moveCursorDown()),
+  })
+  useCommand({
+    id: "ask-overlay:move-down-arrow",
+    title: "Move down",
+    hotkey: "down",
+    modes: ["cursor"],
+    hidden: true,
+    handler: () => motion((target) => target.moveCursorDown()),
+  })
+  useCommand({
+    id: "ask-overlay:move-up",
+    title: "Move up",
+    hotkey: "k",
+    modes: ["cursor"],
+    hidden: true,
+    handler: () => motion((target) => target.moveCursorUp()),
+  })
+  useCommand({
+    id: "ask-overlay:move-up-arrow",
+    title: "Move up",
+    hotkey: "up",
+    modes: ["cursor"],
+    hidden: true,
+    handler: () => motion((target) => target.moveCursorUp()),
+  })
+  useCommand({
+    id: "ask-overlay:line-home",
+    title: "Line home",
+    hotkey: "0",
+    modes: ["cursor"],
+    hidden: true,
+    handler: () => motion((target) => target.gotoLineHome()),
+  })
+  useCommand({
+    id: "ask-overlay:line-home-key",
+    title: "Line home",
+    hotkey: "home",
+    modes: ["cursor"],
+    hidden: true,
+    handler: () => motion((target) => target.gotoLineHome()),
+  })
+  useCommand({
+    id: "ask-overlay:line-end",
+    title: "Line end",
+    hotkey: "shift+4",
+    modes: ["cursor"],
+    hidden: true,
+    handler: () => motion((target) => target.gotoLineEnd()),
+  })
+  useCommand({
+    id: "ask-overlay:line-end-key",
+    title: "Line end",
+    hotkey: "end",
+    modes: ["cursor"],
+    hidden: true,
+    handler: () => motion((target) => target.gotoLineEnd()),
+  })
+  useCommand({
+    id: "ask-overlay:word-forward",
+    title: "Word forward",
+    hotkey: "w",
+    modes: ["cursor"],
+    hidden: true,
+    handler: () => motion((target) => target.moveWordForward()),
+  })
+  useCommand({
+    id: "ask-overlay:word-backward",
+    title: "Word backward",
+    hotkey: "b",
+    modes: ["cursor"],
+    hidden: true,
+    handler: () => motion((target) => target.moveWordBackward()),
+  })
+  useCommand({
+    id: "ask-overlay:buffer-home",
+    title: "Buffer home",
+    hotkey: "g g",
+    modes: ["cursor"],
+    hidden: true,
+    handler: () => motion((target) => target.gotoBufferHome()),
+  })
+  useCommand({
+    id: "ask-overlay:buffer-end",
+    title: "Buffer end",
+    hotkey: "shift+g",
+    modes: ["cursor"],
+    hidden: true,
+    handler: () => motion((target) => target.gotoBufferEnd()),
   })
 
   // Middle-click paste from primary selection

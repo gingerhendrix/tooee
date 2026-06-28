@@ -12,6 +12,7 @@ export type {
   OverlayId,
   OverlayCloseReason,
   OverlayOpenOptions,
+  OverlayRole,
   OverlayRenderArgs,
   OverlayRenderer,
   OverlayHandle,

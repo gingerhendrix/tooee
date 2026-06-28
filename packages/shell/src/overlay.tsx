@@ -10,7 +10,14 @@ import {
   type OverlayHandle,
   type OverlayController,
 } from "@tooee/overlays"
-import { useMode, useSetMode, useProvideCommandContext, useCommand } from "@tooee/commands"
+import {
+  useMode,
+  useSetMode,
+  useProvideCommandContext,
+  useCommand,
+  CommandSurfaceProvider,
+} from "@tooee/commands"
+import type { CommandSurfaceRole, Mode } from "@tooee/commands"
 
 declare module "@tooee/commands" {
   interface CommandContext {
@@ -53,7 +60,9 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
         return next
       })
 
-      if (entry.options.restoreMode !== false) {
+      // Owned command surfaces keep their mode local; the host mode was never
+      // mutated on open, so there is nothing to restore.
+      if (!entry.options.ownCommands && entry.options.restoreMode !== false) {
         setMode(entry.prevMode as any)
       }
     },
@@ -68,7 +77,13 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
       options: OverlayOpenOptions = {},
     ): OverlayHandle<TPayload> => {
       const prevMode = modeRef.current
-      const overlayMode = options.mode === undefined ? "insert" : options.mode
+      // Owned command surfaces carry their own local mode and never touch the
+      // host's global mode.
+      const overlayMode = options.ownCommands
+        ? null
+        : options.mode === undefined
+          ? "insert"
+          : options.mode
 
       setStack((prev) => {
         // Remove existing entry with same id if present
@@ -185,7 +200,7 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
     id: "overlay.close-top",
     title: "Close overlay",
     hotkey: "Escape",
-    modes: ["insert"],
+    modes: ["insert", "cursor", "select"],
     hidden: true,
     when: () => {
       const current = stackRef.current
@@ -195,26 +210,45 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
     handler: () => closeTop("escape"),
   })
 
-  // Render the topmost overlay
-  const topEntry = stack.length > 0 ? stack[stack.length - 1] : null
-  const current = topEntry
-    ? topEntry.render({
-        id: topEntry.id,
-        payload: topEntry.payload,
-        isTop: true,
-        close: (reason: OverlayCloseReason = "close") => removeEntry(topEntry.id, reason),
-        update: (next: any) => update(topEntry.id, next),
-      })
-    : null
+  const current =
+    stack.length > 0 ? (
+      <>
+        {stack.map((entry, index) => {
+          const isTop = index === stack.length - 1
+          let node = entry.render({
+            id: entry.id,
+            payload: entry.payload,
+            isTop,
+            close: (reason: OverlayCloseReason = "close") => removeEntry(entry.id, reason),
+            update: (next: any) => update(entry.id, next),
+          })
 
-  const state = useMemo(
-    () => ({
-      current,
-      hasOverlay: stack.length > 0,
-      stack: stack.map((e) => e.id),
-    }),
-    [current, stack],
-  )
+          // An overlay that owns its commands is mounted as a command surface:
+          // its children bind to a local registry/mode, and modal surfaces
+          // suspend parent command dispatch while topmost. Passive surfaces stay
+          // mounted for visuals/help without becoming the keyboard owner.
+          if (entry.options.ownCommands && node != null) {
+            node = (
+              <CommandSurfaceProvider
+                id={entry.id}
+                role={(entry.options.role as CommandSurfaceRole) ?? "modal"}
+                initialMode={(entry.options.surfaceMode as Mode) ?? "cursor"}
+              >
+                {node}
+              </CommandSurfaceProvider>
+            )
+          }
+
+          return <box key={entry.id}>{node}</box>
+        })}
+      </>
+    ) : null
+
+  const state = {
+    current,
+    hasOverlay: stack.length > 0,
+    stack: stack.map((e) => e.id),
+  }
 
   return (
     <OverlayControllerContext value={controller}>

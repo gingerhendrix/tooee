@@ -51,6 +51,7 @@
         "@tooee/commands": "workspace:*",
         "@tooee/layout": "workspace:*",
         "@tooee/marks": "workspace:*",
+        "@tooee/overlays": "workspace:*",
         "@tooee/shell": "workspace:*",
         "@tooee/themes": "workspace:*",
         "@tooee/toasts": "workspace:*",
@@ -174,6 +175,7 @@
       "name": "@tooee/layout",
       "version": "0.1.19",
       "dependencies": {
+        "@tooee/commands": "workspace:*",
         "@tooee/overlays": "workspace:*",
         "@tooee/search": "workspace:*",
         "@tooee/themes": "workspace:*",
@@ -216,6 +218,7 @@
       "name": "@tooee/renderers",
       "version": "0.1.19",
       "dependencies": {
+        "@tooee/commands": "workspace:*",
         "@tooee/fuzzy": "workspace:*",
         "@tooee/marks": "workspace:*",
         "@tooee/themes": "workspace:*",
@@ -304,6 +307,7 @@
       "name": "@tooee/themes",
       "version": "0.1.19",
       "dependencies": {
+        "@tooee/commands": "workspace:*",
         "@tooee/config": "workspace:*",
         "@tooee/fuzzy": "workspace:*",
       },

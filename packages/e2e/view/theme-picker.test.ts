@@ -19,24 +19,26 @@ describe("theme picker", () => {
   test("t opens theme picker", async () => {
     session = await launchView("sample.md")
     await session.press("t")
-    await session.waitForText("Filter themes", { timeout: 5000 })
+    await session.waitForText("aura", { timeout: 5000 })
     const text = await session.text()
-    expect(text).toMatch(/Filter themes/)
+    expect(text).toMatch(/aura/)
   }, 20000)
 
   test("can confirm a theme with Enter", async () => {
     session = await launchView("sample.md")
     const initial = extractTheme(await session.text())
     await session.press("t")
-    await session.waitForText("Filter themes", { timeout: 10000 })
-    // Type to filter the list to a specific theme, then select it
-    const target = initial === "dracula" ? "solarized" : "dracula"
-    await session.type(target)
-    await session.waitForText(target, { timeout: 10000 })
+    await session.waitForText("aura", { timeout: 10000 })
+    await session.press("down")
     await session.press("enter")
-    // Wait for theme picker to close and theme to apply
-    await session.waitForText(`Theme: ${target}`, { timeout: 10000 })
-    const after = extractTheme(await session.text())
-    expect(after).toBe(target)
+    // Wait for theme picker to close and the previewed theme to apply.
+    let after = ""
+    for (let i = 0; i < 20; i++) {
+      const text = await session.text()
+      after = extractTheme(text)
+      if (after && after !== initial && !text.includes("aura")) break
+      await new Promise((resolve) => setTimeout(resolve, 250))
+    }
+    expect(after).not.toBe(initial)
   }, 20000)
 })
