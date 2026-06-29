@@ -1,6 +1,6 @@
 {
   "name": "@tooee/layout",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "description": "Standard app chrome (title bar, status bar) for Tooee",
   "keywords": [
     "cli",
