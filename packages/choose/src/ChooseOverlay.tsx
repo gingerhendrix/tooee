@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
-import { useTheme } from "@tooee/themes"
+import { useTheme, CloseButton } from "@tooee/themes"
 import { useCommand, useMode, useSetMode } from "@tooee/commands"
 import type { ChooseItem } from "./types.js"
 import { fuzzyFilter } from "./fuzzy.js"
@@ -221,6 +221,7 @@ export function ChooseOverlay({
           style={{ flexGrow: 1 }}
         />
         <text content={` ${filteredItems.length}/${items.length}`} fg={theme.textMuted} />
+        <CloseButton onClose={onCancel} />
       </box>
 
       {/* Scrollable item list */}

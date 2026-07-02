@@ -1,6 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe } from "bun:test"
 import { act } from "react"
+import { MouseButtons } from "@opentui/core/testing"
 import { TooeeProvider } from "@tooee/shell"
 import { Choose } from "../src/Choose.js"
 import type { ChooseContentProvider } from "../src/types.js"
@@ -372,6 +373,85 @@ describe("Choose visual alignment", () => {
 
     expect(confirmed).not.toBeNull()
     expect(confirmed.items[0].text).toBe("epsilon")
+  })
+})
+
+describe("Choose mouse interaction", () => {
+  function lineOf(frame: string, text: string): { x: number; y: number } {
+    const lines = frame.split("\n")
+    for (let y = 0; y < lines.length; y++) {
+      const x = lines[y].indexOf(text)
+      if (x >= 0) return { x, y }
+    }
+    return { x: -1, y: -1 }
+  }
+
+  test("left-click on a row selects it (Enter then confirms that row)", async () => {
+    let confirmed: any = null
+    testSetup = await setup({
+      onConfirm: (r) => {
+        confirmed = r
+      },
+    })
+
+    const pos = lineOf(testSetup.captureCharFrame(), "gamma")
+    expect(pos.y).toBeGreaterThan(-1)
+
+    await act(async () => {
+      await testSetup.mockMouse.click(pos.x + 1, pos.y, MouseButtons.LEFT)
+    })
+    await testSetup.renderOnce()
+
+    await act(async () => {
+      testSetup.mockInput.pressEnter()
+    })
+    await testSetup.renderOnce()
+
+    expect(confirmed).not.toBeNull()
+    expect(confirmed.items[0].text).toBe("gamma")
+  })
+
+  test("left-click on a row is ignored while a modal overlay is open", async () => {
+    let confirmed: any = null
+    testSetup = await setup({
+      onConfirm: (r) => {
+        confirmed = r
+      },
+    })
+
+    // Capture the row position before opening the overlay; the centered
+    // theme picker leaves the left margin (and these row cells) clickable.
+    const pos = lineOf(testSetup.captureCharFrame(), "gamma")
+    expect(pos.y).toBeGreaterThan(-1)
+
+    // Escape → cursor mode, then `t` opens the theme picker (modal surface).
+    await act(async () => {
+      testSetup.mockInput.pressEscape()
+    })
+    await testSetup.renderOnce()
+    await press(testSetup, "t")
+    expect(testSetup.captureCharFrame()).toContain("Filter themes")
+
+    // Click the row in the visible margin beside the picker: must be ignored.
+    await act(async () => {
+      await testSetup.mockMouse.click(pos.x + 1, pos.y, MouseButtons.LEFT)
+    })
+    await testSetup.renderOnce()
+
+    // Close the picker, then confirm: the active row must still be the first.
+    await act(async () => {
+      testSetup.mockInput.pressEscape()
+    })
+    await testSetup.renderOnce()
+    expect(testSetup.captureCharFrame()).not.toContain("Filter themes")
+
+    await act(async () => {
+      testSetup.mockInput.pressEnter()
+    })
+    await testSetup.renderOnce()
+
+    expect(confirmed).not.toBeNull()
+    expect(confirmed.items[0].text).toBe("alpha")
   })
 })
 

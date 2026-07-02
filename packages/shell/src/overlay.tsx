@@ -267,6 +267,10 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
   const state = {
     current,
     hasOverlay: stack.length > 0,
+    // Passive owned surfaces (e.g. the which-key hint) render for visuals only
+    // and never own input, so they don't count as modal. Everything else —
+    // legacy overlays and modal owned surfaces — does.
+    hasModalOverlay: stack.some((e) => !(e.options.ownCommands && e.options.role === "passive")),
     stack: stack.map((e) => e.id),
   }
 

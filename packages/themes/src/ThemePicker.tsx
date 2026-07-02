@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from "react"
 import { useCommand } from "@tooee/commands"
 import { fuzzyMatch } from "@tooee/fuzzy"
 import { useTheme } from "./context.js"
+import { CloseButton } from "./CloseButton.js"
 
 export interface ThemePickerEntry {
   id: string
@@ -143,6 +144,7 @@ export function ThemePicker({
           style={{ flexGrow: 1 }}
         />
         <text content={` ${filtered.length}`} fg={theme.textMuted} />
+        <CloseButton onClose={onClose} />
       </box>
 
       {/* Separator */}

@@ -6,6 +6,7 @@ export {
   useOverlayState,
   useCurrentOverlay,
   useHasOverlay,
+  useHasModalOverlay,
 } from "./overlay-context.js"
 export type {
   OverlayContextValue,
