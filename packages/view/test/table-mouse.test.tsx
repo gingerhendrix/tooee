@@ -81,6 +81,30 @@ describe("Table view mouse integration", () => {
     expect(testSetup.captureCharFrame()).not.toContain("Copy row")
   })
 
+  test("host mode is restored to cursor after the context menu closes", async () => {
+    testSetup = await setup()
+    expect(testSetup.captureCharFrame()).toMatch(/Mode:\s*cursor/)
+
+    const pos = lineOf(testSetup.captureCharFrame(), "Alice")
+    await act(async () => {
+      await testSetup.mockMouse.click(pos.x + 1, pos.y, MouseButtons.RIGHT)
+    })
+    await testSetup.renderOnce()
+
+    // The context menu overlay switches the host into insert mode while open.
+    let frame = testSetup.captureCharFrame()
+    expect(frame).toContain("Copy row")
+    expect(frame).toMatch(/Mode:\s*insert/)
+
+    await act(async () => {
+      testSetup.mockInput.pressEscape()
+    })
+    await testSetup.renderOnce()
+
+    frame = testSetup.captureCharFrame()
+    expect(frame).not.toContain("Copy row")
+    expect(frame).toMatch(/Mode:\s*cursor/)
+  })
 })
 
 describe("Table view mouse guards while a modal overlay is open", () => {
@@ -134,5 +158,27 @@ describe("Table view mouse guards while a modal overlay is open", () => {
     expect(frame).not.toContain("Filter themes")
     expect(frame).toMatch(/Cursor:\s*0/)
     expect(frame).not.toMatch(/Cursor:\s*1/)
+  })
+})
+
+describe("Overlay close button integration", () => {
+  test("clicking ✕ on the open theme picker closes it", async () => {
+    testSetup = await setup()
+    await act(async () => {
+      testSetup.mockInput.pressKey("t")
+    })
+    await testSetup.renderOnce()
+
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("Filter themes")
+    const pos = lineOf(frame, "✕")
+    expect(pos.y).toBeGreaterThan(-1)
+
+    await act(async () => {
+      await testSetup.mockMouse.click(pos.x, pos.y, MouseButtons.LEFT)
+    })
+    await testSetup.renderOnce()
+
+    expect(testSetup.captureCharFrame()).not.toContain("Filter themes")
   })
 })
