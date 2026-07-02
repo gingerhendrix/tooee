@@ -1,5 +1,6 @@
 import { launchCli } from "@tooee/shell"
 import type { ActionDefinition } from "@tooee/commands"
+import type { CodeBlockRenderer } from "@tooee/renderers"
 import { View } from "./View.js"
 import { DirectoryView } from "./DirectoryView.js"
 import type { ContentProvider, ContentRenderer } from "./types.js"
@@ -8,6 +9,12 @@ export interface ViewLaunchOptions {
   contentProvider: ContentProvider
   actions?: ActionDefinition[]
   renderers?: Record<string, ContentRenderer>
+  /**
+   * Custom renderers for fenced code blocks in markdown content, keyed by
+   * fence type (first word of the fence info string, case-insensitive).
+   * Unmatched types fall back to the default syntax-highlighted code block.
+   */
+  codeBlockRenderers?: Record<string, CodeBlockRenderer>
 }
 
 export interface DirectoryLaunchOptions {
@@ -21,6 +28,7 @@ export async function launch(options: ViewLaunchOptions): Promise<void> {
       contentProvider={options.contentProvider}
       actions={options.actions}
       renderers={options.renderers}
+      codeBlockRenderers={options.codeBlockRenderers}
     />,
   )
 }

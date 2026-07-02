@@ -4,6 +4,7 @@ import type { TextBufferRenderable } from "@opentui/core"
 import { ThemeSwitcherProvider } from "@tooee/themes"
 import { MarkPriorities, MarkSetBuilder, createMarkState } from "@tooee/marks"
 import { MarkdownView } from "../src/MarkdownView.js"
+import type { CodeBlockRenderer } from "../src/code-blocks.js"
 import { ansiToStyledText, renderMermaidForTerminal } from "../src/mermaid.js"
 
 let testSetup: Awaited<ReturnType<typeof testRender>>
@@ -1149,5 +1150,231 @@ describe("scroll isolation", () => {
       expect(frameAfter).toContain("line B")
       expect(frameAfter).toContain("line C")
     }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Custom code block renderers
+// ---------------------------------------------------------------------------
+
+describe("custom code block renderers", () => {
+  const graphqlRenderer: CodeBlockRenderer = ({ text, theme, indent }) => (
+    <box style={{ marginLeft: 1 + indent, marginBottom: 1 }}>
+      <text content={`GraphQL query (${text.split("\n").length} lines)`} fg={theme.accent} />
+    </box>
+  )
+
+  test("registered fence type renders custom output", async () => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView
+          content={"```graphql\nquery { user { id } }\n```"}
+          codeBlockRenderers={{ graphql: graphqlRenderer }}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("GraphQL query (1 lines)")
+    expect(frame).not.toContain("query { user { id } }")
+  })
+
+  test("unregistered fence type falls back to the default code block", async () => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView
+          content={"```python\nprint('hi')\n```"}
+          codeBlockRenderers={{ graphql: graphqlRenderer }}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("print('hi')")
+    expect(frame).not.toContain("GraphQL query")
+    // Default code block chrome (bordered box)
+    expect(frame).toContain("┌")
+  })
+
+  test("fence type matching is case-insensitive for fence and registration", async () => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView
+          content={"```GraphQL\nquery { a }\n```"}
+          codeBlockRenderers={{ GRAPHQL: graphqlRenderer }}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("GraphQL query (1 lines)")
+  })
+
+  test("only the first word of the fence info string is matched", async () => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView
+          content={"```graphql title=UserQuery lines\nquery { a }\n```"}
+          codeBlockRenderers={{ graphql: graphqlRenderer }}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("GraphQL query (1 lines)")
+  })
+
+  test("renderer receives the full info string", async () => {
+    let seenInfo: string | undefined
+    const infoRenderer: CodeBlockRenderer = ({ info, theme }) => {
+      seenInfo = info
+      return <text content="custom" fg={theme.accent} />
+    }
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView
+          content={"```graphql title=UserQuery\nquery { a }\n```"}
+          codeBlockRenderers={{ graphql: infoRenderer }}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    expect(seenInfo).toBe("graphql title=UserQuery")
+  })
+
+  test("renderer returning null falls back to the default code block", async () => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView
+          content={"```graphql\nquery { a }\n```"}
+          codeBlockRenderers={{ graphql: () => null }}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("query { a }")
+  })
+
+  test("renderer that throws falls back to the default code block", async () => {
+    const throwingRenderer: CodeBlockRenderer = () => {
+      throw new Error("renderer exploded")
+    }
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView
+          content={"```graphql\nquery { a }\n```"}
+          codeBlockRenderers={{ graphql: throwingRenderer }}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("query { a }")
+  })
+
+  test("mermaid still renders via the registry when custom renderers are provided", async () => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView
+          content={"```mermaid\ngraph TD\n  A[Agent] --> B[Stream]\n```"}
+          codeBlockRenderers={{ graphql: graphqlRenderer }}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 30 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("Agent")
+    expect(frame).toContain("Stream")
+    expect(frame).toContain("▼")
+    expect(frame).not.toContain("graph TD")
+  })
+
+  test("user entry for mermaid overrides the built-in renderer", async () => {
+    const overrideRenderer: CodeBlockRenderer = ({ theme }) => (
+      <text content="custom mermaid override" fg={theme.accent} />
+    )
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView
+          content={"```mermaid\ngraph TD\n  A[Agent] --> B[Stream]\n```"}
+          codeBlockRenderers={{ mermaid: overrideRenderer }}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("custom mermaid override")
+    expect(frame).not.toContain("▼")
+  })
+
+  test("custom renderer inside a list item receives its indent", async () => {
+    let seenIndent: number | undefined
+    const indentRenderer: CodeBlockRenderer = ({ indent, theme }) => {
+      seenIndent = indent
+      return <text content="indented custom block" fg={theme.accent} />
+    }
+    const md = "- Step:\n\n  ```graphql\n  query { a }\n  ```"
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} codeBlockRenderers={{ graphql: indentRenderer }} />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("indented custom block")
+    expect(seenIndent).toBeGreaterThan(0)
+  })
+
+  test("custom renderer can opt into horizontal panning via hScroll", async () => {
+    const wideLine = `[Start] ${"─".repeat(100)} [Finish line]`
+    const hScrollRenderer: CodeBlockRenderer = ({ text, theme, indent, hScroll }) => (
+      <box style={{ marginLeft: 1 + indent, marginBottom: 1 }}>
+        <text
+          ref={hScroll.register}
+          content={text}
+          wrapMode="none"
+          onMouseScroll={hScroll.onMouseScroll}
+          style={{ fg: theme.markdownText, height: 1 }}
+        />
+      </box>
+    )
+    const registry: { current: Map<number, TextBufferRenderable> } = { current: new Map() }
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView
+          content={`\`\`\`wide\n${wideLine}\n\`\`\``}
+          codeBlockRenderers={{ wide: hScrollRenderer }}
+          hScrollableBlocksRef={registry}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 60, height: 24 },
+    )
+    await testSetup.renderOnce()
+    await testSetup.renderOnce()
+
+    const block = registry.current.get(0)
+    expect(block).toBeDefined()
+    if (!block) return
+
+    const before = testSetup.captureCharFrame()
+    expect(before).toContain("[Start]")
+    expect(before).not.toContain("Finish line")
+
+    block.scrollX += 1000
+    await testSetup.renderOnce()
+    const after = testSetup.captureCharFrame()
+    expect(after).toContain("Finish line")
+    expect(after).not.toContain("[Start]")
   })
 })

@@ -1,5 +1,13 @@
 export { MarkdownView, flattenTokens } from "./MarkdownView.js"
 export type { FlatBlock } from "./MarkdownView.js"
+export {
+  CodeBlockChrome,
+  defaultCodeBlockRenderer,
+  mermaidCodeBlockRenderer,
+  DEFAULT_CODE_BLOCK_RENDERERS,
+  getFenceType,
+} from "./code-blocks.js"
+export type { CodeBlockRenderer, CodeBlockRendererProps, CodeBlockHScroll } from "./code-blocks.js"
 export { CodeView } from "./CodeView.js"
 export { Table, computeColumnWidths, isNumeric, sampleRows } from "./Table.js"
 export type { TableProps, ColumnWidthOptions } from "./Table.js"

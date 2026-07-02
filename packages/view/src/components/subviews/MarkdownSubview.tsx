@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useRef } from "react"
 import { marked } from "marked"
 import type { TextBufferRenderable } from "@opentui/core"
-import { MarkdownView, flattenTokens, type RowDocumentRenderable } from "@tooee/renderers"
+import {
+  MarkdownView,
+  flattenTokens,
+  type CodeBlockRenderer,
+  type RowDocumentRenderable,
+} from "@tooee/renderers"
 import { useTheme } from "@tooee/themes"
 import { useCommand } from "@tooee/commands"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
@@ -15,6 +20,7 @@ import type { SubviewProps } from "./types.js"
 
 interface MarkdownSubviewProps extends SubviewProps {
   content: MarkdownContent
+  codeBlockRenderers?: Record<string, CodeBlockRenderer>
 }
 
 /** Columns moved per h/l press when scrolling a wide block horizontally. */
@@ -22,6 +28,7 @@ const BLOCK_HSCROLL_STEP = 4
 
 export function MarkdownSubview({
   content,
+  codeBlockRenderers,
   providerMarks,
   userMarks,
   setMarkSet,
@@ -152,6 +159,7 @@ export function MarkdownSubview({
         marks={markState}
         docRef={docRef}
         hScrollableBlocksRef={hScrollableBlocksRef}
+        codeBlockRenderers={codeBlockRenderers}
       />
     </SubviewLayout>
   )

@@ -25,3 +25,5 @@ export type {
   TableRow,
 } from "./types.js"
 export { getTextContent, isBuiltinContent, isCustomContent } from "./types.js"
+export { CodeBlockChrome } from "@tooee/renderers"
+export type { CodeBlockRenderer, CodeBlockRendererProps, CodeBlockHScroll } from "@tooee/renderers"

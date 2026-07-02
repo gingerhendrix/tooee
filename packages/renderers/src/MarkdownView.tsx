@@ -1,5 +1,5 @@
 import { marked, type Token, type Tokens } from "marked"
-import { useCallback, useMemo, useRef, type ReactNode, type RefObject } from "react"
+import { useMemo, type ReactNode, type RefObject } from "react"
 import { useTheme, type ResolvedTheme } from "@tooee/themes"
 import {
   bold as boldChunk,
@@ -8,7 +8,6 @@ import {
   parseColor,
 } from "@opentui/core"
 import type {
-  MouseEvent,
   SyntaxStyle,
   TextBufferRenderable,
   TextTableContent,
@@ -18,7 +17,7 @@ import type {
 import type { MarkState } from "@tooee/marks"
 import { DEFAULT_SIGN_COLUMN_WIDTH, type RowDocumentRenderable } from "./RowDocumentRenderable.js"
 import { useGutterPalette } from "./useGutterPalette.js"
-import { isMermaidFence, renderMermaidForTerminal } from "./mermaid.js"
+import { CodeBlock, DEFAULT_CODE_BLOCK_RENDERERS, type CodeBlockRenderer } from "./code-blocks.js"
 import "./row-document.js"
 import "./text-table.js"
 
@@ -39,6 +38,15 @@ interface MarkdownViewProps {
    * (h/l in cursor mode).
    */
   hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>
+  /**
+   * Custom renderers for fenced code blocks, keyed by fence type. A fence's
+   * type is the first whitespace-separated word of its info string, matched
+   * case-insensitively. Entries are merged over the built-in defaults
+   * (currently `mermaid`), so built-ins can be overridden. Unmatched types —
+   * and renderers that return `null` or throw — fall back to the default
+   * syntax-highlighted code block.
+   */
+  codeBlockRenderers?: Record<string, CodeBlockRenderer>
 }
 
 /**
@@ -157,11 +165,22 @@ export function MarkdownView({
   marks,
   docRef,
   hScrollableBlocksRef,
+  codeBlockRenderers,
 }: MarkdownViewProps) {
   const { theme, syntax } = useTheme()
   const palette = useGutterPalette()
   const tokens = useMemo(() => marked.lexer(content), [content])
   const blocks = useMemo(() => flattenTokens(tokens), [tokens])
+
+  // Merge user renderers over built-in defaults, normalizing keys to
+  // lowercase so registration matches fence types case-insensitively.
+  const mergedCodeBlockRenderers = useMemo(() => {
+    const merged: Record<string, CodeBlockRenderer> = { ...DEFAULT_CODE_BLOCK_RENDERERS }
+    for (const [key, renderer] of Object.entries(codeBlockRenderers ?? {})) {
+      merged[key.trim().toLowerCase()] = renderer
+    }
+    return merged
+  }, [codeBlockRenderers])
 
   const blockElements = useMemo(
     () =>
@@ -173,9 +192,10 @@ export function MarkdownView({
           theme={theme}
           syntax={syntax}
           hScrollableBlocksRef={hScrollableBlocksRef}
+          codeBlockRenderers={mergedCodeBlockRenderers}
         />
       )),
-    [blocks, theme, syntax, hScrollableBlocksRef],
+    [blocks, theme, syntax, hScrollableBlocksRef, mergedCodeBlockRenderers],
   )
 
   return (
@@ -202,12 +222,14 @@ function FlatBlockRenderer({
   theme,
   syntax,
   hScrollableBlocksRef,
+  codeBlockRenderers,
 }: {
   block: FlatBlock
   blockIndex: number
   theme: ResolvedTheme
   syntax: SyntaxStyle
   hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>
+  codeBlockRenderers?: Record<string, CodeBlockRenderer>
 }): ReactNode {
   const { token, indent, bullet } = block
 
@@ -222,32 +244,18 @@ function FlatBlockRenderer({
       return <HeadingRenderer token={token as Tokens.Heading} theme={theme} indent={indent} />
     case "paragraph":
       return <ParagraphRenderer token={token as Tokens.Paragraph} theme={theme} indent={indent} />
-    case "code": {
-      const codeToken = token as Tokens.Code
-      if (isMermaidFence(codeToken.lang)) {
-        return (
-          <MermaidBlockRenderer
-            token={codeToken}
-            blockIndex={blockIndex}
-            theme={theme}
-            syntax={syntax}
-            indent={indent}
-            hScrollableBlocksRef={hScrollableBlocksRef}
-          />
-        )
-      }
-
+    case "code":
       return (
-        <CodeBlockRenderer
-          token={codeToken}
+        <CodeBlock
+          token={token as Tokens.Code}
           blockIndex={blockIndex}
           theme={theme}
           syntax={syntax}
           indent={indent}
           hScrollableBlocksRef={hScrollableBlocksRef}
+          renderers={codeBlockRenderers}
         />
       )
-    }
     case "blockquote":
       return <BlockquoteRenderer token={token as Tokens.Blockquote} theme={theme} indent={indent} />
     case "table":
@@ -369,173 +377,6 @@ function ParagraphRenderer({
       <text style={{ fg: theme.markdownText }}>
         <InlineTokens tokens={token.tokens || []} theme={theme} />
       </text>
-    </box>
-  )
-}
-
-/**
- * Registration and shift+wheel panning for a horizontally scrollable block.
- *
- * `register` is a React ref callback that (de)registers the block's
- * text-buffer renderable in the `hScrollableBlocksRef` registry under its
- * block index, so the owning subview can pan the block under the nav cursor.
- *
- * `handleMouseScroll` remaps shift+vertical-wheel to horizontal panning
- * (ScrollBox does this remap; the text-buffer renderable's built-in scroll
- * handling only pans on real horizontal wheel directions). The event is not
- * stopped, so plain vertical wheel keeps bubbling to the surrounding
- * row-document.
- */
-function useHScrollableBlock(
-  blockIndex: number,
-  hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>,
-) {
-  const nodeRef = useRef<TextBufferRenderable | null>(null)
-  const register = useCallback(
-    (node: TextBufferRenderable | null) => {
-      nodeRef.current = node
-      const map = hScrollableBlocksRef?.current
-      if (!map) return
-      if (node) map.set(blockIndex, node)
-      else map.delete(blockIndex)
-    },
-    [hScrollableBlocksRef, blockIndex],
-  )
-
-  const handleMouseScroll = useCallback((event: MouseEvent) => {
-    const node = nodeRef.current
-    if (!node || !event.scroll || !event.modifiers.shift) return
-    const { direction, delta } = event.scroll
-    if (direction === "up") node.scrollX -= delta
-    else if (direction === "down") node.scrollX += delta
-  }, [])
-
-  return { register, handleMouseScroll }
-}
-
-function CodeBlockRenderer({
-  token,
-  blockIndex,
-  theme,
-  syntax,
-  indent,
-  hScrollableBlocksRef,
-}: {
-  token: Tokens.Code
-  blockIndex: number
-  theme: ResolvedTheme
-  syntax: SyntaxStyle
-  indent: number
-  hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>
-}) {
-  const { register, handleMouseScroll } = useHScrollableBlock(blockIndex, hScrollableBlocksRef)
-  const lineCount = token.text.split("\n").length
-  // Code lines never wrap (wrapMode "none") — wide code blocks and ASCII
-  // diagrams pan horizontally via the renderable's own viewport (`scrollX`)
-  // instead of word-wrapping into an unreadable mess. Blocks that fit render
-  // exactly as before, with scrollX clamped to 0.
-  return (
-    <box
-      style={{
-        marginTop: 0,
-        marginBottom: 1,
-        marginLeft: 1 + indent,
-        marginRight: 1,
-        border: true,
-        borderColor: theme.border,
-        backgroundColor: theme.backgroundElement,
-        flexDirection: "column",
-      }}
-    >
-      <code
-        ref={register}
-        content={token.text}
-        filetype={token.lang}
-        syntaxStyle={syntax}
-        wrapMode="none"
-        onMouseScroll={handleMouseScroll}
-        style={{ height: lineCount }}
-      />
-    </box>
-  )
-}
-
-function MermaidBlockRenderer({
-  token,
-  blockIndex,
-  theme,
-  syntax,
-  indent,
-  hScrollableBlocksRef,
-}: {
-  token: Tokens.Code
-  blockIndex: number
-  theme: ResolvedTheme
-  syntax: SyntaxStyle
-  indent: number
-  hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>
-}) {
-  const mermaidTheme = useMemo(
-    () => ({
-      fg: theme.markdownText,
-      border: theme.border,
-      line: theme.textMuted,
-      arrow: theme.accent,
-      accent: theme.accent,
-      bg: theme.backgroundElement,
-      corner: theme.borderActive,
-      junction: theme.borderSubtle,
-    }),
-    [theme],
-  )
-  const result = useMemo(
-    () => renderMermaidForTerminal(token.text, { mode: "ansi", theme: mermaidTheme }),
-    [token.text, mermaidTheme],
-  )
-
-  const { register, handleMouseScroll } = useHScrollableBlock(blockIndex, hScrollableBlocksRef)
-
-  if (!result.ok) {
-    return (
-      <CodeBlockRenderer
-        token={token}
-        blockIndex={blockIndex}
-        theme={theme}
-        syntax={syntax}
-        indent={indent}
-        hScrollableBlocksRef={hScrollableBlocksRef}
-      />
-    )
-  }
-
-  const lineCount = result.text.split("\n").length
-  // Diagram lines never wrap (wrapMode "none"). Wide diagrams pan via the
-  // text renderable's own viewport (`scrollX`), which the native renderer
-  // clips with correct style-run alignment. Translating a natural-width text
-  // inside a nested scrollbox instead exercises the scissor-clip path, which
-  // misplaces fg colors at some offsets (each fully clipped style chunk after
-  // the first bleeds a phantom column into view). Diagrams that fit render
-  // exactly as before, with scrollX clamped to 0.
-  return (
-    <box
-      style={{
-        marginTop: 0,
-        marginBottom: 1,
-        marginLeft: 1 + indent,
-        marginRight: 1,
-        border: true,
-        borderColor: theme.border,
-        backgroundColor: theme.backgroundElement,
-        flexDirection: "column",
-      }}
-    >
-      <text
-        ref={register}
-        content={result.content}
-        wrapMode="none"
-        onMouseScroll={handleMouseScroll}
-        style={{ fg: theme.markdownText, height: lineCount }}
-      />
     </box>
   )
 }

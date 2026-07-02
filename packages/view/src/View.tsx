@@ -2,6 +2,7 @@ import { useState, useCallback } from "react"
 import { useTheme } from "@tooee/themes"
 import type { ActionDefinition } from "@tooee/commands"
 import type { MarkSet } from "@tooee/marks"
+import type { CodeBlockRenderer } from "@tooee/renderers"
 import { isCustomContent, type ContentProvider, type ContentRenderer } from "./types.js"
 import { useContentLoader } from "./hooks/useContentLoader.js"
 import {
@@ -15,9 +16,14 @@ interface ViewProps {
   contentProvider: ContentProvider
   actions?: ActionDefinition[]
   renderers?: Record<string, ContentRenderer>
+  /**
+   * Custom renderers for fenced code blocks in markdown content, keyed by
+   * fence type (first word of the fence info string, case-insensitive).
+   */
+  codeBlockRenderers?: Record<string, CodeBlockRenderer>
 }
 
-export function View({ contentProvider, actions, renderers }: ViewProps) {
+export function View({ contentProvider, actions, renderers, codeBlockRenderers }: ViewProps) {
   const { theme } = useTheme()
   const [reloadTrigger, setReloadTrigger] = useState(0)
   const reload = useCallback(() => setReloadTrigger((n) => n + 1), [])
@@ -77,7 +83,9 @@ export function View({ contentProvider, actions, renderers }: ViewProps) {
 
   switch (content.format) {
     case "markdown":
-      return <MarkdownSubview content={content} {...shared} />
+      return (
+        <MarkdownSubview content={content} codeBlockRenderers={codeBlockRenderers} {...shared} />
+      )
     case "code":
     case "text":
       return <CodeSubview content={content} {...shared} />
