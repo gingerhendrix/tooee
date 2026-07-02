@@ -92,12 +92,18 @@ export function useContentLoader(contentProvider: ContentProvider, reloadTrigger
       setContent(current)
       setStreaming(true)
 
+      // Hold the iterator explicitly so cleanup can close it: a cleanup that
+      // only flips `cancelled` leaves a pending next() (and the provider's
+      // subprocess/file handle/network stream) alive until the next chunk.
+      const iterator = loaded[Symbol.asyncIterator]()
+
       ;(async () => {
         try {
-          for await (const chunk of loaded) {
-            if (cancelled) break
+          while (true) {
+            const result = await iterator.next()
+            if (cancelled || result.done) break
+            const chunk = result.value
             if (chunk.type === "marks") {
-              if (cancelled) break
               // Streamed mark set: merge by replacing any existing set with same namespace
               setProviderMarks((prev) => {
                 const filtered = prev.filter((s) => s.namespace !== chunk.set.namespace)
@@ -109,8 +115,8 @@ export function useContentLoader(contentProvider: ContentProvider, reloadTrigger
             setContent(current)
           }
         } catch (err) {
-          if (!cancelled && err instanceof Error) {
-            setError(err.message)
+          if (!cancelled) {
+            setError(err instanceof Error ? err.message : String(err))
           }
         } finally {
           if (!cancelled) {
@@ -121,6 +127,8 @@ export function useContentLoader(contentProvider: ContentProvider, reloadTrigger
 
       return () => {
         cancelled = true
+        // Close the iterator to release provider resources mid-stream.
+        Promise.resolve(iterator.return?.()).catch(() => {})
       }
     }
 
@@ -130,8 +138,8 @@ export function useContentLoader(contentProvider: ContentProvider, reloadTrigger
         .then((value) => {
           if (active) setContent(value)
         })
-        .catch((err: Error) => {
-          if (active) setError(err.message)
+        .catch((err: unknown) => {
+          if (active) setError(err instanceof Error ? err.message : String(err))
         })
       return () => {
         active = false

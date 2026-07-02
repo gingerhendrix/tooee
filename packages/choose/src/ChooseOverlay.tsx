@@ -30,6 +30,7 @@ export function ChooseOverlay({
     Array.isArray(itemsOrLoader) ? itemsOrLoader : [],
   )
   const [loading, setLoading] = useState(!Array.isArray(itemsOrLoader))
+  const [error, setError] = useState<string | null>(null)
   const [filterQuery, setFilterQuery] = useState("")
   const [activeIndex, setActiveIndex] = useState(0)
   const scrollRef = useRef<ScrollBoxRenderable>(null)
@@ -37,10 +38,25 @@ export function ChooseOverlay({
   // Load items if async loader provided
   useEffect(() => {
     if (typeof itemsOrLoader === "function") {
-      itemsOrLoader().then((loaded) => {
-        setItems(loaded)
-        setLoading(false)
-      })
+      let active = true
+      setLoading(true)
+      setError(null)
+      itemsOrLoader()
+        .then((loaded) => {
+          // Ignore stale results after itemsOrLoader changed
+          if (!active) return
+          setItems(loaded)
+          setLoading(false)
+        })
+        .catch((err: unknown) => {
+          if (!active) return
+          setItems([])
+          setError(err instanceof Error ? err.message : String(err))
+          setLoading(false)
+        })
+      return () => {
+        active = false
+      }
     }
   }, [itemsOrLoader])
 
@@ -215,7 +231,13 @@ export function ChooseOverlay({
           </box>
         )}
 
-        {!loading && filteredItems.length === 0 && emptyMessage && (
+        {!loading && error && (
+          <box height={1} style={{ paddingLeft: 2 }}>
+            <text content={`Error: ${error}`} fg={theme.error} />
+          </box>
+        )}
+
+        {!loading && !error && filteredItems.length === 0 && emptyMessage && (
           <box height={1} style={{ paddingLeft: 2 }}>
             <text content={emptyMessage} fg={theme.textMuted} />
           </box>

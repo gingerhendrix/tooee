@@ -2,8 +2,9 @@ import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe } from "bun:test"
 import { TooeeProvider } from "@tooee/shell"
 import { useOverlay, useCurrentOverlay, useHasOverlay } from "@tooee/overlays"
+import type { OverlayCloseReason } from "@tooee/overlays"
 import { AppLayout } from "@tooee/layout"
-import { useCommand } from "@tooee/commands"
+import { useCommand, useMode } from "@tooee/commands"
 import { press, pressEscape, type TestSession } from "./support/test-helpers.ts"
 
 function OverlayHarness() {
@@ -229,5 +230,97 @@ describe("overlay system", () => {
     await press(testSetup, "s")
     const frameAfter = testSetup.captureCharFrame()
     expect(frameAfter).toContain("OVERLAY_CONTENT")
+  })
+})
+
+describe("overlay lifecycle correctness (R-04)", () => {
+  test("replacing a same-id overlay fires onClose with 'replaced'", async () => {
+    const reasons: OverlayCloseReason[] = []
+
+    function ReplaceHarness() {
+      const overlay = useOverlay()
+      useCommand({
+        id: "test.open",
+        title: "Open",
+        hotkey: "a",
+        modes: ["cursor"],
+        handler: () => {
+          overlay.open("dup", () => <text content="dup-overlay" />, undefined, {
+            mode: null,
+            onClose: (reason) => reasons.push(reason),
+          })
+        },
+      })
+      return <text content="replace-harness" />
+    }
+
+    testSetup = await setup(<ReplaceHarness />)
+    await press(testSetup, "a")
+    expect(reasons).toEqual([])
+    await press(testSetup, "a") // same id again: first entry is replaced
+    expect(reasons).toEqual(["replaced"])
+  })
+
+  test("closing a buried legacy overlay does not clobber the mode set by the one above", async () => {
+    function BuriedHarness() {
+      const overlay = useOverlay()
+      const mode = useMode()
+      useCommand({
+        id: "test.open-under",
+        title: "Open under",
+        hotkey: "u",
+        modes: ["cursor", "insert", "select"],
+        handler: () => {
+          overlay.open("under", () => <text content="under-overlay" />, undefined, {
+            mode: "insert",
+          })
+        },
+      })
+      useCommand({
+        id: "test.open-over",
+        title: "Open over",
+        hotkey: "v",
+        modes: ["cursor", "insert", "select"],
+        handler: () => {
+          overlay.open("over", () => <text content="over-overlay" />, undefined, {
+            mode: "select",
+          })
+        },
+      })
+      useCommand({
+        id: "test.close-under",
+        title: "Close under",
+        hotkey: "w",
+        modes: ["cursor", "insert", "select"],
+        handler: () => {
+          overlay.hide("under")
+        },
+      })
+      useCommand({
+        id: "test.close-over",
+        title: "Close over",
+        hotkey: "x",
+        modes: ["cursor", "insert", "select"],
+        handler: () => {
+          overlay.hide("over")
+        },
+      })
+      return <text content={`hostmode:${mode}`} />
+    }
+
+    testSetup = await setup(<BuriedHarness />)
+    expect(testSetup.captureCharFrame()).toContain("hostmode:cursor")
+
+    await press(testSetup, "u") // legacy overlay "under" sets insert
+    expect(testSetup.captureCharFrame()).toContain("hostmode:insert")
+
+    await press(testSetup, "v") // legacy overlay "over" sets select
+    expect(testSetup.captureCharFrame()).toContain("hostmode:select")
+
+    await press(testSetup, "w") // close buried "under": must not restore its prevMode
+    expect(testSetup.captureCharFrame()).toContain("hostmode:select")
+
+    await press(testSetup, "x") // close top "over": restores its prevMode
+    expect(testSetup.captureCharFrame()).toContain("hostmode:insert")
   })
 })

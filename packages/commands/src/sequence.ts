@@ -70,6 +70,7 @@ export class SequenceTracker {
 
   private matchesBuffer(hotkey: ParsedHotkey): boolean {
     const { steps } = hotkey
+    if (steps.length === 0) return false
     if (this.buffer.length < steps.length) return false
 
     const start = this.buffer.length - steps.length

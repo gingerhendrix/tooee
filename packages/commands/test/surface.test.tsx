@@ -1,6 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe } from "bun:test"
 import { act, useState, type ReactNode } from "react"
+import { useKeyboard } from "@opentui/react"
 import {
   CommandProvider,
   CommandSurfaceProvider,
@@ -210,6 +211,74 @@ describe("command surface arbitration", () => {
     expect(testSetup.captureCharFrame()).toContain("active:root")
     await press(testSetup, "q") // root quit works again
     expect(testSetup.captureCharFrame()).toContain("rootQuit:1")
+  })
+
+  test("raw useKeyboard consumers bypass surface arbitration and must guard themselves", async () => {
+    // Raw useKeyboard handlers subscribe before the command dispatcher (child
+    // effects run first), so a modal surface cannot suspend them and
+    // preventDefault cannot protect them. App-level raw handlers MUST stand
+    // down while a modal surface is active (see useHasOverlay in @tooee/overlays
+    // or useActiveCommandSurface here). This test documents the hazard: the
+    // unguarded handler still fires while a modal surface owns input; the
+    // guarded handler does not.
+    function RawKeyboardHarness() {
+      const [showSurface, setShowSurface] = useState(false)
+      const [unguarded, setUnguarded] = useState(0)
+      const [guarded, setGuarded] = useState(0)
+      const [surfaceAction, setSurfaceAction] = useState(0)
+      const active = useActiveCommandSurface()
+
+      useCommand({ id: "root.open", title: "Open", hotkey: "o", handler: () => setShowSurface(true) })
+
+      useKeyboard((key) => {
+        if (key.name === "z") setUnguarded((n) => n + 1)
+      })
+      useKeyboard((key) => {
+        if (active) return
+        if (key.name === "z") setGuarded((n) => n + 1)
+      })
+
+      return (
+        <box flexDirection="column">
+          <text content={`unguarded:${unguarded}`} />
+          <text content={`guarded:${guarded}`} />
+          <text content={`surfaceAction:${surfaceAction}`} />
+          {showSurface && (
+            <CommandSurfaceProvider id="modal" role="modal" initialMode="cursor">
+              <ZCommandSurface onAction={() => setSurfaceAction((n) => n + 1)} />
+            </CommandSurfaceProvider>
+          )}
+        </box>
+      )
+    }
+
+    function ZCommandSurface({ onAction }: { onAction: () => void }) {
+      useCommand({ id: "modal.z", title: "Z action", hotkey: "z", handler: onAction })
+      return <text content="modal-surface" />
+    }
+
+    testSetup = await testRender(
+      <CommandProvider>
+        <RawKeyboardHarness />
+      </CommandProvider>,
+      { width: 60, height: 24, kittyKeyboard: true },
+    )
+    await testSetup.renderOnce()
+
+    // No surface active: both raw handlers fire.
+    await press(testSetup, "z")
+    let frame = testSetup.captureCharFrame()
+    expect(frame).toContain("unguarded:1")
+    expect(frame).toContain("guarded:1")
+
+    // Open the modal surface; command dispatch is arbitrated to it, but the
+    // unguarded raw handler still double-handles the key.
+    await press(testSetup, "o")
+    await press(testSetup, "z")
+    frame = testSetup.captureCharFrame()
+    expect(frame).toContain("surfaceAction:1") // surface handled it
+    expect(frame).toContain("unguarded:2") // hazard: raw handler fired too
+    expect(frame).toContain("guarded:1") // guarded handler stood down
   })
 
   test("a passive surface never becomes the keyboard owner", async () => {

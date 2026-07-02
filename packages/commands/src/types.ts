@@ -37,6 +37,8 @@ export interface ParsedStep {
   meta: boolean
   shift: boolean
   option: boolean
+  /** Super/Windows/Cmd-as-super modifier. Optional for back-compat. */
+  super?: boolean
 }
 
 export interface CommandRegistry {

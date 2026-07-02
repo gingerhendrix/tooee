@@ -93,6 +93,7 @@
         "@tooee/commands": "workspace:*",
         "@tooee/fuzzy": "workspace:*",
         "@tooee/layout": "workspace:*",
+        "@tooee/overlays": "workspace:*",
         "@tooee/shell": "workspace:*",
         "@tooee/themes": "workspace:*",
       },

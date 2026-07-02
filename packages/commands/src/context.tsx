@@ -66,7 +66,12 @@ function createRegistry(getCtx: () => CommandContext): CommandRegistry {
     register(command: Command) {
       commands.set(command.id, command)
       return () => {
-        commands.delete(command.id)
+        // Only delete our own registration: with duplicate ids the map holds
+        // the last writer, and the first registrant's unmount must not delete
+        // the second's live command.
+        if (commands.get(command.id) === command) {
+          commands.delete(command.id)
+        }
       }
     },
     invoke(id: string) {
@@ -199,6 +204,14 @@ function CommandDispatcher({
       onReset: () => clearSequenceStateRef.current(),
     }),
   )
+
+  // Dispose the tracker on dispatcher unmount: reset() clears the pending
+  // timeout so it cannot fire (and touch state) after the tree is gone.
+  useEffect(() => {
+    const tracker = trackerRef.current
+    return () => tracker.reset()
+  }, [])
+
   const parseCacheRef = useRef(new Map<string, ParsedHotkey>())
 
   const getParsedHotkey = useCallback(
@@ -240,6 +253,10 @@ function CommandDispatcher({
       if (!hotkey) continue
 
       const parsed = getParsedHotkey(hotkey)
+
+      // Unmatchable hotkeys (e.g. <leader> with no configured leader) register
+      // nothing rather than matching everything.
+      if (parsed.steps.length === 0) continue
 
       if (parsed.steps.length === 1) {
         singleStepCandidates.push({ command, parsed })
@@ -499,7 +516,10 @@ export function useCommandGroup(group: CommandGroup): void {
     }
     groups.set(registered.prefixKey, registered)
     return () => {
-      groups.delete(registered.prefixKey)
+      // Only delete our own registration (see createRegistry unregister).
+      if (groups.get(registered.prefixKey) === registered) {
+        groups.delete(registered.prefixKey)
+      }
     }
   }, [
     group.id,
@@ -523,6 +543,7 @@ function formatStepKey(step: ParsedStep): string {
   if (step.meta) modifiers.push("meta")
   if (step.option) modifiers.push("option")
   if (step.shift) modifiers.push("shift")
+  if (step.super) modifiers.push("super")
   modifiers.push(step.key)
   return modifiers.join("+")
 }

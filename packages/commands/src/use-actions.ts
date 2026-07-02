@@ -26,7 +26,9 @@ export function useActions(actions: ActionDefinition[] | undefined): void {
       actions
         ?.map(
           (a) =>
-            `${a.id}:${a.title}:${a.hotkey ?? ""}:${a.category ?? ""}:${a.group ?? ""}:${a.icon ?? ""}:${a.hidden ?? false}`,
+            // modes and when-presence are frozen into the registration, so
+            // they must participate in the re-registration key.
+            `${a.id}:${a.title}:${a.hotkey ?? ""}:${a.category ?? ""}:${a.group ?? ""}:${a.icon ?? ""}:${a.hidden ?? false}:${a.modes?.join("|") ?? ""}:${a.when ? 1 : 0}`,
         )
         .join(",") ?? "",
     [actions],

@@ -10,5 +10,6 @@ export function matchStep(event: KeyEvent, step: ParsedStep): boolean {
   if (event.meta !== step.meta) return false
   if (event.shift !== step.shift) return false
   if (event.option !== step.option) return false
+  if ((event.super ?? false) !== (step.super ?? false)) return false
   return true
 }

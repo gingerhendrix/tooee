@@ -15,6 +15,14 @@ function normalizeKey(key: string): string {
   return KEY_ALIASES[lower] ?? lower
 }
 
+const warned = new Set<string>()
+
+function warnOnce(message: string): void {
+  if (warned.has(message)) return
+  warned.add(message)
+  console.warn(message)
+}
+
 function parseStep(step: string): ParsedStep {
   const parts = step.toLowerCase().split("+")
   let key = ""
@@ -22,6 +30,7 @@ function parseStep(step: string): ParsedStep {
   let meta = false
   let shift = false
   let option = false
+  let superKey = false
 
   for (const part of parts) {
     const trimmed = part.trim()
@@ -34,13 +43,13 @@ function parseStep(step: string): ParsedStep {
     } else if (trimmed === "option") {
       option = true
     } else if (trimmed === "super") {
-      // super modifier — not tracked in ParsedStep currently
+      superKey = true
     } else {
       key = normalizeKey(trimmed)
     }
   }
 
-  return { key, ctrl, meta, shift, option }
+  return { key, ctrl, meta, shift, option, super: superKey }
 }
 
 /**
@@ -57,9 +66,13 @@ export function parseHotkey(hotkey: string, leaderKey?: string): ParsedHotkey {
   // Handle leader prefix
   const leaderMatch = trimmed.match(/^<leader>(.+)$/)
   if (leaderMatch) {
-    const leaderStep = leaderKey
-      ? parseStep(leaderKey)
-      : { key: "x", ctrl: true, meta: false, shift: false, option: false }
+    if (!leaderKey) {
+      // No leader configured: the hotkey must not spring to life on some
+      // invented default. Zero steps = unmatchable; the dispatcher skips it.
+      warnOnce(`[tooee/commands] Hotkey "${trimmed}" uses <leader> but no leader key is configured; the hotkey is disabled.`)
+      return { steps: [] }
+    }
+    const leaderStep = parseStep(leaderKey)
     const followStep = parseStep(leaderMatch[1]!)
     return { steps: [leaderStep, followStep] }
   }

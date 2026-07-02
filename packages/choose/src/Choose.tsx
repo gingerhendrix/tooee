@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { useKeyboard } from "@opentui/react"
 import { AppLayout } from "@tooee/layout"
+import { useHasOverlay } from "@tooee/overlays"
 import { ThemePicker, useTheme } from "@tooee/themes"
 import { useThemeCommands, useQuitCommand } from "@tooee/shell"
 import {
@@ -33,6 +34,7 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
   const [activeIndex, setActiveIndex] = useState(0)
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set())
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const scrollRef = useRef<ScrollBoxRenderable>(null)
   const { invoke } = useCommandContext()
 
@@ -41,14 +43,29 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
   useEffect(() => {
     const result = contentProvider.load()
     if (result instanceof Promise) {
-      result.then((loaded) => {
-        setItems(loaded)
-        setLoading(false)
-      })
-    } else {
-      setItems(result)
-      setLoading(false)
+      let active = true
+      setLoading(true)
+      setError(null)
+      result
+        .then((loaded) => {
+          // Ignore stale results after contentProvider changed
+          if (!active) return
+          setItems(loaded)
+          setLoading(false)
+        })
+        .catch((err: unknown) => {
+          if (!active) return
+          setItems([])
+          setError(err instanceof Error ? err.message : String(err))
+          setLoading(false)
+        })
+      return () => {
+        active = false
+      }
     }
+    setItems(result)
+    setError(null)
+    setLoading(false)
   }, [contentProvider])
 
   // Derived state: filtered items computed from items + filterQuery (no extra render cycle)
@@ -65,6 +82,7 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
   useQuitCommand({ onQuit: () => onCancel?.() })
   const mode = useMode()
   const setMode = useSetMode()
+  const hasOverlay = useHasOverlay()
 
   // Compute selected items for context
   const getSelectedItems = useCallback((): ChooseItem[] => {
@@ -187,6 +205,11 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
   ])
 
   useKeyboard((key) => {
+    // Raw useKeyboard handlers subscribe before the command dispatcher, so
+    // preventDefault/surface arbitration cannot protect them. While any
+    // overlay (e.g. the theme picker) is open, its modal command surface owns
+    // input and this handler must stand down.
+    if (hasOverlay) return
     if (key.name === "escape") {
       if (mode === "insert") {
         // Switch to cursor mode (allows theme switching, quit, etc.)
@@ -235,6 +258,14 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
     return (
       <box>
         <text content="Loading..." fg={theme.textMuted} />
+      </box>
+    )
+  }
+
+  if (error) {
+    return (
+      <box>
+        <text content={`Error: ${error}`} fg={theme.error} />
       </box>
     )
   }

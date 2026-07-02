@@ -10,6 +10,7 @@
     { "path": "../fuzzy" },
     { "path": "../themes" },
     { "path": "../layout" },
+    { "path": "../overlays" },
     { "path": "../commands" },
     { "path": "../shell" }
   ]

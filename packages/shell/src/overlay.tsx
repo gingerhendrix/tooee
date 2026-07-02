@@ -61,9 +61,14 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
       })
 
       // Owned command surfaces keep their mode local; the host mode was never
-      // mutated on open, so there is nothing to restore.
+      // mutated on open, so there is nothing to restore. For legacy entries,
+      // only the topmost non-ownCommands overlay owns the host mode: closing a
+      // buried legacy overlay must not clobber the mode set by the one above it.
       if (!entry.options.ownCommands && entry.options.restoreMode !== false) {
-        setMode(entry.prevMode as any)
+        const topLegacy = current.findLast((e) => !e.options.ownCommands)
+        if (topLegacy === entry) {
+          setMode(entry.prevMode as any)
+        }
       }
     },
     [setMode],
@@ -84,6 +89,12 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
         : options.mode === undefined
           ? "insert"
           : options.mode
+
+      // Replacing an existing same-id entry closes it: let its consumers
+      // release open-state (e.g. a picker's isOpen) via the contract's
+      // "replaced" reason instead of silently filtering the entry away.
+      const replaced = stackRef.current.find((e) => e.id === id)
+      replaced?.options.onClose?.("replaced")
 
       setStack((prev) => {
         // Remove existing entry with same id if present
