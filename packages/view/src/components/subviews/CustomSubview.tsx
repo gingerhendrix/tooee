@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import { CodeView, type RowDocumentRenderable } from "@tooee/renderers"
 import { useTheme } from "@tooee/themes"
+import { useHasModalOverlay } from "@tooee/overlays"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
 import { useCopy, useNavigation } from "@tooee/shell"
 import { findMatchingLines, useSearch } from "@tooee/search"
@@ -29,6 +30,7 @@ export function CustomSubview({
 }: CustomSubviewProps) {
   const { theme } = useTheme()
   const docRef = useRef<RowDocumentRenderable>(null)
+  const hasModalOverlay = useHasModalOverlay()
   const textContent = useMemo(() => getTextContent(content), [content])
   const lines = useMemo(() => textContent.split("\n"), [textContent])
   const lineCount = lines.length
@@ -92,6 +94,20 @@ export function CustomSubview({
     ]
   }, [content.format, lineCount, nav.selection, nav.toggledIndices])
 
+  // Left-click selection for custom renderers. The framework does not own the
+  // renderer's markup, so it cannot map clicks to rows itself; instead it hands
+  // the renderer this callback (the mouse equivalent of the keyboard cursor
+  // move) to call from its own handlers. Guarded like the built-in views so a
+  // click never mutates the covered app while a modal overlay is up.
+  const setCursor = nav.setCursor
+  const handleSelectRow = useCallback(
+    (index: number) => {
+      if (hasModalOverlay) return
+      setCursor(index)
+    },
+    [hasModalOverlay, setCursor],
+  )
+
   const customRenderer = renderers?.[content.format]
   if (customRenderer) {
     const cursorLine = nav.cursor ?? undefined
@@ -113,6 +129,7 @@ export function CustomSubview({
           selectionStart,
           selectionEnd,
           marks: markState,
+          onSelectRow: handleSelectRow,
         })}
       </SubviewLayout>
     )

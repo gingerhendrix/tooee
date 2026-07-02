@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import { CodeView, type RowDocumentRenderable } from "@tooee/renderers"
 import { useTheme } from "@tooee/themes"
+import { useHasModalOverlay } from "@tooee/overlays"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
 import { useCopy, useNavigation } from "@tooee/shell"
 import { findMatchingLines, useSearch } from "@tooee/search"
@@ -27,6 +28,7 @@ export function CodeSubview({
 }: CodeSubviewProps) {
   const { theme } = useTheme()
   const docRef = useRef<RowDocumentRenderable>(null)
+  const hasModalOverlay = useHasModalOverlay()
   const textContent = content.format === "code" ? content.code : content.text
   const lines = useMemo(() => textContent.split("\n"), [textContent])
   const lineCount = lines.length
@@ -76,6 +78,18 @@ export function CodeSubview({
 
   const text = content.format === "code" ? content.code : content.text
 
+  // Left-click selects the clicked line. Stands down while a modal overlay is up
+  // (theme picker, command palette, Ask/Choose): centered overlays leave
+  // clickable margins and mouse events bypass command-surface arbitration.
+  const setCursor = nav.setCursor
+  const handleRowClick = useCallback(
+    (index: number) => {
+      if (hasModalOverlay) return
+      setCursor(index)
+    },
+    [hasModalOverlay, setCursor],
+  )
+
   const extraStatusItems = useMemo(() => {
     const selectionCount = nav.selection != null ? nav.selection.end - nav.selection.start + 1 : 0
     const toggledCount = nav.toggledIndices.size
@@ -106,6 +120,7 @@ export function CodeSubview({
         showLineNumbers={showLineNumbers}
         marks={markState}
         docRef={docRef}
+        onRowClick={handleRowClick}
       />
     </SubviewLayout>
   )

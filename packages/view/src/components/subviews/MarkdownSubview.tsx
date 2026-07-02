@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import { marked } from "marked"
 import type { TextBufferRenderable } from "@opentui/core"
 import {
@@ -9,6 +9,7 @@ import {
 } from "@tooee/renderers"
 import { useTheme } from "@tooee/themes"
 import { useCommand } from "@tooee/commands"
+import { useHasModalOverlay } from "@tooee/overlays"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
 import { useCopy, useNavigation } from "@tooee/shell"
 import { useSearch } from "@tooee/search"
@@ -40,6 +41,7 @@ export function MarkdownSubview({
 }: MarkdownSubviewProps) {
   const { theme } = useTheme()
   const docRef = useRef<RowDocumentRenderable>(null)
+  const hasModalOverlay = useHasModalOverlay()
   const textContent = content.markdown
   const lineCount = useMemo(() => textContent.split("\n").length, [textContent])
   const blocks = useMemo(() => flattenTokens(marked.lexer(content.markdown)), [content.markdown])
@@ -108,6 +110,18 @@ export function MarkdownSubview({
     },
   })
 
+  // Left-click selects the clicked block. Stands down while a modal overlay is
+  // up (theme picker, command palette, Ask/Choose), matching the keyboard
+  // stand-down and the Table/Code subviews.
+  const setCursor = nav.setCursor
+  const handleRowClick = useCallback(
+    (index: number) => {
+      if (hasModalOverlay) return
+      setCursor(index)
+    },
+    [hasModalOverlay, setCursor],
+  )
+
   const { themeName, showLineNumbers } = useViewCommands({ content, textContent, actions })
 
   const markState = useMarkState({
@@ -160,6 +174,7 @@ export function MarkdownSubview({
         docRef={docRef}
         hScrollableBlocksRef={hScrollableBlocksRef}
         codeBlockRenderers={codeBlockRenderers}
+        onRowClick={handleRowClick}
       />
     </SubviewLayout>
   )

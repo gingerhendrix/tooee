@@ -57,6 +57,16 @@ export interface ContentRendererProps {
   selectionEnd?: number
   /** Combined mark state (nav + provider + user marks) */
   marks?: MarkState
+  /**
+   * Select a row by index — the mouse equivalent of the keyboard cursor move.
+   * A custom renderer that has a notion of rows should call this from its own
+   * `onMouseDown`/`onRowClick` handlers to make left-click select a row, the
+   * same way the built-in code/markdown/table views do. Selection is a no-op
+   * while a modal overlay is open (the host guards it), so renderers can wire
+   * it unconditionally. Renderers that own a `RowDocumentRenderable` can map a
+   * click's screen-Y to a row via its `getRowAtScreenY(event.y)` helper.
+   */
+  onSelectRow?: (index: number) => void
 }
 
 export type ContentRenderer = (props: ContentRendererProps) => ReactNode
