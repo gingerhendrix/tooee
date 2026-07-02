@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef } from "react"
 import { marked } from "marked"
+import type { TextBufferRenderable } from "@opentui/core"
 import { MarkdownView, flattenTokens, type RowDocumentRenderable } from "@tooee/renderers"
 import { useTheme } from "@tooee/themes"
+import { useCommand } from "@tooee/commands"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
 import { useCopy, useNavigation } from "@tooee/shell"
 import { useSearch } from "@tooee/search"
@@ -14,6 +16,9 @@ import type { SubviewProps } from "./types.js"
 interface MarkdownSubviewProps extends SubviewProps {
   content: MarkdownContent
 }
+
+/** Columns moved per h/l press when scrolling a wide block horizontally. */
+const BLOCK_HSCROLL_STEP = 4
 
 export function MarkdownSubview({
   content,
@@ -66,6 +71,36 @@ export function MarkdownSubview({
     }
   }, [nav.cursor])
 
+  // Horizontal panning for wide blocks (mermaid diagrams and code blocks).
+  // Blocks that can overflow horizontally register their text-buffer
+  // renderable by block index; h/l in cursor mode pans the block under the
+  // nav cursor via `scrollX` (the setter clamps to the content width).
+  const hScrollableBlocksRef = useRef<Map<number, TextBufferRenderable>>(new Map())
+  const cursorScrollable = () =>
+    nav.cursor !== null ? hScrollableBlocksRef.current.get(nav.cursor) : undefined
+  useCommand({
+    id: "block-scroll-left",
+    title: "Scroll block left",
+    hotkey: "h",
+    modes: ["cursor"],
+    when: () => cursorScrollable() != null,
+    handler: () => {
+      const target = cursorScrollable()
+      if (target) target.scrollX -= BLOCK_HSCROLL_STEP
+    },
+  })
+  useCommand({
+    id: "block-scroll-right",
+    title: "Scroll block right",
+    hotkey: "l",
+    modes: ["cursor"],
+    when: () => cursorScrollable() != null,
+    handler: () => {
+      const target = cursorScrollable()
+      if (target) target.scrollX += BLOCK_HSCROLL_STEP
+    },
+  })
+
   const { themeName, showLineNumbers } = useViewCommands({ content, textContent, actions })
 
   const markState = useMarkState({
@@ -116,6 +151,7 @@ export function MarkdownSubview({
         showLineNumbers={showLineNumbers}
         marks={markState}
         docRef={docRef}
+        hScrollableBlocksRef={hScrollableBlocksRef}
       />
     </SubviewLayout>
   )

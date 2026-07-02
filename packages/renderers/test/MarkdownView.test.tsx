@@ -1,5 +1,6 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, describe, afterEach } from "bun:test"
+import type { TextBufferRenderable } from "@opentui/core"
 import { ThemeSwitcherProvider } from "@tooee/themes"
 import { MarkPriorities, MarkSetBuilder, createMarkState } from "@tooee/marks"
 import { MarkdownView } from "../src/MarkdownView.js"
@@ -700,6 +701,409 @@ describe("horizontal rule inside list item", () => {
     expect(frame).toContain("Before")
     expect(frame).toContain("After")
     expect(frame).toContain("─") // HR character
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Wide mermaid diagrams: no wrapping, horizontal scrolling
+// ---------------------------------------------------------------------------
+
+describe("wide mermaid diagram horizontal scrolling", () => {
+  // Renders ~128 columns wide (six chained nodes), far wider than the
+  // 60-column test terminal. Derived from the wide fixtures used in the
+  // mermaid PoC evaluation.
+  const wideMermaid = [
+    "```mermaid",
+    "flowchart LR",
+    "  AlphaStation[Alpha station] --> BetaStation[Beta station] --> GammaStation[Gamma station] --> DeltaStation[Delta station] --> EpsilonStation[Epsilon station] --> ZetaTerminal[Zeta terminal]",
+    "```",
+  ].join("\n")
+
+  test("wide diagram clips to the right instead of wrapping", async () => {
+    const md = `${wideMermaid}\n\nAfter the diagram.`
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 60, height: 24 },
+    )
+    await testSetup.renderOnce()
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+
+    // Left edge of the diagram is visible
+    expect(frame).toContain("Alpha station")
+    // Content past the viewport is clipped, not wrapped onto new lines
+    expect(frame).not.toContain("Zeta terminal")
+    // The diagram is a single-row band: every line containing a node label
+    // is intact (labels never wrap mid-word onto their own lines)
+    expect(frame).not.toContain("ZetaTerminal")
+    // The block keeps its height, so following content stays visible
+    expect(frame).toContain("After the diagram.")
+  })
+
+  test("horizontal scroll moves diagram content", async () => {
+    const registry: { current: Map<number, TextBufferRenderable> } = { current: new Map() }
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={wideMermaid} hScrollableBlocksRef={registry} />
+      </ThemeSwitcherProvider>,
+      { width: 60, height: 24 },
+    )
+    await testSetup.renderOnce()
+    await testSetup.renderOnce()
+
+    // The mermaid block (block index 0) registered its text renderable
+    const diagram = registry.current.get(0)
+    expect(diagram).toBeDefined()
+    if (!diagram) return
+
+    const before = testSetup.captureCharFrame()
+    expect(before).toContain("Alpha station")
+    expect(before).not.toContain("Zeta terminal")
+
+    // Scroll all the way right (the scrollX setter clamps to content width)
+    diagram.scrollX += 1000
+    await testSetup.renderOnce()
+
+    const after = testSetup.captureCharFrame()
+    expect(after).toContain("Zeta terminal")
+    expect(after).not.toContain("Alpha station")
+
+    // And back to the start
+    diagram.scrollX -= 1000
+    await testSetup.renderOnce()
+
+    const restored = testSetup.captureCharFrame()
+    expect(restored).toContain("Alpha station")
+    expect(restored).not.toContain("Zeta terminal")
+  })
+
+  test("narrow diagram fits without scrolling and renders unchanged", async () => {
+    const registry: { current: Map<number, TextBufferRenderable> } = { current: new Map() }
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView
+          content={"```mermaid\ngraph TD\n  A[Agent] --> B[Stream]\n```"}
+          hScrollableBlocksRef={registry}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 30 },
+    )
+    await testSetup.renderOnce()
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+
+    expect(frame).toContain("Agent")
+    expect(frame).toContain("Stream")
+    expect(frame).toContain("▼")
+
+    // Scrolling a fitting diagram is a no-op (scrollX clamps to 0)
+    const diagram = registry.current.get(0)
+    expect(diagram).toBeDefined()
+    if (diagram) diagram.scrollX += 1000
+    await testSetup.renderOnce()
+    expect(testSetup.captureCharFrame()).toBe(frame)
+  })
+
+  test("narrow diagram snapshot", async () => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={"```mermaid\ngraph TD\n  A[Agent] --> B[Stream]\n```"} />
+      </ThemeSwitcherProvider>,
+      { width: 60, height: 20 },
+    )
+    await testSetup.renderOnce()
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toMatchSnapshot()
+  })
+
+  test("vertical wheel over a wide diagram still scrolls the document", async () => {
+    const paragraphs = Array.from({ length: 30 }, (_, i) => `Paragraph ${i + 1} text.`).join("\n\n")
+    const md = `${wideMermaid}\n\n${paragraphs}`
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 60, height: 16 },
+    )
+    await testSetup.renderOnce()
+    await testSetup.renderOnce()
+
+    const before = testSetup.captureCharFrame()
+    expect(before).toContain("Alpha station")
+
+    // Wheel down over the diagram body
+    const { mockMouse } = testSetup
+    for (let i = 0; i < 10; i++) {
+      await mockMouse.scroll(30, 3, "down")
+    }
+    await testSetup.renderOnce()
+
+    const after = testSetup.captureCharFrame()
+    // The document scrolled: the diagram moved out of view and later
+    // paragraphs became visible
+    expect(after).not.toBe(before)
+    expect(after).not.toContain("Alpha station")
+  })
+
+  test("shift+wheel over a wide diagram pans it horizontally", async () => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={wideMermaid} />
+      </ThemeSwitcherProvider>,
+      { width: 60, height: 24 },
+    )
+    await testSetup.renderOnce()
+    await testSetup.renderOnce()
+
+    const before = testSetup.captureCharFrame()
+    expect(before).toContain("Alpha station")
+
+    // Shift+wheel-down over the diagram body maps to pan-right
+    const { mockMouse } = testSetup
+    for (let i = 0; i < 30; i++) {
+      await mockMouse.scroll(30, 3, "down", { modifiers: { shift: true } })
+    }
+    await testSetup.renderOnce()
+
+    const panned = testSetup.captureCharFrame()
+    expect(panned).not.toContain("Alpha station")
+
+    // Shift+wheel-up pans back left
+    for (let i = 0; i < 30; i++) {
+      await mockMouse.scroll(30, 3, "up", { modifiers: { shift: true } })
+    }
+    await testSetup.renderOnce()
+    expect(testSetup.captureCharFrame()).toContain("Alpha station")
+  })
+
+  test("fg colors stay aligned with glyphs at partial scroll offsets", async () => {
+    // Regression: translating a natural-width text inside a nested scrollbox
+    // exercised the scissor-clip path, which misplaced style runs at some
+    // offsets (arrow/line colors bleeding onto label letters). The viewport
+    // path (text scrollX) must keep every glyph's color stable while panning.
+    const registry: { current: Map<number, TextBufferRenderable> } = { current: new Map() }
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={wideMermaid} hScrollableBlocksRef={registry} />
+      </ThemeSwitcherProvider>,
+      { width: 60, height: 24 },
+    )
+    await testSetup.renderOnce()
+    await testSetup.renderOnce()
+
+    const diagram = registry.current.get(0)
+    expect(diagram).toBeDefined()
+    if (!diagram) return
+
+    // Baseline at scroll 0: record the arrow glyph color and the label
+    // letter color. Both glyph classes are color-unambiguous in the diagram.
+    const spanColors = (glyphMatch: RegExp): Set<string> => {
+      const colors = new Set<string>()
+      for (const line of testSetup.captureSpans().lines) {
+        for (const span of line.spans) {
+          if (glyphMatch.test(span.text)) colors.add(span.fg.toString())
+        }
+      }
+      return colors
+    }
+
+    const arrowBaseline = spanColors(/►/)
+    const letterBaseline = spanColors(/[a-z]/)
+    expect(arrowBaseline.size).toBe(1)
+    expect(letterBaseline.size).toBe(1)
+    expect(arrowBaseline).not.toEqual(letterBaseline)
+
+    // At every pan offset the arrow and letter colors must stay unchanged.
+    const maxScrollX = diagram.maxScrollX
+    expect(maxScrollX).toBeGreaterThan(0)
+    for (let offset = 1; offset <= maxScrollX; offset += 3) {
+      diagram.scrollX = offset
+      await testSetup.renderOnce()
+      expect({ offset, colors: spanColors(/►/) }).toEqual({ offset, colors: arrowBaseline })
+      expect({ offset, colors: spanColors(/[a-z]/) }).toEqual({ offset, colors: letterBaseline })
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Wide code blocks (incl. ASCII diagrams): no wrapping, horizontal scrolling
+// ---------------------------------------------------------------------------
+
+describe("wide code block horizontal scrolling", () => {
+  // A ~130-column ASCII diagram in a plain fenced code block, far wider than
+  // the 60-column test terminal. Distinct markers at both ends.
+  const wideAsciiRow =
+    "[Alpha station] ──► [Beta station] ──► [Gamma station] ──► [Delta station] ──► [Epsilon station] ──► [Zeta terminal]"
+  const wideCode = ["```", "┌──────┐", wideAsciiRow, "└──────┘", "```"].join("\n")
+
+  test("wide code block clips to the right instead of wrapping", async () => {
+    const md = `${wideCode}\n\nAfter the code.`
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 60, height: 24 },
+    )
+    await testSetup.renderOnce()
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+
+    // Left edge of the code block is visible
+    expect(frame).toContain("Alpha station")
+    // Content past the viewport is clipped, not wrapped onto new lines
+    expect(frame).not.toContain("Zeta terminal")
+    // The block keeps its height, so following content stays visible
+    expect(frame).toContain("After the code.")
+  })
+
+  test("horizontal scroll moves code block content", async () => {
+    const registry: { current: Map<number, TextBufferRenderable> } = { current: new Map() }
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={wideCode} hScrollableBlocksRef={registry} />
+      </ThemeSwitcherProvider>,
+      { width: 60, height: 24 },
+    )
+    await testSetup.renderOnce()
+    await testSetup.renderOnce()
+
+    // The code block (block index 0) registered its renderable
+    const codeBlock = registry.current.get(0)
+    expect(codeBlock).toBeDefined()
+    if (!codeBlock) return
+
+    const before = testSetup.captureCharFrame()
+    expect(before).toContain("Alpha station")
+    expect(before).not.toContain("Zeta terminal")
+
+    // Scroll all the way right (the scrollX setter clamps to content width)
+    codeBlock.scrollX += 1000
+    await testSetup.renderOnce()
+
+    const after = testSetup.captureCharFrame()
+    expect(after).toContain("Zeta terminal")
+    expect(after).not.toContain("Alpha station")
+
+    // And back to the start
+    codeBlock.scrollX -= 1000
+    await testSetup.renderOnce()
+
+    const restored = testSetup.captureCharFrame()
+    expect(restored).toContain("Alpha station")
+    expect(restored).not.toContain("Zeta terminal")
+  })
+
+  test("narrow code block fits without scrolling and renders unchanged", async () => {
+    const registry: { current: Map<number, TextBufferRenderable> } = { current: new Map() }
+    const md = "```\nconst a = 1\nconst b = 2\n```"
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} hScrollableBlocksRef={registry} />
+      </ThemeSwitcherProvider>,
+      { width: 80, height: 24 },
+    )
+    await testSetup.renderOnce()
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+
+    expect(frame).toContain("const a = 1")
+    expect(frame).toContain("const b = 2")
+
+    // Scrolling a fitting code block is a no-op (scrollX clamps to 0)
+    const codeBlock = registry.current.get(0)
+    expect(codeBlock).toBeDefined()
+    if (codeBlock) codeBlock.scrollX += 1000
+    await testSetup.renderOnce()
+    expect(testSetup.captureCharFrame()).toBe(frame)
+  })
+
+  test("shift+wheel over a wide code block pans it horizontally", async () => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={wideCode} />
+      </ThemeSwitcherProvider>,
+      { width: 60, height: 24 },
+    )
+    await testSetup.renderOnce()
+    await testSetup.renderOnce()
+
+    const before = testSetup.captureCharFrame()
+    expect(before).toContain("Alpha station")
+
+    // Shift+wheel-down over the code block body maps to pan-right
+    const { mockMouse } = testSetup
+    for (let i = 0; i < 40; i++) {
+      await mockMouse.scroll(30, 3, "down", { modifiers: { shift: true } })
+    }
+    await testSetup.renderOnce()
+
+    const panned = testSetup.captureCharFrame()
+    expect(panned).not.toContain("Alpha station")
+
+    // Shift+wheel-up pans back left
+    for (let i = 0; i < 40; i++) {
+      await mockMouse.scroll(30, 3, "up", { modifiers: { shift: true } })
+    }
+    await testSetup.renderOnce()
+    expect(testSetup.captureCharFrame()).toContain("Alpha station")
+  })
+
+  test("vertical wheel over a wide code block still scrolls the document", async () => {
+    const paragraphs = Array.from({ length: 30 }, (_, i) => `Paragraph ${i + 1} text.`).join("\n\n")
+    const md = `${wideCode}\n\n${paragraphs}`
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { width: 60, height: 16 },
+    )
+    await testSetup.renderOnce()
+    await testSetup.renderOnce()
+
+    const before = testSetup.captureCharFrame()
+    expect(before).toContain("Alpha station")
+
+    // Wheel down over the code block body
+    const { mockMouse } = testSetup
+    for (let i = 0; i < 10; i++) {
+      await mockMouse.scroll(30, 3, "down")
+    }
+    await testSetup.renderOnce()
+
+    const after = testSetup.captureCharFrame()
+    // The document scrolled: the code block moved out of view and later
+    // paragraphs became visible
+    expect(after).not.toBe(before)
+    expect(after).not.toContain("Alpha station")
+  })
+
+  test("invalid mermaid fallback code block registers for panning", async () => {
+    // An invalid mermaid fence falls back to a plain code block showing the
+    // source; if that source is wide it must pan like any other code block.
+    const wideInvalid = ["```mermaid", `not a diagram ${wideAsciiRow}`, "```"].join("\n")
+    const registry: { current: Map<number, TextBufferRenderable> } = { current: new Map() }
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={wideInvalid} hScrollableBlocksRef={registry} />
+      </ThemeSwitcherProvider>,
+      { width: 60, height: 24 },
+    )
+    await testSetup.renderOnce()
+    await testSetup.renderOnce()
+
+    const block = registry.current.get(0)
+    expect(block).toBeDefined()
+    if (!block) return
+
+    expect(testSetup.captureCharFrame()).toContain("not a diagram")
+    expect(testSetup.captureCharFrame()).not.toContain("Zeta terminal")
+
+    block.scrollX += 1000
+    await testSetup.renderOnce()
+    expect(testSetup.captureCharFrame()).toContain("Zeta terminal")
   })
 })
 

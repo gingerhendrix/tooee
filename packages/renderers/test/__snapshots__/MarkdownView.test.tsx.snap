@@ -153,3 +153,27 @@ exports[`nested list rendering nested list snapshot 1`] = `
                                                             
 "
 `;
+
+exports[`wide mermaid diagram horizontal scrolling narrow diagram snapshot 1`] = `
+"1     ┌───────────────────────────────────────────────────┐ 
+      │┌────────┐                                         │ 
+      ││        │                                         │ 
+      ││ Agent  │                                         │ 
+      ││        │                                         │ 
+      │└────┬───┘                                         │ 
+      │     │                                             │ 
+      │     │                                             │ 
+      │     │                                             │ 
+      │     │                                             │ 
+      │     ▼                                             │ 
+      │┌────────┐                                         │ 
+      ││        │                                         │ 
+      ││ Stream │                                         │ 
+      ││        │                                         │ 
+      │└────────┘                                         │ 
+      └───────────────────────────────────────────────────┘ 
+                                                            
+                                                            
+                                                            
+"
+`;

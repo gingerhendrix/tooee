@@ -1,5 +1,5 @@
 import { marked, type Token, type Tokens } from "marked"
-import { useMemo, type ReactNode, type RefObject } from "react"
+import { useCallback, useMemo, useRef, type ReactNode, type RefObject } from "react"
 import { useTheme, type ResolvedTheme } from "@tooee/themes"
 import {
   bold as boldChunk,
@@ -7,7 +7,14 @@ import {
   underline as underlineChunk,
   parseColor,
 } from "@opentui/core"
-import type { SyntaxStyle, TextTableContent, TextTableCellContent, TextChunk } from "@opentui/core"
+import type {
+  MouseEvent,
+  SyntaxStyle,
+  TextBufferRenderable,
+  TextTableContent,
+  TextTableCellContent,
+  TextChunk,
+} from "@opentui/core"
 import type { MarkState } from "@tooee/marks"
 import { DEFAULT_SIGN_COLUMN_WIDTH, type RowDocumentRenderable } from "./RowDocumentRenderable.js"
 import { useGutterPalette } from "./useGutterPalette.js"
@@ -24,6 +31,14 @@ interface MarkdownViewProps {
   showLineNumbers?: boolean
   marks?: MarkState
   docRef?: RefObject<RowDocumentRenderable | null>
+  /**
+   * Registry of horizontally scrollable blocks, keyed by block index. Blocks
+   * that can overflow horizontally (mermaid diagrams and code blocks)
+   * register their text-buffer renderable here so the owning subview can
+   * drive horizontal panning (`scrollX`) for the block under the nav cursor
+   * (h/l in cursor mode).
+   */
+  hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>
 }
 
 /**
@@ -141,6 +156,7 @@ export function MarkdownView({
   showLineNumbers = true,
   marks,
   docRef,
+  hScrollableBlocksRef,
 }: MarkdownViewProps) {
   const { theme, syntax } = useTheme()
   const palette = useGutterPalette()
@@ -150,9 +166,16 @@ export function MarkdownView({
   const blockElements = useMemo(
     () =>
       blocks.map((block, index) => (
-        <FlatBlockRenderer key={index} block={block} theme={theme} syntax={syntax} />
+        <FlatBlockRenderer
+          key={index}
+          block={block}
+          blockIndex={index}
+          theme={theme}
+          syntax={syntax}
+          hScrollableBlocksRef={hScrollableBlocksRef}
+        />
       )),
-    [blocks, theme, syntax],
+    [blocks, theme, syntax, hScrollableBlocksRef],
   )
 
   return (
@@ -175,12 +198,16 @@ export function MarkdownView({
 
 function FlatBlockRenderer({
   block,
+  blockIndex,
   theme,
   syntax,
+  hScrollableBlocksRef,
 }: {
   block: FlatBlock
+  blockIndex: number
   theme: ResolvedTheme
   syntax: SyntaxStyle
+  hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>
 }): ReactNode {
   const { token, indent, bullet } = block
 
@@ -199,11 +226,27 @@ function FlatBlockRenderer({
       const codeToken = token as Tokens.Code
       if (isMermaidFence(codeToken.lang)) {
         return (
-          <MermaidBlockRenderer token={codeToken} theme={theme} syntax={syntax} indent={indent} />
+          <MermaidBlockRenderer
+            token={codeToken}
+            blockIndex={blockIndex}
+            theme={theme}
+            syntax={syntax}
+            indent={indent}
+            hScrollableBlocksRef={hScrollableBlocksRef}
+          />
         )
       }
 
-      return <CodeBlockRenderer token={codeToken} theme={theme} syntax={syntax} indent={indent} />
+      return (
+        <CodeBlockRenderer
+          token={codeToken}
+          blockIndex={blockIndex}
+          theme={theme}
+          syntax={syntax}
+          indent={indent}
+          hScrollableBlocksRef={hScrollableBlocksRef}
+        />
+      )
     }
     case "blockquote":
       return <BlockquoteRenderer token={token as Tokens.Blockquote} theme={theme} indent={indent} />
@@ -330,18 +373,67 @@ function ParagraphRenderer({
   )
 }
 
+/**
+ * Registration and shift+wheel panning for a horizontally scrollable block.
+ *
+ * `register` is a React ref callback that (de)registers the block's
+ * text-buffer renderable in the `hScrollableBlocksRef` registry under its
+ * block index, so the owning subview can pan the block under the nav cursor.
+ *
+ * `handleMouseScroll` remaps shift+vertical-wheel to horizontal panning
+ * (ScrollBox does this remap; the text-buffer renderable's built-in scroll
+ * handling only pans on real horizontal wheel directions). The event is not
+ * stopped, so plain vertical wheel keeps bubbling to the surrounding
+ * row-document.
+ */
+function useHScrollableBlock(
+  blockIndex: number,
+  hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>,
+) {
+  const nodeRef = useRef<TextBufferRenderable | null>(null)
+  const register = useCallback(
+    (node: TextBufferRenderable | null) => {
+      nodeRef.current = node
+      const map = hScrollableBlocksRef?.current
+      if (!map) return
+      if (node) map.set(blockIndex, node)
+      else map.delete(blockIndex)
+    },
+    [hScrollableBlocksRef, blockIndex],
+  )
+
+  const handleMouseScroll = useCallback((event: MouseEvent) => {
+    const node = nodeRef.current
+    if (!node || !event.scroll || !event.modifiers.shift) return
+    const { direction, delta } = event.scroll
+    if (direction === "up") node.scrollX -= delta
+    else if (direction === "down") node.scrollX += delta
+  }, [])
+
+  return { register, handleMouseScroll }
+}
+
 function CodeBlockRenderer({
   token,
+  blockIndex,
   theme,
   syntax,
   indent,
+  hScrollableBlocksRef,
 }: {
   token: Tokens.Code
+  blockIndex: number
   theme: ResolvedTheme
   syntax: SyntaxStyle
   indent: number
+  hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>
 }) {
+  const { register, handleMouseScroll } = useHScrollableBlock(blockIndex, hScrollableBlocksRef)
   const lineCount = token.text.split("\n").length
+  // Code lines never wrap (wrapMode "none") — wide code blocks and ASCII
+  // diagrams pan horizontally via the renderable's own viewport (`scrollX`)
+  // instead of word-wrapping into an unreadable mess. Blocks that fit render
+  // exactly as before, with scrollX clamped to 0.
   return (
     <box
       style={{
@@ -356,9 +448,12 @@ function CodeBlockRenderer({
       }}
     >
       <code
+        ref={register}
         content={token.text}
         filetype={token.lang}
         syntaxStyle={syntax}
+        wrapMode="none"
+        onMouseScroll={handleMouseScroll}
         style={{ height: lineCount }}
       />
     </box>
@@ -367,14 +462,18 @@ function CodeBlockRenderer({
 
 function MermaidBlockRenderer({
   token,
+  blockIndex,
   theme,
   syntax,
   indent,
+  hScrollableBlocksRef,
 }: {
   token: Tokens.Code
+  blockIndex: number
   theme: ResolvedTheme
   syntax: SyntaxStyle
   indent: number
+  hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>
 }) {
   const mermaidTheme = useMemo(
     () => ({
@@ -394,11 +493,29 @@ function MermaidBlockRenderer({
     [token.text, mermaidTheme],
   )
 
+  const { register, handleMouseScroll } = useHScrollableBlock(blockIndex, hScrollableBlocksRef)
+
   if (!result.ok) {
-    return <CodeBlockRenderer token={token} theme={theme} syntax={syntax} indent={indent} />
+    return (
+      <CodeBlockRenderer
+        token={token}
+        blockIndex={blockIndex}
+        theme={theme}
+        syntax={syntax}
+        indent={indent}
+        hScrollableBlocksRef={hScrollableBlocksRef}
+      />
+    )
   }
 
   const lineCount = result.text.split("\n").length
+  // Diagram lines never wrap (wrapMode "none"). Wide diagrams pan via the
+  // text renderable's own viewport (`scrollX`), which the native renderer
+  // clips with correct style-run alignment. Translating a natural-width text
+  // inside a nested scrollbox instead exercises the scissor-clip path, which
+  // misplaces fg colors at some offsets (each fully clipped style chunk after
+  // the first bleeds a phantom column into view). Diagrams that fit render
+  // exactly as before, with scrollX clamped to 0.
   return (
     <box
       style={{
@@ -412,7 +529,13 @@ function MermaidBlockRenderer({
         flexDirection: "column",
       }}
     >
-      <text content={result.content} style={{ fg: theme.markdownText, height: lineCount }} />
+      <text
+        ref={register}
+        content={result.content}
+        wrapMode="none"
+        onMouseScroll={handleMouseScroll}
+        style={{ fg: theme.markdownText, height: lineCount }}
+      />
     </box>
   )
 }
