@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef } from "react"
-import { CodeView, type RowDocumentRenderable } from "@tooee/renderers"
+import { CodeView, type ContextMenuEntry, type RowDocumentRenderable } from "@tooee/renderers"
 import { useTheme } from "@tooee/themes"
+import { useCommandContext } from "@tooee/commands"
 import { useHasModalOverlay } from "@tooee/overlays"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
-import { useCopy, useNavigation } from "@tooee/shell"
+import { useContextMenu, useCopy, useNavigation } from "@tooee/shell"
 import { findMatchingLines, useSearch } from "@tooee/search"
 import type { CodeContent, TextContent } from "../../types.js"
 import { useMarkState } from "../../hooks/useMarkState.js"
@@ -29,6 +30,8 @@ export function CodeSubview({
   const { theme } = useTheme()
   const docRef = useRef<RowDocumentRenderable>(null)
   const hasModalOverlay = useHasModalOverlay()
+  const contextMenu = useContextMenu()
+  const { invoke } = useCommandContext()
   const textContent = content.format === "code" ? content.code : content.text
   const lines = useMemo(() => textContent.split("\n"), [textContent])
   const lineCount = lines.length
@@ -78,16 +81,34 @@ export function CodeSubview({
 
   const text = content.format === "code" ? content.code : content.text
 
-  // Left-click selects the clicked line. Stands down while a modal overlay is up
-  // (theme picker, command palette, Ask/Choose): centered overlays leave
-  // clickable margins and mouse events bypass command-surface arbitration.
+  const menuEntries = useMemo<ContextMenuEntry[]>(
+    () =>
+      (actions ?? [])
+        .filter((action) => !action.hidden)
+        .map((action) => ({ id: action.id, title: action.title, hotkey: action.hotkey })),
+    [actions],
+  )
+
+  // Left-click selects the clicked line; right-click selects it and opens the
+  // same app-provided action menu as table rows. Both stand down while a modal
+  // overlay is up (theme picker, command palette, Ask/Choose), matching the
+  // keyboard stand-down and avoiding covered-app mutations.
   const setCursor = nav.setCursor
+  const openContextMenu = contextMenu.open
   const handleRowClick = useCallback(
     (index: number) => {
       if (hasModalOverlay) return
       setCursor(index)
     },
     [hasModalOverlay, setCursor],
+  )
+  const handleRowContextMenu = useCallback(
+    (index: number, x: number, y: number) => {
+      if (hasModalOverlay) return
+      setCursor(index)
+      openContextMenu(x, y, menuEntries, invoke)
+    },
+    [hasModalOverlay, setCursor, openContextMenu, menuEntries, invoke],
   )
 
   const extraStatusItems = useMemo(() => {
@@ -121,6 +142,7 @@ export function CodeSubview({
         marks={markState}
         docRef={docRef}
         onRowClick={handleRowClick}
+        onRowContextMenu={handleRowContextMenu}
       />
     </SubviewLayout>
   )

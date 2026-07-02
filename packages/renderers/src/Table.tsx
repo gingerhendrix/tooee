@@ -1,6 +1,6 @@
 import { useTerminalDimensions } from "@opentui/react"
 import { useTheme } from "@tooee/themes"
-import { useMemo, type RefObject } from "react"
+import { useMemo, useRef, type RefObject } from "react"
 import type { MouseEvent } from "@opentui/core"
 import type { MarkState } from "@tooee/marks"
 import type { ColumnDef, TableRow } from "./table-types.js"
@@ -162,6 +162,8 @@ export function Table({
   const { theme } = useTheme()
   const palette = useGutterPalette()
   const { width: terminalWidth } = useTerminalDimensions()
+  const internalDocRef = useRef<RowDocumentRenderable | null>(null)
+  const rowDocumentRef = docRef ?? internalDocRef
 
   // Compute available content width: start with total space, subtract margins and gutter
   const gutterWidth = useMemo(
@@ -216,22 +218,7 @@ export function Table({
   const rowElements = useMemo(
     () =>
       normalizedRows.map((row, i) => (
-        <box
-          key={i}
-          style={{ flexDirection: "row" }}
-          onMouseDown={
-            onRowClick || onRowContextMenu
-              ? (event: MouseEvent) => {
-                  if (event.button === 0) {
-                    onRowClick?.(i)
-                  } else if (event.button === 2) {
-                    event.preventDefault()
-                    onRowContextMenu?.(i, event.x, event.y)
-                  }
-                }
-              : undefined
-          }
-        >
+        <box key={i} style={{ flexDirection: "row" }}>
           {row.map((cell, j) => {
             const contentWidth = colWidths[j] - PADDING * 2
             const cellWidth = Bun.stringWidth(cell)
@@ -255,8 +242,25 @@ export function Table({
           })}
         </box>
       )),
-    [normalizedRows, colWidths, alignments, theme.text, onRowClick, onRowContextMenu],
+    [normalizedRows, colWidths, alignments, theme.text],
   )
+
+  // Use the shared RowDocumentRenderable screen-Y mapper for table rows too.
+  // This keeps table, code, and markdown mouse handling on one code path and
+  // avoids per-row mouse closures in the virtualized row tree.
+  const handleMouseDown =
+    onRowClick || onRowContextMenu
+      ? (event: MouseEvent) => {
+          const row = rowDocumentRef.current?.getRowAtScreenY(event.y)
+          if (row == null) return
+          if (event.button === 0) {
+            onRowClick?.(row)
+          } else if (event.button === 2) {
+            event.preventDefault()
+            onRowContextMenu?.(row, event.x, event.y)
+          }
+        }
+      : undefined
 
   return (
     <box
@@ -294,7 +298,7 @@ export function Table({
 
       {/* Scrollable data rows */}
       <row-document
-        ref={docRef}
+        ref={rowDocumentRef}
         mode="multi"
         rowChildOffset={0}
         showGutter={true}
@@ -303,6 +307,7 @@ export function Table({
         palette={palette}
         decorations={marks?.sets}
         style={{ flexGrow: 1 }}
+        onMouseDown={handleMouseDown}
       >
         {rowElements}
       </row-document>

@@ -3,6 +3,7 @@ import { test, expect, afterEach, describe } from "bun:test"
 import { act } from "react"
 import { MouseButtons } from "@opentui/core/testing"
 import { TooeeProvider } from "@tooee/shell"
+import type { ActionDefinition } from "@tooee/commands"
 import { View } from "../src/View.js"
 import type { AnyContent, ContentProvider } from "../src/types.js"
 
@@ -21,16 +22,21 @@ const MD = staticProvider({
   markdown: "First.\n\nSecond.\n\nThird.",
 })
 
+const ACTIONS: ActionDefinition[] = [
+  { id: "row.copy", title: "Copy row", hotkey: "y", modes: ["cursor"], handler: () => {} },
+  { id: "row.open", title: "Open row", modes: ["cursor"], handler: () => {} },
+]
+
 let testSetup: Awaited<ReturnType<typeof testRender>>
 
 afterEach(() => {
   testSetup?.renderer.destroy()
 })
 
-async function setup(provider: ContentProvider) {
+async function setup(provider: ContentProvider, actions?: ActionDefinition[]) {
   const s = await testRender(
     <TooeeProvider>
-      <View contentProvider={provider} />
+      <View contentProvider={provider} actions={actions} />
     </TooeeProvider>,
     { width: 80, height: 24, kittyKeyboard: true },
   )
@@ -93,6 +99,42 @@ describe("Code view mouse selection", () => {
     expect(frame).not.toContain("Filter themes")
     expect(frame).toMatch(/Cursor:\s*0/)
   })
+
+  test("right-click selects a source line and opens the context menu", async () => {
+    testSetup = await setup(CODE, ACTIONS)
+    const pos = lineOf(testSetup.captureCharFrame(), "line3")
+    expect(pos.y).toBeGreaterThan(-1)
+
+    await act(async () => {
+      await testSetup.mockMouse.click(pos.x, pos.y, MouseButtons.RIGHT)
+    })
+    await testSetup.renderOnce()
+
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("Copy row")
+    expect(frame).toContain("Open row")
+    expect(frame).toMatch(/Cursor:\s*3/)
+  })
+
+  test("right-click stands down while a modal overlay is open", async () => {
+    testSetup = await setup(CODE, ACTIONS)
+    const pos = lineOf(testSetup.captureCharFrame(), "line3")
+
+    await act(async () => {
+      testSetup.mockInput.pressKey("t")
+    })
+    await testSetup.renderOnce()
+    expect(testSetup.captureCharFrame()).toContain("Filter themes")
+
+    await act(async () => {
+      await testSetup.mockMouse.click(pos.x, pos.y, MouseButtons.RIGHT)
+    })
+    await testSetup.renderOnce()
+
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("Filter themes")
+    expect(frame).not.toContain("Copy row")
+  })
 })
 
 describe("Markdown view mouse selection", () => {
@@ -111,5 +153,21 @@ describe("Markdown view mouse selection", () => {
 
     // Blocks: 0 = "First.", 1 = "Second.", 2 = "Third."
     expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/)
+  })
+
+  test("right-click selects a block and opens the context menu", async () => {
+    testSetup = await setup(MD, ACTIONS)
+    const pos = lineOf(testSetup.captureCharFrame(), "Second.")
+    expect(pos.y).toBeGreaterThan(-1)
+
+    await act(async () => {
+      await testSetup.mockMouse.click(pos.x, pos.y, MouseButtons.RIGHT)
+    })
+    await testSetup.renderOnce()
+
+    const frame = testSetup.captureCharFrame()
+    expect(frame).toContain("Copy row")
+    expect(frame).toContain("Open row")
+    expect(frame).toMatch(/Cursor:\s*1/)
   })
 })
