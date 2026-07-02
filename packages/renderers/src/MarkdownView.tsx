@@ -8,6 +8,7 @@ import {
   parseColor,
 } from "@opentui/core"
 import type {
+  MouseEvent,
   SyntaxStyle,
   TextBufferRenderable,
   TextTableContent,
@@ -47,6 +48,16 @@ interface MarkdownViewProps {
    * syntax-highlighted code block.
    */
   codeBlockRenderers?: Record<string, CodeBlockRenderer>
+  /**
+   * Left-click on a block (additive; keyboard navigation is unaffected). The
+   * row index is the flattened *block* index, matching the view's `nav` model
+   * and the copy/selection unit — clicking selects the same block `j`/`k` move
+   * between. Clicks inside a custom-rendered code block bubble up here too,
+   * unless the custom renderer stops propagation on its own mouse handlers.
+   */
+  onRowClick?: (index: number) => void
+  /** Right-click on a block — receives the block index and click coordinates. */
+  onRowContextMenu?: (index: number, x: number, y: number) => void
 }
 
 /**
@@ -166,6 +177,8 @@ export function MarkdownView({
   docRef,
   hScrollableBlocksRef,
   codeBlockRenderers,
+  onRowClick,
+  onRowContextMenu,
 }: MarkdownViewProps) {
   const { theme, syntax } = useTheme()
   const palette = useGutterPalette()
@@ -198,6 +211,25 @@ export function MarkdownView({
     [blocks, theme, syntax, hScrollableBlocksRef, mergedCodeBlockRenderers],
   )
 
+  // A single handler on the row-document maps the click's screen-Y to a block
+  // index. Blocks are per-child renderables, but their markup varies across
+  // renderer branches (box/text/null with differing margins), so mapping by
+  // screen-Y avoids wrapping every branch and keeps gutter/line-number geometry
+  // intact. Clicks bubble up from block children (including custom code blocks).
+  const handleMouseDown =
+    onRowClick || onRowContextMenu
+      ? (event: MouseEvent) => {
+          const row = docRef?.current?.getRowAtScreenY(event.y)
+          if (row == null) return
+          if (event.button === 0) {
+            onRowClick?.(row)
+          } else if (event.button === 2) {
+            event.preventDefault()
+            onRowContextMenu?.(row, event.x, event.y)
+          }
+        }
+      : undefined
+
   return (
     <row-document
       ref={docRef}
@@ -206,6 +238,7 @@ export function MarkdownView({
       decorations={marks?.sets}
       signColumnWidth={DEFAULT_SIGN_COLUMN_WIDTH}
       style={{ flexGrow: 1 }}
+      onMouseDown={handleMouseDown}
     >
       {blockElements}
     </row-document>
