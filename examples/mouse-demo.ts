@@ -6,8 +6,9 @@
  *
  *   1. Left-click a row     -> selects it (moves the cursor to that row)
  *   2. Right-click a row    -> opens a context menu of the row's actions
- *   3. Overlay close buttons -> open the command palette (:) or theme
- *                               picker (t) and click the "✕" to dismiss
+ *   3. Clickable overlays    -> open the command palette (:) or theme
+ *                               picker (t); click an item to run/apply it,
+ *                               or click the "✕" to dismiss
  *
  * Mouse support is additive: every keyboard/vim flow still works unchanged.
  * The context-menu entries come from the `actions` passed to `launch()` —
@@ -19,6 +20,7 @@
  *   Mouse:
  *     left-click row   select the row
  *     right-click row  open the row context menu (then click / j,k + Enter)
+ *     click item       run/apply an item in an open palette or picker
  *     click "✕"        close an open overlay
  *   Keyboard:
  *     j / k            move cursor down / up

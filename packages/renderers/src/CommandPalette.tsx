@@ -128,6 +128,13 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
             paddingRight={1}
             height={1}
             backgroundColor={i === activeIndex ? theme.backgroundElement : undefined}
+            onMouseDown={(event) => {
+              // Left-click runs the entry — same code path as Enter.
+              if (event.button !== 0) return
+              event.preventDefault()
+              event.stopPropagation()
+              onSelect(entry.id)
+            }}
           >
             <text content={entry.title} fg={theme.text} style={{ flexGrow: 1 }} />
             {entry.hotkey && <text content={entry.hotkey} fg={theme.textMuted} />}

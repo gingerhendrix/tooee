@@ -160,6 +160,13 @@ export function ThemePicker({
             paddingRight={1}
             height={1}
             backgroundColor={i === activeIndex ? theme.backgroundElement : undefined}
+            onMouseDown={(event) => {
+              // Left-click applies the theme — same code path as Enter.
+              if (event.button !== 0) return
+              event.preventDefault()
+              event.stopPropagation()
+              onSelect(entry.id)
+            }}
           >
             <text content={entry.title} fg={theme.text} style={{ flexGrow: 1 }} />
           </box>

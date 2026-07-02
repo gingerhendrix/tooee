@@ -253,6 +253,15 @@ export function ChooseOverlay({
               height={1}
               backgroundColor={isActive ? theme.backgroundElement : undefined}
               style={{ paddingLeft: 1 }}
+              onMouseDown={(event) => {
+                // Left-click picks the item — same code path as Enter confirm.
+                // (Standalone Choose keeps click-to-highlight; a modal picker
+                // overlay follows menu semantics like ContextMenu instead.)
+                if (event.button !== 0) return
+                event.preventDefault()
+                event.stopPropagation()
+                onSelect(match.item)
+              }}
             >
               {match.item.icon && <text content={`${match.item.icon} `} fg={theme.textMuted} />}
               <text fg={isActive ? theme.primary : theme.text}>

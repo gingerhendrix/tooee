@@ -1,5 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe, beforeEach } from "bun:test"
+import { act } from "react"
+import { MouseButtons } from "@opentui/core/testing"
 import { TooeeProvider, useThemeCommands } from "@tooee/shell"
 import { useTheme } from "@tooee/themes"
 import { useCurrentOverlay } from "@tooee/overlays"
@@ -118,5 +120,43 @@ describe("theme picker", () => {
     expect(openFrame).toContain("aura")
     // Should show filter count
     expect(openFrame).toMatch(/\d+/)
+  })
+
+  test("left-click on a theme row applies that theme and closes the picker", async () => {
+    testSetup = await setup()
+    const initialTheme = testSetup.captureCharFrame().match(/active:(\S+)/)?.[1]
+    const target = initialTheme === "dracula" ? "cobalt2" : "dracula"
+
+    await press(testSetup, "t")
+    expect(testSetup.captureCharFrame()).toContain("open:true")
+
+    // Narrow the list so the target theme is the visible row (the headless
+    // picker viewport only shows the top of the list).
+    for (const ch of target) {
+      await press(testSetup, ch)
+    }
+
+    // Find the target theme row inside the picker list (start below the
+    // harness status lines and the picker's filter row).
+    const frame = testSetup.captureCharFrame()
+    const lines = frame.split("\n")
+    let pos = { x: -1, y: -1 }
+    for (let y = 4; y < lines.length; y++) {
+      const x = lines[y].indexOf(target)
+      if (x >= 0) {
+        pos = { x, y }
+        break
+      }
+    }
+    expect(pos.y).toBeGreaterThan(-1)
+
+    await act(async () => {
+      await testSetup.mockMouse.click(pos.x + 1, pos.y, MouseButtons.LEFT)
+    })
+    await testSetup.renderOnce()
+
+    const after = testSetup.captureCharFrame()
+    expect(after).toContain("open:false")
+    expect(after).toContain(`active:${target}`)
   })
 })
