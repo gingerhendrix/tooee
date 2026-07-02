@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import type { ScrollBoxRenderable } from "@opentui/core"
 import { useKeyboard } from "@opentui/react"
 import { AppLayout } from "@tooee/layout"
-import { useHasOverlay } from "@tooee/overlays"
+import { useHasOverlay, useHasModalOverlay } from "@tooee/overlays"
 import { ThemePicker, useTheme } from "@tooee/themes"
 import { useThemeCommands, useQuitCommand } from "@tooee/shell"
 import {
@@ -83,6 +83,7 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
   const mode = useMode()
   const setMode = useSetMode()
   const hasOverlay = useHasOverlay()
+  const hasModalOverlay = useHasModalOverlay()
 
   // Compute selected items for context
   const getSelectedItems = useCallback((): ChooseItem[] => {
@@ -343,6 +344,12 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
               backgroundColor={isActive ? theme.backgroundElement : undefined}
               style={{ paddingLeft: 1 }}
               onMouseDown={(event) => {
+                // Like the raw keyboard handler above, row clicks must stand
+                // down while a modal overlay (e.g. the theme picker) is up:
+                // centered overlays leave clickable margins around them, and
+                // mouse events route through the hit-grid, bypassing
+                // command-surface arbitration entirely.
+                if (hasModalOverlay) return
                 if (event.button === 0) setActiveIndex(idx)
               }}
             >

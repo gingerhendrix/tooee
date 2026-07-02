@@ -80,4 +80,59 @@ describe("Table view mouse integration", () => {
     await testSetup.renderOnce()
     expect(testSetup.captureCharFrame()).not.toContain("Copy row")
   })
+
+})
+
+describe("Table view mouse guards while a modal overlay is open", () => {
+  test("right-click on a margin row does not open the context menu", async () => {
+    testSetup = await setup()
+    // Capture the row position first; the centered theme picker leaves the
+    // left margin (and these row cells) clickable.
+    const pos = lineOf(testSetup.captureCharFrame(), "Bob")
+    expect(pos.y).toBeGreaterThan(-1)
+
+    // `t` opens the theme picker (a modal owned command surface).
+    await act(async () => {
+      testSetup.mockInput.pressKey("t")
+    })
+    await testSetup.renderOnce()
+    expect(testSetup.captureCharFrame()).toContain("Filter themes")
+
+    await act(async () => {
+      await testSetup.mockMouse.click(pos.x + 1, pos.y, MouseButtons.RIGHT)
+    })
+    await testSetup.renderOnce()
+
+    // No context menu stacked over the picker.
+    expect(testSetup.captureCharFrame()).not.toContain("Copy row")
+  })
+
+  test("left-click on a margin row does not move the cursor", async () => {
+    testSetup = await setup()
+    const frame0 = testSetup.captureCharFrame()
+    expect(frame0).toMatch(/Cursor:\s*0/)
+    const pos = lineOf(frame0, "Bob")
+    expect(pos.y).toBeGreaterThan(-1)
+
+    await act(async () => {
+      testSetup.mockInput.pressKey("t")
+    })
+    await testSetup.renderOnce()
+    expect(testSetup.captureCharFrame()).toContain("Filter themes")
+
+    await act(async () => {
+      await testSetup.mockMouse.click(pos.x + 1, pos.y, MouseButtons.LEFT)
+    })
+    await testSetup.renderOnce()
+
+    // Close the picker; the cursor must not have moved to Bob's row.
+    await act(async () => {
+      testSetup.mockInput.pressEscape()
+    })
+    await testSetup.renderOnce()
+    const frame = testSetup.captureCharFrame()
+    expect(frame).not.toContain("Filter themes")
+    expect(frame).toMatch(/Cursor:\s*0/)
+    expect(frame).not.toMatch(/Cursor:\s*1/)
+  })
 })

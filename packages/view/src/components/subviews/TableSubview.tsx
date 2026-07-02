@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import { Table, type RowDocumentRenderable, type ContextMenuEntry } from "@tooee/renderers"
 import { useTheme } from "@tooee/themes"
 import { useCommandContext } from "@tooee/commands"
+import { useHasModalOverlay } from "@tooee/overlays"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
 import { useContextMenu, useCopy, useNavigation } from "@tooee/shell"
 import { useSearch } from "@tooee/search"
@@ -31,6 +32,7 @@ export function TableSubview({
   const textContent = useMemo(() => getTextContent(content), [content])
   const contextMenu = useContextMenu()
   const { invoke } = useCommandContext()
+  const hasModalOverlay = useHasModalOverlay()
 
   const nav = useNavigation({
     rowCount: content.rows.length,
@@ -119,6 +121,29 @@ export function TableSubview({
     [actions],
   )
 
+  // Row mouse handlers stand down while a modal overlay (theme picker, command
+  // palette, Ask/Choose overlays, the context menu itself) is up: centered
+  // overlays leave clickable margins around them, and mouse events route
+  // through the hit-grid, bypassing command-surface arbitration. Memoized so
+  // Table's rowElements memo keeps doing its job.
+  const setCursor = nav.setCursor
+  const openContextMenu = contextMenu.open
+  const handleRowClick = useCallback(
+    (index: number) => {
+      if (hasModalOverlay) return
+      setCursor(index)
+    },
+    [hasModalOverlay, setCursor],
+  )
+  const handleRowContextMenu = useCallback(
+    (index: number, x: number, y: number) => {
+      if (hasModalOverlay) return
+      setCursor(index)
+      openContextMenu(x, y, menuEntries, invoke)
+    },
+    [hasModalOverlay, setCursor, openContextMenu, menuEntries, invoke],
+  )
+
   const extraStatusItems = useMemo(() => {
     const selectionCount = nav.selection != null ? nav.selection.end - nav.selection.start + 1 : 0
     const toggledCount = nav.toggledIndices.size
@@ -156,11 +181,8 @@ export function TableSubview({
         showLineNumbers={showLineNumbers}
         marks={markState}
         docRef={docRef}
-        onRowClick={nav.setCursor}
-        onRowContextMenu={(index, x, y) => {
-          nav.setCursor(index)
-          contextMenu.open(x, y, menuEntries, invoke)
-        }}
+        onRowClick={handleRowClick}
+        onRowContextMenu={handleRowContextMenu}
       />
     </SubviewLayout>
   )

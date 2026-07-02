@@ -69,6 +69,13 @@ export interface OverlayController {
 export interface OverlayState {
   current: ReactNode | null
   hasOverlay: boolean
+  /**
+   * True when any overlay other than a passive owned surface is open. Passive
+   * surfaces (e.g. the which-key hint) render for visuals only and never own
+   * input, so they don't count. Use this for guards that should stand down
+   * while a modal overlay is up but keep working under passive hints.
+   */
+  hasModalOverlay: boolean
   stack: OverlayId[]
 }
 
@@ -95,6 +102,7 @@ const defaultController: OverlayController = {
 const defaultState: OverlayState = {
   current: null,
   hasOverlay: false,
+  hasModalOverlay: false,
   stack: [],
 }
 
@@ -121,6 +129,10 @@ export function useOverlayState(): OverlayState {
 
 export function useHasOverlay(): boolean {
   return useContext(OverlayStateContext).hasOverlay
+}
+
+export function useHasModalOverlay(): boolean {
+  return useContext(OverlayStateContext).hasModalOverlay
 }
 
 export function useCurrentOverlay(): ReactNode | null {
