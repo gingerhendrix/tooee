@@ -56,9 +56,10 @@ export function ContextMenu({ entries, x, y, onSelect, onClose }: ContextMenuPro
     // Escape is handled by the overlay layer (dismissOnEscape).
   })
 
-  // Size the panel from its contents.
+  // Size the panel from its contents (terminal cell width, not code units,
+  // so wide glyphs like CJK and emoji are counted correctly).
   const longest = entries.reduce((max, e) => {
-    const w = e.title.length + (e.hotkey ? e.hotkey.length + 2 : 0)
+    const w = Bun.stringWidth(e.title) + (e.hotkey ? Bun.stringWidth(e.hotkey) + 2 : 0)
     return Math.max(max, w)
   }, 0)
   const innerWidth = Math.max(MIN_WIDTH, longest)
