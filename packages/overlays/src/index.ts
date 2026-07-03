@@ -20,3 +20,17 @@ export type {
   OverlayController,
   OverlayState,
 } from "./overlay-context.js"
+export {
+  createOverlayStore,
+  selectHasOverlay,
+  selectIsOpen,
+  selectStack,
+  selectStackIds,
+  selectTop,
+} from "./overlay-store.js"
+export type {
+  OverlayClosedEmit,
+  OverlayRecord,
+  OverlayStore,
+  OverlayStoreContext,
+} from "./overlay-store.js"

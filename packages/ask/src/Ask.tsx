@@ -29,6 +29,13 @@ import {
   type VimMotionState,
 } from "./vim-motions.js"
 
+declare module "@tooee/commands" {
+  interface CommandContext {
+    /** Contributed by Ask: the current input value. */
+    ask: { value: string }
+  }
+}
+
 interface AskProps extends AskOptions {
   actions?: ActionDefinition[]
 }

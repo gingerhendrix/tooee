@@ -17,6 +17,17 @@ import type { ActionDefinition } from "@tooee/commands"
 import type { ChooseItem, ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.js"
 import { fuzzyFilter } from "./fuzzy.js"
 
+declare module "@tooee/commands" {
+  interface CommandContext {
+    /** Contributed by Choose: the current selection state. */
+    choose: {
+      activeItem: ChooseItem | undefined
+      selectedItems: ChooseItem[]
+      filterQuery: string
+    }
+  }
+}
+
 interface ChooseProps {
   contentProvider: ChooseContentProvider
   options?: ChooseOptions

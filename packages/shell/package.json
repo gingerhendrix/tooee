@@ -41,7 +41,8 @@
     "@tooee/overlays": "workspace:*",
     "@tooee/renderers": "workspace:*",
     "@tooee/themes": "workspace:*",
-    "@tooee/toasts": "workspace:*"
+    "@tooee/toasts": "workspace:*",
+    "@xstate/store-react": "^2"
   },
   "devDependencies": {
     "@opentui/core": "^0.2.15",

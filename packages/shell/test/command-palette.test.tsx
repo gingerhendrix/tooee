@@ -1,6 +1,6 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe } from "bun:test"
-import { act } from "react"
+import { act, useState } from "react"
 import { MouseButtons } from "@opentui/core/testing"
 import { TooeeProvider } from "@tooee/shell"
 import { useCommand, useMode } from "@tooee/commands"
@@ -89,6 +89,53 @@ describe("command palette", () => {
     const frame = testSetup.captureCharFrame()
     expect(frame).toContain("open:false")
     expect(frame).toContain("mode:cursor")
+  })
+
+  test("a command registered after the provider mounts appears in the palette", async () => {
+    function LateRegistrant() {
+      useCommand({
+        id: "test.late",
+        title: "Late Arrival Command",
+        modes: ["cursor"],
+        handler: () => {},
+      })
+      return null
+    }
+
+    function LateHarness() {
+      const [showLate, setShowLate] = useState(false)
+      const current = useCurrentOverlay()
+      useCommand({
+        id: "test.show-late",
+        title: "Show late",
+        hotkey: "l",
+        modes: ["cursor"],
+        handler: () => setShowLate(true),
+      })
+      return (
+        <box flexDirection="column">
+          {showLate && <LateRegistrant />}
+          {current}
+        </box>
+      )
+    }
+
+    testSetup = await testRender(
+      <TooeeProvider>
+        <LateHarness />
+      </TooeeProvider>,
+      { width: 80, height: 24, kittyKeyboard: true },
+    )
+    await testSetup.renderOnce()
+
+    // Register a command well after the palette provider mounted, then open.
+    await press(testSetup, "l")
+    await press(testSetup, ":")
+    // Filter down to the late command (the harness box only fits a few rows).
+    for (const key of "arrival") {
+      await press(testSetup, key)
+    }
+    expect(testSetup.captureCharFrame()).toContain("Late Arrival Command")
   })
 })
 

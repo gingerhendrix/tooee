@@ -1,20 +1,27 @@
-import { useState, useCallback, useMemo, useRef, Fragment } from "react"
+import { useCallback, useMemo, useRef, Fragment } from "react"
 import type { ReactNode } from "react"
+import { useSelector } from "@xstate/store-react"
 import {
   OverlayControllerContext,
   OverlayStateContext,
+  createOverlayStore,
+  selectStack,
+  selectTop,
   type OverlayId,
   type OverlayCloseReason,
   type OverlayOpenOptions,
   type OverlayRenderer,
   type OverlayHandle,
   type OverlayController,
+  type OverlayRecord,
+  type OverlayStore,
 } from "@tooee/overlays"
 import {
   useMode,
   useSetMode,
   useProvideCommandContext,
   useCommand,
+  useCommandStore,
   CommandSurfaceProvider,
 } from "@tooee/commands"
 import type { CommandSurfaceRole, Mode } from "@tooee/commands"
@@ -25,53 +32,49 @@ declare module "@tooee/commands" {
   }
 }
 
-interface OverlayEntry {
-  id: OverlayId
-  render: OverlayRenderer<any>
-  payload: any
-  options: OverlayOpenOptions
-  prevMode: string
+interface OverlayBridge {
+  setMode: (mode: Mode) => void
+  resetSequence: () => void
 }
 
 export function OverlayProvider({ children }: { children: ReactNode }) {
-  const [stack, setStack] = useState<OverlayEntry[]>([])
-  const stackRef = useRef(stack)
-  stackRef.current = stack
-
   const mode = useMode()
   const setMode = useSetMode()
   const modeRef = useRef(mode)
   modeRef.current = mode
+  const commandStore = useCommandStore()
+
+  // The bridge performs the lifecycle side effects the pure store emits:
+  // onClose callbacks, legacy host-mode restoration, and the same-id
+  // replacement sequence reset (F-09: replacement without a surface remount
+  // is invisible to mount-driven surface registration, so the pending chord
+  // must be cleared here). Subscribed at store creation — before any child
+  // effect can open an overlay.
+  const bridgeRef = useRef<OverlayBridge>({ setMode: () => {}, resetSequence: () => {} })
+  const storeRef = useRef<OverlayStore | null>(null)
+  if (storeRef.current === null) {
+    storeRef.current = createOverlayStore()
+    storeRef.current.on("closed", ({ record, reason, restoreModeTo }) => {
+      record.options.onClose?.(reason)
+      if (restoreModeTo !== null) {
+        bridgeRef.current.setMode(restoreModeTo as Mode)
+      }
+      if (reason === "replaced") {
+        bridgeRef.current.resetSequence()
+      }
+    })
+  }
+  const overlayStore = storeRef.current
+  bridgeRef.current.setMode = setMode
+  bridgeRef.current.resetSequence = () => commandStore.reset()
+
+  const stack = useSelector(overlayStore, (s) => selectStack(s.context))
 
   const removeEntry = useCallback(
     (id: OverlayId, reason: OverlayCloseReason) => {
-      const current = stackRef.current
-      const idx = current.findIndex((e) => e.id === id)
-      if (idx === -1) return
-
-      const entry = current[idx]
-      entry.options.onClose?.(reason)
-
-      setStack((prev) => {
-        const i = prev.findIndex((e) => e.id === id)
-        if (i === -1) return prev
-        const next = [...prev]
-        next.splice(i, 1)
-        return next
-      })
-
-      // Owned command surfaces keep their mode local; the host mode was never
-      // mutated on open, so there is nothing to restore. For legacy entries,
-      // only the topmost non-ownCommands overlay owns the host mode: closing a
-      // buried legacy overlay must not clobber the mode set by the one above it.
-      if (!entry.options.ownCommands && entry.options.restoreMode !== false) {
-        const topLegacy = current.findLast((e) => !e.options.ownCommands)
-        if (topLegacy === entry) {
-          setMode(entry.prevMode as any)
-        }
-      }
+      overlayStore.trigger.closed({ id, reason })
     },
-    [setMode],
+    [overlayStore],
   )
 
   const open = useCallback(
@@ -90,65 +93,31 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
           ? "insert"
           : options.mode
 
-      // Replacing an existing same-id entry closes it: let its consumers
-      // release open-state (e.g. a picker's isOpen) via the contract's
-      // "replaced" reason instead of silently filtering the entry away.
-      const replaced = stackRef.current.find((e) => e.id === id)
-      replaced?.options.onClose?.("replaced")
-
-      setStack((prev) => {
-        // Remove existing entry with same id if present
-        const filtered = prev.filter((e) => e.id !== id)
-        const entry: OverlayEntry = {
-          id,
-          render: render as OverlayRenderer<any>,
-          payload,
-          options,
-          prevMode,
-        }
-        return [...filtered, entry]
-      })
+      const record: OverlayRecord<TPayload> = { id, render, payload, options, prevMode }
+      overlayStore.trigger.opened({ record: record as OverlayRecord })
 
       if (overlayMode !== null) {
-        setMode(overlayMode as any)
+        setMode(overlayMode as Mode)
       }
 
       const handle: OverlayHandle<TPayload> = {
         id,
         close: (reason: OverlayCloseReason = "close") => removeEntry(id, reason),
         update: (next: TPayload | ((prev: TPayload) => TPayload)) => {
-          setStack((prev) => {
-            const idx = prev.findIndex((e) => e.id === id)
-            if (idx === -1) return prev
-            const entry = prev[idx]
-            const newPayload =
-              typeof next === "function" ? (next as (p: TPayload) => TPayload)(entry.payload) : next
-            const updated = [...prev]
-            updated[idx] = { ...entry, payload: newPayload }
-            return updated
-          })
+          overlayStore.trigger.updated({ id, next })
         },
       }
 
       return handle
     },
-    [setMode, removeEntry],
+    [overlayStore, setMode, removeEntry],
   )
 
   const update = useCallback(
     <TPayload,>(id: OverlayId, next: TPayload | ((prev: TPayload) => TPayload)) => {
-      setStack((prev) => {
-        const idx = prev.findIndex((e) => e.id === id)
-        if (idx === -1) return prev
-        const entry = prev[idx]
-        const newPayload =
-          typeof next === "function" ? (next as (p: TPayload) => TPayload)(entry.payload) : next
-        const updated = [...prev]
-        updated[idx] = { ...entry, payload: newPayload }
-        return updated
-      })
+      overlayStore.trigger.updated({ id, next })
     },
-    [],
+    [overlayStore],
   )
 
   const show = useCallback(
@@ -168,19 +137,20 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
 
   const closeTop = useCallback(
     (reason: OverlayCloseReason = "close") => {
-      const current = stackRef.current
-      if (current.length === 0) return
-      const top = current[current.length - 1]
-      removeEntry(top.id, reason)
+      overlayStore.trigger.closedTop({ reason })
     },
-    [removeEntry],
+    [overlayStore],
   )
 
-  const isOpen = useCallback((id: OverlayId) => {
-    return stackRef.current.some((e) => e.id === id)
-  }, [])
+  const isOpen = useCallback(
+    (id: OverlayId) => {
+      // Imperative snapshot read (same semantics as the previous ref read).
+      return overlayStore.getSnapshot().context.stack.some((e) => e.id === id)
+    },
+    [overlayStore],
+  )
 
-  const topId = stack.length > 0 ? stack[stack.length - 1].id : null
+  const topId = stack.length > 0 ? stack[stack.length - 1]!.id : null
 
   const controller = useMemo<OverlayController>(
     () => ({
@@ -214,8 +184,7 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
     modes: ["insert", "cursor", "select"],
     hidden: true,
     when: () => {
-      const current = stackRef.current
-      const top = current.length > 0 ? current[current.length - 1] : null
+      const top = selectTop(overlayStore.getSnapshot().context)
       return top !== null && top.options.dismissOnEscape !== false
     },
     handler: () => closeTop("escape"),
@@ -231,7 +200,7 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
             payload: entry.payload,
             isTop,
             close: (reason: OverlayCloseReason = "close") => removeEntry(entry.id, reason),
-            update: (next: any) => update(entry.id, next),
+            update: (next: unknown) => update(entry.id, next),
           })
 
           // An overlay that owns its commands is mounted as a command surface:

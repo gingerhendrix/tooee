@@ -1,7 +1,34 @@
 import { useProvideCommandContext, useMode } from "@tooee/commands"
+import type { Mode } from "@tooee/commands"
 import type { NavigationState } from "@tooee/shell"
 import type { MarkSet } from "@tooee/marks"
 import type { AnyContent } from "../types.js"
+
+/** The `view` field contributed to the command context (see augmentation below). */
+export interface ViewCommandContext {
+  content: AnyContent
+  format: string
+  cursor: number | null
+  selection: { start: number; end: number } | null
+  mode: Mode
+  toggledIndices: Set<number>
+  reload: () => void
+  marks: {
+    setMarkSet: (set: MarkSet) => void
+    clearNamespace: (namespace: string) => void
+    clearAll: () => void
+    userMarks: MarkSet[]
+    providerMarks: MarkSet[]
+  }
+  /** Subview extras (e.g. activeRow/selectedRows for tables). */
+  [key: string]: unknown
+}
+
+declare module "@tooee/commands" {
+  interface CommandContext {
+    view: ViewCommandContext
+  }
+}
 
 interface UseViewCommandContextParams {
   content: AnyContent

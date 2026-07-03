@@ -7,9 +7,21 @@ export interface CommandContextBase {
   exit: () => void
 }
 
-export interface CommandContext extends CommandContextBase {
-  [key: string]: any
-}
+/**
+ * The context handed to command handlers. Domain packages contribute typed
+ * fields via module augmentation (the mechanism the shell already uses for
+ * `overlay` and `toast`):
+ *
+ * ```ts
+ * declare module "@tooee/commands" {
+ *   interface CommandContext {
+ *     myDomain: MyDomainContext
+ *   }
+ * }
+ * ```
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface CommandContext extends CommandContextBase {}
 
 export type CommandHandler = (ctx: CommandContext) => void | Promise<void>
 export type CommandWhen = (ctx: CommandContext) => boolean
@@ -79,6 +91,11 @@ export interface CommandSurfaceEntry {
 export interface ActiveCommandSurface {
   id: string
   role: CommandSurfaceRole
+  /**
+   * Commands registered on this surface (reactive). Enables surface-aware
+   * which-key/help/palette consumers.
+   */
+  commands: readonly Command[]
 }
 
 export interface CommandGroup {

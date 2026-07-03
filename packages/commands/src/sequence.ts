@@ -19,6 +19,82 @@ export interface SequenceFeedResult {
   pending: SequencePendingMatch | null
 }
 
+// --- Pure matching helpers ---------------------------------------------------
+// These are the sequence-matching primitives, extracted so a store (or any
+// non-React dispatcher) can run them against its own buffer without
+// instantiating SequenceTracker. SequenceTracker delegates to them.
+
+/**
+ * True when the tail of `buffer` fully matches every step of `hotkey`.
+ * Zero-step hotkeys (e.g. a disabled leaderless `<leader>` binding) never
+ * match anything.
+ */
+export function matchesBuffer(buffer: readonly KeyEvent[], hotkey: ParsedHotkey): boolean {
+  const { steps } = hotkey
+  if (steps.length === 0) return false
+  if (buffer.length < steps.length) return false
+
+  const start = buffer.length - steps.length
+  for (let i = 0; i < steps.length; i++) {
+    if (!matchStep(buffer[start + i]!, steps[i]!)) return false
+  }
+  return true
+}
+
+/**
+ * Find the longest buffer tail that is a proper prefix of at least one hotkey.
+ * Returns the prefix length and the indexes of the hotkeys it could still
+ * complete, or null when nothing is pending.
+ */
+export function findPendingMatch(
+  buffer: readonly KeyEvent[],
+  hotkeys: readonly ParsedHotkey[],
+): SequencePendingMatch | null {
+  const maxPrefixLength = Math.min(
+    buffer.length,
+    Math.max(0, ...hotkeys.map((h) => h.steps.length - 1)),
+  )
+
+  for (let prefixLength = maxPrefixLength; prefixLength > 0; prefixLength--) {
+    const start = buffer.length - prefixLength
+    const indexes: number[] = []
+
+    for (let hotkeyIndex = 0; hotkeyIndex < hotkeys.length; hotkeyIndex++) {
+      const hotkey = hotkeys[hotkeyIndex]!
+      if (hotkey.steps.length <= prefixLength) continue
+
+      let matches = true
+      for (let i = 0; i < prefixLength; i++) {
+        if (!matchStep(buffer[start + i]!, hotkey.steps[i]!)) {
+          matches = false
+          break
+        }
+      }
+
+      if (matches) indexes.push(hotkeyIndex)
+    }
+
+    if (indexes.length > 0) return { prefixLength, indexes }
+  }
+
+  return null
+}
+
+/**
+ * Drop buffer entries older than the longest hotkey could ever consume.
+ * Returns the same array when nothing needs pruning.
+ */
+export function pruneBuffer(
+  buffer: readonly KeyEvent[],
+  hotkeys: readonly ParsedHotkey[],
+): readonly KeyEvent[] {
+  const maxLen = Math.max(0, ...hotkeys.map((h) => h.steps.length))
+  if (maxLen > 0 && buffer.length > maxLen) {
+    return buffer.slice(buffer.length - maxLen)
+  }
+  return buffer
+}
+
 export class SequenceTracker {
   private buffer: KeyEvent[] = []
   private timer: ReturnType<typeof setTimeout> | null = null
@@ -46,69 +122,20 @@ export class SequenceTracker {
     this.resetTimer()
 
     for (let i = 0; i < hotkeys.length; i++) {
-      const hotkey = hotkeys[i]!
-      if (this.matchesBuffer(hotkey)) {
+      if (matchesBuffer(this.buffer, hotkeys[i]!)) {
         this.reset()
         return { matchedIndex: i, pending: null }
       }
     }
 
     // Prune buffer if no hotkey could possibly match
-    const maxLen = Math.max(0, ...hotkeys.map((h) => h.steps.length))
-    if (maxLen > 0) {
-      while (this.buffer.length > maxLen) {
-        this.buffer.shift()
-      }
-    }
+    this.buffer = [...pruneBuffer(this.buffer, hotkeys)]
 
-    return { matchedIndex: -1, pending: this.findPendingMatch(hotkeys) }
+    return { matchedIndex: -1, pending: findPendingMatch(this.buffer, hotkeys) }
   }
 
   getPendingMatch(hotkeys: ParsedHotkey[]): SequencePendingMatch | null {
-    return this.findPendingMatch(hotkeys)
-  }
-
-  private matchesBuffer(hotkey: ParsedHotkey): boolean {
-    const { steps } = hotkey
-    if (steps.length === 0) return false
-    if (this.buffer.length < steps.length) return false
-
-    const start = this.buffer.length - steps.length
-    for (let i = 0; i < steps.length; i++) {
-      if (!matchStep(this.buffer[start + i]!, steps[i]!)) return false
-    }
-    return true
-  }
-
-  private findPendingMatch(hotkeys: ParsedHotkey[]): SequencePendingMatch | null {
-    const maxPrefixLength = Math.min(
-      this.buffer.length,
-      Math.max(0, ...hotkeys.map((h) => h.steps.length - 1)),
-    )
-
-    for (let prefixLength = maxPrefixLength; prefixLength > 0; prefixLength--) {
-      const start = this.buffer.length - prefixLength
-      const indexes: number[] = []
-
-      for (let hotkeyIndex = 0; hotkeyIndex < hotkeys.length; hotkeyIndex++) {
-        const hotkey = hotkeys[hotkeyIndex]!
-        if (hotkey.steps.length <= prefixLength) continue
-
-        let matches = true
-        for (let i = 0; i < prefixLength; i++) {
-          if (!matchStep(this.buffer[start + i]!, hotkey.steps[i]!)) {
-            matches = false
-            break
-          }
-        }
-
-        if (matches) indexes.push(hotkeyIndex)
-      }
-
-      if (indexes.length > 0) return { prefixLength, indexes }
-    }
-
-    return null
+    return findPendingMatch(this.buffer, hotkeys)
   }
 
   reset(): void {

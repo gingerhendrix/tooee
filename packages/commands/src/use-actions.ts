@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react"
-import { useCommandRegistry } from "./context.js"
+import { useSurfaceRegistry } from "./context.js"
 import type { Command, CommandHandler, CommandWhen } from "./types.js"
 import type { Mode } from "./mode.js"
 
@@ -17,7 +17,7 @@ export interface ActionDefinition {
 }
 
 export function useActions(actions: ActionDefinition[] | undefined): void {
-  const { registry } = useCommandRegistry()
+  const registry = useSurfaceRegistry()
   const actionsRef = useRef(actions)
   actionsRef.current = actions
 

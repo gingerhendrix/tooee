@@ -33,8 +33,29 @@ export {
   useCommandGroup,
   useCommandRegistry,
   useCommandSequenceState,
+  useCommandStore,
   useProvideCommandContext,
+  useSurfaceCommands,
 } from "./context.js"
+export {
+  ROOT_SURFACE_ID,
+  createCommandStore,
+  selectActiveModalSurface,
+  selectGroups,
+  selectSequence,
+  selectSurfaceCommandMap,
+  selectSurfaceCommands,
+} from "./command-store.js"
+export type {
+  CommandStore,
+  CommandStoreConfig,
+  CommandStoreContext,
+  CommandStoreInstance,
+  ContextGetter,
+  CreateCommandStoreOptions,
+  KeyDispatchResult,
+  SurfaceRecord,
+} from "./command-store.js"
 export type { CommandProviderProps, CommandSurfaceProviderProps } from "./context.js"
 export { useCommand } from "./use-command.js"
 export type { UseCommandOptions } from "./use-command.js"

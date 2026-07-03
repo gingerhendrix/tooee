@@ -1,4 +1,4 @@
-import { useCallback, useRef, type ReactNode } from "react"
+import { useCallback, type ReactNode } from "react"
 import { createElement } from "react"
 import { useCommand, useCommandContext, useMode } from "@tooee/commands"
 import { useOverlay } from "@tooee/overlays"
@@ -10,16 +10,12 @@ const OVERLAY_ID = "command-palette"
 export function CommandPaletteProvider({ children }: { children: ReactNode }) {
   const mode = useMode()
   const overlay = useOverlay()
-  // Read the host command context lazily at open time. The registry is mutated
-  // by `useCommand` effects without re-rendering this provider, so a render-time
-  // snapshot of `commands` would be stale/empty. Capture it when the palette is
-  // actually opened instead.
-  const commandContext = useCommandContext()
-  const commandContextRef = useRef(commandContext)
-  commandContextRef.current = commandContext
+  // Reactive: the registry is a subscribable store, so this provider
+  // re-renders as commands register/unregister and open() always captures the
+  // current command set.
+  const { commands, invoke } = useCommandContext()
 
   const open = useCallback(() => {
-    const { commands, invoke } = commandContextRef.current
     overlay.open(
       OVERLAY_ID,
       ({ close }: { close: (reason?: OverlayCloseReason) => void }) =>
@@ -32,7 +28,7 @@ export function CommandPaletteProvider({ children }: { children: ReactNode }) {
       null,
       { ownCommands: true, role: "modal", surfaceMode: "insert" },
     )
-  }, [overlay, mode])
+  }, [overlay, mode, commands, invoke])
 
   useCommand({
     id: "command-palette",

@@ -1,4 +1,12 @@
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react"
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  type ReactNode,
+} from "react"
 
 export type Mode = "cursor" | "insert" | "select"
 
@@ -12,11 +20,31 @@ const ModeContext = createContext<ModeContextValue | null>(null)
 export interface ModeProviderProps {
   children: ReactNode
   initialMode?: Mode
+  /**
+   * Internal: called synchronously whenever `setMode` changes the mode (not
+   * for same-value calls). Used by the command dispatcher to treat mode
+   * changes as transitions (sequence reset) instead of post-render repairs.
+   */
+  onModeChange?: (mode: Mode) => void
 }
 
-export function ModeProvider({ children, initialMode = "cursor" }: ModeProviderProps) {
+export function ModeProvider({
+  children,
+  initialMode = "cursor",
+  onModeChange,
+}: ModeProviderProps) {
   const [mode, setModeState] = useState<Mode>(initialMode)
-  const setMode = useCallback((m: Mode) => setModeState(m), [])
+  const modeRef = useRef(mode)
+  const onModeChangeRef = useRef(onModeChange)
+  onModeChangeRef.current = onModeChange
+
+  const setMode = useCallback((m: Mode) => {
+    if (m !== modeRef.current) {
+      modeRef.current = m
+      onModeChangeRef.current?.(m)
+    }
+    setModeState(m)
+  }, [])
 
   const value = useMemo<ModeContextValue>(() => ({ mode, setMode }), [mode, setMode])
 

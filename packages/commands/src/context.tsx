@@ -5,10 +5,10 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useState,
   type ReactNode,
 } from "react"
 import { useKeyboard } from "@opentui/react"
+import { useSelector } from "@xstate/store-react"
 import type {
   ActiveCommandSurface,
   Command,
@@ -16,21 +16,23 @@ import type {
   CommandGroup,
   CommandRegistry,
   CommandSequenceState,
-  CommandSurfaceEntry,
   CommandSurfaceRole,
-  ParsedHotkey,
-  ParsedStep,
   RegisteredCommandGroup,
 } from "./types.js"
 import type { Mode } from "./mode.js"
 import { ModeProvider, useMode, useSetMode } from "./mode.js"
 import { parseHotkey } from "./parse.js"
-import { matchStep } from "./match.js"
-import { SequenceTracker } from "./sequence.js"
-
-const DEFAULT_MODES: Mode[] = ["cursor"]
-
-type ContextGetter = () => Partial<CommandContext>
+import {
+  ROOT_SURFACE_ID,
+  createCommandStore,
+  selectActiveModalSurface,
+  selectSequence,
+  selectSurfaceCommandMap,
+  stepsKey,
+  type CommandStore,
+  type ContextGetter,
+  type SurfaceRecord,
+} from "./command-store.js"
 
 interface CommandContextValue {
   registry: CommandRegistry
@@ -39,50 +41,37 @@ interface CommandContextValue {
   groups: Map<string, RegisteredCommandGroup>
 }
 
-interface CommandSurfaceStackValue {
-  /** Register a surface; returns an unregister function. Mutates entry.order. */
-  register: (entry: CommandSurfaceEntry) => () => void
-  /** Resolve the topmost modal surface (deepest, then most-recently registered). */
-  getActiveModalSurface: () => CommandSurfaceEntry | null
-  /** Reactive metadata for the active modal surface (for which-key/help). */
-  activeModalSurface: ActiveCommandSurface | null
+/** Internal provider value: the store plus the surface this subtree registers to. */
+interface CommandStoreContextValue {
+  commandStore: CommandStore
+  /** The surface record `useCommand` registrations under this subtree target. */
+  surface: SurfaceRecord
+  leaderKey?: string
 }
 
-const CommandContext = createContext<CommandContextValue | null>(null)
+const CommandContext = createContext<CommandStoreContextValue | null>(null)
 const CommandSequenceContext = createContext<CommandSequenceState | null>(null)
-const CommandSurfaceStackContext = createContext<CommandSurfaceStackValue | null>(null)
 /** Nesting depth of the nearest command surface (0 at the root app). */
 const CommandSurfaceDepthContext = createContext(0)
 
 /**
- * Build a command registry whose `invoke` resolves the command context lazily
- * via `getCtx`, so a surface always dispatches with its own (local) mode and
- * the current shared context sources.
+ * Fallback store for hooks that must not throw outside a CommandProvider
+ * (useActiveCommandSurface, useSurfaceCommands). Never dispatched to.
  */
-function createRegistry(getCtx: () => CommandContext): CommandRegistry {
-  const commands = new Map<string, Command>()
-  return {
-    commands,
-    register(command: Command) {
-      commands.set(command.id, command)
-      return () => {
-        // Only delete our own registration: with duplicate ids the map holds
-        // the last writer, and the first registrant's unmount must not delete
-        // the second's live command.
-        if (commands.get(command.id) === command) {
-          commands.delete(command.id)
-        }
-      }
-    },
-    invoke(id: string) {
-      const ctx = getCtx()
-      const cmd = commands.get(id)
-      if (cmd && (!cmd.when || cmd.when(ctx))) {
-        cmd.handler(ctx)
-      }
-    },
-  }
-}
+const FALLBACK_COMMAND_STORE = createCommandStore({
+  root: {
+    getMode: () => "cursor",
+    // Placeholder context: augmented domain fields (overlay, view, ...) are
+    // only present where their providers run; dispatch never reaches this.
+    buildCtx: () =>
+      ({
+        mode: "cursor",
+        setMode: () => {},
+        commands: { invoke: () => {}, list: () => [] },
+        exit: () => {},
+      }) as unknown as CommandContext,
+  },
+})
 
 export interface CommandProviderProps {
   children: ReactNode
@@ -92,6 +81,11 @@ export interface CommandProviderProps {
   sequenceTimeoutMs?: number
 }
 
+interface RootAccess {
+  getMode: () => Mode
+  buildCtx: () => CommandContext
+}
+
 export function CommandProvider({
   children,
   leader,
@@ -99,9 +93,52 @@ export function CommandProvider({
   initialMode,
   sequenceTimeoutMs,
 }: CommandProviderProps) {
+  // The store is created here (above the root ModeProvider) so mode changes
+  // can be routed into it as transitions; the dispatcher below installs the
+  // real root accessors before any key can dispatch.
+  const rootAccessRef = useRef<RootAccess>({
+    getMode: () => initialMode ?? "cursor",
+    // Placeholder until CommandDispatcher installs the real accessors on its
+    // first render (before any key can dispatch).
+    buildCtx: () =>
+      ({
+        mode: initialMode ?? "cursor",
+        setMode: () => {},
+        commands: { invoke: () => {}, list: () => [] },
+        exit: () => {},
+      }) as unknown as CommandContext,
+  })
+
+  const storeRef = useRef<CommandStore | null>(null)
+  if (storeRef.current === null) {
+    storeRef.current = createCommandStore({
+      leader,
+      keymap,
+      sequenceTimeoutMs,
+      root: {
+        getMode: () => rootAccessRef.current.getMode(),
+        buildCtx: () => rootAccessRef.current.buildCtx(),
+      },
+    })
+  }
+  const commandStore = storeRef.current
+
+  // Root mode changes are transitions: reset any pending chord synchronously
+  // (this replaces the old post-render tracker-reset effect).
+  const handleModeChange = useCallback(
+    () => commandStore.modeChanged(ROOT_SURFACE_ID),
+    [commandStore],
+  )
+
   return (
-    <ModeProvider initialMode={initialMode}>
-      <CommandDispatcher leader={leader} keymap={keymap} sequenceTimeoutMs={sequenceTimeoutMs}>
+    <ModeProvider initialMode={initialMode} onModeChange={handleModeChange}>
+      <CommandDispatcher
+        commandStore={commandStore}
+        rootAccess={rootAccessRef}
+        leader={leader}
+        keymap={keymap}
+        sequenceTimeoutMs={sequenceTimeoutMs}
+      >
         {children}
       </CommandDispatcher>
     </ModeProvider>
@@ -110,239 +147,77 @@ export function CommandProvider({
 
 function CommandDispatcher({
   children,
+  commandStore,
+  rootAccess,
   leader,
   keymap,
   sequenceTimeoutMs,
 }: {
   children: ReactNode
+  commandStore: CommandStore
+  rootAccess: { current: RootAccess }
   leader?: string
   keymap?: Record<string, string>
   sequenceTimeoutMs?: number
 }) {
-  const registryRef = useRef<CommandRegistry | null>(null)
-  const contextSourcesRef = useRef(new Map<string, ContextGetter>())
-  const groupsRef = useRef(new Map<string, RegisteredCommandGroup>())
   const mode = useMode()
   const modeRef = useRef(mode)
   modeRef.current = mode
   const setMode = useSetMode()
-  const [sequenceState, setSequenceState] = useState<CommandSequenceState | null>(null)
-  const clearSequenceStateRef = useRef(() => setSequenceState(null))
-  clearSequenceStateRef.current = () => setSequenceState(null)
 
   const buildCtx = useCallback((): CommandContext => {
+    const registry = commandStore.registryFor(commandStore.rootRecord)
     const ctx: Record<string, any> = {
       mode: modeRef.current,
       setMode,
       commands: {
-        invoke: (id: string) => registryRef.current?.invoke(id),
-        list: () => Array.from(registryRef.current?.commands.values() ?? []),
+        invoke: (id: string) => registry.invoke(id),
+        list: () => Array.from(registry.commands.values()),
       },
       exit: () => {},
     }
-    for (const getter of contextSourcesRef.current.values()) {
+    for (const getter of commandStore.store.getSnapshot().context.contextSources.values()) {
       Object.assign(ctx, getter())
     }
     return ctx as CommandContext
-  }, [setMode])
+  }, [commandStore, setMode])
 
   const buildCtxRef = useRef(buildCtx)
   buildCtxRef.current = buildCtx
 
-  if (registryRef.current === null) {
-    registryRef.current = createRegistry(() => buildCtxRef.current())
-  }
-
-  // --- Command surface stack ----------------------------------------------
-  // The root registry above is the implicit base surface. Modal overlays push
-  // surfaces on top of it; while a modal surface is topmost, key dispatch is
-  // arbitrated to that surface only and the root (and lower surfaces) are
-  // suspended — even for keys the surface does not handle.
-  const surfaceEntriesRef = useRef<CommandSurfaceEntry[]>([])
-  const surfaceOrderRef = useRef(0)
-  const [surfaceVersion, setSurfaceVersion] = useState(0)
-
-  const registerSurface = useCallback((entry: CommandSurfaceEntry) => {
-    entry.order = surfaceOrderRef.current++
-    surfaceEntriesRef.current = [...surfaceEntriesRef.current, entry]
-    setSurfaceVersion((v) => v + 1)
-    return () => {
-      surfaceEntriesRef.current = surfaceEntriesRef.current.filter((e) => e !== entry)
-      setSurfaceVersion((v) => v + 1)
-    }
-  }, [])
-
-  const getActiveModalSurface = useCallback((): CommandSurfaceEntry | null => {
-    let best: CommandSurfaceEntry | null = null
-    for (const entry of surfaceEntriesRef.current) {
-      if (entry.role !== "modal") continue
-      if (
-        best === null ||
-        entry.depth > best.depth ||
-        (entry.depth === best.depth && entry.order > best.order)
-      ) {
-        best = entry
-      }
-    }
-    return best
-  }, [])
-
-  const activeModalSurface = useMemo<ActiveCommandSurface | null>(() => {
-    const surface = getActiveModalSurface()
-    return surface ? { id: surface.id, role: surface.role } : null
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getActiveModalSurface, surfaceVersion])
-
-  const surfaceStackValue = useMemo<CommandSurfaceStackValue>(
-    () => ({ register: registerSurface, getActiveModalSurface, activeModalSurface }),
-    [registerSurface, getActiveModalSurface, activeModalSurface],
-  )
-
-  const trackerRef = useRef(
-    new SequenceTracker({
-      timeout: sequenceTimeoutMs,
-      onReset: () => clearSequenceStateRef.current(),
-    }),
-  )
-
-  // Dispose the tracker on dispatcher unmount: reset() clears the pending
-  // timeout so it cannot fire (and touch state) after the tree is gone.
-  useEffect(() => {
-    const tracker = trackerRef.current
-    return () => tracker.reset()
-  }, [])
-
-  const parseCacheRef = useRef(new Map<string, ParsedHotkey>())
-
-  const getParsedHotkey = useCallback(
-    (hotkey: string) => {
-      const cache = parseCacheRef.current
-      const cacheKey = `${hotkey}:${leader ?? ""}`
-      let parsed = cache.get(cacheKey)
-      if (!parsed) {
-        parsed = parseHotkey(hotkey, leader)
-        cache.set(cacheKey, parsed)
-      }
-      return parsed
-    },
-    [leader],
-  )
+  // Install the live root accessors and config (ref writes, same pattern as
+  // the previous modeRef mirrors; leader/keymap are read per dispatch).
+  rootAccess.current.getMode = () => modeRef.current
+  rootAccess.current.buildCtx = () => buildCtxRef.current()
+  commandStore.setConfig({ leader, keymap, sequenceTimeoutMs })
 
   useKeyboard((event) => {
     if (event.defaultPrevented) return
-
-    const rootRegistry = registryRef.current
-    if (!rootRegistry) return
-
-    // Arbitration: a topmost modal surface owns input; otherwise the root app.
-    const activeSurface = getActiveModalSurface()
-    const registry = activeSurface ? activeSurface.registry : rootRegistry
-    const currentMode = activeSurface ? activeSurface.getMode() : modeRef.current
-    const ctx = activeSurface ? activeSurface.buildCtx() : buildCtx()
-
-    // Collect eligible commands with their parsed hotkeys
-    const singleStepCandidates: { command: Command; parsed: ParsedHotkey }[] = []
-    const multiStepCandidates: { command: Command; hotkey: string; parsed: ParsedHotkey }[] = []
-
-    for (const command of registry.commands.values()) {
-      const commandModes = command.modes ?? DEFAULT_MODES
-      if (!commandModes.includes(currentMode)) continue
-      if (command.when && !command.when(ctx)) continue
-
-      const hotkey = keymap?.[command.id] ?? command.defaultHotkey
-      if (!hotkey) continue
-
-      const parsed = getParsedHotkey(hotkey)
-
-      // Unmatchable hotkeys (e.g. <leader> with no configured leader) register
-      // nothing rather than matching everything.
-      if (parsed.steps.length === 0) continue
-
-      if (parsed.steps.length === 1) {
-        singleStepCandidates.push({ command, parsed })
-      } else {
-        multiStepCandidates.push({ command, hotkey, parsed })
-      }
+    const result = commandStore.key(event)
+    if (result.handled) {
+      event.preventDefault()
+      result.invoke?.()
     }
-
-    // Check multi-step sequences first (they consume buffer state)
-    if (multiStepCandidates.length > 0) {
-      const multiStepHotkeys = multiStepCandidates.map((candidate) => candidate.parsed)
-      const result = trackerRef.current.feedWithState(event, multiStepHotkeys)
-      if (result.matchedIndex >= 0) {
-        event.preventDefault()
-        setSequenceState(null)
-        multiStepCandidates[result.matchedIndex]!.command.handler(ctx)
-        return
-      }
-
-      if (result.pending) {
-        const firstCandidate = multiStepCandidates[result.pending.indexes[0]!]!
-        setSequenceState({
-          prefix: firstCandidate.parsed.steps.slice(0, result.pending.prefixLength),
-          candidates: result.pending.indexes
-            .map((idx) => multiStepCandidates[idx]!)
-            .filter(({ command }) => !command.hidden)
-            .map(({ command, hotkey, parsed }) => ({
-              command,
-              hotkey,
-              steps: parsed.steps,
-              remainingSteps: parsed.steps.slice(result.pending!.prefixLength),
-              nextStep: parsed.steps[result.pending!.prefixLength]!,
-              group: groupsRef.current.get(
-                stepsKey(parsed.steps.slice(0, result.pending!.prefixLength + 1)),
-              ),
-            })),
-        })
-        event.preventDefault()
-        return
-      }
-
-      setSequenceState(null)
-    }
-
-    // Check single-step matches
-    for (const { command, parsed } of singleStepCandidates) {
-      if (matchStep(event, parsed.steps[0]!)) {
-        event.preventDefault()
-        setSequenceState(null)
-        command.handler(ctx)
-        return
-      }
-    }
-
-    // A modal surface swallows unhandled keys: dispatch never falls through to
-    // the root app while a modal surface is topmost.
   })
 
-  useEffect(() => {
-    trackerRef.current.reset()
-    setSequenceState(null)
-  }, [mode])
+  // Clear the store's key buffer and pending timeout on dispatcher unmount so
+  // the timer cannot fire after the tree is gone.
+  useEffect(() => () => commandStore.dispose(), [commandStore])
 
-  // Reset any in-flight sequence when keyboard ownership changes (e.g. a modal
-  // surface opens/closes) so partial chords don't leak across surfaces. Passive
-  // surfaces such as which-key must not clear the sequence they are displaying.
-  useEffect(() => {
-    trackerRef.current.reset()
-    setSequenceState(null)
-  }, [activeModalSurface?.id])
+  const sequenceState = useSelector(commandStore.store, (s) => selectSequence(s.context))
 
-  const ctxValue = useMemo(
+  const ctxValue = useMemo<CommandStoreContextValue>(
     () => ({
-      registry: registryRef.current!,
+      commandStore,
+      surface: commandStore.rootRecord,
       leaderKey: leader,
-      contextSources: contextSourcesRef.current,
-      groups: groupsRef.current,
     }),
-    [leader],
+    [commandStore, leader],
   )
 
   return (
     <CommandContext.Provider value={ctxValue}>
-      <CommandSurfaceStackContext.Provider value={surfaceStackValue}>
-        <CommandSequenceContext value={sequenceState}>{children}</CommandSequenceContext>
-      </CommandSurfaceStackContext.Provider>
+      <CommandSequenceContext value={sequenceState}>{children}</CommandSequenceContext>
     </CommandContext.Provider>
   )
 }
@@ -371,8 +246,21 @@ export function CommandSurfaceProvider({
   role = "modal",
   initialMode = "cursor",
 }: CommandSurfaceProviderProps) {
+  const parent = useContext(CommandContext)
+  if (!parent) {
+    throw new Error("CommandSurfaceProvider must be used within a CommandProvider")
+  }
+  const { commandStore } = parent
+
+  // Surface-local mode changes are transitions too (F-08): a mid-chord mode
+  // switch on a modal surface resets the pending sequence.
+  const handleModeChange = useCallback(
+    () => commandStore.modeChanged(id),
+    [commandStore, id],
+  )
+
   return (
-    <ModeProvider initialMode={initialMode}>
+    <ModeProvider initialMode={initialMode} onModeChange={handleModeChange}>
       <CommandSurfaceInner id={id} role={role}>
         {children}
       </CommandSurfaceInner>
@@ -390,10 +278,10 @@ function CommandSurfaceInner({
   role: CommandSurfaceRole
 }) {
   const parent = useContext(CommandContext)
-  const stack = useContext(CommandSurfaceStackContext)
-  if (!parent || !stack) {
+  if (!parent) {
     throw new Error("CommandSurfaceProvider must be used within a CommandProvider")
   }
+  const { commandStore } = parent
 
   const parentDepth = useContext(CommandSurfaceDepthContext)
   const depth = parentDepth + 1
@@ -403,53 +291,55 @@ function CommandSurfaceInner({
   const modeRef = useRef(mode)
   modeRef.current = mode
 
-  const registryRef = useRef<CommandRegistry | null>(null)
-
   const buildCtx = useCallback((): CommandContext => {
+    const registry = commandStore.registryFor(recordRef.current!)
     const ctx: Record<string, any> = {
       mode: modeRef.current,
       setMode,
       commands: {
-        invoke: (cmdId: string) => registryRef.current?.invoke(cmdId),
-        list: () => Array.from(registryRef.current?.commands.values() ?? []),
+        invoke: (cmdId: string) => registry.invoke(cmdId),
+        list: () => Array.from(registry.commands.values()),
       },
       exit: () => {},
     }
-    for (const getter of parent.contextSources.values()) {
+    for (const getter of commandStore.store.getSnapshot().context.contextSources.values()) {
       Object.assign(ctx, getter())
     }
     return ctx as CommandContext
-  }, [parent.contextSources, setMode])
+  }, [commandStore, setMode])
 
   const buildCtxRef = useRef(buildCtx)
   buildCtxRef.current = buildCtx
 
-  if (registryRef.current === null) {
-    registryRef.current = createRegistry(() => buildCtxRef.current())
-  }
-
-  const { register } = stack
-  useEffect(() => {
-    const entry: CommandSurfaceEntry = {
+  const recordRef = useRef<SurfaceRecord | null>(null)
+  if (
+    recordRef.current === null ||
+    recordRef.current.id !== id ||
+    recordRef.current.role !== role ||
+    recordRef.current.depth !== depth
+  ) {
+    recordRef.current = {
       id,
       role,
       depth,
       order: 0,
-      registry: registryRef.current!,
       getMode: () => modeRef.current,
       buildCtx: () => buildCtxRef.current(),
     }
-    return register(entry)
-  }, [register, id, role, depth])
+  }
+  const record = recordRef.current
 
-  const ctxValue = useMemo<CommandContextValue>(
+  // Mount/unmount registration is a keep-effect: it synchronizes the React
+  // tree with the store's surface stack.
+  useEffect(() => commandStore.pushSurface(record), [commandStore, record])
+
+  const ctxValue = useMemo<CommandStoreContextValue>(
     () => ({
-      registry: registryRef.current!,
+      commandStore,
+      surface: record,
       leaderKey: parent.leaderKey,
-      contextSources: parent.contextSources,
-      groups: parent.groups,
     }),
-    [parent.leaderKey, parent.contextSources, parent.groups],
+    [commandStore, record, parent.leaderKey],
   )
 
   return (
@@ -466,14 +356,36 @@ export function useCommandContext(): { commands: Command[]; invoke: (id: string)
   if (!ctx) {
     throw new Error("useCommandContext must be used within a CommandProvider")
   }
+  const { commandStore, surface } = ctx
 
-  const { registry } = ctx
-  return {
-    get commands() {
-      return Array.from(registry.commands.values())
-    },
-    invoke: registry.invoke,
+  // Reactive: consumers re-render when a command registers or unregisters on
+  // this surface (the per-surface map is identity-stable otherwise).
+  const commandMap = useSelector(commandStore.store, (s) =>
+    selectSurfaceCommandMap(s.context, surface.id),
+  )
+  const registry = commandStore.registryFor(surface)
+
+  return useMemo(
+    () => ({
+      commands: commandMap ? Array.from(commandMap.values()) : [],
+      invoke: registry.invoke,
+    }),
+    [commandMap, registry],
+  )
+}
+
+/**
+ * Internal: the stable registry facade for the nearest surface, without
+ * subscribing to store changes. Registration hooks (useCommand/useActions)
+ * only need the facade; subscribing them would re-render every command host
+ * on unrelated group/context-source registrations.
+ */
+export function useSurfaceRegistry(): CommandRegistry {
+  const ctx = useContext(CommandContext)
+  if (!ctx) {
+    throw new Error("useCommandRegistry must be used within a CommandProvider")
   }
+  return ctx.commandStore.registryFor(ctx.surface)
 }
 
 export function useCommandRegistry(): CommandContextValue {
@@ -481,7 +393,23 @@ export function useCommandRegistry(): CommandContextValue {
   if (!ctx) {
     throw new Error("useCommandRegistry must be used within a CommandProvider")
   }
-  return ctx
+  const { commandStore, surface, leaderKey } = ctx
+
+  // Subscribe to the slices so captured maps stay current across renders (the
+  // maps are immutable snapshots now, not shared mutable maps).
+  const groups = useSelector(commandStore.store, (s) => s.context.groups)
+  const contextSources = useSelector(commandStore.store, (s) => s.context.contextSources)
+  const registry = commandStore.registryFor(surface)
+
+  return useMemo(
+    () => ({
+      registry,
+      leaderKey,
+      contextSources: contextSources as Map<string, ContextGetter>,
+      groups: groups as Map<string, RegisteredCommandGroup>,
+    }),
+    [registry, leaderKey, contextSources, groups],
+  )
 }
 
 export function useCommandSequenceState(): CommandSequenceState | null {
@@ -491,11 +419,55 @@ export function useCommandSequenceState(): CommandSequenceState | null {
 /**
  * Metadata for the topmost modal command surface, or null when the root app is
  * the active surface. Intended for which-key/help to read shortcuts from the
- * active interaction surface.
+ * active interaction surface. `commands` is reactive (F-13).
  */
 export function useActiveCommandSurface(): ActiveCommandSurface | null {
-  const ctx = useContext(CommandSurfaceStackContext)
-  return ctx ? ctx.activeModalSurface : null
+  const ctx = useContext(CommandContext)
+  const store = (ctx?.commandStore ?? FALLBACK_COMMAND_STORE).store
+
+  const record = useSelector(store, (s) => selectActiveModalSurface(s.context))
+  const commandMap = useSelector(store, (s) => {
+    const active = selectActiveModalSurface(s.context)
+    return active ? selectSurfaceCommandMap(s.context, active.id) : undefined
+  })
+
+  return useMemo(() => {
+    if (!record) return null
+    return {
+      id: record.id,
+      role: record.role as CommandSurfaceRole,
+      commands: commandMap ? Array.from(commandMap.values()) : [],
+    }
+  }, [record, commandMap])
+}
+
+/**
+ * Commands registered on a surface (reactive). Defaults to the active modal
+ * surface, falling back to the root surface when none is active.
+ */
+export function useSurfaceCommands(surfaceId?: string): readonly Command[] {
+  const ctx = useContext(CommandContext)
+  const store = (ctx?.commandStore ?? FALLBACK_COMMAND_STORE).store
+
+  const commandMap = useSelector(store, (s) => {
+    const id = surfaceId ?? selectActiveModalSurface(s.context)?.id ?? ROOT_SURFACE_ID
+    return selectSurfaceCommandMap(s.context, id)
+  })
+
+  return useMemo(() => (commandMap ? Array.from(commandMap.values()) : []), [commandMap])
+}
+
+/**
+ * Advanced/internal — subject to change. The command store instance backing
+ * this provider tree, for bridges that must reach the dispatch machinery
+ * (e.g. the shell's overlay-replacement sequence reset).
+ */
+export function useCommandStore(): CommandStore {
+  const ctx = useContext(CommandContext)
+  if (!ctx) {
+    throw new Error("useCommandStore must be used within a CommandProvider")
+  }
+  return ctx.commandStore
 }
 
 export function useCommandGroup(group: CommandGroup): void {
@@ -506,7 +478,7 @@ export function useCommandGroup(group: CommandGroup): void {
 
   const groupRef = useRef(group)
   groupRef.current = group
-  const { groups, leaderKey } = ctx
+  const { commandStore, leaderKey } = ctx
 
   useEffect(() => {
     const parsed = parseHotkey(groupRef.current.prefix, leaderKey)
@@ -514,12 +486,10 @@ export function useCommandGroup(group: CommandGroup): void {
       ...groupRef.current,
       prefixKey: stepsKey(parsed.steps),
     }
-    groups.set(registered.prefixKey, registered)
+    commandStore.store.trigger.groupRegistered({ group: registered })
     return () => {
-      // Only delete our own registration (see createRegistry unregister).
-      if (groups.get(registered.prefixKey) === registered) {
-        groups.delete(registered.prefixKey)
-      }
+      // Unregistration is identity-guarded in the store transition (R-05).
+      commandStore.store.trigger.groupUnregistered({ group: registered })
     }
   }, [
     group.id,
@@ -528,24 +498,9 @@ export function useCommandGroup(group: CommandGroup): void {
     group.description,
     group.icon,
     group.order,
-    groups,
+    commandStore,
     leaderKey,
   ])
-}
-
-function stepsKey(steps: ParsedStep[]): string {
-  return steps.map(formatStepKey).join(" ")
-}
-
-function formatStepKey(step: ParsedStep): string {
-  const modifiers = []
-  if (step.ctrl) modifiers.push("ctrl")
-  if (step.meta) modifiers.push("meta")
-  if (step.option) modifiers.push("option")
-  if (step.shift) modifiers.push("shift")
-  if (step.super) modifiers.push("super")
-  modifiers.push(step.key)
-  return modifiers.join("+")
 }
 
 let nextContextSourceId = 0
@@ -564,13 +519,16 @@ export function useProvideCommandContext(getter: () => Partial<CommandContext>):
   const getterRef = useRef(getter)
   getterRef.current = getter
 
-  const { contextSources } = ctx
+  const { commandStore } = ctx
 
   useEffect(() => {
     const id = idRef.current!
-    contextSources.set(id, () => getterRef.current())
+    commandStore.store.trigger.contextSourceRegistered({
+      id,
+      getter: () => getterRef.current(),
+    })
     return () => {
-      contextSources.delete(id)
+      commandStore.store.trigger.contextSourceUnregistered({ id })
     }
-  }, [contextSources])
+  }, [commandStore])
 }
