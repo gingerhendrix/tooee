@@ -201,6 +201,26 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     return 0
   }
 
+  /**
+   * Map an absolute terminal Y coordinate (as delivered on a `MouseEvent`) to a
+   * logical row index. Returns `null` when the Y is above/below the scroll
+   * viewport or past the last rendered content row, so callers can ignore clicks
+   * that land on empty space. Clicks that land in an inter-row margin gap resolve
+   * to the nearest row above (via `getRowAtVirtualY`).
+   *
+   * Works for both multi-child mode (row = child index, e.g. a markdown block)
+   * and provider mode (row = source line, e.g. a code line): geometry is
+   * recomputed every frame in `renderSelf`, so `_virtualRowToRow` is current by
+   * the time a click is processed.
+   */
+  getRowAtScreenY(screenY: number): number | null {
+    const localY = screenY - this.viewport.y
+    if (localY < 0 || localY >= this.viewport.height) return null
+    const virtualY = Math.floor(this.scrollTop) + localY
+    if (virtualY < 0 || virtualY >= this._virtualRowToRow.length) return null
+    return this.getRowAtVirtualY(virtualY)
+  }
+
   getVisibleRange(): {
     virtualTop: number
     virtualBottom: number

@@ -1,16 +1,18 @@
-import { useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import { marked } from "marked"
 import type { TextBufferRenderable } from "@opentui/core"
 import {
   MarkdownView,
   flattenTokens,
   type CodeBlockRenderer,
+  type ContextMenuEntry,
   type RowDocumentRenderable,
 } from "@tooee/renderers"
 import { useTheme } from "@tooee/themes"
-import { useCommand } from "@tooee/commands"
+import { useCommand, useCommandContext } from "@tooee/commands"
+import { useHasModalOverlay } from "@tooee/overlays"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
-import { useCopy, useNavigation } from "@tooee/shell"
+import { useContextMenu, useCopy, useNavigation } from "@tooee/shell"
 import { useSearch } from "@tooee/search"
 import type { MarkdownContent } from "../../types.js"
 import { useMarkState } from "../../hooks/useMarkState.js"
@@ -40,6 +42,9 @@ export function MarkdownSubview({
 }: MarkdownSubviewProps) {
   const { theme } = useTheme()
   const docRef = useRef<RowDocumentRenderable>(null)
+  const hasModalOverlay = useHasModalOverlay()
+  const contextMenu = useContextMenu()
+  const { invoke } = useCommandContext()
   const textContent = content.markdown
   const lineCount = useMemo(() => textContent.split("\n").length, [textContent])
   const blocks = useMemo(() => flattenTokens(marked.lexer(content.markdown)), [content.markdown])
@@ -108,6 +113,36 @@ export function MarkdownSubview({
     },
   })
 
+  const menuEntries = useMemo<ContextMenuEntry[]>(
+    () =>
+      (actions ?? [])
+        .filter((action) => !action.hidden)
+        .map((action) => ({ id: action.id, title: action.title, hotkey: action.hotkey })),
+    [actions],
+  )
+
+  // Left-click selects the clicked block; right-click selects it and opens the
+  // same app-provided action menu as table/code rows. Both stand down while a
+  // modal overlay is up (theme picker, command palette, Ask/Choose), matching
+  // keyboard stand-down semantics.
+  const setCursor = nav.setCursor
+  const openContextMenu = contextMenu.open
+  const handleRowClick = useCallback(
+    (index: number) => {
+      if (hasModalOverlay) return
+      setCursor(index)
+    },
+    [hasModalOverlay, setCursor],
+  )
+  const handleRowContextMenu = useCallback(
+    (index: number, x: number, y: number) => {
+      if (hasModalOverlay) return
+      setCursor(index)
+      openContextMenu(x, y, menuEntries, invoke)
+    },
+    [hasModalOverlay, setCursor, openContextMenu, menuEntries, invoke],
+  )
+
   const { themeName, showLineNumbers } = useViewCommands({ content, textContent, actions })
 
   const markState = useMarkState({
@@ -160,6 +195,8 @@ export function MarkdownSubview({
         docRef={docRef}
         hScrollableBlocksRef={hScrollableBlocksRef}
         codeBlockRenderers={codeBlockRenderers}
+        onRowClick={handleRowClick}
+        onRowContextMenu={handleRowContextMenu}
       />
     </SubviewLayout>
   )
