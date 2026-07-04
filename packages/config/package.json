@@ -1,6 +1,6 @@
 {
   "name": "@tooee/config",
-  "version": "0.1.20",
+  "version": "0.1.21",
   "description": "Layered configuration system for Tooee apps",
   "keywords": [
     "cli",
