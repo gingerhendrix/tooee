@@ -238,7 +238,12 @@ describe("F-13: surface command metadata", () => {
   test("useActiveCommandSurface().commands lists the modal surface's commands reactively", async () => {
     function ActiveProbe() {
       const active = useActiveCommandSurface()
-      const ids = active ? active.commands.map((c) => c.id).sort().join(",") : "none"
+      const ids = active
+        ? active.commands
+            .map((c) => c.id)
+            .sort()
+            .join(",")
+        : "none"
       return <text content={`active-commands:[${ids}]`} />
     }
 
@@ -279,7 +284,10 @@ describe("F-13: surface command metadata", () => {
   test("useSurfaceCommands defaults to the active surface and falls back to root", async () => {
     function SurfaceCommandsProbe() {
       const commands = useSurfaceCommands()
-      const ids = commands.map((c) => c.id).sort().join(",")
+      const ids = commands
+        .map((c) => c.id)
+        .sort()
+        .join(",")
       return <text content={`surface-commands:[${ids}]`} />
     }
 

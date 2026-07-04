@@ -6,19 +6,19 @@ built on `@xstate/store`, with thin React adapters on top. This note records
 when to reach for a store, where store code lives, and how it is tested.
 
 Rule of thumb: **transition logic moves into store events; IO stays at the
-boundary.** An effect that only *repairs state after render* is a store
+boundary.** An effect that only _repairs state after render_ is a store
 transition in disguise. An effect that talks to a renderer, timer, stream, or
 process is doing its job.
 
 ## When to use what
 
-| Situation | Use |
-|---|---|
-| Synchronous state updated by named events; cross-component; needs subscription/selectors (registry, surface stack, overlay stack, nav/search, sequence display) | `@xstate/store` |
-| Async lifecycles with real states and cancellable work (content loader) | `@xstate/store` + request-ids first; full `xstate` only if a written justification shows the statechart pays for itself |
-| Component-local input state that never crosses a component boundary (a filter query local to one overlay, a focus flag) | React `useState` |
-| Purely derived render data | `useMemo`/selectors — never an effect, never a store |
-| Imperative OpenTUI ref sync, subscriptions, timers, async IO | effects (or store-adjacent wrappers) — these are legitimate external synchronization and stay effects |
+| Situation                                                                                                                                                       | Use                                                                                                                     |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Synchronous state updated by named events; cross-component; needs subscription/selectors (registry, surface stack, overlay stack, nav/search, sequence display) | `@xstate/store`                                                                                                         |
+| Async lifecycles with real states and cancellable work (content loader)                                                                                         | `@xstate/store` + request-ids first; full `xstate` only if a written justification shows the statechart pays for itself |
+| Component-local input state that never crosses a component boundary (a filter query local to one overlay, a focus flag)                                         | React `useState`                                                                                                        |
+| Purely derived render data                                                                                                                                      | `useMemo`/selectors — never an effect, never a store                                                                    |
+| Imperative OpenTUI ref sync, subscriptions, timers, async IO                                                                                                    | effects (or store-adjacent wrappers) — these are legitimate external synchronization and stay effects                   |
 
 ## File layout
 

@@ -156,12 +156,8 @@ describe("command store — registration", () => {
     const registry = cs.registryFor(surface)
     const seen: Mode[] = []
     let blocked = 0
-    registry.register(
-      command("go", "g", { handler: (ctx) => seen.push(ctx.mode) }),
-    )
-    registry.register(
-      command("no", "n", { when: () => false, handler: () => blocked++ }),
-    )
+    registry.register(command("go", "g", { handler: (ctx) => seen.push(ctx.mode) }))
+    registry.register(command("no", "n", { when: () => false, handler: () => blocked++ }))
 
     registry.invoke("go")
     registry.invoke("no")

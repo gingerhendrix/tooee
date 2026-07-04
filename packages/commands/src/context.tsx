@@ -254,10 +254,7 @@ export function CommandSurfaceProvider({
 
   // Surface-local mode changes are transitions too (F-08): a mid-chord mode
   // switch on a modal surface resets the pending sequence.
-  const handleModeChange = useCallback(
-    () => commandStore.modeChanged(id),
-    [commandStore, id],
-  )
+  const handleModeChange = useCallback(() => commandStore.modeChanged(id), [commandStore, id])
 
   return (
     <ModeProvider initialMode={initialMode} onModeChange={handleModeChange}>

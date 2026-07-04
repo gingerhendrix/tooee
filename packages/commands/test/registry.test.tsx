@@ -1,12 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe } from "bun:test"
 import { act, useState } from "react"
-import {
-  CommandProvider,
-  useCommand,
-  useCommandGroup,
-  useCommandRegistry,
-} from "../src/index.js"
+import { CommandProvider, useCommand, useCommandGroup, useCommandRegistry } from "../src/index.js"
 import type { RegisteredCommandGroup } from "../src/index.js"
 
 type TestSession = Awaited<ReturnType<typeof testRender>>

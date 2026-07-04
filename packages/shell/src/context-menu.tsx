@@ -7,12 +7,7 @@ const OVERLAY_ID = "context-menu"
 
 export interface ContextMenuController {
   /** Open a context menu at screen coordinates with the given entries. */
-  open: (
-    x: number,
-    y: number,
-    entries: ContextMenuEntry[],
-    onSelect: (id: string) => void,
-  ) => void
+  open: (x: number, y: number, entries: ContextMenuEntry[], onSelect: (id: string) => void) => void
   /** Close the context menu if open. */
   close: () => void
 }

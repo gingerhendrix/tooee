@@ -34,10 +34,7 @@ function lineOf(frame: string, text: string): { x: number; y: number } {
   return { x: -1, y: -1 }
 }
 
-async function setup(opts: {
-  onSelect?: (item: ChooseItem) => void
-  onCancel?: () => void
-}) {
+async function setup(opts: { onSelect?: (item: ChooseItem) => void; onCancel?: () => void }) {
   const s = await testRender(
     <TooeeProvider initialMode="insert">
       <ChooseOverlay

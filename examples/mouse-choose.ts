@@ -20,8 +20,18 @@
 import { launch, createStaticProvider, type ChooseItem } from "@tooee/choose"
 
 const frameworks: ChooseItem[] = [
-  { text: "OpenTUI", value: "opentui", icon: "\u{1F5A5}", description: "Zig-native terminal renderer" },
-  { text: "React", value: "react", icon: "\u{269B}", description: "Declarative UI via the reconciler" },
+  {
+    text: "OpenTUI",
+    value: "opentui",
+    icon: "\u{1F5A5}",
+    description: "Zig-native terminal renderer",
+  },
+  {
+    text: "React",
+    value: "react",
+    icon: "\u{269B}",
+    description: "Declarative UI via the reconciler",
+  },
   { text: "Solid", value: "solid", icon: "\u{1F9F1}", description: "Fine-grained reactivity" },
   { text: "Bun", value: "bun", icon: "\u{1F35E}", description: "Fast all-in-one runtime" },
   { text: "TypeScript", value: "typescript", icon: "\u{1F4D8}", description: "Typed JavaScript" },

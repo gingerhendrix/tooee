@@ -228,7 +228,12 @@ describe("command surface arbitration", () => {
       const [surfaceAction, setSurfaceAction] = useState(0)
       const active = useActiveCommandSurface()
 
-      useCommand({ id: "root.open", title: "Open", hotkey: "o", handler: () => setShowSurface(true) })
+      useCommand({
+        id: "root.open",
+        title: "Open",
+        hotkey: "o",
+        handler: () => setShowSurface(true),
+      })
 
       useKeyboard((key) => {
         if (key.name === "z") setUnguarded((n) => n + 1)
