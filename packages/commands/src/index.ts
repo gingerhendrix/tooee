@@ -35,6 +35,7 @@ export {
   useCommandSequenceState,
   useCommandStore,
   useProvideCommandContext,
+  useProvideCommandContextKey,
   useSurfaceCommands,
 } from "./context.js"
 export {

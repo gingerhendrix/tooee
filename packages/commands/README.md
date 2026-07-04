@@ -4,6 +4,27 @@ Vim-inspired modal command system for Tooee.
 
 Part of the [Tooee](https://github.com/gingerhendrix/tooee) monorepo. See the main repo for documentation.
 
+## Command-context extensions
+
+Packages extend `CommandContext` with TypeScript module augmentation and provide
+runtime values with command-context providers. Use `useProvideCommandContextKey`
+for one keyed slice so the value is checked against the augmented key:
+
+```tsx
+declare module "@tooee/commands" {
+  interface CommandContext {
+    myApp: { selectedId: string | null }
+  }
+}
+
+useProvideCommandContextKey("myApp", () => ({ selectedId }))
+```
+
+Key ownership is by convention: Tooee packages use short built-in keys such as
+`view`, `ask`, `choose`, `overlay`, and `toast`; apps and third-party packages
+should use app/package-specific keys to avoid collisions. If multiple providers
+return the same top-level key, the last registered provider wins.
+
 ## Raw `useKeyboard` policy
 
 App-level `useKeyboard` handlers MUST guard against active overlays — either

@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef } from "react"
-import { Table, type RowDocumentRenderable, type ContextMenuEntry } from "@tooee/renderers"
+import { Table, type RowDocumentRenderable } from "@tooee/renderers"
 import { useTheme } from "@tooee/themes"
 import { useCommandContext } from "@tooee/commands"
 import { useHasModalOverlay } from "@tooee/overlays"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
-import { useContextMenu, useCopy, useNavigation } from "@tooee/shell"
+import { actionsToContextMenuEntries, useContextMenu, useCopy, useNavigation } from "@tooee/shell"
 import { useSearch } from "@tooee/search"
 import { getTextContent, type TableContent } from "../../types.js"
 import { useMarkState } from "../../hooks/useMarkState.js"
@@ -113,13 +113,7 @@ export function TableSubview({
   })
 
   // Row-scoped context-menu entries come from the app-provided actions.
-  const menuEntries = useMemo<ContextMenuEntry[]>(
-    () =>
-      (actions ?? [])
-        .filter((action) => !action.hidden)
-        .map((action) => ({ id: action.id, title: action.title, hotkey: action.hotkey })),
-    [actions],
-  )
+  const menuEntries = useMemo(() => actionsToContextMenuEntries(actions), [actions])
 
   // Row mouse handlers stand down while a modal overlay (theme picker, command
   // palette, Ask/Choose overlays, the context menu itself) is up: centered

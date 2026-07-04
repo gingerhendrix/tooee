@@ -5,14 +5,13 @@ import {
   MarkdownView,
   flattenTokens,
   type CodeBlockRenderer,
-  type ContextMenuEntry,
   type RowDocumentRenderable,
 } from "@tooee/renderers"
 import { useTheme } from "@tooee/themes"
 import { useCommand, useCommandContext } from "@tooee/commands"
 import { useHasModalOverlay } from "@tooee/overlays"
 import { useViewCommandContext } from "../../hooks/useViewCommandContext.js"
-import { useContextMenu, useCopy, useNavigation } from "@tooee/shell"
+import { actionsToContextMenuEntries, useContextMenu, useCopy, useNavigation } from "@tooee/shell"
 import { useSearch } from "@tooee/search"
 import type { MarkdownContent } from "../../types.js"
 import { useMarkState } from "../../hooks/useMarkState.js"
@@ -113,13 +112,7 @@ export function MarkdownSubview({
     },
   })
 
-  const menuEntries = useMemo<ContextMenuEntry[]>(
-    () =>
-      (actions ?? [])
-        .filter((action) => !action.hidden)
-        .map((action) => ({ id: action.id, title: action.title, hotkey: action.hotkey })),
-    [actions],
-  )
+  const menuEntries = useMemo(() => actionsToContextMenuEntries(actions), [actions])
 
   // Left-click selects the clicked block; right-click selects it and opens the
   // same app-provided action menu as table/code rows. Both stand down while a

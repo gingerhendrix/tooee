@@ -1,6 +1,7 @@
 import { useCallback, createElement } from "react"
 import { useOverlay } from "@tooee/overlays"
 import type { OverlayCloseReason } from "@tooee/overlays"
+import type { ActionDefinition } from "@tooee/commands"
 import { ContextMenu, type ContextMenuEntry } from "@tooee/renderers"
 
 const OVERLAY_ID = "context-menu"
@@ -10,6 +11,14 @@ export interface ContextMenuController {
   open: (x: number, y: number, entries: ContextMenuEntry[], onSelect: (id: string) => void) => void
   /** Close the context menu if open. */
   close: () => void
+}
+
+export function actionsToContextMenuEntries(
+  actions: readonly ActionDefinition[] | undefined,
+): ContextMenuEntry[] {
+  return (actions ?? [])
+    .filter((action) => !action.hidden)
+    .map((action) => ({ id: action.id, title: action.title, hotkey: action.hotkey }))
 }
 
 /**

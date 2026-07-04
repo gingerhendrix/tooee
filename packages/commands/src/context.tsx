@@ -529,3 +529,10 @@ export function useProvideCommandContext(getter: () => Partial<CommandContext>):
     }
   }, [commandStore])
 }
+
+export function useProvideCommandContextKey<K extends keyof CommandContext>(
+  key: K,
+  getter: () => CommandContext[K],
+): void {
+  useProvideCommandContext(() => ({ [key]: getter() }) as Pick<CommandContext, K>)
+}

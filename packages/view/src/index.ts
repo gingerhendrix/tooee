@@ -10,6 +10,16 @@ export {
 } from "./default-provider.js"
 export { listDirectoryFiles } from "./directory-provider.js"
 export type { DirectoryEntry } from "./directory-provider.js"
+export {
+  createViewCommandContext,
+  useProvideViewCommandContext,
+  useViewCommandContext,
+} from "./hooks/useViewCommandContext.js"
+export type {
+  CreateViewCommandContextOptions,
+  ProvideViewCommandContextOptions,
+  ViewCommandContext,
+} from "./hooks/useViewCommandContext.js"
 export type {
   AnyContent,
   Content,

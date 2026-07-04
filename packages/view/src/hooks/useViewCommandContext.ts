@@ -1,4 +1,4 @@
-import { useProvideCommandContext, useMode } from "@tooee/commands"
+import { useProvideCommandContextKey, useMode } from "@tooee/commands"
 import type { Mode } from "@tooee/commands"
 import type { NavigationState } from "@tooee/shell"
 import type { MarkSet } from "@tooee/marks"
@@ -8,6 +8,8 @@ import type { AnyContent } from "../types.js"
 export interface ViewCommandContext {
   content: AnyContent
   format: string
+  title?: string
+  data?: unknown
   cursor: number | null
   selection: { start: number; end: number } | null
   mode: Mode
@@ -28,6 +30,92 @@ declare module "@tooee/commands" {
   interface CommandContext {
     view: ViewCommandContext
   }
+}
+
+const noop = () => {}
+
+type ViewNavigationContext = Pick<NavigationState, "cursor" | "selection" | "toggledIndices">
+
+export interface CreateViewCommandContextOptions {
+  /**
+   * Content represented by this command context. Custom/headless surfaces may
+   * omit it; the builder will synthesize a minimal custom content object.
+   */
+  content?: AnyContent
+  format?: string
+  title?: string
+  data?: unknown
+  nav?: ViewNavigationContext
+  cursor?: number | null
+  selection?: { start: number; end: number } | null
+  /** Caller-owned mode value. Prefer `useProvideViewCommandContext` in React so this is live. */
+  mode: Mode
+  toggledIndices?: Set<number>
+  reload?: () => void
+  marks?: Partial<ViewCommandContext["marks"]>
+  extras?: Record<string, unknown>
+}
+
+export type ProvideViewCommandContextOptions = Omit<CreateViewCommandContextOptions, "mode"> & {
+  /** Advanced override; normally omitted so the hook injects the live command mode. */
+  mode?: Mode
+}
+
+export function createViewCommandContext({
+  content,
+  format,
+  title,
+  data,
+  nav,
+  cursor,
+  selection,
+  mode,
+  toggledIndices,
+  reload,
+  marks,
+  extras,
+}: CreateViewCommandContextOptions): ViewCommandContext {
+  const resolvedFormat = format ?? content?.format ?? "custom"
+  const resolvedContent: AnyContent =
+    content ??
+    ({
+      format: resolvedFormat,
+      data,
+      title,
+    } satisfies AnyContent)
+
+  return {
+    ...extras,
+    content: resolvedContent,
+    format: resolvedFormat,
+    title: title ?? content?.title,
+    data: data ?? ("data" in resolvedContent ? resolvedContent.data : undefined),
+    cursor: cursor ?? nav?.cursor ?? null,
+    selection: selection ?? nav?.selection ?? null,
+    mode,
+    toggledIndices: toggledIndices ?? nav?.toggledIndices ?? new Set<number>(),
+    reload: reload ?? noop,
+    marks: {
+      setMarkSet: marks?.setMarkSet ?? noop,
+      clearNamespace: marks?.clearNamespace ?? noop,
+      clearAll: marks?.clearAll ?? noop,
+      userMarks: marks?.userMarks ?? [],
+      providerMarks: marks?.providerMarks ?? [],
+    },
+  }
+}
+
+export function useProvideViewCommandContext(
+  options: ProvideViewCommandContextOptions | (() => ProvideViewCommandContextOptions),
+) {
+  const mode = useMode()
+  useProvideCommandContextKey("view", () => {
+    const resolvedOptions = typeof options === "function" ? options() : options
+    return createViewCommandContext({
+      ...resolvedOptions,
+      mode: resolvedOptions.mode ?? mode,
+    })
+  })
 }
 
 interface UseViewCommandContextParams {
@@ -54,24 +142,17 @@ export function useViewCommandContext({
   clearAllUserMarks,
   extras,
 }: UseViewCommandContextParams) {
-  const mode = useMode()
-  useProvideCommandContext(() => ({
-    view: {
-      content,
-      format: content.format,
-      cursor: nav.cursor,
-      selection: nav.selection,
-      mode,
-      toggledIndices: nav.toggledIndices,
-      reload,
-      marks: {
-        setMarkSet,
-        clearNamespace: clearMarkNamespace,
-        clearAll: clearAllUserMarks,
-        userMarks,
-        providerMarks,
-      },
-      ...extras,
+  useProvideViewCommandContext({
+    content,
+    nav,
+    reload,
+    marks: {
+      setMarkSet,
+      clearNamespace: clearMarkNamespace,
+      clearAll: clearAllUserMarks,
+      userMarks,
+      providerMarks,
     },
-  }))
+    extras,
+  })
 }
