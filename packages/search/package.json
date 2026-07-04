@@ -1,6 +1,6 @@
 {
   "name": "@tooee/search",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "description": "Search hook, utilities, and SearchBar component for Tooee",
   "keywords": [
     "cli",
