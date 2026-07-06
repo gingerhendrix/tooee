@@ -34,8 +34,8 @@
     "format:check": "oxfmt --check ."
   },
   "devDependencies": {
-    "@opentui/core": "^0.4.1",
-    "@opentui/react": "^0.4.1",
+    "@opentui/core": "^0.4.3",
+    "@opentui/react": "^0.4.3",
     "@tooee/renderers": "workspace:*",
     "@tooee/shell": "workspace:*",
     "@tooee/view": "workspace:*",
