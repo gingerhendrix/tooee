@@ -10,6 +10,7 @@ import type {
 import { readPrimaryText } from "@tooee/clipboard"
 import { useTheme, CloseButton } from "@tooee/themes"
 import { useCommand, useMode, useSetMode } from "@tooee/commands"
+import { EditorScrollbar } from "./EditorScrollbar.js"
 import { appendAtCursor, openLineAtCursor, type VimMotionState } from "./vim-motions.js"
 
 export interface AskOverlayProps {
@@ -36,6 +37,10 @@ export function AskOverlay({
   const inputRef = useRef<InputRenderable>(null)
   const didPositionInitialCursorRef = useRef(false)
   const vimMotionStateRef = useRef<VimMotionState>({ pendingG: false })
+  // Bumped whenever the editor viewport may have moved (cursor, content, wheel)
+  // so the scrollbar thumb re-computes from the editor's internal scroll state.
+  const [scrollRevision, setScrollRevision] = useState(0)
+  const bumpScroll = useCallback(() => setScrollRevision((r) => r + 1), [])
 
   const inputFocused = mode === "insert" || mode === "cursor"
   const cursorStyle: CursorStyleOptions =
@@ -55,6 +60,11 @@ export function AskOverlay({
     target.cursorOffset = target.plainText.length
     didPositionInitialCursorRef.current = true
   }, [defaultValue, multiline])
+
+  // Ensure the scrollbar computes once the editor ref and layout exist.
+  useEffect(() => {
+    bumpScroll()
+  }, [bumpScroll])
 
   const handleSubmit = () => {
     const text = multiline ? (textareaRef.current?.plainText ?? "") : value
@@ -169,8 +179,9 @@ export function AskOverlay({
       const target = getMotionTarget()
       if (target) run(target as NonNullable<ReturnType<typeof getMotionTarget>>)
       vimMotionStateRef.current.pendingG = false
+      bumpScroll()
     },
-    [getMotionTarget],
+    [getMotionTarget, bumpScroll],
   )
 
   useCommand({
@@ -349,20 +360,29 @@ export function AskOverlay({
       {/* Input area */}
       <box flexDirection="column" style={{ flexGrow: 1, paddingLeft: 1, paddingRight: 1 }}>
         {multiline ? (
-          <textarea
-            ref={textareaRef}
-            focused={inputFocused}
-            initialValue={defaultValue}
-            textColor={theme.text}
-            placeholderColor={theme.textMuted}
-            cursorColor={cursorColor}
-            cursorStyle={cursorStyle}
-            backgroundColor="transparent"
-            onSubmit={handleSubmit}
-            onKeyDown={preventCursorModeEditorInput}
-            onPaste={preventCursorModeEditorInput}
-            style={{ flexGrow: 1 }}
-          />
+          <box flexDirection="row" style={{ flexGrow: 1 }} onMouseScroll={bumpScroll}>
+            <textarea
+              ref={textareaRef}
+              focused={inputFocused}
+              initialValue={defaultValue}
+              textColor={theme.text}
+              placeholderColor={theme.textMuted}
+              cursorColor={cursorColor}
+              cursorStyle={cursorStyle}
+              backgroundColor="transparent"
+              onSubmit={handleSubmit}
+              onKeyDown={preventCursorModeEditorInput}
+              onPaste={preventCursorModeEditorInput}
+              onCursorChange={bumpScroll}
+              onContentChange={bumpScroll}
+              style={{ flexGrow: 1 }}
+            />
+            <EditorScrollbar
+              target={textareaRef.current}
+              revision={scrollRevision}
+              color={theme.textMuted}
+            />
+          </box>
         ) : (
           <input
             ref={inputRef}

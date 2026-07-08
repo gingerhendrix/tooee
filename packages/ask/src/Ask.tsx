@@ -22,6 +22,7 @@ import {
 } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import type { AskOptions } from "./types.js"
+import { EditorScrollbar } from "./EditorScrollbar.js"
 import {
   appendAtCursor,
   handleEditBufferVimMotion,
@@ -54,6 +55,10 @@ export function Ask({
   const inputRef = useRef<InputRenderable>(null)
   const didPositionInitialCursorRef = useRef(false)
   const vimMotionStateRef = useRef<VimMotionState>({ pendingG: false })
+  // Bumped whenever the editor viewport may have moved (cursor, content, wheel)
+  // so the scrollbar thumb re-computes from the editor's internal scroll state.
+  const [scrollRevision, setScrollRevision] = useState(0)
+  const bumpScroll = useCallback(() => setScrollRevision((r) => r + 1), [])
   const { invoke } = useCommandContext()
 
   const { theme } = useTheme()
@@ -86,6 +91,11 @@ export function Ask({
     target.cursorOffset = target.plainText.length
     didPositionInitialCursorRef.current = true
   }, [defaultValue, multiline])
+
+  // Ensure the scrollbar computes once the editor ref and layout exist.
+  useEffect(() => {
+    bumpScroll()
+  }, [bumpScroll])
 
   const handleSubmit = () => {
     const text = multiline ? (textareaRef.current?.plainText ?? "") : value
@@ -219,21 +229,30 @@ export function Ask({
             </text>
           )}
           {multiline ? (
-            <textarea
-              ref={textareaRef}
-              focused={inputFocused}
-              initialValue={defaultValue}
-              placeholder={placeholder}
-              textColor={theme.text}
-              placeholderColor={theme.textMuted}
-              cursorColor={cursorColor}
-              cursorStyle={cursorStyle}
-              backgroundColor="transparent"
-              onSubmit={handleSubmit}
-              onKeyDown={preventCursorModeEditorInput}
-              onPaste={preventCursorModeEditorInput}
-              style={{ flexGrow: 1 }}
-            />
+            <box flexDirection="row" style={{ flexGrow: 1 }} onMouseScroll={bumpScroll}>
+              <textarea
+                ref={textareaRef}
+                focused={inputFocused}
+                initialValue={defaultValue}
+                placeholder={placeholder}
+                textColor={theme.text}
+                placeholderColor={theme.textMuted}
+                cursorColor={cursorColor}
+                cursorStyle={cursorStyle}
+                backgroundColor="transparent"
+                onSubmit={handleSubmit}
+                onKeyDown={preventCursorModeEditorInput}
+                onPaste={preventCursorModeEditorInput}
+                onCursorChange={bumpScroll}
+                onContentChange={bumpScroll}
+                style={{ flexGrow: 1 }}
+              />
+              <EditorScrollbar
+                target={textareaRef.current}
+                revision={scrollRevision}
+                color={theme.textMuted}
+              />
+            </box>
           ) : (
             <input
               ref={inputRef}
