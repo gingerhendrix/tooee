@@ -4,7 +4,21 @@ import { useCommand, type CommandWhen } from "@tooee/commands"
 import { useToast } from "@tooee/toasts"
 import { useThemePicker, type ThemePickerState } from "./theme-picker.js"
 
-export function useThemeCommands(opts?: { when?: CommandWhen }): {
+export interface UseThemeCommandsOptions {
+  when?: CommandWhen
+  /** Register the theme command (default true). The returned name stays live either way. */
+  enabled?: boolean
+}
+
+export interface UseQuitCommandOptions {
+  hotkey?: string
+  when?: CommandWhen
+  onQuit?: () => void
+  /** Register the quit command (default true). */
+  enabled?: boolean
+}
+
+export function useThemeCommands(opts?: UseThemeCommandsOptions): {
   name: string
   picker: ThemePickerState
 } {
@@ -25,6 +39,7 @@ export function useThemeCommands(opts?: { when?: CommandWhen }): {
     title: "Choose theme",
     hotkey: "t",
     when: opts?.when,
+    enabled: opts?.enabled,
     handler: () => {
       picker.open()
     },
@@ -33,11 +48,7 @@ export function useThemeCommands(opts?: { when?: CommandWhen }): {
   return { name: picker.currentTheme, picker: confirmedPicker }
 }
 
-export function useQuitCommand(opts?: {
-  hotkey?: string
-  when?: CommandWhen
-  onQuit?: () => void
-}) {
+export function useQuitCommand(opts?: UseQuitCommandOptions) {
   const renderer = useRenderer()
 
   useCommand({
@@ -45,6 +56,7 @@ export function useQuitCommand(opts?: {
     title: "Quit",
     hotkey: opts?.hotkey ?? "q",
     when: opts?.when,
+    enabled: opts?.enabled,
     handler: () => {
       if (opts?.onQuit) {
         opts.onQuit()

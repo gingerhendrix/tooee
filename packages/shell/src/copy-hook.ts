@@ -5,10 +5,18 @@ export interface UseCopyOptions {
   getRowText: (index: number) => string
   cursor: number | null
   selection: { start: number; end: number } | null
-  toggledIndices: Set<number>
+  toggledIndices: ReadonlySet<number>
+  /** Register the copy command (default true). */
+  enabled?: boolean
 }
 
-export function useCopy({ getRowText, cursor, selection, toggledIndices }: UseCopyOptions): void {
+export function useCopy({
+  getRowText,
+  cursor,
+  selection,
+  toggledIndices,
+  enabled,
+}: UseCopyOptions): void {
   const setMode = useSetMode()
 
   useCommand({
@@ -16,6 +24,7 @@ export function useCopy({ getRowText, cursor, selection, toggledIndices }: UseCo
     title: "Copy selection",
     hotkey: "y",
     modes: ["select"],
+    enabled,
     handler: () => {
       let text = ""
 
