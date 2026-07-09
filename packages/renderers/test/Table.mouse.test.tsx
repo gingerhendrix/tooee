@@ -106,4 +106,22 @@ describe("Table mouse interaction", () => {
     await testSetup.renderOnce()
     expect(ctx).toBe(0)
   })
+
+  test("a click on the empty space below the last row is ignored", async () => {
+    const clicked: number[] = []
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <Table columns={COLUMNS} rows={DATA} maxWidth={40} onRowClick={(i) => clicked.push(i)} />
+      </ThemeSwitcherProvider>,
+      { width: 40, height: 15 },
+    )
+    await testSetup.renderOnce()
+
+    await act(async () => {
+      await testSetup.mockMouse.click(CONTENT_X, DATA_TOP_Y + DATA.length + 1, MouseButtons.LEFT)
+    })
+    await testSetup.renderOnce()
+
+    expect(clicked).toEqual([])
+  })
 })

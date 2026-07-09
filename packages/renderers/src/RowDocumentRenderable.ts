@@ -117,6 +117,8 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   private _virtualRowToRow: number[] = []
   private _virtualRowWraps: number[] = []
   private _rowCount = 0
+  /** Virtual Y one past the last content row; the rest of the scroll area is empty. */
+  private _contentVirtualEnd = 0
   private _lastGeometryHash = ""
 
   constructor(ctx: RenderContext, options: RowDocumentOptions) {
@@ -218,6 +220,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     if (localY < 0 || localY >= this.viewport.height) return null
     const virtualY = Math.floor(this.scrollTop) + localY
     if (virtualY < 0 || virtualY >= this._virtualRowToRow.length) return null
+    if (virtualY >= this._contentVirtualEnd) return null
     return this.getRowAtVirtualY(virtualY)
   }
 
@@ -435,6 +438,13 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     virtualRowWraps: number[],
     rowCount: number,
   ): void {
+    let contentVirtualEnd = 0
+    for (let row = 0; row < rowCount; row++) {
+      const end = rowVirtualStarts[row] + rowVirtualHeights[row]
+      if (end > contentVirtualEnd) contentVirtualEnd = end
+    }
+    this._contentVirtualEnd = contentVirtualEnd
+
     // Change detection via hash
     const hash = rowVirtualStarts.join(",")
     if (hash !== this._lastGeometryHash) {
