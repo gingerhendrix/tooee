@@ -4,6 +4,11 @@ import { useCommand, useMode, useSetMode, type Mode } from "@tooee/commands"
 export interface UseSearchOptions {
   match: (query: string) => number[]
   onJump: (index: number) => void
+  /**
+   * Register the search commands (default true). `false` leaves the state
+   * inert: no `/`, `n`, `shift+n` or cancel command exists.
+   */
+  enabled?: boolean
 }
 
 export interface SearchState {
@@ -19,7 +24,7 @@ const EMPTY: number[] = []
 const CURSOR_MODES: Mode[] = ["cursor"]
 const ALL_MODES: Mode[] = ["cursor", "select", "insert"]
 
-export function useSearch({ match, onJump }: UseSearchOptions): SearchState {
+export function useSearch({ match, onJump, enabled = true }: UseSearchOptions): SearchState {
   const mode = useMode()
   const setMode = useSetMode()
 
@@ -60,6 +65,7 @@ export function useSearch({ match, onJump }: UseSearchOptions): SearchState {
     title: "Search",
     hotkey: "/",
     modes: CURSOR_MODES,
+    enabled,
     handler: () => {
       preSearchModeRef.current = mode
       setSearchActive(true)
@@ -73,6 +79,7 @@ export function useSearch({ match, onJump }: UseSearchOptions): SearchState {
     title: "Next match",
     hotkey: "n",
     modes: CURSOR_MODES,
+    enabled,
     when: () => !searchActive,
     handler: () => {
       const matches = matchingLinesRef.current
@@ -94,6 +101,7 @@ export function useSearch({ match, onJump }: UseSearchOptions): SearchState {
     title: "Previous match",
     hotkey: "shift+n",
     modes: CURSOR_MODES,
+    enabled,
     when: () => !searchActive,
     handler: () => {
       const matches = matchingLinesRef.current
@@ -115,6 +123,7 @@ export function useSearch({ match, onJump }: UseSearchOptions): SearchState {
     title: "Cancel search",
     hotkey: "escape",
     modes: ALL_MODES,
+    enabled,
     when: () => searchActive,
     handler: () => {
       setSearchActive(false)
