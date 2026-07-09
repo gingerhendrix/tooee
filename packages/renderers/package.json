@@ -30,6 +30,12 @@
         "@tooee/source": "./src/index.ts",
         "default": "./dist/index.js"
       }
+    },
+    "./row-document": {
+      "import": {
+        "@tooee/source": "./src/row-document.ts",
+        "default": "./dist/row-document.js"
+      }
     }
   },
   "scripts": {
