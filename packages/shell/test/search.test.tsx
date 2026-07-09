@@ -1,6 +1,6 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe } from "bun:test"
-import { act } from "react"
+import { act, useState } from "react"
 import { TooeeProvider, useNavigation } from "@tooee/shell"
 import { findMatchingLines, useSearch, type SearchState } from "@tooee/search"
 import { useMode } from "@tooee/commands"
@@ -177,5 +177,79 @@ describe("search hook", () => {
     expect(frame).toContain("mode:cursor")
     expect(frame).toContain("search:false")
     expect(frame).toContain("matches:0,3")
+  })
+})
+
+// A document whose text arrives after the first render, the way a streaming or
+// reloaded provider delivers it.
+let _appendLine: ((line: string) => void) | null = null
+
+function GrowingSearchHarness({ deps }: { deps: boolean }) {
+  const [lines, setLines] = useState(["alpha", "beta"])
+  _appendLine = (line) => setLines((current) => [...current, line])
+
+  const text = lines.join("\n")
+  const nav = useNavigation({ rowCount: lines.length, viewportHeight: 3 })
+  const search = useSearch({
+    match: (query) => findMatchingLines(text, query),
+    onJump: nav.setCursor,
+    deps: deps ? [text] : undefined,
+  })
+  _searchHandle = search
+
+  return <text content={`matches:[${search.matchingLines.join(",")}]`} />
+}
+
+async function setupGrowing(deps: boolean) {
+  const session = await testRender(
+    <TooeeProvider>
+      <GrowingSearchHarness deps={deps} />
+    </TooeeProvider>,
+    { width: 60, height: 24, kittyKeyboard: true },
+  )
+  await session.renderOnce()
+  return session
+}
+
+describe("search over changing content", () => {
+  test("a committed query re-matches rows added after the search", async () => {
+    testSetup = await setupGrowing(true)
+    await press(testSetup, "/")
+
+    await act(async () => {
+      _searchHandle!.setSearchQuery("alpha")
+    })
+    await act(async () => {
+      _searchHandle!.submitSearch()
+    })
+    await testSetup.renderOnce()
+    expect(testSetup.captureCharFrame()).toContain("matches:[0]")
+
+    await act(async () => {
+      _appendLine!("alpha again")
+    })
+    await testSetup.renderOnce()
+
+    expect(testSetup.captureCharFrame()).toContain("matches:[0,2]")
+  })
+
+  test("without deps the committed matches stay memoized on the query", async () => {
+    testSetup = await setupGrowing(false)
+    await press(testSetup, "/")
+
+    await act(async () => {
+      _searchHandle!.setSearchQuery("alpha")
+    })
+    await act(async () => {
+      _searchHandle!.submitSearch()
+    })
+    await testSetup.renderOnce()
+
+    await act(async () => {
+      _appendLine!("alpha again")
+    })
+    await testSetup.renderOnce()
+
+    expect(testSetup.captureCharFrame()).toContain("matches:[0]")
   })
 })

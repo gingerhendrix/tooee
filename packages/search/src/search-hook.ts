@@ -9,6 +9,13 @@ export interface UseSearchOptions {
    * inert: no `/`, `n`, `shift+n` or cancel command exists.
    */
   enabled?: boolean
+  /**
+   * Values the searched content is derived from. Matches are memoized on the
+   * query, so a committed query goes stale when the content changes underneath
+   * it (streaming or reloaded documents). List the content here to re-match.
+   * The array length must be stable across renders.
+   */
+  deps?: readonly unknown[]
 }
 
 export interface SearchState {
@@ -21,10 +28,16 @@ export interface SearchState {
 }
 
 const EMPTY: number[] = []
+const EMPTY_DEPS: readonly unknown[] = []
 const CURSOR_MODES: Mode[] = ["cursor"]
 const ALL_MODES: Mode[] = ["cursor", "select", "insert"]
 
-export function useSearch({ match, onJump, enabled = true }: UseSearchOptions): SearchState {
+export function useSearch({
+  match,
+  onJump,
+  enabled = true,
+  deps = EMPTY_DEPS,
+}: UseSearchOptions): SearchState {
   const mode = useMode()
   const setMode = useSetMode()
 
@@ -45,7 +58,7 @@ export function useSearch({ match, onJump, enabled = true }: UseSearchOptions): 
   const matchingLines = useMemo(() => {
     if (!activeQuery) return EMPTY
     return matchRef.current(activeQuery)
-  }, [activeQuery])
+  }, [activeQuery, ...deps])
 
   const matchingLinesRef = useRef(matchingLines)
   matchingLinesRef.current = matchingLines

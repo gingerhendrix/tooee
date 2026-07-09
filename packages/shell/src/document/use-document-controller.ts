@@ -182,7 +182,13 @@ export function useDocumentController<T>(
     return defaultMatch(query, currentRows, (row, index) => adapterRef.current.getText(row, index))
   }, [])
 
-  const searchState = useSearch({ match, onJump: setCursor, enabled: searchEnabled })
+  const searchDeps = useMemo(() => [rows], [rows])
+  const searchState = useSearch({
+    match,
+    onJump: setCursor,
+    enabled: searchEnabled,
+    deps: searchDeps,
+  })
   const search = searchEnabled ? searchState : null
 
   // -- Copy -----------------------------------------------------------------
