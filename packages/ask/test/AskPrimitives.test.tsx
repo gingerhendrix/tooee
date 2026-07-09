@@ -154,6 +154,37 @@ describe("AskEditorController", () => {
     expect(submitted).toBe("abXY")
   })
 
+  test("insertText into the single-line input is readable and submittable synchronously", async () => {
+    const controllerRef = { current: null as AskEditorController | null }
+    let submitted = ""
+    testSetup = await setup(
+      <ControllerHost
+        defaultValue="ab"
+        controllerRef={controllerRef}
+        onSubmit={(value) => {
+          submitted = value
+        }}
+      />,
+    )
+
+    await act(async () => {
+      controllerRef.current!.insertText("XY")
+      // The inserted text must be visible to getText()/submit() before the
+      // next render, exactly like the multiline path.
+      expect(controllerRef.current!.getText()).toBe("abXY")
+      controllerRef.current!.submit()
+    })
+    await testSetup.renderOnce()
+
+    expect(submitted).toBe("abXY")
+
+    // Controlled React state stays synchronized: further typing appends.
+    await typeText("!")
+    await pressEnter()
+
+    expect(submitted).toBe("abXY!")
+  })
+
   test("mode reads live and setMode switches the local mode", async () => {
     const controllerRef = { current: null as AskEditorController | null }
     testSetup = await setup(<ControllerHost defaultValue="hi" controllerRef={controllerRef} />)

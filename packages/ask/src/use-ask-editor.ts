@@ -166,7 +166,12 @@ export function useAskEditor(options: UseAskEditorOptions = {}): UseAskEditorRes
   )
 
   const getText = useCallback(
-    () => (multilineRef.current ? (textareaRef.current?.plainText ?? "") : valueRef.current),
+    () =>
+      multilineRef.current
+        ? (textareaRef.current?.plainText ?? "")
+        : // Read the renderable's live text: controller mutations (insertText)
+          // must be visible before React state re-syncs on the next render.
+          (inputRef.current?.plainText ?? valueRef.current),
     [],
   )
 
