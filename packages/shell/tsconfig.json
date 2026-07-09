@@ -14,6 +14,7 @@
     { "path": "../clipboard" },
     { "path": "../toasts" },
     { "path": "../layout" },
-    { "path": "../renderers" }
+    { "path": "../renderers" },
+    { "path": "../search" }
   ]
 }
