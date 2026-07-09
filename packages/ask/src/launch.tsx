@@ -7,6 +7,8 @@ import type { AskOptions } from "./types.js"
 
 export interface AskLaunchOptions extends AskOptions {
   actions?: ActionDefinition[]
+  /** Called with the submitted text. Default: write to stdout and exit. */
+  onSubmit?: (value: string) => void
 }
 
 export async function launch(options: AskLaunchOptions): Promise<void> {
@@ -25,6 +27,7 @@ export async function launch(options: AskLaunchOptions): Promise<void> {
         defaultValue={options.defaultValue}
         multiline={options.multiline}
         actions={options.actions}
+        onSubmit={options.onSubmit}
       />
     </TooeeProvider>,
   )

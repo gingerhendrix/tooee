@@ -1,44 +1,22 @@
-import { useState, useRef, useCallback, useEffect } from "react"
-import type {
-  TextareaRenderable,
-  InputRenderable,
-  MouseEvent,
-  KeyEvent,
-  PasteEvent,
-  CursorStyleOptions,
-} from "@opentui/core"
-import { useKeyboard, useRenderer } from "@opentui/react"
-import { readPrimaryText } from "@tooee/clipboard"
+import { useRenderer } from "@opentui/react"
 import { AppLayout } from "@tooee/layout"
 import { useHasOverlay } from "@tooee/overlays"
 import { ThemePicker, useTheme } from "@tooee/themes"
 import { useThemeCommands, useQuitCommand, usePasteCommands } from "@tooee/shell"
-import {
-  useMode,
-  useSetMode,
-  useActions,
-  useProvideCommandContext,
-  useCommandContext,
-} from "@tooee/commands"
+import { useActions, useProvideCommandContext, useCommandContext } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
 import type { AskOptions } from "./types.js"
-import { EditorScrollbar } from "./EditorScrollbar.js"
-import {
-  appendAtCursor,
-  handleEditBufferVimMotion,
-  openLineAtCursor,
-  type VimMotionState,
-} from "./vim-motions.js"
+import { AskEditor } from "./AskEditor.js"
+import { useAskEditor } from "./use-ask-editor.js"
 
-declare module "@tooee/commands" {
-  interface CommandContext {
-    /** Contributed by Ask: the current input value. */
-    ask: { value: string }
-  }
-}
-
-interface AskProps extends AskOptions {
+export interface AskProps extends AskOptions {
   actions?: ActionDefinition[]
+  /**
+   * Called with the submitted text. Defaults to writing the value to stdout
+   * and destroying the renderer (the standalone `ask` CLI behaviour). A
+   * `submit` action takes precedence over both.
+   */
+  onSubmit?: (value: string) => void
 }
 
 export function Ask({
@@ -48,17 +26,9 @@ export function Ask({
   defaultValue,
   multiline = true,
   actions,
+  onSubmit,
 }: AskProps) {
   const renderer = useRenderer()
-  const [value, setValue] = useState(defaultValue ?? "")
-  const textareaRef = useRef<TextareaRenderable>(null)
-  const inputRef = useRef<InputRenderable>(null)
-  const didPositionInitialCursorRef = useRef(false)
-  const vimMotionStateRef = useRef<VimMotionState>({ pendingG: false })
-  // Bumped whenever the editor viewport may have moved (cursor, content, wheel)
-  // so the scrollbar thumb re-computes from the editor's internal scroll state.
-  const [scrollRevision, setScrollRevision] = useState(0)
-  const bumpScroll = useCallback(() => setScrollRevision((r) => r + 1), [])
   const { invoke } = useCommandContext()
 
   const { theme } = useTheme()
@@ -70,122 +40,41 @@ export function Ask({
     },
   })
 
-  const mode = useMode()
-  const setMode = useSetMode()
+  // Legacy overlays don't push a command surface; keep blurring the editor
+  // under them via the shell's overlay state.
   const hasOverlay = useHasOverlay()
-  const inputFocused = (mode === "insert" || mode === "cursor") && !hasOverlay
-  const cursorStyle: CursorStyleOptions =
-    mode === "cursor" ? { style: "block", blinking: false } : { style: "line", blinking: true }
-  const cursorColor = mode === "cursor" ? theme.accent : theme.primary
 
-  const preventCursorModeEditorInput = (event: KeyEvent | PasteEvent) => {
-    if (mode === "cursor") event.preventDefault()
-  }
-
-  useEffect(() => {
-    if (didPositionInitialCursorRef.current || !defaultValue) return
-
-    const target = multiline ? textareaRef.current : inputRef.current
-    if (!target) return
-
-    target.cursorOffset = target.plainText.length
-    didPositionInitialCursorRef.current = true
-  }, [defaultValue, multiline])
-
-  // Ensure the scrollbar computes once the editor ref and layout exist.
-  useEffect(() => {
-    bumpScroll()
-  }, [bumpScroll])
-
-  const handleSubmit = () => {
-    const text = multiline ? (textareaRef.current?.plainText ?? "") : value
+  const handleSubmit = (text: string) => {
     if (actions?.some((a) => a.id === "submit")) {
       invoke("submit")
+      return
+    }
+    if (onSubmit) {
+      onSubmit(text)
       return
     }
     process.stdout.write(text + "\n")
     renderer.destroy()
   }
 
+  const { controller, editor } = useAskEditor({
+    multiline,
+    defaultValue,
+    placeholder,
+    onSubmit: handleSubmit,
+    suspended: hasOverlay,
+  })
+
   useProvideCommandContext(() => ({
-    ask: { value: multiline ? (textareaRef.current?.plainText ?? "") : value },
     exit: () => renderer.destroy(),
   }))
 
   useActions(actions)
 
   // Paste commands (available via command palette)
-  usePasteCommands({
-    getTarget: () => (multiline ? textareaRef.current : inputRef.current),
-  })
+  usePasteCommands({ getTarget: () => controller })
 
-  useKeyboard((key) => {
-    if (hasOverlay) return
-    if (key.name === "escape") {
-      if (mode === "insert") {
-        setMode("cursor")
-      }
-      // In cursor mode, escape does nothing - use 'q' to quit
-      return
-    }
-    if (mode === "cursor") {
-      const target = multiline ? textareaRef.current : inputRef.current
-      if (key.name === "i" || key.raw === "i") {
-        key.preventDefault()
-        vimMotionStateRef.current.pendingG = false
-        setMode("insert")
-        return
-      }
-      if (key.name === "a" || key.raw === "a") {
-        key.preventDefault()
-        vimMotionStateRef.current.pendingG = false
-        appendAtCursor(target)
-        setMode("insert")
-        return
-      }
-      if (multiline && ((key.name === "o" && key.shift) || key.raw === "O")) {
-        key.preventDefault()
-        vimMotionStateRef.current.pendingG = false
-        openLineAtCursor(target, "above")
-        setMode("insert")
-        return
-      }
-      if (multiline && (key.name === "o" || key.raw === "o")) {
-        key.preventDefault()
-        vimMotionStateRef.current.pendingG = false
-        openLineAtCursor(target, "below")
-        setMode("insert")
-        return
-      }
-      if (handleEditBufferVimMotion(key, target, vimMotionStateRef.current)) return
-    } else {
-      vimMotionStateRef.current.pendingG = false
-    }
-
-    if (key.name === "return") {
-      if (multiline ? key.shift : true) {
-        key.preventDefault()
-        handleSubmit()
-      }
-      return
-    }
-  })
-
-  // Middle-click paste from primary selection
-  const handleMouseDown = useCallback(
-    (event: MouseEvent) => {
-      if (event.button === 1) {
-        event.preventDefault()
-        void readPrimaryText().then((text) => {
-          if (!text) return
-          const target = multiline ? textareaRef.current : inputRef.current
-          target?.insertText(text)
-        })
-      }
-    },
-    [multiline],
-  )
-
+  const mode = editor.mode
   const submitHint = multiline ? "Shift+Enter submit" : "Enter submit"
   const hintParts =
     mode === "insert"
@@ -220,7 +109,7 @@ export function Ask({
         alignItems="center"
         justifyContent="center"
         style={{ flexGrow: 1 }}
-        onMouseDown={handleMouseDown}
+        onMouseDown={editor.onMouseDown}
       >
         <box flexDirection="column" width="100%" maxWidth={80} style={{ flexGrow: 1, padding: 1 }}>
           {prompt && (
@@ -228,48 +117,7 @@ export function Ask({
               <strong>{prompt}</strong>
             </text>
           )}
-          {multiline ? (
-            <box flexDirection="row" style={{ flexGrow: 1 }} onMouseScroll={bumpScroll}>
-              <textarea
-                ref={textareaRef}
-                focused={inputFocused}
-                initialValue={defaultValue}
-                placeholder={placeholder}
-                textColor={theme.text}
-                placeholderColor={theme.textMuted}
-                cursorColor={cursorColor}
-                cursorStyle={cursorStyle}
-                backgroundColor="transparent"
-                onSubmit={handleSubmit}
-                onKeyDown={preventCursorModeEditorInput}
-                onPaste={preventCursorModeEditorInput}
-                onCursorChange={bumpScroll}
-                onContentChange={bumpScroll}
-                style={{ flexGrow: 1 }}
-              />
-              <EditorScrollbar
-                target={textareaRef.current}
-                revision={scrollRevision}
-                color={theme.textMuted}
-              />
-            </box>
-          ) : (
-            <input
-              ref={inputRef}
-              focused={inputFocused}
-              value={value}
-              onInput={setValue}
-              onSubmit={handleSubmit}
-              placeholder={placeholder}
-              textColor={theme.text}
-              placeholderColor={theme.textMuted}
-              cursorColor={cursorColor}
-              cursorStyle={cursorStyle}
-              backgroundColor="transparent"
-              onKeyDown={preventCursorModeEditorInput}
-              onPaste={preventCursorModeEditorInput}
-            />
-          )}
+          <AskEditor editor={editor} />
         </box>
       </box>
     </AppLayout>
