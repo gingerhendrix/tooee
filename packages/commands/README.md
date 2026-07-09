@@ -57,3 +57,8 @@ exiting the app underneath an open picker. Inside `@tooee/commands` itself,
 not available. There is a regression test documenting this hazard in
 `test/surface.test.tsx` ("raw useKeyboard consumers bypass surface
 arbitration").
+
+Renderable focus is the one thing the surface stack does not manage: compare
+`useCommandSurfaceId()` (the surface a subtree registers to) against
+`useActiveCommandSurface()` to blur an editor while a modal surface above it
+owns the keyboard.

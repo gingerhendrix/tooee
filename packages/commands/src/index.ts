@@ -35,6 +35,7 @@ export {
   useCommandRegistry,
   useCommandSequenceState,
   useCommandStore,
+  useCommandSurfaceId,
   useProvideCommandContext,
   useProvideCommandContextKey,
   useSurfaceCommands,

@@ -428,6 +428,20 @@ export function useCommandSequenceState(): CommandSequenceState | null {
 }
 
 /**
+ * Id of the command surface this subtree registers commands to: the nearest
+ * enclosing `CommandSurfaceProvider`'s id, or `ROOT_SURFACE_ID` at the app
+ * root. Compare against `useActiveCommandSurface()` to tell whether another
+ * modal surface currently owns keyboard input above this subtree.
+ */
+export function useCommandSurfaceId(): string {
+  const ctx = useContext(CommandContext)
+  if (!ctx) {
+    throw new Error("useCommandSurfaceId must be used within a CommandProvider")
+  }
+  return ctx.surface.id
+}
+
+/**
  * Metadata for the topmost modal command surface, or null when the root app is
  * the active surface. Intended for which-key/help to read shortcuts from the
  * active interaction surface. `commands` is reactive (F-13).
