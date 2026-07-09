@@ -14,6 +14,12 @@ export interface UseCommandOptions {
   icon?: string
   when?: CommandWhen
   hidden?: boolean
+  /**
+   * Register the command (default true). `false` unregisters it entirely — it
+   * cannot be invoked and never appears in the palette or which-key. Use this
+   * for genuinely disabled features; use `when` for context-dependent ones.
+   */
+  enabled?: boolean
 }
 
 export function useCommand(options: UseCommandOptions): void {
@@ -29,6 +35,8 @@ export function useCommand(options: UseCommandOptions): void {
   const modesKey = options.modes?.join("|") ?? ""
 
   useEffect(() => {
+    if (options.enabled === false) return
+
     const command: Command = {
       id: options.id,
       title: options.title,
@@ -53,6 +61,7 @@ export function useCommand(options: UseCommandOptions): void {
     options.group,
     options.icon,
     options.hidden,
+    options.enabled,
     registry,
   ])
 }

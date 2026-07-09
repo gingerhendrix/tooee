@@ -372,6 +372,20 @@ export function useCommandContext(): { commands: Command[]; invoke: (id: string)
 }
 
 /**
+ * Builds the live command context of the nearest surface — the same value
+ * command handlers receive. For callers that must hand a context to something
+ * outside the dispatch path (e.g. a context-menu entry resolver).
+ */
+export function useBuildCommandContext(): () => CommandContext {
+  const ctx = useContext(CommandContext)
+  if (!ctx) {
+    throw new Error("useBuildCommandContext must be used within a CommandProvider")
+  }
+  const { surface } = ctx
+  return useCallback(() => surface.buildCtx(), [surface])
+}
+
+/**
  * Internal: the stable registry facade for the nearest surface, without
  * subscribing to store changes. Registration hooks (useCommand/useActions)
  * only need the facade; subscribing them would re-render every command host

@@ -29,6 +29,7 @@ export {
   CommandProvider,
   CommandSurfaceProvider,
   useActiveCommandSurface,
+  useBuildCommandContext,
   useCommandContext,
   useCommandGroup,
   useCommandRegistry,
