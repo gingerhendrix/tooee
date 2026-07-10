@@ -1,272 +1,72 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react"
-import type { ScrollBoxRenderable } from "@opentui/core"
-import { useKeyboard } from "@opentui/react"
+import { useImperativeHandle, type Ref } from "react"
 import { AppLayout } from "@tooee/layout"
 import { useHasOverlay, useHasModalOverlay } from "@tooee/overlays"
 import { ThemePicker, useTheme } from "@tooee/themes"
 import { useThemeCommands, useQuitCommand } from "@tooee/shell"
-import {
-  useMode,
-  useSetMode,
-  useCommand,
-  useActions,
-  useProvideCommandContext,
-  useCommandContext,
-} from "@tooee/commands"
-import type { ActionDefinition } from "@tooee/commands"
-import type { ChooseItem, ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.js"
-import { fuzzyFilter } from "./fuzzy.js"
+import { useCommandContext, type ActionDefinition } from "@tooee/commands"
+import { ChooseFilter } from "./ChooseFilter.js"
+import { ChooseList, type ChooseListProps } from "./ChooseList.js"
+import { buildChooseHints } from "./ChoosePanel.js"
+import type { ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.js"
+import { useChoose, type ChooseController } from "./use-choose.js"
 
-declare module "@tooee/commands" {
-  interface CommandContext {
-    /** Contributed by Choose: the current selection state. */
-    choose: {
-      activeItem: ChooseItem | undefined
-      selectedItems: ChooseItem[]
-      filterQuery: string
-    }
-  }
-}
-
-interface ChooseProps {
+export interface ChooseProps {
   contentProvider: ChooseContentProvider
   options?: ChooseOptions
+  /** Legacy name retained for source compatibility. */
   actions?: ActionDefinition[]
-  /** @deprecated Use actions instead */
+  /** Additive alias used by new chooser compositions. */
+  commands?: ActionDefinition[]
+  controllerRef?: Ref<ChooseController>
+  renderItem?: ChooseListProps["renderItem"]
+  /** @deprecated Prefer commands with an id such as `submit`. */
   onConfirm?: (result: ChooseResult) => void
-  /** @deprecated Use actions instead */
+  /** @deprecated Prefer commands or launch lifecycle handling. */
   onCancel?: () => void
 }
 
-export function Choose({ contentProvider, options, actions, onConfirm, onCancel }: ChooseProps) {
+export function Choose({
+  contentProvider,
+  options,
+  actions,
+  commands,
+  controllerRef,
+  renderItem,
+  onConfirm,
+  onCancel,
+}: ChooseProps) {
   const { theme } = useTheme()
-  const [items, setItems] = useState<ChooseItem[]>([])
-  const [filterQuery, setFilterQuery] = useState("")
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set())
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const scrollRef = useRef<ScrollBoxRenderable>(null)
   const { invoke } = useCommandContext()
-
+  const effectiveCommands = commands ?? actions
   const multi = options?.multi ?? false
-
-  useEffect(() => {
-    const result = contentProvider.load()
-    if (result instanceof Promise) {
-      let active = true
-      setLoading(true)
-      setError(null)
-      result
-        .then((loaded) => {
-          // Ignore stale results after contentProvider changed
-          if (!active) return
-          setItems(loaded)
-          setLoading(false)
-        })
-        .catch((err: unknown) => {
-          if (!active) return
-          setItems([])
-          setError(err instanceof Error ? err.message : String(err))
-          setLoading(false)
-        })
-      return () => {
-        active = false
-      }
-    }
-    setItems(result)
-    setError(null)
-    setLoading(false)
-  }, [contentProvider])
-
-  // Derived state: filtered items computed from items + filterQuery (no extra render cycle)
-  const filteredItems = useMemo(() => fuzzyFilter(items, filterQuery), [items, filterQuery])
-
-  // Reset activeIndex when filter changes (render-time state adjustment)
-  const [prevFilterQuery, setPrevFilterQuery] = useState("")
-  if (filterQuery !== prevFilterQuery) {
-    setPrevFilterQuery(filterQuery)
-    setActiveIndex(0)
-  }
 
   const { name: themeName, picker: themePicker } = useThemeCommands()
   useQuitCommand({ onQuit: () => onCancel?.() })
-  const mode = useMode()
-  const setMode = useSetMode()
+
   const hasOverlay = useHasOverlay()
   const hasModalOverlay = useHasModalOverlay()
 
-  // Compute selected items for context
-  const getSelectedItems = useCallback((): ChooseItem[] => {
-    if (multi) {
-      const selected = Array.from(selectedIndices).map((i) => items[i])
-      if (selected.length === 0 && filteredItems[activeIndex]) {
-        return [filteredItems[activeIndex].item]
-      }
-      return selected
-    }
-    const match = filteredItems[activeIndex]
-    return match ? [match.item] : []
-  }, [multi, selectedIndices, items, filteredItems, activeIndex])
-
-  useProvideCommandContext(() => ({
-    choose: {
-      activeItem: filteredItems[activeIndex]?.item,
-      selectedItems: getSelectedItems(),
-      filterQuery,
-    },
-    exit: () => onCancel?.(),
-  }))
-
-  useActions(actions)
-
-  const moveUp = useCallback(() => {
-    setActiveIndex((i) => Math.max(0, i - 1))
-  }, [])
-
-  const moveDown = useCallback(() => {
-    setActiveIndex((i) => Math.min(filteredItems.length - 1, i + 1))
-  }, [filteredItems.length])
-
-  // Register a/i to return to insert mode from cursor mode
-  useCommand({
-    id: "choose:insert-mode-a",
-    title: "Insert mode",
-    hotkey: "a",
-    modes: ["cursor"],
-    handler: () => setMode("insert"),
-    hidden: true,
-  })
-  useCommand({
-    id: "choose:insert-mode-i",
-    title: "Insert mode",
-    hotkey: "i",
-    modes: ["cursor"],
-    handler: () => setMode("insert"),
-    hidden: true,
-  })
-
-  // Register j/k for vim-style navigation in cursor mode
-  useCommand({
-    id: "choose:move-down",
-    title: "Move down",
-    hotkey: "j",
-    modes: ["cursor"],
-    handler: moveDown,
-    hidden: true,
-  })
-  useCommand({
-    id: "choose:move-up",
-    title: "Move up",
-    hotkey: "k",
-    modes: ["cursor"],
-    handler: moveUp,
-    hidden: true,
-  })
-
-  const toggleSelection = useCallback(
-    (index: number) => {
-      setSelectedIndices((prev) => {
-        const next = new Set(prev)
-        const origIndex = filteredItems[index]?.originalIndex
-        if (origIndex === undefined) return prev
-        if (next.has(origIndex)) {
-          next.delete(origIndex)
-        } else {
-          next.add(origIndex)
-        }
-        return next
-      })
-    },
-    [filteredItems],
-  )
-
-  const confirm = useCallback(() => {
-    // If there's a "submit" action, invoke it via the command system
-    if (actions?.some((a) => a.id === "submit")) {
-      invoke("submit")
-      return
-    }
-
-    // Legacy: use onConfirm/onCancel callbacks
-    if (multi) {
-      const selected = Array.from(selectedIndices).map((i) => items[i])
-      if (selected.length === 0 && filteredItems[activeIndex]) {
-        onConfirm?.({ items: [filteredItems[activeIndex].item] })
-      } else {
-        onConfirm?.({ items: selected })
-      }
-    } else {
-      const match = filteredItems[activeIndex]
-      if (match) {
-        onConfirm?.({ items: [match.item] })
-      } else {
-        onCancel?.()
-      }
-    }
-  }, [
+  const choose = useChoose({
+    source: contentProvider,
     multi,
-    selectedIndices,
-    items,
-    filteredItems,
-    activeIndex,
-    onConfirm,
+    onSubmit: (result) => {
+      // Historical standalone behaviour: a command named `submit` wins over
+      // the deprecated callback, so existing action-driven CLIs are unchanged.
+      if (effectiveCommands?.some((action) => action.id === "submit")) {
+        invoke("submit")
+        return
+      }
+      if (multi || result.items.length > 0) onConfirm?.(result)
+      else onCancel?.()
+    },
     onCancel,
-    actions,
-    invoke,
-  ])
-
-  useKeyboard((key) => {
-    // Raw useKeyboard handlers subscribe before the command dispatcher, so
-    // preventDefault/surface arbitration cannot protect them. While any
-    // overlay (e.g. the theme picker) is open, its modal command surface owns
-    // input and this handler must stand down.
-    if (hasOverlay) return
-    if (key.name === "escape") {
-      if (mode === "insert") {
-        // Switch to cursor mode (allows theme switching, quit, etc.)
-        setMode("cursor")
-      } else {
-        // In cursor mode, escape cancels
-        onCancel?.()
-      }
-      return
-    }
-    if (key.name === "return") {
-      confirm()
-      return
-    }
-    if (key.name === "up" || (key.ctrl && key.name === "p")) {
-      key.preventDefault()
-      moveUp()
-      return
-    }
-    if (key.name === "down" || (key.ctrl && key.name === "n")) {
-      key.preventDefault()
-      moveDown()
-      return
-    }
-    if (multi && key.name === "tab") {
-      if (key.shift) {
-        toggleSelection(activeIndex)
-        moveUp()
-      } else {
-        toggleSelection(activeIndex)
-        moveDown()
-      }
-      return
-    }
+    commands: effectiveCommands,
+    suspended: hasOverlay,
   })
 
-  // Auto-scroll to keep active item visible
-  useEffect(() => {
-    if (scrollRef.current && filteredItems.length > 0) {
-      // +1 accounts for the filter input row at the top of scroll content
-      scrollRef.current.scrollTop = Math.max(0, activeIndex + 1 - 5)
-    }
-  }, [activeIndex, filteredItems.length])
+  useImperativeHandle(controllerRef, () => choose.controller, [choose.controller])
 
-  if (loading) {
+  if (choose.state.loading) {
     return (
       <box>
         <text content="Loading..." fg={theme.textMuted} />
@@ -274,21 +74,15 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
     )
   }
 
-  if (error) {
+  if (choose.state.error) {
     return (
       <box>
-        <text content={`Error: ${error}`} fg={theme.error} />
+        <text content={`Error: ${choose.state.error}`} fg={theme.error} />
       </box>
     )
   }
 
-  const selectedCount = selectedIndices.size
-  const hintParts =
-    mode === "insert"
-      ? ["↑↓ navigate", "Enter confirm", "Esc commands"]
-      : ["j/k navigate", "i insert", "Esc/q quit", "Enter confirm"]
-  if (multi && mode === "insert") hintParts.splice(2, 0, "Tab toggle")
-  const hint = hintParts.join("  ")
+  const hints = buildChooseHints(choose.view.mode, { multi })
 
   return (
     <AppLayout
@@ -299,13 +93,22 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
       }
       statusBar={{
         items: [
-          { label: "Matches:", value: `${filteredItems.length}/${items.length}` },
-          ...(multi ? [{ label: "Selected:", value: String(selectedCount) }] : []),
+          {
+            label: "Matches:",
+            value: `${choose.state.matches.length}/${choose.state.items.length}`,
+          },
+          ...(multi
+            ? [
+                {
+                  label: "Selected:",
+                  value: String(choose.state.selectedOriginalIndices.size),
+                },
+              ]
+            : []),
           { label: "Theme:", value: themeName },
-          { label: "", value: hint },
+          { label: "", value: hints.join("  ") },
         ],
       }}
-      scrollRef={scrollRef}
       scrollProps={{ focused: false }}
       overlay={
         themePicker.isOpen ? (
@@ -319,106 +122,16 @@ export function Choose({ contentProvider, options, actions, onConfirm, onCancel 
         ) : undefined
       }
     >
-      <box flexDirection="column">
-        {/* Filter input row */}
-        <box flexDirection="row" height={1} style={{ paddingLeft: 1, paddingRight: 1 }}>
-          <text content="> " fg={theme.accent} />
-          <input
-            focused={mode === "insert"}
-            placeholder={options?.placeholder ?? "Filter..."}
-            onInput={setFilterQuery}
-            backgroundColor="transparent"
-            textColor={theme.text}
-            placeholderColor={theme.textMuted}
-            cursorColor={theme.primary}
-            style={{ flexGrow: 1 }}
-          />
-          <text content={` ${filteredItems.length}/${items.length}`} fg={theme.textMuted} />
-        </box>
-
-        {/* Empty state message */}
-        {filteredItems.length === 0 && !loading && options?.emptyMessage && (
-          <box height={1} style={{ paddingLeft: 2, paddingTop: 1 }}>
-            <text content={options.emptyMessage} fg={theme.textMuted} />
-          </box>
-        )}
-
-        {/* Item list */}
-        {filteredItems.map((match, idx) => {
-          const isActive = idx === activeIndex
-          const isSelected = selectedIndices.has(match.originalIndex)
-          return (
-            <box
-              key={match.originalIndex}
-              flexDirection="row"
-              height={1}
-              backgroundColor={isActive ? theme.backgroundElement : undefined}
-              style={{ paddingLeft: 1 }}
-              onMouseDown={(event) => {
-                // Like the raw keyboard handler above, row clicks must stand
-                // down while a modal overlay (e.g. the theme picker) is up:
-                // centered overlays leave clickable margins around them, and
-                // mouse events route through the hit-grid, bypassing
-                // command-surface arbitration entirely.
-                if (hasModalOverlay) return
-                if (event.button === 0) setActiveIndex(idx)
-              }}
-            >
-              {multi && (
-                <text
-                  content={isSelected ? "✓ " : "  "}
-                  fg={isSelected ? theme.accent : theme.textMuted}
-                />
-              )}
-              {match.item.icon && <text content={`${match.item.icon} `} fg={theme.textMuted} />}
-              <text fg={isActive ? theme.primary : theme.text}>
-                {renderHighlightedText(match.item.text, match.positions, theme.warning)}
-              </text>
-              {match.item.description && (
-                <text content={`  ${match.item.description}`} fg={theme.textMuted} />
-              )}
-            </box>
-          )
-        })}
+      <box flexDirection="column" style={{ flexGrow: 1 }}>
+        <ChooseFilter choose={choose} placeholder={options?.placeholder} />
+        <ChooseList
+          choose={choose}
+          rowClick="activate"
+          renderItem={renderItem}
+          emptyContent={options?.emptyMessage}
+          suspended={hasModalOverlay}
+        />
       </box>
     </AppLayout>
-  )
-}
-
-function renderHighlightedText(text: string, positions: number[], highlightColor: string) {
-  if (positions.length === 0) {
-    return text
-  }
-
-  const posSet = new Set(positions)
-  const parts: Array<{ text: string; highlight: boolean }> = []
-  let current = ""
-  let currentHighlight = false
-
-  for (let i = 0; i < text.length; i++) {
-    const isHighlight = posSet.has(i)
-    if (i === 0) {
-      currentHighlight = isHighlight
-      current = text[i]
-    } else if (isHighlight === currentHighlight) {
-      current += text[i]
-    } else {
-      parts.push({ text: current, highlight: currentHighlight })
-      current = text[i]
-      currentHighlight = isHighlight
-    }
-  }
-  if (current) {
-    parts.push({ text: current, highlight: currentHighlight })
-  }
-
-  return parts.map((part, i) =>
-    part.highlight ? (
-      <span key={i} fg={highlightColor}>
-        {part.text}
-      </span>
-    ) : (
-      part.text
-    ),
   )
 }

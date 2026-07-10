@@ -9,6 +9,12 @@ export interface ChooseContentProvider {
   load(): Promise<ChooseItem[]> | ChooseItem[]
 }
 
+/** Any item source accepted by the shared chooser core. */
+export type ChooseSource =
+  | ChooseItem[]
+  | ChooseContentProvider
+  | (() => ChooseItem[] | Promise<ChooseItem[]>)
+
 export interface ChooseResult {
   items: ChooseItem[]
 }

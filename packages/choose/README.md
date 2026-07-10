@@ -1,5 +1,31 @@
 # @tooee/choose
 
-Terminal selection with fuzzy filtering.
+Terminal selection with fuzzy filtering. `Choose` and `ChooseOverlay` are compatibility assemblies over the same reusable primitive:
 
-Part of the [Tooee](https://github.com/gingerhendrix/tooee) monorepo. See the main repo for documentation.
+- `useChoose()` owns normalized source loading, filtering, active/multi-selection state, commands, command context, and a stable controller.
+- `ChooseFilter`, `ChooseList`, and `ChooseHighlightedText` are reusable controlled views.
+- `ChoosePanel` supplies picker chrome and hint/status/footer slots.
+- `Choose` retains the fullscreen app, theme picker, actions, and launch behavior.
+- `ChooseOverlay` retains single-select menu semantics and adds optional multi-select, controller, command, row, and chrome extensions.
+
+## Source and controller
+
+`ChooseSource` accepts an item array, a `ChooseContentProvider`, or a sync/async loader. Replaced sources ignore stale async results. Successful replacements reset active and selected state; direct array changes are reflected just like loaders.
+
+Use `controllerRef` on an assembly, or the controller returned by `useChoose`, to set/clear the filter, move or set the active row, toggle selection, submit/cancel, change mode, or reload the current source.
+
+## Command surfaces
+
+Built-in interaction uses `useCommand`, so a nested modal command surface suspends the chooser automatically. A filter also blurs while another modal surface owns input. Mouse events bypass command-surface arbitration; pass `suspended` to a custom `ChooseList` host when covered rows can remain visible.
+
+`ChooseOverlay` expects its host to provide an owned modal command surface, either through Tooee's overlay manager (`ownCommands: true`, `role: "modal"`) or an explicit `CommandSurfaceProvider`. It does not create another surface internally.
+
+Reserved built-in keys:
+
+- Both modes: Up, Down, Ctrl+P, Ctrl+N, Enter.
+- Insert mode: Escape and, for multi-select, Tab/Shift+Tab.
+- Cursor mode: `j`, `k`, `i`, `a`, `q`, Escape and, for multi-select, Tab/Shift+Tab.
+
+Consumer commands should prefer control chords, leader sequences, or other non-reserved keys. Built-in groups can be disabled through `useChoose({ disable: [...] })` when a custom host deliberately owns one.
+
+Part of the [Tooee](https://github.com/gingerhendrix/tooee) monorepo.
