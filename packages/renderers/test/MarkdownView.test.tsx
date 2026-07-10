@@ -5,6 +5,7 @@ import { ThemeSwitcherProvider } from "@tooee/themes"
 import { MarkPriorities, MarkSetBuilder, createMarkState } from "@tooee/marks"
 import { MarkdownView } from "../src/MarkdownView.js"
 import type { CodeBlockRenderer } from "../src/code-blocks.js"
+import { decorationBindings } from "./support/bindings.js"
 import { ansiToStyledText, renderMermaidForTerminal } from "../src/mermaid.js"
 
 let testSetup: Awaited<ReturnType<typeof testRender>>
@@ -13,7 +14,7 @@ afterEach(() => {
   testSetup?.renderer.destroy()
 })
 
-function createMarkdownMarks(opts: {
+function createMarkdownDocument(opts: {
   activeBlock?: number
   selectedBlocks?: { start: number; end: number }
 }) {
@@ -39,7 +40,7 @@ function createMarkdownMarks(opts: {
     sets.push(builder.build("cursor", MarkPriorities.CURSOR))
   }
 
-  return createMarkState(sets)
+  return decorationBindings(createMarkState(sets).sets)
 }
 
 test("renders heading text", async () => {
@@ -173,7 +174,7 @@ test("selected blocks have gutter highlight", async () => {
     <ThemeSwitcherProvider>
       <MarkdownView
         content={"# Heading\n\nParagraph one\n\nParagraph two\n\nParagraph three"}
-        marks={createMarkdownMarks({ selectedBlocks: { start: 1, end: 2 } })}
+        document={createMarkdownDocument({ selectedBlocks: { start: 1, end: 2 } })}
       />
     </ThemeSwitcherProvider>,
     { width: 80, height: 24 },
@@ -189,7 +190,7 @@ test("active block renders with gutter", async () => {
     <ThemeSwitcherProvider>
       <MarkdownView
         content={"# Heading\n\nParagraph one\n\nParagraph two"}
-        marks={createMarkdownMarks({ activeBlock: 1 })}
+        document={createMarkdownDocument({ activeBlock: 1 })}
       />
     </ThemeSwitcherProvider>,
     { width: 80, height: 24 },
@@ -206,7 +207,7 @@ test("selected blocks snapshot", async () => {
     <ThemeSwitcherProvider>
       <MarkdownView
         content={"# Title\n\nFirst paragraph\n\nSecond paragraph\n\nThird paragraph"}
-        marks={createMarkdownMarks({ activeBlock: 1, selectedBlocks: { start: 1, end: 2 } })}
+        document={createMarkdownDocument({ activeBlock: 1, selectedBlocks: { start: 1, end: 2 } })}
       />
     </ThemeSwitcherProvider>,
     { width: 60, height: 20 },

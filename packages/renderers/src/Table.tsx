@@ -1,8 +1,7 @@
 import { useTerminalDimensions } from "@opentui/react"
 import { useTheme } from "@tooee/themes"
-import { useMemo, useRef, type RefObject } from "react"
-import type { MouseEvent } from "@opentui/core"
-import type { MarkState } from "@tooee/marks"
+import { useMemo, useRef } from "react"
+import type { DocumentBindings } from "./DocumentBindings.js"
 import type { ColumnDef, TableRow } from "./table-types.js"
 import {
   DEFAULT_SIGN_COLUMN_WIDTH,
@@ -25,14 +24,15 @@ export interface TableProps {
   sampleSize?: number
   /** Show line numbers in the gutter (default: true) */
   showLineNumbers?: boolean
-  marks?: MarkState
-  docRef?: RefObject<RowDocumentRenderable | null>
+  /**
+   * Binds the data rows to a document controller: its ref, the decoration
+   * layers to paint, and the mouse handler. Rows are data-row indices; the
+   * fixed header sits outside the row document. Omit it to render a static,
+   * non-interactive table.
+   */
+  document?: DocumentBindings
   /** Column width mode: "content" sizes to content (default), "fill" expands to fill available width */
   columnWidthMode?: "content" | "fill"
-  /** Left-click on a data row (additive; keyboard navigation is unaffected). */
-  onRowClick?: (index: number) => void
-  /** Right-click on a data row — receives the row index and click coordinates. */
-  onRowContextMenu?: (index: number, x: number, y: number) => void
 }
 
 const PADDING = 1
@@ -153,17 +153,14 @@ export function Table({
   maxColumnWidth = DEFAULT_MAX_COL_WIDTH,
   sampleSize = DEFAULT_SAMPLE_SIZE,
   showLineNumbers = true,
-  marks,
-  docRef,
+  document,
   columnWidthMode = "content",
-  onRowClick,
-  onRowContextMenu,
 }: TableProps) {
   const { theme } = useTheme()
   const palette = useGutterPalette()
   const { width: terminalWidth } = useTerminalDimensions()
   const internalDocRef = useRef<RowDocumentRenderable | null>(null)
-  const rowDocumentRef = docRef ?? internalDocRef
+  const rowDocumentRef = document?.ref ?? internalDocRef
 
   // Compute available content width: start with total space, subtract margins and gutter
   const gutterWidth = useMemo(
@@ -245,23 +242,6 @@ export function Table({
     [normalizedRows, colWidths, alignments, theme.text],
   )
 
-  // Use the shared RowDocumentRenderable screen-Y mapper for table rows too.
-  // This keeps table, code, and markdown mouse handling on one code path and
-  // avoids per-row mouse closures in the virtualized row tree.
-  const handleMouseDown =
-    onRowClick || onRowContextMenu
-      ? (event: MouseEvent) => {
-          const row = rowDocumentRef.current?.getRowAtScreenY(event.y)
-          if (row == null) return
-          if (event.button === 0) {
-            onRowClick?.(row)
-          } else if (event.button === 2) {
-            event.preventDefault()
-            onRowContextMenu?.(row, event.x, event.y)
-          }
-        }
-      : undefined
-
   return (
     <box
       style={{
@@ -305,9 +285,9 @@ export function Table({
         showLineNumbers={showLineNumbers}
         signColumnWidth={DEFAULT_SIGN_COLUMN_WIDTH}
         palette={palette}
-        decorations={marks?.sets}
+        decorations={document?.decorations}
         style={{ flexGrow: 1 }}
-        onMouseDown={handleMouseDown}
+        onMouseDown={document?.onMouseDown}
       >
         {rowElements}
       </row-document>

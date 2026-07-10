@@ -1,19 +1,20 @@
-import { useProvideCommandContextKey, useMode } from "@tooee/commands"
-import type { Mode } from "@tooee/commands"
-import type { NavigationState } from "@tooee/shell"
+import { useProvideCommandContextKey } from "@tooee/commands"
 import type { MarkSet } from "@tooee/marks"
 import type { AnyContent } from "../types.js"
 
-/** The `view` field contributed to the command context (see augmentation below). */
+/**
+ * The `view` field contributed to the command context (see augmentation below).
+ *
+ * This slice is content-only. Row state — cursor, selection, active and
+ * selected rows — is generic to every row document and lives on `ctx.document`,
+ * which `DocumentScreen` provides alongside this.
+ */
 export interface ViewCommandContext {
   content: AnyContent
   format: string
   title?: string
   data?: unknown
-  cursor: number | null
-  selection: { start: number; end: number } | null
-  mode: Mode
-  toggledIndices: Set<number>
+  /** Reload the content from its provider. */
   reload: () => void
   marks: {
     setMarkSet: (set: MarkSet) => void
@@ -22,8 +23,6 @@ export interface ViewCommandContext {
     userMarks: MarkSet[]
     providerMarks: MarkSet[]
   }
-  /** Subview extras (e.g. activeRow/selectedRows for tables). */
-  [key: string]: unknown
 }
 
 declare module "@tooee/commands" {
@@ -34,8 +33,6 @@ declare module "@tooee/commands" {
 
 const noop = () => {}
 
-type ViewNavigationContext = Pick<NavigationState, "cursor" | "selection" | "toggledIndices">
-
 export interface CreateViewCommandContextOptions {
   /**
    * Content represented by this command context. Custom/headless surfaces may
@@ -45,35 +42,19 @@ export interface CreateViewCommandContextOptions {
   format?: string
   title?: string
   data?: unknown
-  nav?: ViewNavigationContext
-  cursor?: number | null
-  selection?: { start: number; end: number } | null
-  /** Caller-owned mode value. Prefer `useProvideViewCommandContext` in React so this is live. */
-  mode: Mode
-  toggledIndices?: Set<number>
   reload?: () => void
   marks?: Partial<ViewCommandContext["marks"]>
-  extras?: Record<string, unknown>
 }
 
-export type ProvideViewCommandContextOptions = Omit<CreateViewCommandContextOptions, "mode"> & {
-  /** Advanced override; normally omitted so the hook injects the live command mode. */
-  mode?: Mode
-}
+export type ProvideViewCommandContextOptions = CreateViewCommandContextOptions
 
 export function createViewCommandContext({
   content,
   format,
   title,
   data,
-  nav,
-  cursor,
-  selection,
-  mode,
-  toggledIndices,
   reload,
   marks,
-  extras,
 }: CreateViewCommandContextOptions): ViewCommandContext {
   const resolvedFormat = format ?? content?.format ?? "custom"
   const resolvedContent: AnyContent =
@@ -85,15 +66,10 @@ export function createViewCommandContext({
     } satisfies AnyContent)
 
   return {
-    ...extras,
     content: resolvedContent,
     format: resolvedFormat,
     title: title ?? content?.title,
     data: data ?? ("data" in resolvedContent ? resolvedContent.data : undefined),
-    cursor: cursor ?? nav?.cursor ?? null,
-    selection: selection ?? nav?.selection ?? null,
-    mode,
-    toggledIndices: toggledIndices ?? nav?.toggledIndices ?? new Set<number>(),
     reload: reload ?? noop,
     marks: {
       setMarkSet: marks?.setMarkSet ?? noop,
@@ -108,51 +84,7 @@ export function createViewCommandContext({
 export function useProvideViewCommandContext(
   options: ProvideViewCommandContextOptions | (() => ProvideViewCommandContextOptions),
 ) {
-  const mode = useMode()
-  useProvideCommandContextKey("view", () => {
-    const resolvedOptions = typeof options === "function" ? options() : options
-    return createViewCommandContext({
-      ...resolvedOptions,
-      mode: resolvedOptions.mode ?? mode,
-    })
-  })
-}
-
-interface UseViewCommandContextParams {
-  content: AnyContent
-  nav: NavigationState
-  reload: () => void
-  providerMarks: MarkSet[]
-  userMarks: MarkSet[]
-  setMarkSet: (set: MarkSet) => void
-  clearMarkNamespace: (namespace: string) => void
-  clearAllUserMarks: () => void
-  /** Extra fields merged into the view context (e.g. activeRow, selectedRows for table) */
-  extras?: Record<string, unknown>
-}
-
-export function useViewCommandContext({
-  content,
-  nav,
-  reload,
-  providerMarks,
-  userMarks,
-  setMarkSet,
-  clearMarkNamespace,
-  clearAllUserMarks,
-  extras,
-}: UseViewCommandContextParams) {
-  useProvideViewCommandContext({
-    content,
-    nav,
-    reload,
-    marks: {
-      setMarkSet,
-      clearNamespace: clearMarkNamespace,
-      clearAll: clearAllUserMarks,
-      userMarks,
-      providerMarks,
-    },
-    extras,
-  })
+  useProvideCommandContextKey("view", () =>
+    createViewCommandContext(typeof options === "function" ? options() : options),
+  )
 }

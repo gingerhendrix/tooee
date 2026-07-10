@@ -25,4 +25,5 @@ export {
 } from "./RowDocumentRenderable.js"
 export type { RowDocumentOptions, RowDocumentPalette } from "./RowDocumentRenderable.js"
 export type { DecorationLayer, RowDecoration } from "./DecorationLayer.js"
+export type { DocumentBindings } from "./DocumentBindings.js"
 export { useGutterPalette } from "./useGutterPalette.js"

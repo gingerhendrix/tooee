@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { useCommand, useMode, useSetMode, type Mode } from "@tooee/commands"
 
 export interface UseSearchOptions {
@@ -29,6 +29,17 @@ export interface SearchState {
 
 const EMPTY: number[] = []
 const EMPTY_DEPS: readonly unknown[] = []
+
+interface MatchCache {
+  query: string
+  deps: readonly unknown[]
+  matches: number[]
+}
+
+function sameDeps(left: readonly unknown[], right: readonly unknown[]): boolean {
+  if (left.length !== right.length) return false
+  return left.every((value, index) => Object.is(value, right[index]))
+}
 const CURSOR_MODES: Mode[] = ["cursor"]
 const ALL_MODES: Mode[] = ["cursor", "select", "insert"]
 
@@ -55,10 +66,22 @@ export function useSearch({
 
   const activeQuery = searchActive ? searchQuery : committedQuery
 
-  const matchingLines = useMemo(() => {
-    if (!activeQuery) return EMPTY
-    return matchRef.current(activeQuery)
-  }, [activeQuery, ...deps])
+  // Memoized on the query *and* the searched content: a committed query must
+  // re-match when rows arrive or change. `deps` is caller-sized, so this is a
+  // hand-rolled cache rather than a useMemo dependency array.
+  const cacheRef = useRef<MatchCache | null>(null)
+  let matchingLines: number[]
+  if (!activeQuery) {
+    matchingLines = EMPTY
+  } else {
+    const cache = cacheRef.current
+    if (cache && cache.query === activeQuery && sameDeps(cache.deps, deps)) {
+      matchingLines = cache.matches
+    } else {
+      matchingLines = matchRef.current(activeQuery)
+      cacheRef.current = { query: activeQuery, deps: [...deps], matches: matchingLines }
+    }
+  }
 
   const matchingLinesRef = useRef(matchingLines)
   matchingLinesRef.current = matchingLines

@@ -1,18 +1,8 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, beforeEach, describe, mock } from "bun:test"
+import { clipboardStub, copied } from "../../../test/support/clipboard-mock.ts"
 
-const copied: string[] = []
-
-mock.module("@tooee/clipboard", () => ({
-  copyToClipboard: (text: string) => {
-    copied.push(text)
-    return Promise.resolve()
-  },
-  copyToPrimary: () => Promise.resolve(),
-  readClipboard: () => Promise.resolve(undefined),
-  readClipboardText: () => Promise.resolve(""),
-  readPrimaryText: () => Promise.resolve(""),
-}))
+mock.module("@tooee/clipboard", () => clipboardStub())
 
 const { TooeeProvider, useDocumentController, Document } = await import("@tooee/shell")
 const { press, pressTab } = await import("./support/test-helpers.ts")

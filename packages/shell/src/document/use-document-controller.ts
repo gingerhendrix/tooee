@@ -182,13 +182,8 @@ export function useDocumentController<T>(
     return defaultMatch(query, currentRows, (row, index) => adapterRef.current.getText(row, index))
   }, [])
 
-  const searchDeps = useMemo(() => [rows], [rows])
-  const searchState = useSearch({
-    match,
-    onJump: setCursor,
-    enabled: searchEnabled,
-    deps: searchDeps,
-  })
+  // Rows are the searched content: a committed query re-matches when they change.
+  const searchState = useSearch({ match, onJump: setCursor, enabled: searchEnabled, deps: [rows] })
   const search = searchEnabled ? searchState : null
 
   // -- Copy -----------------------------------------------------------------
@@ -331,19 +326,28 @@ export function useDocumentController<T>(
     [getRowKey],
   )
 
+  // Row mouse handlers stand down while a modal overlay is up: centered
+  // overlays leave clickable margins, and mouse events route through the
+  // hit-grid, bypassing command-surface arbitration.
+  const selectRow = useCallback(
+    (index: number) => {
+      if (hasModalOverlayRef.current) return
+      if (index < 0 || index >= rowsRef.current.length) return
+      setCursor(index)
+    },
+    [setCursor],
+  )
+
   const openContextMenu = contextMenuController.open
   const onMouseDown = useCallback(
     (event: MouseEvent) => {
-      // Row mouse handlers stand down while a modal overlay is up: centered
-      // overlays leave clickable margins, and mouse events route through the
-      // hit-grid, bypassing command-surface arbitration.
       if (hasModalOverlayRef.current) return
 
       const hit = getRowAtScreenY(event.y)
       if (!hit) return
 
       if (event.button === 0) {
-        setCursor(hit.index)
+        selectRow(hit.index)
         onRowPressRef.current?.({ ...hit, event })
         return
       }
@@ -353,14 +357,14 @@ export function useDocumentController<T>(
       if (!menu) return
 
       event.preventDefault()
-      setCursor(hit.index)
+      selectRow(hit.index)
 
       const entries: readonly ContextMenuEntry[] =
         typeof menu === "function" ? menu({ ...hit, event, context: buildCommandContext() }) : menu
       if (entries.length === 0) return
       openContextMenu(event.x, event.y, [...entries], (id) => invokeRef.current(id))
     },
-    [getRowAtScreenY, setCursor, openContextMenu, buildCommandContext],
+    [getRowAtScreenY, selectRow, openContextMenu, buildCommandContext],
   )
 
   return useMemo(
@@ -378,6 +382,7 @@ export function useDocumentController<T>(
       getRow,
       getRowKey,
       getRowAtScreenY,
+      selectRow,
       onMouseDown,
     }),
     [
@@ -393,6 +398,7 @@ export function useDocumentController<T>(
       getRow,
       getRowKey,
       getRowAtScreenY,
+      selectRow,
       onMouseDown,
     ],
   )

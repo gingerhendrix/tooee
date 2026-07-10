@@ -1,30 +1,27 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, describe, afterEach } from "bun:test"
-import { act, useRef } from "react"
+import { act } from "react"
 import { MouseButtons } from "@opentui/core/testing"
 import { ThemeSwitcherProvider } from "@tooee/themes"
 import { MarkdownView } from "../src/MarkdownView.js"
 import { CodeBlockChrome, type CodeBlockRenderer } from "../src/code-blocks.js"
-import type { RowDocumentRenderable } from "../src/RowDocumentRenderable.js"
+import { useRowMouseBindings, type RowMouseCallbacks } from "./support/bindings.js"
 
 const CONTENT_X = 8
 
 function MarkdownHarness({
   content,
   codeBlockRenderers,
-  onRowClick,
-}: {
+  ...callbacks
+}: RowMouseCallbacks & {
   content: string
   codeBlockRenderers?: Record<string, CodeBlockRenderer>
-  onRowClick?: (index: number) => void
 }) {
-  const docRef = useRef<RowDocumentRenderable | null>(null)
   return (
     <MarkdownView
       content={content}
-      docRef={docRef}
+      document={useRowMouseBindings(callbacks)}
       codeBlockRenderers={codeBlockRenderers}
-      onRowClick={onRowClick}
     />
   )
 }

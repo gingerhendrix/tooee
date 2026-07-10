@@ -1,9 +1,12 @@
-import type { Key, RefObject } from "react"
+import type { Key } from "react"
 import type { MouseEvent } from "@opentui/core"
 import type { CommandContext } from "@tooee/commands"
-import type { ContextMenuEntry, DecorationLayer, RowDocumentRenderable } from "@tooee/renderers"
+import type { ContextMenuEntry, DecorationLayer, DocumentBindings } from "@tooee/renderers"
 import type { SearchState } from "@tooee/search"
 import type { NavigationState } from "../navigation.js"
+
+/** Re-exported so consumers of the controller need not reach into `@tooee/renderers`. */
+export type { DocumentBindings }
 
 /**
  * Priorities of the interaction decoration layers the controller generates.
@@ -70,13 +73,6 @@ export interface UseDocumentControllerOptions<T> {
     | ((event: DocumentContextMenuEvent<T>) => readonly ContextMenuEntry[])
 }
 
-/** The narrow projection a row renderer needs; renderers never see the row type. */
-export interface DocumentBindings {
-  ref: RefObject<RowDocumentRenderable | null>
-  decorations: readonly DecorationLayer[]
-  onMouseDown(event: MouseEvent): void
-}
-
 export interface DocumentController<T> extends DocumentBindings {
   readonly rows: readonly T[]
   readonly navigation: NavigationState
@@ -93,6 +89,13 @@ export interface DocumentController<T> extends DocumentBindings {
   getRow(index: number): T | undefined
   getRowKey(index: number): Key
   getRowAtScreenY(screenY: number): { row: T; index: number; key: Key } | null
+
+  /**
+   * Move the cursor to a row, the pointer equivalent of a keyboard move. Stands
+   * down while a modal overlay is open, so renderers that resolve their own
+   * rows can wire it unconditionally.
+   */
+  selectRow(index: number): void
 
   /** Bound handler: modal guard, row resolution, selection, then app/menu callback. */
   onMouseDown(event: MouseEvent): void

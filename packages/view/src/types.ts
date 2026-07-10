@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import type { ColumnDef, TableRow } from "@tooee/renderers"
-import type { MarkSet, MarkState } from "@tooee/marks"
+import type { DocumentController } from "@tooee/shell"
+import type { MarkSet } from "@tooee/marks"
 
 // === Built-in content types ===
 
@@ -51,22 +52,19 @@ export type AnyContent = Content | CustomContent
 
 export interface ContentRendererProps {
   content: CustomContent
-  lineCount: number
-  cursor?: number
-  selectionStart?: number
-  selectionEnd?: number
-  /** Combined mark state (nav + provider + user marks) */
-  marks?: MarkState
   /**
-   * Select a row by index — the mouse equivalent of the keyboard cursor move.
-   * A custom renderer that has a notion of rows should call this from its own
-   * `onMouseDown`/`onRowClick` handlers to make left-click select a row, the
-   * same way the built-in code/markdown/table views do. Selection is a no-op
-   * while a modal overlay is open (the host guards it), so renderers can wire
-   * it unconditionally. Renderers that own a `RowDocumentRenderable` can map a
-   * click's screen-Y to a row via its `getRowAtScreenY(event.y)` helper.
+   * The host's document controller. Its rows are the content's plain-text
+   * lines, which is also the unit navigation, search and copy work in.
+   *
+   * A renderer that owns a `<row-document>` binds the controller directly — it
+   * satisfies `DocumentBindings`, so `ref`, `decorations` and `onMouseDown`
+   * spread onto the element the way the built-in views wire them. A renderer
+   * with its own markup reads `activeIndex` and `navigation.selection` for
+   * cursor state and calls `selectRow(index)` from its mouse handlers;
+   * `selectRow` stands down while a modal overlay is open, so it can be wired
+   * unconditionally.
    */
-  onSelectRow?: (index: number) => void
+  document: DocumentController<string>
 }
 
 export type ContentRenderer = (props: ContentRendererProps) => ReactNode

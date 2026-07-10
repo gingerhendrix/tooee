@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { useTheme } from "@tooee/themes"
 import type { ActionDefinition } from "@tooee/commands"
 import type { MarkSet } from "@tooee/marks"
@@ -50,6 +50,10 @@ export function View({ contentProvider, actions, renderers, codeBlockRenderers }
     setUserMarks([])
   }, [])
 
+  // Mark sets are decoration layers; the controller composes them with the
+  // interaction layers it generates, ordered by each set's own priority.
+  const decorations = useMemo(() => [...providerMarks, ...userMarks], [providerMarks, userMarks])
+
   if (error) {
     return (
       <box style={{ flexDirection: "column" }}>
@@ -67,6 +71,7 @@ export function View({ contentProvider, actions, renderers, codeBlockRenderers }
   }
 
   const shared = {
+    decorations,
     providerMarks,
     userMarks,
     setMarkSet,

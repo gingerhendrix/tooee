@@ -6,7 +6,6 @@ import { TooeeProvider } from "@tooee/shell"
 import { View } from "../src/View.js"
 import type { AnyContent, ContentProvider, ContentRenderer } from "../src/types.js"
 
-// A custom format whose text has 4 rows, so nav.setCursor(2) is a valid row.
 const CONTENT: AnyContent = {
   format: "chart",
   data: {},
@@ -15,10 +14,19 @@ const CONTENT: AnyContent = {
 
 const PROVIDER: ContentProvider = { format: "chart", load: () => CONTENT }
 
-// A custom renderer that wires left-click to the host-provided onSelectRow.
-const RENDERER: ContentRenderer = ({ onSelectRow }) => (
-  <box onMouseDown={() => onSelectRow?.(2)}>
+// A renderer with its own markup: it resolves its own row and asks the
+// controller to select it.
+const RENDERER: ContentRenderer = ({ document }) => (
+  <box onMouseDown={() => document.selectRow(2)}>
     <text content="CUSTOM-BODY" />
+  </box>
+)
+
+// A renderer that reads controller state rather than a bag of cursor numbers.
+const STATE_RENDERER: ContentRenderer = ({ document }) => (
+  <box>
+    <text content={`active:${document.activeIndex}`} />
+    <text content={`rows:${document.rows.length}`} />
   </box>
 )
 
@@ -37,19 +45,24 @@ function lineOf(frame: string, text: string): { x: number; y: number } {
   return { x: -1, y: -1 }
 }
 
-describe("Custom renderer mouse selection", () => {
-  test("a custom renderer can select a row via onSelectRow", async () => {
-    testSetup = await testRender(
-      <TooeeProvider>
-        <View contentProvider={PROVIDER} renderers={{ chart: RENDERER }} />
-      </TooeeProvider>,
-      { width: 80, height: 24, kittyKeyboard: true },
-    )
-    await testSetup.renderOnce()
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 100))
-    })
-    await testSetup.renderOnce()
+async function setup(renderer: ContentRenderer) {
+  const s = await testRender(
+    <TooeeProvider>
+      <View contentProvider={PROVIDER} renderers={{ chart: renderer }} />
+    </TooeeProvider>,
+    { width: 80, height: 24, kittyKeyboard: true },
+  )
+  await s.renderOnce()
+  await act(async () => {
+    await new Promise((r) => setTimeout(r, 100))
+  })
+  await s.renderOnce()
+  return s
+}
+
+describe("Custom renderer document bindings", () => {
+  test("a custom renderer can select a row via document.selectRow", async () => {
+    testSetup = await setup(RENDERER)
 
     const frame0 = testSetup.captureCharFrame()
     expect(frame0).toMatch(/Cursor:\s*0/)
@@ -62,5 +75,43 @@ describe("Custom renderer mouse selection", () => {
     await testSetup.renderOnce()
 
     expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/)
+  })
+
+  test("selectRow stands down while a modal overlay is open", async () => {
+    testSetup = await setup(RENDERER)
+    const pos = lineOf(testSetup.captureCharFrame(), "CUSTOM-BODY")
+
+    await act(async () => {
+      testSetup.mockInput.pressKey("t")
+    })
+    await testSetup.renderOnce()
+    expect(testSetup.captureCharFrame()).toContain("Filter themes")
+
+    await act(async () => {
+      await testSetup.mockMouse.click(pos.x, pos.y, MouseButtons.LEFT)
+    })
+    await testSetup.renderOnce()
+
+    await act(async () => {
+      testSetup.mockInput.pressEscape()
+    })
+    await testSetup.renderOnce()
+
+    const frame = testSetup.captureCharFrame()
+    expect(frame).not.toContain("Filter themes")
+    expect(frame).toMatch(/Cursor:\s*0/)
+  })
+
+  test("a custom renderer reads cursor and rows from the controller", async () => {
+    testSetup = await setup(STATE_RENDERER)
+    expect(testSetup.captureCharFrame()).toContain("rows:4")
+    expect(testSetup.captureCharFrame()).toContain("active:0")
+
+    await act(async () => {
+      testSetup.mockInput.pressKey("j")
+    })
+    await testSetup.renderOnce()
+
+    expect(testSetup.captureCharFrame()).toContain("active:1")
   })
 })

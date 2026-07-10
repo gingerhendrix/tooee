@@ -4,6 +4,7 @@ import { act } from "react"
 import { MouseButtons } from "@opentui/core/testing"
 import { ThemeSwitcherProvider } from "@tooee/themes"
 import { Table } from "../src/Table.js"
+import { useRowMouseBindings, type RowMouseCallbacks } from "./support/bindings.js"
 
 function cols(headers: string[]) {
   return headers.map((header, index) => ({ key: `col_${index}`, header }))
@@ -31,6 +32,12 @@ const DATA = rows(COLUMNS, [
 const DATA_TOP_Y = 2
 const CONTENT_X = 8
 
+function TableHarness(callbacks: RowMouseCallbacks) {
+  return (
+    <Table columns={COLUMNS} rows={DATA} maxWidth={40} document={useRowMouseBindings(callbacks)} />
+  )
+}
+
 let testSetup: Awaited<ReturnType<typeof testRender>>
 
 afterEach(() => {
@@ -42,7 +49,7 @@ describe("Table mouse interaction", () => {
     const clicked: number[] = []
     testSetup = await testRender(
       <ThemeSwitcherProvider>
-        <Table columns={COLUMNS} rows={DATA} maxWidth={40} onRowClick={(i) => clicked.push(i)} />
+        <TableHarness onRowClick={(i) => clicked.push(i)} />
       </ThemeSwitcherProvider>,
       { width: 40, height: 15 },
     )
@@ -63,12 +70,7 @@ describe("Table mouse interaction", () => {
     const events: { index: number; x: number; y: number }[] = []
     testSetup = await testRender(
       <ThemeSwitcherProvider>
-        <Table
-          columns={COLUMNS}
-          rows={DATA}
-          maxWidth={40}
-          onRowContextMenu={(index, x, y) => events.push({ index, x, y })}
-        />
+        <TableHarness onRowContextMenu={(index, x, y) => events.push({ index, x, y })} />
       </ThemeSwitcherProvider>,
       { width: 40, height: 15 },
     )
@@ -89,13 +91,7 @@ describe("Table mouse interaction", () => {
     let ctx = 0
     testSetup = await testRender(
       <ThemeSwitcherProvider>
-        <Table
-          columns={COLUMNS}
-          rows={DATA}
-          maxWidth={40}
-          onRowClick={() => {}}
-          onRowContextMenu={() => ctx++}
-        />
+        <TableHarness onRowClick={() => {}} onRowContextMenu={() => ctx++} />
       </ThemeSwitcherProvider>,
       { width: 40, height: 15 },
     )
@@ -111,7 +107,7 @@ describe("Table mouse interaction", () => {
     const clicked: number[] = []
     testSetup = await testRender(
       <ThemeSwitcherProvider>
-        <Table columns={COLUMNS} rows={DATA} maxWidth={40} onRowClick={(i) => clicked.push(i)} />
+        <TableHarness onRowClick={(i) => clicked.push(i)} />
       </ThemeSwitcherProvider>,
       { width: 40, height: 15 },
     )

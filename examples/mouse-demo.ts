@@ -73,7 +73,7 @@ const contentProvider: ContentProvider = {
 
 /** Name of the row currently under the cursor, or a fallback. */
 function activeName(ctx: CommandContext): string {
-  const row = ctx.view?.activeRow as Record<string, unknown> | undefined
+  const row = ctx.document?.activeRow as Record<string, unknown> | undefined
   const name = row?.name
   return typeof name === "string" ? name : "(no row)"
 }

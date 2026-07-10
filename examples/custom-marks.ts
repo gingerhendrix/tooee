@@ -230,7 +230,7 @@ const actions: ActionDefinition[] = [
     hotkey: "b",
     modes: ["cursor"],
     handler: (ctx) => {
-      const line = ctx.view.cursor
+      const line = ctx.document?.cursor
       if (line == null) return
 
       if (userBookmarks.has(line)) {
@@ -254,7 +254,7 @@ const actions: ActionDefinition[] = [
     hotkey: "d",
     modes: ["cursor"],
     handler: (ctx) => {
-      const line = ctx.view.cursor
+      const line = ctx.document?.cursor
       if (line == null) return
 
       if (userDiagnostics.has(line)) {

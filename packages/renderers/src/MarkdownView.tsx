@@ -8,15 +8,14 @@ import {
   parseColor,
 } from "@opentui/core"
 import type {
-  MouseEvent,
   SyntaxStyle,
   TextBufferRenderable,
   TextTableContent,
   TextTableCellContent,
   TextChunk,
 } from "@opentui/core"
-import type { MarkState } from "@tooee/marks"
-import { DEFAULT_SIGN_COLUMN_WIDTH, type RowDocumentRenderable } from "./RowDocumentRenderable.js"
+import type { DocumentBindings } from "./DocumentBindings.js"
+import { DEFAULT_SIGN_COLUMN_WIDTH } from "./RowDocumentRenderable.js"
 import { useGutterPalette } from "./useGutterPalette.js"
 import { CodeBlock, DEFAULT_CODE_BLOCK_RENDERERS, type CodeBlockRenderer } from "./code-blocks.js"
 import "./row-document.js"
@@ -29,8 +28,19 @@ import "./text-table.js"
 interface MarkdownViewProps {
   content: string
   showLineNumbers?: boolean
-  marks?: MarkState
-  docRef?: RefObject<RowDocumentRenderable | null>
+  /**
+   * Binds the row document to a document controller: its ref, the decoration
+   * layers to paint, and the mouse handler. Rows are flattened *block* indices —
+   * the same unit `j`/`k` move between and copy operates on. Omit it to render
+   * a static, non-interactive document.
+   *
+   * Blocks are per-child renderables, but their markup varies across renderer
+   * branches (box/text/null with differing margins), so the controller maps
+   * clicks by screen-Y rather than per-child handlers. Clicks bubble up from
+   * block children (including custom code blocks) unless a custom renderer
+   * stops propagation.
+   */
+  document?: DocumentBindings
   /**
    * Registry of horizontally scrollable blocks, keyed by block index. Blocks
    * that can overflow horizontally (mermaid diagrams and code blocks)
@@ -48,16 +58,6 @@ interface MarkdownViewProps {
    * syntax-highlighted code block.
    */
   codeBlockRenderers?: Record<string, CodeBlockRenderer>
-  /**
-   * Left-click on a block (additive; keyboard navigation is unaffected). The
-   * row index is the flattened *block* index, matching the view's `nav` model
-   * and the copy/selection unit — clicking selects the same block `j`/`k` move
-   * between. Clicks inside a custom-rendered code block bubble up here too,
-   * unless the custom renderer stops propagation on its own mouse handlers.
-   */
-  onRowClick?: (index: number) => void
-  /** Right-click on a block — receives the block index and click coordinates. */
-  onRowContextMenu?: (index: number, x: number, y: number) => void
 }
 
 /**
@@ -173,12 +173,9 @@ function flattenListItem(
 export function MarkdownView({
   content,
   showLineNumbers = true,
-  marks,
-  docRef,
+  document,
   hScrollableBlocksRef,
   codeBlockRenderers,
-  onRowClick,
-  onRowContextMenu,
 }: MarkdownViewProps) {
   const { theme, syntax } = useTheme()
   const palette = useGutterPalette()
@@ -211,34 +208,15 @@ export function MarkdownView({
     [blocks, theme, syntax, hScrollableBlocksRef, mergedCodeBlockRenderers],
   )
 
-  // A single handler on the row-document maps the click's screen-Y to a block
-  // index. Blocks are per-child renderables, but their markup varies across
-  // renderer branches (box/text/null with differing margins), so mapping by
-  // screen-Y avoids wrapping every branch and keeps gutter/line-number geometry
-  // intact. Clicks bubble up from block children (including custom code blocks).
-  const handleMouseDown =
-    onRowClick || onRowContextMenu
-      ? (event: MouseEvent) => {
-          const row = docRef?.current?.getRowAtScreenY(event.y)
-          if (row == null) return
-          if (event.button === 0) {
-            onRowClick?.(row)
-          } else if (event.button === 2) {
-            event.preventDefault()
-            onRowContextMenu?.(row, event.x, event.y)
-          }
-        }
-      : undefined
-
   return (
     <row-document
-      ref={docRef}
+      ref={document?.ref}
       showLineNumbers={showLineNumbers}
       palette={palette}
-      decorations={marks?.sets}
+      decorations={document?.decorations}
       signColumnWidth={DEFAULT_SIGN_COLUMN_WIDTH}
       style={{ flexGrow: 1 }}
-      onMouseDown={handleMouseDown}
+      onMouseDown={document?.onMouseDown}
     >
       {blockElements}
     </row-document>

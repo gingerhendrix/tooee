@@ -1,10 +1,10 @@
 import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, describe, afterEach } from "bun:test"
-import { act, useRef } from "react"
+import { act } from "react"
 import { MouseButtons } from "@opentui/core/testing"
 import { ThemeSwitcherProvider } from "@tooee/themes"
 import { CodeView } from "../src/CodeView.js"
-import type { RowDocumentRenderable } from "../src/RowDocumentRenderable.js"
+import { useRowMouseBindings, type RowMouseCallbacks } from "./support/bindings.js"
 
 // The code view is a single `<code>` provider inside a row-document with no
 // header chrome, so the first line renders at viewport y=0. Gutter is line
@@ -12,22 +12,8 @@ import type { RowDocumentRenderable } from "../src/RowDocumentRenderable.js"
 const CODE = ["const a = 1", "const b = 2", "const c = 3", "const d = 4", "const e = 5"].join("\n")
 const CONTENT_X = 8
 
-function CodeHarness({
-  onRowClick,
-  onRowContextMenu,
-}: {
-  onRowClick?: (index: number) => void
-  onRowContextMenu?: (index: number, x: number, y: number) => void
-}) {
-  const docRef = useRef<RowDocumentRenderable | null>(null)
-  return (
-    <CodeView
-      content={CODE}
-      docRef={docRef}
-      onRowClick={onRowClick}
-      onRowContextMenu={onRowContextMenu}
-    />
-  )
+function CodeHarness(callbacks: RowMouseCallbacks) {
+  return <CodeView content={CODE} document={useRowMouseBindings(callbacks)} />
 }
 
 let testSetup: Awaited<ReturnType<typeof testRender>>
