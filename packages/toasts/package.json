@@ -1,6 +1,6 @@
 {
   "name": "@tooee/toasts",
-  "version": "0.1.22",
+  "version": "0.2.0",
   "description": "Toast notification system for Tooee",
   "keywords": [
     "cli",
