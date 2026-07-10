@@ -1,8 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts"
-import { test, expect, afterEach, beforeEach, describe, mock } from "bun:test"
-import { clipboardStub, copied } from "../../../test/support/clipboard-mock.ts"
+import { test, expect, afterEach, beforeEach, describe } from "bun:test"
+import { copied } from "../../../test/support/clipboard-mock.ts"
 
-mock.module("@tooee/clipboard", () => clipboardStub())
 
 const { TooeeProvider, useDocumentController, Document } = await import("@tooee/shell")
 const { press, pressTab } = await import("./support/test-helpers.ts")

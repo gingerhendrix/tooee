@@ -1,9 +1,8 @@
 import { testRender } from "../../../test/support/test-render.ts"
-import { test, expect, afterEach, beforeEach, describe, mock } from "bun:test"
+import { test, expect, afterEach, beforeEach, describe } from "bun:test"
 import { act } from "react"
-import { clipboardStub, copied } from "../../../test/support/clipboard-mock.ts"
+import { copied } from "../../../test/support/clipboard-mock.ts"
 
-mock.module("@tooee/clipboard", () => clipboardStub())
 
 const { TooeeProvider } = await import("@tooee/shell")
 const { MarkSetBuilder, MarkPriorities } = await import("@tooee/marks")
