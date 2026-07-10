@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { CodeView } from "@tooee/renderers"
+import { CodeView, sourceLines, sourceLineAdapter, type SourceLineRow } from "@tooee/renderers"
 import { actionsToContextMenuEntries, useDocumentController } from "@tooee/shell"
 import type { CodeContent, TextContent } from "../../types.js"
 import { useContentCommands } from "../../hooks/useContentCommands.js"
@@ -10,18 +10,17 @@ interface CodeSubviewProps extends SubviewProps {
   content: CodeContent | TextContent
 }
 
-const LINE_ADAPTER = { getText: (line: string) => line }
-
 export function CodeSubview({ content, decorations, actions, ...screen }: CodeSubviewProps) {
   const textContent = content.format === "code" ? content.code : content.text
-  const lines = useMemo(() => textContent.split("\n"), [textContent])
+  // One navigation row per physical source line; row index is the source line.
+  const lineRows = useMemo(() => sourceLines(textContent), [textContent])
 
   const { showLineNumbers } = useContentCommands({ content, textContent })
   const contextMenu = useMemo(() => actionsToContextMenuEntries(actions), [actions])
 
-  const document = useDocumentController<string>({
-    rows: lines,
-    adapter: LINE_ADAPTER,
+  const document = useDocumentController<SourceLineRow>({
+    rows: lineRows,
+    adapter: sourceLineAdapter,
     multiSelect: true,
     decorations,
     contextMenu,
@@ -30,9 +29,9 @@ export function CodeSubview({ content, decorations, actions, ...screen }: CodeSu
   const statusItems = useMemo(
     () => [
       { label: "Format:", value: content.format },
-      { label: "Lines:", value: String(lines.length) },
+      { label: "Lines:", value: String(lineRows.length) },
     ],
-    [content.format, lines.length],
+    [content.format, lineRows.length],
   )
 
   return (

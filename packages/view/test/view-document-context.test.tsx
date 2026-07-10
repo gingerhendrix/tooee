@@ -127,7 +127,10 @@ describe("ctx.document from a View screen", () => {
     expect(documentCtx!.kind).toBe("code")
     expect(documentCtx!.rowCount).toBe(4)
     expect(documentCtx!.cursor).toBe(1)
-    expect(documentCtx!.activeRow).toBe("beta")
+    // Code rows are now source-backed SourceLineRow objects, not bare strings.
+    expect((documentCtx!.activeRow as { text: string }).text).toBe("beta")
+    expect(documentCtx!.activeAnchor?.text).toBe("beta")
+    expect(documentCtx!.activeAnchor?.source?.primary.start.line).toBe(1)
   })
 })
 

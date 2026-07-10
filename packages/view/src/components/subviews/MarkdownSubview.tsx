@@ -1,14 +1,18 @@
 import { useMemo, useRef } from "react"
-import { marked } from "marked"
 import type { TextBufferRenderable } from "@opentui/core"
 import {
   MarkdownView,
-  flattenTokens,
+  flattenMarkdown,
+  getFlatBlockText,
   type CodeBlockRenderer,
   type FlatBlock,
 } from "@tooee/renderers"
 import { useCommand } from "@tooee/commands"
-import { actionsToContextMenuEntries, useDocumentController } from "@tooee/shell"
+import {
+  actionsToContextMenuEntries,
+  useDocumentController,
+  type DocumentRowAdapter,
+} from "@tooee/shell"
 import type { MarkdownContent } from "../../types.js"
 import { useContentCommands } from "../../hooks/useContentCommands.js"
 import { ViewScreen } from "../ViewScreen.js"
@@ -22,10 +26,14 @@ interface MarkdownSubviewProps extends SubviewProps {
 /** Columns moved per h/l press when scrolling a wide block horizontally. */
 const BLOCK_HSCROLL_STEP = 4
 
-/** Blocks are the row unit; their raw source is what search and copy see. */
-const BLOCK_ADAPTER = {
-  getText: ({ token }: FlatBlock) =>
-    "raw" in token && typeof token.raw === "string" ? token.raw : "",
+/**
+ * Blocks are the row unit. `getFlatBlockText` keeps search/copy in step with the
+ * source mapping (notably for synthetic bullet rows), and `getSource` projects
+ * each block's Markdown provenance onto the controller's anchors.
+ */
+const MARKDOWN_BLOCK_ADAPTER: DocumentRowAdapter<FlatBlock> = {
+  getText: (block) => getFlatBlockText(block),
+  getSource: (block) => block.source,
 }
 
 export function MarkdownSubview({
@@ -37,14 +45,14 @@ export function MarkdownSubview({
 }: MarkdownSubviewProps) {
   const textContent = content.markdown
   const lineCount = useMemo(() => textContent.split("\n").length, [textContent])
-  const blocks = useMemo(() => flattenTokens(marked.lexer(content.markdown)), [content.markdown])
+  const blocks = useMemo(() => flattenMarkdown(content.markdown), [content.markdown])
 
   const { showLineNumbers } = useContentCommands({ content, textContent })
   const contextMenu = useMemo(() => actionsToContextMenuEntries(actions), [actions])
 
   const document = useDocumentController<FlatBlock>({
     rows: blocks,
-    adapter: BLOCK_ADAPTER,
+    adapter: MARKDOWN_BLOCK_ADAPTER,
     multiSelect: true,
     decorations,
     contextMenu,
@@ -96,6 +104,7 @@ export function MarkdownSubview({
     >
       <MarkdownView
         content={content.markdown}
+        blocks={blocks}
         showLineNumbers={showLineNumbers}
         document={document}
         hScrollableBlocksRef={hScrollableBlocksRef}

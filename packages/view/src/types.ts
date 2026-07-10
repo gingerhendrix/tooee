@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import type { ColumnDef, TableRow } from "@tooee/renderers"
+import type { ColumnDef, SourceLineRow, TableRow } from "@tooee/renderers"
 import type { DocumentController } from "@tooee/shell"
 import type { MarkSet } from "@tooee/marks"
 
@@ -53,8 +53,9 @@ export type AnyContent = Content | CustomContent
 export interface ContentRendererProps {
   content: CustomContent
   /**
-   * The host's document controller. Its rows are the content's plain-text
-   * lines, which is also the unit navigation, search and copy work in.
+   * The host's document controller. Its rows are the content's source lines
+   * (`SourceLineRow`), which is also the unit navigation, search and copy work
+   * in; `row.text` is the plain-text line and `row.source` its provenance.
    *
    * A renderer that owns a `<row-document>` binds the controller directly — it
    * satisfies `DocumentBindings`, so `ref`, `decorations` and `onMouseDown`
@@ -64,7 +65,7 @@ export interface ContentRendererProps {
    * `selectRow` stands down while a modal overlay is open, so it can be wired
    * unconditionally.
    */
-  document: DocumentController<string>
+  document: DocumentController<SourceLineRow>
 }
 
 export type ContentRenderer = (props: ContentRendererProps) => ReactNode
