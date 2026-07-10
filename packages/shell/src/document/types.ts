@@ -1,12 +1,29 @@
 import type { Key } from "react"
 import type { MouseEvent } from "@opentui/core"
 import type { CommandContext } from "@tooee/commands"
-import type { ContextMenuEntry, DecorationLayer, DocumentBindings } from "@tooee/renderers"
+import type {
+  ContextMenuEntry,
+  DecorationLayer,
+  DocumentBindings,
+  DocumentRowAnchor,
+  DocumentRowSource,
+  SourcePoint,
+  SourceSpan,
+} from "@tooee/renderers"
 import type { SearchState } from "@tooee/search"
 import type { NavigationState } from "../navigation.js"
 
-/** Re-exported so consumers of the controller need not reach into `@tooee/renderers`. */
-export type { DocumentBindings }
+/**
+ * Re-exported so controller consumers need not reach into `@tooee/renderers`.
+ * The source-coordinate types travel with the document row model.
+ */
+export type {
+  DocumentBindings,
+  DocumentRowAnchor,
+  DocumentRowSource,
+  SourcePoint,
+  SourceSpan,
+}
 
 /**
  * Priorities of the interaction decoration layers the controller generates.
@@ -31,6 +48,13 @@ export interface DocumentRowAdapter<T> {
 
   /** Headers/separators may render as rows without accepting the cursor. */
   isSelectable?: (row: T, index: number) => boolean
+
+  /**
+   * Optional source provenance for this rendered/navigation row. Generated rows
+   * (headers, separators, cards) may return `null`; the controller then exposes
+   * an anchor with `source: null` that still carries the row's key and text.
+   */
+  getSource?: (row: T, index: number) => DocumentRowSource | null
 }
 
 export interface DocumentRowEvent<T> {
@@ -83,11 +107,25 @@ export interface DocumentController<T> extends DocumentBindings {
   readonly activeRow: T | undefined
   readonly selectedRows: readonly T[]
 
+  /**
+   * The active/selected rows as typed source anchors. Derived on demand from the
+   * current `rows` and adapter — there is no parallel source-map array to drift.
+   */
+  readonly activeAnchor: DocumentRowAnchor<T> | null
+  readonly selectedAnchors: readonly DocumentRowAnchor<T>[]
+
   /** Toggled rows projected onto the current row order. */
   readonly toggledIndices: ReadonlySet<number>
 
   getRow(index: number): T | undefined
   getRowKey(index: number): Key
+
+  /**
+   * The anchor for a row: its key, semantic text, and source provenance.
+   * Returns `null` only when `index` is out of range; a valid generated row
+   * still returns an anchor with `source: null`.
+   */
+  getAnchor(index: number): DocumentRowAnchor<T> | null
   getRowAtScreenY(screenY: number): { row: T; index: number; key: Key } | null
 
   /**

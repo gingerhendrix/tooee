@@ -16,7 +16,11 @@ export type {
   DocumentContextMenuEvent,
   DocumentController,
   DocumentRowAdapter,
+  DocumentRowAnchor,
   DocumentRowEvent,
+  DocumentRowSource,
   DocumentSearchOptions,
+  SourcePoint,
+  SourceSpan,
   UseDocumentControllerOptions,
 } from "./types.js"

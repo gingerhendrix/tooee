@@ -14,6 +14,7 @@ import { buildInteractionDecorations } from "./decorations.js"
 import type {
   DocumentController,
   DocumentRowAdapter,
+  DocumentRowAnchor,
   UseDocumentControllerOptions,
 } from "./types.js"
 
@@ -21,12 +22,30 @@ const EMPTY_LAYERS: readonly DecorationLayer[] = []
 const EMPTY_INDICES = new Set<number>()
 const EMPTY_MATCHES: readonly number[] = []
 const EMPTY_ROWS: readonly never[] = []
+const EMPTY_ANCHORS: readonly never[] = []
 
 const CURSOR_MODES: Mode[] = ["cursor"]
 const SELECT_MODES: Mode[] = ["select"]
 
 function rowKey<T>(adapter: DocumentRowAdapter<T>, row: T | undefined, index: number): Key {
   return adapter.getKey && row !== undefined ? adapter.getKey(row, index) : index
+}
+
+/** Build the anchor for a row from the current rows + adapter, or `null` if out of range. */
+function makeAnchor<T>(
+  rows: readonly T[],
+  adapter: DocumentRowAdapter<T>,
+  index: number,
+): DocumentRowAnchor<T> | null {
+  const row = rows[index]
+  if (row === undefined) return null
+  return {
+    row,
+    index,
+    key: rowKey(adapter, row, index),
+    text: adapter.getText(row, index),
+    source: adapter.getSource?.(row, index) ?? null,
+  }
 }
 
 function defaultMatch<T>(
@@ -203,17 +222,47 @@ export function useDocumentController<T>(
   const activeRow = activeIndex !== null ? rows[activeIndex] : undefined
   const activeKey = activeIndex !== null ? rowKey(adapter, activeRow, activeIndex) : null
 
-  const selectedRows = useMemo<readonly T[]>(() => {
+  const selectedIndices = useMemo<readonly number[]>(() => {
     if (toggledIndices.size > 0) {
-      return Array.from(toggledIndices)
-        .sort((left, right) => left - right)
-        .map((index) => rows[index]!)
+      return Array.from(toggledIndices).sort((left, right) => left - right)
     }
     if (navigation.selection) {
-      return rows.slice(navigation.selection.start, navigation.selection.end + 1)
+      const indices: number[] = []
+      for (let index = navigation.selection.start; index <= navigation.selection.end; index++) {
+        indices.push(index)
+      }
+      return indices
     }
     return EMPTY_ROWS
-  }, [toggledIndices, navigation.selection, rows])
+  }, [toggledIndices, navigation.selection])
+
+  const selectedRows = useMemo<readonly T[]>(
+    () => (selectedIndices.length === 0 ? EMPTY_ROWS : selectedIndices.map((index) => rows[index]!)),
+    [selectedIndices, rows],
+  )
+
+  // Anchors are derived on demand from the current rows + adapter, so they can
+  // never drift from the rows the controller actually navigates.
+  const getAnchor = useCallback(
+    (index: number): DocumentRowAnchor<T> | null =>
+      makeAnchor(rowsRef.current, adapterRef.current, index),
+    [],
+  )
+
+  const activeAnchor = useMemo<DocumentRowAnchor<T> | null>(
+    () => (activeIndex !== null ? makeAnchor(rows, adapter, activeIndex) : null),
+    [rows, adapter, activeIndex],
+  )
+
+  const selectedAnchors = useMemo<readonly DocumentRowAnchor<T>[]>(() => {
+    if (selectedIndices.length === 0) return EMPTY_ANCHORS
+    const anchors: DocumentRowAnchor<T>[] = []
+    for (const index of selectedIndices) {
+      const anchor = makeAnchor(rows, adapter, index)
+      if (anchor) anchors.push(anchor)
+    }
+    return anchors
+  }, [selectedIndices, rows, adapter])
 
   // -- Stable-key cursor reconciliation --------------------------------------
 
@@ -376,11 +425,14 @@ export function useDocumentController<T>(
       activeKey,
       activeRow,
       selectedRows,
+      activeAnchor,
+      selectedAnchors,
       toggledIndices,
       ref,
       decorations,
       getRow,
       getRowKey,
+      getAnchor,
       getRowAtScreenY,
       selectRow,
       onMouseDown,
@@ -393,10 +445,13 @@ export function useDocumentController<T>(
       activeKey,
       activeRow,
       selectedRows,
+      activeAnchor,
+      selectedAnchors,
       toggledIndices,
       decorations,
       getRow,
       getRowKey,
+      getAnchor,
       getRowAtScreenY,
       selectRow,
       onMouseDown,

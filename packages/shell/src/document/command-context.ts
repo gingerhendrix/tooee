@@ -1,5 +1,6 @@
 import type { Key } from "react"
 import { useProvideCommandContextKey } from "@tooee/commands"
+import type { DocumentRowAnchor } from "@tooee/renderers"
 import type { DocumentController } from "./types.js"
 
 /** The `document` field contributed to the command context (see augmentation below). */
@@ -13,6 +14,15 @@ export interface DocumentCommandContext {
   selection: { start: number; end: number } | null
   selectedRows: readonly unknown[]
   toggledIndices: ReadonlySet<number>
+
+  /**
+   * The active/selected rows as source anchors — the common path for comment,
+   * quote, and jump-to-source actions is `ctx.document?.activeAnchor`. Bounded
+   * to active/selected rows; the typed controller owns all-row lookups.
+   */
+  activeAnchor: DocumentRowAnchor<unknown> | null
+  selectedAnchors: readonly DocumentRowAnchor<unknown>[]
+
   reload?: () => void
   /** Screen-supplied extras. */
   [key: string]: unknown
@@ -51,6 +61,8 @@ export function useProvideDocumentCommandContext<T>(
     selection: controller.navigation.selection,
     selectedRows: controller.selectedRows,
     toggledIndices: controller.toggledIndices,
+    activeAnchor: controller.activeAnchor,
+    selectedAnchors: controller.selectedAnchors,
     reload: options.reload,
   }))
 }
