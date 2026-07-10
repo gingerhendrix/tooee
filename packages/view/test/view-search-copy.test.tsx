@@ -3,7 +3,6 @@ import { test, expect, afterEach, beforeEach, describe } from "bun:test"
 import { act } from "react"
 import { copied } from "../../../test/support/clipboard-mock.ts"
 
-
 const { TooeeProvider } = await import("@tooee/shell")
 const { MarkSetBuilder, MarkPriorities } = await import("@tooee/marks")
 const { View } = await import("../src/View.js")

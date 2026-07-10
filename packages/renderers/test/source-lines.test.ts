@@ -13,7 +13,14 @@ interface LineShape {
 function lines(source: string, sourceId?: string): LineShape[] {
   return sourceLines(source, sourceId ? { sourceId } : undefined).map((row) => {
     const p = row.source.primary
-    return { text: row.text, s: p.start.offset, e: p.end.offset, sl: p.start.line, last: p.lastLine, line: p.lineText }
+    return {
+      text: row.text,
+      s: p.start.offset,
+      e: p.end.offset,
+      sl: p.start.line,
+      last: p.lastLine,
+      line: p.lineText,
+    }
   })
 }
 

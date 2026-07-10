@@ -92,7 +92,8 @@ class MarkdownResolver {
     const md = this.markdown
 
     const exact = md.indexOf(raw, this.cursor)
-    if (exact !== -1 && exact + raw.length <= bound) return { start: exact, end: exact + raw.length }
+    if (exact !== -1 && exact + raw.length <= bound)
+      return { start: exact, end: exact + raw.length }
 
     if (!raw.includes("\n")) return null
 
@@ -273,10 +274,7 @@ function flattenWalk(
  * carries a `source` anchor (or `null` when a marked edge case leaves a token
  * genuinely unresolvable), in the exact order used for navigation/rendering.
  */
-export function flattenMarkdown(
-  markdown: string,
-  options?: FlattenMarkdownOptions,
-): FlatBlock[] {
+export function flattenMarkdown(markdown: string, options?: FlattenMarkdownOptions): FlatBlock[] {
   const res = new MarkdownResolver(markdown, options?.sourceId)
   const out: FlatBlock[] = []
   flattenWalk(marked.lexer(markdown), 0, out, res, markdown.length)

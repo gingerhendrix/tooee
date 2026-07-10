@@ -237,7 +237,8 @@ export function useDocumentController<T>(
   }, [toggledIndices, navigation.selection])
 
   const selectedRows = useMemo<readonly T[]>(
-    () => (selectedIndices.length === 0 ? EMPTY_ROWS : selectedIndices.map((index) => rows[index]!)),
+    () =>
+      selectedIndices.length === 0 ? EMPTY_ROWS : selectedIndices.map((index) => rows[index]!),
     [selectedIndices, rows],
   )
 

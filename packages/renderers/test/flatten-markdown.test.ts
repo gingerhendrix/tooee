@@ -8,9 +8,17 @@ interface RowShape {
   bullet?: string
   checked?: boolean
   text: string
-  source:
-    | { s: number; sl: number; sc: number; e: number; el: number; ec: number; last: number; t: string; line: string }
-    | null
+  source: {
+    s: number
+    sl: number
+    sc: number
+    e: number
+    el: number
+    ec: number
+    last: number
+    t: string
+    line: string
+  } | null
 }
 
 function shape(block: FlatBlock): RowShape {
@@ -57,7 +65,17 @@ describe("flattenMarkdown row order and provenance", () => {
       {
         type: "paragraph",
         text: "Body text.",
-        source: { s: 17, sl: 4, sc: 0, e: 27, el: 4, ec: 10, last: 4, t: "Body text.", line: "Body text." },
+        source: {
+          s: 17,
+          sl: 4,
+          sc: 0,
+          e: 27,
+          el: 4,
+          ec: 10,
+          last: 4,
+          t: "Body text.",
+          line: "Body text.",
+        },
       },
     ])
   })
@@ -138,14 +156,34 @@ describe("flattenMarkdown row order and provenance", () => {
         bullet: "- ",
         checked: true,
         text: "done",
-        source: { s: 6, sl: 0, sc: 6, e: 10, el: 0, ec: 10, last: 0, t: "done", line: "- [x] done" },
+        source: {
+          s: 6,
+          sl: 0,
+          sc: 6,
+          e: 10,
+          el: 0,
+          ec: 10,
+          last: 0,
+          t: "done",
+          line: "- [x] done",
+        },
       },
       {
         type: "text",
         bullet: "- ",
         checked: false,
         text: "todo",
-        source: { s: 17, sl: 1, sc: 6, e: 21, el: 1, ec: 10, last: 1, t: "todo", line: "- [ ] todo" },
+        source: {
+          s: 17,
+          sl: 1,
+          sc: 6,
+          e: 21,
+          el: 1,
+          ec: 10,
+          last: 1,
+          t: "todo",
+          line: "- [ ] todo",
+        },
       },
     ])
   })
@@ -162,13 +200,33 @@ describe("flattenMarkdown row order and provenance", () => {
         type: "text",
         bullet: "- ",
         text: "child a",
-        source: { s: 13, sl: 1, sc: 4, e: 20, el: 1, ec: 11, last: 1, t: "child a", line: "  - child a" },
+        source: {
+          s: 13,
+          sl: 1,
+          sc: 4,
+          e: 20,
+          el: 1,
+          ec: 11,
+          last: 1,
+          t: "child a",
+          line: "  - child a",
+        },
       },
       {
         type: "text",
         bullet: "- ",
         text: "child b",
-        source: { s: 25, sl: 2, sc: 4, e: 32, el: 2, ec: 11, last: 2, t: "child b", line: "  - child b" },
+        source: {
+          s: 25,
+          sl: 2,
+          sc: 4,
+          e: 32,
+          el: 2,
+          ec: 11,
+          last: 2,
+          t: "child b",
+          line: "  - child b",
+        },
       },
     ])
   })
@@ -194,7 +252,17 @@ describe("flattenMarkdown row order and provenance", () => {
         type: "text",
         bullet: "- ",
         text: "nested",
-        source: { s: 17, sl: 2, sc: 5, e: 23, el: 2, ec: 11, last: 2, t: "nested", line: "   - nested" },
+        source: {
+          s: 17,
+          sl: 2,
+          sc: 5,
+          e: 23,
+          el: 2,
+          ec: 11,
+          last: 2,
+          t: "nested",
+          line: "   - nested",
+        },
       },
     ])
     // The synthetic row's search/copy text is never empty.
@@ -260,7 +328,17 @@ describe("flattenMarkdown row order and provenance", () => {
       {
         type: "html",
         text: "<div>x</div>",
-        source: { s: 5, sl: 2, sc: 0, e: 17, el: 2, ec: 12, last: 2, t: "<div>x</div>", line: "<div>x</div>" },
+        source: {
+          s: 5,
+          sl: 2,
+          sc: 0,
+          e: 17,
+          el: 2,
+          ec: 12,
+          last: 2,
+          t: "<div>x</div>",
+          line: "<div>x</div>",
+        },
       },
     ])
 

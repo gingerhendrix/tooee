@@ -2,7 +2,6 @@ import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, beforeEach, describe } from "bun:test"
 import { copied } from "../../../test/support/clipboard-mock.ts"
 
-
 const { TooeeProvider, useDocumentController, Document } = await import("@tooee/shell")
 const { press, pressTab } = await import("./support/test-helpers.ts")
 type TestSession = Awaited<ReturnType<typeof testRender>>

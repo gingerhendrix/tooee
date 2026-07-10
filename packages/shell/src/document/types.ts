@@ -17,13 +17,7 @@ import type { NavigationState } from "../navigation.js"
  * Re-exported so controller consumers need not reach into `@tooee/renderers`.
  * The source-coordinate types travel with the document row model.
  */
-export type {
-  DocumentBindings,
-  DocumentRowAnchor,
-  DocumentRowSource,
-  SourcePoint,
-  SourceSpan,
-}
+export type { DocumentBindings, DocumentRowAnchor, DocumentRowSource, SourcePoint, SourceSpan }
 
 /**
  * Priorities of the interaction decoration layers the controller generates.
