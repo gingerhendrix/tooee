@@ -1,5 +1,14 @@
-export { MarkdownView, flattenTokens } from "./MarkdownView.js"
-export type { FlatBlock } from "./MarkdownView.js"
+export { MarkdownView } from "./MarkdownView.js"
+export { flattenMarkdown, flattenTokens, getFlatBlockText } from "./markdown-blocks.js"
+export type { FlatBlock, FlattenMarkdownOptions } from "./markdown-blocks.js"
+export { sourceLines, sourceLineAdapter } from "./source.js"
+export type {
+  DocumentRowAnchor,
+  DocumentRowSource,
+  SourceLineRow,
+  SourcePoint,
+  SourceSpan,
+} from "./source.js"
 export {
   CodeBlockChrome,
   defaultCodeBlockRenderer,

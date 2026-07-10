@@ -1,4 +1,4 @@
-import { marked, type Token, type Tokens } from "marked"
+import { type Token, type Tokens } from "marked"
 import { useMemo, type ReactNode, type RefObject } from "react"
 import { useTheme, type ResolvedTheme } from "@tooee/themes"
 import {
@@ -18,6 +18,7 @@ import type { DocumentBindings } from "./DocumentBindings.js"
 import { DEFAULT_SIGN_COLUMN_WIDTH } from "./RowDocumentRenderable.js"
 import { useGutterPalette } from "./useGutterPalette.js"
 import { CodeBlock, DEFAULT_CODE_BLOCK_RENDERERS, type CodeBlockRenderer } from "./code-blocks.js"
+import { flattenMarkdown, type FlatBlock } from "./markdown-blocks.js"
 import "./row-document.js"
 import "./text-table.js"
 
@@ -27,6 +28,13 @@ import "./text-table.js"
 
 interface MarkdownViewProps {
   content: string
+  /**
+   * Pre-flattened blocks to render, normally the exact array a subview passed
+   * to its document controller. When supplied, `content` is *not* lexed again,
+   * so the rendered rows and the controller's navigation rows cannot drift.
+   * Omit it and `MarkdownView` flattens `content` itself for static callers.
+   */
+  blocks?: readonly FlatBlock[]
   showLineNumbers?: boolean
   /**
    * Binds the row document to a document controller: its ref, the decoration
@@ -60,118 +68,13 @@ interface MarkdownViewProps {
   codeBlockRenderers?: Record<string, CodeBlockRenderer>
 }
 
-/**
- * A flattened block — all blocks exist at the top level with an indent.
- * Nested structures (lists containing code blocks, etc.) are flattened
- * into sibling blocks with appropriate indentation.
- */
-export interface FlatBlock {
-  token: Token
-  indent: number
-  bullet?: string // "- " or "1. " for list item lines
-  checked?: boolean // undefined = not a checkbox, true/false = checkbox state
-}
-
-// ---------------------------------------------------------------------------
-// Token flattening
-// ---------------------------------------------------------------------------
-
-export function flattenTokens(tokens: Token[]): FlatBlock[] {
-  const result: FlatBlock[] = []
-  flattenTokenList(tokens, 0, result)
-  return result
-}
-
-function flattenTokenList(tokens: Token[], indent: number, result: FlatBlock[]): void {
-  for (const token of tokens) {
-    if (token.type === "space") continue
-
-    if (token.type === "list") {
-      const list = token as Tokens.List
-      for (let i = 0; i < list.items.length; i++) {
-        const item = list.items[i]
-        const bullet = list.ordered ? `${i + (list.start || 1)}. ` : "- "
-        flattenListItem(item, indent, bullet, result)
-      }
-    } else {
-      result.push({ token, indent })
-    }
-  }
-}
-
-function flattenListItem(
-  item: Tokens.ListItem,
-  indent: number,
-  bullet: string,
-  result: FlatBlock[],
-): void {
-  const checked = item.checked != null ? item.checked : undefined
-  const childTokens = item.tokens || []
-  let bulletUsed = false
-
-  for (const token of childTokens) {
-    if (token.type === "space" || token.type === "checkbox") continue
-
-    if (token.type === "text" || token.type === "paragraph") {
-      // Inline content — attach the bullet to the first one
-      result.push({
-        token,
-        indent,
-        bullet: bulletUsed ? undefined : bullet,
-        checked: bulletUsed ? undefined : checked,
-      })
-      bulletUsed = true
-    } else if (token.type === "list") {
-      // Emit bullet line if nothing preceded this nested list
-      if (!bulletUsed) {
-        result.push({
-          token: { type: "text", raw: "", text: "", tokens: [] } as unknown as Token,
-          indent,
-          bullet,
-          checked,
-        })
-        bulletUsed = true
-      }
-      // Nested list — increase indent to align with content after bullet
-      const list = token as Tokens.List
-      for (let i = 0; i < list.items.length; i++) {
-        const subItem = list.items[i]
-        const subBullet = list.ordered ? `${i + (list.start || 1)}. ` : "- "
-        flattenListItem(subItem, indent + bullet.length, subBullet, result)
-      }
-    } else {
-      // Block content (code, table, blockquote, hr, etc.)
-      if (!bulletUsed) {
-        result.push({
-          token: { type: "text", raw: "", text: "", tokens: [] } as unknown as Token,
-          indent,
-          bullet,
-          checked,
-        })
-        bulletUsed = true
-      }
-      // Emit the block indented to align with content after the bullet
-      result.push({ token, indent: indent + bullet.length })
-    }
-  }
-
-  // List item had no content tokens — still emit the bullet
-  if (!bulletUsed) {
-    result.push({
-      token: { type: "text", raw: "", text: "", tokens: [] } as unknown as Token,
-      indent,
-      bullet,
-      checked,
-    })
-  }
-}
-
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 export function MarkdownView({
   content,
+  blocks: providedBlocks,
   showLineNumbers = true,
   document,
   hScrollableBlocksRef,
@@ -179,8 +82,10 @@ export function MarkdownView({
 }: MarkdownViewProps) {
   const { theme, syntax } = useTheme()
   const palette = useGutterPalette()
-  const tokens = useMemo(() => marked.lexer(content), [content])
-  const blocks = useMemo(() => flattenTokens(tokens), [tokens])
+  const blocks = useMemo(
+    () => providedBlocks ?? flattenMarkdown(content),
+    [providedBlocks, content],
+  )
 
   // Merge user renderers over built-in defaults, normalizing keys to
   // lowercase so registration matches fence types case-insensitively.
