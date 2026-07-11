@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, type ReactNode, type RefObject } from "react"
+import { useCallback, useRef, type ReactNode, type RefObject } from "react"
 import type { ResolvedTheme } from "@tooee/themes"
 import type { MouseEvent, SyntaxStyle, TextBufferRenderable } from "@opentui/core"
 import type { Tokens } from "marked"
@@ -143,23 +143,17 @@ export const defaultCodeBlockRenderer: CodeBlockRenderer = ({
  * user entries for "mermaid" override it.
  */
 export const mermaidCodeBlockRenderer: CodeBlockRenderer = ({ text, theme, indent, hScroll }) => {
-  const mermaidTheme = useMemo(
-    () => ({
-      fg: theme.markdownText,
-      border: theme.border,
-      line: theme.textMuted,
-      arrow: theme.accent,
-      accent: theme.accent,
-      bg: theme.backgroundElement,
-      corner: theme.borderActive,
-      junction: theme.borderSubtle,
-    }),
-    [theme],
-  )
-  const result = useMemo(
-    () => renderMermaidForTerminal(text, { mode: "ansi", theme: mermaidTheme }),
-    [text, mermaidTheme],
-  )
+  const mermaidTheme = {
+    accent: theme.accent,
+    arrow: theme.accent,
+    bg: theme.backgroundElement,
+    border: theme.border,
+    corner: theme.borderActive,
+    fg: theme.markdownText,
+    junction: theme.borderSubtle,
+    line: theme.textMuted,
+  }
+  const result = renderMermaidForTerminal(text, { mode: "ansi", theme: mermaidTheme })
 
   if (!result.ok) return null
 

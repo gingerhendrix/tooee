@@ -123,6 +123,31 @@ test("renders mermaid fences as terminal diagrams", async () => {
   expect(frame).toContain("Stream")
   expect(frame).toContain("▼")
   expect(frame).not.toContain("graph TD")
+
+  await testSetup.rerender(
+    <ThemeSwitcherProvider>
+      <MarkdownView content={"```mermaid\ngraph LR\n  C[Client] --> S[Server]\n```"} />
+    </ThemeSwitcherProvider>,
+  )
+  await testSetup.renderOnce()
+  const updatedFrame = testSetup.captureCharFrame()
+  if (!updatedFrame.includes("Client") || !updatedFrame.includes("Server")) {
+    throw new Error("Mermaid output did not update after the source changed");
+  }
+  if (updatedFrame.includes("Agent")) {
+    throw new Error("Mermaid retained stale output after the source changed");
+  }
+
+  await testSetup.rerender(
+    <ThemeSwitcherProvider>
+      <MarkdownView content={"```mermaid\nnot a diagram ???\n```"} />
+    </ThemeSwitcherProvider>,
+  )
+  await testSetup.renderOnce()
+  const failedFrame = testSetup.captureCharFrame()
+  if (!failedFrame.includes("not a diagram ???") || failedFrame.includes("Client")) {
+    throw new Error("Mermaid failure did not replace completed output with the source fallback");
+  }
 })
 
 test("does not render non-mermaid code fences as diagrams", async () => {
