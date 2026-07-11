@@ -1,7 +1,7 @@
 import { useImperativeHandle, type Ref } from "react"
 import { AppLayout } from "@tooee/layout"
 import { useHasOverlay, useHasModalOverlay } from "@tooee/overlays"
-import { ThemePicker, useTheme } from "@tooee/themes"
+import { useTheme } from "@tooee/themes"
 import { useThemeCommands, useQuitCommand } from "@tooee/shell"
 import { useCommandContext, type ActionDefinition } from "@tooee/commands"
 import { ChooseFilter } from "./ChooseFilter.js"
@@ -40,7 +40,7 @@ export function Choose({
   const effectiveCommands = commands ?? actions
   const multi = options?.multi ?? false
 
-  const { name: themeName, picker: themePicker } = useThemeCommands()
+  const { name: themeName } = useThemeCommands()
   useQuitCommand({ onQuit: () => onCancel?.() })
 
   const hasOverlay = useHasOverlay()
@@ -110,17 +110,6 @@ export function Choose({
         ],
       }}
       scrollProps={{ focused: false }}
-      overlay={
-        themePicker.isOpen ? (
-          <ThemePicker
-            entries={themePicker.entries}
-            currentTheme={themeName}
-            onSelect={themePicker.confirm}
-            onClose={themePicker.close}
-            onNavigate={themePicker.preview}
-          />
-        ) : undefined
-      }
     >
       <box flexDirection="column" style={{ flexGrow: 1 }}>
         <ChooseFilter choose={choose} placeholder={options?.placeholder} />
