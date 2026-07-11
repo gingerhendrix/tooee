@@ -1,7 +1,7 @@
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useRef } from "react"
 import { createElement } from "react"
 import { useThemeSwitcher } from "@tooee/themes"
-import { useOverlay } from "@tooee/overlays"
+import { useOverlay, useOverlayState } from "@tooee/overlays"
 import type { OverlayCloseReason } from "@tooee/overlays"
 import { ThemePickerOverlay } from "./ThemePickerOverlay.js"
 
@@ -26,7 +26,8 @@ const OVERLAY_ID = "theme-picker"
 export function useThemePicker(): ThemePickerState {
   const { allThemes, setTheme, name: currentTheme } = useThemeSwitcher()
   const overlay = useOverlay()
-  const [isOpen, setIsOpen] = useState(false)
+  const { stack } = useOverlayState()
+  const isOpen = stack.includes(OVERLAY_ID)
   const originalThemeRef = useRef<string>(currentTheme)
 
   const entries: ThemePickerEntry[] = allThemes.map((name: string) => ({
@@ -36,14 +37,12 @@ export function useThemePicker(): ThemePickerState {
 
   const close = useCallback(() => {
     setTheme(originalThemeRef.current)
-    setIsOpen(false)
     overlay.hide(OVERLAY_ID)
   }, [setTheme, overlay])
 
   const confirm = useCallback(
     (name: string) => {
       setTheme(name, { persist: true })
-      setIsOpen(false)
       overlay.hide(OVERLAY_ID)
     },
     [setTheme, overlay],
@@ -58,7 +57,6 @@ export function useThemePicker(): ThemePickerState {
 
   const open = useCallback(() => {
     originalThemeRef.current = currentTheme
-    setIsOpen(true)
     overlay.open(
       OVERLAY_ID,
       ({ close: closeOverlay }: { close: (reason?: OverlayCloseReason) => void }) =>
@@ -71,7 +69,6 @@ export function useThemePicker(): ThemePickerState {
         ownCommands: true,
         role: "modal",
         surfaceMode: "insert",
-        onClose: () => setIsOpen(false),
       },
     )
   }, [overlay, currentTheme])

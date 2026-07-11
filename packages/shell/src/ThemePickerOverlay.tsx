@@ -17,7 +17,7 @@ export function ThemePickerOverlay({
     currentTheme,
     onNavigate: setTheme,
     onSelect: (name: string) => {
-      setTheme(name)
+      setTheme(name, { persist: true })
       close()
     },
     onClose: () => {

@@ -1,7 +1,7 @@
 import { useRenderer } from "@opentui/react"
 import { AppLayout } from "@tooee/layout"
 import { useHasOverlay } from "@tooee/overlays"
-import { ThemePicker, useTheme } from "@tooee/themes"
+import { useTheme } from "@tooee/themes"
 import { useThemeCommands, useQuitCommand, usePasteCommands } from "@tooee/shell"
 import { useActions, useProvideCommandContext, useCommandContext } from "@tooee/commands"
 import type { ActionDefinition } from "@tooee/commands"
@@ -32,7 +32,7 @@ export function Ask({
   const { invoke } = useCommandContext()
 
   const { theme } = useTheme()
-  const { name: themeName, picker: themePicker } = useThemeCommands()
+  const { name: themeName } = useThemeCommands()
   useQuitCommand({
     onQuit: () => {
       renderer.destroy()
@@ -92,17 +92,6 @@ export function Ask({
         ],
       }}
       scrollProps={{ focused: false }}
-      overlay={
-        themePicker.isOpen ? (
-          <ThemePicker
-            entries={themePicker.entries}
-            currentTheme={themeName}
-            onSelect={themePicker.confirm}
-            onClose={themePicker.close}
-            onNavigate={themePicker.preview}
-          />
-        ) : undefined
-      }
     >
       <box
         flexDirection="column"

@@ -20,6 +20,10 @@ export interface AppLayoutProps {
     focused?: boolean
   }
   searchBar?: SearchState
+  /**
+   * @deprecated Open overlays through `useOverlay()` instead. This compatibility
+   * prop will be removed in Tooee 0.3.0.
+   */
   overlay?: ReactNode
   children: ReactNode
 }
@@ -35,14 +39,12 @@ export function AppLayout({
 }: AppLayoutProps) {
   const { theme } = useTheme()
   const contextOverlay = useCurrentOverlay()
-  const activeOverlay =
+  const compatibilityOverlay =
     overlay != null ? (
       <CommandSurfaceProvider id="app-layout.overlay" role="modal" initialMode="insert">
         {overlay}
       </CommandSurfaceProvider>
-    ) : (
-      contextOverlay
-    )
+    ) : null
   return (
     <box flexDirection="column" width="100%" height="100%" backgroundColor={theme.background}>
       {titleBar && <TitleBar title={titleBar.title} subtitle={titleBar.subtitle} />}
@@ -60,9 +62,10 @@ export function AppLayout({
         ) : (
           <box style={{ flexGrow: 1, overflow: "hidden" }}>{children}</box>
         )}
-        {activeOverlay && (
+        {(contextOverlay || compatibilityOverlay) && (
           <box position="absolute" left={0} top={0} width="100%" height="100%">
-            {activeOverlay}
+            {contextOverlay}
+            {compatibilityOverlay}
           </box>
         )}
         <ToastContainer />
