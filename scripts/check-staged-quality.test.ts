@@ -63,13 +63,13 @@ process.exit(diagnostics.length ? 1 : 0);
       `#!/usr/bin/env bun
 for (const path of process.argv.slice(2).filter((value) => !value.startsWith("-"))) {
   const source = await Bun.file(path).text();
-  if (source.includes("BADFMT")) await Bun.write(path, source.replace("BADFMT", "formatted"));
+  if (source.includes("BADFMT")) await Bun.write(path, source.replaceAll("BADFMT", "formatted"));
 }
 `,
     );
     chmodSync(join(root, "node_modules/.bin/oxlint"), 0o755);
     chmodSync(join(root, "node_modules/.bin/oxfmt"), 0o755);
-    write("sample.ts", "DEBT\n");
+    write("sample.ts", "DEBT\nBADFMT\n");
     expect(command(["git", "init", "-q"]).exitCode).toBe(0);
     expect(command(["git", "config", "user.email", "test@example.com"]).exitCode).toBe(0);
     expect(command(["git", "config", "user.name", "Test"]).exitCode).toBe(0);
@@ -79,15 +79,15 @@ for (const path of process.argv.slice(2).filter((value) => !value.startsWith("-"
 
   test("unchanged debt and removed diagnostics pass", () => {
     setupRepository();
-    stage("added\nDEBT\n");
+    stage("added\nDEBT\nBADFMT\n");
     expect(check().exitCode).toBe(0);
-    stage("added\n");
+    stage("added\nBADFMT\n");
     expect(check().exitCode).toBe(0);
   });
 
   test("a genuinely new diagnostic fails", () => {
     setupRepository();
-    stage("DEBT\nNEW\n");
+    stage("DEBT\nNEW\nBADFMT\n");
     const result = check();
     expect(result.stderr.toString()).toContain("new test(rule)");
     expect(result.exitCode).toBe(1);
@@ -95,14 +95,14 @@ for (const path of process.argv.slice(2).filter((value) => !value.startsWith("-"
 
   test("unstaged diagnostics do not affect the staged snapshot", () => {
     setupRepository();
-    stage("added\nDEBT\n");
-    write("sample.ts", "added\nDEBT\nNEW\n");
+    stage("added\nDEBT\nBADFMT\n");
+    write("sample.ts", "added\nDEBT\nNEW\nBADFMT\n");
     expect(check().exitCode).toBe(0);
   });
 
   test("formatting regressions in staged lines fail", () => {
     setupRepository();
-    stage("DEBT\nBADFMT\n");
+    stage("DEBT\nBADFMT\nclean\nBADFMT\n");
     expect(check().exitCode).toBe(1);
   });
 

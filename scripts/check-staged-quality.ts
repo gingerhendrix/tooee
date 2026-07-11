@@ -144,27 +144,17 @@ const lint = (root: string, paths: string[]): Diagnostic[] => {
   return parsed.diagnostics;
 };
 
-const rangesOverlap = (left: Hunk, right: Hunk) => {
-  const leftEnd = left.newStart + Math.max(left.newCount, 1) - 1;
-  const rightEnd = right.newStart + Math.max(right.newCount, 1) - 1;
-  return left.newStart <= rightEnd && right.newStart <= leftEnd;
-};
-
-const formattingRegressions = (indexRoot: string, changes: FileChange[], backupRoot: string) => {
-  const stagedChanges = changes.filter((change) => change.indexPath);
-  for (const { indexPath } of stagedChanges) {
-    const source = join(indexRoot, indexPath!);
-    const backup = join(backupRoot, indexPath!);
+const formatDiagnostics = (root: string, paths: string[], backupRoot: string): Diagnostic[] => {
+  for (const path of paths) {
+    const backup = join(backupRoot, path);
     mkdirSync(dirname(backup), { recursive: true });
-    Bun.write(backup, readFileSync(source));
+    Bun.write(backup, readFileSync(join(root, path)));
   }
-  const paths = stagedChanges.map(({ indexPath }) => indexPath!);
   if (paths.length > 0) {
-    const formatted = run([resolve("node_modules/.bin/oxfmt"), "--write", ...paths], indexRoot);
+    const formatted = run([resolve("node_modules/.bin/oxfmt"), "--write", ...paths], root);
     if (formatted.exitCode !== 0) throw new Error(formatted.stderr || formatted.stdout);
   }
-  return stagedChanges.flatMap((change) => {
-    const path = change.indexPath!;
+  return paths.flatMap((path) => {
     const diff = run([
       "git",
       "diff",
@@ -172,13 +162,38 @@ const formattingRegressions = (indexRoot: string, changes: FileChange[], backupR
       "--unified=0",
       "--",
       join(backupRoot, path),
-      join(indexRoot, path),
+      join(root, path),
     ]);
-    const regressed = parseHunks(diff.stdout).some((formatHunk) =>
-      change.hunks.some((stagedHunk) => rangesOverlap(formatHunk, stagedHunk)),
-    );
-    return regressed ? [path] : [];
+    return parseHunks(diff.stdout).map((hunk) => ({
+      code: "oxfmt(format)",
+      filename: path,
+      labels: [{ span: { line: hunk.oldStart } }],
+      message: "File is not formatted at this location.",
+    }));
   });
+};
+
+const formattingRegressions = (
+  headRoot: string,
+  indexRoot: string,
+  changes: FileChange[],
+  backupRoot: string,
+) => {
+  const headPaths = changes.flatMap(({ headPath }) => (headPath ? [headPath] : []));
+  const indexPaths = changes.flatMap(({ indexPath }) => (indexPath ? [indexPath] : []));
+  const headDiagnostics = formatDiagnostics(headRoot, headPaths, join(backupRoot, "head"));
+  const indexDiagnostics = formatDiagnostics(indexRoot, indexPaths, join(backupRoot, "index"));
+  const newDiagnostics = findNewDiagnostics(
+    headDiagnostics,
+    indexDiagnostics,
+    changes,
+    join(backupRoot, "head"),
+    join(backupRoot, "index"),
+  );
+  if (newDiagnostics.length === 0 && indexDiagnostics.length > headDiagnostics.length) {
+    return indexDiagnostics.slice(headDiagnostics.length);
+  }
+  return newDiagnostics;
 };
 
 const main = () => {
@@ -203,15 +218,23 @@ const main = () => {
       head,
       index,
     );
-    const formatting = formattingRegressions(index, changes, join(temporaryRoot, "before-format"));
+    const formatting = formattingRegressions(
+      head,
+      index,
+      changes,
+      join(temporaryRoot, "before-format"),
+    );
     if (newDiagnostics.length > 0 || formatting.length > 0) {
       for (const diagnostic of newDiagnostics) {
         console.error(
           `${diagnostic.filename}:${diagnostic.labels[0]?.span.line ?? 1}: new ${diagnostic.code}: ${diagnostic.message}`,
         );
       }
-      for (const path of formatting)
-        console.error(`${path}: staged lines introduce formatting changes`);
+      for (const diagnostic of formatting) {
+        console.error(
+          `${diagnostic.filename}:${diagnostic.labels[0]?.span.line ?? 1}: new formatting debt`,
+        );
+      }
       process.exitCode = 1;
       return;
     }
