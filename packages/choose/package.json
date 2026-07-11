@@ -1,6 +1,6 @@
 {
   "name": "@tooee/choose",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Terminal selection with fuzzy filtering",
   "keywords": [
     "cli",
