@@ -1,16 +1,15 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import type { Key } from "react"
 import type { MouseEvent } from "@opentui/core"
-import { useBuildCommandContext, useCommand, useCommandContext } from "@tooee/commands"
-import type { Mode } from "@tooee/commands"
+import { useBuildCommandContext, useCommandContext } from "@tooee/commands"
 import { useHasModalOverlay } from "@tooee/overlays"
 import type { ContextMenuEntry, DecorationLayer, RowDocumentRenderable } from "@tooee/renderers"
-import { useSearch } from "@tooee/search"
+import { useNavSearchStore, useSearchBindings } from "@tooee/search"
 import { useTheme } from "@tooee/themes"
 import type { ActionDefinition, CommandContext } from "@tooee/commands"
 import { actionsToContextMenuEntries, useContextMenu } from "../context-menu.js"
 import { useCopy } from "../copy-hook.js"
-import { useNavigation } from "../navigation.js"
+import { useNavigationBindings } from "../navigation.js"
 import { buildInteractionDecorations } from "./decorations.js"
 import type {
   DocumentContextMenuItems,
@@ -21,13 +20,9 @@ import type {
 } from "./types.js"
 
 const EMPTY_LAYERS: readonly DecorationLayer[] = []
-const EMPTY_INDICES = new Set<number>()
 const EMPTY_MATCHES: readonly number[] = []
 const EMPTY_ROWS: readonly never[] = []
 const EMPTY_ANCHORS: readonly never[] = []
-
-const CURSOR_MODES: Mode[] = ["cursor"]
-const SELECT_MODES: Mode[] = ["select"]
 
 function rowKey<T>(adapter: DocumentRowAdapter<T>, row: T | undefined, index: number): Key {
   return adapter.getKey && row !== undefined ? adapter.getKey(row, index) : index
@@ -142,70 +137,18 @@ export function useDocumentController<T>(
     [rows],
   )
 
-  // Toggled rows are owned here rather than by useNavigation so they can be
-  // key-backed: a sort or filter must not move the selection onto other rows.
-  const navigation = useNavigation({ rowCount: rows.length, isSelectable, multiSelect: false })
-  const setCursor = navigation.setCursor
-  const cursorRef = useRef(navigation.cursor)
-  cursorRef.current = navigation.cursor
-
-  const [toggledKeys, setToggledKeys] = useState<ReadonlySet<Key>>(() => new Set<Key>())
-
-  const toggledIndices = useMemo<Set<number>>(() => {
-    if (toggledKeys.size === 0) return EMPTY_INDICES
-    const indices = new Set<number>()
-    for (let index = 0; index < rows.length; index++) {
-      if (toggledKeys.has(rowKey(adapterRef.current, rows[index], index))) indices.add(index)
-    }
-    return indices
-  }, [toggledKeys, rows])
-
-  const toggleAt = useCallback(
-    (index: number) => {
-      const key = getRowKey(index)
-      setToggledKeys((previous) => {
-        const next = new Set(previous)
-        if (next.has(key)) next.delete(key)
-        else next.add(key)
-        return next
-      })
-    },
-    [getRowKey],
+  const rowKeys = useMemo(
+    () => rows.map((row, index) => rowKey(adapterRef.current, row, index)),
+    [rows],
   )
-
-  const toggleCursor = useCallback(() => {
-    if (cursorRef.current !== null) toggleAt(cursorRef.current)
-  }, [toggleAt])
-
-  useCommand({
-    id: "cursor-toggle",
-    title: "Toggle selection",
-    hotkey: "tab",
-    modes: CURSOR_MODES,
-    enabled: multiSelect,
-    handler: toggleCursor,
+  const navSearchStore = useNavSearchStore({
+    keys: rowKeys,
+    isSelectable,
+    preserveCursorByKey,
   })
-  useCommand({
-    id: "cursor-toggle-up",
-    title: "Toggle and move up",
-    hotkey: "shift+tab",
-    modes: CURSOR_MODES,
-    enabled: multiSelect,
-    handler: () => {
-      const cursor = cursorRef.current
-      if (cursor === null) return
-      toggleAt(cursor)
-      setCursor(cursor - 1)
-    },
-  })
-  useCommand({
-    id: "select-toggle",
-    title: "Toggle selection",
-    hotkey: "tab",
-    modes: SELECT_MODES,
-    enabled: multiSelect,
-    handler: toggleCursor,
-  })
+  const navigation = useNavigationBindings(navSearchStore, { multiSelect })
+  const setCursor = navigation.setCursor
+  const toggledIndices = navigation.toggledIndices
 
   // -- Search ---------------------------------------------------------------
 
@@ -221,7 +164,11 @@ export function useDocumentController<T>(
   }, [])
 
   // Rows are the searched content: a committed query re-matches when they change.
-  const searchState = useSearch({ match, onJump: setCursor, enabled: searchEnabled, deps: [rows] })
+  const searchState = useSearchBindings(navSearchStore, {
+    match,
+    enabled: searchEnabled,
+    deps: [rows],
+  })
   const search = searchEnabled ? searchState : null
 
   // -- Copy -----------------------------------------------------------------
@@ -283,46 +230,6 @@ export function useDocumentController<T>(
     }
     return anchors
   }, [selectedIndices, rows, adapter])
-
-  // -- Stable-key cursor reconciliation --------------------------------------
-
-  const previousRowsRef = useRef(rows)
-  const previousActiveKeyRef = useRef<Key | null>(activeKey)
-  const previousActiveIndexRef = useRef<number | null>(activeIndex)
-
-  useEffect(() => {
-    if (previousRowsRef.current === rows) return
-    previousRowsRef.current = rows
-
-    const getKey = adapterRef.current.getKey
-    if (!preserveCursorByKey || !getKey || rows.length === 0) return
-
-    const previousKey = previousActiveKeyRef.current
-    const previousIndex = previousActiveIndexRef.current
-    if (previousKey === null || previousIndex === null) return
-
-    // A cursor change committed alongside the row update is explicit navigation,
-    // so it takes precedence over preserving the previously active row.
-    if (cursorRef.current !== previousIndex) return
-
-    for (let index = 0; index < rows.length; index++) {
-      if (getKey(rows[index]!, index) === previousKey) {
-        if (index !== cursorRef.current) setCursor(index)
-        return
-      }
-    }
-
-    // The active row is gone: clamp to the nearest selectable row at or after
-    // the position it used to occupy.
-    setCursor(Math.min(previousIndex, rows.length - 1))
-  }, [rows, preserveCursorByKey, setCursor])
-
-  // Declared after the reconcile effect so that effect still sees the previous
-  // commit's active row.
-  useEffect(() => {
-    previousActiveKeyRef.current = activeKey
-    previousActiveIndexRef.current = activeIndex
-  })
 
   // -- Decorations ----------------------------------------------------------
 
