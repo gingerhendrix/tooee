@@ -13,7 +13,7 @@ afterEach(() => {
 })
 
 function Loader({ provider }: { provider: ContentProvider }) {
-  const { content, streaming, error } = useContentLoader(provider, 0)
+  const { content, streaming, error } = useContentLoader(provider)
   const text = content && "text" in content ? content.text : ""
   return (
     <box flexDirection="column">
@@ -109,5 +109,113 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
     await flush(testSetup)
 
     expect(testSetup.captureCharFrame()).toContain("error:load blew up")
+  })
+})
+
+describe("useContentLoader reload and request identity", () => {
+  test("reloads a synchronous provider", async () => {
+    let calls = 0
+    let reload!: () => void
+    const provider: ContentProvider = {
+      load: () => ({ format: "text", text: `sync-${++calls}` }),
+    }
+    function Harness() {
+      const result = useContentLoader(provider)
+      reload = result.reload
+      const value = result.content && "text" in result.content ? result.content.text : ""
+      return <text content={value} />
+    }
+    testSetup = await testRender(<Harness />, { width: 60, height: 10 })
+    await flush(testSetup)
+    expect(testSetup.captureCharFrame()).toContain("sync-1")
+    await act(async () => reload())
+    await flush(testSetup)
+    expect(testSetup.captureCharFrame()).toContain("sync-2")
+  })
+
+  test("reloads a Promise provider and ignores the stale resolution", async () => {
+    const resolvers: Array<(value: { format: "text"; text: string }) => void> = []
+    let reload!: () => void
+    const provider: ContentProvider = {
+      load: () => new Promise((resolve) => resolvers.push(resolve)),
+    }
+    function Harness() {
+      const result = useContentLoader(provider)
+      reload = result.reload
+      const value = result.content && "text" in result.content ? result.content.text : "loading"
+      return <text content={value} />
+    }
+    testSetup = await testRender(<Harness />, { width: 60, height: 10 })
+    await flush(testSetup)
+    await act(async () => reload())
+    await flush(testSetup)
+    expect(resolvers).toHaveLength(2)
+    resolvers[0]!({ format: "text", text: "stale" })
+    await flush(testSetup)
+    expect(testSetup.captureCharFrame()).not.toContain("stale")
+    resolvers[1]!({ format: "text", text: "fresh" })
+    await flush(testSetup)
+    expect(testSetup.captureCharFrame()).toContain("fresh")
+  })
+
+  test("reloads a stream, closes the old iterator, and ignores its late chunk", async () => {
+    let calls = 0
+    let oldReturned = false
+    let resolveOldNext!: (result: IteratorResult<ContentChunk>) => void
+    let reload!: () => void
+    const provider: ContentProvider = {
+      format: "text",
+      load: () => {
+        calls++
+        if (calls === 1) {
+          let first = true
+          return {
+            [Symbol.asyncIterator]() {
+              return {
+                next() {
+                  if (first) {
+                    first = false
+                    return Promise.resolve({
+                      done: false as const,
+                      value: { type: "append" as const, format: "text" as const, data: "old" },
+                    })
+                  }
+                  return new Promise<IteratorResult<ContentChunk>>((resolve) => {
+                    resolveOldNext = resolve
+                  })
+                },
+                return() {
+                  oldReturned = true
+                  return Promise.resolve({ done: true as const, value: undefined })
+                },
+              }
+            },
+          }
+        }
+        return (async function* () {
+          yield { type: "append" as const, format: "text" as const, data: "fresh" }
+        })()
+      },
+    }
+    function Harness() {
+      const result = useContentLoader(provider)
+      reload = result.reload
+      const value = result.content && "text" in result.content ? result.content.text : ""
+      return <text content={`${result.status}:${value}`} />
+    }
+    testSetup = await testRender(<Harness />, { width: 60, height: 10 })
+    await flush(testSetup)
+    expect(testSetup.captureCharFrame()).toContain("old")
+    await act(async () => reload())
+    await flush(testSetup)
+    expect(oldReturned).toBe(true)
+    expect(testSetup.captureCharFrame()).toContain("ready:fresh")
+    resolveOldNext({
+      done: false,
+      value: { type: "append", format: "text", data: "-late" },
+    })
+    await flush(testSetup)
+    expect(testSetup.captureCharFrame()).toContain("ready:fresh")
+    expect(testSetup.captureCharFrame()).not.toContain("late")
   })
 })
