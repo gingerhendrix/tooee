@@ -15,6 +15,8 @@ export type {
   UseAskEditorOptions,
   UseAskEditorResult,
 } from "./use-ask-editor.js"
+export { useAskDialog } from "./use-ask-dialog.js"
+export type { AskDialogHandle, AskDialogOptions } from "./use-ask-dialog.js"
 export { launch } from "./launch.js"
 export type { AskLaunchOptions } from "./launch.js"
 export type { AskOptions } from "./types.js"

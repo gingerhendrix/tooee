@@ -19,6 +19,14 @@ export type {
   UseChooseOptions,
   UseChooseResult,
 } from "./use-choose.js"
+export { useChooseDialog } from "./use-choose-dialog.js"
+export type {
+  ChooseDialogHandle,
+  ChooseDialogItems,
+  ChooseDialogOptions,
+  ChooseDialogOptionsBase,
+  ChooseDialogToItem,
+} from "./use-choose-dialog.js"
 export { loadChooseSource } from "./source.js"
 export { launch } from "./launch.js"
 export type { ChooseLaunchOptions } from "./launch.js"

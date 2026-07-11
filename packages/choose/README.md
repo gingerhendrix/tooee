@@ -14,6 +14,29 @@ Terminal selection with fuzzy filtering. `Choose` and `ChooseOverlay` are compat
 
 Use `controllerRef` on an assembly, or the controller returned by `useChoose`, to set/clear the filter, move or set the active row, toggle selection, submit/cancel, change mode, or reload the current source.
 
+## Promise-based dialog
+
+`useChooseDialog<T>()` opens `ChooseOverlay` as a modal dialog on the host's
+overlay stack and resolves the typed selection:
+
+```tsx
+const choose = useChooseDialog<Model>()
+
+const model = await choose.open({
+  items: models, // readonly T[] or a sync/async loader
+  toItem: (m) => ({ text: m.label }), // optional when T is a ChooseItem
+  prompt: "Pick a model",
+})
+// T on select, T[] with { multi: true }, null on cancel/replacement/unmount
+```
+
+Generics are retained without casts: single-select resolves `T | null`,
+multi-select resolves `T[] | null` (Choose selection semantics: toggled items,
+falling back to the active item). Each `open()` owns one overlay record
+(unique id per call) and one owned modal command surface; the promise settles
+exactly once. The host must render overlay content (`AppLayout` does; custom
+hosts render `useCurrentOverlay()`).
+
 ## Command surfaces
 
 Built-in interaction uses `useCommand`, so a nested modal command surface suspends the chooser automatically. A filter also blurs while another modal surface owns input. Mouse events bypass command-surface arbitration; pass `suspended` to a custom `ChooseList` host when covered rows can remain visible.

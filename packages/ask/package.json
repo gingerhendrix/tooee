@@ -46,6 +46,7 @@
   "devDependencies": {
     "@opentui/core": "^0.4.3",
     "@opentui/react": "^0.4.3",
+    "@tooee/choose": "workspace:*",
     "@types/bun": "^1.3.10",
     "@types/react": "^19.2.14",
     "typescript": "^5.9.3"

@@ -76,6 +76,7 @@
       "devDependencies": {
         "@opentui/core": "^0.4.3",
         "@opentui/react": "^0.4.3",
+        "@tooee/choose": "workspace:*",
         "@types/bun": "^1.3.10",
         "@types/react": "^19.2.14",
         "typescript": "^5.9.3",
@@ -157,8 +158,11 @@
       "devDependencies": {
         "@opentui/core": "^0.4.3",
         "@opentui/react": "^0.4.3",
+        "@tooee/ask": "workspace:*",
+        "@tooee/choose": "workspace:*",
         "@tooee/commands": "workspace:*",
         "@tooee/layout": "workspace:*",
+        "@tooee/overlays": "workspace:*",
         "@tooee/router": "workspace:*",
         "@tooee/shell": "workspace:*",
         "@tooee/view": "workspace:*",
