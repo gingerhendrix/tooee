@@ -25,13 +25,7 @@ interface ViewProps {
 
 export function View({ contentProvider, actions, renderers, codeBlockRenderers }: ViewProps) {
   const { theme } = useTheme()
-  const [reloadTrigger, setReloadTrigger] = useState(0)
-  const reload = useCallback(() => setReloadTrigger((n) => n + 1), [])
-
-  const { content, streaming, error, providerMarks } = useContentLoader(
-    contentProvider,
-    reloadTrigger,
-  )
+  const { content, streaming, error, providerMarks, reload } = useContentLoader(contentProvider)
 
   const [userMarks, setUserMarks] = useState<MarkSet[]>([])
 
