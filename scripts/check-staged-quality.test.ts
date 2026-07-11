@@ -16,6 +16,12 @@ describe("staged diagnostic comparison", () => {
     expect(mapInheritedLine(3, parseHunks("@@ -1,0 +2,1 @@\n+added\n"))).toBe(4);
   });
 
+  test("inherited debt maps through a formatter line wrap", () => {
+    expect(
+      mapInheritedLine(176, [{ newCount: 66, newStart: 140, oldCount: 64, oldStart: 140 }]),
+    ).toBe(177);
+  });
+
   test("removed diagnostics need no staged match", () => {
     expect(findNewDiagnostics([diagnostic(1)], [], [], ".", ".")).toEqual([]);
   });
@@ -51,7 +57,7 @@ const diagnostics = [];
 for (const path of paths) {
   const lines = (await Bun.file(path).text()).split("\\n");
   for (const [index, line] of lines.entries()) {
-    for (const marker of ["DEBT", "NEW"]) if (line.includes(marker)) diagnostics.push({ code: "test(rule)", filename: path, labels: [{ span: { line: index + 1 } }], message: marker });
+    for (const [marker, message] of [["DEBT", "DEBT"], ["NEW", "NEW"], ["SAME", "DEBT"]]) if (line.includes(marker)) diagnostics.push({ code: "test(rule)", filename: path, labels: [{ span: { line: index + 1 } }], message });
   }
 }
 console.log(JSON.stringify({ diagnostics }));
@@ -85,12 +91,24 @@ for (const path of process.argv.slice(2).filter((value) => !value.startsWith("-"
     expect(check().exitCode).toBe(0);
   });
 
+  test("formatter wrapping shifts inherited debt without making it new", () => {
+    setupRepository();
+    stage("wrapped prefix\n  DEBT\nBADFMT\n");
+    expect(check().exitCode).toBe(0);
+  });
+
   test("a genuinely new diagnostic fails", () => {
     setupRepository();
     stage("DEBT\nNEW\nBADFMT\n");
     const result = check();
     expect(result.stderr.toString()).toContain("new test(rule)");
     expect(result.exitCode).toBe(1);
+  });
+
+  test("a new same-rule and same-message location fails", () => {
+    setupRepository();
+    stage("DEBT\nSAME\nBADFMT\n");
+    expect(check().exitCode).toBe(1);
   });
 
   test("unstaged diagnostics do not affect the staged snapshot", () => {

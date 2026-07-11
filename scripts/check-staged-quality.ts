@@ -41,7 +41,10 @@ export const mapInheritedLine = (line: number, hunks: Hunk[]): number | null => 
       break;
     }
     if (hunk.oldCount > 0 && line < hunk.oldStart + hunk.oldCount) {
-      return hunk.newStart + Math.min(line - hunk.oldStart, Math.max(hunk.newCount - 1, 0));
+      if (hunk.newCount === 0) return null;
+      const offset = line - hunk.oldStart;
+      const proportionalOffset = Math.floor(((offset + 0.5) * hunk.newCount) / hunk.oldCount);
+      return hunk.newStart + Math.min(proportionalOffset, hunk.newCount - 1);
     }
     delta += hunk.newCount - hunk.oldCount;
   }
