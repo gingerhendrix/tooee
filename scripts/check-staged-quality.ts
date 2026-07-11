@@ -37,8 +37,11 @@ export const mapInheritedLine = (line: number, hunks: Hunk[]): number | null => 
     if (line < hunk.oldStart) {
       break;
     }
+    if (hunk.oldCount === 0 && line === hunk.oldStart) {
+      break;
+    }
     if (hunk.oldCount > 0 && line < hunk.oldStart + hunk.oldCount) {
-      return null;
+      return hunk.newStart + Math.min(line - hunk.oldStart, Math.max(hunk.newCount - 1, 0));
     }
     delta += hunk.newCount - hunk.oldCount;
   }
@@ -48,7 +51,7 @@ export const mapInheritedLine = (line: number, hunks: Hunk[]): number | null => 
 const lineAt = (root: string, path: string, line: number) =>
   readFileSync(join(root, path), "utf8").split("\n")[line - 1]?.trim() ?? "";
 const diagnosticKey = (diagnostic: Diagnostic, path: string, line: number) =>
-  `${path}\0${diagnostic.code}\0${line}\0${diagnostic.message}`;
+  `${path}\0${diagnostic.code}\0${line}`;
 const fallbackKey = (diagnostic: Diagnostic, sourceLine: string) =>
   `${diagnostic.code}\0${diagnostic.message}\0${sourceLine}`;
 
