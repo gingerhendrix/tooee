@@ -36,7 +36,9 @@
   },
   "dependencies": {
     "@tooee/commands": "workspace:*",
-    "@tooee/themes": "workspace:*"
+    "@tooee/themes": "workspace:*",
+    "@xstate/store": "^4",
+    "@xstate/store-react": "^2"
   },
   "devDependencies": {
     "@opentui/core": "^0.4.3",

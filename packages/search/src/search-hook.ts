@@ -1,20 +1,21 @@
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { useSelector } from "@xstate/store-react"
 import { useCommand, useMode, useSetMode, type Mode } from "@tooee/commands"
+import {
+  createNavSearchStore,
+  selectCurrentMatchIndex,
+  selectMatches,
+  selectSearchActive,
+  selectSearchQuery,
+  type NavSearchDeps,
+  type NavSearchStore,
+  type RowKey,
+} from "./nav-search-store.js"
 
 export interface UseSearchOptions {
   match: (query: string) => number[]
   onJump: (index: number) => void
-  /**
-   * Register the search commands (default true). `false` leaves the state
-   * inert: no `/`, `n`, `shift+n` or cancel command exists.
-   */
   enabled?: boolean
-  /**
-   * Values the searched content is derived from. Matches are memoized on the
-   * query, so a committed query goes stale when the content changes underneath
-   * it (streaming or reloaded documents). List the content here to re-match.
-   * The array length must be stable across renders.
-   */
   deps?: readonly unknown[]
 }
 
@@ -27,74 +28,87 @@ export interface SearchState {
   submitSearch: () => void
 }
 
-const EMPTY: number[] = []
-const EMPTY_DEPS: readonly unknown[] = []
-
-interface MatchCache {
-  query: string
-  deps: readonly unknown[]
-  matches: number[]
-}
-
-function sameDeps(left: readonly unknown[], right: readonly unknown[]): boolean {
-  if (left.length !== right.length) return false
-  return left.every((value, index) => Object.is(value, right[index]))
-}
 const CURSOR_MODES: Mode[] = ["cursor"]
 const ALL_MODES: Mode[] = ["cursor", "select", "insert"]
 
-export function useSearch({
-  match,
-  onJump,
-  enabled = true,
-  deps = EMPTY_DEPS,
-}: UseSearchOptions): SearchState {
+export function useNavSearchStore(options: {
+  keys: readonly RowKey[]
+  isSelectable?: (index: number) => boolean
+  preserveCursorByKey?: boolean
+}): NavSearchStore {
+  const depsRef = useRef<NavSearchDeps>({ isSelectable: options.isSelectable ?? (() => true) })
+  depsRef.current.isSelectable = options.isSelectable ?? (() => true)
+  const [store] = useState(() =>
+    createNavSearchStore({ keys: options.keys, deps: depsRef.current }),
+  )
+  useEffect(() => {
+    const currentKeys = store.getSnapshot().context.rowKeys
+    const keysChanged =
+      currentKeys.length !== options.keys.length ||
+      currentKeys.some((key, index) => !Object.is(key, options.keys[index]))
+    if (keysChanged) {
+      store.trigger.rowsChanged({
+        keys: options.keys,
+        preserveCursorByKey: options.preserveCursorByKey,
+      })
+    }
+  }, [store, options.keys, options.preserveCursorByKey])
+  return store
+}
+
+export function useSearchBindings(
+  store: NavSearchStore,
+  {
+    match,
+    onJump,
+    enabled = true,
+    deps = [],
+  }: Omit<UseSearchOptions, "onJump"> & { onJump?: (index: number) => void },
+): SearchState {
   const mode = useMode()
   const setMode = useSetMode()
-
-  const [searchQuery, setSearchQuery] = useState("")
-  const [searchActive, setSearchActive] = useState(false)
-  const [currentMatchIndex, setCurrentMatchIndex] = useState(0)
-  const [committedQuery, setCommittedQuery] = useState("")
-  const preSearchModeRef = useRef<Mode>("cursor")
-
   const matchRef = useRef(match)
   matchRef.current = match
-
   const onJumpRef = useRef(onJump)
   onJumpRef.current = onJump
 
-  const activeQuery = searchActive ? searchQuery : committedQuery
+  useEffect(() => {
+    const subscription = store.on("jumped", ({ index }) => onJumpRef.current?.(index))
+    return () => subscription.unsubscribe()
+  }, [store])
+  useEffect(() => {
+    const subscription = store.on("restoreMode", ({ mode: restored }) => setMode(restored))
+    return () => subscription.unsubscribe()
+  }, [store, setMode])
 
-  // Memoized on the query *and* the searched content: a committed query must
-  // re-match when rows arrive or change. `deps` is caller-sized, so this is a
-  // hand-rolled cache rather than a useMemo dependency array.
-  const cacheRef = useRef<MatchCache | null>(null)
-  let matchingLines: number[]
-  if (!activeQuery) {
-    matchingLines = EMPTY
-  } else {
-    const cache = cacheRef.current
-    if (cache && cache.query === activeQuery && sameDeps(cache.deps, deps)) {
-      matchingLines = cache.matches
-    } else {
-      matchingLines = matchRef.current(activeQuery)
-      cacheRef.current = { query: activeQuery, deps: [...deps], matches: matchingLines }
-    }
-  }
+  const searchQuery = useSelector(store, (snapshot) => selectSearchQuery(snapshot.context))
+  const searchActive = useSelector(store, (snapshot) => selectSearchActive(snapshot.context))
+  const matchingLines = useSelector(store, (snapshot) =>
+    selectMatches(snapshot.context),
+  ) as number[]
+  const currentMatchIndex = useSelector(store, (snapshot) =>
+    selectCurrentMatchIndex(snapshot.context),
+  )
 
-  const matchingLinesRef = useRef(matchingLines)
-  matchingLinesRef.current = matchingLines
+  const updateSearchQuery = useCallback(
+    (query: string) => {
+      store.trigger.searchChanged({ query, matches: query ? matchRef.current(query) : [] })
+    },
+    [store],
+  )
 
-  // Imperatively set search query, reset match index, and jump to first match.
-  const updateSearchQuery = useCallback((query: string) => {
-    setSearchQuery(query)
-    setCurrentMatchIndex(0)
-    const matches = query ? matchRef.current(query) : []
-    if (matches[0] != null) {
-      onJumpRef.current(matches[0])
-    }
-  }, [])
+  // Re-match a committed query once when the caller-declared content changes.
+  const depsRef = useRef(deps)
+  useEffect(() => {
+    if (
+      depsRef.current.every((value, index) => Object.is(value, deps[index])) &&
+      depsRef.current.length === deps.length
+    )
+      return
+    depsRef.current = deps
+    const query = selectSearchQuery(store.getSnapshot().context)
+    if (query) store.trigger.searchChanged({ query, matches: matchRef.current(query) })
+  }, [deps, store])
 
   useCommand({
     id: "cursor-search-start",
@@ -103,83 +117,37 @@ export function useSearch({
     modes: CURSOR_MODES,
     enabled,
     handler: () => {
-      preSearchModeRef.current = mode
-      setSearchActive(true)
-      setSearchQuery("")
+      store.trigger.searchStarted({ mode })
       setMode("insert")
     },
   })
-
   useCommand({
     id: "cursor-search-next",
     title: "Next match",
     hotkey: "n",
     modes: CURSOR_MODES,
     enabled,
-    when: () => !searchActive,
-    handler: () => {
-      const matches = matchingLinesRef.current
-      if (matches.length === 0) return
-
-      setCurrentMatchIndex((index) => {
-        const nextIndex = (index + 1) % matches.length
-        const nextMatch = matches[nextIndex]
-        if (nextMatch != null) {
-          onJumpRef.current(nextMatch)
-        }
-        return nextIndex
-      })
-    },
+    when: () => !selectSearchActive(store.getSnapshot().context),
+    handler: () => store.trigger.searchNext({}),
   })
-
   useCommand({
     id: "cursor-search-prev",
     title: "Previous match",
     hotkey: "shift+n",
     modes: CURSOR_MODES,
     enabled,
-    when: () => !searchActive,
-    handler: () => {
-      const matches = matchingLinesRef.current
-      if (matches.length === 0) return
-
-      setCurrentMatchIndex((index) => {
-        const nextIndex = (index - 1 + matches.length) % matches.length
-        const nextMatch = matches[nextIndex]
-        if (nextMatch != null) {
-          onJumpRef.current(nextMatch)
-        }
-        return nextIndex
-      })
-    },
+    when: () => !selectSearchActive(store.getSnapshot().context),
+    handler: () => store.trigger.searchPrevious({}),
   })
-
   useCommand({
     id: "search-cancel",
     title: "Cancel search",
     hotkey: "escape",
     modes: ALL_MODES,
     enabled,
-    when: () => searchActive,
-    handler: () => {
-      setSearchActive(false)
-      setSearchQuery("")
-      setCommittedQuery("")
-      setCurrentMatchIndex(0)
-      setMode(preSearchModeRef.current)
-    },
+    when: () => selectSearchActive(store.getSnapshot().context),
+    handler: () => store.trigger.searchCancelled({}),
   })
-
-  const submitSearch = useCallback(() => {
-    setCommittedQuery(searchQuery)
-    setSearchActive(false)
-    setCurrentMatchIndex(0)
-    const matches = searchQuery ? matchRef.current(searchQuery) : []
-    if (matches[0] != null) {
-      onJumpRef.current(matches[0])
-    }
-    setMode(preSearchModeRef.current)
-  }, [searchQuery, setMode])
 
   return {
     searchQuery,
@@ -187,6 +155,11 @@ export function useSearch({
     setSearchQuery: updateSearchQuery,
     matchingLines,
     currentMatchIndex,
-    submitSearch,
+    submitSearch: () => store.trigger.searchSubmitted({}),
   }
+}
+
+export function useSearch(options: UseSearchOptions): SearchState {
+  const store = useNavSearchStore({ keys: [] })
+  return useSearchBindings(store, options)
 }
