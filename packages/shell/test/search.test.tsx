@@ -87,6 +87,33 @@ afterEach(() => {
 })
 
 describe("search hook", () => {
+  test("computes matches once per query event and not again on submit", async () => {
+    let calls = 0
+    function CountingHarness() {
+      const nav = useNavigation({ rowCount: 2 })
+      const search = useSearch({
+        match: () => {
+          calls++
+          return [0]
+        },
+        onJump: nav.setCursor,
+      })
+      _searchHandle = search
+      return <text content={search.searchQuery} />
+    }
+    testSetup = await testRender(
+      <TooeeProvider>
+        <CountingHarness />
+      </TooeeProvider>,
+      { width: 40, height: 10, kittyKeyboard: true },
+    )
+    await testSetup.renderOnce()
+    await act(async () => _searchHandle!.setSearchQuery("a"))
+    await act(async () => _searchHandle!.submitSearch())
+    await testSetup.renderOnce()
+    expect(calls).toBe(1)
+  })
+
   test("/ activates search and switches to insert mode", async () => {
     testSetup = await setup()
     await press(testSetup, "/")
