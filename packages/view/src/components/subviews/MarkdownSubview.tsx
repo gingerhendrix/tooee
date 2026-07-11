@@ -5,6 +5,7 @@ import {
   flattenMarkdown,
   getFlatBlockText,
   type CodeBlockRenderer,
+  type MarkdownLinkHandler,
   type FlatBlock,
 } from "@tooee/renderers"
 import { useCommand } from "@tooee/commands"
@@ -17,6 +18,7 @@ import type { SubviewProps } from "./types.js"
 interface MarkdownSubviewProps extends SubviewProps {
   content: MarkdownContent
   codeBlockRenderers?: Record<string, CodeBlockRenderer>
+  onLinkActivate?: MarkdownLinkHandler
 }
 
 /** Columns moved per h/l press when scrolling a wide block horizontally. */
@@ -35,6 +37,7 @@ const MARKDOWN_BLOCK_ADAPTER: DocumentRowAdapter<FlatBlock> = {
 export function MarkdownSubview({
   content,
   codeBlockRenderers,
+  onLinkActivate,
   decorations,
   actions,
   ...screen
@@ -105,6 +108,7 @@ export function MarkdownSubview({
         document={document}
         hScrollableBlocksRef={hScrollableBlocksRef}
         codeBlockRenderers={codeBlockRenderers}
+        onLinkActivate={onLinkActivate}
       />
     </ViewScreen>
   )

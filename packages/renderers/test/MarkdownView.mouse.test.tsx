@@ -12,16 +12,19 @@ const CONTENT_X = 8
 function MarkdownHarness({
   content,
   codeBlockRenderers,
+  onLinkActivate,
   ...callbacks
 }: RowMouseCallbacks & {
   content: string
   codeBlockRenderers?: Record<string, CodeBlockRenderer>
+  onLinkActivate?: (href: string) => boolean | void
 }) {
   return (
     <MarkdownView
       content={content}
       document={useRowMouseBindings(callbacks)}
       codeBlockRenderers={codeBlockRenderers}
+      onLinkActivate={onLinkActivate}
     />
   )
 }
@@ -118,5 +121,56 @@ describe("MarkdownView mouse interaction", () => {
     await testSetup.renderOnce()
 
     expect(clicked).toEqual([0, 1])
+  })
+})
+
+describe("MarkdownView inline links", () => {
+  test("primary click on inline link invokes handler and does not select row when handled", async () => {
+    const activated: string[] = []
+    const selected: number[] = []
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownHarness
+          content="Before [linked artifact](nested/note.md) after"
+          onRowClick={(i) => selected.push(i)}
+          onLinkActivate={(href) => {
+            activated.push(href)
+            return true
+          }}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 60, height: 10 },
+    )
+    await testSetup.renderOnce()
+    await act(async () => {
+      // content begins at x=5 (gutter) + 1 margin; link begins after "Before "
+      await testSetup.mockMouse.click(13, 0, MouseButtons.LEFT)
+    })
+    expect(activated).toEqual(["nested/note.md"])
+    expect(selected).toEqual([])
+  })
+
+  test("unhandled external link retains ordinary row click behavior", async () => {
+    const activated: string[] = []
+    const selected: number[] = []
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownHarness
+          content="[external](https://example.com)"
+          onRowClick={(i) => selected.push(i)}
+          onLinkActivate={(href) => {
+            activated.push(href)
+            return false
+          }}
+        />
+      </ThemeSwitcherProvider>,
+      { width: 60, height: 10 },
+    )
+    await testSetup.renderOnce()
+    await act(async () => {
+      await testSetup.mockMouse.click(6, 0, MouseButtons.LEFT)
+    })
+    expect(activated).toEqual(["https://example.com"])
+    expect(selected).toEqual([0])
   })
 })

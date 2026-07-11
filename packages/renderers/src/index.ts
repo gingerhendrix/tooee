@@ -1,4 +1,4 @@
-export { MarkdownView } from "./MarkdownView.js"
+export { MarkdownView, type MarkdownLinkHandler } from "./MarkdownView.js"
 export { flattenMarkdown, flattenTokens, getFlatBlockText } from "./markdown-blocks.js"
 export type { FlatBlock, FlattenMarkdownOptions } from "./markdown-blocks.js"
 export { sourceLines, sourceLineAdapter } from "./source.js"

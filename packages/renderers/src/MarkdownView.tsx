@@ -13,6 +13,7 @@ import type {
   TextTableContent,
   TextTableCellContent,
   TextChunk,
+  MouseEvent,
 } from "@opentui/core"
 import type { DocumentBindings } from "./DocumentBindings.js"
 import { DEFAULT_SIGN_COLUMN_WIDTH } from "./RowDocumentRenderable.js"
@@ -25,6 +26,8 @@ import "./text-table.js"
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
+
+export type MarkdownLinkHandler = (href: string) => boolean | void
 
 interface MarkdownViewProps {
   content: string
@@ -66,6 +69,12 @@ interface MarkdownViewProps {
    * syntax-highlighted code block.
    */
   codeBlockRenderers?: Record<string, CodeBlockRenderer>
+  /**
+   * Called when the primary mouse button activates inline Markdown link text.
+   * Return `true` when the host handled the href; handled clicks do not bubble
+   * to document row selection. Unhandled links retain their native OSC-8 href.
+   */
+  onLinkActivate?: MarkdownLinkHandler
 }
 
 // ---------------------------------------------------------------------------
@@ -79,6 +88,7 @@ export function MarkdownView({
   document,
   hScrollableBlocksRef,
   codeBlockRenderers,
+  onLinkActivate,
 }: MarkdownViewProps) {
   const { theme, syntax } = useTheme()
   const palette = useGutterPalette()
@@ -108,9 +118,10 @@ export function MarkdownView({
           syntax={syntax}
           hScrollableBlocksRef={hScrollableBlocksRef}
           codeBlockRenderers={mergedCodeBlockRenderers}
+          onLinkActivate={onLinkActivate}
         />
       )),
-    [blocks, theme, syntax, hScrollableBlocksRef, mergedCodeBlockRenderers],
+    [blocks, theme, syntax, hScrollableBlocksRef, mergedCodeBlockRenderers, onLinkActivate],
   )
 
   return (
@@ -139,6 +150,7 @@ function FlatBlockRenderer({
   syntax,
   hScrollableBlocksRef,
   codeBlockRenderers,
+  onLinkActivate,
 }: {
   block: FlatBlock
   blockIndex: number
@@ -146,20 +158,40 @@ function FlatBlockRenderer({
   syntax: SyntaxStyle
   hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>
   codeBlockRenderers?: Record<string, CodeBlockRenderer>
+  /**
+   * Called when the primary mouse button activates inline Markdown link text.
+   * Return `true` when the host handled the href; handled clicks do not bubble
+   * to document row selection. Unhandled links retain their native OSC-8 href.
+   */
+  onLinkActivate?: MarkdownLinkHandler
 }): ReactNode {
   const { token, indent, bullet } = block
 
   // List item line (has bullet)
   if (bullet !== undefined) {
-    return <ListLineRenderer block={block} theme={theme} />
+    return <ListLineRenderer block={block} theme={theme} onLinkActivate={onLinkActivate} />
   }
 
   // Regular block token
   switch (token.type) {
     case "heading":
-      return <HeadingRenderer token={token as Tokens.Heading} theme={theme} indent={indent} />
+      return (
+        <HeadingRenderer
+          token={token as Tokens.Heading}
+          theme={theme}
+          indent={indent}
+          onLinkActivate={onLinkActivate}
+        />
+      )
     case "paragraph":
-      return <ParagraphRenderer token={token as Tokens.Paragraph} theme={theme} indent={indent} />
+      return (
+        <ParagraphRenderer
+          token={token as Tokens.Paragraph}
+          theme={theme}
+          indent={indent}
+          onLinkActivate={onLinkActivate}
+        />
+      )
     case "code":
       return (
         <CodeBlock
@@ -173,7 +205,14 @@ function FlatBlockRenderer({
         />
       )
     case "blockquote":
-      return <BlockquoteRenderer token={token as Tokens.Blockquote} theme={theme} indent={indent} />
+      return (
+        <BlockquoteRenderer
+          token={token as Tokens.Blockquote}
+          theme={theme}
+          indent={indent}
+          onLinkActivate={onLinkActivate}
+        />
+      )
     case "table":
       return <MarkdownTableRenderer token={token as Tokens.Table} indent={indent} />
     case "hr":
@@ -204,7 +243,15 @@ function FlatBlockRenderer({
 // List line renderer
 // ---------------------------------------------------------------------------
 
-function ListLineRenderer({ block, theme }: { block: FlatBlock; theme: ResolvedTheme }) {
+function ListLineRenderer({
+  block,
+  theme,
+  onLinkActivate,
+}: {
+  block: FlatBlock
+  theme: ResolvedTheme
+  onLinkActivate?: MarkdownLinkHandler
+}) {
   const { token, indent, bullet, checked } = block
   const checkboxPrefix = checked !== undefined ? (checked ? "[x] " : "[ ] ") : ""
 
@@ -216,14 +263,21 @@ function ListLineRenderer({ block, theme }: { block: FlatBlock; theme: ResolvedT
 
   return (
     <box style={{ marginLeft: 1 + indent, marginRight: 1 }}>
-      <text style={{ fg: theme.markdownText }}>
+      <text
+        style={{ fg: theme.markdownText }}
+        onMouseDown={linkMouseHandler(
+          inlineTokens,
+          onLinkActivate,
+          Bun.stringWidth(`${bullet}${checkboxPrefix}`),
+        )}
+      >
         <span fg={theme.markdownListItem}>{bullet}</span>
         {checkboxPrefix !== "" && (
           <span fg={checked ? theme.accent : theme.textMuted}>{checkboxPrefix}</span>
         )}
         {hasContent &&
           (inlineTokens.length > 0 ? (
-            <InlineTokens tokens={inlineTokens} theme={theme} />
+            <InlineTokens onLinkActivate={onLinkActivate} tokens={inlineTokens} theme={theme} />
           ) : hasText ? (
             "text" in token ? (
               (token as { text: string }).text
@@ -244,10 +298,12 @@ function HeadingRenderer({
   token,
   theme,
   indent,
+  onLinkActivate,
 }: {
   token: Tokens.Heading
   theme: ResolvedTheme
   indent: number
+  onLinkActivate?: MarkdownLinkHandler
 }) {
   const headingColors: Record<number, string> = {
     1: theme.markdownHeading,
@@ -269,10 +325,17 @@ function HeadingRenderer({
 
   return (
     <box style={{ marginTop: 1, marginBottom: 1, marginLeft: indent }}>
-      <text style={{ fg: headingColors[token.depth] || theme.text }}>
+      <text
+        style={{ fg: headingColors[token.depth] || theme.text }}
+        onMouseDown={linkMouseHandler(
+          token.tokens || [],
+          onLinkActivate,
+          Bun.stringWidth(prefixes[token.depth] || ""),
+        )}
+      >
         <span fg={theme.textMuted}>{prefixes[token.depth]}</span>
         <strong>
-          <InlineTokens tokens={token.tokens || []} theme={theme} />
+          <InlineTokens onLinkActivate={onLinkActivate} tokens={token.tokens || []} theme={theme} />
         </strong>
       </text>
     </box>
@@ -283,15 +346,20 @@ function ParagraphRenderer({
   token,
   theme,
   indent,
+  onLinkActivate,
 }: {
   token: Tokens.Paragraph
   theme: ResolvedTheme
   indent: number
+  onLinkActivate?: MarkdownLinkHandler
 }) {
   return (
     <box style={{ marginBottom: 1, marginLeft: 1 + indent, marginRight: 1 }}>
-      <text style={{ fg: theme.markdownText }}>
-        <InlineTokens tokens={token.tokens || []} theme={theme} />
+      <text
+        style={{ fg: theme.markdownText }}
+        onMouseDown={linkMouseHandler(token.tokens || [], onLinkActivate)}
+      >
+        <InlineTokens onLinkActivate={onLinkActivate} tokens={token.tokens || []} theme={theme} />
       </text>
     </box>
   )
@@ -301,10 +369,12 @@ function BlockquoteRenderer({
   token,
   theme,
   indent,
+  onLinkActivate,
 }: {
   token: Tokens.Blockquote
   theme: ResolvedTheme
   indent: number
+  onLinkActivate?: MarkdownLinkHandler
 }) {
   // Collect inline tokens from blockquote's child paragraphs/text
   const inlineTokens: Token[] = []
@@ -332,8 +402,11 @@ function BlockquoteRenderer({
       }}
     >
       <text style={{ fg: theme.markdownBlockQuote }} content="│ " />
-      <text style={{ fg: theme.textMuted }}>
-        <InlineTokens tokens={inlineTokens} theme={theme} />
+      <text
+        style={{ fg: theme.textMuted }}
+        onMouseDown={linkMouseHandler(inlineTokens, onLinkActivate)}
+      >
+        <InlineTokens onLinkActivate={onLinkActivate} tokens={inlineTokens} theme={theme} />
       </text>
     </box>
   )
@@ -387,11 +460,119 @@ function HorizontalRule({ theme, indent }: { theme: ResolvedTheme; indent: numbe
   )
 }
 
+export interface InlineLinkPosition {
+  line: number
+  column: number
+}
+
+/** Resolve a rendered text position to the Markdown link occupying that cell. */
+export function inlineLinkAtPosition(
+  tokens: readonly Token[],
+  position: InlineLinkPosition,
+  initialColumn = 0,
+): string | null {
+  let line = 0
+  let column = initialColumn
+  let found: string | null = null
+
+  const text = (value: string, href?: string) => {
+    for (const part of value.split("\n")) {
+      const width = Bun.stringWidth(part)
+      if (
+        href &&
+        line === position.line &&
+        position.column >= column &&
+        position.column < column + width
+      ) {
+        found = href
+      }
+      column += width
+      if (part !== value.split("\n").at(-1)) {
+        line += 1
+        column = 0
+      }
+    }
+  }
+  const visit = (items: readonly Token[], href?: string) => {
+    for (const token of items) {
+      if (found) return
+      switch (token.type) {
+        case "link": {
+          const link = token as Tokens.Link
+          visit(link.tokens || [], link.href)
+          break
+        }
+        case "strong":
+          visit((token as Tokens.Strong).tokens || [], href)
+          break
+        case "em":
+          visit((token as Tokens.Em).tokens || [], href)
+          break
+        case "del":
+          text("~", href)
+          visit((token as Tokens.Del).tokens || [], href)
+          text("~", href)
+          break
+        case "codespan":
+          text(` ${(token as Tokens.Codespan).text} `, href)
+          break
+        case "br":
+          text("\n", href)
+          break
+        case "space":
+          text(" ", href)
+          break
+        default:
+          if ("text" in token && typeof token.text === "string") text(token.text, href)
+      }
+    }
+  }
+  visit(tokens)
+  return found
+}
+
+function linkMouseHandler(
+  tokens: readonly Token[],
+  onLinkActivate: MarkdownLinkHandler | undefined,
+  initialColumn = 0,
+) {
+  if (!onLinkActivate) return undefined
+  return (event: MouseEvent) => {
+    if (event.button !== 0) return
+    const target = event.target
+    if (!target || !("lineInfo" in target)) return
+    const text = target as TextBufferRenderable
+    const visualLine = event.y - text.y
+    const sourceLine = text.lineInfo.lineSources[visualLine]
+    const startColumn = text.lineInfo.lineStartCols[visualLine]
+    if (sourceLine == null || startColumn == null) return
+    const href = inlineLinkAtPosition(
+      tokens,
+      {
+        line: sourceLine,
+        column: startColumn + event.x - text.x,
+      },
+      initialColumn,
+    )
+    if (!href || onLinkActivate(href) !== true) return
+    event.preventDefault()
+    event.stopPropagation()
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Inline token rendering (React elements)
 // ---------------------------------------------------------------------------
 
-function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme }): ReactNode {
+function InlineTokens({
+  tokens,
+  theme,
+  onLinkActivate,
+}: {
+  tokens: Token[]
+  theme: ResolvedTheme
+  onLinkActivate?: MarkdownLinkHandler
+}): ReactNode {
   const result: ReactNode[] = []
 
   for (let i = 0; i < tokens.length; i++) {
@@ -406,14 +587,22 @@ function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme
       case "strong":
         result.push(
           <strong key={key}>
-            <InlineTokens tokens={(token as Tokens.Strong).tokens || []} theme={theme} />
+            <InlineTokens
+              onLinkActivate={onLinkActivate}
+              tokens={(token as Tokens.Strong).tokens || []}
+              theme={theme}
+            />
           </strong>,
         )
         break
       case "em":
         result.push(
           <em key={key}>
-            <InlineTokens tokens={(token as Tokens.Em).tokens || []} theme={theme} />
+            <InlineTokens
+              onLinkActivate={onLinkActivate}
+              tokens={(token as Tokens.Em).tokens || []}
+              theme={theme}
+            />
           </em>,
         )
         break
@@ -429,7 +618,11 @@ function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme
         result.push(
           <u key={key}>
             <a href={linkToken.href} fg={theme.markdownLink}>
-              <InlineTokens tokens={linkToken.tokens || []} theme={theme} />
+              <InlineTokens
+                onLinkActivate={onLinkActivate}
+                tokens={linkToken.tokens || []}
+                theme={theme}
+              />
             </a>
           </u>,
         )
@@ -439,7 +632,11 @@ function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme
         result.push(
           <span key={key} fg={theme.textMuted}>
             {"~"}
-            <InlineTokens tokens={(token as Tokens.Del).tokens || []} theme={theme} />
+            <InlineTokens
+              onLinkActivate={onLinkActivate}
+              tokens={(token as Tokens.Del).tokens || []}
+              theme={theme}
+            />
             {"~"}
           </span>,
         )
