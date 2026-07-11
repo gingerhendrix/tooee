@@ -28,9 +28,18 @@ export function overlayStoreTypeChecks(): void {
   store.trigger.closedTop({ reason })
   store.send({ type: "closedTop", reason })
   store.on("closed", (emitted) => {
-    const _reason: OverlayCloseReason = emitted.reason
-    const _restoreModeTo: string | null = emitted.restoreModeTo
-    const _record: OverlayRecord = emitted.record
+    const {
+      reason: closeReason,
+      restoreModeTo,
+      record: closedRecord,
+    }: {
+      reason: OverlayCloseReason;
+      restoreModeTo: string | null;
+      record: OverlayRecord;
+    } = emitted;
+    void closeReason;
+    void restoreModeTo;
+    void closedRecord;
   })
 
   // --- Unknown event names must NOT compile --------------------------------

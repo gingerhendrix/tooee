@@ -43,7 +43,7 @@ describe("findMatchingLines", () => {
 const TEST_TEXT = "alpha\nbeta\ngamma\nalpha again\ndelta"
 
 // Module-level ref for imperative access to search state from tests
-let _searchHandle: SearchState | null = null
+let searchHandle: SearchState | null = null
 
 function SearchHarness() {
   const nav = useNavigation({ rowCount: TEST_TEXT.split("\n").length, viewportHeight: 3 })
@@ -54,7 +54,7 @@ function SearchHarness() {
   })
 
   // Expose search state to test code via module-level ref
-  _searchHandle = search
+  searchHandle = search
 
   return (
     <box flexDirection="column">
@@ -83,7 +83,7 @@ let testSetup: TestSession
 
 afterEach(() => {
   testSetup?.renderer.destroy()
-  _searchHandle = null
+  searchHandle = null
 })
 
 describe("search hook", () => {
@@ -98,7 +98,7 @@ describe("search hook", () => {
         },
         onJump: nav.setCursor,
       })
-      _searchHandle = search
+      searchHandle = search
       return <text content={search.searchQuery} />
     }
     testSetup = await testRender(
@@ -108,8 +108,8 @@ describe("search hook", () => {
       { width: 40, height: 10, kittyKeyboard: true },
     )
     await testSetup.renderOnce()
-    await act(async () => _searchHandle!.setSearchQuery("a"))
-    await act(async () => _searchHandle!.submitSearch())
+    await act(async () => searchHandle!.setSearchQuery("a"))
+    await act(async () => searchHandle!.submitSearch())
     await testSetup.renderOnce()
     expect(calls).toBe(1)
   })
@@ -127,7 +127,7 @@ describe("search hook", () => {
     await press(testSetup, "/")
 
     await act(async () => {
-      _searchHandle!.setSearchQuery("alpha")
+      searchHandle!.setSearchQuery("alpha")
     })
     await testSetup.renderOnce()
 
@@ -142,7 +142,7 @@ describe("search hook", () => {
     await press(testSetup, "/")
 
     await act(async () => {
-      _searchHandle!.setSearchQuery("alpha")
+      searchHandle!.setSearchQuery("alpha")
     })
     await testSetup.renderOnce()
 
@@ -158,13 +158,13 @@ describe("search hook", () => {
     await press(testSetup, "/")
 
     await act(async () => {
-      _searchHandle!.setSearchQuery("alpha")
+      searchHandle!.setSearchQuery("alpha")
     })
     await testSetup.renderOnce()
 
     // Submit search
     await act(async () => {
-      _searchHandle!.submitSearch()
+      searchHandle!.submitSearch()
     })
     await testSetup.renderOnce()
 
@@ -191,12 +191,12 @@ describe("search hook", () => {
     await press(testSetup, "/")
 
     await act(async () => {
-      _searchHandle!.setSearchQuery("alpha")
+      searchHandle!.setSearchQuery("alpha")
     })
     await testSetup.renderOnce()
 
     await act(async () => {
-      _searchHandle!.submitSearch()
+      searchHandle!.submitSearch()
     })
     await testSetup.renderOnce()
 
@@ -209,11 +209,11 @@ describe("search hook", () => {
 
 // A document whose text arrives after the first render, the way a streaming or
 // reloaded provider delivers it.
-let _appendLine: ((line: string) => void) | null = null
+let appendLine: ((line: string) => void) | null = null
 
 function GrowingSearchHarness({ deps }: { deps: boolean }) {
   const [lines, setLines] = useState(["alpha", "beta"])
-  _appendLine = (line) => setLines((current) => [...current, line])
+  appendLine = (line) => setLines((current) => [...current, line])
 
   const text = lines.join("\n")
   const nav = useNavigation({ rowCount: lines.length, viewportHeight: 3 })
@@ -222,7 +222,7 @@ function GrowingSearchHarness({ deps }: { deps: boolean }) {
     onJump: nav.setCursor,
     deps: deps ? [text] : undefined,
   })
-  _searchHandle = search
+  searchHandle = search
 
   return <text content={`matches:[${search.matchingLines.join(",")}]`} />
 }
@@ -244,16 +244,16 @@ describe("search over changing content", () => {
     await press(testSetup, "/")
 
     await act(async () => {
-      _searchHandle!.setSearchQuery("alpha")
+      searchHandle!.setSearchQuery("alpha")
     })
     await act(async () => {
-      _searchHandle!.submitSearch()
+      searchHandle!.submitSearch()
     })
     await testSetup.renderOnce()
     expect(testSetup.captureCharFrame()).toContain("matches:[0]")
 
     await act(async () => {
-      _appendLine!("alpha again")
+      appendLine!("alpha again")
     })
     await testSetup.renderOnce()
 
@@ -265,15 +265,15 @@ describe("search over changing content", () => {
     await press(testSetup, "/")
 
     await act(async () => {
-      _searchHandle!.setSearchQuery("alpha")
+      searchHandle!.setSearchQuery("alpha")
     })
     await act(async () => {
-      _searchHandle!.submitSearch()
+      searchHandle!.submitSearch()
     })
     await testSetup.renderOnce()
 
     await act(async () => {
-      _appendLine!("alpha again")
+      appendLine!("alpha again")
     })
     await testSetup.renderOnce()
 

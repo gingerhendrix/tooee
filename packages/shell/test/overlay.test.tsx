@@ -7,6 +7,13 @@ import { AppLayout } from "@tooee/layout"
 import { useCommand, useMode } from "@tooee/commands"
 import { press, pressEscape, type TestSession } from "./support/test-helpers.ts"
 
+const createOverlayA = () => <text content="overlay-a" />;
+const createOverlayB = () => <text content="overlay-b" />;
+const createReplacedOverlayA = () => <text content="overlay-a-replaced" />;
+const createEscapeDismissibleOverlay = () => <text content="overlay-escape" />;
+const createEscapePersistentOverlay = () => <text content="overlay-persistent" />;
+const createAppLayoutOverlay = () => <text content="OVERLAY_CONTENT" />;
+
 function OverlayHarness() {
   const overlay = useOverlay()
   const current = useCurrentOverlay()
@@ -18,7 +25,7 @@ function OverlayHarness() {
     hotkey: "a",
     modes: ["cursor"],
     handler: () => {
-      overlay.show("a", <text content="overlay-a" />)
+      overlay.show("a", createOverlayA())
     },
   })
 
@@ -28,7 +35,7 @@ function OverlayHarness() {
     hotkey: "b",
     modes: ["cursor"],
     handler: () => {
-      overlay.show("b", <text content="overlay-b" />)
+      overlay.show("b", createOverlayB())
     },
   })
 
@@ -58,7 +65,7 @@ function OverlayHarness() {
     hotkey: "r",
     modes: ["cursor"],
     handler: () => {
-      overlay.show("a", <text content="overlay-a-replaced" />)
+      overlay.show("a", createReplacedOverlayA())
     },
   })
 
@@ -68,7 +75,7 @@ function OverlayHarness() {
     hotkey: "e",
     modes: ["cursor"],
     handler: () => {
-      overlay.show("escape", <text content="overlay-escape" />, { mode: "insert" })
+      overlay.show("escape", createEscapeDismissibleOverlay(), { mode: "insert" })
     },
   })
 
@@ -78,7 +85,7 @@ function OverlayHarness() {
     hotkey: "p",
     modes: ["cursor"],
     handler: () => {
-      overlay.show("persistent", <text content="overlay-persistent" />, {
+      overlay.show("persistent", createEscapePersistentOverlay(), {
         mode: "insert",
         dismissOnEscape: false,
       })
@@ -102,7 +109,7 @@ function AppLayoutOverlayHarness() {
     hotkey: "s",
     modes: ["cursor"],
     handler: () => {
-      overlay.show("test", <text content="OVERLAY_CONTENT" />)
+      overlay.show("test", createAppLayoutOverlay())
     },
   })
 

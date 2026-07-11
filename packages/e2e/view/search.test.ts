@@ -45,9 +45,6 @@ describe("search e2e", () => {
     // Submit search (Enter returns to cursor mode)
     await session.press("enter")
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 })
-    // Capture scroll before
-    const beforeText = await session.text()
-    const _cursorBefore = beforeText.match(/Cursor:\s*(\d+)/)?.[1]
     // Press n to navigate to next match
     await session.press("n")
     const afterText = await session.text()
