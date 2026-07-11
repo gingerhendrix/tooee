@@ -1,6 +1,6 @@
 {
   "name": "@tooee/cli",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Terminal micro-apps for viewing, input, and selection",
   "keywords": [
     "cli",

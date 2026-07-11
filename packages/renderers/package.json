@@ -1,6 +1,6 @@
 {
   "name": "@tooee/renderers",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Content renderers (markdown, code, text, table) for Tooee",
   "keywords": [
     "cli",
