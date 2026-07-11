@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react"
 import { useTheme } from "@tooee/themes"
 import type { ActionDefinition } from "@tooee/commands"
 import type { MarkSet } from "@tooee/marks"
-import type { CodeBlockRenderer } from "@tooee/renderers"
+import type { CodeBlockRenderer, MarkdownLinkHandler } from "@tooee/renderers"
 import { isCustomContent, type ContentProvider, type ContentRenderer } from "./types.js"
 import { useContentLoader } from "./hooks/useContentLoader.js"
 import {
@@ -21,9 +21,17 @@ interface ViewProps {
    * fence type (first word of the fence info string, case-insensitive).
    */
   codeBlockRenderers?: Record<string, CodeBlockRenderer>
+  /** Handles primary-button activation of inline Markdown links. */
+  onMarkdownLinkActivate?: MarkdownLinkHandler
 }
 
-export function View({ contentProvider, actions, renderers, codeBlockRenderers }: ViewProps) {
+export function View({
+  contentProvider,
+  actions,
+  renderers,
+  codeBlockRenderers,
+  onMarkdownLinkActivate,
+}: ViewProps) {
   const { theme } = useTheme()
   const { content, streaming, error, providerMarks, reload } = useContentLoader(contentProvider)
 
@@ -83,7 +91,12 @@ export function View({ contentProvider, actions, renderers, codeBlockRenderers }
   switch (content.format) {
     case "markdown":
       return (
-        <MarkdownSubview content={content} codeBlockRenderers={codeBlockRenderers} {...shared} />
+        <MarkdownSubview
+          content={content}
+          codeBlockRenderers={codeBlockRenderers}
+          onLinkActivate={onMarkdownLinkActivate}
+          {...shared}
+        />
       )
     case "code":
     case "text":
