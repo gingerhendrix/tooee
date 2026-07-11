@@ -8,11 +8,7 @@ import {
   type FlatBlock,
 } from "@tooee/renderers"
 import { useCommand } from "@tooee/commands"
-import {
-  actionsToContextMenuEntries,
-  useDocumentController,
-  type DocumentRowAdapter,
-} from "@tooee/shell"
+import { useDocumentController, type DocumentRowAdapter } from "@tooee/shell"
 import type { MarkdownContent } from "../../types.js"
 import { useContentCommands } from "../../hooks/useContentCommands.js"
 import { ViewScreen } from "../ViewScreen.js"
@@ -48,14 +44,14 @@ export function MarkdownSubview({
   const blocks = useMemo(() => flattenMarkdown(content.markdown), [content.markdown])
 
   const { showLineNumbers } = useContentCommands({ content, textContent })
-  const contextMenu = useMemo(() => actionsToContextMenuEntries(actions), [actions])
 
   const document = useDocumentController<FlatBlock>({
     rows: blocks,
     adapter: MARKDOWN_BLOCK_ADAPTER,
     multiSelect: true,
     decorations,
-    contextMenu,
+    // The controller projects the screen's actions onto menu entries at open time.
+    contextMenu: actions,
   })
 
   const hScrollableBlocksRef = useRef<Map<number, TextBufferRenderable>>(new Map())

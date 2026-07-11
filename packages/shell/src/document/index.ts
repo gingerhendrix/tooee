@@ -14,6 +14,7 @@ export { DocumentDecorationPriorities } from "./types.js"
 export type {
   DocumentBindings,
   DocumentContextMenuEvent,
+  DocumentContextMenuItems,
   DocumentController,
   DocumentRowAdapter,
   DocumentRowAnchor,

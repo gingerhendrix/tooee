@@ -1,6 +1,6 @@
 import type { Key } from "react"
 import type { MouseEvent } from "@opentui/core"
-import type { CommandContext } from "@tooee/commands"
+import type { ActionDefinition, CommandContext } from "@tooee/commands"
 import type {
   ContextMenuEntry,
   DecorationLayer,
@@ -67,6 +67,15 @@ export interface DocumentSearchOptions<T> {
   match?: (query: string, rows: readonly T[]) => readonly number[]
 }
 
+/**
+ * What a right-click menu is built from: prepared entries, or the consumer's
+ * own action definitions (anything with a `handler`), which the controller
+ * projects through `actionsToContextMenuEntries` at open time — `hidden`
+ * actions and actions whose `when` rejects the current command context are
+ * dropped. Menu content stays consumer policy; the projection is mechanics.
+ */
+export type DocumentContextMenuItems = readonly ContextMenuEntry[] | readonly ActionDefinition[]
+
 export interface UseDocumentControllerOptions<T> {
   rows: readonly T[]
   adapter: DocumentRowAdapter<T>
@@ -85,10 +94,19 @@ export interface UseDocumentControllerOptions<T> {
   preserveCursorByKey?: boolean
 
   onRowPress?: (event: DocumentRowEvent<T>) => void
+
+  /**
+   * Right-click menu for the clicked row. Accepts prepared entries, the
+   * consumer's own `ActionDefinition[]` (registered elsewhere, e.g. via
+   * `useActions`/`DocumentScreen`), or a function of the click event for
+   * row-dependent menus. Selecting an entry invokes its command id on the
+   * current surface. The clicked row is selected before the menu opens, and
+   * the handler stands down entirely while a modal overlay is open.
+   */
   contextMenu?:
     | false
-    | readonly ContextMenuEntry[]
-    | ((event: DocumentContextMenuEvent<T>) => readonly ContextMenuEntry[])
+    | DocumentContextMenuItems
+    | ((event: DocumentContextMenuEvent<T>) => DocumentContextMenuItems)
 }
 
 export interface DocumentController<T> extends DocumentBindings {

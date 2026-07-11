@@ -1,7 +1,7 @@
 import { useCallback, createElement } from "react"
 import { useOverlay } from "@tooee/overlays"
 import type { OverlayCloseReason } from "@tooee/overlays"
-import type { ActionDefinition } from "@tooee/commands"
+import type { ActionDefinition, CommandContext } from "@tooee/commands"
 import { ContextMenu, type ContextMenuEntry } from "@tooee/renderers"
 
 const OVERLAY_ID = "context-menu"
@@ -13,11 +13,18 @@ export interface ContextMenuController {
   close: () => void
 }
 
+/**
+ * Project action definitions onto context-menu entries. `hidden` actions are
+ * always dropped; passing the current command context additionally drops
+ * actions whose `when` predicate rejects it, so a menu built at click time
+ * shows only the actions that would actually run.
+ */
 export function actionsToContextMenuEntries(
   actions: readonly ActionDefinition[] | undefined,
+  context?: CommandContext,
 ): ContextMenuEntry[] {
   return (actions ?? [])
-    .filter((action) => !action.hidden)
+    .filter((action) => !action.hidden && (!context || !action.when || action.when(context)))
     .map((action) => ({ id: action.id, title: action.title, hotkey: action.hotkey }))
 }
 

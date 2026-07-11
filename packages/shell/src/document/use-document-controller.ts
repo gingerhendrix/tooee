@@ -7,11 +7,13 @@ import { useHasModalOverlay } from "@tooee/overlays"
 import type { ContextMenuEntry, DecorationLayer, RowDocumentRenderable } from "@tooee/renderers"
 import { useSearch } from "@tooee/search"
 import { useTheme } from "@tooee/themes"
-import { useContextMenu } from "../context-menu.js"
+import type { ActionDefinition, CommandContext } from "@tooee/commands"
+import { actionsToContextMenuEntries, useContextMenu } from "../context-menu.js"
 import { useCopy } from "../copy-hook.js"
 import { useNavigation } from "../navigation.js"
 import { buildInteractionDecorations } from "./decorations.js"
 import type {
+  DocumentContextMenuItems,
   DocumentController,
   DocumentRowAdapter,
   DocumentRowAnchor,
@@ -46,6 +48,23 @@ function makeAnchor<T>(
     text: adapter.getText(row, index),
     source: adapter.getSource?.(row, index) ?? null,
   }
+}
+
+/**
+ * Menu items may be prepared entries or the consumer's own action definitions;
+ * an action is anything with a `handler`. Actions are projected through
+ * `actionsToContextMenuEntries`, which drops `hidden` actions and actions
+ * whose `when` rejects the context the menu is opening in.
+ */
+function resolveContextMenuEntries(
+  items: DocumentContextMenuItems,
+  context: CommandContext,
+): ContextMenuEntry[] {
+  const first = items[0]
+  if (first !== undefined && "handler" in first) {
+    return actionsToContextMenuEntries(items as readonly ActionDefinition[], context)
+  }
+  return [...(items as readonly ContextMenuEntry[])]
 }
 
 function defaultMatch<T>(
@@ -413,10 +432,15 @@ export function useDocumentController<T>(
       event.preventDefault()
       selectRow(hit.index)
 
-      const entries: readonly ContextMenuEntry[] =
-        typeof menu === "function" ? menu({ ...hit, event, context: buildCommandContext() }) : menu
+      // The event's row/index/key identify the clicked row for row-dependent
+      // menus. The command context is the pre-click commit (the selection has
+      // not re-rendered yet); registry `invoke` re-checks `when` with a fresh
+      // context when an entry is actually chosen, after selection commits.
+      const context = buildCommandContext()
+      const items = typeof menu === "function" ? menu({ ...hit, event, context }) : menu
+      const entries = resolveContextMenuEntries(items, context)
       if (entries.length === 0) return
-      openContextMenu(event.x, event.y, [...entries], (id) => invokeRef.current(id))
+      openContextMenu(event.x, event.y, entries, (id) => invokeRef.current(id))
     },
     [getRowAtScreenY, selectRow, openContextMenu, buildCommandContext],
   )
