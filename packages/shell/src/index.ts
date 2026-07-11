@@ -13,8 +13,18 @@ export { useCopy } from "./copy-hook.js"
 export type { UseCopyOptions } from "./copy-hook.js"
 export { TooeeProvider } from "./provider.js"
 export type { TooeeProviderProps } from "./provider.js"
-export { launchCli, guardTerminalHealth } from "./launch.js"
-export type { LaunchCliOptions } from "./launch.js"
+export { mountTooee, launchCli, runCliSession, guardTerminalHealth } from "./launch.js"
+export type {
+  CliSessionController,
+  CliSessionRender,
+  CliStdinPolicy,
+  LaunchCliOptions,
+  MountTooeeOptions,
+  TerminalHealthGuardOptions,
+  TooeeMount,
+  TooeeProviderOptions,
+  TooeeSessionHandle,
+} from "./launch.js"
 export { CommandPaletteProvider } from "./command-palette-provider.js"
 export { WhichKeyOverlay, WhichKeyProvider } from "./which-key-provider.js"
 export { useThemePicker } from "./theme-picker.js"
