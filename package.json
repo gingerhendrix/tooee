@@ -32,6 +32,7 @@
     "lint": "ultracite fix",
     "lint:check": "ultracite check --no-error-on-unmatched-pattern",
     "lint:oxlint": "oxlint --type-aware --type-check --deny-warnings .",
+    "lint:staged": "bun scripts/check-staged-quality.ts",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "react-doctor": "react-doctor . --yes --json --no-score --no-parallel --blocking none",

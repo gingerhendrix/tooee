@@ -1,8 +1,6 @@
 pre-commit:
-  parallel: true
   commands:
     lint-check:
-      glob: "*.{js,jsx,ts,tsx,json,jsonc,yml,yaml,md,css}"
-      run: bun run lint:check -- {staged_files}
+      run: bun run lint:staged
     typecheck:
       run: bun run check
