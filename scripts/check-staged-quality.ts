@@ -53,6 +53,25 @@ export const mapInheritedLine = (line: number, hunks: Hunk[]): number | null => 
 
 const lineAt = (root: string, path: string, line: number) =>
   readFileSync(join(root, path), "utf8").split("\n")[line - 1]?.trim() ?? "";
+const normalizedLine = (line: string) =>
+  line.replaceAll(/[;,]/gu, "").replaceAll(/\s+/gu, " ").trim();
+const mapContentLine = (
+  headRoot: string,
+  indexRoot: string,
+  headPath: string,
+  indexPath: string,
+  oldLine: number,
+) => {
+  const headLines = readFileSync(join(headRoot, headPath), "utf8").split("\n").map(normalizedLine);
+  const indexLines = readFileSync(join(indexRoot, indexPath), "utf8")
+    .split("\n")
+    .map(normalizedLine);
+  const content = headLines[oldLine - 1];
+  if (!content) return null;
+  const occurrence = headLines.slice(0, oldLine).filter((line) => line === content).length;
+  const candidates = indexLines.flatMap((line, index) => (line === content ? [index + 1] : []));
+  return candidates[occurrence - 1] ?? null;
+};
 const diagnosticKey = (diagnostic: Diagnostic, path: string, line: number) =>
   `${path}\0${diagnostic.code}\0${line}`;
 const fallbackKey = (diagnostic: Diagnostic, sourceLine: string) =>
@@ -80,7 +99,9 @@ export const findNewDiagnostics = (
     const change = changes.find(({ headPath }) => headPath === diagnostic.filename);
     if (!change?.indexPath) continue;
     const oldLine = diagnostic.labels[0]?.span.line ?? 1;
-    const mappedLine = mapInheritedLine(oldLine, change.hunks);
+    const mappedLine =
+      mapContentLine(headRoot, indexRoot, diagnostic.filename, change.indexPath, oldLine) ??
+      mapInheritedLine(oldLine, change.hunks);
     increment(fallback, fallbackKey(diagnostic, lineAt(headRoot, diagnostic.filename, oldLine)));
     if (mappedLine !== null) {
       increment(exact, diagnosticKey(diagnostic, change.indexPath, mappedLine));

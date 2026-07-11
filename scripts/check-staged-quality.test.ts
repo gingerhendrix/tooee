@@ -111,6 +111,12 @@ for (const path of process.argv.slice(2).filter((value) => !value.startsWith("-"
     expect(check().exitCode).toBe(1);
   });
 
+  test("formatter punctuation maps inherited content by occurrence", () => {
+    setupRepository();
+    stage("DEBT;\nBADFMT\n");
+    expect(check().exitCode).toBe(0);
+  });
+
   test("unstaged diagnostics do not affect the staged snapshot", () => {
     setupRepository();
     stage("added\nDEBT\nBADFMT\n");
