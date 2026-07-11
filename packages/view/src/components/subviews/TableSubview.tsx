@@ -1,6 +1,6 @@
 import { useMemo } from "react"
 import { Table, type TableRow } from "@tooee/renderers"
-import { actionsToContextMenuEntries, useDocumentController } from "@tooee/shell"
+import { useDocumentController } from "@tooee/shell"
 import { getTextContent, type TableContent } from "../../types.js"
 import { useContentCommands } from "../../hooks/useContentCommands.js"
 import { ViewScreen } from "../ViewScreen.js"
@@ -22,14 +22,13 @@ export function TableSubview({ content, decorations, actions, ...screen }: Table
     }),
     [columns],
   )
-  const contextMenu = useMemo(() => actionsToContextMenuEntries(actions), [actions])
-
   const document = useDocumentController<TableRow>({
     rows,
     adapter,
     multiSelect: true,
     decorations,
-    contextMenu,
+    // The controller projects the screen's actions onto menu entries at open time.
+    contextMenu: actions,
   })
 
   const statusItems = useMemo(

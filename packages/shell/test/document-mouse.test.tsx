@@ -2,6 +2,7 @@ import { testRender } from "../../../test/support/test-render.ts"
 import { test, expect, afterEach, describe, beforeEach } from "bun:test"
 import { act } from "react"
 import { MouseButtons } from "@opentui/core/testing"
+import { useActions, type ActionDefinition } from "@tooee/commands"
 import { AppLayout } from "@tooee/layout"
 import type { ContextMenuEntry } from "@tooee/renderers"
 import {
@@ -13,7 +14,7 @@ import {
   type DocumentController,
   type DocumentRowEvent,
 } from "@tooee/shell"
-import { press, type TestSession } from "./support/test-helpers.ts"
+import { press, pressEnter, type TestSession } from "./support/test-helpers.ts"
 
 interface Row {
   id: string
@@ -170,6 +171,314 @@ describe("context menu", () => {
     await setup(THREE)
     await click(1, 1, MouseButtons.RIGHT)
     expect(presses).toHaveLength(0)
+  })
+})
+
+describe("variable-height rows", () => {
+  interface TallRow {
+    id: string
+    label: string
+    lines: number
+  }
+
+  const TALL_ADAPTER = {
+    getKey: (r: TallRow) => r.id,
+    getText: (r: TallRow) => r.label,
+  }
+
+  let tallHandle: DocumentController<TallRow> | null = null
+  let tallPresses: DocumentRowEvent<TallRow>[] = []
+
+  function TallHarness({ rows }: { rows: readonly TallRow[] }) {
+    const document = useDocumentController<TallRow>({
+      rows,
+      adapter: TALL_ADAPTER,
+      onRowPress: (event) => tallPresses.push(event),
+    })
+    tallHandle = document
+    return (
+      <AppLayout statusBar={{ items: [] }}>
+        <Document
+          controller={document}
+          showGutter={false}
+          style={{ flexGrow: 1 }}
+          renderRow={(r) => (
+            <box style={{ flexDirection: "column" }}>
+              {Array.from({ length: r.lines }, (_, line) => (
+                <text key={line} content={`${r.label}:${line}`} />
+              ))}
+            </box>
+          )}
+        />
+      </AppLayout>
+    )
+  }
+
+  beforeEach(() => {
+    tallPresses = []
+  })
+
+  afterEach(() => {
+    tallHandle = null
+  })
+
+  async function setupTall(rows: readonly TallRow[], height = 12) {
+    session = await testRender(
+      <TooeeProvider>
+        <TallHarness rows={rows} />
+      </TooeeProvider>,
+      { width: 40, height, kittyKeyboard: true },
+    )
+    await session.renderOnce()
+    return session
+  }
+
+  // Heights 1, 3, 2 — rows start at y=0, y=1, y=4; content ends at y=6.
+  const MIXED: TallRow[] = [
+    { id: "a", label: "alpha", lines: 1 },
+    { id: "b", label: "beta", lines: 3 },
+    { id: "c", label: "gamma", lines: 2 },
+  ]
+
+  test("every line of a multi-line row resolves to that row", async () => {
+    await setupTall(MIXED)
+
+    for (const y of [1, 2, 3]) {
+      expect(tallHandle!.getRowAtScreenY(y)).toMatchObject({ index: 1, key: "b" })
+    }
+    expect(tallHandle!.getRowAtScreenY(0)).toMatchObject({ index: 0, key: "a" })
+    expect(tallHandle!.getRowAtScreenY(4)).toMatchObject({ index: 2, key: "c" })
+    expect(tallHandle!.getRowAtScreenY(5)).toMatchObject({ index: 2, key: "c" })
+  })
+
+  test("a click on the last line of a row selects that row, not its neighbor", async () => {
+    await setupTall(MIXED)
+    await click(1, 3)
+
+    expect(tallHandle!.activeIndex).toBe(1)
+    expect(tallPresses).toHaveLength(1)
+    expect(tallPresses[0]!.key).toBe("b")
+  })
+
+  test("clicks past variable-height content are ignored", async () => {
+    await setupTall(MIXED)
+    await click(1, 6)
+    await click(1, 9)
+
+    expect(tallPresses).toHaveLength(0)
+    expect(tallHandle!.getRowAtScreenY(6)).toBeNull()
+  })
+
+  test("clicks map through a scrolled variable-height document", async () => {
+    const many = Array.from({ length: 20 }, (_, i) => ({
+      id: `r${i}`,
+      label: `row-${i}`,
+      lines: 2,
+    }))
+    await setupTall(many)
+    await press(session, "g", { shift: true })
+
+    const topLine = session.captureCharFrame().split("\n")[0]!.trim()
+    const match = topLine.match(/^row-(\d+):(\d+)$/)
+    expect(match).not.toBeNull()
+    const topIndex = Number(match![1])
+    expect(topIndex).toBeGreaterThan(0)
+
+    await click(1, 0)
+    expect(tallPresses).toHaveLength(1)
+    expect(tallPresses[0]!.index).toBe(topIndex)
+  })
+})
+
+describe("non-selectable rows", () => {
+  let sectionHandle: DocumentController<Row> | null = null
+  let sectionPresses: DocumentRowEvent<Row>[] = []
+
+  function SectionHarness({ rows }: { rows: readonly Row[] }) {
+    const document = useDocumentController<Row>({
+      rows,
+      adapter: {
+        ...ADAPTER,
+        isSelectable: (r) => !r.id.startsWith("h"),
+      },
+      onRowPress: (event) => sectionPresses.push(event),
+    })
+    sectionHandle = document
+    return (
+      <AppLayout statusBar={{ items: [] }}>
+        <Document
+          controller={document}
+          showGutter={false}
+          style={{ flexGrow: 1 }}
+          renderRow={(r) => <text content={r.label} />}
+        />
+      </AppLayout>
+    )
+  }
+
+  beforeEach(() => {
+    sectionPresses = []
+  })
+
+  afterEach(() => {
+    sectionHandle = null
+  })
+
+  test("clicking a non-selectable row reports it but leaves the cursor on a selectable row", async () => {
+    session = await testRender(
+      <TooeeProvider>
+        <SectionHarness
+          rows={[
+            { id: "h1", label: "Header" },
+            { id: "a", label: "alpha" },
+            { id: "b", label: "beta" },
+          ]}
+        />
+      </TooeeProvider>,
+      { width: 40, height: 12, kittyKeyboard: true },
+    )
+    await session.renderOnce()
+    expect(sectionHandle!.activeIndex).toBe(1)
+
+    await click(1, 2)
+    expect(sectionHandle!.activeIndex).toBe(2)
+
+    // The header is what was clicked, so the press event reports it; the
+    // cursor resolves to the nearest selectable row per navigation rules.
+    await click(1, 0)
+    expect(sectionPresses[1]!.index).toBe(0)
+    expect(sectionPresses[1]!.key).toBe("h1")
+    expect(sectionHandle!.activeIndex).toBe(1)
+  })
+})
+
+describe("action-backed context menu", () => {
+  let invoked: string[] = []
+
+  function makeActions(): ActionDefinition[] {
+    return [
+      { id: "act-open", title: "Open stream", handler: () => invoked.push("act-open") },
+      {
+        id: "act-close",
+        title: "Close stream",
+        hotkey: "x",
+        handler: () => invoked.push("act-close"),
+      },
+      {
+        id: "act-secret",
+        title: "Secret",
+        hidden: true,
+        handler: () => invoked.push("act-secret"),
+      },
+      {
+        id: "act-never",
+        title: "Never applicable",
+        when: () => false,
+        handler: () => invoked.push("act-never"),
+      },
+    ]
+  }
+
+  function ActionsHarness({ rows }: { rows: readonly Row[] }) {
+    const actions = makeActions()
+    useActions(actions)
+    const document = useDocumentController<Row>({
+      rows,
+      adapter: ADAPTER,
+      contextMenu: actions,
+    })
+    handle = document
+    return (
+      <AppLayout statusBar={{ items: [] }}>
+        <Document
+          controller={document}
+          showGutter={false}
+          style={{ flexGrow: 1 }}
+          renderRow={(r) => <text content={r.label} />}
+        />
+      </AppLayout>
+    )
+  }
+
+  beforeEach(() => {
+    invoked = []
+  })
+
+  async function setupActions() {
+    session = await testRender(
+      <TooeeProvider>
+        <ActionsHarness rows={THREE} />
+      </TooeeProvider>,
+      { width: 40, height: 12, kittyKeyboard: true },
+    )
+    await session.renderOnce()
+    return session
+  }
+
+  test("right-click builds the menu from actions, dropping hidden and inapplicable ones", async () => {
+    await setupActions()
+    await click(1, 1, MouseButtons.RIGHT)
+
+    const frame = session.captureCharFrame()
+    expect(frame).toContain("Open stream")
+    expect(frame).toContain("Close stream")
+    expect(frame).toContain(" x") // hotkey rendered from the action definition
+    expect(frame).not.toContain("Secret")
+    expect(frame).not.toContain("Never applicable")
+    expect(handle!.activeIndex).toBe(1)
+  })
+
+  test("choosing an entry invokes the action on the surface, then closes the menu", async () => {
+    await setupActions()
+    await click(1, 1, MouseButtons.RIGHT)
+
+    await pressEnter(session)
+
+    expect(invoked).toEqual(["act-open"])
+    expect(session.captureCharFrame()).not.toContain("Open stream")
+  })
+
+  test("a function menu may also return action definitions", async () => {
+    let seenKey: unknown = null
+
+    function FunctionActionsHarness({ rows }: { rows: readonly Row[] }) {
+      const actions = makeActions()
+      useActions(actions)
+      const document = useDocumentController<Row>({
+        rows,
+        adapter: ADAPTER,
+        contextMenu: (event) => {
+          seenKey = event.key
+          return actions
+        },
+      })
+      handle = document
+      return (
+        <AppLayout statusBar={{ items: [] }}>
+          <Document
+            controller={document}
+            showGutter={false}
+            style={{ flexGrow: 1 }}
+            renderRow={(r) => <text content={r.label} />}
+          />
+        </AppLayout>
+      )
+    }
+
+    session = await testRender(
+      <TooeeProvider>
+        <FunctionActionsHarness rows={THREE} />
+      </TooeeProvider>,
+      { width: 40, height: 12, kittyKeyboard: true },
+    )
+    await session.renderOnce()
+
+    await click(1, 2, MouseButtons.RIGHT)
+
+    expect(seenKey).toBe("c")
+    const frame = session.captureCharFrame()
+    expect(frame).toContain("Open stream")
+    expect(frame).not.toContain("Secret")
   })
 })
 

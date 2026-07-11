@@ -1,6 +1,6 @@
 import { useMemo } from "react"
 import { CodeView, sourceLines, sourceLineAdapter, type SourceLineRow } from "@tooee/renderers"
-import { actionsToContextMenuEntries, useDocumentController } from "@tooee/shell"
+import { useDocumentController } from "@tooee/shell"
 import type { CodeContent, TextContent } from "../../types.js"
 import { useContentCommands } from "../../hooks/useContentCommands.js"
 import { ViewScreen } from "../ViewScreen.js"
@@ -16,14 +16,14 @@ export function CodeSubview({ content, decorations, actions, ...screen }: CodeSu
   const lineRows = useMemo(() => sourceLines(textContent), [textContent])
 
   const { showLineNumbers } = useContentCommands({ content, textContent })
-  const contextMenu = useMemo(() => actionsToContextMenuEntries(actions), [actions])
 
   const document = useDocumentController<SourceLineRow>({
     rows: lineRows,
     adapter: sourceLineAdapter,
     multiSelect: true,
     decorations,
-    contextMenu,
+    // The controller projects the screen's actions onto menu entries at open time.
+    contextMenu: actions,
   })
 
   const statusItems = useMemo(
