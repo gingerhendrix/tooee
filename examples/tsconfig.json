@@ -8,5 +8,5 @@
     "composite": false,
     "emitDeclarationOnly": false
   },
-  "include": ["*.ts"]
+  "include": ["*.ts", "*.tsx"]
 }
