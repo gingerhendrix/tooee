@@ -180,6 +180,17 @@ describe("stable keys across reorder", () => {
     expect(active()).toBe("b/0")
   })
 
+  test("explicit navigation wins over a fresh rows update in the same cycle", async () => {
+    const setRows = await setupDynamic(THREE, { preserveCursorByKey: true })
+
+    await act(async () => {
+      controller().navigation.setCursor(1)
+      await setRows([...THREE])
+    })
+
+    expect(active()).toBe("b/1")
+  })
+
   test("a vanished active row clamps to the nearest selectable row", async () => {
     const setRows = await setupDynamic(THREE, { preserveCursorByKey: true })
     await press(session, "j")

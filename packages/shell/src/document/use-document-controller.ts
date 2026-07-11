@@ -282,6 +282,10 @@ export function useDocumentController<T>(
     const previousIndex = previousActiveIndexRef.current
     if (previousKey === null || previousIndex === null) return
 
+    // A cursor change committed alongside the row update is explicit navigation,
+    // so it takes precedence over preserving the previously active row.
+    if (cursorRef.current !== previousIndex) return
+
     for (let index = 0; index < rows.length; index++) {
       if (getKey(rows[index]!, index) === previousKey) {
         if (index !== cursorRef.current) setCursor(index)
