@@ -35,7 +35,7 @@
     "lint:staged": "bun scripts/check-staged-quality.ts",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
-    "react-doctor": "react-doctor . --yes --json --no-score --no-parallel --blocking none",
+    "react-doctor": "react-doctor . --project . --json --no-score --no-parallel --blocking none",
     "prepare": "lefthook install"
   },
   "devDependencies": {
