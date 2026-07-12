@@ -196,7 +196,7 @@ export const FALLBACKS: Record<string, string> = {
 export function resolveTheme(json: ThemeJSON, mode: "dark" | "light"): ResolvedTheme {
   const defs = json.defs ?? {};
 
-  function resolveColor(c: ColorValue, seen: Set<string> = new Set()): string {
+  function resolveColor(c: ColorValue, seen = new Set<string>()): string {
     if (typeof c === "string") {
       if (c === "transparent" || c === "none") return "#00000000";
       if (c.startsWith("#")) return c;

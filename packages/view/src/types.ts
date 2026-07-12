@@ -112,7 +112,7 @@ export type { ColumnDef, TableRow } from "@tooee/renderers";
 
 // === Utilities ===
 
-const BUILTIN_FORMATS: Set<string> = new Set(["markdown", "code", "text", "table"]);
+const BUILTIN_FORMATS = new Set<string>(["markdown", "code", "text", "table"]);
 
 export function isBuiltinContent(content: AnyContent): content is Content {
   return BUILTIN_FORMATS.has(content.format);
