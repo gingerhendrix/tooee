@@ -106,7 +106,7 @@ function summarizeCandidates(state: CommandSequenceState): { key: string; title:
 
   return Array.from(byKey.entries())
     .map(([key, titles]) => ({ key, title: titles.join(" / ") }))
-    .sort((a, b) => a.key.localeCompare(b.key));
+    .toSorted((a, b) => a.key.localeCompare(b.key));
 }
 
 function fallbackCandidateLabel(candidate: CommandSequenceState["candidates"][number]): string {

@@ -190,7 +190,7 @@ export function useDocumentController<T>(
 
   const selectedIndices = useMemo<readonly number[]>(() => {
     if (toggledIndices.size > 0) {
-      return Array.from(toggledIndices).sort((left, right) => left - right);
+      return Array.from(toggledIndices).toSorted((left, right) => left - right);
     }
     if (navigation.selection) {
       const indices: number[] = [];

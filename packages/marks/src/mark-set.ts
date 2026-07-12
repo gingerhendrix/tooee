@@ -20,7 +20,7 @@ export class MarkSet {
     this.namespace = namespace;
     this.priority = priority;
     const sorted = [...marks]
-      .sort((a, b) => a.range.from.line - b.range.from.line)
+      .toSorted((a, b) => a.range.from.line - b.range.from.line)
       .map(deepFreezeMark);
     this.#marks = sorted;
     const maxEnd: number[] = [];

@@ -68,7 +68,7 @@ export function loadThemes(): Map<string, ThemeJSON> {
 }
 
 export function getThemeNames(): string[] {
-  return Array.from(loadThemes().keys()).sort();
+  return Array.from(loadThemes().keys()).toSorted();
 }
 
 // ---------------------------------------------------------------------------

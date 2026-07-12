@@ -72,7 +72,7 @@ function normalizeDecorationLayers(
   layers: readonly DecorationLayer[] | undefined,
 ): readonly DecorationLayer[] {
   if (!layers || layers.length === 0) return [];
-  return [...layers].sort((a, b) => a.priority - b.priority);
+  return [...layers].toSorted((a, b) => a.priority - b.priority);
 }
 
 export function computeRowDocumentGutterWidth(opts: {

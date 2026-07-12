@@ -30,7 +30,7 @@ export function useCopy({
 
       if (toggledIndices.size > 0) {
         text = Array.from(toggledIndices)
-          .sort((left, right) => left - right)
+          .toSorted((left, right) => left - right)
           .map((index) => getRowText(index))
           .join("\n");
       } else if (selection) {

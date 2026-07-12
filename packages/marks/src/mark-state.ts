@@ -10,7 +10,7 @@ export interface MarkState {
 }
 
 function makeMarkState(sets: readonly MarkSet[]): MarkState {
-  const sortedSets = [...sets].sort((a, b) => a.priority - b.priority);
+  const sortedSets = [...sets].toSorted((a, b) => a.priority - b.priority);
   const namespaces = sortedSets.map((s) => s.namespace);
 
   return {
