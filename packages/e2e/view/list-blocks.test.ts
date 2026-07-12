@@ -17,8 +17,8 @@ describe("code blocks inside list items", () => {
     expect(text).toContain("Setup instructions");
     expect(text).toContain("npm install");
     // Code block should have border
-    expect(text).toContain("\u250C"); // top-left corner
-    expect(text).toContain("\u2514"); // bottom-left corner
+    expect(text).toContain("\u250C");
+    expect(text).toContain("\u2514");
   }, 20_000);
 
   test("multiple code blocks in list items all render", async () => {

@@ -18,7 +18,7 @@ interface ContextMenuProps {
 }
 
 const MIN_WIDTH = 16;
-const HPAD = 2; // 1 cell padding each side
+const HORIZONTAL_PADDING = 2;
 const BORDER = 2;
 
 /**
@@ -78,7 +78,7 @@ export const ContextMenu = function ContextMenu({
     }
   }
   const innerWidth = Math.max(MIN_WIDTH, longest);
-  const panelWidth = innerWidth + HPAD + BORDER;
+  const panelWidth = innerWidth + HORIZONTAL_PADDING + BORDER;
   const panelHeight = Math.max(1, entries.length) + BORDER;
 
   // Clamp on-screen: flip left/up when the anchor is near the right/bottom edge.

@@ -138,8 +138,8 @@ const buildInitialBookmarks = function buildInitialBookmarks(): MarkSet {
   const builder = new MarkSetBuilder();
 
   // Pre-bookmark the main handler function and the server startup
-  builder.addLine(16, { signBefore: "\u2691" }); // flag on handleRequest
-  builder.addLine(42, { signBefore: "\u2691" }); // flag on serve()
+  builder.addLine(16, { signBefore: "\u2691" });
+  builder.addLine(42, { signBefore: "\u2691" });
 
   return builder.build("bookmarks", MarkPriorities.USER);
 };
@@ -167,7 +167,7 @@ const streamContent = async function* streamContent(): AsyncIterable<ContentChun
     { analysis: "hot path — called on every request" },
   );
   yield {
-    set: hotPathBuilder.build("analysis:hotpath", 50), // low priority, just gutter tint
+    set: hotPathBuilder.build("analysis:hotpath", 50),
     type: "marks",
   };
 
@@ -211,7 +211,7 @@ const userDiagnostics = new Set<number>();
 const rebuildUserBookmarks = function rebuildUserBookmarks(): MarkSet {
   const builder = new MarkSetBuilder();
   for (const line of userBookmarks) {
-    builder.addLine(line, { background: "#1a1a3a", signBefore: "\u2605" }); // star
+    builder.addLine(line, { background: "#1a1a3a", signBefore: "\u2605" });
   }
   return builder.build("user:bookmarks", MarkPriorities.USER + 10);
 };

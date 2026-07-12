@@ -303,7 +303,7 @@ describe("createRouter (imperative)", () => {
 
     unsub();
     router.push("detail");
-    expect(callCount).toBe(2); // unsubscribed
+    expect(callCount).toBe(2);
   });
 
   test("getRouteDefinition returns route or undefined", () => {

@@ -71,7 +71,7 @@ describe("navigation", () => {
     await session.waitForText("Screen:settings", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("Screen:settings");
-    expect(text).toContain("Back:true"); // home still in stack below
+    expect(text).toContain("Back:true");
   }, 20_000);
 
   test("reset clears stack", async () => {

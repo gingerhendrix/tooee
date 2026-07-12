@@ -151,7 +151,7 @@ describe("useChooseDialog", () => {
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("Pick fruit");
 
-    await pressEnter(); // confirm the first (active) item
+    await pressEnter();
 
     expect(settlements).toEqual([1]);
     expect(handles.current!.stackSize()).toBe(0);
@@ -167,7 +167,7 @@ describe("useChooseDialog", () => {
     });
     await testSetup.renderOnce();
 
-    await press("n", { ctrl: true }); // move down to banana
+    await press("n", { ctrl: true });
     await pressEnter();
 
     expect(settlements).toEqual([2]);
@@ -202,8 +202,8 @@ describe("useChooseDialog", () => {
     });
     await testSetup.renderOnce();
 
-    await pressTab(); // toggle apple, move to banana
-    await pressTab(); // toggle banana, move to cherry
+    await pressTab();
+    await pressTab();
     await pressEnter();
 
     expect(settlements).toEqual([[1, 2]]);
@@ -220,8 +220,8 @@ describe("useChooseDialog", () => {
     });
     await testSetup.renderOnce();
 
-    await pressEscape(); // insert -> cursor
-    await pressEscape(); // cursor -> cancel
+    await pressEscape();
+    await pressEscape();
 
     expect(settlements).toEqual([null]);
     expect(handles.current!.stackSize()).toBe(0);
@@ -240,7 +240,7 @@ describe("useChooseDialog", () => {
       await Promise.resolve();
     });
     await testSetup.renderOnce();
-    await testSetup.renderOnce(); // flush the async load
+    await testSetup.renderOnce();
 
     await typeText("ban");
     await pressEnter();
@@ -282,7 +282,7 @@ describe("useChooseDialog", () => {
     });
     await testSetup.renderOnce();
 
-    await press("n", { ctrl: true }); // highlight the second identical row
+    await press("n", { ctrl: true });
     await pressEnter();
 
     expect(settlements).toEqual([20]);

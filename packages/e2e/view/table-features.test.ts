@@ -99,8 +99,8 @@ describe("markdown inline table", () => {
     await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     const text = await session.text();
     // TextTableRenderable renders proper box-drawing borders
-    expect(text).toContain("\u2502"); // vertical bar
-    expect(text).toContain("\u2500"); // horizontal line
+    expect(text).toContain("\u2502");
+    expect(text).toContain("\u2500");
     // Table header and first data row should be visible
     expect(text).toContain("Name");
     expect(text).toContain("Alice");

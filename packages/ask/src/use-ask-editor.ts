@@ -170,13 +170,12 @@ export const useAskEditor = function useAskEditor(
     [],
   );
 
+  // Controller mutations must be observable before React state synchronizes.
   const getText = useCallback(
     () =>
       multilineRef.current
         ? (textareaRef.current?.plainText ?? "")
-        : // Read the renderable's live text: controller mutations (insertText)
-          // must be visible before React state re-syncs on the next render.
-          (inputRef.current?.plainText ?? valueRef.current),
+        : (inputRef.current?.plainText ?? valueRef.current),
     [],
   );
 

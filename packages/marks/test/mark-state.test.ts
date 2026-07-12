@@ -117,8 +117,8 @@ describe("updateMarkState", () => {
     const updated = updateMarkState(state, "search", buildSet("search", 100, [5, 6]));
 
     expect(updated.sets).toHaveLength(2);
-    expect(updated.marksAtLine(1)).toHaveLength(1); // only cursor
-    expect(updated.marksAtLine(5)).toHaveLength(1); // new search
+    expect(updated.marksAtLine(1)).toHaveLength(1);
+    expect(updated.marksAtLine(5)).toHaveLength(1);
   });
 
   test("removes namespace when newSet is null", () => {

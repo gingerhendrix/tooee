@@ -62,7 +62,7 @@ describe("MarkSet", () => {
       // The mark starts at 10, ends at 5 — won't match lines 5-10
       // because from > to makes the range empty
       expect(set.marksAtLine(7)).toHaveLength(0);
-      expect(set.marksAtLine(10)).toHaveLength(1); // from.line matches
+      expect(set.marksAtLine(10)).toHaveLength(1);
     });
   });
 
@@ -112,11 +112,7 @@ describe("MarkSet", () => {
     test("backward scan finds long-range marks behind short ones", () => {
       // Regression: ensure early termination doesn't skip long-range marks
       // that appear before short-range marks in sorted order.
-      const set = new MarkSet("test", 100, [
-        mark(1, 100), // long range starting early
-        mark(10, 12), // short range in the middle
-        mark(20, 21), // another short range
-      ]);
+      const set = new MarkSet("test", 100, [mark(1, 100), mark(10, 12), mark(20, 21)]);
       // Line 50 is only covered by the first mark (1-100)
       expect(set.marksAtLine(50)).toHaveLength(1);
       expect(set.marksAtLine(50)[0].range.from.line).toBe(1);

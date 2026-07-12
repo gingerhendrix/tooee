@@ -462,7 +462,7 @@ describe("action-backed context menu", () => {
     const frame = session.captureCharFrame();
     expect(frame).toContain("Open stream");
     expect(frame).toContain("Close stream");
-    expect(frame).toContain(" x"); // hotkey rendered from the action definition
+    expect(frame).toContain(" x");
     expect(frame).not.toContain("Secret");
     expect(frame).not.toContain("Never applicable");
     expect(handle!.activeIndex).toBe(1);

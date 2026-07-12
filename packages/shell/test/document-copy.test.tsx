@@ -82,10 +82,10 @@ describe("copy", () => {
     await setup();
     await press(session, "j");
     await press(session, "j");
-    await pressTab(session); // c
+    await pressTab(session);
     await press(session, "k");
     await press(session, "k");
-    await pressTab(session); // a
+    await pressTab(session);
     await press(session, "v");
     await press(session, "y");
 

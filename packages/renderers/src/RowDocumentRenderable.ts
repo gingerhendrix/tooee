@@ -545,7 +545,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
       }
 
       const row = this._virtualRowToRow[vRow];
-      if (row < 0) continue; // Skip gap rows (margins)
+      if (row < 0) continue;
       const bg = rowBgs.get(row);
       if (!bg) continue;
       buffer.fillRect(vpX, vpY + screenY, vpWidth, 1, cachedColor(bg));
@@ -587,7 +587,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
       }
 
       const row = this._virtualRowToRow[vRow];
-      if (row < 0) continue; // Skip gap rows (margins)
+      if (row < 0) continue;
       const isFirstLine = this._virtualRowWraps[vRow] === 0;
 
       if (!isFirstLine) {

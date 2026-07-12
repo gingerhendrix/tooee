@@ -148,15 +148,15 @@ describe("nested Choose dialog over Ask dialog", () => {
     expect(testSetup.captureCharFrame()).toContain("Ask something");
 
     await typeText("use ");
-    await press("p", { ctrl: true }); // open the nested chooser from the ask surface
+    await press("p", { ctrl: true });
     expect(testSetup.captureCharFrame()).toContain("Pick a model");
 
     // The ask editor is suspended: this text goes to the chooser filter.
     await typeText("med");
-    await pressEnter(); // select "Medium model"
+    await pressEnter();
 
     expect(chooseSettlements).toEqual(["medium"]);
-    expect(askSettlements).toEqual([]); // Enter did NOT submit the ask dialog
+    expect(askSettlements).toEqual([]);
     expect(testSetup.captureCharFrame()).not.toContain("Pick a model");
 
     // Focus and editor value restored: further typing appends to the editor.
@@ -170,14 +170,14 @@ describe("nested Choose dialog over Ask dialog", () => {
     testSetup = await setupNested();
     await openNestedAsk();
 
-    await pressEscape(); // ask surface: insert -> cursor mode
-    expect(testSetup.captureCharFrame()).toContain("i insert"); // cursor-mode hints
+    await pressEscape();
+    expect(testSetup.captureCharFrame()).toContain("i insert");
 
     await press("p", { ctrl: true });
     expect(testSetup.captureCharFrame()).toContain("Pick a model");
 
-    await pressEscape(); // chooser: insert -> cursor
-    await pressEscape(); // chooser: cancel
+    await pressEscape();
+    await pressEscape();
 
     expect(chooseSettlements).toEqual([null]);
     expect(askSettlements).toEqual([]);
@@ -206,7 +206,7 @@ describe("nested Choose dialog over Ask dialog", () => {
     expect(occurrences).toBe(1);
 
     await pressEscape();
-    await pressEscape(); // cancel chooser
+    await pressEscape();
     expect(chooseSettlements).toEqual([null]);
 
     // Editor value preserved through the whole nested lifecycle.

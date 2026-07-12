@@ -165,8 +165,8 @@ describe("useAskDialog settlement", () => {
     testSetup = await setup();
     await openDialog(async (o) => await handles.current!.dialog.open(o), "Question?", "ask");
 
-    await pressEscape(); // dialog surface: insert -> cursor
-    await press("q"); // ask cancel
+    await pressEscape();
+    await press("q");
 
     expect(settlements).toEqual([null]);
     expect(testSetup.captureCharFrame()).toContain("stack:0");
@@ -176,12 +176,12 @@ describe("useAskDialog settlement", () => {
     testSetup = await setup();
     await openDialog(async (o) => await handles.current!.dialog.open(o), "Question?", "ask");
 
-    await pressEscape(); // dialog cursor mode; 'z' would now be dispatchable if not suspended
+    await pressEscape();
     await press("z");
     expect(hostProbeCount).toBe(0);
 
-    await press("q"); // cancel the dialog
-    await press("z"); // host command resumes
+    await press("q");
+    await press("z");
     expect(hostProbeCount).toBe(1);
     expect(settlements).toEqual([null]);
   });
@@ -208,7 +208,7 @@ describe("useAskDialog settlement", () => {
     expect(settlements).toEqual([null]);
     const frame = testSetup.captureCharFrame();
     expect(frame).toContain("REPLACEMENT");
-    expect(frame).toContain("stack:1"); // the replacement record remains
+    expect(frame).toContain("stack:1");
 
     // Closing the replacement must not settle the dialog again.
     await act(async () => {
@@ -255,15 +255,15 @@ describe("useAskDialog settlement", () => {
 
     const ids = handles.current!.stackIds();
     expect(ids.length).toBe(2);
-    expect(new Set(ids).size).toBe(2); // no fixed/global id collision
-    expect(settlements).toEqual([]); // First was NOT displaced by Second
+    expect(new Set(ids).size).toBe(2);
+    expect(settlements).toEqual([]);
 
     await typeText("two");
-    await pressEnter(); // topmost (Second) owns input and submits
+    await pressEnter();
     expect(settlements).toEqual(["second:two"]);
 
     await typeText("one");
-    await pressEnter(); // First resumes as topmost and submits
+    await pressEnter();
     expect(settlements).toEqual(["second:two", "first:one"]);
     expect(testSetup.captureCharFrame()).toContain("stack:0");
   });
@@ -300,7 +300,7 @@ describe("useAskDialog settlement", () => {
     await typeText("v");
     await act(async () => {
       submitFromCommand?.();
-      submitFromCommand?.(); // second synchronous submit must be a no-op
+      submitFromCommand?.();
       await Promise.resolve();
     });
     await testSetup.renderOnce();

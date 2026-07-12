@@ -99,8 +99,8 @@ describe("Choose raw keyboard handler with theme picker open (R-01)", () => {
 
     await pressEscape(testSetup);
     const frame = testSetup.captureCharFrame();
-    expect(frame).not.toContain("Filter themes..."); // picker closed
-    expect(cancelled).toBe(0); // app did not exit
+    expect(frame).not.toContain("Filter themes...");
+    expect(cancelled).toBe(0);
   });
 
   test("Enter selects a theme without submitting the choose selection", async () => {
@@ -113,8 +113,8 @@ describe("Choose raw keyboard handler with theme picker open (R-01)", () => {
     await openThemePicker(testSetup);
 
     await pressEnter(testSetup);
-    expect(confirmed).toBeNull(); // choose did not submit the hidden active item
-    expect(testSetup.captureCharFrame()).not.toContain("Filter themes..."); // picker closed
+    expect(confirmed).toBeNull();
+    expect(testSetup.captureCharFrame()).not.toContain("Filter themes...");
   });
 
   test("arrows do not move the hidden choose list", async () => {
@@ -128,7 +128,7 @@ describe("Choose raw keyboard handler with theme picker open (R-01)", () => {
 
     await pressArrow(testSetup, "down");
     await pressArrow(testSetup, "down");
-    await pressEscape(testSetup); // close picker (theme reverts)
+    await pressEscape(testSetup);
     expect(testSetup.captureCharFrame()).not.toContain("Filter themes...");
 
     // Confirm in cursor mode: the active item must still be the first one.

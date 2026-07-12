@@ -88,7 +88,7 @@ const ChartRenderer = function ChartRenderer({
     });
 
   if (rows.length === 0 || rows.some((row) => row.label === "" || !Number.isFinite(row.value))) {
-    return null; // fall back to the default code block
+    return null;
   }
 
   const max = Math.max(...rows.map((row) => row.value));

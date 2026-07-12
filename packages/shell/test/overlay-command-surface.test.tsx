@@ -159,10 +159,10 @@ describe("overlay-owned command surfaces", () => {
   test("parent quit cannot fire while a modal overlay is active", async () => {
     testSetup = await setup();
     await press(testSetup, "o");
-    await press(testSetup, "q"); // root quit hotkey, but overlay has no 'q' command
+    await press(testSetup, "q");
     const frame = testSetup.captureCharFrame();
-    expect(frame).toContain("quit:0"); // parent quit suspended
-    expect(frame).toContain("ASK_OVERLAY"); // overlay still open
+    expect(frame).toContain("quit:0");
+    expect(frame).toContain("ASK_OVERLAY");
   });
 
   test("overlay submit command fires and closes the overlay", async () => {
@@ -187,18 +187,18 @@ describe("overlay-owned command surfaces", () => {
   test("parent command dispatch resumes after the overlay closes", async () => {
     testSetup = await setup();
     await press(testSetup, "o");
-    await pressEscape(testSetup); // close via overlay cancel
-    await press(testSetup, "q"); // root quit works again
+    await pressEscape(testSetup);
+    await press(testSetup, "q");
     expect(testSetup.captureCharFrame()).toContain("quit:1");
   });
 
   test("local overlay mode does not leak into the root mode", async () => {
     testSetup = await setup();
     await press(testSetup, "o");
-    await press(testSetup, "i"); // overlay: setMode("insert")
+    await press(testSetup, "i");
     const frame = testSetup.captureCharFrame();
-    expect(frame).toContain("askmode:insert"); // overlay-local mode changed
-    expect(frame).toContain("rootmode:cursor"); // host mode untouched
+    expect(frame).toContain("askmode:insert");
+    expect(frame).toContain("rootmode:cursor");
   });
 
   test("a passive overlay does not steal keyboard focus from the root", async () => {
@@ -206,11 +206,11 @@ describe("overlay-owned command surfaces", () => {
     await press(testSetup, "p");
     const opened = testSetup.captureCharFrame();
     expect(opened).toContain("PASSIVE_OVERLAY");
-    expect(opened).toContain("active:root"); // passive overlay is not the keyboard owner
+    expect(opened).toContain("active:root");
 
-    await press(testSetup, "q"); // 'q' is bound on both root and the passive surface
+    await press(testSetup, "q");
     const frame = testSetup.captureCharFrame();
-    expect(frame).toContain("quit:1"); // root quit fired
-    expect(frame).toContain("passiveAction:0"); // passive surface command never fired
+    expect(frame).toContain("quit:1");
+    expect(frame).toContain("passiveAction:0");
   });
 });

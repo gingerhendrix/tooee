@@ -82,7 +82,7 @@ const PRIORITY_INDICATORS: Record<string, string> = {
 };
 
 const COLUMN_WIDTH = 36;
-const CARD_INNER_WIDTH = COLUMN_WIDTH - 4; // borders + padding
+const CARD_INNER_WIDTH = COLUMN_WIDTH - 4;
 
 const truncateText = function truncateText(text: string, maxLen: number): string {
   if (text.length <= maxLen) {

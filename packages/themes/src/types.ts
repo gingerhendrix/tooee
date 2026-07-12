@@ -203,7 +203,7 @@ export const resolveTheme = function resolveTheme(
     if (typeof c === "string") {
       if (c === "transparent" || c === "none") return "#00000000";
       if (c.startsWith("#")) return c;
-      if (seen.has(c)) return "#808080"; // reference cycle — fall back like an unknown ref
+      if (seen.has(c)) return "#808080";
       if (defs[c] != null) return resolveColor(defs[c] as ColorValue, new Set(seen).add(c));
       if (json.theme[c] !== undefined)
         return resolveColor(json.theme[c] as ColorValue, new Set(seen).add(c));

@@ -3,6 +3,8 @@ import type { Token, Tokens } from "marked";
 import { SourceIndex } from "./source.js";
 import type { DocumentRowSource } from "./source.js";
 
+const LINE_FEED_CODE = 10;
+
 // ---------------------------------------------------------------------------
 // Flat block model
 // ---------------------------------------------------------------------------
@@ -15,8 +17,8 @@ import type { DocumentRowSource } from "./source.js";
 export interface FlatBlock {
   token: Token;
   indent: number;
-  bullet?: string; // "- " or "1. " for list item lines
-  checked?: boolean; // undefined = not a checkbox, true/false = checkbox state
+  bullet?: string;
+  checked?: boolean;
 
   /** Provenance in the Markdown input; `null` only if resolution genuinely failed. */
   source: DocumentRowSource | null;
@@ -135,7 +137,7 @@ class MarkdownResolver {
     let n = 0;
     while (n < raw.length) {
       const code = raw.charCodeAt(n);
-      if (code === 10 /* \n */) {
+      if (code === LINE_FEED_CODE) {
         if (h + 1 < length && md.charCodeAt(h) === 13 && md.charCodeAt(h + 1) === 10) {
           h += 2;
         } else if (h < length && md.charCodeAt(h) === 10) {

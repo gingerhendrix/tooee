@@ -42,7 +42,7 @@ describe("stackReducer", () => {
   test("pop is no-op at stack bottom", () => {
     const state = makeState("home");
     const next = stackReducer(state, { type: "pop" });
-    expect(next).toBe(state); // same reference
+    expect(next).toBe(state);
     expect(next.stack).toHaveLength(1);
   });
 

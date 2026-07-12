@@ -36,7 +36,7 @@ export interface TableProps {
 }
 
 const PADDING = 1;
-const MARGIN = 1; // horizontal margin on each side of the table
+const TABLE_MARGIN = 1;
 const DEFAULT_MIN_COL_WIDTH = 4;
 const DEFAULT_MAX_COL_WIDTH = 80;
 const DEFAULT_SAMPLE_SIZE = 100;
@@ -180,7 +180,10 @@ export const Table = function Table({
       }),
     [showLineNumbers, rows.length],
   );
-  const effectiveMaxWidth = Math.max(0, (maxWidth ?? terminalWidth) - MARGIN * 2 - gutterWidth);
+  const effectiveMaxWidth = Math.max(
+    0,
+    (maxWidth ?? terminalWidth) - TABLE_MARGIN * 2 - gutterWidth,
+  );
 
   const headers = useMemo(() => columns.map((column) => column.header ?? column.key), [columns]);
   const normalizedRows = useMemo(
@@ -261,9 +264,9 @@ export const Table = function Table({
       style={{
         flexDirection: "column",
         flexGrow: 1,
-        marginBottom: MARGIN,
-        marginLeft: MARGIN,
-        marginRight: MARGIN,
+        marginBottom: TABLE_MARGIN,
+        marginLeft: TABLE_MARGIN,
+        marginRight: TABLE_MARGIN,
       }}
     >
       {/* Fixed header row — outside row-document so it stays visible */}

@@ -31,8 +31,8 @@ describe("markdown code block rendering", () => {
     session = await launchView("mixed-content.md");
     const text = await session.text();
     // Top and bottom box-drawing borders should be present
-    expect(text).toContain("\u250C"); // top-left corner
-    expect(text).toContain("\u2514"); // bottom-left corner
+    expect(text).toContain("\u250C");
+    expect(text).toContain("\u2514");
   }, 20_000);
 });
 

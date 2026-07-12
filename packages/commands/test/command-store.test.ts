@@ -236,8 +236,8 @@ describe("command store — key dispatch", () => {
     registry.register(command("ins", "i", { handler: () => fired++, modes: ["insert"] }));
     registry.register(command("gated", "g", { handler: () => gated++, when: () => false }));
 
-    expect(cs.key(key("i")).handled).toBe(false); // wrong mode
-    expect(cs.key(key("g")).handled).toBe(false); // when() gate
+    expect(cs.key(key("i")).handled).toBe(false);
+    expect(cs.key(key("g")).handled).toBe(false);
 
     mode = "insert";
     const result = cs.key(key("i"));
@@ -320,7 +320,7 @@ describe("command store — key dispatch", () => {
     expect(selectSequence(cs.store.getSnapshot().context)).toBeNull();
 
     // Pop with a pending sequence on the surface: also clears.
-    cs.registryFor(cs.rootRecord); // root chord again after pop
+    cs.registryFor(cs.rootRecord);
     pop();
     expect(selectSequence(cs.store.getSnapshot().context)).toBeNull();
   });

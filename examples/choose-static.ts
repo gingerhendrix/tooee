@@ -19,31 +19,31 @@ import type { ChooseItem } from "@tooee/choose";
 const colors: ChooseItem[] = [
   {
     description: "A warm, energetic color",
-    icon: "\u{1F534}", // Red circle emoji
+    icon: "\u{1F534}",
     text: "Red",
     value: "red",
   },
   {
     description: "The color of nature and growth",
-    icon: "\u{1F7E2}", // Green circle emoji
+    icon: "\u{1F7E2}",
     text: "Green",
     value: "green",
   },
   {
     description: "A calm, trustworthy color",
-    icon: "\u{1F535}", // Blue circle emoji
+    icon: "\u{1F535}",
     text: "Blue",
     value: "blue",
   },
   {
     description: "Bright and cheerful",
-    icon: "\u{1F7E1}", // Yellow circle emoji
+    icon: "\u{1F7E1}",
     text: "Yellow",
     value: "yellow",
   },
   {
     description: "Royal and creative",
-    icon: "\u{1F7E3}", // Purple circle emoji
+    icon: "\u{1F7E3}",
     text: "Purple",
     value: "purple",
   },

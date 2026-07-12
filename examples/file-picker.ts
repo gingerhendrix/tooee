@@ -12,6 +12,8 @@
 import { launch } from "@tooee/choose";
 import type { ChooseItem } from "@tooee/choose";
 
+const MAX_FILE_RESULTS = 1000;
+
 const commandExists = async function commandExists(cmd: string): Promise<boolean> {
   const proc = Bun.spawn(["which", cmd], { stderr: "pipe", stdout: "pipe" });
   await proc.exited;
@@ -24,7 +26,16 @@ const fileProvider = {
     const hasFd = await commandExists("fd");
 
     const proc = hasFd
-      ? Bun.spawn(["fd", "--type", "f", "--hidden", "--exclude", ".git", "--max-results", "1000"])
+      ? Bun.spawn([
+          "fd",
+          "--type",
+          "f",
+          "--hidden",
+          "--exclude",
+          ".git",
+          "--max-results",
+          String(MAX_FILE_RESULTS),
+        ])
       : Bun.spawn(["find", ".", "-type", "f", "-not", "-path", "*/.git/*", "-maxdepth", "10"]);
 
     const text = await new Response(proc.stdout).text();
@@ -34,7 +45,7 @@ const fileProvider = {
       return [{ text: "Failed to list files", value: "" }];
     }
 
-    const files = text.trim().split("\n").filter(Boolean).slice(0, 1000); // Limit for performance
+    const files = text.trim().split("\n").filter(Boolean).slice(0, MAX_FILE_RESULTS);
 
     if (files.length === 0) {
       return [{ text: "No files found", value: "" }];

@@ -130,11 +130,11 @@ describe("Table component", () => {
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
     // No box-drawing vertical borders or corners
-    expect(frame).not.toContain("\u2502"); // │
-    expect(frame).not.toContain("\u250C"); // ┌
-    expect(frame).not.toContain("\u2510"); // ┐
-    expect(frame).not.toContain("\u2514"); // └
-    expect(frame).not.toContain("\u2518"); // ┘
+    expect(frame).not.toContain("\u2502");
+    expect(frame).not.toContain("\u250C");
+    expect(frame).not.toContain("\u2510");
+    expect(frame).not.toContain("\u2514");
+    expect(frame).not.toContain("\u2518");
   });
 
   test("numbers right-aligned", async () => {

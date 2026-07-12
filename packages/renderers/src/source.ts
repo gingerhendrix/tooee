@@ -55,11 +55,14 @@ export interface DocumentRowAnchor<T> {
 // Line index and span construction
 // ---------------------------------------------------------------------------
 
+const LINE_FEED_CODE = 10;
+const CARRIAGE_RETURN_CODE = 13;
+
 /** Offsets of the first character of every physical line. */
 const buildLineStarts = function buildLineStarts(text: string): number[] {
   const starts = [0];
   for (let i = 0; i < text.length; i += 1) {
-    if (text.charCodeAt(i) === 10 /* \n */) starts.push(i + 1);
+    if (text.charCodeAt(i) === LINE_FEED_CODE) starts.push(i + 1);
   }
   return starts;
 };
@@ -102,9 +105,9 @@ export class SourceIndex {
     const starts = this.lineStarts;
     const nextStart = line + 1 < starts.length ? starts[line + 1]! : this.text.length;
     let end = nextStart;
-    if (end > starts[line]! && this.text.charCodeAt(end - 1) === 10) {
+    if (end > starts[line]! && this.text.charCodeAt(end - 1) === LINE_FEED_CODE) {
       end -= 1;
-      if (end > starts[line]! && this.text.charCodeAt(end - 1) === 13 /* \r */) end--;
+      if (end > starts[line]! && this.text.charCodeAt(end - 1) === CARRIAGE_RETURN_CODE) end--;
     }
     return end;
   }

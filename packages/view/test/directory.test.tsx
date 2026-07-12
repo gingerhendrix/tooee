@@ -92,7 +92,7 @@ test("l at last file stays on last file", async () => {
   testSetup = await setup();
   await press(testSetup, "l");
   await press(testSetup, "l");
-  await press(testSetup, "l"); // past end
+  await press(testSetup, "l");
   const frame = testSetup.captureCharFrame();
   expect(frame).toContain("gamma.txt");
   expect(frame).toContain("3/3");

@@ -400,7 +400,7 @@ describe("inline table rendering", () => {
     expect(frame).toContain("Bob");
     expect(frame).toContain("Carol");
     // Header underline should be present (clean minimal style, no box borders)
-    expect(frame).toContain("\u2500"); // horizontal line under header
+    expect(frame).toContain("\u2500");
   });
 
   test("table with many rows shows all content", async () => {
@@ -594,8 +594,8 @@ describe("code block inside list item", () => {
     const frame = testSetup.captureCharFrame();
     expect(frame).toContain("const x = 1");
     // Code block should have border characters
-    expect(frame).toContain("\u250C"); // top-left corner
-    expect(frame).toContain("\u2514"); // bottom-left corner
+    expect(frame).toContain("\u250C");
+    expect(frame).toContain("\u2514");
   });
 });
 
@@ -731,7 +731,7 @@ describe("horizontal rule inside list item", () => {
     const frame = testSetup.captureCharFrame();
     expect(frame).toContain("Before");
     expect(frame).toContain("After");
-    expect(frame).toContain("─"); // HR character
+    expect(frame).toContain("─");
   });
 });
 

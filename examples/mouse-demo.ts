@@ -87,7 +87,7 @@ const actions: ActionDefinition[] = [
       ctx.toast.toast({ level: "info", message: `Open ${activeName(ctx)}` });
     },
     hotkey: "o",
-    icon: "\u{1F4C2}", // open folder
+    icon: "\u{1F4C2}",
     id: "row.open",
     modes: ["cursor"],
     title: "Open",
@@ -97,7 +97,7 @@ const actions: ActionDefinition[] = [
       ctx.toast.toast({ level: "success", message: `Copied "${activeName(ctx)}"` });
     },
     hotkey: "y",
-    icon: "\u{1F4CB}", // clipboard
+    icon: "\u{1F4CB}",
     id: "row.copy-name",
     modes: ["cursor"],
     title: "Copy name",
@@ -107,7 +107,7 @@ const actions: ActionDefinition[] = [
       ctx.toast.toast({ level: "success", message: `Marked ${activeName(ctx)} done` });
     },
     hotkey: "x",
-    icon: "\u{2713}", // check
+    icon: "\u{2713}",
     id: "row.mark-done",
     modes: ["cursor"],
     title: "Mark done",
@@ -116,7 +116,7 @@ const actions: ActionDefinition[] = [
     handler: (ctx) => {
       ctx.toast.toast({ level: "warning", message: `Delete ${activeName(ctx)} (demo only)` });
     },
-    icon: "\u{1F5D1}", // wastebasket
+    icon: "\u{1F5D1}",
     id: "row.delete",
     modes: ["cursor"],
     title: "Delete",

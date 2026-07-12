@@ -265,7 +265,7 @@ describe("overlay lifecycle correctness (R-04)", () => {
     testSetup = await setup(<ReplaceHarness />);
     await press(testSetup, "a");
     expect(reasons).toEqual([]);
-    await press(testSetup, "a"); // same id again: first entry is replaced
+    await press(testSetup, "a");
     expect(reasons).toEqual(["replaced"]);
   });
 
@@ -324,16 +324,16 @@ describe("overlay lifecycle correctness (R-04)", () => {
     testSetup = await setup(<BuriedHarness />);
     expect(testSetup.captureCharFrame()).toContain("hostmode:cursor");
 
-    await press(testSetup, "u"); // legacy overlay "under" sets insert
+    await press(testSetup, "u");
     expect(testSetup.captureCharFrame()).toContain("hostmode:insert");
 
-    await press(testSetup, "v"); // legacy overlay "over" sets select
+    await press(testSetup, "v");
     expect(testSetup.captureCharFrame()).toContain("hostmode:select");
 
-    await press(testSetup, "w"); // close buried "under": must not restore its prevMode
+    await press(testSetup, "w");
     expect(testSetup.captureCharFrame()).toContain("hostmode:select");
 
-    await press(testSetup, "x"); // close top "over": restores its prevMode
+    await press(testSetup, "x");
     expect(testSetup.captureCharFrame()).toContain("hostmode:insert");
   });
 });

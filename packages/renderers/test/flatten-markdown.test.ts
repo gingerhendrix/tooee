@@ -249,7 +249,7 @@ describe("flattenMarkdown row order and provenance", () => {
       {
         bullet: "2. ",
         source: { e: 11, ec: 2, el: 1, last: 1, line: "2.", s: 9, sc: 0, sl: 1, t: "2." },
-        text: "2. ", // synthetic: visible bullet text, non-empty for search/copy
+        text: "2. ",
         type: "text",
       },
       {

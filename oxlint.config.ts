@@ -33,7 +33,6 @@ export default defineConfig({
     "no-empty": "off",
     "no-empty-function": "off",
     "no-eq-null": "off",
-    "no-inline-comments": "off",
     "no-lonely-if": "off",
     "no-negated-condition": "off",
     "no-nested-ternary": "off",

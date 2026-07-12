@@ -239,7 +239,7 @@ describe("stable keys across reorder", () => {
 
   test("toggled rows keep their identity across a reorder", async () => {
     const setRows = await setupDynamic(THREE, { multiSelect: true });
-    await pressTab(session); // toggle "a" at index 0
+    await pressTab(session);
     expect(controller().selectedRows.map((r) => r.id)).toEqual(["a"]);
 
     await setRows([row("c"), row("b"), row("a")]);
@@ -253,10 +253,10 @@ describe("selection", () => {
     await setup(THREE, { multiSelect: true });
     await press(session, "j");
     await press(session, "j");
-    await pressTab(session); // c
+    await pressTab(session);
     await press(session, "k");
     await press(session, "k");
-    await pressTab(session); // a
+    await pressTab(session);
 
     expect(Array.from(controller().toggledIndices)).toEqual([0, 2]);
     expect(controller().selectedRows.map((r) => r.id)).toEqual(["a", "c"]);
@@ -376,7 +376,7 @@ describe("decorations", () => {
 
   test("search, toggled, current-match and cursor layers compose", async () => {
     await setup([row("a", "alpha"), row("b", "beta"), row("c", "alto")], { multiSelect: true });
-    await pressTab(session); // toggle row 0
+    await pressTab(session);
     await press(session, "/");
     await act(async () => {
       controller().search!.setSearchQuery("al");
