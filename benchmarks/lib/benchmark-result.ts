@@ -103,7 +103,7 @@ export const aggregateMetric = function aggregateMetric(
 
 export const printMetric = function printMetric(name: string, value: number): void {
   if (!Number.isFinite(value)) {
-    throw new Error(`Metric ${name} is not finite: ${value}`);
+    throw new TypeError(`Metric ${name} is not finite: ${value}`);
   }
   console.log(`METRIC ${name}=${value}`);
 };
