@@ -28,7 +28,7 @@ export function ThemePicker({
   const [filter, setFilter] = useState("");
   const [activeIndex, setActiveIndex] = useState(() => {
     const idx = entries.findIndex((e) => e.id === currentTheme);
-    return idx >= 0 ? idx : 0;
+    return Math.max(idx, 0);
   });
 
   const filtered = useMemo(() => {
