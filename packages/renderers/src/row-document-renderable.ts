@@ -148,9 +148,17 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   // Decorations
   // -----------------------------------------------------------------------
 
+  get decorations(): readonly DecorationLayer[] {
+    return this._layers;
+  }
+
   set decorations(layers: readonly DecorationLayer[] | undefined) {
     this._layers = normalizeDecorationLayers(layers);
     this.requestRender();
+  }
+
+  get palette(): Required<RowDocumentPalette> {
+    return this._palette;
   }
 
   set palette(palette: RowDocumentPalette | undefined) {
@@ -162,12 +170,20 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   // Gutter config setters
   // -----------------------------------------------------------------------
 
+  get showGutter(): boolean {
+    return this._showGutter;
+  }
+
   set showGutter(value: boolean) {
     if (this._showGutter !== value) {
       this._showGutter = value;
       this._applyGutterPadding();
       this.requestRender();
     }
+  }
+
+  get showLineNumbers(): boolean {
+    return this._showLineNumbers;
   }
 
   set showLineNumbers(value: boolean) {
@@ -294,6 +310,9 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
         } else if (virtualTop + virtualHeight > this.scrollTop + vpHeight) {
           target = virtualTop + virtualHeight - vpHeight;
         }
+        break;
+      }
+      default: {
         break;
       }
     }
