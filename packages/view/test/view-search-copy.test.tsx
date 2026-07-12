@@ -6,7 +6,7 @@ import type { AnyContent, ContentProvider } from "../src/types.js";
 
 const { TooeeProvider } = await import("@tooee/shell");
 const { MarkSetBuilder, MarkPriorities } = await import("@tooee/marks");
-const { View } = await import("../src/View.js");
+const { View } = await import("../src/view.js");
 
 const staticProvider = function staticProvider(
   content: AnyContent,

@@ -1,8 +1,8 @@
 export { useDocumentController } from "./use-document-controller.js";
-export { Document } from "./Document.js";
-export type { DocumentProps, RowDocumentProps } from "./Document.js";
-export { DocumentScreen } from "./DocumentScreen.js";
-export type { DocumentScreenProps } from "./DocumentScreen.js";
+export { Document } from "./document.js";
+export type { DocumentProps, RowDocumentProps } from "./document.js";
+export { DocumentScreen } from "./document-screen.js";
+export type { DocumentScreenProps } from "./document-screen.js";
 export { buildInteractionDecorations } from "./decorations.js";
 export type { InteractionDecorationInput } from "./decorations.js";
 export { useProvideDocumentCommandContext } from "./command-context.js";

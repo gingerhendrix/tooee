@@ -3,8 +3,8 @@ import type { ReactNode, Ref } from "react";
 import type { ActionDefinition } from "@tooee/commands";
 import { useOverlay } from "@tooee/overlays";
 import type { OverlayHandle } from "@tooee/overlays";
-import { AskOverlay } from "./AskOverlay.js";
-import type { AskPanelProps } from "./AskPanel.js";
+import { AskOverlay } from "./ask-overlay.js";
+import type { AskPanelProps } from "./ask-panel.js";
 import type { AskEditorController } from "./use-ask-editor.js";
 
 /**

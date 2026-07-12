@@ -1,11 +1,11 @@
-export { Ask } from "./Ask.js";
-export type { AskProps } from "./Ask.js";
-export { AskOverlay } from "./AskOverlay.js";
-export type { AskOverlayProps } from "./AskOverlay.js";
-export { AskPanel, buildAskHints } from "./AskPanel.js";
-export type { AskPanelProps, AskPanelInset, AskPanelInsetValue } from "./AskPanel.js";
-export { AskEditor } from "./AskEditor.js";
-export type { AskEditorProps } from "./AskEditor.js";
+export { Ask } from "./ask.js";
+export type { AskProps } from "./ask.js";
+export { AskOverlay } from "./ask-overlay.js";
+export type { AskOverlayProps } from "./ask-overlay.js";
+export { AskPanel, buildAskHints } from "./ask-panel.js";
+export type { AskPanelProps, AskPanelInset, AskPanelInsetValue } from "./ask-panel.js";
+export { AskEditor } from "./ask-editor.js";
+export type { AskEditorProps } from "./ask-editor.js";
 export { useAskEditor } from "./use-ask-editor.js";
 export type {
   AskEditorCommandGroup,

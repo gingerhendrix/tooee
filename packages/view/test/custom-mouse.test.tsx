@@ -3,7 +3,7 @@ import { test, expect, afterEach, describe } from "bun:test";
 import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
 import { TooeeProvider } from "@tooee/shell";
-import { View } from "../src/View.js";
+import { View } from "../src/view.js";
 import type { AnyContent, ContentProvider, ContentRenderer } from "../src/types.js";
 
 const CONTENT: AnyContent = {

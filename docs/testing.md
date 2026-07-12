@@ -20,21 +20,21 @@ Use OpenTUI's headless test renderer via `@opentui/react/test-utils`. These are 
 
 ### What's tested
 
-| File                                   | Covers                                                  |
-| -------------------------------------- | ------------------------------------------------------- |
-| `layout/test/TitleBar.test.tsx`        | Title and subtitle rendering                            |
-| `layout/test/StatusBar.test.tsx`       | Label:value pairs                                       |
-| `layout/test/AppLayout.test.tsx`       | Full layout chrome (title bar, status bar, scroll area) |
-| `renderers/test/MarkdownView.test.tsx` | Heading, list, code block rendering                     |
-| `renderers/test/CodeView.test.tsx`     | Code content and line numbers                           |
-| `renderers/test/Table.test.tsx`        | Table rendering                                         |
-| `renderers/test/parsers.test.ts`       | Table parser logic                                      |
-| `shell/test/modal.test.tsx`            | j/k scroll, gg/G jump, ctrl+d/u, mode transitions       |
-| `shell/test/search.test.tsx`           | findMatchingLines, search activation/cancel/navigation  |
-| `shell/test/cursor.test.tsx`           | Cursor/select mode transitions, movement, selection     |
-| `shell/test/command-palette.test.tsx`  | Palette open/close, entry filtering                     |
-| `shell/test/commands.test.tsx`         | Theme cycling (t/T), quit (q)                           |
-| `choose/test/fuzzy.test.ts`            | Fuzzy filter scoring, matching, sorting                 |
+| File                                    | Covers                                                  |
+| --------------------------------------- | ------------------------------------------------------- |
+| `layout/test/title-bar.test.tsx`        | Title and subtitle rendering                            |
+| `layout/test/status-bar.test.tsx`       | Label:value pairs                                       |
+| `layout/test/app-layout.test.tsx`       | Full layout chrome (title bar, status bar, scroll area) |
+| `renderers/test/markdown-view.test.tsx` | Heading, list, code block rendering                     |
+| `renderers/test/code-view.test.tsx`     | Code content and line numbers                           |
+| `renderers/test/table.test.tsx`         | Table rendering                                         |
+| `renderers/test/parsers.test.ts`        | Table parser logic                                      |
+| `shell/test/modal.test.tsx`             | j/k scroll, gg/G jump, ctrl+d/u, mode transitions       |
+| `shell/test/search.test.tsx`            | findMatchingLines, search activation/cancel/navigation  |
+| `shell/test/cursor.test.tsx`            | Cursor/select mode transitions, movement, selection     |
+| `shell/test/command-palette.test.tsx`   | Palette open/close, entry filtering                     |
+| `shell/test/commands.test.tsx`          | Theme cycling (t/T), quit (q)                           |
+| `choose/test/fuzzy.test.ts`             | Fuzzy filter scoring, matching, sorting                 |
 
 ### Pattern
 

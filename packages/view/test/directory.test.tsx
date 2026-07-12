@@ -3,7 +3,7 @@ import { test, expect, afterEach, describe } from "bun:test";
 import { act } from "react";
 import { resolve } from "node:path";
 import { TooeeProvider } from "@tooee/shell";
-import { DirectoryView } from "../src/DirectoryView.js";
+import { DirectoryView } from "../src/directory-view.js";
 import { listDirectoryFiles } from "../src/directory-provider.js";
 
 const TEST_DIR = resolve(import.meta.dir, "fixtures/test-dir");

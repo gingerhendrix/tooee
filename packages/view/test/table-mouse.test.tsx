@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 import { MouseButtons } from "@opentui/core/testing";
 import { TooeeProvider } from "@tooee/shell";
 import type { ActionDefinition } from "@tooee/commands";
-import { View } from "../src/View.js";
+import { View } from "../src/view.js";
 import { createTableFileProvider } from "../src/default-provider.js";
 
 const CSV = resolve(import.meta.dir, "fixtures/data.csv");

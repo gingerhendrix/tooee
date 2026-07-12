@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 import type { ActionDefinition } from "@tooee/commands";
 import { useOverlay } from "@tooee/overlays";
 import type { OverlayHandle } from "@tooee/overlays";
-import { ChooseOverlay } from "./ChooseOverlay.js";
-import type { ChooseListProps } from "./ChooseList.js";
-import type { ChoosePanelProps } from "./ChoosePanel.js";
+import { ChooseOverlay } from "./choose-overlay.js";
+import type { ChooseListProps } from "./choose-list.js";
+import type { ChoosePanelProps } from "./choose-panel.js";
 import type { ChooseItem, ChooseSource } from "./types.js";
 
 /**

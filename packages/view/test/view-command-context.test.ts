@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { createViewCommandContext } from "../src/hooks/useViewCommandContext.js";
+import { createViewCommandContext } from "../src/hooks/use-view-command-context.js";
 import { MarkSet } from "@tooee/marks";
 
 const providerMark = new MarkSet("provider", 1, []);

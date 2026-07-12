@@ -1,6 +1,6 @@
 import { runCliSession } from "@tooee/shell";
 import type { ActionDefinition } from "@tooee/commands";
-import { Choose } from "./Choose.js";
+import { Choose } from "./choose.js";
 import type { ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.js";
 
 export interface ChooseLaunchOptions {

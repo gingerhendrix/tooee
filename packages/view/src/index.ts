@@ -1,5 +1,5 @@
-export { View } from "./View.js";
-export { DirectoryView } from "./DirectoryView.js";
+export { View } from "./view.js";
+export { DirectoryView } from "./directory-view.js";
 export { launch, launchDirectory } from "./launch.js";
 export type { ViewLaunchOptions } from "./launch.js";
 export {
@@ -14,12 +14,12 @@ export type { DirectoryEntry } from "./directory-provider.js";
 export {
   createViewCommandContext,
   useProvideViewCommandContext,
-} from "./hooks/useViewCommandContext.js";
+} from "./hooks/use-view-command-context.js";
 export type {
   CreateViewCommandContextOptions,
   ProvideViewCommandContextOptions,
   ViewCommandContext,
-} from "./hooks/useViewCommandContext.js";
+} from "./hooks/use-view-command-context.js";
 export type {
   AnyContent,
   Content,

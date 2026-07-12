@@ -5,8 +5,8 @@ import { useCommandContext } from "@tooee/commands";
 import type { ActionDefinition, CommandContext } from "@tooee/commands";
 import { TooeeProvider } from "@tooee/shell";
 import type { DocumentCommandContext } from "@tooee/shell";
-import { View } from "../src/View.js";
-import type { ViewCommandContext } from "../src/hooks/useViewCommandContext.js";
+import { View } from "../src/view.js";
+import type { ViewCommandContext } from "../src/hooks/use-view-command-context.js";
 import type { AnyContent, ContentProvider } from "../src/types.js";
 
 const staticProvider = function staticProvider(content: AnyContent): ContentProvider {

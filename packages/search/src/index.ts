@@ -22,5 +22,5 @@ export {
 } from "./nav-search-store.js";
 export type { UseSearchOptions, SearchState } from "./search-hook.js";
 export { findMatchingLines } from "./search.js";
-export { SearchBar } from "./SearchBar.js";
-export type { SearchBarProps } from "./SearchBar.js";
+export { SearchBar } from "./search-bar.js";
+export type { SearchBarProps } from "./search-bar.js";

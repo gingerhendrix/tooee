@@ -48,7 +48,7 @@ const files: FileRow[] = [
   { kind: "config", modified: "yesterday", name: "package.json", size: "1.9 KB" },
   { kind: "source", modified: "10 min ago", name: "src/index.ts", size: "812 B" },
   { kind: "source", modified: "10 min ago", name: "src/launch.tsx", size: "1.2 KB" },
-  { kind: "source", modified: "1 hour ago", name: "src/View.tsx", size: "4.4 KB" },
+  { kind: "source", modified: "1 hour ago", name: "src/view.tsx", size: "4.4 KB" },
   { kind: "config", modified: "3 days ago", name: "tsconfig.json", size: "740 B" },
   { kind: "lock", modified: "1 hour ago", name: "bun.lock", size: "38 KB" },
   { kind: "doc", modified: "yesterday", name: "docs/testing.md", size: "6.7 KB" },

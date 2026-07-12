@@ -4,7 +4,7 @@ import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
 import { TooeeProvider } from "@tooee/shell";
 import type { ActionDefinition } from "@tooee/commands";
-import { View } from "../src/View.js";
+import { View } from "../src/view.js";
 import type { AnyContent, ContentProvider } from "../src/types.js";
 
 const staticProvider = function staticProvider(content: AnyContent): ContentProvider {

@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { useCommand, useCommandContext, useMode } from "@tooee/commands";
 import { useOverlay } from "@tooee/overlays";
 import type { OverlayCloseReason } from "@tooee/overlays";
-import { CommandPaletteOverlay } from "./CommandPaletteOverlay.js";
+import { CommandPaletteOverlay } from "./command-palette-overlay.js";
 
 const OVERLAY_ID = "command-palette";
 

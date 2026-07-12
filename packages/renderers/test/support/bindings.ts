@@ -1,8 +1,8 @@
 import { useRef } from "react";
 import type { MouseEvent } from "@opentui/core";
-import type { DecorationLayer } from "../../src/DecorationLayer.js";
-import type { DocumentBindings } from "../../src/DocumentBindings.js";
-import type { RowDocumentRenderable } from "../../src/RowDocumentRenderable.js";
+import type { DecorationLayer } from "../../src/decoration-layer.js";
+import type { DocumentBindings } from "../../src/document-bindings.js";
+import type { RowDocumentRenderable } from "../../src/row-document-renderable.js";
 
 const NO_DECORATIONS: readonly DecorationLayer[] = [];
 

@@ -12,7 +12,7 @@ export default defineConfig({
   },
   overrides: [
     {
-      files: ["packages/renderers/src/RowDocumentRenderable.ts"],
+      files: ["packages/renderers/src/row-document-renderable.ts"],
       rules: {
         "no-underscore-dangle": "off",
       },
@@ -85,7 +85,6 @@ export default defineConfig({
     "unicorn/catch-error-name": "off",
     "unicorn/consistent-existence-index-check": "off",
     "unicorn/consistent-function-scoping": "off",
-    "unicorn/filename-case": "off",
     "unicorn/import-style": "off",
     "unicorn/no-array-for-each": "off",
     "unicorn/no-array-method-this-argument": "off",

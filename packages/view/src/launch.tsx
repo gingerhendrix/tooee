@@ -1,8 +1,8 @@
 import { launchCli } from "@tooee/shell";
 import type { ActionDefinition } from "@tooee/commands";
 import type { CodeBlockRenderer } from "@tooee/renderers";
-import { View } from "./View.js";
-import { DirectoryView } from "./DirectoryView.js";
+import { View } from "./view.js";
+import { DirectoryView } from "./directory-view.js";
 import type { ContentProvider, ContentRenderer } from "./types.js";
 
 export interface ViewLaunchOptions {
