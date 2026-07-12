@@ -58,7 +58,8 @@ describe("custom code block renderers e2e", () => {
 
   test("built-in mermaid renders via the registry", async () => {
     session = await launchDemo();
-    await session.press("G"); // jump to the end where the diagram is
+    // Jump to the end where the diagram is.
+    await session.press(["shift", "g"]);
     await session.waitForText("Registry", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("Markdown");

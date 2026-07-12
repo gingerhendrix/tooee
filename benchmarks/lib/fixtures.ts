@@ -1,5 +1,9 @@
 import type { ColumnDef, TableRow } from "@tooee/renderers";
-import type { CodeContent, MarkdownContent, TableContent } from "@tooee/view";
+import type { Content } from "@tooee/view";
+
+type CodeContent = Extract<Content, { format: "code" }>;
+type MarkdownContent = Extract<Content, { format: "markdown" }>;
+type TableContent = Extract<Content, { format: "table" }>;
 
 export interface FixtureTier {
   name: "moderate" | "large";
@@ -63,13 +67,15 @@ export function makeMarkdownFixture(tier: FixtureTier = FIXTURE_TIERS.moderate):
   const sections: string[] = ["# Tooee synthetic markdown benchmark", ""];
 
   for (let section = 0; section < tier.markdownSections; section += 1) {
-    sections.push(`## Section ${section}`);
-    sections.push(`${sentence(section, 20)} **strong-${section}** and \`inline-${section}\`.`);
-    sections.push("");
-    sections.push("- first deterministic list entry");
-    sections.push("- second deterministic list entry");
-    sections.push("- nested benchmark note");
-    sections.push("");
+    sections.push(
+      `## Section ${section}`,
+      `${sentence(section, 20)} **strong-${section}** and \`inline-${section}\`.`,
+      "",
+      "- first deterministic list entry",
+      "- second deterministic list entry",
+      "- nested benchmark note",
+      "",
+    );
 
     if (section % 4 === 0) {
       sections.push("```ts");

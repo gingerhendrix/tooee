@@ -212,7 +212,7 @@ describe("useScreenState", () => {
 
     // Save state for screenB at position 1
     router.stateCache.save("1:screenB", { data: "temp" });
-    expect(router.stateCache.restore("1:screenB")).toEqual({ data: "temp" });
+    expect(router.stateCache.restore<{ data: string }>("1:screenB")).toEqual({ data: "temp" });
 
     // Pop screenB — its cache should be cleared
     await act(async () => {
@@ -220,6 +220,6 @@ describe("useScreenState", () => {
     });
     await testSetup.renderOnce();
 
-    expect(router.stateCache.restore("1:screenB")).toBeUndefined();
+    expect(router.stateCache.restore<{ data: string }>("1:screenB")).toBeUndefined();
   });
 });

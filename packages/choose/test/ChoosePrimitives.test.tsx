@@ -195,7 +195,9 @@ describe("shared commands, context, and surfaces", () => {
     testSetup = await setup(
       <ChooseOverlay
         items={[{ text: "alpha" }, { text: "beta" }, { text: "gamma" }]}
-        onSelect={(item) => selected.push(item)}
+        onSelect={(item) => {
+          selected.push(item);
+        }}
         onCancel={() => {}}
       />,
     );
@@ -316,7 +318,13 @@ describe("shared commands, context, and surfaces", () => {
 
   test("a nested modal surface suspends navigation, submission, and filter focus", async () => {
     const selected: ChooseItem[] = [];
-    testSetup = await setup(<NestedHost onSelect={(item) => selected.push(item)} />);
+    testSetup = await setup(
+      <NestedHost
+        onSelect={(item) => {
+          selected.push(item);
+        }}
+      />,
+    );
 
     expect(testSetup.captureCharFrame()).toContain("CHILD PICKER");
     expect(testSetup.renderer.getCursorState().visible).toBe(false);

@@ -2,6 +2,7 @@ import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, describe, beforeEach } from "bun:test";
 import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
+import type { MouseButton } from "@opentui/core/testing";
 import { useActions } from "@tooee/commands";
 import type { ActionDefinition } from "@tooee/commands";
 import { AppLayout } from "@tooee/layout";
@@ -34,7 +35,9 @@ function Harness({ rows, gap = false }: { rows: readonly Row[]; gap?: boolean })
   const document = useDocumentController<Row>({
     rows,
     adapter: ADAPTER,
-    onRowPress: (event) => presses.push(event),
+    onRowPress: (event) => {
+      presses.push(event);
+    },
     contextMenu: menuFor,
   });
   handle = document;
@@ -78,12 +81,12 @@ async function setup(rows: readonly Row[], options: { gap?: boolean; height?: nu
   return session;
 }
 
-async function click(x: number, y: number, button = MouseButtons.LEFT) {
+const click = async (x: number, y: number, button: MouseButton = MouseButtons.LEFT) => {
   await act(async () => {
     await session.mockMouse.click(x, y, button);
   });
   await session.renderOnce();
-}
+};
 
 const THREE: Row[] = [
   { id: "a", label: "alpha" },
@@ -188,7 +191,9 @@ describe("variable-height rows", () => {
     const document = useDocumentController<TallRow>({
       rows,
       adapter: TALL_ADAPTER,
-      onRowPress: (event) => tallPresses.push(event),
+      onRowPress: (event) => {
+        tallPresses.push(event);
+      },
     });
     tallHandle = document;
     return (
@@ -296,7 +301,9 @@ describe("non-selectable rows", () => {
         ...ADAPTER,
         isSelectable: (r) => !r.id.startsWith("h"),
       },
-      onRowPress: (event) => sectionPresses.push(event),
+      onRowPress: (event) => {
+        sectionPresses.push(event);
+      },
     });
     sectionHandle = document;
     return (
@@ -352,24 +359,36 @@ describe("action-backed context menu", () => {
 
   function makeActions(): ActionDefinition[] {
     return [
-      { id: "act-open", title: "Open stream", handler: () => invoked.push("act-open") },
       {
+        handler: () => {
+          invoked.push("act-open");
+        },
+        id: "act-open",
+        title: "Open stream",
+      },
+      {
+        handler: () => {
+          invoked.push("act-close");
+        },
+        hotkey: "x",
         id: "act-close",
         title: "Close stream",
-        hotkey: "x",
-        handler: () => invoked.push("act-close"),
       },
       {
+        handler: () => {
+          invoked.push("act-secret");
+        },
+        hidden: true,
         id: "act-secret",
         title: "Secret",
-        hidden: true,
-        handler: () => invoked.push("act-secret"),
       },
       {
+        handler: () => {
+          invoked.push("act-never");
+        },
         id: "act-never",
         title: "Never applicable",
         when: () => false,
-        handler: () => invoked.push("act-never"),
       },
     ];
   }

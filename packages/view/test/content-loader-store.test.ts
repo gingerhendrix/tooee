@@ -1,3 +1,4 @@
+import { MarkSet } from "../../marks/src/index.js";
 import { describe, expect, test } from "bun:test";
 import {
   createContentLoaderStore,
@@ -75,8 +76,8 @@ describe("content loader store", () => {
 
   test("merges streamed marks by namespace without replacing content", () => {
     const store = createContentLoaderStore();
-    const first = { namespace: "diagnostics", marks: [] };
-    const replacement = { namespace: "diagnostics", marks: [] };
+    const first = new MarkSet("diagnostics", 0, []);
+    const replacement = new MarkSet("diagnostics", 0, []);
     store.trigger.loadStarted({ marks: [first] });
     const requestId = store.getSnapshot().context.requestId;
     store.trigger.loaded({ requestId, content: text("kept") });

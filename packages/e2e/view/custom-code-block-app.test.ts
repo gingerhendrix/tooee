@@ -47,7 +47,8 @@ describe("custom code block app e2e", () => {
 
   test("wide timeline clips instead of wrapping", async () => {
     session = await launchDemo();
-    await session.press("G"); // jump to the end where the timeline is
+    // Jump to the end where the timeline is.
+    await session.press(["shift", "g"]);
     await session.waitForText("edge-cache", { timeout: 5000 });
     const text = await session.text();
     // Left edge visible (labels + early ticks), right edge clipped
@@ -62,7 +63,8 @@ describe("custom code block app e2e", () => {
     session = await launchDemo();
     await session.press("c"); // enter cursor mode
     await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
-    await session.press("G"); // cursor to the last block (the timeline)
+    // Move the cursor to the last block (the timeline).
+    await session.press(["shift", "g"]);
     await session.waitForText("edge-cache", { timeout: 5000 });
 
     // Pan right until the far end of the timeline is visible
