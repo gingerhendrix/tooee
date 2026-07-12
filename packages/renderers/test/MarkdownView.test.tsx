@@ -289,7 +289,7 @@ describe("code block height", () => {
   test("multi-line code block snapshot", async () => {
     const code = [
       "function greet(name) {",
-      "  console.log(`Hello, ${name}!`)",
+      `  console.log(\`Hello, \${name}!\`)`,
       "  return true",
       "}",
     ].join("\n");
