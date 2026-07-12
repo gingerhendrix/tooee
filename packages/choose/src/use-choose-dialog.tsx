@@ -59,8 +59,10 @@ export interface ChooseDialogHandle<T> {
    * resolves the confirmed item; multi-select resolves the toggled items
    * (falling back to the active item when nothing is toggled).
    */
-  open(options: ChooseDialogOptions<T> & { multi: true }): Promise<T[] | null>;
-  open(options: ChooseDialogOptions<T> & { multi?: false }): Promise<T | null>;
+  open: {
+    (options: ChooseDialogOptions<T> & { multi: true }): Promise<T[] | null>;
+    (options: ChooseDialogOptions<T> & { multi?: false }): Promise<T | null>;
+  };
 }
 
 /**

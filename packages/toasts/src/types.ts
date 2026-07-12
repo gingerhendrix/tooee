@@ -15,7 +15,7 @@ export interface ToastEntry {
 }
 
 export interface ToastController {
-  toast(options: ToastOptions): void;
-  dismiss(): void;
+  toast: (options: ToastOptions) => void;
+  dismiss: () => void;
   currentToast: ToastEntry | null;
 }

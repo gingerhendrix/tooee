@@ -20,7 +20,7 @@ export interface NavSearchContext {
 }
 
 export interface NavSearchDeps {
-  isSelectable(index: number): boolean;
+  isSelectable: (index: number) => boolean;
 }
 
 export type NavSearchEvents = {

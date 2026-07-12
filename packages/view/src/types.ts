@@ -97,7 +97,7 @@ export type ContentChunk =
 // === Provider ===
 
 export interface ContentProvider {
-  load(): AnyContent | Promise<AnyContent> | AsyncIterable<ContentChunk>;
+  load: () => AnyContent | Promise<AnyContent> | AsyncIterable<ContentChunk>;
   format?: string;
   title?: string;
   /** Static marks to apply to the content. Merged with nav marks in View. */

@@ -7,5 +7,5 @@ export interface RowDecoration {
 
 export interface DecorationLayer {
   readonly priority: number;
-  forVisibleRows(from: number, to: number): Iterable<RowDecoration>;
+  forVisibleRows: (from: number, to: number) => Iterable<RowDecoration>;
 }

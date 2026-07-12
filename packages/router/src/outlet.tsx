@@ -12,7 +12,7 @@ const OutletDepthContext = createContext<number>(0);
 // Helper: walk parent chain and return [root, ..., leaf]
 
 export const getRouteChain = function getRouteChain(
-  routeMap: { get(id: string): RouteDefinition | undefined },
+  routeMap: { get: (id: string) => RouteDefinition | undefined },
   routeId: string,
 ): RouteDefinition[] {
   const chain: RouteDefinition[] = [];

@@ -4,9 +4,9 @@ import type { MarkSet } from "./mark-set.js";
 export interface MarkState {
   readonly sets: readonly MarkSet[];
   readonly namespaces: readonly string[];
-  marksAtLine(line: number): Mark[];
-  effectiveStyleAtLine(line: number): MarkStyle | null;
-  getSet(namespace: string): MarkSet | undefined;
+  marksAtLine: (line: number) => Mark[];
+  effectiveStyleAtLine: (line: number) => MarkStyle | null;
+  getSet: (namespace: string) => MarkSet | undefined;
 }
 
 const makeMarkState = function makeMarkState(sets: readonly MarkSet[]): MarkState {

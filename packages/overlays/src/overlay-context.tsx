@@ -53,17 +53,17 @@ export interface OverlayHandle<TPayload> {
 }
 
 export interface OverlayController {
-  open<TPayload>(
+  open: <TPayload>(
     id: OverlayId,
     render: OverlayRenderer<TPayload>,
     payload: TPayload,
     options?: OverlayOpenOptions,
-  ): OverlayHandle<TPayload>;
-  update<TPayload>(id: OverlayId, next: TPayload | ((prev: TPayload) => TPayload)): void;
-  show(id: OverlayId, content: ReactNode, options?: OverlayOpenOptions): void;
-  hide(id: OverlayId): void;
-  closeTop(reason?: OverlayCloseReason): void;
-  isOpen(id: OverlayId): boolean;
+  ) => OverlayHandle<TPayload>;
+  update: <TPayload>(id: OverlayId, next: TPayload | ((prev: TPayload) => TPayload)) => void;
+  show: (id: OverlayId, content: ReactNode, options?: OverlayOpenOptions) => void;
+  hide: (id: OverlayId) => void;
+  closeTop: (reason?: OverlayCloseReason) => void;
+  isOpen: (id: OverlayId) => boolean;
   topId: OverlayId | null;
 }
 

@@ -129,24 +129,24 @@ export interface DocumentController<T> extends DocumentBindings {
   /** Toggled rows projected onto the current row order. */
   readonly toggledIndices: ReadonlySet<number>;
 
-  getRow(index: number): T | undefined;
-  getRowKey(index: number): Key;
+  getRow: (index: number) => T | undefined;
+  getRowKey: (index: number) => Key;
 
   /**
    * The anchor for a row: its key, semantic text, and source provenance.
    * Returns `null` only when `index` is out of range; a valid generated row
    * still returns an anchor with `source: null`.
    */
-  getAnchor(index: number): DocumentRowAnchor<T> | null;
-  getRowAtScreenY(screenY: number): { row: T; index: number; key: Key } | null;
+  getAnchor: (index: number) => DocumentRowAnchor<T> | null;
+  getRowAtScreenY: (screenY: number) => { row: T; index: number; key: Key } | null;
 
   /**
    * Move the cursor to a row, the pointer equivalent of a keyboard move. Stands
    * down while a modal overlay is open, so renderers that resolve their own
    * rows can wire it unconditionally.
    */
-  selectRow(index: number): void;
+  selectRow: (index: number) => void;
 
   /** Bound handler: modal guard, row resolution, selection, then app/menu callback. */
-  onMouseDown(event: MouseEvent): void;
+  onMouseDown: (event: MouseEvent) => void;
 }

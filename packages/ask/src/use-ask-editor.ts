@@ -56,17 +56,17 @@ export interface UseAskEditorOptions {
 /** Programmatic text control for composites (dictation, prefill, transforms). */
 export interface AskEditorController {
   /** Current text (works for input and textarea). */
-  getText(): string;
+  getText: () => string;
   /** Replace the buffer; optionally move cursor to end (default true). */
-  setText(text: string, opts?: { cursorToEnd?: boolean }): void;
+  setText: (text: string, opts?: { cursorToEnd?: boolean }) => void;
   /** Insert at the cursor position. */
-  insertText(text: string): void;
-  setCursorToEnd(): void;
-  submit(): void;
+  insertText: (text: string) => void;
+  setCursorToEnd: () => void;
+  submit: () => void;
   /** Current local mode (live read). */
   readonly mode: Mode;
   /** Switch insert/cursor mode; resets any pending vim motion state. */
-  setMode(mode: Mode): void;
+  setMode: (mode: Mode) => void;
 }
 
 /** Everything `<AskEditor/>` needs: refs, focus, mode, handlers. */

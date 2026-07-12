@@ -12,5 +12,5 @@ import type { RowDocumentRenderable } from "./row-document-renderable.js";
 export interface DocumentBindings {
   ref: RefObject<RowDocumentRenderable | null>;
   decorations: readonly DecorationLayer[];
-  onMouseDown(event: MouseEvent): void;
+  onMouseDown: (event: MouseEvent) => void;
 }

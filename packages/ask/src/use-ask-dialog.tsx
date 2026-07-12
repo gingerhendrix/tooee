@@ -43,7 +43,7 @@ export interface AskDialogHandle {
    * when the dialog is cancelled, replaced, or unmounted. Settles exactly
    * once per call.
    */
-  open(options: AskDialogOptions): Promise<string | null>;
+  open: (options: AskDialogOptions) => Promise<string | null>;
 }
 
 /**

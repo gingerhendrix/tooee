@@ -33,14 +33,14 @@ export interface RouterOptions {
 }
 
 export interface RouterInstance {
-  push(routeId: string, params?: Record<string, unknown>): void;
-  pop(): void;
-  replace(routeId: string, params?: Record<string, unknown>): void;
-  reset(routeId: string, params?: Record<string, unknown>): void;
-  canGoBack(): boolean;
+  push: (routeId: string, params?: Record<string, unknown>) => void;
+  pop: () => void;
+  replace: (routeId: string, params?: Record<string, unknown>) => void;
+  reset: (routeId: string, params?: Record<string, unknown>) => void;
+  canGoBack: () => boolean;
   readonly currentRoute: StackEntry;
   readonly stack: readonly StackEntry[];
   readonly stateCache: StateCache;
-  subscribe(listener: () => void): () => void;
-  getRouteDefinition(routeId: string): RouteDefinition | undefined;
+  subscribe: (listener: () => void) => () => void;
+  getRouteDefinition: (routeId: string) => RouteDefinition | undefined;
 }

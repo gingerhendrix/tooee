@@ -44,20 +44,20 @@ export interface UseChooseOptions {
 }
 
 export interface ChooseController {
-  getFilter(): string;
-  setFilter(query: string): void;
-  clearFilter(): void;
-  moveUp(): void;
-  moveDown(): void;
-  setActiveIndex(index: number): void;
-  getActiveItem(): ChooseItem | undefined;
-  getSelectedItems(): ChooseItem[];
-  toggleActive(): void;
-  submit(): void;
-  cancel(): void;
-  reload(): void;
+  getFilter: () => string;
+  setFilter: (query: string) => void;
+  clearFilter: () => void;
+  moveUp: () => void;
+  moveDown: () => void;
+  setActiveIndex: (index: number) => void;
+  getActiveItem: () => ChooseItem | undefined;
+  getSelectedItems: () => ChooseItem[];
+  toggleActive: () => void;
+  submit: () => void;
+  cancel: () => void;
+  reload: () => void;
   readonly mode: Mode;
-  setMode(mode: Mode): void;
+  setMode: (mode: Mode) => void;
 }
 
 export interface ChooseState {

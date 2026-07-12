@@ -22,7 +22,7 @@ export interface TooeeMount {
   readonly ownership: "external";
   readonly unmounted: boolean;
   /** Unmount the React tree. Never destroys the externally owned renderer. */
-  unmount(): void;
+  unmount: () => void;
 }
 
 export type CliStdinPolicy = "process" | "tty-if-piped";
@@ -46,14 +46,14 @@ export interface TooeeSessionHandle {
   readonly ownership: "local";
   readonly destroyed: boolean;
   /** Unmount the React tree without destroying the renderer. */
-  unmount(): void;
+  unmount: () => void;
   /** Idempotently unmount and destroy every locally owned resource. */
-  destroy(): void;
+  destroy: () => void;
 }
 
 export interface CliSessionController<T> {
-  resolve(value: T): void;
-  cancel(): void;
+  resolve: (value: T) => void;
+  cancel: () => void;
 }
 
 export type CliSessionRender<T> = (session: CliSessionController<T>) => ReactNode;
