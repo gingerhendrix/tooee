@@ -5,7 +5,7 @@ interface TitleBarProps {
   subtitle?: string;
 }
 
-export const TitleBar = function TitleBar({ title, subtitle }: TitleBarProps) {
+export const TitleBar = function TitleBar({ title, subtitle }: TitleBarProps): React.ReactNode {
   const { theme } = useTheme();
   return (
     <box

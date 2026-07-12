@@ -41,7 +41,7 @@ export const ViewScreen = function ViewScreen<T>({
   clearMarkNamespace,
   clearAllUserMarks,
   children,
-}: ViewScreenProps<T>) {
+}: ViewScreenProps<T>): ReactNode {
   useProvideViewCommandContext({
     content,
     marks: {

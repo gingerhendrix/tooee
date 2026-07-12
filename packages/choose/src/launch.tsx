@@ -13,7 +13,7 @@ export const launch = async function launch(
   opts: ChooseLaunchOptions,
 ): Promise<ChooseResult | null> {
   return runCliSession<ChooseResult>(
-    ({ resolve, cancel }) => (
+    ({ resolve, cancel }): React.ReactNode => (
       <Choose
         contentProvider={opts.contentProvider}
         options={opts.options}

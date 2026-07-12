@@ -12,7 +12,7 @@ import type { ActionNavigationResult } from "@tooee/router";
 
 // Screens
 
-const HomeScreen = function HomeScreen() {
+const HomeScreen = function HomeScreen(): React.ReactNode {
   return (
     <box>
       <text content="screen:home" />
@@ -20,7 +20,7 @@ const HomeScreen = function HomeScreen() {
   );
 };
 
-const DetailScreen = function DetailScreen() {
+const DetailScreen = function DetailScreen(): React.ReactNode {
   return (
     <box>
       <text content="screen:detail" />

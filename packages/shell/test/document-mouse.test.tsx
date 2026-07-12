@@ -31,7 +31,13 @@ const menuFor = function menuFor(event: DocumentContextMenuEvent<Row>): ContextM
   return [{ id: `open-${event.row.id}`, title: `Open ${event.row.label}` }];
 };
 
-const Harness = function Harness({ rows, gap = false }: { rows: readonly Row[]; gap?: boolean }) {
+const Harness = function Harness({
+  rows,
+  gap = false,
+}: {
+  rows: readonly Row[];
+  gap?: boolean;
+}): React.ReactNode {
   const document = useDocumentController<Row>({
     adapter: ADAPTER,
     contextMenu: menuFor,
@@ -52,7 +58,9 @@ const Harness = function Harness({ rows, gap = false }: { rows: readonly Row[]; 
         controller={document}
         showGutter={false}
         style={{ flexGrow: 1 }}
-        renderRow={(r) => <text content={r.label} style={gap ? { marginBottom: 1 } : undefined} />}
+        renderRow={(r): React.ReactNode => (
+          <text content={r.label} style={gap ? { marginBottom: 1 } : undefined} />
+        )}
       />
     </AppLayout>
   );
@@ -190,7 +198,11 @@ describe("variable-height rows", () => {
   let tallHandle: DocumentController<TallRow> | null = null;
   let tallPresses: DocumentRowEvent<TallRow>[] = [];
 
-  const TallHarness = function TallHarness({ rows }: { rows: readonly TallRow[] }) {
+  const TallHarness = function TallHarness({
+    rows,
+  }: {
+    rows: readonly TallRow[];
+  }): React.ReactNode {
     const document = useDocumentController<TallRow>({
       adapter: TALL_ADAPTER,
       onRowPress: (event) => {
@@ -205,11 +217,14 @@ describe("variable-height rows", () => {
           controller={document}
           showGutter={false}
           style={{ flexGrow: 1 }}
-          renderRow={(r) => (
+          renderRow={(r): React.ReactNode => (
             <box style={{ flexDirection: "column" }}>
-              {Array.from({ length: r.lines }, (_, line) => (
-                <text key={line} content={`${r.label}:${line}`} />
-              ))}
+              {Array.from(
+                { length: r.lines },
+                (_, line): React.ReactNode => (
+                  <text key={line} content={`${r.label}:${line}`} />
+                ),
+              )}
             </box>
           )}
         />
@@ -297,7 +312,11 @@ describe("non-selectable rows", () => {
   let sectionHandle: DocumentController<Row> | null = null;
   let sectionPresses: DocumentRowEvent<Row>[] = [];
 
-  const SectionHarness = function SectionHarness({ rows }: { rows: readonly Row[] }) {
+  const SectionHarness = function SectionHarness({
+    rows,
+  }: {
+    rows: readonly Row[];
+  }): React.ReactNode {
     const document = useDocumentController<Row>({
       adapter: {
         ...ADAPTER,
@@ -315,7 +334,7 @@ describe("non-selectable rows", () => {
           controller={document}
           showGutter={false}
           style={{ flexGrow: 1 }}
-          renderRow={(r) => <text content={r.label} />}
+          renderRow={(r): React.ReactNode => <text content={r.label} />}
         />
       </AppLayout>
     );
@@ -396,7 +415,11 @@ describe("action-backed context menu", () => {
     ];
   };
 
-  const ActionsHarness = function ActionsHarness({ rows }: { rows: readonly Row[] }) {
+  const ActionsHarness = function ActionsHarness({
+    rows,
+  }: {
+    rows: readonly Row[];
+  }): React.ReactNode {
     const actions = makeActions();
     useActions(actions);
     const document = useDocumentController<Row>({
@@ -411,7 +434,7 @@ describe("action-backed context menu", () => {
           controller={document}
           showGutter={false}
           style={{ flexGrow: 1 }}
-          renderRow={(r) => <text content={r.label} />}
+          renderRow={(r): React.ReactNode => <text content={r.label} />}
         />
       </AppLayout>
     );
@@ -462,7 +485,7 @@ describe("action-backed context menu", () => {
       rows,
     }: {
       rows: readonly Row[];
-    }) {
+    }): React.ReactNode {
       const actions = makeActions();
       useActions(actions);
       const document = useDocumentController<Row>({
@@ -480,7 +503,7 @@ describe("action-backed context menu", () => {
             controller={document}
             showGutter={false}
             style={{ flexGrow: 1 }}
-            renderRow={(r) => <text content={r.label} />}
+            renderRow={(r): React.ReactNode => <text content={r.label} />}
           />
         </AppLayout>
       );

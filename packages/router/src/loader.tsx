@@ -11,7 +11,7 @@ export const RouteDataProvider = function RouteDataProvider({
 }: {
   data: unknown;
   children: ReactNode;
-}) {
+}): ReactNode {
   return <RouteDataContext value={data}>{children}</RouteDataContext>;
 };
 

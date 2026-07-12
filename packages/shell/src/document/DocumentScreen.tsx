@@ -35,7 +35,7 @@ export const DocumentScreen = function DocumentScreen<T>({
   themeCommands = true,
   context,
   children,
-}: DocumentScreenProps<T>) {
+}: DocumentScreenProps<T>): ReactNode {
   const mode = useMode();
 
   const { name: themeName } = useThemeCommands({ enabled: themeCommands });

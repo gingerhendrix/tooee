@@ -11,7 +11,7 @@ export const CommandPaletteProvider = function CommandPaletteProvider({
   children,
 }: {
   children: ReactNode;
-}) {
+}): ReactNode {
   const mode = useMode();
   const overlay = useOverlay();
   // Reactive: the registry is a subscribable store, so this provider

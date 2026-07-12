@@ -52,7 +52,7 @@ export const ChoosePanel = function ChoosePanel({
   footer,
   onClose,
   inset,
-}: ChoosePanelProps) {
+}: ChoosePanelProps): ReactNode {
   const { theme } = useTheme();
   const mode = useMode();
   const defaults = buildChooseHints(mode, { multi });

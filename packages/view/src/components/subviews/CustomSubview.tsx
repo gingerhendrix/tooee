@@ -19,7 +19,7 @@ export const CustomSubview = function CustomSubview({
   actions,
   renderers,
   ...screen
-}: CustomSubviewProps) {
+}: CustomSubviewProps): React.ReactNode {
   const textContent = useMemo(() => getTextContent(content), [content]);
   // Fallback rows are source lines; row index is the source line.
   const lineRows = useMemo(() => sourceLines(textContent), [textContent]);

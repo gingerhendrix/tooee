@@ -34,7 +34,7 @@ const RouteRenderer = function RouteRenderer({
   entry: StackEntry;
   routeDef: RouteDefinition;
   children: ReactNode;
-}) {
+}): ReactNode {
   const [data, setData] = useState<unknown>();
   const [loading, setLoading] = useState(!!routeDef.loader);
   const [error, setError] = useState<Error | null>(null);
@@ -80,7 +80,7 @@ const RouteRenderer = function RouteRenderer({
 
 // Outlet component
 
-export const Outlet = function Outlet() {
+export const Outlet = function Outlet(): ReactNode {
   const router = useRouterInstance();
   const stack = useRouterStack();
   const depth = useContext(OutletDepthContext);

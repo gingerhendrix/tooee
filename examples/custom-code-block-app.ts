@@ -125,7 +125,7 @@ const ProgressRenderer = function ProgressRenderer({
   return createElement(
     CodeBlockChrome,
     { indent, theme },
-    ...rows.map((row, i) => {
+    ...rows.map((row, i): ReactNode => {
       const filled = Math.round((row.value / 100) * PROGRESS_BAR_WIDTH);
       return h(
         "text",
@@ -180,8 +180,9 @@ const CalloutRenderer = function CalloutRenderer({
       },
     },
     h("text", { style: { height: 1 } }, h("span", { fg: color }, `● ${style.label}`)),
-    ...lines.map((line, i) =>
-      h("text", { content: line, key: i, style: { fg: theme.text, height: 1 } }),
+    ...lines.map(
+      (line, i): ReactNode =>
+        h("text", { content: line, key: i, style: { fg: theme.text, height: 1 } }),
     ),
   );
 };

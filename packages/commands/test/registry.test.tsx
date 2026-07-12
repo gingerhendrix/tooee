@@ -26,7 +26,7 @@ describe("registry unregister guards (R-05)", () => {
       return null;
     };
 
-    const Harness = function Harness() {
+    const Harness = function Harness(): React.ReactNode {
       const [showFirst, setShowFirst] = useState(true);
       const [firstCount, setFirstCount] = useState(0);
       const [secondCount, setSecondCount] = useState(0);
@@ -80,7 +80,7 @@ describe("registry unregister guards (R-05)", () => {
       return null;
     };
 
-    const Harness = function Harness() {
+    const Harness = function Harness(): React.ReactNode {
       const [showFirst, setShowFirst] = useState(true);
       useCommand({
         handler: () => setShowFirst(false),

@@ -83,7 +83,6 @@ export default defineConfig({
     "typescript/prefer-nullish-coalescing": "off",
     "typescript/prefer-readonly": "off",
     "typescript/prefer-regexp-exec": "off",
-    "typescript/promise-function-async": "off",
     "typescript/restrict-template-expressions": "off",
     "typescript/return-await": "off",
     "typescript/strict-boolean-expressions": "off",

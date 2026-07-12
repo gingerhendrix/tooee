@@ -15,7 +15,7 @@ export interface WhichKeyProviderProps {
 export const WhichKeyProvider = function WhichKeyProvider({
   children,
   leaderOnly,
-}: WhichKeyProviderProps) {
+}: WhichKeyProviderProps): ReactNode {
   const sequence = useCommandSequenceState();
   const { leaderKey } = useCommandRegistry();
   const overlay = useOverlay();
@@ -46,11 +46,16 @@ export const WhichKeyProvider = function WhichKeyProvider({
       return;
     }
 
-    overlay.open(OVERLAY_ID, ({ payload }) => <WhichKeyOverlay state={payload} />, sequence, {
-      dismissOnEscape: false,
-      ownCommands: true,
-      role: "passive",
-    });
+    overlay.open(
+      OVERLAY_ID,
+      ({ payload }): ReactNode => <WhichKeyOverlay state={payload} />,
+      sequence,
+      {
+        dismissOnEscape: false,
+        ownCommands: true,
+        role: "passive",
+      },
+    );
     openRef.current = true;
   }, [overlay, sequence, shouldShow]);
 
@@ -69,7 +74,7 @@ export const WhichKeyOverlay = function WhichKeyOverlay({
   state,
 }: {
   state: CommandSequenceState;
-}) {
+}): ReactNode {
   const { theme } = useTheme();
   const entries = useMemo(() => summarizeCandidates(state), [state]);
   const prefix = state.prefix.map(formatStep).join(" ");
@@ -89,13 +94,15 @@ export const WhichKeyOverlay = function WhichKeyOverlay({
     >
       <text fg={theme.textMuted} content={`which-key: ${prefix}`} />
       <box flexDirection="row" flexWrap="wrap" gap={1}>
-        {entries.map((entry) => (
-          <box key={entry.key} flexDirection="row" marginRight={2}>
-            <text fg={theme.accent} content={entry.key} />
-            <text fg={theme.textMuted} content=" → " />
-            <text content={entry.title} />
-          </box>
-        ))}
+        {entries.map(
+          (entry): ReactNode => (
+            <box key={entry.key} flexDirection="row" marginRight={2}>
+              <text fg={theme.accent} content={entry.key} />
+              <text fg={theme.textMuted} content=" → " />
+              <text content={entry.title} />
+            </box>
+          ),
+        )}
       </box>
     </box>
   );

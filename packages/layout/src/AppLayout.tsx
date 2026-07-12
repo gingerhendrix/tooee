@@ -36,7 +36,7 @@ export const AppLayout = function AppLayout({
   searchBar,
   overlay,
   children,
-}: AppLayoutProps) {
+}: AppLayoutProps): ReactNode {
   const { theme } = useTheme();
   const contextOverlay = useCurrentOverlay();
   const compatibilityOverlay =

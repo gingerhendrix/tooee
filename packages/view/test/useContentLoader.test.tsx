@@ -12,7 +12,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-const Loader = function Loader({ provider }: { provider: ContentProvider }) {
+const Loader = function Loader({ provider }: { provider: ContentProvider }): React.ReactNode {
   const { content, streaming, error } = useContentLoader(provider);
   const text = content && "text" in content ? content.text : "";
   return (
@@ -38,20 +38,20 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
       [Symbol.asyncIterator]() {
         let first = true;
         return {
-          next: () => {
+          next: async () => {
             if (first) {
               first = false;
-              return Promise.resolve({
+              return {
                 done: false as const,
                 value: { data: "hello", format: "text" as const, type: "append" as const },
-              });
+              };
             }
             // Long-lived stream: never yields again
             return new Promise<IteratorResult<ContentChunk>>(() => {});
           },
-          return: () => {
+          return: async () => {
             returned = true;
-            return Promise.resolve({ done: true as const, value: undefined });
+            return { done: true as const, value: undefined };
           },
         };
       },
@@ -59,7 +59,7 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
     const provider: ContentProvider = { format: "text", load: () => iterable };
 
     let hide!: () => void;
-    const Harness = function Harness() {
+    const Harness = function Harness(): React.ReactNode {
       const [show, setShow] = useState(true);
       hide = () => setShow(false);
       return show ? <Loader provider={provider} /> : <text content="unmounted" />;
@@ -100,8 +100,10 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
 
   test("non-Error promise rejection is surfaced, not undefined", async () => {
     const provider: ContentProvider = {
-      // eslint-disable-next-line prefer-promise-reject-errors
-      load: () => Promise.reject("load blew up"),
+      load: async () => {
+        // eslint-disable-next-line prefer-promise-reject-errors
+        await Promise.reject("load blew up");
+      },
     };
 
     testSetup = await testRender(<Loader provider={provider} />, { height: 10, width: 60 });
@@ -119,7 +121,7 @@ describe("useContentLoader reload and request identity", () => {
     const provider: ContentProvider = {
       load: () => ({ format: "text", text: `sync-${++calls}` }),
     };
-    const Harness = function Harness() {
+    const Harness = function Harness(): React.ReactNode {
       const result = useContentLoader(provider);
       reload = result.reload;
       const value = result.content && "text" in result.content ? result.content.text : "";
@@ -137,9 +139,9 @@ describe("useContentLoader reload and request identity", () => {
     const resolvers: Array<(value: { format: "text"; text: string }) => void> = [];
     let reload!: () => void;
     const provider: ContentProvider = {
-      load: () => new Promise((resolve) => resolvers.push(resolve)),
+      load: async () => new Promise((resolve) => resolvers.push(resolve)),
     };
-    const Harness = function Harness() {
+    const Harness = function Harness(): React.ReactNode {
       const result = useContentLoader(provider);
       reload = result.reload;
       const value = result.content && "text" in result.content ? result.content.text : "loading";
@@ -172,21 +174,21 @@ describe("useContentLoader reload and request identity", () => {
           return {
             [Symbol.asyncIterator]() {
               return {
-                next() {
+                async next() {
                   if (first) {
                     first = false;
-                    return Promise.resolve({
+                    return {
                       done: false as const,
                       value: { data: "old", format: "text" as const, type: "append" as const },
-                    });
+                    };
                   }
                   return new Promise<IteratorResult<ContentChunk>>((resolve) => {
                     resolveOldNext = resolve;
                   });
                 },
-                return() {
+                async return() {
                   oldReturned = true;
-                  return Promise.resolve({ done: true as const, value: undefined });
+                  return { done: true as const, value: undefined };
                 },
               };
             },
@@ -197,7 +199,7 @@ describe("useContentLoader reload and request identity", () => {
         })();
       },
     };
-    const Harness = function Harness() {
+    const Harness = function Harness(): React.ReactNode {
       const result = useContentLoader(provider);
       reload = result.reload;
       const value = result.content && "text" in result.content ? result.content.text : "";

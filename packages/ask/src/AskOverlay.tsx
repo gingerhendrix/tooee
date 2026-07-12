@@ -45,7 +45,7 @@ export const AskOverlay = function AskOverlay({
   footer,
   inset,
   children,
-}: AskOverlayProps) {
+}: AskOverlayProps): ReactNode {
   const { controller, editor } = useAskEditor({
     commandScope: "ask-overlay",
     defaultValue,

@@ -15,7 +15,11 @@ Document rows can retain their original source coordinates.
 Right-click a row to open application-owned command entries.
 `;
 
-const SourceAwareDocument = function SourceAwareDocument({ content }: { content: string }) {
+const SourceAwareDocument = function SourceAwareDocument({
+  content,
+}: {
+  content: string;
+}): React.ReactNode {
   const rows = useMemo(() => sourceLines(content, { sourceId: "release-notes.txt" }), [content]);
 
   const controller = useDocumentController({
@@ -46,7 +50,7 @@ const SourceAwareDocument = function SourceAwareDocument({ content }: { content:
       <Document
         controller={controller}
         style={{ flexGrow: 1 }}
-        renderRow={(row) => <text content={row.text || " "} />}
+        renderRow={(row): React.ReactNode => <text content={row.text || " "} />}
       />
     </DocumentScreen>
   );

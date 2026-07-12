@@ -17,7 +17,7 @@ export const ChooseFilter = function ChooseFilter({
   placeholder = "Filter...",
   right,
   onClose,
-}: ChooseFilterProps) {
+}: ChooseFilterProps): ReactNode {
   const { theme } = useTheme();
   const { state, view } = choose;
 

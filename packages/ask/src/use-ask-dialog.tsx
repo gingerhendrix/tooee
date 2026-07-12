@@ -88,7 +88,7 @@ export const useAskDialog = function useAskDialog(): AskDialogHandle {
   const handleRef = useRef<AskDialogHandle | null>(null);
   if (handleRef.current === null) {
     handleRef.current = {
-      open(options: AskDialogOptions): Promise<string | null> {
+      async open(options: AskDialogOptions): Promise<string | null> {
         return new Promise<string | null>((resolvePromise) => {
           if (unmountedRef.current) {
             resolvePromise(null);
@@ -108,7 +108,7 @@ export const useAskDialog = function useAskDialog(): AskDialogHandle {
 
           const handle = overlayRef.current.open(
             id,
-            () => (
+            (): ReactNode => (
               <AskOverlay
                 prompt={options.prompt}
                 title={options.title}

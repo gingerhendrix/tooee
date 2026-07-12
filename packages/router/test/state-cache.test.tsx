@@ -5,7 +5,7 @@ import { createRoute, createRouter, RouterProvider, Outlet, useScreenState } fro
 
 // Screen that displays saved state from useScreenState hook
 
-const ScreenA = function ScreenA() {
+const ScreenA = function ScreenA(): React.ReactNode {
   const { savedState } = useScreenState<{ value: string }>();
   return (
     <box>
@@ -14,7 +14,7 @@ const ScreenA = function ScreenA() {
   );
 };
 
-const ScreenB = function ScreenB() {
+const ScreenB = function ScreenB(): React.ReactNode {
   return (
     <box>
       <text content="screenB" />
@@ -24,7 +24,7 @@ const ScreenB = function ScreenB() {
 
 // Screen that saves state via the hook on mount
 
-const SavingScreen = function SavingScreen() {
+const SavingScreen = function SavingScreen(): React.ReactNode {
   const { savedState, saveState } = useScreenState<{ counter: number }>();
   const count = savedState?.counter ?? 0;
   useEffect(() => {

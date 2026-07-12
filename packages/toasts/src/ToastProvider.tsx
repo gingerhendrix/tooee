@@ -21,7 +21,11 @@ let nextToastId = 0;
 
 const ToastContext = createContext<ToastController | null>(null);
 
-export const ToastProvider = function ToastProvider({ children }: { children: ReactNode }) {
+export const ToastProvider = function ToastProvider({
+  children,
+}: {
+  children: ReactNode;
+}): ReactNode {
   const [currentToast, setCurrentToast] = useState<ToastEntry | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 

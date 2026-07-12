@@ -29,7 +29,7 @@ export const View = function View({
   actions,
   renderers,
   codeBlockRenderers,
-}: ViewProps) {
+}: ViewProps): React.ReactNode {
   const { theme } = useTheme();
   const { content, streaming, error, providerMarks, reload } = useContentLoader(contentProvider);
 

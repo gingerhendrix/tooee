@@ -20,7 +20,7 @@ const ChordSurface = function ChordSurface({
 }: {
   generation: number;
   onChord: () => void;
-}) {
+}): React.ReactNode {
   useCommand({ handler: onChord, hotkey: "g g", id: "s.chord", title: "Chord" });
   return <text content={`SURFACE gen:${generation}`} />;
 };
@@ -35,7 +35,7 @@ const SequenceProbe = function SequenceProbe() {
   return null;
 };
 
-const Harness = function Harness({ onChord }: { onChord: () => void }) {
+const Harness = function Harness({ onChord }: { onChord: () => void }): React.ReactNode {
   const overlay = useOverlay();
   const current = useCurrentOverlay();
   const generationRef = useRef(0);
@@ -44,7 +44,7 @@ const Harness = function Harness({ onChord }: { onChord: () => void }) {
     const generation = generationRef.current++;
     ctrl.open(
       "chord-overlay",
-      () => <ChordSurface generation={generation} onChord={onChord} />,
+      (): React.ReactNode => <ChordSurface generation={generation} onChord={onChord} />,
       null,
       { ownCommands: true, role: "modal", surfaceMode: "cursor" },
     );
@@ -98,7 +98,7 @@ describe("F-09: same-id overlay replacement resets a pending chord (shell bridge
     await act(async () => {
       controller!.open(
         "chord-overlay",
-        () => <ChordSurface generation={99} onChord={() => chordFired++} />,
+        (): React.ReactNode => <ChordSurface generation={99} onChord={() => chordFired++} />,
         null,
         { ownCommands: true, role: "modal", surfaceMode: "cursor" },
       );

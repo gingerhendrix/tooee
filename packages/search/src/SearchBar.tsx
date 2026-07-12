@@ -16,7 +16,7 @@ export const SearchBar = function SearchBar({
   onCancel: _onCancel,
   matchCount,
   currentMatch,
-}: SearchBarProps) {
+}: SearchBarProps): React.ReactNode {
   const { theme } = useTheme();
 
   const matchDisplay =

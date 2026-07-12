@@ -447,7 +447,7 @@ export const createCommandStore = function createCommandStore(
         clearBufferAndTimer();
         store.trigger.sequenceReset();
         const matched = multiStepCandidates[matchedIndex].command;
-        return { handled: true, invoke: () => matched.handler(cmdCtx) };
+        return { handled: true, invoke: (): void | Promise<void> => matched.handler(cmdCtx) };
       }
 
       buffer = pruneBuffer(buffer, hotkeys);
@@ -480,7 +480,7 @@ export const createCommandStore = function createCommandStore(
     for (const { command, parsed } of singleStepCandidates) {
       if (matchStep(event, parsed.steps[0])) {
         store.trigger.sequenceReset();
-        return { handled: true, invoke: () => command.handler(cmdCtx) };
+        return { handled: true, invoke: (): void | Promise<void> => command.handler(cmdCtx) };
       }
     }
 

@@ -104,7 +104,7 @@ describe("local sessions", () => {
     let rendererDestroyCalls = 0;
 
     const resultPromise = runCliSession<string>(
-      (session) => {
+      (session): React.ReactNode => {
         controller = session;
         return <text>settlement</text>;
       },
@@ -126,7 +126,7 @@ describe("local sessions", () => {
   test("runCliSession cancels and converts render failures to null", async () => {
     let controller: CliSessionController<string> | undefined;
     const cancelled = runCliSession<string>(
-      (session) => {
+      (session): React.ReactNode => {
         controller = session;
         return <text>cancel</text>;
       },

@@ -25,7 +25,7 @@ export const ModeProvider = function ModeProvider({
   children,
   initialMode = "cursor",
   onModeChange,
-}: ModeProviderProps) {
+}: ModeProviderProps): ReactNode {
   const [mode, setModeState] = useState<Mode>(initialMode);
   const modeRef = useRef(mode);
   const onModeChangeRef = useRef(onModeChange);

@@ -39,7 +39,11 @@ interface OverlayBridge {
   resetSequence: () => void;
 }
 
-export const OverlayProvider = function OverlayProvider({ children }: { children: ReactNode }) {
+export const OverlayProvider = function OverlayProvider({
+  children,
+}: {
+  children: ReactNode;
+}): ReactNode {
   const mode = useMode();
   const setMode = useSetMode();
   const modeRef = useRef(mode);
@@ -125,7 +129,7 @@ export const OverlayProvider = function OverlayProvider({ children }: { children
   const show = useCallback(
     (id: OverlayId, content: ReactNode, options?: OverlayOpenOptions) => {
       // Back-compat: show() defaults to no mode change (unlike open() which defaults to "insert")
-      open(id, () => content, undefined, { mode: null, ...options });
+      open(id, (): ReactNode => content, undefined, { mode: null, ...options });
     },
     [open],
   );
@@ -194,7 +198,7 @@ export const OverlayProvider = function OverlayProvider({ children }: { children
   const current =
     stack.length > 0 ? (
       <>
-        {stack.map((entry, index) => {
+        {stack.map((entry, index): ReactNode => {
           const isTop = index === stack.length - 1;
           let node = entry.render({
             close: (reason: OverlayCloseReason = "close") => removeEntry(entry.id, reason),

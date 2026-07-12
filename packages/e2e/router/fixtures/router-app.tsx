@@ -24,7 +24,7 @@ const loaderDelay = loaderDelayArg ? parseInt(loaderDelayArg.split("=")[1], 10) 
 
 // --- Screen Components ---
 
-const HomeScreen = function HomeScreen() {
+const HomeScreen = function HomeScreen(): React.ReactNode {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
   const nav = useNavigate();
@@ -120,7 +120,7 @@ const HomeScreen = function HomeScreen() {
   );
 };
 
-const DetailScreen = function DetailScreen() {
+const DetailScreen = function DetailScreen(): React.ReactNode {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
   const params = useParams<{ id: string }>();
@@ -170,7 +170,7 @@ const DetailScreen = function DetailScreen() {
   );
 };
 
-const SettingsScreen = function SettingsScreen() {
+const SettingsScreen = function SettingsScreen(): React.ReactNode {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
   const nav = useNavigate();
@@ -203,7 +203,7 @@ const SettingsScreen = function SettingsScreen() {
   );
 };
 
-const SlowScreen = function SlowScreen() {
+const SlowScreen = function SlowScreen(): React.ReactNode {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
   const data = useRouteData<{ message: string }>();
@@ -220,7 +220,7 @@ const SlowScreen = function SlowScreen() {
   );
 };
 
-const SlowPending = function SlowPending() {
+const SlowPending = function SlowPending(): React.ReactNode {
   return (
     <box>
       <text content="Loading..." />
@@ -228,7 +228,7 @@ const SlowPending = function SlowPending() {
   );
 };
 
-const ErrorRouteScreen = function ErrorRouteScreen() {
+const ErrorRouteScreen = function ErrorRouteScreen(): React.ReactNode {
   return (
     <box>
       <text content="Screen:error-route" />
@@ -236,7 +236,7 @@ const ErrorRouteScreen = function ErrorRouteScreen() {
   );
 };
 
-const ErrorComponent = function ErrorComponent({ error }: { error: Error }) {
+const ErrorComponent = function ErrorComponent({ error }: { error: Error }): React.ReactNode {
   return (
     <box>
       <text content={`Error:${error.message}`} />
@@ -244,7 +244,7 @@ const ErrorComponent = function ErrorComponent({ error }: { error: Error }) {
   );
 };
 
-const ParentLayout = function ParentLayout() {
+const ParentLayout = function ParentLayout(): React.ReactNode {
   const { isFocused } = useScreenFocus();
   return (
     <box flexDirection="column">
@@ -254,7 +254,7 @@ const ParentLayout = function ParentLayout() {
   );
 };
 
-const ChildScreen = function ChildScreen() {
+const ChildScreen = function ChildScreen(): React.ReactNode {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
   const current = useCurrentRoute();
@@ -312,7 +312,7 @@ const router = createRouter({
 
 // --- Launch ---
 
-const App = function App() {
+const App = function App(): React.ReactNode {
   return (
     <RouterProvider router={router}>
       <Outlet />

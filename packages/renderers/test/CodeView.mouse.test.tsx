@@ -13,7 +13,7 @@ import type { RowMouseCallbacks } from "./support/bindings.js";
 const CODE = ["const a = 1", "const b = 2", "const c = 3", "const d = 4", "const e = 5"].join("\n");
 const CONTENT_X = 8;
 
-const CodeHarness = function CodeHarness(callbacks: RowMouseCallbacks) {
+const CodeHarness = function CodeHarness(callbacks: RowMouseCallbacks): React.ReactNode {
   return <CodeView content={CODE} document={useRowMouseBindings(callbacks)} />;
 };
 

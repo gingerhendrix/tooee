@@ -60,7 +60,10 @@ const describeLayers = function describeLayers(layers: readonly DecorationLayer[
 
 type HarnessOptions = Omit<UseDocumentControllerOptions<Row>, "adapter" | "rows">;
 
-const Harness = function Harness({ rows, ...options }: HarnessOptions & { rows: readonly Row[] }) {
+const Harness = function Harness({
+  rows,
+  ...options
+}: HarnessOptions & { rows: readonly Row[] }): React.ReactNode {
   const document = useDocumentController<Row>({ adapter: ADAPTER, rows, ...options });
   const mode = useMode();
   handle = document;
@@ -75,7 +78,7 @@ const Harness = function Harness({ rows, ...options }: HarnessOptions & { rows: 
         controller={document}
         showGutter={false}
         style={{ flexGrow: 1 }}
-        renderRow={(r) => <text content={r.label} />}
+        renderRow={(r): React.ReactNode => <text content={r.label} />}
       />
     </box>
   );
@@ -89,7 +92,7 @@ const DynamicHarness = function DynamicHarness({
 }: HarnessOptions & {
   initial: readonly Row[];
   onReady: (setRows: (rows: readonly Row[]) => void) => void;
-}) {
+}): React.ReactNode {
   const [rows, setRows] = useState(initial);
   onReady(setRows);
   return <Harness rows={rows} {...options} />;

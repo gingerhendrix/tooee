@@ -6,7 +6,7 @@ import type { ActionDefinition } from "@tooee/commands";
 import { AppLayout } from "@tooee/layout";
 import { launchCli, useQuitCommand } from "@tooee/shell";
 
-const WhichKeyE2EApp = function WhichKeyE2EApp() {
+const WhichKeyE2EApp = function WhichKeyE2EApp(): React.ReactNode {
   const [lastAction, setLastAction] = useState("none");
 
   useQuitCommand();

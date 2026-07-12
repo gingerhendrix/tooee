@@ -23,7 +23,7 @@ export const ThemePicker = function ThemePicker({
   onSelect,
   onClose,
   onNavigate,
-}: ThemePickerProps) {
+}: ThemePickerProps): React.ReactNode {
   const { theme } = useTheme();
   const [filter, setFilter] = useState("");
   const [activeIndex, setActiveIndex] = useState(() => {
@@ -162,27 +162,29 @@ export const ThemePicker = function ThemePicker({
 
       {/* Theme list */}
       <scrollbox focused={false} style={{ flexGrow: 1 }}>
-        {filtered.map((entry, i) => (
-          <box
-            key={entry.id}
-            flexDirection="row"
-            paddingLeft={1}
-            paddingRight={1}
-            height={1}
-            backgroundColor={i === activeIndex ? theme.backgroundElement : undefined}
-            onMouseDown={(event) => {
-              // Left-click applies the theme — same code path as Enter.
-              if (event.button !== 0) {
-                return;
-              }
-              event.preventDefault();
-              event.stopPropagation();
-              onSelect(entry.id);
-            }}
-          >
-            <text content={entry.title} fg={theme.text} style={{ flexGrow: 1 }} />
-          </box>
-        ))}
+        {filtered.map(
+          (entry, i): React.ReactNode => (
+            <box
+              key={entry.id}
+              flexDirection="row"
+              paddingLeft={1}
+              paddingRight={1}
+              height={1}
+              backgroundColor={i === activeIndex ? theme.backgroundElement : undefined}
+              onMouseDown={(event) => {
+                // Left-click applies the theme — same code path as Enter.
+                if (event.button !== 0) {
+                  return;
+                }
+                event.preventDefault();
+                event.stopPropagation();
+                onSelect(entry.id);
+              }}
+            >
+              <text content={entry.title} fg={theme.text} style={{ flexGrow: 1 }} />
+            </box>
+          ),
+        )}
       </scrollbox>
     </box>
   );

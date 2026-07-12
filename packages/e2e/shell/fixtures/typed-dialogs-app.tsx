@@ -17,7 +17,7 @@ const MODELS: Model[] = [
   { id: "large", label: "Large model" },
 ];
 
-const TypedDialogsApp = function TypedDialogsApp() {
+const TypedDialogsApp = function TypedDialogsApp(): React.ReactNode {
   useQuitCommand();
   const current = useCurrentOverlay();
   const ask = useAskDialog();

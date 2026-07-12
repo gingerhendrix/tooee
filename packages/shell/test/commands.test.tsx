@@ -6,7 +6,7 @@ import { useTheme } from "@tooee/themes";
 import { useMode } from "@tooee/commands";
 import type { TestSession } from "./support/test-helpers.ts";
 
-const ThemeHarness = function ThemeHarness() {
+const ThemeHarness = function ThemeHarness(): React.ReactNode {
   const { picker } = useThemeCommands();
   const { name: themeName } = useTheme();
   const mode = useMode();
@@ -19,7 +19,7 @@ const ThemeHarness = function ThemeHarness() {
   );
 };
 
-const QuitHarness = function QuitHarness({ onQuit }: { onQuit: () => void }) {
+const QuitHarness = function QuitHarness({ onQuit }: { onQuit: () => void }): React.ReactNode {
   useQuitCommand({ onQuit });
   return (
     <box>

@@ -32,7 +32,7 @@ export const TooeeProvider = function TooeeProvider({
   config: configOverrides,
   initialMode,
   sequenceTimeoutMs,
-}: TooeeProviderProps) {
+}: TooeeProviderProps): ReactNode {
   return (
     <ConfigProvider overrides={configOverrides}>
       <TooeeProviderInner
@@ -56,7 +56,7 @@ const TooeeProviderInner = function TooeeProviderInner({
   leader?: string;
   initialMode?: Mode;
   sequenceTimeoutMs?: number;
-}) {
+}): ReactNode {
   const config = useConfig();
   return (
     <ThemeSwitcherProvider initialTheme={config.theme?.name} initialMode={config.theme?.mode}>
@@ -80,7 +80,11 @@ const TooeeProviderInner = function TooeeProviderInner({
   );
 };
 
-const ToastContextBridge = function ToastContextBridge({ children }: { children: ReactNode }) {
+const ToastContextBridge = function ToastContextBridge({
+  children,
+}: {
+  children: ReactNode;
+}): ReactNode {
   const toastController = useToast();
 
   useProvideCommandContext(() => ({

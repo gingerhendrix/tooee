@@ -22,7 +22,7 @@ export const RouterProvider = function RouterProvider({
   initialRoute,
   initialParams,
   children,
-}: RouterProviderProps) {
+}: RouterProviderProps): ReactNode {
   const initialRouteRef = useRef(initialRoute);
   const initialParamsRef = useRef(initialParams);
   const routerRef = useRef(router);

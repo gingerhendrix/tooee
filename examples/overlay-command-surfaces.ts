@@ -119,13 +119,14 @@ const ModelPickerBody = function ModelPickerBody({
     h(
       "box",
       { flexDirection: "column", paddingBottom: 1, paddingLeft: 2, paddingRight: 2, paddingTop: 1 },
-      ...MODELS.map((model, i) =>
-        h("text", {
-          attributes: i === index ? 1 : 0,
-          content: `${i === index ? "> " : "  "}${model}`,
-          fg: i === index ? theme.primary : theme.text,
-          key: model,
-        }),
+      ...MODELS.map(
+        (model, i): ReactNode =>
+          h("text", {
+            attributes: i === index ? 1 : 0,
+            content: `${i === index ? "> " : "  "}${model}`,
+            fg: i === index ? theme.primary : theme.text,
+            key: model,
+          }),
       ),
       h("text", { content: "" }),
       h("text", {
@@ -169,7 +170,7 @@ const AskOverlayBody = function AskOverlayBody({
     handler: () => {
       overlay.open(
         "model-picker",
-        ({ close: closePicker }: OverlayRenderArgs<null>) =>
+        ({ close: closePicker }: OverlayRenderArgs<null>): ReactNode =>
           h(ModelPickerBody, { close: closePicker, onSelectModel: actions.onSelectModel }),
         null,
         { ownCommands: true, role: "modal", surfaceMode: "cursor" },
@@ -328,7 +329,7 @@ export const OverlayCommandSurfacesDemo = function OverlayCommandSurfacesDemo():
     handler: () => {
       overlay.open(
         "ask",
-        ({ close }: OverlayRenderArgs<null>) => h(AskOverlayBody, { actions, close }),
+        ({ close }: OverlayRenderArgs<null>): ReactNode => h(AskOverlayBody, { actions, close }),
         null,
         { ownCommands: true, role: "modal", surfaceMode: "cursor" },
       );
@@ -340,7 +341,7 @@ export const OverlayCommandSurfacesDemo = function OverlayCommandSurfacesDemo():
 
   useCommand({
     handler: () => {
-      overlay.open("passive-help", () => h(PassiveHelpBody, { actions }), null, {
+      overlay.open("passive-help", (): ReactNode => h(PassiveHelpBody, { actions }), null, {
         ownCommands: true,
         role: "passive",
       });
@@ -370,7 +371,9 @@ export const OverlayCommandSurfacesDemo = function OverlayCommandSurfacesDemo():
     { style: { flexDirection: "column", paddingLeft: 2, paddingTop: 1 } },
     h("text", { attributes: 1, content: "Overlay Command Surfaces", fg: theme.primary }),
     h("text", { content: "" }),
-    ...help.map((line, i) => h("text", { content: line, fg: theme.textMuted, key: `help-${i}` })),
+    ...help.map(
+      (line, i): ReactNode => h("text", { content: line, fg: theme.textMuted, key: `help-${i}` }),
+    ),
     h("text", { content: "" }),
     h(
       "box",
@@ -383,8 +386,8 @@ export const OverlayCommandSurfacesDemo = function OverlayCommandSurfacesDemo():
           paddingRight: 2,
         },
       },
-      ...stateLines.map((line, i) =>
-        h("text", { content: line, fg: theme.text, key: `state-${i}` }),
+      ...stateLines.map(
+        (line, i): ReactNode => h("text", { content: line, fg: theme.text, key: `state-${i}` }),
       ),
     ),
     overlay.topId ? null : h("text", { content: "" }),

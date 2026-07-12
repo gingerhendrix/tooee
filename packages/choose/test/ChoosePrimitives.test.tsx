@@ -138,7 +138,7 @@ describe("ChooseController and normalized sources", () => {
     const controllerRef = { current: null as ChooseController | null };
     let replace!: () => void;
 
-    const Host = function Host() {
+    const Host = function Host(): React.ReactNode {
       const [items, setItems] = useState<ChooseItem[]>([{ text: "old-one" }, { text: "old-two" }]);
       replace = () => setItems([{ text: "fresh-one" }]);
       return (
@@ -168,8 +168,8 @@ describe("ChooseController and normalized sources", () => {
     const slow = deferred<ChooseItem[]>();
     let replace!: () => void;
 
-    const Host = function Host() {
-      const [source, setSource] = useState<ChooseSource>(() => () => slow.promise);
+    const Host = function Host(): React.ReactNode {
+      const [source, setSource] = useState<ChooseSource>(() => async () => slow.promise);
       replace = () => setSource([{ text: "fresh" }]);
       return <ChooseOverlay items={source} onSelect={() => {}} onCancel={() => {}} />;
     };
@@ -284,7 +284,7 @@ describe("shared commands, context, and surfaces", () => {
     expect(contextFilter).toBe("");
   });
 
-  const ChildSurface = function ChildSurface({ close }: { close: () => void }) {
+  const ChildSurface = function ChildSurface({ close }: { close: () => void }): React.ReactNode {
     useCommand({
       handler: close,
       hotkey: "x",
@@ -299,7 +299,11 @@ describe("shared commands, context, and surfaces", () => {
     );
   };
 
-  const NestedHost = function NestedHost({ onSelect }: { onSelect: (item: ChooseItem) => void }) {
+  const NestedHost = function NestedHost({
+    onSelect,
+  }: {
+    onSelect: (item: ChooseItem) => void;
+  }): React.ReactNode {
     const [open, setOpen] = useState(true);
     return (
       <ChooseOverlay
@@ -378,7 +382,7 @@ describe("view extension points", () => {
         hints={() => "x extra"}
         statusRight="READY"
         footer={<text content="FOOTER" />}
-        renderItem={({ item, defaultContent }) => (
+        renderItem={({ item, defaultContent }): React.ReactNode => (
           <>
             <text content={`CUSTOM:${item.text} `} />
             {defaultContent}

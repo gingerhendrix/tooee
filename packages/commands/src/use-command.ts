@@ -43,7 +43,8 @@ export const useCommand = function useCommand(options: UseCommandOptions): void 
       category: options.category,
       defaultHotkey: options.hotkey,
       group: options.group,
-      handler: (...args: Parameters<Command["handler"]>) => optionsRef.current.handler(...args),
+      handler: (...args: Parameters<Command["handler"]>): void | Promise<void> =>
+        optionsRef.current.handler(...args),
       hidden: options.hidden,
       icon: options.icon,
       id: options.id,

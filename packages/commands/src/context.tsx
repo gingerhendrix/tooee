@@ -83,7 +83,7 @@ export const CommandProvider = function CommandProvider({
   keymap,
   initialMode,
   sequenceTimeoutMs,
-}: CommandProviderProps) {
+}: CommandProviderProps): ReactNode {
   // The store is created here (above the root ModeProvider) so mode changes
   // can be routed into it as transitions; the dispatcher below installs the
   // real root accessors before any key can dispatch.
@@ -150,7 +150,7 @@ const CommandDispatcher = function CommandDispatcher({
   leader?: string;
   keymap?: Record<string, string>;
   sequenceTimeoutMs?: number;
-}) {
+}): ReactNode {
   const mode = useMode();
   const modeRef = useRef(mode);
   modeRef.current = mode;
@@ -238,7 +238,7 @@ export const CommandSurfaceProvider = function CommandSurfaceProvider({
   id,
   role = "modal",
   initialMode = "cursor",
-}: CommandSurfaceProviderProps) {
+}: CommandSurfaceProviderProps): ReactNode {
   const parent = useContext(CommandContext);
   if (!parent) {
     throw new Error("CommandSurfaceProvider must be used within a CommandProvider");
@@ -266,7 +266,7 @@ const CommandSurfaceInner = function CommandSurfaceInner({
   children: ReactNode;
   id: string;
   role: CommandSurfaceRole;
-}) {
+}): ReactNode {
   const parent = useContext(CommandContext);
   if (!parent) {
     throw new Error("CommandSurfaceProvider must be used within a CommandProvider");

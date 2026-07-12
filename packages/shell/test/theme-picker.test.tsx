@@ -18,7 +18,7 @@ beforeEach(() => {
   resetTestConfig(CONFIG_NAMESPACE);
 });
 
-const ThemePickerHarness = function ThemePickerHarness() {
+const ThemePickerHarness = function ThemePickerHarness(): React.ReactNode {
   const { name: themeName, picker } = useThemeCommands();
   const mode = useMode();
   const { name: activeTheme } = useTheme();

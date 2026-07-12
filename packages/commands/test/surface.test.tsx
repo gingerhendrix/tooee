@@ -43,7 +43,7 @@ const SurfaceA = function SurfaceA({
   onAction: () => void;
   onClose: () => void;
   onOpenNested: () => void;
-}) {
+}): ReactNode {
   const mode = useMode();
   const setMode = useSetMode();
 
@@ -71,13 +71,13 @@ const SurfaceB = function SurfaceB({
 }: {
   onAction: () => void;
   onClose: () => void;
-}) {
+}): ReactNode {
   useCommand({ handler: onAction, hotkey: "b", id: "b.action", title: "B action" });
   useCommand({ handler: onClose, hotkey: "Escape", id: "b.close", title: "Close B" });
   return <text content="surface-b" />;
 };
 
-const Harness = function Harness({ aRole = "modal" }: { aRole?: CommandSurfaceRole }) {
+const Harness = function Harness({ aRole = "modal" }: { aRole?: CommandSurfaceRole }): ReactNode {
   const [showA, setShowA] = useState(false);
   const [showB, setShowB] = useState(false);
   const [rootQuit, setRootQuit] = useState(0);
@@ -228,7 +228,7 @@ describe("command surface arbitration", () => {
     // or useActiveCommandSurface here). This test documents the hazard: the
     // unguarded handler still fires while a modal surface owns input; the
     // guarded handler does not.
-    const RawKeyboardHarness = function RawKeyboardHarness() {
+    const RawKeyboardHarness = function RawKeyboardHarness(): ReactNode {
       const [showSurface, setShowSurface] = useState(false);
       const [unguarded, setUnguarded] = useState(0);
       const [guarded, setGuarded] = useState(0);
@@ -270,7 +270,11 @@ describe("command surface arbitration", () => {
       );
     };
 
-    const ZCommandSurface = function ZCommandSurface({ onAction }: { onAction: () => void }) {
+    const ZCommandSurface = function ZCommandSurface({
+      onAction,
+    }: {
+      onAction: () => void;
+    }): ReactNode {
       useCommand({ handler: onAction, hotkey: "z", id: "modal.z", title: "Z action" });
       return <text content="modal-surface" />;
     };

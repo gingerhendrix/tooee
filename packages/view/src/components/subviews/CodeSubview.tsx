@@ -16,7 +16,7 @@ export const CodeSubview = function CodeSubview({
   decorations,
   actions,
   ...screen
-}: CodeSubviewProps) {
+}: CodeSubviewProps): React.ReactNode {
   const textContent = content.format === "code" ? content.code : content.text;
   // One navigation row per physical source line; row index is the source line.
   const lineRows = useMemo(() => sourceLines(textContent), [textContent]);

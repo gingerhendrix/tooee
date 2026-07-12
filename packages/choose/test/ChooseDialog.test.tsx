@@ -88,7 +88,7 @@ const DialogOwner = function DialogOwner({
   return null;
 };
 
-const Harness = function Harness() {
+const Harness = function Harness(): React.ReactNode {
   const overlayState = useOverlayState();
   const current = useCurrentOverlay();
   const fruits = useChooseDialog<Fruit>();
@@ -221,7 +221,7 @@ describe("useChooseDialog", () => {
     await act(async () => {
       void handles
         .current!.fruits.open({
-          items: () => Promise.resolve(FRUITS),
+          items: async () => FRUITS,
           prompt: "Pick fruit",
           toItem,
         })

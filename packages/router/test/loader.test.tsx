@@ -17,7 +17,7 @@ const createDeferred = function createDeferred<T>() {
 
 // Screen components
 
-const HomeScreen = function HomeScreen() {
+const HomeScreen = function HomeScreen(): React.ReactNode {
   return (
     <box>
       <text content="screen:home" />
@@ -25,7 +25,7 @@ const HomeScreen = function HomeScreen() {
   );
 };
 
-const DataScreen = function DataScreen() {
+const DataScreen = function DataScreen(): React.ReactNode {
   const data = useRouteData<{ message: string }>();
   return (
     <box>
@@ -34,7 +34,7 @@ const DataScreen = function DataScreen() {
   );
 };
 
-const LoadingScreen = function LoadingScreen() {
+const LoadingScreen = function LoadingScreen(): React.ReactNode {
   return (
     <box>
       <text content="screen:loading" />
@@ -42,7 +42,7 @@ const LoadingScreen = function LoadingScreen() {
   );
 };
 
-const ErrorScreen = function ErrorScreen({ error }: { error: Error }) {
+const ErrorScreen = function ErrorScreen({ error }: { error: Error }): React.ReactNode {
   return (
     <box>
       <text content={`screen:error:${error.message}`} />
@@ -66,7 +66,7 @@ describe("route loaders", () => {
     const dataRoute = createRoute({
       component: DataScreen,
       id: "data",
-      loader: () => deferred.promise,
+      loader: async () => deferred.promise,
       pendingComponent: LoadingScreen,
     });
 
@@ -136,7 +136,7 @@ describe("route loaders", () => {
       component: DataScreen,
       errorComponent: ErrorScreen,
       id: "failing",
-      loader: () => deferred.promise,
+      loader: async () => deferred.promise,
       pendingComponent: LoadingScreen,
     });
 
@@ -180,7 +180,7 @@ describe("route loaders", () => {
     const errorRoute = createRoute({
       component: DataScreen,
       id: "failing",
-      loader: () => deferred.promise,
+      loader: async () => deferred.promise,
       pendingComponent: LoadingScreen,
     });
 
@@ -220,7 +220,7 @@ describe("route loaders", () => {
   test("useRouteData returns undefined for routes without loaders", async () => {
     let capturedData: unknown = "sentinel";
 
-    const NoLoaderScreen = function NoLoaderScreen() {
+    const NoLoaderScreen = function NoLoaderScreen(): React.ReactNode {
       capturedData = useRouteData();
       return (
         <box>
@@ -311,7 +311,7 @@ describe("route loaders", () => {
     const dataRoute = createRoute({
       component: DataScreen,
       id: "data",
-      loader: () => deferred.promise,
+      loader: async () => deferred.promise,
       // No pendingComponent
     });
 
@@ -351,7 +351,7 @@ describe("route loaders", () => {
     const dataRoute = createRoute({
       component: DataScreen,
       id: "data",
-      loader: ({ params: _params }) => {
+      loader: async ({ params: _params }) => {
         callCount++;
         if (callCount === 1) {
           return deferred1.promise;
@@ -414,7 +414,7 @@ describe("route loaders", () => {
   test("loader receives route params", async () => {
     let receivedParams: Record<string, unknown> = {};
 
-    const ParamScreen = function ParamScreen() {
+    const ParamScreen = function ParamScreen(): React.ReactNode {
       const data = useRouteData<{ echo: string }>();
       return (
         <box>

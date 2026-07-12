@@ -45,7 +45,7 @@ export const useActions = function useActions(actions: ActionDefinition[] | unde
         category: action.category,
         defaultHotkey: action.hotkey,
         group: action.group,
-        handler: (ctx) => actionsRef.current?.[i]?.handler(ctx),
+        handler: (ctx): void | Promise<void> | undefined => actionsRef.current?.[i]?.handler(ctx),
         hidden: action.hidden,
         icon: action.icon,
         id: action.id,

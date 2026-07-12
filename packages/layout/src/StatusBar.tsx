@@ -9,7 +9,7 @@ export interface StatusBarItem {
   value?: string;
 }
 
-export const StatusBar = function StatusBar({ items }: StatusBarProps) {
+export const StatusBar = function StatusBar({ items }: StatusBarProps): React.ReactNode {
   const { theme } = useTheme();
   return (
     <box
@@ -22,12 +22,14 @@ export const StatusBar = function StatusBar({ items }: StatusBarProps) {
         paddingRight: 1,
       }}
     >
-      {items.map((item, index) => (
-        <box key={index} style={{ flexDirection: "row", marginRight: 2 }}>
-          <text content={item.label} style={{ fg: theme.textMuted }} />
-          {item.value && <text content={` ${item.value}`} style={{ fg: theme.text }} />}
-        </box>
-      ))}
+      {items.map(
+        (item, index): React.ReactNode => (
+          <box key={index} style={{ flexDirection: "row", marginRight: 2 }}>
+            <text content={item.label} style={{ fg: theme.textMuted }} />
+            {item.value && <text content={` ${item.value}`} style={{ fg: theme.text }} />}
+          </box>
+        ),
+      )}
     </box>
   );
 };

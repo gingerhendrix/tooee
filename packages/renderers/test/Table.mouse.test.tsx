@@ -33,7 +33,7 @@ const DATA = rows(COLUMNS, [
 const DATA_TOP_Y = 2;
 const CONTENT_X = 8;
 
-const TableHarness = function TableHarness(callbacks: RowMouseCallbacks) {
+const TableHarness = function TableHarness(callbacks: RowMouseCallbacks): React.ReactNode {
   return (
     <Table columns={COLUMNS} rows={DATA} maxWidth={40} document={useRowMouseBindings(callbacks)} />
   );

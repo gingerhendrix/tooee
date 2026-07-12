@@ -14,7 +14,7 @@ afterEach(() => {
 /**
  * Harness that exposes toast state as text for assertions.
  */
-const ToastHarness = function ToastHarness() {
+const ToastHarness = function ToastHarness(): React.ReactNode {
   const { currentToast } = useToast();
   return (
     <box>
@@ -46,7 +46,7 @@ const ToastTrigger = function ToastTrigger({
   return null;
 };
 
-const renderWithProviders = function renderWithProviders(children: React.ReactNode) {
+const renderWithProviders = async function renderWithProviders(children: React.ReactNode) {
   return testRender(
     <ThemeSwitcherProvider>
       <ToastProvider>{children}</ToastProvider>
@@ -70,7 +70,7 @@ test("toast appears with correct level and message", async () => {
 test("dismiss clears the toast", async () => {
   let toastApi: ReturnType<typeof useToast>;
 
-  const DismissTest = function DismissTest() {
+  const DismissTest = function DismissTest(): React.ReactNode {
     toastApi = useToast();
     const { currentToast } = toastApi;
     return <text content={currentToast ? `toast:${currentToast.message}` : "toast:none"} />;
@@ -114,7 +114,7 @@ test("auto-dismisses after duration", async () => {
 test("same ID replaces existing toast and resets timer", async () => {
   let toastApi: ReturnType<typeof useToast>;
 
-  const DedupTest = function DedupTest() {
+  const DedupTest = function DedupTest(): React.ReactNode {
     toastApi = useToast();
     const { currentToast } = toastApi;
     return (
@@ -160,7 +160,7 @@ test("same ID replaces existing toast and resets timer", async () => {
 });
 
 test("each level gets correct default duration", async () => {
-  const DurationTest = function DurationTest() {
+  const DurationTest = function DurationTest(): React.ReactNode {
     const { toast, currentToast } = useToast();
     useEffect(() => {
       for (const l of ["info", "success", "warning", "error"] as ToastLevel[]) {
@@ -177,7 +177,11 @@ test("each level gets correct default duration", async () => {
 });
 
 test("level defaults: info=2000, success=1500, warning=3000, error=5000", async () => {
-  const SingleLevelTest = function SingleLevelTest({ level }: { level: ToastLevel }) {
+  const SingleLevelTest = function SingleLevelTest({
+    level,
+  }: {
+    level: ToastLevel;
+  }): React.ReactNode {
     const { toast, currentToast } = useToast();
     useEffect(() => {
       toast({ level, message: "test" });
@@ -263,7 +267,7 @@ test("ToastContainer renders nothing when no toast", async () => {
 });
 
 test("defaults to info level when level not specified", async () => {
-  const DefaultLevelTest = function DefaultLevelTest() {
+  const DefaultLevelTest = function DefaultLevelTest(): React.ReactNode {
     const { toast, currentToast } = useToast();
     useEffect(() => {
       toast({ message: "no level" });

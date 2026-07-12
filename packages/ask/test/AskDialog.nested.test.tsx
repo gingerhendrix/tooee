@@ -85,14 +85,14 @@ const nested: { current: NestedHarnessHandles | null } = { current: null };
  * PTUI AskWithModel shape: an ask dialog whose surface command opens a nested
  * typed chooser, then inserts the chosen model into the parent editor.
  */
-const NestedHarness = function NestedHarness() {
+const NestedHarness = function NestedHarness(): React.ReactNode {
   const current = useCurrentOverlay();
   const ask = useAskDialog();
   const choose = useChooseDialog<Model>();
   const controllerRef = useRef<AskEditorController | null>(null);
 
   nested.current = {
-    open: () =>
+    open: async () =>
       ask.open({
         commands: [
           {

@@ -35,7 +35,7 @@ export const ContextMenu = function ContextMenu({
   y,
   onSelect,
   onClose,
-}: ContextMenuProps) {
+}: ContextMenuProps): React.ReactNode {
   const { theme } = useTheme();
   const { width: termWidth, height: termHeight } = useTerminalDimensions();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -121,31 +121,33 @@ export const ContextMenu = function ContextMenu({
             <text content="No actions" fg={theme.textMuted} />
           </box>
         ) : (
-          entries.map((entry, i) => (
-            <box
-              key={entry.id}
-              flexDirection="row"
-              height={1}
-              paddingLeft={1}
-              paddingRight={1}
-              backgroundColor={i === activeIndex ? theme.backgroundElement : undefined}
-              onMouseDown={(event) => {
-                if (event.button !== 0) {
-                  return;
-                }
-                event.preventDefault();
-                event.stopPropagation();
-                onSelect(entry.id);
-              }}
-            >
-              <text
-                content={entry.title}
-                fg={i === activeIndex ? theme.primary : theme.text}
-                style={{ flexGrow: 1 }}
-              />
-              {entry.hotkey && <text content={` ${entry.hotkey}`} fg={theme.textMuted} />}
-            </box>
-          ))
+          entries.map(
+            (entry, i): React.ReactNode => (
+              <box
+                key={entry.id}
+                flexDirection="row"
+                height={1}
+                paddingLeft={1}
+                paddingRight={1}
+                backgroundColor={i === activeIndex ? theme.backgroundElement : undefined}
+                onMouseDown={(event) => {
+                  if (event.button !== 0) {
+                    return;
+                  }
+                  event.preventDefault();
+                  event.stopPropagation();
+                  onSelect(entry.id);
+                }}
+              >
+                <text
+                  content={entry.title}
+                  fg={i === activeIndex ? theme.primary : theme.text}
+                  style={{ flexGrow: 1 }}
+                />
+                {entry.hotkey && <text content={` ${entry.hotkey}`} fg={theme.textMuted} />}
+              </box>
+            ),
+          )
         )}
       </box>
     </box>

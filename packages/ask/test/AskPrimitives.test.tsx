@@ -64,7 +64,7 @@ describe("AskEditorController", () => {
     defaultValue?: string;
     onSubmit?: (value: string) => void;
     controllerRef: React.RefObject<AskEditorController | null>;
-  }) {
+  }): React.ReactNode {
     return (
       <AskOverlay
         prompt="Question"
@@ -245,7 +245,11 @@ describe("AskOverlay chrome extension points", () => {
 });
 
 describe("AskOverlay nested modal surfaces", () => {
-  const PickerSurface = function PickerSurface({ onClose }: { onClose: () => void }) {
+  const PickerSurface = function PickerSurface({
+    onClose,
+  }: {
+    onClose: () => void;
+  }): React.ReactNode {
     useCommand({
       handler: onClose,
       hotkey: "x",
@@ -260,7 +264,10 @@ describe("AskOverlay nested modal surfaces", () => {
     );
   };
 
-  const Host = function Host(props: { onCancel: () => void; onSubmit: (value: string) => void }) {
+  const Host = function Host(props: {
+    onCancel: () => void;
+    onSubmit: (value: string) => void;
+  }): React.ReactNode {
     const [pickerOpen, setPickerOpen] = useState(true);
     const controllerRef = useRef<AskEditorController>(null);
     return (

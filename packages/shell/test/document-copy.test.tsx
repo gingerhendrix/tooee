@@ -17,7 +17,7 @@ const ROWS: Row[] = [
   { id: "c", label: "gamma" },
 ];
 
-const Harness = function Harness({ copy }: { copy?: boolean }) {
+const Harness = function Harness({ copy }: { copy?: boolean }): React.ReactNode {
   const document = useDocumentController<Row>({
     // Copy must use the same semantic text projection as search.
     adapter: { getKey: (r) => r.id, getText: (r) => `${r.id}\t${r.label}` },
@@ -32,7 +32,7 @@ const Harness = function Harness({ copy }: { copy?: boolean }) {
         controller={document}
         showGutter={false}
         style={{ flexGrow: 1 }}
-        renderRow={(r) => <text content={r.label} />}
+        renderRow={(r): React.ReactNode => <text content={r.label} />}
       />
     </box>
   );

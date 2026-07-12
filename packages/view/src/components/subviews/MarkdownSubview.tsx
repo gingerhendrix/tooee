@@ -34,7 +34,7 @@ export const MarkdownSubview = function MarkdownSubview({
   decorations,
   actions,
   ...screen
-}: MarkdownSubviewProps) {
+}: MarkdownSubviewProps): React.ReactNode {
   const textContent = content.markdown;
   const lineCount = useMemo(() => textContent.split("\n").length, [textContent]);
   const blocks = useMemo(() => flattenMarkdown(content.markdown), [content.markdown]);

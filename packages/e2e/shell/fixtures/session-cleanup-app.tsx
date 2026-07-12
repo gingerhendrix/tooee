@@ -1,6 +1,6 @@
 import { useQuitCommand, launchCli } from "@tooee/shell";
 
-const SessionCleanupApp = function SessionCleanupApp() {
+const SessionCleanupApp = function SessionCleanupApp(): React.ReactNode {
   useQuitCommand();
   return <text>session cleanup ready</text>;
 };

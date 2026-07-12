@@ -21,7 +21,7 @@ export const CommandPalette = function CommandPalette({
   commands,
   onSelect,
   onClose,
-}: CommandPaletteProps) {
+}: CommandPaletteProps): React.ReactNode {
   const { theme } = useTheme();
   const [filter, setFilter] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -128,29 +128,31 @@ export const CommandPalette = function CommandPalette({
 
       {/* Command list */}
       <scrollbox focused={false} style={{ flexGrow: 1 }}>
-        {filtered.map((entry, i) => (
-          <box
-            key={entry.id}
-            flexDirection="row"
-            paddingLeft={1}
-            paddingRight={1}
-            height={1}
-            backgroundColor={i === activeIndex ? theme.backgroundElement : undefined}
-            onMouseDown={(event) => {
-              // Left-click runs the entry — same code path as Enter.
-              if (event.button !== 0) {
-                return;
-              }
-              event.preventDefault();
-              event.stopPropagation();
-              onSelect(entry.id);
-            }}
-          >
-            <text content={entry.title} fg={theme.text} style={{ flexGrow: 1 }} />
-            {entry.hotkey && <text content={entry.hotkey} fg={theme.textMuted} />}
-            {entry.category && <text content={` ${entry.category}`} fg={theme.textMuted} />}
-          </box>
-        ))}
+        {filtered.map(
+          (entry, i): React.ReactNode => (
+            <box
+              key={entry.id}
+              flexDirection="row"
+              paddingLeft={1}
+              paddingRight={1}
+              height={1}
+              backgroundColor={i === activeIndex ? theme.backgroundElement : undefined}
+              onMouseDown={(event) => {
+                // Left-click runs the entry — same code path as Enter.
+                if (event.button !== 0) {
+                  return;
+                }
+                event.preventDefault();
+                event.stopPropagation();
+                onSelect(entry.id);
+              }}
+            >
+              <text content={entry.title} fg={theme.text} style={{ flexGrow: 1 }} />
+              {entry.hotkey && <text content={entry.hotkey} fg={theme.textMuted} />}
+              {entry.category && <text content={` ${entry.category}`} fg={theme.textMuted} />}
+            </box>
+          ),
+        )}
       </scrollbox>
     </box>
   );

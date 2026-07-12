@@ -34,7 +34,7 @@ export const TableSubview = function TableSubview({
   decorations,
   actions,
   ...screen
-}: TableSubviewProps) {
+}: TableSubviewProps): React.ReactNode {
   const textContent = useMemo(() => getTextContent(content), [content]);
   const { showLineNumbers } = useContentCommands({ content, textContent });
 

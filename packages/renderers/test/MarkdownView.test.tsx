@@ -1208,7 +1208,7 @@ describe("scroll isolation", () => {
 // ---------------------------------------------------------------------------
 
 describe("custom code block renderers", () => {
-  const graphqlRenderer: CodeBlockRenderer = ({ text, theme, indent }) => (
+  const graphqlRenderer: CodeBlockRenderer = ({ text, theme, indent }): React.ReactNode => (
     <box style={{ marginBottom: 1, marginLeft: 1 + indent }}>
       <text content={`GraphQL query (${text.split("\n").length} lines)`} fg={theme.accent} />
     </box>
@@ -1280,7 +1280,7 @@ describe("custom code block renderers", () => {
 
   test("renderer receives the full info string", async () => {
     let seenInfo: string | undefined;
-    const infoRenderer: CodeBlockRenderer = ({ info, theme }) => {
+    const infoRenderer: CodeBlockRenderer = ({ info, theme }): React.ReactNode => {
       seenInfo = info;
       return <text content="custom" fg={theme.accent} />;
     };
@@ -1349,7 +1349,7 @@ describe("custom code block renderers", () => {
   });
 
   test("user entry for mermaid overrides the built-in renderer", async () => {
-    const overrideRenderer: CodeBlockRenderer = ({ theme }) => (
+    const overrideRenderer: CodeBlockRenderer = ({ theme }): React.ReactNode => (
       <text content="custom mermaid override" fg={theme.accent} />
     );
     testSetup = await testRender(
@@ -1369,7 +1369,7 @@ describe("custom code block renderers", () => {
 
   test("custom renderer inside a list item receives its indent", async () => {
     let seenIndent: number | undefined;
-    const indentRenderer: CodeBlockRenderer = ({ indent, theme }) => {
+    const indentRenderer: CodeBlockRenderer = ({ indent, theme }): React.ReactNode => {
       seenIndent = indent;
       return <text content="indented custom block" fg={theme.accent} />;
     };
@@ -1388,7 +1388,12 @@ describe("custom code block renderers", () => {
 
   test("custom renderer can opt into horizontal panning via hScroll", async () => {
     const wideLine = `[Start] ${"─".repeat(100)} [Finish line]`;
-    const hScrollRenderer: CodeBlockRenderer = ({ text, theme, indent, hScroll }) => (
+    const hScrollRenderer: CodeBlockRenderer = ({
+      text,
+      theme,
+      indent,
+      hScroll,
+    }): React.ReactNode => (
       <box style={{ marginBottom: 1, marginLeft: 1 + indent }}>
         <text
           ref={hScroll.register}

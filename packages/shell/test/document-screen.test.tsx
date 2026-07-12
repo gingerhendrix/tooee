@@ -49,7 +49,7 @@ type ScreenOptions = Partial<
 const Harness = function Harness({
   multiSelect = true,
   ...screen
-}: ScreenOptions & { multiSelect?: boolean }) {
+}: ScreenOptions & { multiSelect?: boolean }): React.ReactNode {
   const document = useDocumentController<Row>({
     adapter: { getKey: (r) => r.id, getText: (r) => r.label },
     multiSelect,
@@ -63,7 +63,7 @@ const Harness = function Harness({
         controller={document}
         showGutter={false}
         style={{ flexGrow: 1 }}
-        renderRow={(r) => <text content={r.label} />}
+        renderRow={(r): React.ReactNode => <text content={r.label} />}
       />
     </DocumentScreen>
   );
@@ -212,7 +212,7 @@ describe("status bar", () => {
   });
 });
 
-const EmptyHarness = function EmptyHarness() {
+const EmptyHarness = function EmptyHarness(): React.ReactNode {
   const document = useDocumentController<Row>({
     adapter: { getKey: (r) => r.id, getText: (r) => r.label },
     rows: [],
@@ -222,7 +222,7 @@ const EmptyHarness = function EmptyHarness() {
       <Document
         controller={document}
         showGutter={false}
-        renderRow={(r) => <text content={r.label} />}
+        renderRow={(r): React.ReactNode => <text content={r.label} />}
       />
     </DocumentScreen>
   );

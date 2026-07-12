@@ -24,7 +24,7 @@ export const Document = function Document<T>({
   controller,
   renderRow,
   ...rowDocumentProps
-}: DocumentProps<T>) {
+}: DocumentProps<T>): ReactNode {
   return (
     <row-document
       {...rowDocumentProps}
@@ -32,9 +32,11 @@ export const Document = function Document<T>({
       decorations={controller.decorations}
       onMouseDown={controller.onMouseDown}
     >
-      {controller.rows.map((row, index) => (
-        <box key={controller.getRowKey(index)}>{renderRow(row, index)}</box>
-      ))}
+      {controller.rows.map(
+        (row, index): ReactNode => (
+          <box key={controller.getRowKey(index)}>{renderRow(row, index)}</box>
+        ),
+      )}
     </row-document>
   );
 };

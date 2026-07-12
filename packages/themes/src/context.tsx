@@ -45,7 +45,7 @@ export const ThemeProvider = function ThemeProvider({
   mode,
   theme: themeProp,
   children,
-}: ThemeProviderProps) {
+}: ThemeProviderProps): ReactNode {
   const resolved = useMemo<ThemeContextValue>(() => {
     if (themeProp) {
       return {
@@ -90,7 +90,7 @@ export const ThemeSwitcherProvider = function ThemeSwitcherProvider({
   initialTheme,
   initialMode,
   children,
-}: ThemeSwitcherProviderProps) {
+}: ThemeSwitcherProviderProps): ReactNode {
   const allThemes = useMemo(() => getThemeNames(), []);
   const [themeName, setThemeName] = useState(initialTheme ?? DEFAULT_THEME_NAME);
   const [mode, _setMode] = useState<"dark" | "light">(initialMode ?? DEFAULT_MODE);

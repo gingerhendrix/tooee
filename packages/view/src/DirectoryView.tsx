@@ -30,7 +30,10 @@ interface DirectoryViewProps {
   actions?: ActionDefinition[];
 }
 
-export const DirectoryView = function DirectoryView({ dirPath, actions }: DirectoryViewProps) {
+export const DirectoryView = function DirectoryView({
+  dirPath,
+  actions,
+}: DirectoryViewProps): React.ReactNode {
   const files = useMemo(() => listDirectoryFiles(dirPath), [dirPath]);
   const [currentIndex, setCurrentIndex] = useState(0);
 

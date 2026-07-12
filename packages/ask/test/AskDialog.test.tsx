@@ -80,7 +80,7 @@ const DialogOwner = function DialogOwner({
   return null;
 };
 
-const Harness = function Harness() {
+const Harness = function Harness(): React.ReactNode {
   const overlay = useOverlay();
   const overlayState = useOverlayState();
   const current = useCurrentOverlay();
@@ -144,7 +144,7 @@ const openDialog = async function openDialog(
 describe("useAskDialog settlement", () => {
   test("submit resolves the typed value, closes the overlay, and settles once", async () => {
     testSetup = await setup();
-    await openDialog((o) => handles.current!.dialog.open(o), "Question?", "ask");
+    await openDialog(async (o) => handles.current!.dialog.open(o), "Question?", "ask");
     expect(testSetup.captureCharFrame()).toContain("Question?");
 
     await typeText("hello");
@@ -157,7 +157,7 @@ describe("useAskDialog settlement", () => {
 
   test("cancel via q in cursor mode resolves null exactly once", async () => {
     testSetup = await setup();
-    await openDialog((o) => handles.current!.dialog.open(o), "Question?", "ask");
+    await openDialog(async (o) => handles.current!.dialog.open(o), "Question?", "ask");
 
     await pressEscape(); // dialog surface: insert -> cursor
     await press("q"); // ask cancel
@@ -168,7 +168,7 @@ describe("useAskDialog settlement", () => {
 
   test("host commands are suspended while the dialog is open and resume after", async () => {
     testSetup = await setup();
-    await openDialog((o) => handles.current!.dialog.open(o), "Question?", "ask");
+    await openDialog(async (o) => handles.current!.dialog.open(o), "Question?", "ask");
 
     await pressEscape(); // dialog cursor mode; 'z' would now be dispatchable if not suspended
     await press("z");
@@ -182,14 +182,19 @@ describe("useAskDialog settlement", () => {
 
   test("same-id replacement settles the displaced dialog null exactly once", async () => {
     testSetup = await setup();
-    await openDialog((o) => handles.current!.dialog.open(o), "Question?", "ask");
+    await openDialog(async (o) => handles.current!.dialog.open(o), "Question?", "ask");
 
     const topId = handles.current!.stackIds().at(-1)!;
     await act(async () => {
-      handles.current!.overlay.open(topId, () => <text content="REPLACEMENT" />, undefined, {
-        ownCommands: true,
-        role: "modal",
-      });
+      handles.current!.overlay.open(
+        topId,
+        (): React.ReactNode => <text content="REPLACEMENT" />,
+        undefined,
+        {
+          ownCommands: true,
+          role: "modal",
+        },
+      );
     });
     await testSetup.renderOnce();
 
@@ -208,7 +213,7 @@ describe("useAskDialog settlement", () => {
 
   test("unmounting the owning component settles null and removes the overlay record", async () => {
     testSetup = await setup();
-    await openDialog((o) => handles.current!.ownerDialog!.open(o), "Owned?", "owned");
+    await openDialog(async (o) => handles.current!.ownerDialog!.open(o), "Owned?", "owned");
     expect(testSetup.captureCharFrame()).toContain("Owned?");
 
     const ownerDialog = handles.current!.ownerDialog!;

@@ -25,7 +25,10 @@ const TRACK_CHAR = "░";
  *
  * Renders nothing when content fits within the viewport (no overflow).
  */
-export const EditorScrollbar = function EditorScrollbar({ target, color }: EditorScrollbarProps) {
+export const EditorScrollbar = function EditorScrollbar({
+  target,
+  color,
+}: EditorScrollbarProps): React.ReactNode {
   if (!target) {
     return null;
   }

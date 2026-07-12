@@ -14,7 +14,7 @@ const AskSurface = function AskSurface({
 }: {
   onSubmit: (value: string) => void;
   onCancel: () => void;
-}) {
+}): React.ReactNode {
   const mode = useMode();
   const setMode = useSetMode();
 
@@ -40,13 +40,17 @@ const AskSurface = function AskSurface({
   );
 };
 
-const PassiveSurface = function PassiveSurface({ onAction }: { onAction: () => void }) {
+const PassiveSurface = function PassiveSurface({
+  onAction,
+}: {
+  onAction: () => void;
+}): React.ReactNode {
   // Bound to the same hotkey the root uses to prove passive surfaces never win.
   useCommand({ handler: onAction, hotkey: "q", id: "passive.quit-like", title: "Passive" });
   return <text content="PASSIVE_OVERLAY" />;
 };
 
-const Harness = function Harness() {
+const Harness = function Harness(): React.ReactNode {
   const overlay = useOverlay();
   const current = useCurrentOverlay();
   const mode = useMode();
@@ -63,7 +67,7 @@ const Harness = function Harness() {
     handler: () => {
       overlay.open(
         "ask",
-        ({ close }: { close: (reason?: OverlayCloseReason) => void }) => (
+        ({ close }: { close: (reason?: OverlayCloseReason) => void }): React.ReactNode => (
           <AskSurface
             onSubmit={(value) => {
               setSubmitted(value);
@@ -88,7 +92,7 @@ const Harness = function Harness() {
     handler: () => {
       overlay.open(
         "passive",
-        () => <PassiveSurface onAction={() => setPassiveAction((n) => n + 1)} />,
+        (): React.ReactNode => <PassiveSurface onAction={() => setPassiveAction((n) => n + 1)} />,
         null,
         { ownCommands: true, role: "passive" },
       );

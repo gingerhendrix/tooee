@@ -9,7 +9,7 @@ export const ScreenFocusProvider = function ScreenFocusProvider({
 }: {
   active: boolean;
   children: ReactNode;
-}) {
+}): ReactNode {
   const value = useMemo(() => ({ isFocused: active }), [active]);
   return <ScreenFocusContext value={value}>{children}</ScreenFocusContext>;
 };

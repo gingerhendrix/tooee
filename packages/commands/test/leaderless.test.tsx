@@ -24,7 +24,7 @@ const press = async function press(
 
 describe("leaderless <leader> hotkeys (R-06)", () => {
   test("a <leader> hotkey with no configured leader never fires", async () => {
-    const Harness = function Harness() {
+    const Harness = function Harness(): React.ReactNode {
       const [count, setCount] = useState(0);
       useCommand({
         handler: () => setCount((n) => n + 1),
@@ -53,7 +53,7 @@ describe("leaderless <leader> hotkeys (R-06)", () => {
   });
 
   test("a <leader> hotkey with a configured leader still works", async () => {
-    const Harness = function Harness() {
+    const Harness = function Harness(): React.ReactNode {
       const [count, setCount] = useState(0);
       useCommand({
         handler: () => setCount((n) => n + 1),

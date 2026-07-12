@@ -97,7 +97,7 @@ const ChartRenderer = function ChartRenderer({
   return createElement(
     CodeBlockChrome,
     { indent, theme },
-    ...rows.map((row, i) => {
+    ...rows.map((row, i): ReactNode => {
       const barLength = max > 0 ? Math.max(1, Math.round((row.value / max) * BAR_WIDTH)) : 0;
       const label = row.label.padEnd(labelWidth);
       return h(

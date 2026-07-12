@@ -83,7 +83,7 @@ export const MarkdownView = function MarkdownView({
   document,
   hScrollableBlocksRef,
   codeBlockRenderers,
-}: MarkdownViewProps) {
+}: MarkdownViewProps): ReactNode {
   const { theme, syntax } = useTheme();
   const palette = useGutterPalette();
   const blocks = useMemo(
@@ -103,17 +103,19 @@ export const MarkdownView = function MarkdownView({
 
   const blockElements = useMemo(
     () =>
-      blocks.map((block, index) => (
-        <FlatBlockRenderer
-          key={index}
-          block={block}
-          blockIndex={index}
-          theme={theme}
-          syntax={syntax}
-          hScrollableBlocksRef={hScrollableBlocksRef}
-          codeBlockRenderers={mergedCodeBlockRenderers}
-        />
-      )),
+      blocks.map(
+        (block, index): ReactNode => (
+          <FlatBlockRenderer
+            key={index}
+            block={block}
+            blockIndex={index}
+            theme={theme}
+            syntax={syntax}
+            hScrollableBlocksRef={hScrollableBlocksRef}
+            codeBlockRenderers={mergedCodeBlockRenderers}
+          />
+        ),
+      ),
     [blocks, theme, syntax, hScrollableBlocksRef, mergedCodeBlockRenderers],
   );
 
@@ -216,7 +218,7 @@ const ListLineRenderer = function ListLineRenderer({
 }: {
   block: FlatBlock;
   theme: ResolvedTheme;
-}) {
+}): ReactNode {
   const { token, indent, bullet, checked } = block;
   const checkboxPrefix = checked !== undefined ? (checked ? "[x] " : "[ ] ") : "";
 
@@ -261,7 +263,7 @@ const HeadingRenderer = function HeadingRenderer({
   token: Tokens.Heading;
   theme: ResolvedTheme;
   indent: number;
-}) {
+}): ReactNode {
   const headingColors: Record<number, string> = {
     1: theme.markdownHeading,
     2: theme.secondary,
@@ -300,7 +302,7 @@ const ParagraphRenderer = function ParagraphRenderer({
   token: Tokens.Paragraph;
   theme: ResolvedTheme;
   indent: number;
-}) {
+}): ReactNode {
   return (
     <box style={{ marginBottom: 1, marginLeft: 1 + indent, marginRight: 1 }}>
       <text style={{ fg: theme.markdownText }}>
@@ -318,7 +320,7 @@ const BlockquoteRenderer = function BlockquoteRenderer({
   token: Tokens.Blockquote;
   theme: ResolvedTheme;
   indent: number;
-}) {
+}): ReactNode {
   // Collect inline tokens from blockquote's child paragraphs/text
   const inlineTokens: Token[] = [];
   if (token.tokens) {
@@ -358,7 +360,7 @@ const MarkdownTableRenderer = function MarkdownTableRenderer({
 }: {
   token: Tokens.Table;
   indent: number;
-}) {
+}): ReactNode {
   const { theme } = useTheme();
 
   const content: TextTableContent = useMemo(() => {
@@ -404,7 +406,7 @@ const HorizontalRule = function HorizontalRule({
 }: {
   theme: ResolvedTheme;
   indent: number;
-}) {
+}): ReactNode {
   return (
     <box style={{ marginBottom: 1, marginLeft: 1 + indent, marginRight: 1, marginTop: 0 }}>
       <text style={{ fg: theme.markdownHorizontalRule }} content={"─".repeat(40)} />

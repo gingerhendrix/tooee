@@ -29,7 +29,7 @@ const press = async function press(session: TestSession, key: string) {
   await session.renderOnce();
 };
 
-const SequenceProbe = function SequenceProbe() {
+const SequenceProbe = function SequenceProbe(): ReactNode {
   const sequence = useCommandSequenceState();
   return <text content={`pending:${sequence ? sequence.prefix.length : 0}`} />;
 };
@@ -39,7 +39,7 @@ describe("F-08: mode changes reset a pending chord", () => {
     let fired = 0;
     let surfaceSetMode: ((mode: Mode) => void) | null = null;
 
-    const SurfaceContent = function SurfaceContent() {
+    const SurfaceContent = function SurfaceContent(): ReactNode {
       const setMode = useSetMode();
       surfaceSetMode = setMode;
       // Available in both modes, so a completion after the mode change would
@@ -87,7 +87,7 @@ describe("F-08: mode changes reset a pending chord", () => {
     let fired = 0;
     let rootSetMode: ((mode: Mode) => void) | null = null;
 
-    const Harness = function Harness() {
+    const Harness = function Harness(): ReactNode {
       const setMode = useSetMode();
       rootSetMode = setMode;
       useCommand({
@@ -127,7 +127,7 @@ describe("F-09: surface replacement resets a pending chord", () => {
     let fired = 0;
     let swap: (() => void) | null = null;
 
-    const SurfaceContent = function SurfaceContent() {
+    const SurfaceContent = function SurfaceContent(): ReactNode {
       useCommand({
         handler: () => fired++,
         hotkey: "g g",
@@ -137,7 +137,7 @@ describe("F-09: surface replacement resets a pending chord", () => {
       return <text content="surface" />;
     };
 
-    const Harness = function Harness() {
+    const Harness = function Harness(): ReactNode {
       const [generation, setGeneration] = useState(0);
       swap = () => setGeneration((g) => g + 1);
       return (
@@ -184,12 +184,12 @@ describe("reactive registry", () => {
       return null;
     };
 
-    const CommandCount = function CommandCount() {
+    const CommandCount = function CommandCount(): ReactNode {
       const { commands } = useCommandContext();
       return <text content={`count:${commands.length}`} />;
     };
 
-    const Harness = function Harness() {
+    const Harness = function Harness(): ReactNode {
       const [showLate, setShowLate] = useState(false);
       useCommand({
         handler: () => setShowLate(true),
@@ -221,7 +221,11 @@ describe("reactive registry", () => {
 });
 
 describe("F-13: surface command metadata", () => {
-  const SurfaceContent = function SurfaceContent({ children }: { children?: ReactNode }) {
+  const SurfaceContent = function SurfaceContent({
+    children,
+  }: {
+    children?: ReactNode;
+  }): ReactNode {
     useCommand({ handler: () => {}, hotkey: "1", id: "s.one", title: "One" });
     return (
       <box flexDirection="column">
@@ -237,7 +241,7 @@ describe("F-13: surface command metadata", () => {
   };
 
   test("useActiveCommandSurface().commands lists the modal surface's commands reactively", async () => {
-    const ActiveProbe = function ActiveProbe() {
+    const ActiveProbe = function ActiveProbe(): ReactNode {
       const active = useActiveCommandSurface();
       const ids = active
         ? active.commands
@@ -248,7 +252,7 @@ describe("F-13: surface command metadata", () => {
       return <text content={`active-commands:[${ids}]`} />;
     };
 
-    const Harness = function Harness() {
+    const Harness = function Harness(): ReactNode {
       const [showExtra, setShowExtra] = useState(false);
       useCommand({ handler: () => {}, hotkey: "a", id: "root.a", title: "Root A" });
       return (
@@ -283,7 +287,7 @@ describe("F-13: surface command metadata", () => {
   });
 
   test("useSurfaceCommands defaults to the active surface and falls back to root", async () => {
-    const SurfaceCommandsProbe = function SurfaceCommandsProbe() {
+    const SurfaceCommandsProbe = function SurfaceCommandsProbe(): ReactNode {
       const commands = useSurfaceCommands();
       const ids = commands
         .map((c) => c.id)
@@ -292,7 +296,7 @@ describe("F-13: surface command metadata", () => {
       return <text content={`surface-commands:[${ids}]`} />;
     };
 
-    const Harness = function Harness() {
+    const Harness = function Harness(): ReactNode {
       const [showSurface, setShowSurface] = useState(false);
       useCommand({
         handler: () => setShowSurface(true),

@@ -30,7 +30,13 @@ export interface ChooseListProps {
   suspended?: boolean;
 }
 
-const ThemedLine = function ThemedLine({ content, color }: { content: ReactNode; color: string }) {
+const ThemedLine = function ThemedLine({
+  content,
+  color,
+}: {
+  content: ReactNode;
+  color: string;
+}): ReactNode {
   return (
     <box height={1} style={{ paddingLeft: 2 }}>
       {typeof content === "string" ? <text content={content} fg={color} /> : content}
@@ -51,7 +57,7 @@ export const ChooseList = function ChooseList({
   errorContent = defaultErrorContent,
   emptyContent,
   suspended,
-}: ChooseListProps) {
+}: ChooseListProps): ReactNode {
   const { theme } = useTheme();
   const scrollRef = useRef<ScrollBoxRenderable>(null);
   const { state, controller } = choose;
@@ -75,7 +81,7 @@ export const ChooseList = function ChooseList({
         <ThemedLine content={emptyContent} color={theme.textMuted} />
       )}
 
-      {state.matches.map((match, index) => {
+      {state.matches.map((match, index): ReactNode => {
         const isActive = index === state.activeIndex;
         const isSelected = state.selectedOriginalIndices.has(match.originalIndex);
         const defaultContent = (

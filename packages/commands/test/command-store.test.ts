@@ -85,7 +85,7 @@ const group = function group(
   };
 };
 
-const sleep = function sleep(ms: number): Promise<void> {
+const sleep = async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 

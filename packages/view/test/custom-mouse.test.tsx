@@ -16,14 +16,14 @@ const PROVIDER: ContentProvider = { format: "chart", load: () => CONTENT };
 
 // A renderer with its own markup: it resolves its own row and asks the
 // controller to select it.
-const RENDERER: ContentRenderer = ({ document }) => (
+const RENDERER: ContentRenderer = ({ document }): React.ReactNode => (
   <box onMouseDown={() => document.selectRow(2)}>
     <text content="CUSTOM-BODY" />
   </box>
 );
 
 // A renderer that reads controller state rather than a bag of cursor numbers.
-const STATE_RENDERER: ContentRenderer = ({ document }) => (
+const STATE_RENDERER: ContentRenderer = ({ document }): React.ReactNode => (
   <box>
     <text content={`active:${document.activeIndex}`} />
     <text content={`rows:${document.rows.length}`} />

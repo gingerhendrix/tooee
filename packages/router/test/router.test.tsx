@@ -13,7 +13,7 @@ import {
 
 // Route components
 
-const HomeScreen = function HomeScreen() {
+const HomeScreen = function HomeScreen(): React.ReactNode {
   return (
     <box>
       <text content="screen:home" />
@@ -21,7 +21,7 @@ const HomeScreen = function HomeScreen() {
   );
 };
 
-const DetailScreen = function DetailScreen() {
+const DetailScreen = function DetailScreen(): React.ReactNode {
   const params = useParams<{ id: string }>();
   return (
     <box>
@@ -30,7 +30,7 @@ const DetailScreen = function DetailScreen() {
   );
 };
 
-const SettingsScreen = function SettingsScreen() {
+const SettingsScreen = function SettingsScreen(): React.ReactNode {
   return (
     <box>
       <text content="screen:settings" />
@@ -40,7 +40,7 @@ const SettingsScreen = function SettingsScreen() {
 
 // Parent/child for nested outlet tests
 
-const LayoutScreen = function LayoutScreen() {
+const LayoutScreen = function LayoutScreen(): React.ReactNode {
   return (
     <box>
       <text content="layout:" />
@@ -49,7 +49,7 @@ const LayoutScreen = function LayoutScreen() {
   );
 };
 
-const NestedChild = function NestedChild() {
+const NestedChild = function NestedChild(): React.ReactNode {
   return (
     <box>
       <text content="nested-child" />
@@ -72,7 +72,7 @@ const nestedRoute = createRoute({
 
 // Test harness that exposes navigation controls via rendered text
 
-const NavHarness = function NavHarness() {
+const NavHarness = function NavHarness(): React.ReactNode {
   const current = useCurrentRoute();
   const canGoBack = useCanGoBack();
 

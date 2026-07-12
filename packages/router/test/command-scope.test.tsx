@@ -12,7 +12,7 @@ import { CommandProvider, useCommandContext, useCommand } from "@tooee/commands"
 
 // Screen that calls useRouterCommands
 
-const HomeScreen = function HomeScreen() {
+const HomeScreen = function HomeScreen(): React.ReactNode {
   useRouterCommands();
   return (
     <box>
@@ -21,7 +21,7 @@ const HomeScreen = function HomeScreen() {
   );
 };
 
-const DetailScreen = function DetailScreen() {
+const DetailScreen = function DetailScreen(): React.ReactNode {
   useRouterCommands();
   return (
     <box>
@@ -185,7 +185,7 @@ describe("useRouterCommands", () => {
 
 describe("natural command scoping via unmount", () => {
   test("commands from unmounted screens are removed from registry", async () => {
-    const ScreenA = function ScreenA() {
+    const ScreenA = function ScreenA(): React.ReactNode {
       useRouterCommands();
       useCommand({
         handler: () => {},
@@ -201,7 +201,7 @@ describe("natural command scoping via unmount", () => {
       );
     };
 
-    const ScreenB = function ScreenB() {
+    const ScreenB = function ScreenB(): React.ReactNode {
       useCommand({
         handler: () => {},
         hotkey: "b",
@@ -263,7 +263,7 @@ describe("natural command scoping via unmount", () => {
   });
 
   test("commands re-register when screen remounts after pop", async () => {
-    const ScreenA = function ScreenA() {
+    const ScreenA = function ScreenA(): React.ReactNode {
       useRouterCommands();
       useCommand({
         handler: () => {},
@@ -279,7 +279,7 @@ describe("natural command scoping via unmount", () => {
       );
     };
 
-    const ScreenB = function ScreenB() {
+    const ScreenB = function ScreenB(): React.ReactNode {
       return (
         <box>
           <text content="screen:B" />

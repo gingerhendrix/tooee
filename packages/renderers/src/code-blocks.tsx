@@ -78,7 +78,7 @@ export const CodeBlockChrome = function CodeBlockChrome({
   theme: ResolvedTheme;
   indent: number;
   children?: ReactNode;
-}) {
+}): ReactNode {
   return (
     <box
       style={{
@@ -112,7 +112,7 @@ export const defaultCodeBlockRenderer: CodeBlockRenderer = ({
   syntax,
   indent,
   hScroll,
-}) => {
+}): ReactNode => {
   const lineCount = text.split("\n").length;
   // Code lines never wrap (wrapMode "none") — wide code blocks and ASCII
   // diagrams pan horizontally via the renderable's own viewport (`scrollX`)
@@ -143,7 +143,12 @@ export const defaultCodeBlockRenderer: CodeBlockRenderer = ({
  * the diagram cannot be rendered. Registered by default under "mermaid";
  * user entries for "mermaid" override it.
  */
-export const mermaidCodeBlockRenderer: CodeBlockRenderer = ({ text, theme, indent, hScroll }) => {
+export const mermaidCodeBlockRenderer: CodeBlockRenderer = ({
+  text,
+  theme,
+  indent,
+  hScroll,
+}): ReactNode => {
   const mermaidTheme = {
     accent: theme.accent,
     arrow: theme.accent,

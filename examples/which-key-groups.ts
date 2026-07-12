@@ -247,12 +247,13 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
     h("text", { content: "" }),
     h("text", { content: `Last action: ${lastAction}`, fg: theme.accent }),
     h("text", { content: "" }),
-    ...lines.map((line, i) =>
-      h("text", {
-        content: line,
-        fg: line.startsWith("#") ? theme.primary : theme.text,
-        key: i,
-      }),
+    ...lines.map(
+      (line, i): ReactNode =>
+        h("text", {
+          content: line,
+          fg: line.startsWith("#") ? theme.primary : theme.text,
+          key: i,
+        }),
     ),
   );
 

@@ -104,7 +104,7 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
   // Stable identity so command handlers and effects can capture the handle.
   const handleRef = useRef<ChooseDialogHandle<T> | null>(null);
   if (handleRef.current === null) {
-    const open = (
+    const open = async (
       options: ChooseDialogOptionsBase<T> & { toItem?: (item: T) => ChooseItem },
     ): Promise<T | T[] | null> =>
       new Promise<T | T[] | null>((resolvePromise) => {
@@ -145,7 +145,7 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
         const { items } = options;
         const source: ChooseSource = Array.isArray(items)
           ? mapValues(items as readonly T[])
-          : () => {
+          : (): ChooseItem[] | Promise<ChooseItem[]> => {
               const loaded = (items as () => readonly T[] | Promise<readonly T[]>)();
               return loaded instanceof Promise ? loaded.then(mapValues) : mapValues(loaded);
             };
@@ -166,7 +166,7 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
 
         const handle = overlayRef.current.open(
           id,
-          () =>
+          (): ReactNode =>
             multi ? (
               <ChooseOverlay
                 {...shared}

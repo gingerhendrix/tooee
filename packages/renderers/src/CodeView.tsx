@@ -26,7 +26,7 @@ export const CodeView = function CodeView({
   language,
   showLineNumbers = true,
   document,
-}: CodeViewProps) {
+}: CodeViewProps): React.ReactNode {
   const { syntax } = useTheme();
   const palette = useGutterPalette();
 

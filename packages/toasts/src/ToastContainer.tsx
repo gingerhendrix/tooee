@@ -30,7 +30,7 @@ const getLevelColor = function getLevelColor(
   }
 };
 
-export const ToastContainer = function ToastContainer() {
+export const ToastContainer = function ToastContainer(): React.ReactNode {
   const { currentToast } = useToast();
   const { theme } = useTheme();
   const { width: termWidth } = useTerminalDimensions();

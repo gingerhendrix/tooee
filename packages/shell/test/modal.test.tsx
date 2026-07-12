@@ -13,7 +13,7 @@ const ModalHarness = function ModalHarness({
 }: {
   rowCount: number;
   isSelectable?: (index: number) => boolean;
-}) {
+}): React.ReactNode {
   const nav = useNavigation({ isSelectable, rowCount, viewportHeight: 10 });
   const mode = useMode();
   const search = useSearch({

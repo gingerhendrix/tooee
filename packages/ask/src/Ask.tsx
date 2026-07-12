@@ -27,7 +27,7 @@ export const Ask = function Ask({
   multiline = true,
   actions,
   onSubmit,
-}: AskProps) {
+}: AskProps): React.ReactNode {
   const renderer = useRenderer();
   const { invoke } = useCommandContext();
 

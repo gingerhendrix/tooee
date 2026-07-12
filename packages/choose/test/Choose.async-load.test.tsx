@@ -34,7 +34,9 @@ const flush = async function flush(s: TestSession) {
 describe("Choose async load (R-02)", () => {
   test("load rejection shows an error instead of eternal Loading", async () => {
     const provider: ChooseContentProvider = {
-      load: () => Promise.reject(new Error("boom")),
+      load: async () => {
+        throw new Error("boom");
+      },
     };
     testSetup = await testRender(
       <TooeeProvider initialMode="insert">
@@ -52,8 +54,10 @@ describe("Choose async load (R-02)", () => {
 
   test("non-Error rejection is stringified", async () => {
     const provider: ChooseContentProvider = {
-      // eslint-disable-next-line prefer-promise-reject-errors
-      load: () => Promise.reject("plain failure"),
+      load: async () => {
+        // eslint-disable-next-line prefer-promise-reject-errors
+        await Promise.reject("plain failure");
+      },
     };
     testSetup = await testRender(
       <TooeeProvider initialMode="insert">
@@ -69,11 +73,11 @@ describe("Choose async load (R-02)", () => {
 
   test("stale results from a replaced provider are ignored", async () => {
     const slow = deferred<ChooseItem[]>();
-    const slowProvider: ChooseContentProvider = { load: () => slow.promise };
+    const slowProvider: ChooseContentProvider = { load: async () => slow.promise };
     const fastProvider: ChooseContentProvider = { load: () => [{ text: "fresh-item" }] };
 
     let swap!: () => void;
-    const Harness = function Harness() {
+    const Harness = function Harness(): React.ReactNode {
       const [provider, setProvider] = useState(slowProvider);
       swap = () => setProvider(fastProvider);
       return <Choose contentProvider={provider} />;
@@ -106,11 +110,11 @@ describe("Choose async load (R-02)", () => {
 
   test("stale rejection from a replaced provider is ignored", async () => {
     const slow = deferred<ChooseItem[]>();
-    const slowProvider: ChooseContentProvider = { load: () => slow.promise };
+    const slowProvider: ChooseContentProvider = { load: async () => slow.promise };
     const fastProvider: ChooseContentProvider = { load: () => [{ text: "fresh-item" }] };
 
     let swap!: () => void;
-    const Harness = function Harness() {
+    const Harness = function Harness(): React.ReactNode {
       const [provider, setProvider] = useState(slowProvider);
       swap = () => setProvider(fastProvider);
       return <Choose contentProvider={provider} />;
@@ -145,7 +149,9 @@ describe("ChooseOverlay async load (R-02)", () => {
     testSetup = await testRender(
       <TooeeProvider initialMode="insert">
         <ChooseOverlay
-          items={() => Promise.reject(new Error("overlay boom"))}
+          items={async () => {
+            throw new Error("overlay boom");
+          }}
           onSelect={() => {}}
           onCancel={() => {}}
         />

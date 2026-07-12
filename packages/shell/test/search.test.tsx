@@ -47,7 +47,7 @@ const TEST_TEXT = "alpha\nbeta\ngamma\nalpha again\ndelta";
 // Module-level ref for imperative access to search state from tests
 let searchHandle: SearchState | null = null;
 
-const SearchHarness = function SearchHarness() {
+const SearchHarness = function SearchHarness(): React.ReactNode {
   const nav = useNavigation({ rowCount: TEST_TEXT.split("\n").length, viewportHeight: 3 });
   const mode = useMode();
   const search = useSearch({
@@ -91,7 +91,7 @@ afterEach(() => {
 describe("search hook", () => {
   test("computes matches once per query event and not again on submit", async () => {
     let calls = 0;
-    const CountingHarness = function CountingHarness() {
+    const CountingHarness = function CountingHarness(): React.ReactNode {
       const nav = useNavigation({ rowCount: 2 });
       const search = useSearch({
         match: () => {
@@ -213,7 +213,11 @@ describe("search hook", () => {
 // reloaded provider delivers it.
 let appendLine: ((line: string) => void) | null = null;
 
-const GrowingSearchHarness = function GrowingSearchHarness({ deps }: { deps: boolean }) {
+const GrowingSearchHarness = function GrowingSearchHarness({
+  deps,
+}: {
+  deps: boolean;
+}): React.ReactNode {
   const [lines, setLines] = useState(["alpha", "beta"]);
   appendLine = (line) => setLines((current) => [...current, line]);
 

@@ -163,7 +163,7 @@ export const Table = function Table({
   showLineNumbers = true,
   document,
   columnWidthMode = "content",
-}: TableProps) {
+}: TableProps): React.ReactNode {
   const { theme } = useTheme();
   const palette = useGutterPalette();
   const { width: terminalWidth } = useTerminalDimensions();
@@ -226,31 +226,33 @@ export const Table = function Table({
 
   const rowElements = useMemo(
     () =>
-      normalizedRows.map((row, i) => (
-        <box key={i} style={{ flexDirection: "row" }}>
-          {row.map((cell, j) => {
-            const contentWidth = colWidths[j] - PADDING * 2;
-            const cellWidth = Bun.stringWidth(cell);
-            const displayCell =
-              alignments[j] && cellWidth <= contentWidth
-                ? " ".repeat(contentWidth - cellWidth) + cell
-                : cell;
-            return (
-              <text
-                key={j}
-                content={displayCell}
-                wrapMode="word"
-                style={{
-                  paddingLeft: PADDING,
-                  paddingRight: PADDING,
-                  width: colWidths[j],
-                }}
-                fg={theme.text}
-              />
-            );
-          })}
-        </box>
-      )),
+      normalizedRows.map(
+        (row, i): React.ReactNode => (
+          <box key={i} style={{ flexDirection: "row" }}>
+            {row.map((cell, j): React.ReactNode => {
+              const contentWidth = colWidths[j] - PADDING * 2;
+              const cellWidth = Bun.stringWidth(cell);
+              const displayCell =
+                alignments[j] && cellWidth <= contentWidth
+                  ? " ".repeat(contentWidth - cellWidth) + cell
+                  : cell;
+              return (
+                <text
+                  key={j}
+                  content={displayCell}
+                  wrapMode="word"
+                  style={{
+                    paddingLeft: PADDING,
+                    paddingRight: PADDING,
+                    width: colWidths[j],
+                  }}
+                  fg={theme.text}
+                />
+              );
+            })}
+          </box>
+        ),
+      ),
     [normalizedRows, colWidths, alignments, theme.text],
   );
 
@@ -266,26 +268,30 @@ export const Table = function Table({
     >
       {/* Fixed header row — outside row-document so it stays visible */}
       <box style={{ flexDirection: "row", flexShrink: 0, paddingLeft: gutterWidth }}>
-        {headers.map((h, i) => (
-          <text
-            key={i}
-            content={h}
-            style={{ paddingLeft: PADDING, paddingRight: PADDING, width: colWidths[i] }}
-            fg={theme.primary}
-          />
-        ))}
+        {headers.map(
+          (h, i): React.ReactNode => (
+            <text
+              key={i}
+              content={h}
+              style={{ paddingLeft: PADDING, paddingRight: PADDING, width: colWidths[i] }}
+              fg={theme.primary}
+            />
+          ),
+        )}
       </box>
 
       {/* Fixed header underline */}
       <box style={{ flexDirection: "row", flexShrink: 0, paddingLeft: gutterWidth }}>
-        {colWidths.map((w, i) => (
-          <text
-            key={i}
-            content={"\u2500".repeat(w - PADDING * 2)}
-            style={{ paddingLeft: PADDING, paddingRight: PADDING, width: w }}
-            fg={theme.border}
-          />
-        ))}
+        {colWidths.map(
+          (w, i): React.ReactNode => (
+            <text
+              key={i}
+              content={"\u2500".repeat(w - PADDING * 2)}
+              style={{ paddingLeft: PADDING, paddingRight: PADDING, width: w }}
+              fg={theme.border}
+            />
+          ),
+        )}
       </box>
 
       {/* Scrollable data rows */}

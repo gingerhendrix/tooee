@@ -12,7 +12,7 @@ import {
 
 // Simple screen that reports its focus state
 
-const HomeScreen = function HomeScreen() {
+const HomeScreen = function HomeScreen(): React.ReactNode {
   const { isFocused } = useScreenFocus();
   return (
     <box>
@@ -23,7 +23,7 @@ const HomeScreen = function HomeScreen() {
 
 // Nested layout that reports focus and renders child outlet
 
-const FocusLayout = function FocusLayout() {
+const FocusLayout = function FocusLayout(): React.ReactNode {
   const { isFocused } = useScreenFocus();
   return (
     <box>
@@ -33,7 +33,7 @@ const FocusLayout = function FocusLayout() {
   );
 };
 
-const FocusChild = function FocusChild() {
+const FocusChild = function FocusChild(): React.ReactNode {
   const { isFocused } = useScreenFocus();
   return (
     <box>
@@ -46,7 +46,7 @@ const FocusChild = function FocusChild() {
 
 let effectLog: string[] = [];
 
-const EffectLayout = function EffectLayout() {
+const EffectLayout = function EffectLayout(): React.ReactNode {
   useScreenEffect(() => {
     effectLog.push("layout:effect");
     return () => {
@@ -62,7 +62,7 @@ const EffectLayout = function EffectLayout() {
   );
 };
 
-const EffectChild = function EffectChild() {
+const EffectChild = function EffectChild(): React.ReactNode {
   useScreenEffect(() => {
     effectLog.push("child:effect");
     return () => {

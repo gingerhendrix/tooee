@@ -205,7 +205,9 @@ const KanbanRenderer = function KanbanRenderer({ content }: ContentRendererProps
   return h(
     "box",
     { style: { flexDirection: "column", marginLeft: 1, marginTop: 1 } },
-    ...lines.map((line, i) => h("text", { content: line.text, fg: line.fg ?? theme.text, key: i })),
+    ...lines.map(
+      (line, i): ReactNode => h("text", { content: line.text, fg: line.fg ?? theme.text, key: i }),
+    ),
   );
 };
 

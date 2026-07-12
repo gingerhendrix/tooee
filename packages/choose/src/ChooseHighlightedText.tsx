@@ -39,9 +39,11 @@ export const ChooseHighlightedText = function ChooseHighlightedText({
     parts.push({ highlighted: currentHighlighted, text: current });
   }
 
-  return parts.map((part, index) => (
-    <Fragment key={index}>
-      {part.highlighted ? <span fg={highlightColor}>{part.text}</span> : part.text}
-    </Fragment>
-  ));
+  return parts.map(
+    (part, index): ReactNode => (
+      <Fragment key={index}>
+        {part.highlighted ? <span fg={highlightColor}>{part.text}</span> : part.text}
+      </Fragment>
+    ),
+  );
 };

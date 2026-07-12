@@ -65,7 +65,7 @@ export const AskPanel = function AskPanel({
   onClose,
   inset,
   onMouseDown,
-}: AskPanelProps) {
+}: AskPanelProps): ReactNode {
   const { theme } = useTheme();
   const mode = useMode();
 

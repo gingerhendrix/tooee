@@ -38,7 +38,7 @@ export const Choose = function Choose({
   renderItem,
   onConfirm,
   onCancel,
-}: ChooseProps) {
+}: ChooseProps): React.ReactNode {
   const { theme } = useTheme();
   const { invoke } = useCommandContext();
   const effectiveCommands = commands ?? actions;

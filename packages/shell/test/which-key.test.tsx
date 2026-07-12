@@ -7,7 +7,7 @@ import { useCurrentOverlay, useHasOverlay } from "@tooee/overlays";
 import { press } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
 
-const WhichKeyHarness = function WhichKeyHarness() {
+const WhichKeyHarness = function WhichKeyHarness(): React.ReactNode {
   const sequence = useCommandSequenceState();
   const overlay = useCurrentOverlay();
   const hasOverlay = useHasOverlay();
@@ -59,7 +59,7 @@ const WhichKeyHarness = function WhichKeyHarness() {
   );
 };
 
-const ActionMetadataHarness = function ActionMetadataHarness() {
+const ActionMetadataHarness = function ActionMetadataHarness(): React.ReactNode {
   const sequence = useCommandSequenceState();
   const overlay = useCurrentOverlay();
   const hasOverlay = useHasOverlay();
