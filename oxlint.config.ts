@@ -74,7 +74,6 @@ export default defineConfig({
     "typescript/return-await": "off",
     "typescript/switch-exhaustiveness-check": "off",
     "typescript/unbound-method": "off",
-    "unicorn/catch-error-name": "off",
     "unicorn/consistent-existence-index-check": "off",
     "unicorn/import-style": "off",
     "unicorn/no-array-for-each": "off",

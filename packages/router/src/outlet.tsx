@@ -37,7 +37,7 @@ const RouteRenderer = function RouteRenderer({
 }): ReactNode {
   const [data, setData] = useState<unknown>();
   const [loading, setLoading] = useState(!!routeDef.loader);
-  const [error, setError] = useState<Error | null>(null);
+  const [loaderError, setLoaderError] = useState<Error | null>(null);
 
   useEffect(() => {
     if (!routeDef.loader) {
@@ -45,7 +45,7 @@ const RouteRenderer = function RouteRenderer({
     }
     let cancelled = false;
     setLoading(true);
-    setError(null);
+    setLoaderError(null);
     routeDef
       .loader({ params: entry.params })
       .then((result) => {
@@ -54,9 +54,9 @@ const RouteRenderer = function RouteRenderer({
           setLoading(false);
         }
       })
-      .catch((err: unknown) => {
+      .catch((error: unknown) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err : new Error(String(err)));
+          setLoaderError(error instanceof Error ? error : new Error(String(error)));
           setLoading(false);
         }
       });
@@ -65,11 +65,11 @@ const RouteRenderer = function RouteRenderer({
     };
   }, [entry, routeDef]);
 
-  if (error && routeDef.errorComponent) {
-    return createElement(routeDef.errorComponent, { error });
+  if (loaderError && routeDef.errorComponent) {
+    return createElement(routeDef.errorComponent, { error: loaderError });
   }
 
-  if (error) {
+  if (loaderError) {
     return null;
   }
 
