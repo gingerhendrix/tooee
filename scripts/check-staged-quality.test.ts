@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { chmodSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import {
@@ -9,10 +9,10 @@ import {
   parseHunks,
 } from "./check-staged-quality.ts";
 
-const diagnostic = (line: number, message = "inherited") => ({
+const diagnostic = (line: number, message = "inherited", column?: number) => ({
   code: "test(rule)",
   filename: "sample.ts",
-  labels: [{ span: { line } }],
+  labels: [{ span: { column, line } }],
   message,
 });
 
@@ -40,6 +40,89 @@ describe("staged diagnostic comparison", () => {
     expect(findNewDiagnosticCounts([diagnostic(1)], [diagnostic(20), diagnostic(21)])).toEqual([
       diagnostic(21),
     ]);
+  });
+
+  test("consumes an unchanged span after an inserted preceding line", () => {
+    const root = mkdtempSync(join(tmpdir(), "tooee-staged-quality-mapper-"));
+    mkdirSync(join(root, "head"), { recursive: true });
+    mkdirSync(join(root, "index"), { recursive: true });
+    try {
+      writeFileSync(join(root, "head/sample.ts"), "const ready = true;\n  run();\n");
+      writeFileSync(join(root, "index/sample.ts"), "const ready = true;\ninserted();\n  run();\n");
+      const inherited = {
+        code: "test(rule)",
+        filename: "sample.ts",
+        labels: [{ span: { column: 3, line: 2, length: 5, offset: 22 } }],
+        message: "inherited",
+      };
+      const staged = {
+        ...inherited,
+        labels: [{ span: { column: 3, line: 3, length: 5, offset: 42 } }],
+      };
+      expect(
+        findNewDiagnostics(
+          [inherited],
+          [staged],
+          [
+            {
+              headPath: "sample.ts",
+              indexPath: "sample.ts",
+              hunks: [{ oldCount: 0, oldStart: 2, newCount: 1, newStart: 2 }],
+            },
+          ],
+          join(root, "head"),
+          join(root, "index"),
+        ),
+      ).toEqual([]);
+    } finally {
+      rmSync(root, { force: true, recursive: true });
+    }
+  });
+
+  test.each([
+    ["curly", "Expected a block statement."],
+    ["typescript(no-invalid-void-type)", "Remove `void` from this union type constituent."],
+    ["eslint(no-lonely-if)", "Unexpected `if` as the only statement in an `else` block"],
+  ])("does not misattribute a changed %s span", (code, message) => {
+    const root = mkdtempSync(join(tmpdir(), "tooee-staged-quality-mapper-"));
+    mkdirSync(join(root, "head"), { recursive: true });
+    mkdirSync(join(root, "index"), { recursive: true });
+    try {
+      writeFileSync(join(root, "head/sample.ts"), "const ready = true;\n  run();\n");
+      writeFileSync(
+        join(root, "index/sample.ts"),
+        "const ready = true;\ninserted();\n    run();\n",
+      );
+      const inherited = {
+        code,
+        filename: "sample.ts",
+        labels: [{ span: { column: 3, line: 2, length: 5, offset: 22 } }],
+        message,
+      };
+      const staged = {
+        code,
+        filename: "sample.ts",
+        labels: [{ span: { column: 5, line: 3, length: 5, offset: 42 } }],
+        message,
+      };
+      expect(
+        findNewDiagnostics(
+          [inherited],
+          [staged],
+          [
+            {
+              headPath: "sample.ts",
+              indexPath: "sample.ts",
+              hunks: [{ oldCount: 0, oldStart: 2, newCount: 1, newStart: 2 }],
+            },
+          ],
+          join(root, "head"),
+          join(root, "index"),
+        ),
+      ).toEqual([staged]);
+    } finally {
+      rmSync(root, { force: true, recursive: true });
+    }
   });
 });
 

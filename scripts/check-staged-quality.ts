@@ -6,7 +6,9 @@ type Hunk = { newCount: number; newStart: number; oldCount: number; oldStart: nu
 type Diagnostic = {
   code: string;
   filename: string;
-  labels: Array<{ span: { line: number } }>;
+  labels: Array<{
+    span: { column?: number; length?: number; line: number; offset?: number };
+  }>;
   message: string;
 };
 type FileChange = { headPath: string | null; indexPath: string | null; hunks: Hunk[] };
@@ -73,10 +75,17 @@ const mapContentLine = (
   const candidates = indexLines.flatMap((line, index) => (line === content ? [index + 1] : []));
   return candidates[occurrence - 1] ?? null;
 };
+const spanKey = (diagnostic: Diagnostic) => {
+  const span = diagnostic.labels[0]?.span;
+  return `${span?.column ?? ""}\0${span?.length ?? ""}`;
+};
 const diagnosticKey = (diagnostic: Diagnostic, path: string, line: number) =>
-  `${path}\0${diagnostic.code}\0${line}`;
-const fallbackKey = (diagnostic: Diagnostic, sourceLine: string) =>
-  `${diagnostic.code}\0${diagnostic.message}\0${sourceLine}`;
+  `${path}\0${diagnostic.code}\0${diagnostic.message}\0${line}\0${spanKey(diagnostic)}`;
+
+const lineIsChanged = (line: number, hunks: Hunk[]) =>
+  hunks.some(
+    (hunk) => hunk.oldCount > 0 && line >= hunk.oldStart && line < hunk.oldStart + hunk.oldCount,
+  );
 
 export const findNewDiagnostics = (
   headDiagnostics: Diagnostic[],
@@ -86,12 +95,6 @@ export const findNewDiagnostics = (
   indexRoot: string,
 ) => {
   const exact = new Map<string, number>();
-  const fallback = new Map<string, number>();
-  const indexLocations = new Set(
-    indexDiagnostics.map((diagnostic) =>
-      diagnosticKey(diagnostic, diagnostic.filename, diagnostic.labels[0]?.span.line ?? 1),
-    ),
-  );
   const increment = (map: Map<string, number>, key: string) =>
     map.set(key, (map.get(key) ?? 0) + 1);
   const consume = (map: Map<string, number>, key: string) => {
@@ -105,12 +108,16 @@ export const findNewDiagnostics = (
     const change = changes.find(({ headPath }) => headPath === diagnostic.filename);
     if (!change?.indexPath) continue;
     const oldLine = diagnostic.labels[0]?.span.line ?? 1;
+    const contentLine = mapContentLine(
+      headRoot,
+      indexRoot,
+      diagnostic.filename,
+      change.indexPath,
+      oldLine,
+    );
     const mappedLine =
-      (indexLocations.has(diagnosticKey(diagnostic, change.indexPath, oldLine))
-        ? oldLine
-        : mapContentLine(headRoot, indexRoot, diagnostic.filename, change.indexPath, oldLine)) ??
-      mapInheritedLine(oldLine, change.hunks);
-    increment(fallback, fallbackKey(diagnostic, lineAt(headRoot, diagnostic.filename, oldLine)));
+      contentLine ??
+      (lineIsChanged(oldLine, change.hunks) ? null : mapInheritedLine(oldLine, change.hunks));
     if (mappedLine !== null) {
       increment(exact, diagnosticKey(diagnostic, change.indexPath, mappedLine));
     }
@@ -118,13 +125,10 @@ export const findNewDiagnostics = (
 
   return indexDiagnostics.filter((diagnostic) => {
     const line = diagnostic.labels[0]?.span.line ?? 1;
-    const inheritedContent = fallbackKey(diagnostic, lineAt(indexRoot, diagnostic.filename, line));
     if (consume(exact, diagnosticKey(diagnostic, diagnostic.filename, line))) {
-      consume(fallback, inheritedContent);
       return false;
     }
-    if (fallback.size === 0) return true;
-    return !consume(fallback, inheritedContent);
+    return true;
   });
 };
 
