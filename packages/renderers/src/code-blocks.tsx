@@ -270,7 +270,7 @@ export function CodeBlock({
     hScroll: { register, onMouseScroll: handleMouseScroll },
   };
 
-  const custom = rendererProps.lang !== "" ? renderers?.[rendererProps.lang] : undefined;
+  const custom = rendererProps.lang === "" ? undefined : renderers?.[rendererProps.lang];
   if (custom && custom !== defaultCodeBlockRenderer) {
     // Keyed by fence type so a type change remounts the custom renderer
     // (renderers may use hooks; see CodeBlockRenderer docs).

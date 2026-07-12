@@ -226,7 +226,7 @@ function flattenListItem(
   itemStart: number | null,
   itemEnd: number,
 ): void {
-  const checked = item.checked != null ? item.checked : undefined;
+  const checked = item.checked === null ? undefined : item.checked;
   const childTokens = item.tokens || [];
   let bulletUsed = false;
 

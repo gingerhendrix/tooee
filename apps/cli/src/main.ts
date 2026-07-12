@@ -124,7 +124,7 @@ switch (command) {
   case "choose": {
     const multi = args.includes("--multi") || args.includes("-m");
     const promptIdx = args.indexOf("--prompt");
-    const prompt = promptIdx !== -1 ? args[promptIdx + 1] : undefined;
+    const prompt = promptIdx === -1 ? undefined : args[promptIdx + 1];
     const contentProvider = createStdinChooseProvider();
     const result = await launchChoose({ contentProvider, options: { multi, prompt } });
     if (result) {

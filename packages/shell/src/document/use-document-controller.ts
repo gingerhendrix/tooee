@@ -185,7 +185,7 @@ export function useDocumentController<T>(
 
   const activeIndex =
     navigation.cursor !== null && navigation.cursor < rows.length ? navigation.cursor : null;
-  const activeRow = activeIndex !== null ? rows[activeIndex] : undefined;
+  const activeRow = activeIndex === null ? undefined : rows[activeIndex];
   const activeKey = activeIndex !== null ? rowKey(adapter, activeRow, activeIndex) : null;
 
   const selectedIndices = useMemo<readonly number[]>(() => {
@@ -217,7 +217,7 @@ export function useDocumentController<T>(
   );
 
   const activeAnchor = useMemo<DocumentRowAnchor<T> | null>(
-    () => (activeIndex !== null ? makeAnchor(rows, adapter, activeIndex) : null),
+    () => (activeIndex === null ? null : makeAnchor(rows, adapter, activeIndex)),
     [rows, adapter, activeIndex],
   );
 

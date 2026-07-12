@@ -57,7 +57,7 @@ export function DocumentScreen<T>({
     { label: "Mode:", value: mode },
     {
       label: "Cursor:",
-      value: controller.activeIndex !== null ? String(controller.activeIndex) : "-",
+      value: controller.activeIndex === null ? "-" : String(controller.activeIndex),
     },
     ...(selectionCount > 0 ? [{ label: "Selected:", value: String(selectionCount) }] : []),
     ...(search?.searchActive ? [{ label: "Search:", value: search.searchQuery }] : []),

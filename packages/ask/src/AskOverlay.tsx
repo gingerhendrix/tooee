@@ -62,7 +62,7 @@ export function AskOverlay({
     <>
       <AskPanel
         title={title ?? prompt}
-        prompt={title !== undefined ? prompt : undefined}
+        prompt={title === undefined ? undefined : prompt}
         multiline={multiline === true}
         hints={hints}
         statusRight={statusRight}

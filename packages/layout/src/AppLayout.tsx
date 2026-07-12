@@ -40,11 +40,11 @@ export function AppLayout({
   const { theme } = useTheme();
   const contextOverlay = useCurrentOverlay();
   const compatibilityOverlay =
-    overlay != null ? (
+    overlay === null || overlay === undefined ? null : (
       <CommandSurfaceProvider id="app-layout.overlay" role="modal" initialMode="insert">
         {overlay}
       </CommandSurfaceProvider>
-    ) : null;
+    );
   return (
     <box flexDirection="column" width="100%" height="100%" backgroundColor={theme.background}>
       {titleBar && <TitleBar title={titleBar.title} subtitle={titleBar.subtitle} />}

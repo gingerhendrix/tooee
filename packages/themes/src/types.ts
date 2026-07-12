@@ -212,7 +212,7 @@ export function resolveTheme(json: ThemeJSON, mode: "dark" | "light"): ResolvedT
   const result = {} as Record<string, string>;
   for (const key of RESOLVED_KEYS) {
     const val = json.theme[key];
-    result[key] = val !== undefined ? resolveColor(val) : (FALLBACKS[key] ?? "#808080");
+    result[key] = val === undefined ? (FALLBACKS[key] ?? "#808080") : resolveColor(val);
   }
   // Dynamic fallbacks that reference other resolved keys
   if (json.theme["cursorLine"] === undefined) result.cursorLine = result.backgroundElement;
