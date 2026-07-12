@@ -7,13 +7,19 @@ export interface CreateProviderOptions {
 
 function detectFormat(filePath: string): { format: ContentFormat; language?: string } {
   const ext = filePath.split(".").pop()?.toLowerCase();
-  if (!ext) return { format: "text" };
+  if (!ext) {
+    return { format: "text" };
+  }
 
   const tableExts = new Set(["csv", "tsv"]);
-  if (tableExts.has(ext)) return { format: "table" };
+  if (tableExts.has(ext)) {
+    return { format: "table" };
+  }
 
   const markdownExts = new Set(["md", "mdx", "markdown"]);
-  if (markdownExts.has(ext)) return { format: "markdown" };
+  if (markdownExts.has(ext)) {
+    return { format: "markdown" };
+  }
 
   const codeExts: Record<string, string> = {
     ts: "typescript",
@@ -44,7 +50,9 @@ function detectFormat(filePath: string): { format: ContentFormat; language?: str
   };
 
   const language = codeExts[ext];
-  if (language) return { format: "code", language };
+  if (language) {
+    return { format: "code", language };
+  }
 
   return { format: "text" };
 }

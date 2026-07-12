@@ -161,6 +161,8 @@ describe("AskOverlay overflow scrolling", () => {
 function thumbRow(frame: string): number {
   const rows = frame.split("\n");
   const idx = rows.findIndex((row) => row.includes(THUMB));
-  if (idx === -1) throw new Error("no thumb found in frame");
+  if (idx === -1) {
+    throw new Error("no thumb found in frame");
+  }
   return idx;
 }

@@ -60,8 +60,11 @@ export function Choose({
         invoke("submit");
         return;
       }
-      if (multi || result.items.length > 0) onConfirm?.(result);
-      else onCancel?.();
+      if (multi || result.items.length > 0) {
+        onConfirm?.(result);
+      } else {
+        onCancel?.();
+      }
     },
     onCancel,
     commands: effectiveCommands,

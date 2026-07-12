@@ -21,9 +21,13 @@ const themeJsonCache = new Map<string, ThemeJSON>();
 
 function loadJsonThemesFromDir(dir: string, target: Map<string, ThemeJSON>) {
   try {
-    if (!existsSync(dir)) return;
+    if (!existsSync(dir)) {
+      return;
+    }
     for (const file of readdirSync(dir)) {
-      if (!file.endsWith(".json")) continue;
+      if (!file.endsWith(".json")) {
+        continue;
+      }
       const name = basename(file, ".json");
       try {
         const content = readFileSync(join(dir, file), "utf-8");
@@ -39,7 +43,9 @@ function loadJsonThemesFromDir(dir: string, target: Map<string, ThemeJSON>) {
 
 /** Load all bundled themes from packages/themes/themes/ */
 function loadBundledThemes(): Map<string, ThemeJSON> {
-  if (themeJsonCache.size > 0) return themeJsonCache;
+  if (themeJsonCache.size > 0) {
+    return themeJsonCache;
+  }
 
   // Bundled themes
   const bundledDir = join(dirname(new URL(import.meta.url).pathname), "..", "themes");
@@ -56,7 +62,9 @@ function loadBundledThemes(): Map<string, ThemeJSON> {
     seen.add(dir);
     loadJsonThemesFromDir(join(dir, ".tooee", "themes"), themeJsonCache);
     const parent = dirname(dir);
-    if (parent === dir) break;
+    if (parent === dir) {
+      break;
+    }
     dir = parent;
   }
 

@@ -28,7 +28,9 @@ describe("marks rendering e2e (markdown content)", () => {
       await session.press("/");
       await Bun.sleep(500);
       const check = await session.text();
-      if (!check.match(/Mode:\s*cursor/u)) break;
+      if (!check.match(/Mode:\s*cursor/u)) {
+        break;
+      }
     }
     // Type a search query that matches multiple blocks
     await session.type("the");

@@ -51,7 +51,9 @@ export class MarkSet {
     for (let i = lo - 1; i >= 0; i--) {
       // If the max end line among marks[0..i] is before the target,
       // no mark at or before index i can reach the target line.
-      if (this.#maxEnd[i] < line) break;
+      if (this.#maxEnd[i] < line) {
+        break;
+      }
       const mark = this.#marks[i];
       if (mark.range.to.line >= line) {
         results.push(mark);
@@ -60,7 +62,9 @@ export class MarkSet {
     // Marks starting at this line
     for (let i = lo; i < this.#marks.length; i++) {
       const mark = this.#marks[i];
-      if (mark.range.from.line > line) break;
+      if (mark.range.from.line > line) {
+        break;
+      }
       // from.line === line
       results.push(mark);
     }
@@ -71,7 +75,9 @@ export class MarkSet {
     const results: Mark[] = [];
     for (const mark of this.#marks) {
       // A mark overlaps [from, to] if mark.from.line <= to && mark.to.line >= from
-      if (mark.range.from.line > to) break;
+      if (mark.range.from.line > to) {
+        break;
+      }
       if (mark.range.to.line >= from) {
         results.push(mark);
       }

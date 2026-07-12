@@ -13,7 +13,9 @@ export function ChooseHighlightedText({
   positions,
   highlightColor,
 }: ChooseHighlightedTextProps): ReactNode {
-  if (positions.length === 0) return text;
+  if (positions.length === 0) {
+    return text;
+  }
 
   const positionSet = new Set(positions);
   const parts: Array<{ text: string; highlighted: boolean }> = [];
@@ -33,7 +35,9 @@ export function ChooseHighlightedText({
       currentHighlighted = highlighted;
     }
   }
-  if (current) parts.push({ text: current, highlighted: currentHighlighted });
+  if (current) {
+    parts.push({ text: current, highlighted: currentHighlighted });
+  }
 
   return parts.map((part, index) => (
     <Fragment key={index}>

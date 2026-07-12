@@ -265,7 +265,9 @@ describe("useAskDialog settlement", () => {
             },
           ],
           controllerRef: (controller) => {
-            if (controller) submitFromCommand = () => controller.submit();
+            if (controller) {
+              submitFromCommand = () => controller.submit();
+            }
           },
         })
         .then(record("once"));

@@ -18,7 +18,9 @@ function normalizeKey(key: string): string {
 const warned = new Set<string>();
 
 function warnOnce(message: string): void {
-  if (warned.has(message)) return;
+  if (warned.has(message)) {
+    return;
+  }
   warned.add(message);
   console.warn(message);
 }

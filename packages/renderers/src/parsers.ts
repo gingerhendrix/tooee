@@ -8,7 +8,9 @@ export interface ParsedTable {
 
 export function parseCSV(input: string): { columns: ColumnDef[]; rows: TableRow[] } {
   const lines = splitLines(input);
-  if (lines.length === 0) return { columns: [], rows: [] };
+  if (lines.length === 0) {
+    return { columns: [], rows: [] };
+  }
   const columns = createColumnDefs(parseCSVLine(lines[0]));
   const rows = buildRows(columns, lines.slice(1).map(parseCSVLine));
   return { columns, rows };
@@ -37,7 +39,10 @@ function parseCSVLine(line: string): string[] {
         }
       }
       fields.push(field);
-      if (i < line.length && line[i] === ",") i++; // skip comma
+      // Skip the comma after a quoted field.
+      if (i < line.length && line[i] === ",") {
+        i++;
+      }
     } else {
       const nextComma = line.indexOf(",", i);
       if (nextComma === -1) {
@@ -54,7 +59,9 @@ function parseCSVLine(line: string): string[] {
 
 export function parseTSV(input: string): { columns: ColumnDef[]; rows: TableRow[] } {
   const lines = splitLines(input);
-  if (lines.length === 0) return { columns: [], rows: [] };
+  if (lines.length === 0) {
+    return { columns: [], rows: [] };
+  }
   const columns = createColumnDefs(lines[0].split("\t"));
   const rows = buildRows(
     columns,
@@ -65,7 +72,9 @@ export function parseTSV(input: string): { columns: ColumnDef[]; rows: TableRow[
 
 export function parseJSON(input: string): { columns: ColumnDef[]; rows: TableRow[] } {
   const data = JSON.parse(input);
-  if (!Array.isArray(data) || data.length === 0) return { columns: [], rows: [] };
+  if (!Array.isArray(data) || data.length === 0) {
+    return { columns: [], rows: [] };
+  }
   const keys = Array.from(
     new Set(data.flatMap((item: Record<string, unknown>) => Object.keys(item))),
   );
@@ -87,12 +96,18 @@ export function detectFormat(input: string): Format {
   if (trimmed.startsWith("[")) {
     try {
       const parsed = JSON.parse(trimmed);
-      if (Array.isArray(parsed)) return "json";
+      if (Array.isArray(parsed)) {
+        return "json";
+      }
     } catch {}
   }
   const firstLine = input.split("\n")[0] ?? "";
-  if (firstLine.includes("\t")) return "tsv";
-  if (firstLine.includes(",")) return "csv";
+  if (firstLine.includes("\t")) {
+    return "tsv";
+  }
+  if (firstLine.includes(",")) {
+    return "csv";
+  }
   return "unknown";
 }
 

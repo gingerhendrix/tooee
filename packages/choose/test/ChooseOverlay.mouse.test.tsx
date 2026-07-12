@@ -29,7 +29,9 @@ function lineOf(frame: string, text: string): { x: number; y: number } {
   const lines = frame.split("\n");
   for (let y = 0; y < lines.length; y++) {
     const x = lines[y].indexOf(text);
-    if (x >= 0) return { x, y };
+    if (x >= 0) {
+      return { x, y };
+    }
   }
   return { x: -1, y: -1 };
 }

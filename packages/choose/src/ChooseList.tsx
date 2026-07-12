@@ -118,7 +118,9 @@ export function ChooseList({
             backgroundColor={isActive ? theme.backgroundElement : undefined}
             style={{ paddingLeft: 1 }}
             onMouseDown={(event) => {
-              if (interactionSuspended || event.button !== 0 || rowClick === "none") return;
+              if (interactionSuspended || event.button !== 0 || rowClick === "none") {
+                return;
+              }
               if (rowClick === "submit") {
                 event.preventDefault();
                 event.stopPropagation();

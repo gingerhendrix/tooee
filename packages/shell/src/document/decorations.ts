@@ -15,7 +15,9 @@ function rowLayer(
     *forVisibleRows(from: number, to: number): Generator<RowDecoration> {
       for (let row = from; row <= to; row++) {
         const decoration = rows.get(row);
-        if (decoration) yield { row, ...decoration };
+        if (decoration) {
+          yield { row, ...decoration };
+        }
       }
     },
   };

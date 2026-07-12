@@ -28,7 +28,9 @@ export function ToastContainer() {
   const { theme } = useTheme();
   const { width: termWidth } = useTerminalDimensions();
 
-  if (!currentToast) return null;
+  if (!currentToast) {
+    return null;
+  }
 
   const maxWidth = Math.min(50, termWidth - 4);
   const borderColor = getLevelColor(theme, currentToast.level);

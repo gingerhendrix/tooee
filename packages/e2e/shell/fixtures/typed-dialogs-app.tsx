@@ -52,7 +52,9 @@ function TypedDialogsApp() {
                   })
                   .then((model) => {
                     setChooseResult(model === null ? "<null>" : model.id);
-                    if (model !== null) controllerRef.current?.insertText(model.id);
+                    if (model !== null) {
+                      controllerRef.current?.insertText(model.id);
+                    }
                   });
               },
             },

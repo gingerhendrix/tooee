@@ -94,7 +94,9 @@ export function useChooseDialog<T>(): ChooseDialogHandle<T> {
       unmountedRef.current = true;
       // Map iteration tolerates deletion: settle() removes entries as each
       // close lands.
-      for (const handle of handles.values()) handle.close("unmounted");
+      for (const handle of handles.values()) {
+        handle.close("unmounted");
+      }
       handles.clear();
     };
   }, []);
@@ -114,7 +116,9 @@ export function useChooseDialog<T>(): ChooseDialogHandle<T> {
         const id = `choose-dialog-${++chooseDialogSequence}`;
         let settled = false;
         const settle = (value: T | T[] | null) => {
-          if (settled) return;
+          if (settled) {
+            return;
+          }
           settled = true;
           openHandlesRef.current.delete(id);
           resolvePromise(value);
@@ -168,7 +172,9 @@ export function useChooseDialog<T>(): ChooseDialogHandle<T> {
                 {...shared}
                 multi
                 onSubmit={(result) => {
-                  if (settled) return;
+                  if (settled) {
+                    return;
+                  }
                   const values = result.items.flatMap((row) => {
                     const value = rowToValue.get(row);
                     return value === undefined ? [] : [value];
@@ -182,7 +188,9 @@ export function useChooseDialog<T>(): ChooseDialogHandle<T> {
               <ChooseOverlay
                 {...shared}
                 onSelect={(row) => {
-                  if (settled) return;
+                  if (settled) {
+                    return;
+                  }
                   const value = rowToValue.get(row);
                   settle(value === undefined ? null : value);
                   handle.close("close");

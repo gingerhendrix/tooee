@@ -39,7 +39,9 @@ function syntheticTextToken(): Token {
  */
 export function getFlatBlockText(block: FlatBlock): string {
   const raw = "raw" in block.token && typeof block.token.raw === "string" ? block.token.raw : "";
-  if (raw.length > 0) return raw;
+  if (raw.length > 0) {
+    return raw;
+  }
   if (block.bullet !== undefined) {
     const checkbox = block.checked !== undefined ? (block.checked ? "[x] " : "[ ] ") : "";
     return block.bullet + checkbox;
@@ -72,7 +74,9 @@ class MarkdownResolver {
   /** Resolve `raw` at/after the cursor within `[cursor, bound]`, then advance. */
   resolveRaw(raw: string, bound: number): DocumentRowSource | null {
     const match = this.find(raw, bound);
-    if (!match) return null;
+    if (!match) {
+      return null;
+    }
     this.cursor = match.end;
     return { primary: this.index.span(match.start, match.end) };
   }
@@ -90,24 +94,35 @@ class MarkdownResolver {
    * offsets keep addressing the original `\r\n` string without normalizing it.
    */
   private find(raw: string, bound: number): { start: number; end: number } | null {
-    if (raw.length === 0) return null;
+    if (raw.length === 0) {
+      return null;
+    }
     const md = this.markdown;
 
     const exact = md.indexOf(raw, this.cursor);
-    if (exact !== -1 && exact + raw.length <= bound)
+    if (exact !== -1 && exact + raw.length <= bound) {
       return { start: exact, end: exact + raw.length };
+    }
 
-    if (!raw.includes("\n")) return null;
+    if (!raw.includes("\n")) {
+      return null;
+    }
 
     const firstSegment = raw.slice(0, raw.indexOf("\n"));
-    if (firstSegment.length === 0) return null;
+    if (firstSegment.length === 0) {
+      return null;
+    }
 
     let from = this.cursor;
     for (;;) {
       const start = md.indexOf(firstSegment, from);
-      if (start === -1 || start >= bound) return null;
+      if (start === -1 || start >= bound) {
+        return null;
+      }
       const end = this.matchFlexibleNewlines(raw, start, bound);
-      if (end !== -1) return { start, end };
+      if (end !== -1) {
+        return { start, end };
+      }
       from = start + 1;
     }
   }
@@ -147,12 +162,17 @@ class MarkdownResolver {
     const lineEnd = nl === -1 ? itemEnd : Math.min(nl, itemEnd);
     const firstLine = this.markdown.slice(itemStart, lineEnd);
     const match = firstLine.match(/^(\s*)(?:[-*+]|\d+[.)])[ \t]*(?:\[[ xX]\])?/u);
-    if (!match) return { primary: this.index.span(itemStart, itemStart, false) };
+    if (!match) {
+      return { primary: this.index.span(itemStart, itemStart, false) };
+    }
     const markerStart = itemStart + match[1]!.length;
     let spanEnd = itemStart + match[0].length;
     while (spanEnd > markerStart) {
       const code = this.markdown.charCodeAt(spanEnd - 1);
-      if (code !== 32 && code !== 9) break; // space / tab
+      // Continue while the character is a space or tab.
+      if (code !== 32 && code !== 9) {
+        break;
+      }
       spanEnd--;
     }
     return { primary: this.index.span(markerStart, spanEnd, false) };
@@ -191,7 +211,9 @@ function flattenList(
 
     flattenListItem(item, indent, bullet, out, res, itemStart, itemEnd);
 
-    if (res && itemStart !== null) res.cursor = itemEnd;
+    if (res && itemStart !== null) {
+      res.cursor = itemEnd;
+    }
   }
 }
 
@@ -220,7 +242,9 @@ function flattenListItem(
   };
 
   for (const token of childTokens) {
-    if (token.type === "space" || token.type === "checkbox") continue;
+    if (token.type === "space" || token.type === "checkbox") {
+      continue;
+    }
 
     if (token.type === "text" || token.type === "paragraph") {
       // Inline content — attach the bullet to the first one.
@@ -233,11 +257,15 @@ function flattenListItem(
       });
       bulletUsed = true;
     } else if (token.type === "list") {
-      if (!bulletUsed) emitBulletMarker();
+      if (!bulletUsed) {
+        emitBulletMarker();
+      }
       flattenList(token as Tokens.List, indent + bullet.length, out, res, itemEnd);
     } else {
       // Block content (code, table, blockquote, hr, etc.).
-      if (!bulletUsed) emitBulletMarker();
+      if (!bulletUsed) {
+        emitBulletMarker();
+      }
       out.push({
         token,
         indent: indent + bullet.length,
@@ -247,7 +275,9 @@ function flattenListItem(
   }
 
   // List item had no content tokens — still emit the bullet.
-  if (!bulletUsed) emitBulletMarker();
+  if (!bulletUsed) {
+    emitBulletMarker();
+  }
 }
 
 function flattenWalk(
@@ -258,7 +288,9 @@ function flattenWalk(
   bound: number,
 ): void {
   for (const token of tokens) {
-    if (token.type === "space") continue;
+    if (token.type === "space") {
+      continue;
+    }
     if (token.type === "list") {
       flattenList(token as Tokens.List, indent, out, res, bound);
     } else {

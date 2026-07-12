@@ -23,11 +23,15 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
   const [activeIndex, setActiveIndex] = useState(0);
 
   const filtered = useMemo(() => {
-    if (!filter) return commands;
+    if (!filter) {
+      return commands;
+    }
     const results: { entry: CommandPaletteEntry; score: number }[] = [];
     for (const entry of commands) {
       const score = fuzzyMatch(filter, entry.title);
-      if (score !== null) results.push({ entry, score });
+      if (score !== null) {
+        results.push({ entry, score });
+      }
     }
     results.sort((a, b) => b.score - a.score);
     return results.map((r) => r.entry);
@@ -130,7 +134,9 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
             backgroundColor={i === activeIndex ? theme.backgroundElement : undefined}
             onMouseDown={(event) => {
               // Left-click runs the entry — same code path as Enter.
-              if (event.button !== 0) return;
+              if (event.button !== 0) {
+                return;
+              }
               event.preventDefault();
               event.stopPropagation();
               onSelect(entry.id);

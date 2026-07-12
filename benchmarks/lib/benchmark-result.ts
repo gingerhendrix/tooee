@@ -37,7 +37,9 @@ export interface BenchmarkRunResult {
 }
 
 export function percentile(values: number[], percentileValue: number): number {
-  if (values.length === 0) return 0;
+  if (values.length === 0) {
+    return 0;
+  }
 
   const sorted = [...values].sort((left, right) => left - right);
   const index = Math.min(

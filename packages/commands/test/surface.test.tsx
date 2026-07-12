@@ -237,11 +237,17 @@ describe("command surface arbitration", () => {
       });
 
       useKeyboard((key) => {
-        if (key.name === "z") setUnguarded((n) => n + 1);
+        if (key.name === "z") {
+          setUnguarded((n) => n + 1);
+        }
       });
       useKeyboard((key) => {
-        if (active) return;
-        if (key.name === "z") setGuarded((n) => n + 1);
+        if (active) {
+          return;
+        }
+        if (key.name === "z") {
+          setGuarded((n) => n + 1);
+        }
       });
 
       return (

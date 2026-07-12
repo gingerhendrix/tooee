@@ -17,10 +17,18 @@ function median(values: number[]): number {
 }
 
 function formatCellValue(value: unknown): string {
-  if (value == null) return "";
-  if (typeof value === "string") return value;
-  if (typeof value === "number" || typeof value === "boolean") return String(value);
-  if (value instanceof Date) return value.toISOString();
+  if (value == null) {
+    return "";
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
   try {
     return JSON.stringify(value);
   } catch {

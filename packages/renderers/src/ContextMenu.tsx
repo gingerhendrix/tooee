@@ -37,7 +37,9 @@ export function ContextMenu({ entries, x, y, onSelect, onClose }: ContextMenuPro
   const select = useCallback(
     (index: number) => {
       const entry = entries[index];
-      if (entry) onSelect(entry.id);
+      if (entry) {
+        onSelect(entry.id);
+      }
     },
     [entries, onSelect],
   );
@@ -68,9 +70,13 @@ export function ContextMenu({ entries, x, y, onSelect, onClose }: ContextMenuPro
 
   // Clamp on-screen: flip left/up when the anchor is near the right/bottom edge.
   let left = x;
-  if (left + panelWidth > termWidth) left = Math.max(0, termWidth - panelWidth);
+  if (left + panelWidth > termWidth) {
+    left = Math.max(0, termWidth - panelWidth);
+  }
   let top = y;
-  if (top + panelHeight > termHeight) top = Math.max(0, termHeight - panelHeight);
+  if (top + panelHeight > termHeight) {
+    top = Math.max(0, termHeight - panelHeight);
+  }
 
   return (
     <box position="absolute" left={0} top={0} width={termWidth} height={termHeight}>
@@ -111,7 +117,9 @@ export function ContextMenu({ entries, x, y, onSelect, onClose }: ContextMenuPro
               paddingRight={1}
               backgroundColor={i === activeIndex ? theme.backgroundElement : undefined}
               onMouseDown={(event) => {
-                if (event.button !== 0) return;
+                if (event.button !== 0) {
+                  return;
+                }
                 event.preventDefault();
                 event.stopPropagation();
                 onSelect(entry.id);

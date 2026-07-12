@@ -151,9 +151,15 @@ export function getTextContent(content: AnyContent): string {
 }
 
 function stringifyCell(value: unknown): string {
-  if (value == null) return "";
-  if (typeof value === "string") return value;
-  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (value == null) {
+    return "";
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
   try {
     return JSON.stringify(value);
   } catch {

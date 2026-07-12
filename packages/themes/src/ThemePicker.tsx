@@ -32,11 +32,15 @@ export function ThemePicker({
   });
 
   const filtered = useMemo(() => {
-    if (!filter) return entries;
+    if (!filter) {
+      return entries;
+    }
     const results: { entry: ThemePickerEntry; score: number }[] = [];
     for (const entry of entries) {
       const score = fuzzyMatch(filter, entry.title);
-      if (score !== null) results.push({ entry, score });
+      if (score !== null) {
+        results.push({ entry, score });
+      }
     }
     results.sort((a, b) => b.score - a.score);
     return results.map((r) => r.entry);
@@ -125,15 +129,21 @@ export function ThemePicker({
             setActiveIndex(0);
             // Preview first match
             if (!value) {
-              if (entries.length > 0) onNavigate(entries[0]!.id);
+              if (entries.length > 0) {
+                onNavigate(entries[0]!.id);
+              }
             } else {
               const results: { entry: ThemePickerEntry; score: number }[] = [];
               for (const entry of entries) {
                 const score = fuzzyMatch(value, entry.title);
-                if (score !== null) results.push({ entry, score });
+                if (score !== null) {
+                  results.push({ entry, score });
+                }
               }
               results.sort((a, b) => b.score - a.score);
-              if (results.length > 0) onNavigate(results[0]!.entry.id);
+              if (results.length > 0) {
+                onNavigate(results[0]!.entry.id);
+              }
             }
           }}
           backgroundColor="transparent"
@@ -162,7 +172,9 @@ export function ThemePicker({
             backgroundColor={i === activeIndex ? theme.backgroundElement : undefined}
             onMouseDown={(event) => {
               // Left-click applies the theme — same code path as Enter.
-              if (event.button !== 0) return;
+              if (event.button !== 0) {
+                return;
+              }
               event.preventDefault();
               event.stopPropagation();
               onSelect(entry.id);

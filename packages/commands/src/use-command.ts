@@ -35,7 +35,9 @@ export function useCommand(options: UseCommandOptions): void {
   const modesKey = options.modes?.join("|") ?? "";
 
   useEffect(() => {
-    if (options.enabled === false) return;
+    if (options.enabled === false) {
+      return;
+    }
 
     const command: Command = {
       id: options.id,

@@ -80,7 +80,9 @@ export function guardTerminalHealth(
   const stdin = renderer.stdin ?? process.stdin;
 
   const dispose = () => {
-    if (disposed) return;
+    if (disposed) {
+      return;
+    }
     disposed = true;
     stdin.removeListener("end", onTerminalEnd);
     stdin.removeListener("close", onTerminalEnd);
@@ -88,7 +90,9 @@ export function guardTerminalHealth(
   };
 
   const onTerminalEnd = () => {
-    if (handled) return;
+    if (handled) {
+      return;
+    }
     handled = true;
     dispose();
 
@@ -100,7 +104,9 @@ export function guardTerminalHealth(
       }
     }
     options.onTerminalEnd?.();
-    if (options.exitProcess ?? true) process.exit(0);
+    if (options.exitProcess ?? true) {
+      process.exit(0);
+    }
   };
 
   stdin.on("end", onTerminalEnd);
@@ -124,7 +130,9 @@ export function mountTooee(
   renderer.once("destroy", markRendererDestroyed);
 
   const unmount = () => {
-    if (unmounted) return;
+    if (unmounted) {
+      return;
+    }
     unmounted = true;
     renderer.removeListener("destroy", markRendererDestroyed);
     root.unmount();
@@ -164,7 +172,9 @@ function resolveProviderOptions(options: LaunchCliOptions): TooeeProviderOptions
 }
 
 function openTtyInput(policy: CliStdinPolicy): tty.ReadStream | undefined {
-  if (policy !== "tty-if-piped" || process.stdin.isTTY) return undefined;
+  if (policy !== "tty-if-piped" || process.stdin.isTTY) {
+    return undefined;
+  }
   const fd = fs.openSync("/dev/tty", "r");
   try {
     return new tty.ReadStream(fd);
@@ -210,7 +220,9 @@ export async function launchCli(
   let removeHealthGuard = () => {};
 
   const releaseOwnedResources = () => {
-    if (destroyed) return;
+    if (destroyed) {
+      return;
+    }
     destroyed = true;
     removeHealthGuard();
     ttyInput?.destroy();
@@ -230,7 +242,9 @@ export async function launchCli(
     },
     unmount: mount.unmount,
     destroy() {
-      if (destroyed) return;
+      if (destroyed) {
+        return;
+      }
       try {
         mount.unmount();
       } finally {
@@ -262,7 +276,9 @@ export async function runCliSession<T>(
     let handle: TooeeSessionHandle | undefined;
 
     const settle = (result: T | null) => {
-      if (settled) return;
+      if (settled) {
+        return;
+      }
       settled = true;
       try {
         handle?.destroy();
@@ -282,13 +298,17 @@ export async function runCliSession<T>(
       return;
     }
 
-    if (settled) return;
+    if (settled) {
+      return;
+    }
 
     launchCli(node, options)
       .then((sessionHandle) => {
         handle = sessionHandle;
         handle.renderer.once("destroy", () => settle(null));
-        if (settled) handle.destroy();
+        if (settled) {
+          handle.destroy();
+        }
       })
       .catch(() => settle(null));
   });

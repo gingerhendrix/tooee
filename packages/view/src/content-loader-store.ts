@@ -120,7 +120,9 @@ export function createContentLoaderStore() {
               content: createEmptyContent(event.format, ctx.title),
             },
       chunkReceived: (ctx, event) => {
-        if (event.requestId !== ctx.requestId) return ctx;
+        if (event.requestId !== ctx.requestId) {
+          return ctx;
+        }
         if (event.chunk.type === "marks") {
           const markSet = event.chunk.set;
           const providerMarks = [

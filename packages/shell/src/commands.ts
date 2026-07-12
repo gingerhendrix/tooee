@@ -98,7 +98,9 @@ export function usePasteCommands(opts: {
     when: opts.when,
     handler: (ctx) => {
       const target = opts.getTarget();
-      if (!target) return;
+      if (!target) {
+        return;
+      }
       void readClipboardText().then((text) => {
         if (text) {
           target.insertText(text);
@@ -115,7 +117,9 @@ export function usePasteCommands(opts: {
     when: opts.when,
     handler: (ctx) => {
       const target = opts.getTarget();
-      if (!target) return;
+      if (!target) {
+        return;
+      }
       void readPrimaryText().then((text) => {
         if (text) {
           target.insertText(text);

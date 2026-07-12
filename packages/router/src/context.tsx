@@ -48,7 +48,9 @@ export function RouterProvider({
 
 export function useRouterInstance(): RouterInstance {
   const ctx = useContext(RouterInstanceContext);
-  if (!ctx) throw new Error("useRouterInstance must be used within RouterProvider");
+  if (!ctx) {
+    throw new Error("useRouterInstance must be used within RouterProvider");
+  }
   return ctx;
 }
 

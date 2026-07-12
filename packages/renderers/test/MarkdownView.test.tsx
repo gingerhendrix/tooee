@@ -94,7 +94,9 @@ test("converts mermaid ANSI output into styled plain text", () => {
   });
 
   expect(result.ok).toBe(true);
-  if (!result.ok) return;
+  if (!result.ok) {
+    return;
+  }
 
   expect(result.text).toContain("Agent");
   expect(result.text).toContain("Stream");
@@ -785,7 +787,9 @@ describe("wide mermaid diagram horizontal scrolling", () => {
     // The mermaid block (block index 0) registered its text renderable
     const diagram = registry.current.get(0);
     expect(diagram).toBeDefined();
-    if (!diagram) return;
+    if (!diagram) {
+      return;
+    }
 
     const before = testSetup.captureCharFrame();
     expect(before).toContain("Alpha station");
@@ -830,7 +834,9 @@ describe("wide mermaid diagram horizontal scrolling", () => {
     // Scrolling a fitting diagram is a no-op (scrollX clamps to 0)
     const diagram = registry.current.get(0);
     expect(diagram).toBeDefined();
-    if (diagram) diagram.scrollX += 1000;
+    if (diagram) {
+      diagram.scrollX += 1000;
+    }
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toBe(frame);
   });
@@ -927,7 +933,9 @@ describe("wide mermaid diagram horizontal scrolling", () => {
 
     const diagram = registry.current.get(0);
     expect(diagram).toBeDefined();
-    if (!diagram) return;
+    if (!diagram) {
+      return;
+    }
 
     // Baseline at scroll 0: record the arrow glyph color and the label
     // letter color. Both glyph classes are color-unambiguous in the diagram.
@@ -935,7 +943,9 @@ describe("wide mermaid diagram horizontal scrolling", () => {
       const colors = new Set<string>();
       for (const line of testSetup.captureSpans().lines) {
         for (const span of line.spans) {
-          if (glyphMatch.test(span.text)) colors.add(span.fg.toString());
+          if (glyphMatch.test(span.text)) {
+            colors.add(span.fg.toString());
+          }
         }
       }
       return colors;
@@ -1004,7 +1014,9 @@ describe("wide code block horizontal scrolling", () => {
     // The code block (block index 0) registered its renderable
     const codeBlock = registry.current.get(0);
     expect(codeBlock).toBeDefined();
-    if (!codeBlock) return;
+    if (!codeBlock) {
+      return;
+    }
 
     const before = testSetup.captureCharFrame();
     expect(before).toContain("Alpha station");
@@ -1046,7 +1058,9 @@ describe("wide code block horizontal scrolling", () => {
     // Scrolling a fitting code block is a no-op (scrollX clamps to 0)
     const codeBlock = registry.current.get(0);
     expect(codeBlock).toBeDefined();
-    if (codeBlock) codeBlock.scrollX += 1000;
+    if (codeBlock) {
+      codeBlock.scrollX += 1000;
+    }
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toBe(frame);
   });
@@ -1129,7 +1143,9 @@ describe("wide code block horizontal scrolling", () => {
 
     const block = registry.current.get(0);
     expect(block).toBeDefined();
-    if (!block) return;
+    if (!block) {
+      return;
+    }
 
     expect(testSetup.captureCharFrame()).toContain("not a diagram");
     expect(testSetup.captureCharFrame()).not.toContain("Zeta terminal");
@@ -1399,7 +1415,9 @@ describe("custom code block renderers", () => {
 
     const block = registry.current.get(0);
     expect(block).toBeDefined();
-    if (!block) return;
+    if (!block) {
+      return;
+    }
 
     const before = testSetup.captureCharFrame();
     expect(before).toContain("[Start]");

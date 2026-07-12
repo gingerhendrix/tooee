@@ -35,7 +35,9 @@ export function useContentLoader(contentProvider: ContentProvider) {
         try {
           while (true) {
             const result = await iterator.next();
-            if (result.done) break;
+            if (result.done) {
+              break;
+            }
             store.trigger.chunkReceived({ requestId, chunk: result.value });
           }
           store.trigger.streamEnded({ requestId });

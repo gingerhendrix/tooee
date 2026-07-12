@@ -35,7 +35,9 @@ export function isMermaidFence(lang?: string): boolean {
 }
 
 function appendStyledChunk(chunks: TextChunk[], text: string, fg?: string) {
-  if (text.length === 0) return;
+  if (text.length === 0) {
+    return;
+  }
 
   chunks.push({
     __isChunk: true,
@@ -45,7 +47,9 @@ function appendStyledChunk(chunks: TextChunk[], text: string, fg?: string) {
 }
 
 function sgrParams(rawParams: string): number[] {
-  if (rawParams === "") return [0];
+  if (rawParams === "") {
+    return [0];
+  }
   return rawParams.split(";").map((param) => (param === "" ? 0 : Number(param)));
 }
 

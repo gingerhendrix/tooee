@@ -128,7 +128,9 @@ export async function readPrimaryText(): Promise<string | undefined> {
 let copyMethod: ((text: string) => Promise<void>) | null = null;
 
 function getCopyMethod(): (text: string) => Promise<void> {
-  if (copyMethod) return copyMethod;
+  if (copyMethod) {
+    return copyMethod;
+  }
 
   const os = platform();
 
@@ -203,7 +205,9 @@ export async function copyToClipboard(text: string): Promise<void> {
 let primaryCopyMethod: ((text: string) => Promise<void>) | null = null;
 
 function getPrimaryCopyMethod(): (text: string) => Promise<void> {
-  if (primaryCopyMethod) return primaryCopyMethod;
+  if (primaryCopyMethod) {
+    return primaryCopyMethod;
+  }
 
   const os = platform();
 

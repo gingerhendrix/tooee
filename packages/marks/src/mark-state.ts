@@ -34,7 +34,9 @@ function makeMarkState(sets: readonly MarkSet[]): MarkState {
 
     effectiveStyleAtLine(line: number): MarkStyle | null {
       const marks = this.marksAtLine(line);
-      if (marks.length === 0) return null;
+      if (marks.length === 0) {
+        return null;
+      }
       return marks[marks.length - 1].style;
     },
 

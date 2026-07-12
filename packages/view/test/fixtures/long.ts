@@ -28,9 +28,15 @@ function createDataPoint(id: number, name: string, value: number): DataPoint {
 }
 
 function categorize(value: number): string {
-  if (value < 10) return "low";
-  if (value < 50) return "medium";
-  if (value < 90) return "high";
+  if (value < 10) {
+    return "low";
+  }
+  if (value < 50) {
+    return "medium";
+  }
+  if (value < 90) {
+    return "high";
+  }
   return "critical";
 }
 
@@ -45,8 +51,12 @@ function processData(points: DataPoint[]): ProcessingResult {
 
   for (const point of points) {
     total += point.value;
-    if (point.value < min) min = point.value;
-    if (point.value > max) max = point.value;
+    if (point.value < min) {
+      min = point.value;
+    }
+    if (point.value > max) {
+      max = point.value;
+    }
   }
 
   return {
@@ -99,10 +109,18 @@ function formatResult(result: ProcessingResult): string {
 }
 
 function validateDataPoint(point: DataPoint): boolean {
-  if (point.id < 0) return false;
-  if (point.name.length === 0) return false;
-  if (point.value < 0 || point.value > 100) return false;
-  if (!["low", "medium", "high", "critical"].includes(point.category)) return false;
+  if (point.id < 0) {
+    return false;
+  }
+  if (point.name.length === 0) {
+    return false;
+  }
+  if (point.value < 0 || point.value > 100) {
+    return false;
+  }
+  if (!["low", "medium", "high", "critical"].includes(point.category)) {
+    return false;
+  }
   return true;
 }
 

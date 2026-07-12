@@ -77,7 +77,9 @@ export function useAskDialog(): AskDialogHandle {
       unmountedRef.current = true;
       // Map iteration tolerates deletion: settle() removes entries as each
       // close lands.
-      for (const handle of handles.values()) handle.close("unmounted");
+      for (const handle of handles.values()) {
+        handle.close("unmounted");
+      }
       handles.clear();
     };
   }, []);
@@ -96,7 +98,9 @@ export function useAskDialog(): AskDialogHandle {
           const id = `ask-dialog-${++askDialogSequence}`;
           let settled = false;
           const settle = (value: string | null) => {
-            if (settled) return;
+            if (settled) {
+              return;
+            }
             settled = true;
             openHandlesRef.current.delete(id);
             resolvePromise(value);
@@ -118,7 +122,9 @@ export function useAskDialog(): AskDialogHandle {
                 footer={options.footer}
                 inset={options.inset}
                 onSubmit={(value) => {
-                  if (settled) return;
+                  if (settled) {
+                    return;
+                  }
                   settle(value);
                   handle.close("close");
                 }}

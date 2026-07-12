@@ -353,7 +353,9 @@ describe("route loaders", () => {
       component: DataScreen,
       loader: ({ params: _params }) => {
         callCount++;
-        if (callCount === 1) return deferred1.promise;
+        if (callCount === 1) {
+          return deferred1.promise;
+        }
         return deferred2.promise;
       },
       pendingComponent: LoadingScreen,

@@ -36,7 +36,9 @@ export function useActions(actions: ActionDefinition[] | undefined): void {
 
   useEffect(() => {
     const current = actionsRef.current;
-    if (!current || current.length === 0) return;
+    if (!current || current.length === 0) {
+      return;
+    }
 
     const unregisters = current.map((action, i) => {
       const command: Command = {

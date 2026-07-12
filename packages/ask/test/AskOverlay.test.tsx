@@ -107,7 +107,9 @@ function cursorIsVisible(): boolean {
 }
 
 function findEditableWithText(node: unknown, text: string): { cursorOffset: number } | undefined {
-  if (!node || typeof node !== "object") return undefined;
+  if (!node || typeof node !== "object") {
+    return undefined;
+  }
 
   if (
     "plainText" in node &&
@@ -120,7 +122,9 @@ function findEditableWithText(node: unknown, text: string): { cursorOffset: numb
   if ("getChildren" in node && typeof node.getChildren === "function") {
     for (const child of node.getChildren()) {
       const match = findEditableWithText(child, text);
-      if (match) return match;
+      if (match) {
+        return match;
+      }
     }
   }
 

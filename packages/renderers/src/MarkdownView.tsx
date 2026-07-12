@@ -403,7 +403,9 @@ function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
-    if (!token) continue;
+    if (!token) {
+      continue;
+    }
     const key = i;
 
     switch (token.type) {
@@ -538,10 +540,18 @@ function inlineTokensToChunks(tokens: Token[], theme: ResolvedTheme): TextChunk[
 function getPlainText(tokens: Token[]): string {
   return tokens
     .map((token) => {
-      if (token.type === "text") return token.text;
-      if (token.type === "codespan") return (token as Tokens.Codespan).text;
-      if ("tokens" in token && token.tokens) return getPlainText(token.tokens as Token[]);
-      if ("text" in token) return (token as { text: string }).text;
+      if (token.type === "text") {
+        return token.text;
+      }
+      if (token.type === "codespan") {
+        return (token as Tokens.Codespan).text;
+      }
+      if ("tokens" in token && token.tokens) {
+        return getPlainText(token.tokens as Token[]);
+      }
+      if ("text" in token) {
+        return (token as { text: string }).text;
+      }
       return "";
     })
     .join("");

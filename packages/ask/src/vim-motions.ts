@@ -31,7 +31,9 @@ export function openLineAtCursor(
   target: EditableInsertTarget | null | undefined,
   position: "above" | "below",
 ): void {
-  if (!target) return;
+  if (!target) {
+    return;
+  }
 
   const text = target.plainText;
   const cursorOffset = target.cursorOffset;

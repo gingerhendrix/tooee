@@ -23,7 +23,9 @@ export function useScreenEffect(effect: () => void | (() => void)) {
   const effectRef = useRef(effect);
   effectRef.current = effect;
   useEffect(() => {
-    if (!isFocused) return;
+    if (!isFocused) {
+      return;
+    }
     return effectRef.current();
   }, [isFocused]);
 }

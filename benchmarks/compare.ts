@@ -79,10 +79,18 @@ function readRun(path: string): BenchmarkRunResult {
 }
 
 function formatValue(value: number, unit: BenchmarkUnit): string {
-  if (unit === "bytes") return `${formatBytes(value)}`;
-  if (unit === "ms") return `${value >= 100 ? value.toFixed(1) : value.toFixed(2)}ms`;
-  if (unit === "ratio") return value.toFixed(3);
-  if (unit === "boolean") return value === 0 ? "false" : "true";
+  if (unit === "bytes") {
+    return `${formatBytes(value)}`;
+  }
+  if (unit === "ms") {
+    return `${value >= 100 ? value.toFixed(1) : value.toFixed(2)}ms`;
+  }
+  if (unit === "ratio") {
+    return value.toFixed(3);
+  }
+  if (unit === "boolean") {
+    return value === 0 ? "false" : "true";
+  }
   return Number.isInteger(value) ? value.toLocaleString() : value.toFixed(2);
 }
 
@@ -111,10 +119,14 @@ function compareRuns(
   const comparisons: MetricComparison[] = [];
 
   for (const baselineMetric of baseline.results) {
-    if (onlyComparable && !baselineMetric.comparable) continue;
+    if (onlyComparable && !baselineMetric.comparable) {
+      continue;
+    }
 
     const candidateMetric = candidateByName.get(baselineMetric.name);
-    if (!candidateMetric) continue;
+    if (!candidateMetric) {
+      continue;
+    }
 
     const delta = candidateMetric.median - baselineMetric.median;
     const ratio =
@@ -145,7 +157,9 @@ function compareRuns(
   }
 
   return comparisons.sort((left, right) => {
-    if (left.thresholdExceeded !== right.thresholdExceeded) return left.thresholdExceeded ? -1 : 1;
+    if (left.thresholdExceeded !== right.thresholdExceeded) {
+      return left.thresholdExceeded ? -1 : 1;
+    }
     return right.percent - left.percent;
   });
 }

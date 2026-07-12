@@ -152,7 +152,9 @@ export function useNavigationBindings(
   const context = store.getSnapshot().context;
   const toggledIndices = new Set<number>();
   rowKeys.forEach((key, index) => {
-    if (toggledKeys.has(key)) toggledIndices.add(index);
+    if (toggledKeys.has(key)) {
+      toggledIndices.add(index);
+    }
   });
   const selection =
     mode === "select" && anchor !== null && cursor !== null

@@ -85,12 +85,16 @@ const COLUMN_WIDTH = 36;
 const CARD_INNER_WIDTH = COLUMN_WIDTH - 4; // borders + padding
 
 function truncateText(text: string, maxLen: number): string {
-  if (text.length <= maxLen) return text;
+  if (text.length <= maxLen) {
+    return text;
+  }
   return `${text.slice(0, maxLen - 1)}\u2026`;
 }
 
 function padRight(text: string, width: number): string {
-  if (text.length >= width) return text.slice(0, width);
+  if (text.length >= width) {
+    return text.slice(0, width);
+  }
   return text + " ".repeat(width - text.length);
 }
 
@@ -125,7 +129,9 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
     // Top border of card
     const topLine = data.columns
       .map((col) => {
-        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH);
+        if (cardIdx >= col.cards.length) {
+          return " ".repeat(COLUMN_WIDTH);
+        }
         return `\u250C${"\u2500".repeat(COLUMN_WIDTH - 2)}\u2510`;
       })
       .join("  ");
@@ -134,7 +140,9 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
     // Card ID + priority line
     const idLine = data.columns
       .map((col) => {
-        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH);
+        if (cardIdx >= col.cards.length) {
+          return " ".repeat(COLUMN_WIDTH);
+        }
         const card = col.cards[cardIdx];
         const priority = PRIORITY_INDICATORS[card.priority] ?? "    ";
         const inner = padRight(` ${card.id} ${priority}`, CARD_INNER_WIDTH);
@@ -146,7 +154,9 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
     // Card title line
     const titleLine = data.columns
       .map((col) => {
-        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH);
+        if (cardIdx >= col.cards.length) {
+          return " ".repeat(COLUMN_WIDTH);
+        }
         const card = col.cards[cardIdx];
         const inner = padRight(
           ` ${truncateText(card.title, CARD_INNER_WIDTH - 2)} `,
@@ -160,7 +170,9 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
     // Assignee line
     const assigneeLine = data.columns
       .map((col) => {
-        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH);
+        if (cardIdx >= col.cards.length) {
+          return " ".repeat(COLUMN_WIDTH);
+        }
         const card = col.cards[cardIdx];
         const assignee = card.assignee ? `@${card.assignee}` : "(unassigned)";
         const inner = padRight(` ${assignee} `, CARD_INNER_WIDTH);
@@ -172,7 +184,9 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
     // Bottom border of card
     const bottomLine = data.columns
       .map((col) => {
-        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH);
+        if (cardIdx >= col.cards.length) {
+          return " ".repeat(COLUMN_WIDTH);
+        }
         return `\u2514${"\u2500".repeat(COLUMN_WIDTH - 2)}\u2518`;
       })
       .join("  ");

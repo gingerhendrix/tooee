@@ -23,7 +23,9 @@ export function CloseButton({ onClose, glyph = "✕", color }: CloseButtonProps)
   const handleMouseDown = useCallback(
     (event: MouseEvent) => {
       // Left button only; let other buttons bubble.
-      if (event.button !== 0) return;
+      if (event.button !== 0) {
+        return;
+      }
       event.preventDefault();
       event.stopPropagation();
       onClose();

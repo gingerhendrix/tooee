@@ -15,11 +15,15 @@ export function useCopyOnSelect() {
     // Default: on for Linux, off elsewhere
     const effective = copyOnSelect === undefined ? platform() === "linux" : copyOnSelect;
 
-    if (!effective) return;
+    if (!effective) {
+      return;
+    }
 
     const handler = (selection: Selection) => {
       const text = selection.getSelectedText();
-      if (!text) return;
+      if (!text) {
+        return;
+      }
 
       if (effective === "clipboard") {
         void copyToClipboard(text);

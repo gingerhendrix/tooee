@@ -23,7 +23,9 @@ function deepMerge(target: any, source: any): any {
 
 function readJsonFile(path: string): Partial<TooeeConfig> {
   try {
-    if (!existsSync(path)) return {};
+    if (!existsSync(path)) {
+      return {};
+    }
     return JSON.parse(readFileSync(path, "utf-8")) as Partial<TooeeConfig>;
   } catch {
     return {};
@@ -45,7 +47,9 @@ function findProjectConfig(): Partial<TooeeConfig> {
       return readJsonFile(configPath);
     }
     const parent = dirname(dir);
-    if (parent === dir) break;
+    if (parent === dir) {
+      break;
+    }
     dir = parent;
   }
   return {};

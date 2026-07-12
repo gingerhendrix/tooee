@@ -38,7 +38,9 @@ describe("theme switching", () => {
     for (let i = 0; i < 20; i++) {
       const text = await session.text();
       after = extractTheme(text);
-      if (after && after !== initial && !text.includes("aura")) break;
+      if (after && after !== initial && !text.includes("aura")) {
+        break;
+      }
       await new Promise((resolve) => setTimeout(resolve, 250));
     }
     expect(after).not.toBe(initial);

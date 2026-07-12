@@ -144,6 +144,8 @@ export function ThemeSwitcherProvider({
 
 export function useThemeSwitcher(): ThemeSwitcherContextValue {
   const ctx = useContext(ThemeSwitcherContext);
-  if (!ctx) throw new Error("useThemeSwitcher must be used within ThemeSwitcherProvider");
+  if (!ctx) {
+    throw new Error("useThemeSwitcher must be used within ThemeSwitcherProvider");
+  }
   return ctx;
 }

@@ -26,15 +26,22 @@ const TRACK_CHAR = "░";
  * Renders nothing when content fits within the viewport (no overflow).
  */
 export function EditorScrollbar({ target, color }: EditorScrollbarProps) {
-  if (!target) return null;
+  if (!target) {
+    return null;
+  }
 
   // Rendered height of the editor in rows (available post-layout).
   const height = target.height;
-  if (height <= 0) return null;
+  if (height <= 0) {
+    return null;
+  }
 
   // Total virtual (wrapped) line count, not the count currently in view.
   const total = target.editorView.getTotalVirtualLineCount();
-  if (total <= height) return null; // fits, no overflow -> no scrollbar
+  // Content fits, so no scrollbar is needed.
+  if (total <= height) {
+    return null;
+  }
 
   const offsetY = target.scrollY;
   const maxOffset = Math.max(1, total - height);
@@ -48,7 +55,9 @@ export function EditorScrollbar({ target, color }: EditorScrollbarProps) {
   for (let i = 0; i < height; i++) {
     const isThumb = i >= thumbTop && i < thumbTop + thumbSize;
     content += isThumb ? THUMB_CHAR : TRACK_CHAR;
-    if (i < height - 1) content += "\n";
+    if (i < height - 1) {
+      content += "\n";
+    }
   }
 
   return <text content={content} fg={color} selectable={false} />;

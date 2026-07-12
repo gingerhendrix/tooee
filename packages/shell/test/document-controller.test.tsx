@@ -40,7 +40,9 @@ const THREE = [row("a"), row("b"), row("c")];
 let handle: DocumentController<Row> | null = null;
 
 function controller(): DocumentController<Row> {
-  if (!handle) throw new Error("controller not mounted");
+  if (!handle) {
+    throw new Error("controller not mounted");
+  }
   return handle;
 }
 

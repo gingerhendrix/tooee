@@ -40,8 +40,12 @@ function shape(block: FlatBlock): RowShape {
         }
       : null,
   };
-  if (block.bullet !== undefined) row.bullet = block.bullet;
-  if (block.checked !== undefined) row.checked = block.checked;
+  if (block.bullet !== undefined) {
+    row.bullet = block.bullet;
+  }
+  if (block.checked !== undefined) {
+    row.checked = block.checked;
+  }
   return row;
 }
 

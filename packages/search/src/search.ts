@@ -1,5 +1,7 @@
 export function findMatchingLines(text: string, query: string): number[] {
-  if (!query) return [];
+  if (!query) {
+    return [];
+  }
   const lowerQuery = query.toLowerCase();
   const results: number[] = [];
   let lineStart = 0;

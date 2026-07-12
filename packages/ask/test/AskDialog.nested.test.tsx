@@ -112,7 +112,9 @@ function NestedHarness() {
                 })
                 .then((model) => {
                   chooseSettlements.push(model === null ? null : model.id);
-                  if (model !== null) controllerRef.current?.insertText(model.id);
+                  if (model !== null) {
+                    controllerRef.current?.insertText(model.id);
+                  }
                 });
             },
           },
