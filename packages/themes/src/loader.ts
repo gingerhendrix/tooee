@@ -1,6 +1,6 @@
 import type { SyntaxStyle } from "@opentui/core";
-import { readFileSync, readdirSync, existsSync } from "fs";
-import { join, basename, dirname } from "path";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { join, basename, dirname } from "node:path";
 import { resolveTheme } from "./types.js";
 import type { ThemeJSON, ResolvedTheme } from "./types.js";
 import { buildSyntaxStyle } from "./syntax-rules.js";

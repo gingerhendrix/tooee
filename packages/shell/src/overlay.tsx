@@ -145,10 +145,9 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
   );
 
   const isOpen = useCallback(
-    (id: OverlayId) => {
+    (id: OverlayId) =>
       // Imperative snapshot read (same semantics as the previous ref read).
-      return overlayStore.getSnapshot().context.stack.some((e) => e.id === id);
-    },
+      overlayStore.getSnapshot().context.stack.some((e) => e.id === id),
     [overlayStore],
   );
 

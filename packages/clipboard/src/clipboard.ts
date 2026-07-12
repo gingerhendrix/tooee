@@ -1,6 +1,6 @@
 import { $ } from "bun";
-import { platform, release, tmpdir } from "os";
-import path from "path";
+import { platform, release, tmpdir } from "node:os";
+import path from "node:path";
 
 export interface ClipboardContent {
   data: string;

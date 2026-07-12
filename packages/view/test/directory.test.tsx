@@ -1,7 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, describe } from "bun:test";
 import { act } from "react";
-import { resolve } from "path";
+import { resolve } from "node:path";
 import { TooeeProvider } from "@tooee/shell";
 import { DirectoryView } from "../src/DirectoryView.js";
 import { listDirectoryFiles } from "../src/directory-provider.js";

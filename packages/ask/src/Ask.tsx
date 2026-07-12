@@ -53,7 +53,7 @@ export function Ask({
       onSubmit(text);
       return;
     }
-    process.stdout.write(text + "\n");
+    process.stdout.write(`${text}\n`);
     renderer.destroy();
   };
 

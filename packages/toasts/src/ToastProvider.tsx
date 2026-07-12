@@ -63,9 +63,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
 
   // Cleanup on unmount
-  useEffect(() => {
-    return () => clearTimer();
-  }, [clearTimer]);
+  useEffect(() => () => clearTimer(), [clearTimer]);
 
   const controller = useMemo<ToastController>(
     () => ({

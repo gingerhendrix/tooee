@@ -1,7 +1,7 @@
 import { describe, test, expect, afterEach } from "bun:test";
 import { launchTerminal } from "tuistory";
 import type { Session } from "tuistory";
-import { resolve } from "path";
+import { resolve } from "node:path";
 import { ensureTestConfigHome, resetTestConfig } from "../support/test-config.js";
 
 const REPO_ROOT = resolve(import.meta.dir, "../../..");

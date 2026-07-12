@@ -218,7 +218,7 @@ function TimelineRenderer({ text, theme, indent, hScroll }: CodeBlockRendererPro
   }
 
   const lines: string[] = [
-    gutter + ticks + "24:00",
+    `${gutter + ticks}24:00`,
     gutter + "┄".repeat(axisWidth),
     ...rows.map((row) => {
       const offset = " ".repeat(Math.round(row.start * TIMELINE_HOUR_COLS));

@@ -1,7 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, describe } from "bun:test";
 import { act } from "react";
-import { resolve } from "path";
+import { resolve } from "node:path";
 import { MouseButtons } from "@opentui/core/testing";
 import { TooeeProvider } from "@tooee/shell";
 import type { ActionDefinition } from "@tooee/commands";

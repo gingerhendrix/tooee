@@ -6,7 +6,7 @@ import {
   createStdinProvider,
 } from "@tooee/view";
 import type { ContentFormat } from "@tooee/view";
-import { statSync } from "fs";
+import { statSync } from "node:fs";
 import { launch as launchAsk } from "@tooee/ask";
 import { launch as launchChoose, createStdinChooseProvider } from "@tooee/choose";
 
@@ -128,7 +128,7 @@ switch (command) {
     const result = await launchChoose({ contentProvider, options: { multi, prompt } });
     if (result) {
       for (const item of result.items) {
-        process.stdout.write((item.value ?? item.text) + "\n");
+        process.stdout.write(`${item.value ?? item.text}\n`);
       }
     } else {
       process.exit(1);

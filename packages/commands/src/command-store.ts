@@ -243,23 +243,16 @@ function createBaseStore(initialContext: CommandStoreContext) {
           sequence: sequenceAfterStackChange(before, after, ctx.sequence),
         };
       },
-      modeChanged: (
-        ctx: CommandStoreContext,
-        _event: { surfaceId: string },
-      ): CommandStoreContext => {
+      modeChanged: (ctx: CommandStoreContext, _event: { surfaceId: string }): CommandStoreContext =>
         // A mode change is a transition, not a post-render repair: any pending
         // chord is invalidated (F-08 — including surface-local mode changes).
-        return ctx.sequence === null ? ctx : { ...ctx, sequence: null };
-      },
+        ctx.sequence === null ? ctx : { ...ctx, sequence: null },
       sequencePending: (
         ctx: CommandStoreContext,
         event: { state: CommandSequenceState },
-      ): CommandStoreContext => {
-        return { ...ctx, sequence: event.state };
-      },
-      sequenceReset: (ctx: CommandStoreContext): CommandStoreContext => {
-        return ctx.sequence === null ? ctx : { ...ctx, sequence: null };
-      },
+      ): CommandStoreContext => ({ ...ctx, sequence: event.state }),
+      sequenceReset: (ctx: CommandStoreContext): CommandStoreContext =>
+        ctx.sequence === null ? ctx : { ...ctx, sequence: null },
     },
   });
 }

@@ -104,8 +104,8 @@ export function useChooseDialog<T>(): ChooseDialogHandle<T> {
   if (handleRef.current === null) {
     const open = (
       options: ChooseDialogOptionsBase<T> & { toItem?: (item: T) => ChooseItem },
-    ): Promise<T | T[] | null> => {
-      return new Promise<T | T[] | null>((resolvePromise) => {
+    ): Promise<T | T[] | null> =>
+      new Promise<T | T[] | null>((resolvePromise) => {
         if (unmountedRef.current) {
           resolvePromise(null);
           return;
@@ -203,7 +203,6 @@ export function useChooseDialog<T>(): ChooseDialogHandle<T> {
         );
         openHandlesRef.current.set(id, handle);
       });
-    };
 
     handleRef.current = { open: open as ChooseDialogHandle<T>["open"] };
   }

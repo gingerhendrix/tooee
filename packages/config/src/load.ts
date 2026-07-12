@@ -1,5 +1,5 @@
-import { readFileSync, mkdirSync, writeFileSync, existsSync } from "fs";
-import { join, dirname } from "path";
+import { readFileSync, mkdirSync, writeFileSync, existsSync } from "node:fs";
+import { join, dirname } from "node:path";
 import type { TooeeConfig } from "./types.js";
 
 const DEFAULTS: TooeeConfig = {
@@ -68,7 +68,7 @@ export function writeGlobalConfig(partial: Partial<TooeeConfig>): void {
     const existing = readJsonFile(path);
     const merged = deepMerge(existing, partial);
     mkdirSync(dir, { recursive: true });
-    writeFileSync(path, JSON.stringify(merged, null, 2) + "\n");
+    writeFileSync(path, `${JSON.stringify(merged, null, 2)}\n`);
   } catch {
     // ignore write errors
   }

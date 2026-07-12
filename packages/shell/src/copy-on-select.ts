@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useRenderer } from "@opentui/react";
 import { copyToClipboard, copyToPrimary } from "@tooee/clipboard";
 import { useConfig } from "@tooee/config";
-import { platform } from "os";
+import { platform } from "node:os";
 import type { Selection } from "@opentui/core";
 
 export function useCopyOnSelect() {

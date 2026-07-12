@@ -86,7 +86,7 @@ const CARD_INNER_WIDTH = COLUMN_WIDTH - 4; // borders + padding
 
 function truncateText(text: string, maxLen: number): string {
   if (text.length <= maxLen) return text;
-  return text.slice(0, maxLen - 1) + "\u2026";
+  return `${text.slice(0, maxLen - 1)}\u2026`;
 }
 
 function padRight(text: string, width: number): string {
@@ -126,7 +126,7 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
     const topLine = data.columns
       .map((col) => {
         if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH);
-        return "\u250C" + "\u2500".repeat(COLUMN_WIDTH - 2) + "\u2510";
+        return `\u250C${"\u2500".repeat(COLUMN_WIDTH - 2)}\u2510`;
       })
       .join("  ");
     lines.push({ text: topLine, fg: theme.border });
@@ -138,7 +138,7 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
         const card = col.cards[cardIdx];
         const priority = PRIORITY_INDICATORS[card.priority] ?? "    ";
         const inner = padRight(` ${card.id} ${priority}`, CARD_INNER_WIDTH);
-        return "\u2502" + inner + "\u2502";
+        return `\u2502${inner}\u2502`;
       })
       .join("  ");
     lines.push({ text: idLine });
@@ -152,7 +152,7 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
           ` ${truncateText(card.title, CARD_INNER_WIDTH - 2)} `,
           CARD_INNER_WIDTH,
         );
-        return "\u2502" + inner + "\u2502";
+        return `\u2502${inner}\u2502`;
       })
       .join("  ");
     lines.push({ text: titleLine });
@@ -164,7 +164,7 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
         const card = col.cards[cardIdx];
         const assignee = card.assignee ? `@${card.assignee}` : "(unassigned)";
         const inner = padRight(` ${assignee} `, CARD_INNER_WIDTH);
-        return "\u2502" + inner + "\u2502";
+        return `\u2502${inner}\u2502`;
       })
       .join("  ");
     lines.push({ text: assigneeLine, fg: theme.textMuted });
@@ -173,7 +173,7 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
     const bottomLine = data.columns
       .map((col) => {
         if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH);
-        return "\u2514" + "\u2500".repeat(COLUMN_WIDTH - 2) + "\u2518";
+        return `\u2514${"\u2500".repeat(COLUMN_WIDTH - 2)}\u2518`;
       })
       .join("  ");
     lines.push({ text: bottomLine, fg: theme.border });
@@ -198,9 +198,9 @@ const contentProvider: ContentProvider = {
     format: "kanban",
     data: kanbanData,
     title: "Project Board",
-    getTextContent: () => {
+    getTextContent: () =>
       // Provide text representation for search and copy
-      return kanbanData.columns
+      kanbanData.columns
         .map((col) => {
           const header = `== ${col.name} (${col.cards.length}) ==`;
           const cards = col.cards
@@ -211,8 +211,7 @@ const contentProvider: ContentProvider = {
             .join("\n");
           return `${header}\n${cards}`;
         })
-        .join("\n\n");
-    },
+        .join("\n\n"),
   }),
 };
 

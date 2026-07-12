@@ -1,5 +1,5 @@
-import { mkdirSync, rmSync } from "fs";
-import { join, resolve } from "path";
+import { mkdirSync, rmSync } from "node:fs";
+import { join, resolve } from "node:path";
 
 const REPO_ROOT = resolve(import.meta.dir, "../..");
 const BASE_DIR = join(REPO_ROOT, ".tmp", "test-config");
