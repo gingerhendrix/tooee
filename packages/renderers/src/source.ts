@@ -58,7 +58,7 @@ export interface DocumentRowAnchor<T> {
 /** Offsets of the first character of every physical line. */
 function buildLineStarts(text: string): number[] {
   const starts = [0];
-  for (let i = 0; i < text.length; i++) {
+  for (let i = 0; i < text.length; i += 1) {
     if (text.charCodeAt(i) === 10 /* \n */) starts.push(i + 1);
   }
   return starts;
@@ -103,7 +103,7 @@ export class SourceIndex {
     const nextStart = line + 1 < starts.length ? starts[line + 1]! : this.text.length;
     let end = nextStart;
     if (end > starts[line]! && this.text.charCodeAt(end - 1) === 10) {
-      end--;
+      end -= 1;
       if (end > starts[line]! && this.text.charCodeAt(end - 1) === 13 /* \r */) end--;
     }
     return end;
@@ -119,7 +119,7 @@ export class SourceIndex {
     let end = rawEnd;
     if (trimTrailingNewlines) {
       while (end > rawStart && this.text.charCodeAt(end - 1) === 10) {
-        end--;
+        end -= 1;
         if (end > rawStart && this.text.charCodeAt(end - 1) === 13) end--;
       }
     }
@@ -163,7 +163,7 @@ export interface SourceLineRow {
 export function sourceLines(source: string, options?: { sourceId?: string }): SourceLineRow[] {
   const index = new SourceIndex(source, options?.sourceId);
   const rows: SourceLineRow[] = [];
-  for (let line = 0; line < index.lineStarts.length; line++) {
+  for (let line = 0; line < index.lineStarts.length; line += 1) {
     const start = index.lineStarts[line]!;
     const end = index.lineContentEnd(line);
     rows.push({

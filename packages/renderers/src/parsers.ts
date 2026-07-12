@@ -22,7 +22,7 @@ function parseCSVLine(line: string): string[] {
   while (i < line.length) {
     if (line[i] === '"') {
       // Quoted field
-      i++;
+      i += 1;
       let field = "";
       while (i < line.length) {
         if (line[i] === '"') {
@@ -35,13 +35,13 @@ function parseCSVLine(line: string): string[] {
           }
         } else {
           field += line[i];
-          i++;
+          i += 1;
         }
       }
       fields.push(field);
       // Skip the comma after a quoted field.
       if (i < line.length && line[i] === ",") {
-        i++;
+        i += 1;
       }
     } else {
       const nextComma = line.indexOf(",", i);

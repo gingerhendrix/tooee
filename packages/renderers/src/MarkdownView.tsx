@@ -401,7 +401,7 @@ function HorizontalRule({ theme, indent }: { theme: ResolvedTheme; indent: numbe
 function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme }): ReactNode {
   const result: ReactNode[] = [];
 
-  for (let i = 0; i < tokens.length; i++) {
+  for (let i = 0; i < tokens.length; i += 1) {
     const token = tokens[i];
     if (!token) {
       continue;

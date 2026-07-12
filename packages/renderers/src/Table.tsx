@@ -59,7 +59,7 @@ function sampleRows(rows: string[][], sampleSize: number): string[][] {
   // Sample evenly distributed rows for representative widths
   const step = rows.length / sampleSize;
   const sampled: string[][] = [];
-  for (let i = 0; i < sampleSize; i++) {
+  for (let i = 0; i < sampleSize; i += 1) {
     sampled.push(rows[Math.floor(i * step)]);
   }
   return sampled;

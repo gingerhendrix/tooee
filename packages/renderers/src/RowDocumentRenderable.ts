@@ -199,7 +199,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     const row = this._virtualRowToRow[clamped];
     if (row != null && row >= 0) return row;
     // Gap row — search backward for nearest valid row
-    for (let i = clamped - 1; i >= 0; i--) {
+    for (let i = clamped - 1; i >= 0; i -= 1) {
       const r = this._virtualRowToRow[i];
       if (r != null && r >= 0) return r;
     }
@@ -374,7 +374,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     const virtualRowToRow = Array.from({ length: totalHeight }, () => -1);
     const virtualRowWraps = Array.from({ length: totalHeight }, () => 0);
 
-    for (let i = offset; i < children.length; i++) {
+    for (let i = offset; i < children.length; i += 1) {
       const row = i - offset;
       const child = children[i];
       const childStart = child.y - contentY;
@@ -383,7 +383,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
       rowVirtualStarts[row] = childStart;
       rowVirtualHeights[row] = h;
 
-      for (let r = 0; r < h; r++) {
+      for (let r = 0; r < h; r += 1) {
         const vRow = childStart + r;
         if (vRow >= 0 && vRow < totalHeight) {
           virtualRowToRow[vRow] = row;
@@ -423,7 +423,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     let currentRow = -1;
     let rowCount = 0;
 
-    for (let v = 0; v < lineSources.length; v++) {
+    for (let v = 0; v < lineSources.length; v += 1) {
       const row = lineSources[v];
       virtualRowToRow[v] = row;
       virtualRowWraps[v] = lineWraps[v];
@@ -461,7 +461,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     rowCount: number,
   ): void {
     let contentVirtualEnd = 0;
-    for (let row = 0; row < rowCount; row++) {
+    for (let row = 0; row < rowCount; row += 1) {
       const end = rowVirtualStarts[row] + rowVirtualHeights[row];
       if (end > contentVirtualEnd) {
         contentVirtualEnd = end;
@@ -536,7 +536,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
       }
     }
 
-    for (let screenY = 0; screenY < vpHeight; screenY++) {
+    for (let screenY = 0; screenY < vpHeight; screenY += 1) {
       const vRow = top + screenY;
       if (vRow >= this._virtualRowToRow.length) {
         break;
@@ -578,7 +578,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
       ? Math.max(String(this._lineNumberStart + this._rowCount - 1).length, 1)
       : 0;
 
-    for (let screenY = 0; screenY < vpHeight; screenY++) {
+    for (let screenY = 0; screenY < vpHeight; screenY += 1) {
       const vRow = top + screenY;
       if (vRow >= this._virtualRowToRow.length) {
         break;

@@ -69,7 +69,7 @@ function defaultMatch<T>(
 ): number[] {
   const lowered = query.toLowerCase();
   const matches: number[] = [];
-  for (let index = 0; index < rows.length; index++) {
+  for (let index = 0; index < rows.length; index += 1) {
     if (getText(rows[index]!, index).toLowerCase().includes(lowered)) {
       matches.push(index);
     }
@@ -194,7 +194,7 @@ export function useDocumentController<T>(
     }
     if (navigation.selection) {
       const indices: number[] = [];
-      for (let index = navigation.selection.start; index <= navigation.selection.end; index++) {
+      for (let index = navigation.selection.start; index <= navigation.selection.end; index += 1) {
         indices.push(index);
       }
       return indices;
