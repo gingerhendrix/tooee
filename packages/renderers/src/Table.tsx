@@ -79,10 +79,14 @@ function computeColumnWidths(
   // Use Bun.stringWidth for correct display width with CJK/emoji
   const naturalWidths = headers.map((header, col) => {
     const headerLen = Bun.stringWidth(header);
-    const maxRowLen = sampledRows.reduce(
-      (max, row) => Math.max(max, Bun.stringWidth(row[col] ?? "")),
-      0,
-    );
+    let maxRowLen = 0;
+    const sampledRowCount = sampledRows.length;
+    for (let rowIndex = 0; rowIndex < sampledRowCount; rowIndex += 1) {
+      if (rowIndex in sampledRows) {
+        const row = sampledRows[rowIndex];
+        maxRowLen = Math.max(maxRowLen, Bun.stringWidth(row[col] ?? ""));
+      }
+    }
     const contentWidth = Math.max(headerLen, maxRowLen);
     // Apply min/max constraints before adding padding
     const constrainedWidth = Math.min(maxColumnWidth, Math.max(minColumnWidth, contentWidth));

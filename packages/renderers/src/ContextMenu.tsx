@@ -60,10 +60,17 @@ export function ContextMenu({ entries, x, y, onSelect, onClose }: ContextMenuPro
 
   // Size the panel from its contents (terminal cell width, not code units,
   // so wide glyphs like CJK and emoji are counted correctly).
-  const longest = entries.reduce((max, e) => {
-    const w = Bun.stringWidth(e.title) + (e.hotkey ? Bun.stringWidth(e.hotkey) + 2 : 0);
-    return Math.max(max, w);
-  }, 0);
+  let longest = 0;
+  const entryCount = entries.length;
+  for (let index = 0; index < entryCount; index += 1) {
+    if (index in entries) {
+      const entry = entries[index];
+      const width =
+        Bun.stringWidth(entry.title) +
+        (entry.hotkey !== undefined && entry.hotkey !== "" ? Bun.stringWidth(entry.hotkey) + 2 : 0);
+      longest = Math.max(longest, width);
+    }
+  }
   const innerWidth = Math.max(MIN_WIDTH, longest);
   const panelWidth = innerWidth + HPAD + BORDER;
   const panelHeight = Math.max(1, entries.length) + BORDER;
