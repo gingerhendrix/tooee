@@ -55,7 +55,7 @@ function resolveContextMenuEntries(
   items: DocumentContextMenuItems,
   context: CommandContext,
 ): ContextMenuEntry[] {
-  const first = items[0];
+  const [first] = items;
   if (first !== undefined && "handler" in first) {
     return actionsToContextMenuEntries(items as readonly ActionDefinition[], context);
   }
@@ -147,8 +147,7 @@ export function useDocumentController<T>(
     preserveCursorByKey,
   });
   const navigation = useNavigationBindings(navSearchStore, { multiSelect });
-  const setCursor = navigation.setCursor;
-  const toggledIndices = navigation.toggledIndices;
+  const { setCursor, toggledIndices } = navigation;
 
   // -- Search ---------------------------------------------------------------
 
@@ -263,7 +262,7 @@ export function useDocumentController<T>(
 
   // -- Scroll follow --------------------------------------------------------
 
-  const cursor = navigation.cursor;
+  const { cursor } = navigation;
   useEffect(() => {
     const document = ref.current;
     if (!document || cursor === null) return;

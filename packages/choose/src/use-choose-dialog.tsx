@@ -142,7 +142,7 @@ export function useChooseDialog<T>(): ChooseDialogHandle<T> {
 
         // Created once per open() so the source identity is stable across
         // overlay re-renders (a fresh source each render would reload forever).
-        const items = options.items;
+        const { items } = options;
         const source: ChooseSource = Array.isArray(items)
           ? mapValues(items as readonly T[])
           : () => {

@@ -130,7 +130,7 @@ class MarkdownResolver {
   /** Match `raw` from `start`, letting a needle `\n` consume a source `\r\n`. */
   private matchFlexibleNewlines(raw: string, start: number, bound: number): number {
     const md = this.markdown;
-    const length = md.length;
+    const { length } = md;
     let h = start;
     let n = 0;
     while (n < raw.length) {

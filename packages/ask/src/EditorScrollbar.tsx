@@ -31,7 +31,7 @@ export function EditorScrollbar({ target, color }: EditorScrollbarProps) {
   }
 
   // Rendered height of the editor in rows (available post-layout).
-  const height = target.height;
+  const { height } = target;
   if (height <= 0) {
     return null;
   }

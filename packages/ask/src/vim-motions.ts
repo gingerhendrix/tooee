@@ -35,8 +35,7 @@ export function openLineAtCursor(
     return;
   }
 
-  const text = target.plainText;
-  const cursorOffset = target.cursorOffset;
+  const { plainText: text, cursorOffset } = target;
   const currentLineStart = text.lastIndexOf("\n", Math.max(0, cursorOffset - 1)) + 1;
   const currentLineEndIndex = text.indexOf("\n", cursorOffset);
   const currentLineEnd = currentLineEndIndex === -1 ? text.length : currentLineEndIndex;
