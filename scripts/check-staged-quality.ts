@@ -79,8 +79,10 @@ const spanKey = (diagnostic: Diagnostic) => {
   const span = diagnostic.labels[0]?.span;
   return `${span?.column ?? ""}\0${span?.length ?? ""}`;
 };
+const diagnosticLocationKey = (diagnostic: Diagnostic, path: string, line: number) =>
+  `${path}\0${diagnostic.code}\0${diagnostic.message}\0${line}`;
 const diagnosticKey = (diagnostic: Diagnostic, path: string, line: number) =>
-  `${path}\0${diagnostic.code}\0${diagnostic.message}\0${line}\0${spanKey(diagnostic)}`;
+  `${diagnosticLocationKey(diagnostic, path, line)}\0${spanKey(diagnostic)}`;
 
 const lineIsChanged = (line: number, hunks: Hunk[]) =>
   hunks.some(
@@ -95,6 +97,7 @@ export const findNewDiagnostics = (
   indexRoot: string,
 ) => {
   const exact = new Map<string, number>();
+  const unchanged = new Map<string, number>();
   const increment = (map: Map<string, number>, key: string) =>
     map.set(key, (map.get(key) ?? 0) + 1);
   const consume = (map: Map<string, number>, key: string) => {
@@ -119,13 +122,23 @@ export const findNewDiagnostics = (
       contentLine ??
       (lineIsChanged(oldLine, change.hunks) ? null : mapInheritedLine(oldLine, change.hunks));
     if (mappedLine !== null) {
-      increment(exact, diagnosticKey(diagnostic, change.indexPath, mappedLine));
+      const key =
+        !lineIsChanged(oldLine, change.hunks) && contentLine !== null
+          ? diagnosticLocationKey(diagnostic, change.indexPath, mappedLine)
+          : diagnosticKey(diagnostic, change.indexPath, mappedLine);
+      increment(
+        !lineIsChanged(oldLine, change.hunks) && contentLine !== null ? unchanged : exact,
+        key,
+      );
     }
   }
 
   return indexDiagnostics.filter((diagnostic) => {
     const line = diagnostic.labels[0]?.span.line ?? 1;
     if (consume(exact, diagnosticKey(diagnostic, diagnostic.filename, line))) {
+      return false;
+    }
+    if (consume(unchanged, diagnosticLocationKey(diagnostic, diagnostic.filename, line))) {
       return false;
     }
     return true;

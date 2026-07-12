@@ -79,6 +79,43 @@ describe("staged diagnostic comparison", () => {
     }
   });
 
+  test("consumes unchanged-line span drift after a later edit", () => {
+    const root = mkdtempSync(join(tmpdir(), "tooee-staged-quality-mapper-"));
+    mkdirSync(join(root, "head"), { recursive: true });
+    mkdirSync(join(root, "index"), { recursive: true });
+    try {
+      writeFileSync(join(root, "head/sample.ts"), "const ready = true;\n  run();\n");
+      writeFileSync(join(root, "index/sample.ts"), "const ready = true;\ninserted();\n  run();\n");
+      const inherited = {
+        code: "test(rule)",
+        filename: "sample.ts",
+        labels: [{ span: { column: 3, line: 2, length: 5, offset: 22 } }],
+        message: "inherited",
+      };
+      const staged = {
+        ...inherited,
+        labels: [{ span: { column: 7, line: 3, length: 9, offset: 42 } }],
+      };
+      expect(
+        findNewDiagnostics(
+          [inherited],
+          [staged],
+          [
+            {
+              headPath: "sample.ts",
+              indexPath: "sample.ts",
+              hunks: [{ oldCount: 0, oldStart: 2, newCount: 1, newStart: 2 }],
+            },
+          ],
+          join(root, "head"),
+          join(root, "index"),
+        ),
+      ).toEqual([]);
+    } finally {
+      rmSync(root, { force: true, recursive: true });
+    }
+  });
+
   test.each([
     ["curly", "Expected a block statement."],
     ["typescript(no-invalid-void-type)", "Remove `void` from this union type constituent."],
@@ -113,7 +150,7 @@ describe("staged diagnostic comparison", () => {
             {
               headPath: "sample.ts",
               indexPath: "sample.ts",
-              hunks: [{ oldCount: 0, oldStart: 2, newCount: 1, newStart: 2 }],
+              hunks: [{ oldCount: 1, oldStart: 2, newCount: 2, newStart: 2 }],
             },
           ],
           join(root, "head"),
