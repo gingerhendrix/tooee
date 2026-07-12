@@ -321,7 +321,7 @@ function BlockquoteRenderer({
         if (inlineTokens.length > 0) {
           inlineTokens.push({ type: "text", raw: "\n", text: "\n" } as Token);
         }
-        inlineTokens.push(...(child.tokens as Token[]));
+        inlineTokens.push(...child.tokens);
       } else if ("text" in child && typeof child.text === "string") {
         inlineTokens.push(child);
       }
@@ -555,16 +555,16 @@ function getPlainText(tokens: Token[]): string {
   return tokens
     .map((token) => {
       if (token.type === "text") {
-        return token.text;
+        return (token as { text: string }).text;
       }
       if (token.type === "codespan") {
         return (token as Tokens.Codespan).text;
       }
       if ("tokens" in token && token.tokens) {
-        return getPlainText(token.tokens as Token[]);
+        return getPlainText(token.tokens);
       }
       if ("text" in token) {
-        return (token as { text: string }).text;
+        return token.text;
       }
       return "";
     })

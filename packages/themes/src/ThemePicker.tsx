@@ -130,7 +130,7 @@ export function ThemePicker({
             // Preview first match
             if (!value) {
               if (entries.length > 0) {
-                onNavigate(entries[0]!.id);
+                onNavigate(entries[0].id);
               }
             } else {
               const results: { entry: ThemePickerEntry; score: number }[] = [];
@@ -142,7 +142,7 @@ export function ThemePicker({
               }
               results.sort((a, b) => b.score - a.score);
               if (results.length > 0) {
-                onNavigate(results[0]!.entry.id);
+                onNavigate(results[0].entry.id);
               }
             }
           }}

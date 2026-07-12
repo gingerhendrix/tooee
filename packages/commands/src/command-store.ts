@@ -431,7 +431,7 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
 
       let matchedIndex = -1;
       for (let i = 0; i < hotkeys.length; i += 1) {
-        if (matchesBuffer(buffer, hotkeys[i]!)) {
+        if (matchesBuffer(buffer, hotkeys[i])) {
           matchedIndex = i;
           break;
         }
@@ -440,7 +440,7 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
       if (matchedIndex >= 0) {
         clearBufferAndTimer();
         store.trigger.sequenceReset();
-        const matched = multiStepCandidates[matchedIndex]!.command;
+        const matched = multiStepCandidates[matchedIndex].command;
         return { handled: true, invoke: () => matched.handler(cmdCtx) };
       }
 
@@ -448,18 +448,18 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
       const pending = findPendingMatch(buffer, hotkeys);
 
       if (pending) {
-        const firstCandidate = multiStepCandidates[pending.indexes[0]!]!;
+        const firstCandidate = multiStepCandidates[pending.indexes[0]];
         const state: CommandSequenceState = {
           prefix: firstCandidate.parsed.steps.slice(0, pending.prefixLength),
           candidates: pending.indexes
-            .map((idx) => multiStepCandidates[idx]!)
+            .map((idx) => multiStepCandidates[idx])
             .filter(({ command }) => !command.hidden)
             .map(({ command, hotkey, parsed }) => ({
               command,
               hotkey,
               steps: parsed.steps,
               remainingSteps: parsed.steps.slice(pending.prefixLength),
-              nextStep: parsed.steps[pending.prefixLength]!,
+              nextStep: parsed.steps[pending.prefixLength],
               group: ctx.groups.get(stepsKey(parsed.steps.slice(0, pending.prefixLength + 1))),
             })),
         };
@@ -472,7 +472,7 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
 
     // Check single-step matches
     for (const { command, parsed } of singleStepCandidates) {
-      if (matchStep(event, parsed.steps[0]!)) {
+      if (matchStep(event, parsed.steps[0])) {
         store.trigger.sequenceReset();
         return { handled: true, invoke: () => command.handler(cmdCtx) };
       }

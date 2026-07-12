@@ -101,7 +101,7 @@ export function createFileProvider(
 export function createStdinProvider(options: CreateProviderOptions = {}): ContentProvider {
   return {
     async load(): Promise<Content> {
-      const text = await new Response(Bun.stdin.stream() as unknown as ReadableStream).text();
+      const text = await new Response(Bun.stdin.stream()).text();
       const format = options.renderer ?? "markdown";
       return contentFromText(text, format, "stdin");
     },

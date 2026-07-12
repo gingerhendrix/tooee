@@ -77,7 +77,7 @@ export function parseHotkey(hotkey: string, leaderKey?: string): ParsedHotkey {
       return { steps: [] };
     }
     const leaderStep = parseStep(leaderKey);
-    const followStep = parseStep(leaderMatch[1]!);
+    const followStep = parseStep(leaderMatch[1]);
     return { steps: [leaderStep, followStep] };
   }
 

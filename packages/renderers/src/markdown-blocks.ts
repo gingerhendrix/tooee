@@ -165,7 +165,7 @@ class MarkdownResolver {
     if (!match) {
       return { primary: this.index.span(itemStart, itemStart, false) };
     }
-    const markerStart = itemStart + match[1]!.length;
+    const markerStart = itemStart + match[1].length;
     let spanEnd = itemStart + match[0].length;
     while (spanEnd > markerStart) {
       const code = this.markdown.charCodeAt(spanEnd - 1);
@@ -195,7 +195,7 @@ function flattenList(
   bound: number,
 ): void {
   for (let i = 0; i < list.items.length; i += 1) {
-    const item = list.items[i]!;
+    const item = list.items[i];
     const bullet = bulletFor(list, i);
 
     let itemStart: number | null = null;

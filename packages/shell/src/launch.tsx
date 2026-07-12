@@ -197,7 +197,7 @@ export async function launchCli(
     renderer = await createCliRenderer({
       ...options.renderer,
       exitOnCtrlC: options.exitOnCtrlC ?? true,
-      ...(ttyInput ? { stdin: ttyInput as unknown as NodeJS.ReadStream } : {}),
+      ...(ttyInput ? { stdin: ttyInput } : {}),
     });
   } catch (error) {
     ttyInput?.destroy();

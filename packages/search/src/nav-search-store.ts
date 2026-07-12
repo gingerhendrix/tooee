@@ -277,7 +277,7 @@ function searchStep(
   }
   const currentMatchIndex =
     (ctx.search.currentMatchIndex + delta + ctx.search.matches.length) % ctx.search.matches.length;
-  const cursor = ctx.search.matches[currentMatchIndex]!;
+  const cursor = ctx.search.matches[currentMatchIndex];
   enqueue.emit.jumped({ index: cursor });
   return { ...ctx, cursor, search: { ...ctx.search, currentMatchIndex } };
 }

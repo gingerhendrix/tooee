@@ -61,12 +61,12 @@ export function findPendingMatch(
     const indexes: number[] = [];
 
     for (let hotkeyIndex = 0; hotkeyIndex < hotkeys.length; hotkeyIndex += 1) {
-      const hotkey = hotkeys[hotkeyIndex]!;
+      const hotkey = hotkeys[hotkeyIndex];
       if (hotkey.steps.length <= prefixLength) continue;
 
       let matches = true;
       for (let i = 0; i < prefixLength; i += 1) {
-        if (!matchStep(buffer[start + i]!, hotkey.steps[i]!)) {
+        if (!matchStep(buffer[start + i], hotkey.steps[i])) {
           matches = false;
           break;
         }
@@ -123,7 +123,7 @@ export class SequenceTracker {
     this.resetTimer();
 
     for (let i = 0; i < hotkeys.length; i += 1) {
-      if (matchesBuffer(this.buffer, hotkeys[i]!)) {
+      if (matchesBuffer(this.buffer, hotkeys[i])) {
         this.reset();
         return { matchedIndex: i, pending: null };
       }
