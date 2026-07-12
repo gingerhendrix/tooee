@@ -58,8 +58,8 @@ const typeText = async function typeText(text: string) {
   await testSetup.renderOnce();
 };
 
-let askSettlements: Array<string | null> = [];
-let chooseSettlements: Array<string | null> = [];
+let askSettlements: (string | null)[] = [];
+let chooseSettlements: (string | null)[] = [];
 const nested: { current: NestedHarnessHandles | null } = { current: null };
 
 beforeEach(() => {
