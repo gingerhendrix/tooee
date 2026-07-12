@@ -29,13 +29,13 @@ export function useCopy({
       let text = "";
 
       if (toggledIndices.size > 0) {
-        text = Array.from(toggledIndices)
+        text = [...toggledIndices]
           .toSorted((left, right) => left - right)
           .map((index) => getRowText(index))
           .join("\n");
       } else if (selection) {
         const rows: string[] = [];
-        for (let index = selection.start; index <= selection.end; index++) {
+        for (let index = selection.start; index <= selection.end; index += 1) {
           rows.push(getRowText(index));
         }
         text = rows.join("\n");

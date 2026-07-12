@@ -13,7 +13,7 @@ function rowLayer(
   return {
     priority,
     *forVisibleRows(from: number, to: number): Generator<RowDecoration> {
-      for (let row = from; row <= to; row++) {
+      for (let row = from; row <= to; row += 1) {
         const decoration = rows.get(row);
         if (decoration) {
           yield { row, ...decoration };
@@ -76,7 +76,7 @@ export function buildInteractionDecorations({
 
   if (selection) {
     const rows = new Map<number, Omit<RowDecoration, "row">>();
-    for (let row = selection.start; row <= selection.end; row++) {
+    for (let row = selection.start; row <= selection.end; row += 1) {
       rows.set(row, { background: theme.selection });
     }
     layers.push(rowLayer(DocumentDecorationPriorities.SELECTION, rows));
