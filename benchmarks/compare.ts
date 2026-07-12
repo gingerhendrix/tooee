@@ -80,7 +80,7 @@ function readRun(path: string): BenchmarkRunResult {
 
 function formatValue(value: number, unit: BenchmarkUnit): string {
   if (unit === "bytes") {
-    return `${formatBytes(value)}`;
+    return formatBytes(value);
   }
   if (unit === "ms") {
     return `${value >= 100 ? value.toFixed(1) : value.toFixed(2)}ms`;

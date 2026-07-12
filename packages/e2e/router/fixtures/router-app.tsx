@@ -114,7 +114,7 @@ function HomeScreen() {
     <box flexDirection="column">
       <text content={`Screen:home Counter:${counter}`} />
       <text
-        content={`Route:${current.routeId} | Stack:${1} | Back:${canGoBack} | Focus:${isFocused}`}
+        content={`Route:${current.routeId} | Stack:1 | Back:${canGoBack} | Focus:${isFocused}`}
       />
     </box>
   );
