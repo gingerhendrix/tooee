@@ -409,30 +409,34 @@ function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme
     const key = i;
 
     switch (token.type) {
-      case "text":
+      case "text": {
         result.push((token as Tokens.Text).text);
         break;
-      case "strong":
+      }
+      case "strong": {
         result.push(
           <strong key={key}>
             <InlineTokens tokens={(token as Tokens.Strong).tokens || []} theme={theme} />
           </strong>,
         );
         break;
-      case "em":
+      }
+      case "em": {
         result.push(
           <em key={key}>
             <InlineTokens tokens={(token as Tokens.Em).tokens || []} theme={theme} />
           </em>,
         );
         break;
-      case "codespan":
+      }
+      case "codespan": {
         result.push(
           <span key={key} fg={theme.markdownCode} bg={theme.backgroundPanel}>
             {` ${(token as Tokens.Codespan).text} `}
           </span>,
         );
         break;
+      }
       case "link": {
         const linkToken = token as Tokens.Link;
         result.push(
@@ -444,7 +448,7 @@ function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme
         );
         break;
       }
-      case "del":
+      case "del": {
         result.push(
           <span key={key} fg={theme.textMuted}>
             ~
@@ -452,6 +456,7 @@ function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme
           </span>,
         );
         break;
+      }
       case "image": {
         const imgToken = token as Tokens.Image;
         result.push(
@@ -461,20 +466,24 @@ function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme
         );
         break;
       }
-      case "br":
+      case "br": {
         result.push("\n");
         break;
-      case "escape":
+      }
+      case "escape": {
         result.push((token as Tokens.Escape).text);
         break;
-      case "space":
+      }
+      case "space": {
         result.push(" ");
         break;
-      default:
+      }
+      default: {
         if ("text" in token && typeof (token as { text?: string }).text === "string") {
           result.push((token as { text: string }).text);
         }
         break;
+      }
     }
   }
 
@@ -490,20 +499,23 @@ function inlineTokensToChunks(tokens: Token[], theme: ResolvedTheme): TextChunk[
 
   for (const token of tokens) {
     switch (token.type) {
-      case "text":
+      case "text": {
         chunks.push({ __isChunk: true as const, text: (token as Tokens.Text).text });
         break;
-      case "strong":
+      }
+      case "strong": {
         for (const sub of inlineTokensToChunks((token as Tokens.Strong).tokens || [], theme)) {
           chunks.push(boldChunk(sub));
         }
         break;
-      case "em":
+      }
+      case "em": {
         for (const sub of inlineTokensToChunks((token as Tokens.Em).tokens || [], theme)) {
           chunks.push(italicChunk(sub));
         }
         break;
-      case "codespan":
+      }
+      case "codespan": {
         chunks.push({
           __isChunk: true as const,
           text: ` ${(token as Tokens.Codespan).text} `,
@@ -511,6 +523,7 @@ function inlineTokensToChunks(tokens: Token[], theme: ResolvedTheme): TextChunk[
           bg: parseColor(theme.backgroundPanel),
         });
         break;
+      }
       case "link": {
         const linkToken = token as Tokens.Link;
         for (const sub of inlineTokensToChunks(linkToken.tokens || [], theme)) {
@@ -518,14 +531,16 @@ function inlineTokensToChunks(tokens: Token[], theme: ResolvedTheme): TextChunk[
         }
         break;
       }
-      case "escape":
+      case "escape": {
         chunks.push({ __isChunk: true as const, text: (token as Tokens.Escape).text });
         break;
-      default:
+      }
+      default: {
         if ("text" in token && typeof (token as { text?: string }).text === "string") {
           chunks.push({ __isChunk: true as const, text: (token as { text: string }).text });
         }
         break;
+      }
     }
   }
 

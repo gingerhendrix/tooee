@@ -123,7 +123,9 @@ export class SourceIndex {
         if (end > rawStart && this.text.charCodeAt(end - 1) === 13) end--;
       }
     }
-    if (end < rawStart) end = rawStart;
+    if (end < rawStart) {
+      end = rawStart;
+    }
 
     const start = this.point(rawStart);
     const endPoint = this.point(end);
@@ -135,7 +137,9 @@ export class SourceIndex {
       text: this.text.slice(rawStart, end),
       lineText: this.text.slice(this.lineStarts[start.line]!, this.lineContentEnd(lastLine)),
     };
-    if (this.sourceId !== undefined) span.sourceId = this.sourceId;
+    if (this.sourceId !== undefined) {
+      span.sourceId = this.sourceId;
+    }
     return span;
   }
 }

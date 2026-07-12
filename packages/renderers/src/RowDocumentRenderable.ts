@@ -71,7 +71,9 @@ function normalizePalette(palette: RowDocumentPalette = {}): Required<RowDocumen
 function normalizeDecorationLayers(
   layers: readonly DecorationLayer[] | undefined,
 ): readonly DecorationLayer[] {
-  if (!layers || layers.length === 0) return [];
+  if (!layers || layers.length === 0) {
+    return [];
+  }
   return [...layers].toSorted((a, b) => a.priority - b.priority);
 }
 
@@ -182,7 +184,9 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   }
 
   getRowMetrics(row: number): { row: number; virtualTop: number; virtualHeight: number } | null {
-    if (row < 0 || row >= this._rowCount) return null;
+    if (row < 0 || row >= this._rowCount) {
+      return null;
+    }
     return {
       row,
       virtualTop: this._rowVirtualStarts[row],
@@ -216,10 +220,16 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
    */
   getRowAtScreenY(screenY: number): number | null {
     const localY = screenY - this.viewport.y;
-    if (localY < 0 || localY >= this.viewport.height) return null;
+    if (localY < 0 || localY >= this.viewport.height) {
+      return null;
+    }
     const virtualY = Math.floor(this.scrollTop) + localY;
-    if (virtualY < 0 || virtualY >= this._virtualRowToRow.length) return null;
-    if (virtualY >= this._contentVirtualEnd) return null;
+    if (virtualY < 0 || virtualY >= this._virtualRowToRow.length) {
+      return null;
+    }
+    if (virtualY >= this._contentVirtualEnd) {
+      return null;
+    }
     return this.getRowAtVirtualY(virtualY);
   }
 
@@ -245,7 +255,9 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
   scrollToRow(row: number, align: "nearest" | "start" | "center" | "end" = "nearest"): void {
     const metrics = this.getRowMetrics(row);
-    if (!metrics) return;
+    if (!metrics) {
+      return;
+    }
 
     const vpHeight = this.viewport.height;
     const { virtualTop, virtualHeight } = metrics;
@@ -253,15 +265,18 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     let target = this.scrollTop;
 
     switch (align) {
-      case "start":
+      case "start": {
         target = virtualTop;
         break;
-      case "center":
+      }
+      case "center": {
         target = virtualTop - (vpHeight - virtualHeight) / 2;
         break;
-      case "end":
+      }
+      case "end": {
         target = virtualTop + virtualHeight - vpHeight;
         break;
+      }
       case "nearest": {
         if (virtualTop < this.scrollTop) {
           target = virtualTop;
@@ -318,8 +333,12 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   // -----------------------------------------------------------------------
 
   private _detectMode(): "multi" | "provider" {
-    if (this._mode === "multi") return "multi";
-    if (this._mode === "provider") return "provider";
+    if (this._mode === "multi") {
+      return "multi";
+    }
+    if (this._mode === "provider") {
+      return "provider";
+    }
 
     // Auto-detect: single child with LineInfoProvider → provider mode
     const children = this.getChildren();
@@ -384,10 +403,14 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
   private _computeFromProvider(): void {
     const children = this.getChildren();
-    if (children.length === 0) return;
+    if (children.length === 0) {
+      return;
+    }
 
     const provider = children[0] as unknown as LineInfoProvider;
-    if (!isRowContentProvider(provider)) return;
+    if (!isRowContentProvider(provider)) {
+      return;
+    }
 
     const info = provider.lineInfo;
     const { lineSources, lineWraps } = info;
@@ -440,7 +463,9 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     let contentVirtualEnd = 0;
     for (let row = 0; row < rowCount; row++) {
       const end = rowVirtualStarts[row] + rowVirtualHeights[row];
-      if (end > contentVirtualEnd) contentVirtualEnd = end;
+      if (end > contentVirtualEnd) {
+        contentVirtualEnd = end;
+      }
     }
     this._contentVirtualEnd = contentVirtualEnd;
 
@@ -462,7 +487,9 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   // -----------------------------------------------------------------------
 
   private _computeGutterWidth(): number {
-    if (!this._showGutter) return 0;
+    if (!this._showGutter) {
+      return 0;
+    }
 
     return computeRowDocumentGutterWidth({
       showLineNumbers: this._showLineNumbers,
@@ -486,7 +513,9 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     this._layerGutterBgs = new Map();
     this._layerSigns = new Map();
 
-    if (this._layers.length === 0) return;
+    if (this._layers.length === 0) {
+      return;
+    }
 
     const vpX = this.viewport.x;
     const vpY = this.viewport.y;
@@ -509,7 +538,9 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
     for (let screenY = 0; screenY < vpHeight; screenY++) {
       const vRow = top + screenY;
-      if (vRow >= this._virtualRowToRow.length) break;
+      if (vRow >= this._virtualRowToRow.length) {
+        break;
+      }
 
       const row = this._virtualRowToRow[vRow];
       if (row < 0) continue; // Skip gap rows (margins)
@@ -528,7 +559,9 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
   private _paintGutter(buffer: OptimizedBuffer): void {
     const gutterWidth = this._computeGutterWidth();
-    if (gutterWidth === 0) return;
+    if (gutterWidth === 0) {
+      return;
+    }
 
     const vpX = this.viewport.x;
     const vpY = this.viewport.y;
@@ -547,13 +580,17 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
     for (let screenY = 0; screenY < vpHeight; screenY++) {
       const vRow = top + screenY;
-      if (vRow >= this._virtualRowToRow.length) break;
+      if (vRow >= this._virtualRowToRow.length) {
+        break;
+      }
 
       const row = this._virtualRowToRow[vRow];
       if (row < 0) continue; // Skip gap rows (margins)
       const isFirstLine = this._virtualRowWraps[vRow] === 0;
 
-      if (!isFirstLine) continue;
+      if (!isFirstLine) {
+        continue;
+      }
 
       const drawX = vpX;
       let col = 0;

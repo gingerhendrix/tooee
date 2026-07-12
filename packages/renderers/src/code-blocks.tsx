@@ -156,7 +156,9 @@ export const mermaidCodeBlockRenderer: CodeBlockRenderer = ({ text, theme, inden
   };
   const result = renderMermaidForTerminal(text, { mode: "ansi", theme: mermaidTheme });
 
-  if (!result.ok) return null;
+  if (!result.ok) {
+    return null;
+  }
 
   const lineCount = result.text.split("\n").length;
   // Diagram lines never wrap (wrapMode "none"). Wide diagrams pan via the

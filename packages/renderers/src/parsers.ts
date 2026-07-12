@@ -116,19 +116,23 @@ export function parseAuto(input: string): ParsedTable {
   let columns: ColumnDef[];
   let rows: TableRow[];
   switch (format) {
-    case "csv":
+    case "csv": {
       ({ columns, rows } = parseCSV(input));
       break;
-    case "tsv":
+    }
+    case "tsv": {
       ({ columns, rows } = parseTSV(input));
       break;
-    case "json":
+    }
+    case "json": {
       ({ columns, rows } = parseJSON(input));
       break;
-    default:
+    }
+    default: {
       // Fall back to CSV
       ({ columns, rows } = parseCSV(input));
       break;
+    }
   }
   return { columns, rows, format };
 }

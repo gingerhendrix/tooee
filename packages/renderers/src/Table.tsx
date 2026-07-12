@@ -53,7 +53,9 @@ interface ColumnWidthOptions {
 }
 
 function sampleRows(rows: string[][], sampleSize: number): string[][] {
-  if (rows.length <= sampleSize) return rows;
+  if (rows.length <= sampleSize) {
+    return rows;
+  }
   // Sample evenly distributed rows for representative widths
   const step = rows.length / sampleSize;
   const sampled: string[][] = [];
@@ -132,7 +134,9 @@ function computeColumnWidths(
   }
 
   return naturalWidths.map((w, i) => {
-    if (compact[i]) return w;
+    if (compact[i]) {
+      return w;
+    }
     return Math.max(minColWidthWithPadding, Math.floor((w / longTotal) * remaining));
   });
 }
@@ -207,8 +211,12 @@ export function Table({
   const alignments = useMemo(
     () =>
       columns.map((column, colIdx) => {
-        if (column.align === "right") return true;
-        if (column.align === "left") return false;
+        if (column.align === "right") {
+          return true;
+        }
+        if (column.align === "left") {
+          return false;
+        }
         const sampleValues = normalizedRows.slice(0, 10).map((row) => row[colIdx] ?? "");
         const numericCount = sampleValues.filter(isNumeric).length;
         return numericCount > sampleValues.length / 2;
