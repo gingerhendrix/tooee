@@ -69,7 +69,14 @@ function updateAnsiForeground(params: number[], currentFg: string | undefined): 
       const g = params[i + 3];
       const b = params[i + 4];
 
-      if (r != null && g != null && b != null) {
+      if (
+        r !== null &&
+        r !== undefined &&
+        g !== null &&
+        g !== undefined &&
+        b !== null &&
+        b !== undefined
+      ) {
         fg = `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b
           .toString(16)
           .padStart(2, "0")}`;

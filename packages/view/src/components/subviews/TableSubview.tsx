@@ -13,7 +13,7 @@ interface TableSubviewProps extends SubviewProps {
 }
 
 function stringifyRowCell(value: unknown): string {
-  if (value == null) {
+  if (value === null || value === undefined) {
     return "";
   }
   if (typeof value === "string") {

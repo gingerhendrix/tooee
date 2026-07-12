@@ -26,7 +26,12 @@ export type ContentLoaderEvents = {
 };
 
 export function isAsyncIterable(value: unknown): value is AsyncIterable<ContentChunk> {
-  return value != null && typeof value === "object" && Symbol.asyncIterator in value;
+  return (
+    value !== null &&
+    value !== undefined &&
+    typeof value === "object" &&
+    Symbol.asyncIterator in value
+  );
 }
 
 export function createEmptyContent(format: string, title?: string): AnyContent {

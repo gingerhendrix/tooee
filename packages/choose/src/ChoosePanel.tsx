@@ -70,7 +70,7 @@ export function ChoosePanel({
       border
       borderColor={theme.borderActive}
     >
-      {title != null && (
+      {title !== null && title !== undefined && (
         <box
           flexDirection="row"
           height={1}
@@ -92,7 +92,7 @@ export function ChoosePanel({
       {filter}
       {children}
 
-      {footer != null && (
+      {footer !== null && footer !== undefined && (
         <box height={1} paddingLeft={1} paddingRight={1}>
           {footer}
         </box>
@@ -112,7 +112,8 @@ export function ChoosePanel({
             hintContent
           )}
         </box>
-        {statusRight != null &&
+        {statusRight !== null &&
+          statusRight !== undefined &&
           (typeof statusRight === "string" ? (
             <text content={statusRight} fg={theme.textMuted} />
           ) : (

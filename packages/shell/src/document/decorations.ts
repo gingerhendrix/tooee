@@ -83,7 +83,7 @@ export function buildInteractionDecorations({
   }
 
   const currentMatch = matchingLines[currentMatchIndex];
-  if (currentMatch != null) {
+  if (currentMatch !== null && currentMatch !== undefined) {
     layers.push(
       singleRowLayer(DocumentDecorationPriorities.CURRENT_MATCH, currentMatch, {
         background: theme.primary,
