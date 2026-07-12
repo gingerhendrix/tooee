@@ -128,7 +128,7 @@ describe("Table component", () => {
     const frame = testSetup.captureCharFrame();
     // No box-drawing vertical borders or corners
     expect(frame).not.toContain("\u2502"); // │
-    expect(frame).not.toContain("\u250c"); // ┌
+    expect(frame).not.toContain("\u250C"); // ┌
     expect(frame).not.toContain("\u2510"); // ┐
     expect(frame).not.toContain("\u2514"); // └
     expect(frame).not.toContain("\u2518"); // ┘

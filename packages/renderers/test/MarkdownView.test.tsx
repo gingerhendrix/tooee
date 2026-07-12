@@ -98,12 +98,12 @@ test("converts mermaid ANSI output into styled plain text", () => {
 
   expect(result.text).toContain("Agent");
   expect(result.text).toContain("Stream");
-  expect(result.text).not.toContain("\x1b[");
+  expect(result.text).not.toContain("\u001B[");
   expect(result.content.chunks.some((chunk) => chunk.fg != null)).toBe(true);
 });
 
 test("parses truecolor SGR ANSI into StyledText chunks", () => {
-  const parsed = ansiToStyledText("plain \x1b[38;2;255;0;0mred\x1b[0m text");
+  const parsed = ansiToStyledText("plain \u001B[38;2;255;0;0mred\u001B[0m text");
 
   expect(parsed.text).toBe("plain red text");
   expect(parsed.content.chunks.map((chunk) => chunk.text).join("")).toBe("plain red text");
@@ -592,7 +592,7 @@ describe("code block inside list item", () => {
     const frame = testSetup.captureCharFrame();
     expect(frame).toContain("const x = 1");
     // Code block should have border characters
-    expect(frame).toContain("\u250c"); // top-left corner
+    expect(frame).toContain("\u250C"); // top-left corner
     expect(frame).toContain("\u2514"); // bottom-left corner
   });
 });

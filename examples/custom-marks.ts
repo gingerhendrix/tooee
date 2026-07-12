@@ -179,7 +179,7 @@ async function* streamContent(): AsyncIterable<ContentChunk> {
   coverageBuilder.addRange(
     { line: 27 },
     { line: 31 },
-    { gutterBackground: "#3a0000", signBefore: "\u00d7" },
+    { gutterBackground: "#3a0000", signBefore: "\u00D7" },
     { covered: false },
   );
   // Mark well-covered lines

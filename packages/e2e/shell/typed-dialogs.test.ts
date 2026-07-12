@@ -11,7 +11,7 @@ afterEach(() => {
 });
 
 // OpenTUI expects kitty-encoded Escape in a real PTY (see docs/testing.md).
-const KITTY_ESCAPE = "\x1b[27u";
+const KITTY_ESCAPE = "\u001B[27u";
 
 async function launch(): Promise<Session> {
   return launchShellFixture("typed-dialogs-app.tsx", "typed dialogs e2e ready");

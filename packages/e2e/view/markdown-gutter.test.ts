@@ -59,7 +59,7 @@ describe("markdown gutter e2e", () => {
       await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
       const text = await session.text();
 
-      expect(text).toContain("\u25b8");
+      expect(text).toContain("\u25B8");
       expect(text).toContain("Mode: cursor");
       expect(text).toContain("Cursor: 0");
     }, 20_000);
@@ -77,7 +77,7 @@ describe("markdown gutter e2e", () => {
       const text = await session.text();
       // Should still be in cursor mode after navigation
       expect(text).toMatch(/Mode:\s*cursor/);
-      expect(text).toContain("\u25b8");
+      expect(text).toContain("\u25B8");
       expect(text).toMatch(/Cursor:\s*3/);
     }, 20_000);
   });
@@ -100,7 +100,7 @@ describe("markdown gutter e2e", () => {
       await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
       const text = await session.text();
       // Search match indicator should appear in the gutter
-      expect(text).toContain("\u25cf");
+      expect(text).toContain("\u25CF");
     }, 20_000);
 
     test("search match count shows in search bar", async () => {
