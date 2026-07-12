@@ -15,7 +15,7 @@ export function clipboardStub() {
       return Promise.resolve();
     },
     copyToPrimary: () => Promise.resolve(),
-    readClipboard: () => Promise.resolve(undefined),
+    readClipboard: () => Promise.resolve(),
     readClipboardText: () => Promise.resolve(""),
     readPrimaryText: () => Promise.resolve(""),
   };

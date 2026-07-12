@@ -35,7 +35,7 @@ function RouteRenderer({
   routeDef: RouteDefinition;
   children: ReactNode;
 }) {
-  const [data, setData] = useState<unknown>(undefined);
+  const [data, setData] = useState<unknown>();
   const [loading, setLoading] = useState(!!routeDef.loader);
   const [error, setError] = useState<Error | null>(null);
 

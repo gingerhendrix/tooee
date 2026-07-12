@@ -152,7 +152,7 @@ function getCopyMethod(): (text: string) => Promise<void> {
         });
         proc.stdin.write(text);
         proc.stdin.end();
-        await proc.exited.catch(() => undefined);
+        await proc.exited.catch(() => null);
       };
       return copyMethod;
     }
@@ -165,7 +165,7 @@ function getCopyMethod(): (text: string) => Promise<void> {
         });
         proc.stdin.write(text);
         proc.stdin.end();
-        await proc.exited.catch(() => undefined);
+        await proc.exited.catch(() => null);
       };
       return copyMethod;
     }
@@ -178,7 +178,7 @@ function getCopyMethod(): (text: string) => Promise<void> {
         });
         proc.stdin.write(text);
         proc.stdin.end();
-        await proc.exited.catch(() => undefined);
+        await proc.exited.catch(() => null);
       };
       return copyMethod;
     }
@@ -221,7 +221,7 @@ function getPrimaryCopyMethod(): (text: string) => Promise<void> {
         });
         proc.stdin.write(text);
         proc.stdin.end();
-        await proc.exited.catch(() => undefined);
+        await proc.exited.catch(() => null);
       };
       return primaryCopyMethod;
     }
@@ -234,7 +234,7 @@ function getPrimaryCopyMethod(): (text: string) => Promise<void> {
         });
         proc.stdin.write(text);
         proc.stdin.end();
-        await proc.exited.catch(() => undefined);
+        await proc.exited.catch(() => null);
       };
       return primaryCopyMethod;
     }
@@ -247,7 +247,7 @@ function getPrimaryCopyMethod(): (text: string) => Promise<void> {
         });
         proc.stdin.write(text);
         proc.stdin.end();
-        await proc.exited.catch(() => undefined);
+        await proc.exited.catch(() => null);
       };
       return primaryCopyMethod;
     }
