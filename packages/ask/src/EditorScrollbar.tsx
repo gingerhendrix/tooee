@@ -52,7 +52,7 @@ export function EditorScrollbar({ target, color }: EditorScrollbarProps) {
   const thumbTop = Math.round((clampedOffset / maxOffset) * maxThumbTop);
 
   let content = "";
-  for (let i = 0; i < height; i++) {
+  for (let i = 0; i < height; i += 1) {
     const isThumb = i >= thumbTop && i < thumbTop + thumbSize;
     content += isThumb ? THUMB_CHAR : TRACK_CHAR;
     if (i < height - 1) {

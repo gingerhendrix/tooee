@@ -15,7 +15,7 @@ export function fuzzyFilter(items: ChooseItem[], query: string): FuzzyMatch[] {
 
   const results: FuzzyMatch[] = [];
 
-  for (let i = 0; i < items.length; i++) {
+  for (let i = 0; i < items.length; i += 1) {
     const item = items[i];
     const match = fuzzyMatchPositions(query, item.text);
     if (match) {

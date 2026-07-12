@@ -18,11 +18,11 @@ export function ChooseHighlightedText({
   }
 
   const positionSet = new Set(positions);
-  const parts: Array<{ text: string; highlighted: boolean }> = [];
+  const parts: { text: string; highlighted: boolean }[] = [];
   let current = "";
   let currentHighlighted = false;
 
-  for (let index = 0; index < text.length; index++) {
+  for (let index = 0; index < text.length; index += 1) {
     const highlighted = positionSet.has(index);
     if (index === 0) {
       current = text[index];
