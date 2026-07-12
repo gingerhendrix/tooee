@@ -58,7 +58,7 @@ interface HarnessHandles {
 
 const handles: { current: HarnessHandles | null } = { current: null };
 let hostProbeCount = 0;
-let settlements: Array<string | null> = [];
+let settlements: (string | null)[] = [];
 
 beforeEach(() => {
   handles.current = null;
