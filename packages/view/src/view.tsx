@@ -99,5 +99,8 @@ export const View = function View({
     case "table": {
       return <TableSubview content={content} {...shared} />;
     }
+    default: {
+      return null;
+    }
   }
 };

@@ -11,6 +11,10 @@ const failing = async function* failing(): AsyncIterable<ContentChunk> {
   await Promise.reject("stream blew up");
 };
 
+const freshStream = async function* freshStream(): AsyncIterable<ContentChunk> {
+  yield { data: "fresh", format: "text", type: "append" };
+};
+
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
 let testSetup: TestSession;
@@ -147,7 +151,7 @@ describe("useContentLoader reload and request identity", () => {
   });
 
   test("reloads a Promise provider and ignores the stale resolution", async () => {
-    const resolvers: Array<(value: { format: "text"; text: string }) => void> = [];
+    const resolvers: ((value: { format: "text"; text: string }) => void)[] = [];
     let reload!: () => void;
     const provider: ContentProvider = {
       load: async () =>
@@ -211,9 +215,7 @@ describe("useContentLoader reload and request identity", () => {
             },
           };
         }
-        return (async function* () {
-          yield { data: "fresh", format: "text" as const, type: "append" as const };
-        })();
+        return freshStream();
       },
     };
     const Harness = function Harness(): React.ReactNode {

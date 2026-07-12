@@ -29,5 +29,8 @@ export const stackReducer = function stackReducer(
         stack: [{ params: action.params ?? {}, routeId: action.routeId }],
       };
     }
+    default: {
+      return state;
+    }
   }
 };

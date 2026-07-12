@@ -104,6 +104,9 @@ export const applyContentChunk = function applyContentChunk(
     case "patch": {
       return chunk.apply(current);
     }
+    case "marks": {
+      return current ?? createEmptyContent("markdown", title);
+    }
     default: {
       return current ?? createEmptyContent("markdown", title);
     }
