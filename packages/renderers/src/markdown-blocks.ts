@@ -173,7 +173,7 @@ class MarkdownResolver {
       if (code !== 32 && code !== 9) {
         break;
       }
-      spanEnd--;
+      spanEnd -= 1;
     }
     return { primary: this.index.span(markerStart, spanEnd, false) };
   }
@@ -194,7 +194,7 @@ function flattenList(
   res: MarkdownResolver | null,
   bound: number,
 ): void {
-  for (let i = 0; i < list.items.length; i++) {
+  for (let i = 0; i < list.items.length; i += 1) {
     const item = list.items[i]!;
     const bullet = bulletFor(list, i);
 

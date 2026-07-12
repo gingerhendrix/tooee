@@ -56,7 +56,7 @@ function sgrParams(rawParams: string): number[] {
 function updateAnsiForeground(params: number[], currentFg: string | undefined): string | undefined {
   let fg = currentFg;
 
-  for (let i = 0; i < params.length; i++) {
+  for (let i = 0; i < params.length; i += 1) {
     const param = params[i];
 
     if (param === 0 || param === 39) {
