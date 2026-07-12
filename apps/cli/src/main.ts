@@ -20,7 +20,7 @@ interface ViewArgs {
 }
 
 function parseRenderer(value: string | undefined): ContentFormat | undefined {
-  if (!value) {
+  if (value === undefined || value === "") {
     console.error("Missing value for --renderer");
     process.exit(1);
   }
@@ -47,7 +47,7 @@ function parseViewArgs(rawArgs: string[]): ViewArgs {
       renderer = parseRenderer(arg.slice("--renderer=".length));
       continue;
     }
-    if (!filePath) {
+    if (filePath === undefined || filePath === "") {
       filePath = arg;
       continue;
     }
@@ -89,7 +89,7 @@ function printUsage(): void {
 switch (command) {
   case "view": {
     const { filePath, renderer } = parseViewArgs(args);
-    if (filePath) {
+    if (filePath !== undefined && filePath !== "") {
       try {
         const stat = statSync(filePath);
         if (stat.isDirectory()) {
@@ -104,9 +104,10 @@ switch (command) {
         // Fall through to file provider which will show its own error
       }
     }
-    const contentProvider = filePath
-      ? createFileProvider(filePath, { renderer })
-      : createStdinProvider({ renderer });
+    const contentProvider =
+      filePath !== undefined && filePath !== ""
+        ? createFileProvider(filePath, { renderer })
+        : createStdinProvider({ renderer });
     launchView({ contentProvider });
     break;
   }
@@ -139,9 +140,10 @@ switch (command) {
 
   case "table": {
     const { filePath } = parseViewArgs(args);
-    const contentProvider = filePath
-      ? createFileProvider(filePath, { renderer: "table" })
-      : createStdinProvider({ renderer: "table" });
+    const contentProvider =
+      filePath !== undefined && filePath !== ""
+        ? createFileProvider(filePath, { renderer: "table" })
+        : createStdinProvider({ renderer: "table" });
     launchView({ contentProvider });
     break;
   }

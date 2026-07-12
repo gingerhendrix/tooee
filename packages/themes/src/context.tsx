@@ -109,7 +109,7 @@ export function ThemeSwitcherProvider({
   const setThemeByName = useCallback(
     (name: string, opts?: { persist?: boolean }) => {
       setThemeName(name);
-      if (opts?.persist) {
+      if (opts?.persist === true) {
         writeGlobalConfig({ theme: { name, mode } });
       }
     },
