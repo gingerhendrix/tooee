@@ -44,7 +44,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       const level = options.level ?? "info";
       const duration = options.duration ?? DEFAULT_DURATIONS[level] ?? 2000;
       const id = options.id ?? `toast-${nextToastId}`;
-      if (options.id === undefined) {
+      if (options.id === undefined || options.id === null) {
         nextToastId += 1;
       }
 
