@@ -8,6 +8,52 @@ import { useCommand, useMode } from "@tooee/commands";
 import { press, pressEscape } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
 
+const BuriedHarness = function BuriedHarness(): React.ReactNode {
+  const overlay = useOverlay();
+  const mode = useMode();
+  useCommand({
+    handler: () => {
+      overlay.open("under", (): React.ReactNode => <text content="under-overlay" />, undefined, {
+        mode: "insert",
+      });
+    },
+    hotkey: "u",
+    id: "test.open-under",
+    modes: ["cursor", "insert", "select"],
+    title: "Open under",
+  });
+  useCommand({
+    handler: () => {
+      overlay.open("over", (): React.ReactNode => <text content="over-overlay" />, undefined, {
+        mode: "select",
+      });
+    },
+    hotkey: "v",
+    id: "test.open-over",
+    modes: ["cursor", "insert", "select"],
+    title: "Open over",
+  });
+  useCommand({
+    handler: () => {
+      overlay.hide("under");
+    },
+    hotkey: "w",
+    id: "test.close-under",
+    modes: ["cursor", "insert", "select"],
+    title: "Close under",
+  });
+  useCommand({
+    handler: () => {
+      overlay.hide("over");
+    },
+    hotkey: "x",
+    id: "test.close-over",
+    modes: ["cursor", "insert", "select"],
+    title: "Close over",
+  });
+  return <text content={`hostmode:${mode}`} />;
+};
+
 const createOverlayA = (): React.ReactNode => <text content="overlay-a" />;
 const createOverlayB = (): React.ReactNode => <text content="overlay-b" />;
 const createReplacedOverlayA = (): React.ReactNode => <text content="overlay-a-replaced" />;
@@ -274,57 +320,6 @@ describe("overlay lifecycle correctness (R-04)", () => {
   });
 
   test("closing a buried legacy overlay does not clobber the mode set by the one above", async () => {
-    const BuriedHarness = function BuriedHarness(): React.ReactNode {
-      const overlay = useOverlay();
-      const mode = useMode();
-      useCommand({
-        handler: () => {
-          overlay.open(
-            "under",
-            (): React.ReactNode => <text content="under-overlay" />,
-            undefined,
-            {
-              mode: "insert",
-            },
-          );
-        },
-        hotkey: "u",
-        id: "test.open-under",
-        modes: ["cursor", "insert", "select"],
-        title: "Open under",
-      });
-      useCommand({
-        handler: () => {
-          overlay.open("over", (): React.ReactNode => <text content="over-overlay" />, undefined, {
-            mode: "select",
-          });
-        },
-        hotkey: "v",
-        id: "test.open-over",
-        modes: ["cursor", "insert", "select"],
-        title: "Open over",
-      });
-      useCommand({
-        handler: () => {
-          overlay.hide("under");
-        },
-        hotkey: "w",
-        id: "test.close-under",
-        modes: ["cursor", "insert", "select"],
-        title: "Close under",
-      });
-      useCommand({
-        handler: () => {
-          overlay.hide("over");
-        },
-        hotkey: "x",
-        id: "test.close-over",
-        modes: ["cursor", "insert", "select"],
-        title: "Close over",
-      });
-      return <text content={`hostmode:${mode}`} />;
-    };
-
     testSetup = await setup(<BuriedHarness />);
     expect(testSetup.captureCharFrame()).toContain("hostmode:cursor");
 

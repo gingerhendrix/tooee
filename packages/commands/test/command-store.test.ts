@@ -13,6 +13,8 @@ import { parseHotkey } from "../src/parse.js";
 import type { Command, CommandContext, RegisteredCommandGroup } from "../src/types.js";
 import type { Mode } from "../src/mode.js";
 
+const cursorContextGetter = () => ({ mode: "cursor" as Mode });
+
 const key = function key(name: string, modifiers?: Partial<KeyEvent>): KeyEvent {
   return {
     ctrl: false,
@@ -157,7 +159,7 @@ describe("command store — registration", () => {
 
   test("context source registration and unregistration", () => {
     const cs = makeStore();
-    const getter = () => ({ mode: "cursor" as Mode });
+    const getter = cursorContextGetter;
     cs.store.trigger.contextSourceRegistered({ getter, id: "src-1" });
     expect(cs.store.getSnapshot().context.contextSources.get("src-1")).toBe(getter);
     cs.store.trigger.contextSourceUnregistered({ id: "src-1" });

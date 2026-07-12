@@ -3,6 +3,32 @@ import { test, expect, afterEach, describe } from "bun:test";
 import { act, useState } from "react";
 import { CommandProvider, useCommand } from "../src/index.js";
 
+const NoLeaderHarness = function NoLeaderHarness(): React.ReactNode {
+  const [count, setCount] = useState(0);
+  useCommand({
+    handler: () => {
+      setCount((n) => n + 1);
+    },
+    hotkey: "<leader>n",
+    id: "leader.cmd",
+    title: "Leader command",
+  });
+  return <text content={`count:${count}`} />;
+};
+
+const ConfiguredLeaderHarness = function ConfiguredLeaderHarness(): React.ReactNode {
+  const [count, setCount] = useState(0);
+  useCommand({
+    handler: () => {
+      setCount((n) => n + 1);
+    },
+    hotkey: "<leader>n",
+    id: "leader.cmd",
+    title: "Leader command",
+  });
+  return <text content={`count:${count}`} />;
+};
+
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
 let testSetup: TestSession;
@@ -25,23 +51,10 @@ const press = async function press(
 
 describe("leaderless <leader> hotkeys (R-06)", () => {
   test("a <leader> hotkey with no configured leader never fires", async () => {
-    const Harness = function Harness(): React.ReactNode {
-      const [count, setCount] = useState(0);
-      useCommand({
-        handler: () => {
-          setCount((n) => n + 1);
-        },
-        hotkey: "<leader>n",
-        id: "leader.cmd",
-        title: "Leader command",
-      });
-      return <text content={`count:${count}`} />;
-    };
-
     testSetup = await testRender(
       // No leader configured on the provider
       <CommandProvider>
-        <Harness />
+        <NoLeaderHarness />
       </CommandProvider>,
       { height: 10, kittyKeyboard: true, width: 60 },
     );
@@ -56,22 +69,9 @@ describe("leaderless <leader> hotkeys (R-06)", () => {
   });
 
   test("a <leader> hotkey with a configured leader still works", async () => {
-    const Harness = function Harness(): React.ReactNode {
-      const [count, setCount] = useState(0);
-      useCommand({
-        handler: () => {
-          setCount((n) => n + 1);
-        },
-        hotkey: "<leader>n",
-        id: "leader.cmd",
-        title: "Leader command",
-      });
-      return <text content={`count:${count}`} />;
-    };
-
     testSetup = await testRender(
       <CommandProvider leader="space">
-        <Harness />
+        <ConfiguredLeaderHarness />
       </CommandProvider>,
       { height: 10, kittyKeyboard: true, width: 60 },
     );

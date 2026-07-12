@@ -8,6 +8,36 @@ import { useCurrentOverlay, useHasOverlay } from "@tooee/overlays";
 import { press, pressEscape } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
 
+const LateRegistrant = function LateRegistrant() {
+  useCommand({
+    handler: () => {},
+    id: "test.late",
+    modes: ["cursor"],
+    title: "Late Arrival Command",
+  });
+  return null;
+};
+
+const LateHarness = function LateHarness(): React.ReactNode {
+  const [showLate, setShowLate] = useState(false);
+  const current = useCurrentOverlay();
+  useCommand({
+    handler: () => {
+      setShowLate(true);
+    },
+    hotkey: "l",
+    id: "test.show-late",
+    modes: ["cursor"],
+    title: "Show late",
+  });
+  return (
+    <box flexDirection="column">
+      {showLate && <LateRegistrant />}
+      {current}
+    </box>
+  );
+};
+
 const PaletteHarness = function PaletteHarness(): React.ReactNode {
   const mode = useMode();
   const hasOverlay = useHasOverlay();
@@ -93,36 +123,6 @@ describe("command palette", () => {
   });
 
   test("a command registered after the provider mounts appears in the palette", async () => {
-    const LateRegistrant = function LateRegistrant() {
-      useCommand({
-        handler: () => {},
-        id: "test.late",
-        modes: ["cursor"],
-        title: "Late Arrival Command",
-      });
-      return null;
-    };
-
-    const LateHarness = function LateHarness(): React.ReactNode {
-      const [showLate, setShowLate] = useState(false);
-      const current = useCurrentOverlay();
-      useCommand({
-        handler: () => {
-          setShowLate(true);
-        },
-        hotkey: "l",
-        id: "test.show-late",
-        modes: ["cursor"],
-        title: "Show late",
-      });
-      return (
-        <box flexDirection="column">
-          {showLate && <LateRegistrant />}
-          {current}
-        </box>
-      );
-    };
-
     testSetup = await testRender(
       <TooeeProvider>
         <LateHarness />

@@ -4,6 +4,10 @@ import { MarkSet } from "@tooee/marks";
 
 const providerMark = new MarkSet("provider", 1, []);
 const userMark = new MarkSet("user", 1, []);
+const reload = () => {};
+const setMarkSet = () => {};
+const clearNamespace = () => {};
+const clearAll = () => {};
 
 describe("createViewCommandContext", () => {
   test("creates a safe headless custom content context", () => {
@@ -31,11 +35,6 @@ describe("createViewCommandContext", () => {
   });
 
   test("maps content, title/data and marks", () => {
-    const reload = () => {};
-    const setMarkSet = () => {};
-    const clearNamespace = () => {};
-    const clearAll = () => {};
-
     const ctx = createViewCommandContext({
       data: { rowCount: 10 },
       format: "dashboard",

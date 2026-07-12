@@ -5,6 +5,40 @@ import { ThemeSwitcherProvider } from "@tooee/themes";
 import { ToastProvider, useToast, ToastContainer } from "@tooee/toasts";
 import type { ToastLevel } from "@tooee/toasts";
 
+const DurationTest = function DurationTest(): React.ReactNode {
+  const { toast, currentToast } = useToast();
+  useEffect(() => {
+    for (const l of ["info", "success", "warning", "error"] as ToastLevel[]) {
+      toast({ level: l, message: `${l} toast` });
+    }
+  }, [toast]);
+  return <text content={`duration:${currentToast?.duration ?? "none"}`} />;
+};
+
+const SingleLevelTest = function SingleLevelTest({
+  level,
+}: {
+  level: ToastLevel;
+}): React.ReactNode {
+  const { toast, currentToast } = useToast();
+  useEffect(() => {
+    toast({ level, message: "test" });
+  }, [toast, level]);
+  return <text content={`duration:${currentToast?.duration ?? "none"}`} />;
+};
+
+const DefaultLevelTest = function DefaultLevelTest(): React.ReactNode {
+  const { toast, currentToast } = useToast();
+  useEffect(() => {
+    toast({ message: "no level" });
+  }, [toast]);
+  return (
+    <text
+      content={currentToast ? `level:${currentToast.level}:dur:${currentToast.duration}` : "none"}
+    />
+  );
+};
+
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
 afterEach(() => {
@@ -171,16 +205,6 @@ test("same ID replaces existing toast and resets timer", async () => {
 });
 
 test("each level gets correct default duration", async () => {
-  const DurationTest = function DurationTest(): React.ReactNode {
-    const { toast, currentToast } = useToast();
-    useEffect(() => {
-      for (const l of ["info", "success", "warning", "error"] as ToastLevel[]) {
-        toast({ level: l, message: `${l} toast` });
-      }
-    }, [toast]);
-    return <text content={`duration:${currentToast?.duration ?? "none"}`} />;
-  };
-
   testSetup = await renderWithProviders(<DurationTest />);
   await testSetup.renderOnce();
   // The last toast (error) should be the one visible, with its default 5000ms duration
@@ -188,18 +212,6 @@ test("each level gets correct default duration", async () => {
 });
 
 test("level defaults: info=2000, success=1500, warning=3000, error=5000", async () => {
-  const SingleLevelTest = function SingleLevelTest({
-    level,
-  }: {
-    level: ToastLevel;
-  }): React.ReactNode {
-    const { toast, currentToast } = useToast();
-    useEffect(() => {
-      toast({ level, message: "test" });
-    }, [toast, level]);
-    return <text content={`duration:${currentToast?.duration ?? "none"}`} />;
-  };
-
   // Test info
   testSetup = await renderWithProviders(<SingleLevelTest level="info" />);
   await testSetup.renderOnce();
@@ -278,18 +290,6 @@ test("ToastContainer renders nothing when no toast", async () => {
 });
 
 test("defaults to info level when level not specified", async () => {
-  const DefaultLevelTest = function DefaultLevelTest(): React.ReactNode {
-    const { toast, currentToast } = useToast();
-    useEffect(() => {
-      toast({ message: "no level" });
-    }, [toast]);
-    return (
-      <text
-        content={currentToast ? `level:${currentToast.level}:dur:${currentToast.duration}` : "none"}
-      />
-    );
-  };
-
   testSetup = await renderWithProviders(<DefaultLevelTest />);
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();

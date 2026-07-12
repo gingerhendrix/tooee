@@ -6,6 +6,17 @@ import { TooeeProvider } from "@tooee/shell";
 import { Choose } from "../src/choose.js";
 import type { ChooseContentProvider } from "../src/types.js";
 
+const lineOf = function lineOf(frame: string, text: string): { x: number; y: number } {
+  const lines = frame.split("\n");
+  for (let y = 0; y < lines.length; y += 1) {
+    const x = lines[y].indexOf(text);
+    if (x >= 0) {
+      return { x, y };
+    }
+  }
+  return { x: -1, y: -1 };
+};
+
 const ITEMS = [
   { text: "alpha" },
   { text: "beta" },
@@ -396,17 +407,6 @@ describe("Choose visual alignment", () => {
 });
 
 describe("Choose mouse interaction", () => {
-  const lineOf = function lineOf(frame: string, text: string): { x: number; y: number } {
-    const lines = frame.split("\n");
-    for (let y = 0; y < lines.length; y += 1) {
-      const x = lines[y].indexOf(text);
-      if (x >= 0) {
-        return { x, y };
-      }
-    }
-    return { x: -1, y: -1 };
-  };
-
   test("left-click on a row selects it (Enter then confirms that row)", async () => {
     let confirmed: any = null;
     testSetup = await setup({

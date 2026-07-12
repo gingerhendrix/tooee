@@ -4,6 +4,56 @@ import { act, useState } from "react";
 import { CommandProvider, useActions, useCommand } from "../src/index.js";
 import type { Mode } from "../src/index.js";
 
+const ModesReregistrationHarness = function ModesReregistrationHarness(): React.ReactNode {
+  const [modes, setModes] = useState<Mode[]>(["cursor"]);
+  const [count, setCount] = useState(0);
+  useActions([
+    {
+      handler: () => {
+        setCount((n) => n + 1);
+      },
+      hotkey: "x",
+      id: "act",
+      modes,
+      title: "Action",
+    },
+  ]);
+  useCommand({
+    handler: () => {
+      setModes(["insert"]);
+    },
+    hotkey: "s",
+    id: "swap-modes",
+    title: "Swap modes",
+  });
+  return <text content={`count:${count}`} />;
+};
+
+const WhenReregistrationHarness = function WhenReregistrationHarness(): React.ReactNode {
+  const [restricted, setRestricted] = useState(false);
+  const [count, setCount] = useState(0);
+  useActions([
+    {
+      handler: () => {
+        setCount((n) => n + 1);
+      },
+      hotkey: "x",
+      id: "act",
+      title: "Action",
+      when: restricted ? () => false : undefined,
+    },
+  ]);
+  useCommand({
+    handler: () => {
+      setRestricted(true);
+    },
+    hotkey: "s",
+    id: "restrict",
+    title: "Restrict",
+  });
+  return <text content={`count:${count}`} />;
+};
+
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
 let testSetup: TestSession;
@@ -22,34 +72,9 @@ const press = async function press(session: TestSession, key: string) {
 
 describe("useActions re-registration key (R-07)", () => {
   test("changing an action's modes re-registers the command", async () => {
-    const Harness = function Harness(): React.ReactNode {
-      const [modes, setModes] = useState<Mode[]>(["cursor"]);
-      const [count, setCount] = useState(0);
-      useActions([
-        {
-          handler: () => {
-            setCount((n) => n + 1);
-          },
-          hotkey: "x",
-          id: "act",
-          modes,
-          title: "Action",
-        },
-      ]);
-      useCommand({
-        handler: () => {
-          setModes(["insert"]);
-        },
-        hotkey: "s",
-        id: "swap-modes",
-        title: "Swap modes",
-      });
-      return <text content={`count:${count}`} />;
-    };
-
     testSetup = await testRender(
       <CommandProvider>
-        <Harness />
+        <ModesReregistrationHarness />
       </CommandProvider>,
       { height: 10, kittyKeyboard: true, width: 60 },
     );
@@ -67,34 +92,9 @@ describe("useActions re-registration key (R-07)", () => {
   });
 
   test("adding a when clause after mount re-registers the command", async () => {
-    const Harness = function Harness(): React.ReactNode {
-      const [restricted, setRestricted] = useState(false);
-      const [count, setCount] = useState(0);
-      useActions([
-        {
-          handler: () => {
-            setCount((n) => n + 1);
-          },
-          hotkey: "x",
-          id: "act",
-          title: "Action",
-          when: restricted ? () => false : undefined,
-        },
-      ]);
-      useCommand({
-        handler: () => {
-          setRestricted(true);
-        },
-        hotkey: "s",
-        id: "restrict",
-        title: "Restrict",
-      });
-      return <text content={`count:${count}`} />;
-    };
-
     testSetup = await testRender(
       <CommandProvider>
-        <Harness />
+        <WhenReregistrationHarness />
       </CommandProvider>,
       { height: 10, kittyKeyboard: true, width: 60 },
     );

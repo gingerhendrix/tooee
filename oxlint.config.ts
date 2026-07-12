@@ -84,7 +84,6 @@ export default defineConfig({
     "typescript/unbound-method": "off",
     "unicorn/catch-error-name": "off",
     "unicorn/consistent-existence-index-check": "off",
-    "unicorn/consistent-function-scoping": "off",
     "unicorn/import-style": "off",
     "unicorn/no-array-for-each": "off",
     "unicorn/no-array-method-this-argument": "off",

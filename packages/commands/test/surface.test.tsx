@@ -13,6 +13,63 @@ import {
 } from "../src/index.js";
 import type { CommandSurfaceRole } from "../src/index.js";
 
+const RawKeyboardHarness = function RawKeyboardHarness(): ReactNode {
+  const [showSurface, setShowSurface] = useState(false);
+  const [unguarded, setUnguarded] = useState(0);
+  const [guarded, setGuarded] = useState(0);
+  const [surfaceAction, setSurfaceAction] = useState(0);
+  const active = useActiveCommandSurface();
+
+  useCommand({
+    handler: () => {
+      setShowSurface(true);
+    },
+    hotkey: "o",
+    id: "root.open",
+    title: "Open",
+  });
+
+  useKeyboard((key) => {
+    if (key.name === "z") {
+      setUnguarded((n) => n + 1);
+    }
+  });
+  useKeyboard((key) => {
+    if (active) {
+      return;
+    }
+    if (key.name === "z") {
+      setGuarded((n) => n + 1);
+    }
+  });
+
+  return (
+    <box flexDirection="column">
+      <text content={`unguarded:${unguarded}`} />
+      <text content={`guarded:${guarded}`} />
+      <text content={`surfaceAction:${surfaceAction}`} />
+      {showSurface && (
+        <CommandSurfaceProvider id="modal" role="modal" initialMode="cursor">
+          <ZCommandSurface
+            onAction={() => {
+              setSurfaceAction((n) => n + 1);
+            }}
+          />
+        </CommandSurfaceProvider>
+      )}
+    </box>
+  );
+};
+
+const ZCommandSurface = function ZCommandSurface({
+  onAction,
+}: {
+  onAction: () => void;
+}): ReactNode {
+  useCommand({ handler: onAction, hotkey: "z", id: "modal.z", title: "Z action" });
+  return <text content="modal-surface" />;
+};
+
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
 const press = async function press(
@@ -253,62 +310,6 @@ describe("command surface arbitration", () => {
     // or useActiveCommandSurface here). This test documents the hazard: the
     // unguarded handler still fires while a modal surface owns input; the
     // guarded handler does not.
-    const RawKeyboardHarness = function RawKeyboardHarness(): ReactNode {
-      const [showSurface, setShowSurface] = useState(false);
-      const [unguarded, setUnguarded] = useState(0);
-      const [guarded, setGuarded] = useState(0);
-      const [surfaceAction, setSurfaceAction] = useState(0);
-      const active = useActiveCommandSurface();
-
-      useCommand({
-        handler: () => {
-          setShowSurface(true);
-        },
-        hotkey: "o",
-        id: "root.open",
-        title: "Open",
-      });
-
-      useKeyboard((key) => {
-        if (key.name === "z") {
-          setUnguarded((n) => n + 1);
-        }
-      });
-      useKeyboard((key) => {
-        if (active) {
-          return;
-        }
-        if (key.name === "z") {
-          setGuarded((n) => n + 1);
-        }
-      });
-
-      return (
-        <box flexDirection="column">
-          <text content={`unguarded:${unguarded}`} />
-          <text content={`guarded:${guarded}`} />
-          <text content={`surfaceAction:${surfaceAction}`} />
-          {showSurface && (
-            <CommandSurfaceProvider id="modal" role="modal" initialMode="cursor">
-              <ZCommandSurface
-                onAction={() => {
-                  setSurfaceAction((n) => n + 1);
-                }}
-              />
-            </CommandSurfaceProvider>
-          )}
-        </box>
-      );
-    };
-
-    const ZCommandSurface = function ZCommandSurface({
-      onAction,
-    }: {
-      onAction: () => void;
-    }): ReactNode {
-      useCommand({ handler: onAction, hotkey: "z", id: "modal.z", title: "Z action" });
-      return <text content="modal-surface" />;
-    };
 
     testSetup = await testRender(
       <CommandProvider>

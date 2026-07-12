@@ -186,6 +186,8 @@ const openTtyInput = function openTtyInput(policy: CliStdinPolicy): tty.ReadStre
   }
 };
 
+const noop = () => {};
+
 /** Create, mount, and return a locally owned Tooee renderer session. */
 export const launchCli = async function launchCli(
   node: ReactNode,
@@ -219,7 +221,7 @@ export const launchCli = async function launchCli(
   }
 
   let destroyed = false;
-  let removeHealthGuard = () => {};
+  let removeHealthGuard = noop;
 
   const releaseOwnedResources = () => {
     if (destroyed) {

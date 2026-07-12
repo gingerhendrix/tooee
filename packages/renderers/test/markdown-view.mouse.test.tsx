@@ -9,6 +9,12 @@ import type { CodeBlockRenderer } from "../src/code-blocks.js";
 import { useRowMouseBindings } from "./support/bindings.js";
 import type { RowMouseCallbacks } from "./support/bindings.js";
 
+const chartRenderer: CodeBlockRenderer = ({ text, theme, indent }): React.ReactNode => (
+  <CodeBlockChrome theme={theme} indent={indent}>
+    <text content={text} style={{ fg: theme.markdownText, height: 3 }} />
+  </CodeBlockChrome>
+);
+
 const CONTENT_X = 8;
 
 const MarkdownHarness = function MarkdownHarness({
@@ -101,11 +107,6 @@ describe("MarkdownView mouse interaction", () => {
   test("clicking inside a custom-rendered code block selects that block", async () => {
     // A custom fence renderer whose output does not stop propagation, so the
     // click still bubbles up to the row-document and selects the block.
-    const chartRenderer: CodeBlockRenderer = ({ text, theme, indent }): React.ReactNode => (
-      <CodeBlockChrome theme={theme} indent={indent}>
-        <text content={text} style={{ fg: theme.markdownText, height: 3 }} />
-      </CodeBlockChrome>
-    );
     const md = "Intro.\n\n```chart\nrow1\nrow2\nrow3\n```";
     const clicked: number[] = [];
     testSetup = await testRender(

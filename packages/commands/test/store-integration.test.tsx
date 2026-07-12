@@ -14,6 +14,118 @@ import {
 } from "../src/index.js";
 import type { Mode } from "../src/index.js";
 
+const LateRegistrant = function LateRegistrant() {
+  useCommand({ handler: () => {}, hotkey: "l", id: "late", title: "Late" });
+  return null;
+};
+
+const CommandCount = function CommandCount(): ReactNode {
+  const { commands } = useCommandContext();
+  return <text content={`count:${commands.length}`} />;
+};
+
+const LateRegistryHarness = function LateRegistryHarness(): ReactNode {
+  const [showLate, setShowLate] = useState(false);
+  useCommand({
+    handler: () => {
+      setShowLate(true);
+    },
+    hotkey: "o",
+    id: "root.show",
+    title: "Show late",
+  });
+  return (
+    <box flexDirection="column">
+      <CommandCount />
+      {showLate && <LateRegistrant />}
+    </box>
+  );
+};
+
+const MetadataSurfaceContent = function MetadataSurfaceContent({
+  children,
+}: {
+  children?: ReactNode;
+}): ReactNode {
+  useCommand({ handler: () => {}, hotkey: "1", id: "s.one", title: "One" });
+  return (
+    <box flexDirection="column">
+      <text content="surface" />
+      {children}
+    </box>
+  );
+};
+
+const ExtraCommand = function ExtraCommand() {
+  useCommand({ handler: () => {}, hotkey: "2", id: "s.two", title: "Two" });
+  return null;
+};
+
+const ActiveProbe = function ActiveProbe(): ReactNode {
+  const active = useActiveCommandSurface();
+  const ids = active
+    ? active.commands
+        .map((c) => c.id)
+        .sort()
+        .join(",")
+    : "none";
+  return <text content={`active-commands:[${ids}]`} />;
+};
+
+const ActiveSurfaceHarness = function ActiveSurfaceHarness(): ReactNode {
+  const [showExtra, setShowExtra] = useState(false);
+  useCommand({ handler: () => {}, hotkey: "a", id: "root.a", title: "Root A" });
+  return (
+    <box flexDirection="column">
+      <ActiveProbe />
+      <CommandSurfaceProvider id="modal" role="modal" initialMode="cursor">
+        <MetadataSurfaceContent>{showExtra && <ExtraCommand />}</MetadataSurfaceContent>
+        <ExtraToggle
+          onToggle={() => {
+            setShowExtra(true);
+          }}
+        />
+      </CommandSurfaceProvider>
+    </box>
+  );
+};
+
+const ExtraToggle = function ExtraToggle({ onToggle }: { onToggle: () => void }) {
+  useCommand({ handler: onToggle, hotkey: "m", id: "s.more", title: "More" });
+  return null;
+};
+
+const SurfaceCommandsProbe = function SurfaceCommandsProbe(): ReactNode {
+  const commands = useSurfaceCommands();
+  const ids = commands
+    .map((c) => c.id)
+    .sort()
+    .join(",");
+  return <text content={`surface-commands:[${ids}]`} />;
+};
+
+const SurfaceFallbackHarness = function SurfaceFallbackHarness(): ReactNode {
+  const [showSurface, setShowSurface] = useState(false);
+  useCommand({
+    handler: () => {
+      setShowSurface(true);
+    },
+    hotkey: "o",
+    id: "root.open",
+    title: "Open",
+  });
+  return (
+    <box flexDirection="column">
+      <SurfaceCommandsProbe />
+      {showSurface && (
+        <CommandSurfaceProvider id="modal" role="modal" initialMode="cursor">
+          <MetadataSurfaceContent />
+        </CommandSurfaceProvider>
+      )}
+    </box>
+  );
+};
+
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
 let testSetup: TestSession;
@@ -191,37 +303,9 @@ describe("F-09: surface replacement resets a pending chord", () => {
 
 describe("reactive registry", () => {
   test("useCommandContext().commands updates when a sibling registers post-mount", async () => {
-    const LateRegistrant = function LateRegistrant() {
-      useCommand({ handler: () => {}, hotkey: "l", id: "late", title: "Late" });
-      return null;
-    };
-
-    const CommandCount = function CommandCount(): ReactNode {
-      const { commands } = useCommandContext();
-      return <text content={`count:${commands.length}`} />;
-    };
-
-    const Harness = function Harness(): ReactNode {
-      const [showLate, setShowLate] = useState(false);
-      useCommand({
-        handler: () => {
-          setShowLate(true);
-        },
-        hotkey: "o",
-        id: "root.show",
-        title: "Show late",
-      });
-      return (
-        <box flexDirection="column">
-          <CommandCount />
-          {showLate && <LateRegistrant />}
-        </box>
-      );
-    };
-
     testSetup = await testRender(
       <CommandProvider>
-        <Harness />
+        <LateRegistryHarness />
       </CommandProvider>,
       { height: 10, kittyKeyboard: true, width: 60 },
     );
@@ -235,63 +319,10 @@ describe("reactive registry", () => {
 });
 
 describe("F-13: surface command metadata", () => {
-  const SurfaceContent = function SurfaceContent({
-    children,
-  }: {
-    children?: ReactNode;
-  }): ReactNode {
-    useCommand({ handler: () => {}, hotkey: "1", id: "s.one", title: "One" });
-    return (
-      <box flexDirection="column">
-        <text content="surface" />
-        {children}
-      </box>
-    );
-  };
-
-  const ExtraCommand = function ExtraCommand() {
-    useCommand({ handler: () => {}, hotkey: "2", id: "s.two", title: "Two" });
-    return null;
-  };
-
   test("useActiveCommandSurface().commands lists the modal surface's commands reactively", async () => {
-    const ActiveProbe = function ActiveProbe(): ReactNode {
-      const active = useActiveCommandSurface();
-      const ids = active
-        ? active.commands
-            .map((c) => c.id)
-            .sort()
-            .join(",")
-        : "none";
-      return <text content={`active-commands:[${ids}]`} />;
-    };
-
-    const Harness = function Harness(): ReactNode {
-      const [showExtra, setShowExtra] = useState(false);
-      useCommand({ handler: () => {}, hotkey: "a", id: "root.a", title: "Root A" });
-      return (
-        <box flexDirection="column">
-          <ActiveProbe />
-          <CommandSurfaceProvider id="modal" role="modal" initialMode="cursor">
-            <SurfaceContent>{showExtra && <ExtraCommand />}</SurfaceContent>
-            <ExtraToggle
-              onToggle={() => {
-                setShowExtra(true);
-              }}
-            />
-          </CommandSurfaceProvider>
-        </box>
-      );
-    };
-
-    const ExtraToggle = function ExtraToggle({ onToggle }: { onToggle: () => void }) {
-      useCommand({ handler: onToggle, hotkey: "m", id: "s.more", title: "More" });
-      return null;
-    };
-
     testSetup = await testRender(
       <CommandProvider>
-        <Harness />
+        <ActiveSurfaceHarness />
       </CommandProvider>,
       { height: 10, kittyKeyboard: true, width: 80 },
     );
@@ -305,40 +336,9 @@ describe("F-13: surface command metadata", () => {
   });
 
   test("useSurfaceCommands defaults to the active surface and falls back to root", async () => {
-    const SurfaceCommandsProbe = function SurfaceCommandsProbe(): ReactNode {
-      const commands = useSurfaceCommands();
-      const ids = commands
-        .map((c) => c.id)
-        .sort()
-        .join(",");
-      return <text content={`surface-commands:[${ids}]`} />;
-    };
-
-    const Harness = function Harness(): ReactNode {
-      const [showSurface, setShowSurface] = useState(false);
-      useCommand({
-        handler: () => {
-          setShowSurface(true);
-        },
-        hotkey: "o",
-        id: "root.open",
-        title: "Open",
-      });
-      return (
-        <box flexDirection="column">
-          <SurfaceCommandsProbe />
-          {showSurface && (
-            <CommandSurfaceProvider id="modal" role="modal" initialMode="cursor">
-              <SurfaceContent />
-            </CommandSurfaceProvider>
-          )}
-        </box>
-      );
-    };
-
     testSetup = await testRender(
       <CommandProvider>
-        <Harness />
+        <SurfaceFallbackHarness />
       </CommandProvider>,
       { height: 10, kittyKeyboard: true, width: 80 },
     );

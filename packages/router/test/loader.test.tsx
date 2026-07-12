@@ -3,6 +3,15 @@ import { test, expect, describe, afterEach } from "bun:test";
 import { act } from "react";
 import { createRoute, createRouter, RouterProvider, Outlet, useRouteData } from "@tooee/router";
 
+const ParamScreen = function ParamScreen(): React.ReactNode {
+  const data = useRouteData<{ echo: string }>();
+  return (
+    <box>
+      <text content={`screen:param:${data?.echo ?? "none"}`} />
+    </box>
+  );
+};
+
 // Helpers to control async loaders in tests
 
 const createDeferred = function createDeferred<T>() {
@@ -427,15 +436,6 @@ describe("route loaders", () => {
 
   test("loader receives route params", async () => {
     let receivedParams: Record<string, unknown> = {};
-
-    const ParamScreen = function ParamScreen(): React.ReactNode {
-      const data = useRouteData<{ echo: string }>();
-      return (
-        <box>
-          <text content={`screen:param:${data?.echo ?? "none"}`} />
-        </box>
-      );
-    };
 
     const homeRoute = createRoute({ component: HomeScreen, id: "home" });
     const paramRoute = createRoute({

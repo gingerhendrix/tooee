@@ -7,6 +7,81 @@ import { AskOverlay } from "../src/ask-overlay.js";
 import { buildAskHints } from "../src/ask-panel.js";
 import type { AskEditorController } from "../src/use-ask-editor.js";
 
+const ControllerHost = function ControllerHost(props: {
+  multiline?: boolean;
+  defaultValue?: string;
+  onSubmit?: (value: string) => void;
+  controllerRef: React.RefObject<AskEditorController | null>;
+}): React.ReactNode {
+  return (
+    <AskOverlay
+      prompt="Question"
+      multiline={props.multiline}
+      defaultValue={props.defaultValue}
+      onSubmit={props.onSubmit ?? (() => {})}
+      onCancel={() => {}}
+      controllerRef={props.controllerRef}
+    />
+  );
+};
+
+const PickerSurface = function PickerSurface({
+  onClose,
+}: {
+  onClose: () => void;
+}): React.ReactNode {
+  useCommand({
+    handler: onClose,
+    hotkey: "x",
+    id: "picker:close",
+    modes: ["cursor"],
+    title: "Close picker",
+  });
+  return (
+    <box position="absolute" left="30%" right="30%" top="40%" bottom="40%" border>
+      <text content="PICKER" />
+    </box>
+  );
+};
+
+const Host = function Host(props: {
+  onCancel: () => void;
+  onSubmit: (value: string) => void;
+}): React.ReactNode {
+  const [pickerOpen, setPickerOpen] = useState(true);
+  const controllerRef = useRef<AskEditorController>(null);
+  return (
+    <AskOverlay
+      prompt="Question"
+      defaultValue="hello"
+      onSubmit={props.onSubmit}
+      onCancel={props.onCancel}
+      controllerRef={controllerRef}
+      commands={[
+        {
+          handler: () => {
+            setPickerOpen(true);
+          },
+          hotkey: "m",
+          id: "host:open-picker",
+          modes: ["cursor"],
+          title: "Open picker",
+        },
+      ]}
+    >
+      {pickerOpen && (
+        <CommandSurfaceProvider id="host:picker" role="modal" initialMode="cursor">
+          <PickerSurface
+            onClose={() => {
+              setPickerOpen(false);
+            }}
+          />
+        </CommandSurfaceProvider>
+      )}
+    </AskOverlay>
+  );
+};
+
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
 afterEach(() => {
@@ -63,24 +138,6 @@ const typeText = async function typeText(text: string) {
 };
 
 describe("AskEditorController", () => {
-  const ControllerHost = function ControllerHost(props: {
-    multiline?: boolean;
-    defaultValue?: string;
-    onSubmit?: (value: string) => void;
-    controllerRef: React.RefObject<AskEditorController | null>;
-  }): React.ReactNode {
-    return (
-      <AskOverlay
-        prompt="Question"
-        multiline={props.multiline}
-        defaultValue={props.defaultValue}
-        onSubmit={props.onSubmit ?? (() => {})}
-        onCancel={() => {}}
-        controllerRef={props.controllerRef}
-      />
-    );
-  };
-
   test("setText replaces the single-line value through React state", async () => {
     const controllerRef = { current: null as AskEditorController | null };
     let submitted = "";
@@ -254,63 +311,6 @@ describe("AskOverlay chrome extension points", () => {
 });
 
 describe("AskOverlay nested modal surfaces", () => {
-  const PickerSurface = function PickerSurface({
-    onClose,
-  }: {
-    onClose: () => void;
-  }): React.ReactNode {
-    useCommand({
-      handler: onClose,
-      hotkey: "x",
-      id: "picker:close",
-      modes: ["cursor"],
-      title: "Close picker",
-    });
-    return (
-      <box position="absolute" left="30%" right="30%" top="40%" bottom="40%" border>
-        <text content="PICKER" />
-      </box>
-    );
-  };
-
-  const Host = function Host(props: {
-    onCancel: () => void;
-    onSubmit: (value: string) => void;
-  }): React.ReactNode {
-    const [pickerOpen, setPickerOpen] = useState(true);
-    const controllerRef = useRef<AskEditorController>(null);
-    return (
-      <AskOverlay
-        prompt="Question"
-        defaultValue="hello"
-        onSubmit={props.onSubmit}
-        onCancel={props.onCancel}
-        controllerRef={controllerRef}
-        commands={[
-          {
-            handler: () => {
-              setPickerOpen(true);
-            },
-            hotkey: "m",
-            id: "host:open-picker",
-            modes: ["cursor"],
-            title: "Open picker",
-          },
-        ]}
-      >
-        {pickerOpen && (
-          <CommandSurfaceProvider id="host:picker" role="modal" initialMode="cursor">
-            <PickerSurface
-              onClose={() => {
-                setPickerOpen(false);
-              }}
-            />
-          </CommandSurfaceProvider>
-        )}
-      </AskOverlay>
-    );
-  };
-
   test("a modal child surface suspends ask commands and editor focus without guards", async () => {
     let cancelCount = 0;
     testSetup = await setup(

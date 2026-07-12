@@ -4,6 +4,71 @@ import { act, useState } from "react";
 import { CommandProvider, useCommand, useCommandGroup, useCommandRegistry } from "../src/index.js";
 import type { RegisteredCommandGroup } from "../src/index.js";
 
+const CommandRegistrant = function CommandRegistrant({ onFire }: { onFire: () => void }) {
+  useCommand({ handler: onFire, hotkey: "d", id: "dup", title: "Dup" });
+  return null;
+};
+
+const CommandIdentityHarness = function CommandIdentityHarness(): React.ReactNode {
+  const [showFirst, setShowFirst] = useState(true);
+  const [firstCount, setFirstCount] = useState(0);
+  const [secondCount, setSecondCount] = useState(0);
+  useCommand({
+    handler: () => {
+      setShowFirst(false);
+    },
+    hotkey: "h",
+    id: "root.hide-first",
+    title: "Hide first",
+  });
+  return (
+    <box flexDirection="column">
+      <text content={`first:${firstCount}`} />
+      <text content={`second:${secondCount}`} />
+      {showFirst && (
+        <CommandRegistrant
+          onFire={() => {
+            setFirstCount((n) => n + 1);
+          }}
+        />
+      )}
+      <CommandRegistrant
+        onFire={() => {
+          setSecondCount((n) => n + 1);
+        }}
+      />
+    </box>
+  );
+};
+
+const GroupRegistrant = function GroupRegistrant({ title }: { title: string }) {
+  useCommandGroup({ id: `group-${title}`, prefix: "g", title });
+  return null;
+};
+
+const GroupIdentityHarness = function GroupIdentityHarness({
+  ProbeComponent,
+}: {
+  ProbeComponent: () => React.ReactNode;
+}): React.ReactNode {
+  const [showFirst, setShowFirst] = useState(true);
+  useCommand({
+    handler: () => {
+      setShowFirst(false);
+    },
+    hotkey: "h",
+    id: "root.hide-first",
+    title: "Hide first",
+  });
+  return (
+    <box>
+      <ProbeComponent />
+      {showFirst && <GroupRegistrant title="First group" />}
+      <GroupRegistrant title="Second group" />
+    </box>
+  );
+};
+
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
 let testSetup: TestSession;
@@ -22,46 +87,9 @@ const press = async function press(session: TestSession, key: string) {
 
 describe("registry unregister guards (R-05)", () => {
   test("first registrant's unmount does not delete the second's live command", async () => {
-    const Registrant = function Registrant({ onFire }: { onFire: () => void }) {
-      useCommand({ handler: onFire, hotkey: "d", id: "dup", title: "Dup" });
-      return null;
-    };
-
-    const Harness = function Harness(): React.ReactNode {
-      const [showFirst, setShowFirst] = useState(true);
-      const [firstCount, setFirstCount] = useState(0);
-      const [secondCount, setSecondCount] = useState(0);
-      useCommand({
-        handler: () => {
-          setShowFirst(false);
-        },
-        hotkey: "h",
-        id: "root.hide-first",
-        title: "Hide first",
-      });
-      return (
-        <box flexDirection="column">
-          <text content={`first:${firstCount}`} />
-          <text content={`second:${secondCount}`} />
-          {showFirst && (
-            <Registrant
-              onFire={() => {
-                setFirstCount((n) => n + 1);
-              }}
-            />
-          )}
-          <Registrant
-            onFire={() => {
-              setSecondCount((n) => n + 1);
-            }}
-          />
-        </box>
-      );
-    };
-
     testSetup = await testRender(
       <CommandProvider>
-        <Harness />
+        <CommandIdentityHarness />
       </CommandProvider>,
       { height: 10, kittyKeyboard: true, width: 60 },
     );
@@ -88,33 +116,9 @@ describe("registry unregister guards (R-05)", () => {
       return null;
     };
 
-    const GroupRegistrant = function GroupRegistrant({ title }: { title: string }) {
-      useCommandGroup({ id: `group-${title}`, prefix: "g", title });
-      return null;
-    };
-
-    const Harness = function Harness(): React.ReactNode {
-      const [showFirst, setShowFirst] = useState(true);
-      useCommand({
-        handler: () => {
-          setShowFirst(false);
-        },
-        hotkey: "h",
-        id: "root.hide-first",
-        title: "Hide first",
-      });
-      return (
-        <box>
-          <Probe />
-          {showFirst && <GroupRegistrant title="First group" />}
-          <GroupRegistrant title="Second group" />
-        </box>
-      );
-    };
-
     testSetup = await testRender(
       <CommandProvider>
-        <Harness />
+        <GroupIdentityHarness ProbeComponent={Probe} />
       </CommandProvider>,
       { height: 10, kittyKeyboard: true, width: 60 },
     );

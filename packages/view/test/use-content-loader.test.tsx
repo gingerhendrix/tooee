@@ -4,6 +4,12 @@ import { act, useState } from "react";
 import { useContentLoader } from "../src/hooks/use-content-loader.js";
 import type { ContentChunk, ContentProvider } from "../src/types.js";
 
+const failing = async function* failing(): AsyncIterable<ContentChunk> {
+  yield { data: "partial", format: "text", type: "append" };
+  // eslint-disable-next-line no-throw-literal
+  throw "stream blew up";
+};
+
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
 let testSetup: TestSession;
@@ -84,11 +90,6 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
   });
 
   test("non-Error stream failure is surfaced, not dropped", async () => {
-    const failing = async function* failing(): AsyncIterable<ContentChunk> {
-      yield { data: "partial", format: "text", type: "append" };
-      // eslint-disable-next-line no-throw-literal
-      throw "stream blew up";
-    };
     const provider: ContentProvider = { format: "text", load: () => failing() };
 
     testSetup = await testRender(<Loader provider={provider} />, { height: 10, width: 60 });

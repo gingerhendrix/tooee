@@ -8,6 +8,32 @@ import type { CodeBlockRenderer } from "../src/code-blocks.js";
 import { decorationBindings } from "./support/bindings.js";
 import { ansiToStyledText, renderMermaidForTerminal } from "../src/mermaid.js";
 
+const graphqlRenderer: CodeBlockRenderer = ({ text, theme, indent }): React.ReactNode => (
+  <box style={{ marginBottom: 1, marginLeft: 1 + indent }}>
+    <text content={`GraphQL query (${text.split("\n").length} lines)`} fg={theme.accent} />
+  </box>
+);
+
+const throwingRenderer: CodeBlockRenderer = () => {
+  throw new Error("renderer exploded");
+};
+
+const overrideRenderer: CodeBlockRenderer = ({ theme }): React.ReactNode => (
+  <text content="custom mermaid override" fg={theme.accent} />
+);
+
+const hScrollRenderer: CodeBlockRenderer = ({ text, theme, indent, hScroll }): React.ReactNode => (
+  <box style={{ marginBottom: 1, marginLeft: 1 + indent }}>
+    <text
+      ref={hScroll.register}
+      content={text}
+      wrapMode="none"
+      onMouseScroll={hScroll.onMouseScroll}
+      style={{ fg: theme.markdownText, height: 1 }}
+    />
+  </box>
+);
+
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
 afterEach(() => {
@@ -1208,12 +1234,6 @@ describe("scroll isolation", () => {
 // ---------------------------------------------------------------------------
 
 describe("custom code block renderers", () => {
-  const graphqlRenderer: CodeBlockRenderer = ({ text, theme, indent }): React.ReactNode => (
-    <box style={{ marginBottom: 1, marginLeft: 1 + indent }}>
-      <text content={`GraphQL query (${text.split("\n").length} lines)`} fg={theme.accent} />
-    </box>
-  );
-
   test("registered fence type renders custom output", async () => {
     testSetup = await testRender(
       <ThemeSwitcherProvider>
@@ -1313,9 +1333,6 @@ describe("custom code block renderers", () => {
   });
 
   test("renderer that throws falls back to the default code block", async () => {
-    const throwingRenderer: CodeBlockRenderer = () => {
-      throw new Error("renderer exploded");
-    };
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView
@@ -1349,9 +1366,6 @@ describe("custom code block renderers", () => {
   });
 
   test("user entry for mermaid overrides the built-in renderer", async () => {
-    const overrideRenderer: CodeBlockRenderer = ({ theme }): React.ReactNode => (
-      <text content="custom mermaid override" fg={theme.accent} />
-    );
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView
@@ -1388,22 +1402,6 @@ describe("custom code block renderers", () => {
 
   test("custom renderer can opt into horizontal panning via hScroll", async () => {
     const wideLine = `[Start] ${"─".repeat(100)} [Finish line]`;
-    const hScrollRenderer: CodeBlockRenderer = ({
-      text,
-      theme,
-      indent,
-      hScroll,
-    }): React.ReactNode => (
-      <box style={{ marginBottom: 1, marginLeft: 1 + indent }}>
-        <text
-          ref={hScroll.register}
-          content={text}
-          wrapMode="none"
-          onMouseScroll={hScroll.onMouseScroll}
-          style={{ fg: theme.markdownText, height: 1 }}
-        />
-      </box>
-    );
     const registry: { current: Map<number, TextBufferRenderable> } = { current: new Map() };
     testSetup = await testRender(
       <ThemeSwitcherProvider>

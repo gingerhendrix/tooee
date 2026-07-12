@@ -9,6 +9,46 @@ import { buildChooseHints } from "../src/choose-panel.js";
 import type { ChooseContentProvider, ChooseItem, ChooseSource } from "../src/types.js";
 import type { ChooseController } from "../src/use-choose.js";
 
+const ChildSurface = function ChildSurface({ close }: { close: () => void }): React.ReactNode {
+  useCommand({
+    handler: close,
+    hotkey: "x",
+    id: "child:close",
+    modes: ["cursor"],
+    title: "Close child",
+  });
+  return (
+    <box position="absolute" left="30%" right="30%" top="40%" bottom="40%" border>
+      <text content="CHILD PICKER" />
+    </box>
+  );
+};
+
+const NestedHost = function NestedHost({
+  onSelect,
+}: {
+  onSelect: (item: ChooseItem) => void;
+}): React.ReactNode {
+  const [open, setOpen] = useState(true);
+  return (
+    <ChooseOverlay
+      items={[{ text: "alpha" }, { text: "beta" }]}
+      onSelect={onSelect}
+      onCancel={() => {}}
+    >
+      {open && (
+        <CommandSurfaceProvider id="choose-test.child" role="modal" initialMode="cursor">
+          <ChildSurface
+            close={() => {
+              setOpen(false);
+            }}
+          />
+        </CommandSurfaceProvider>
+      )}
+    </ChooseOverlay>
+  );
+};
+
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
 let testSetup: TestSession;
@@ -310,46 +350,6 @@ describe("shared commands, context, and surfaces", () => {
     expect(contextItem).toBe("beta");
     expect(contextFilter).toBe("");
   });
-
-  const ChildSurface = function ChildSurface({ close }: { close: () => void }): React.ReactNode {
-    useCommand({
-      handler: close,
-      hotkey: "x",
-      id: "child:close",
-      modes: ["cursor"],
-      title: "Close child",
-    });
-    return (
-      <box position="absolute" left="30%" right="30%" top="40%" bottom="40%" border>
-        <text content="CHILD PICKER" />
-      </box>
-    );
-  };
-
-  const NestedHost = function NestedHost({
-    onSelect,
-  }: {
-    onSelect: (item: ChooseItem) => void;
-  }): React.ReactNode {
-    const [open, setOpen] = useState(true);
-    return (
-      <ChooseOverlay
-        items={[{ text: "alpha" }, { text: "beta" }]}
-        onSelect={onSelect}
-        onCancel={() => {}}
-      >
-        {open && (
-          <CommandSurfaceProvider id="choose-test.child" role="modal" initialMode="cursor">
-            <ChildSurface
-              close={() => {
-                setOpen(false);
-              }}
-            />
-          </CommandSurfaceProvider>
-        )}
-      </ChooseOverlay>
-    );
-  };
 
   test("a nested modal surface suspends navigation, submission, and filter focus", async () => {
     const selected: ChooseItem[] = [];
