@@ -237,7 +237,7 @@ const contentProvider: ContentProvider = {
 
 // === Launch ===
 
-launch({
+await launch({
   contentProvider,
   renderers: {
     kanban: KanbanRenderer,

@@ -15,7 +15,7 @@
 import { launch } from "@tooee/ask";
 
 // Launch the ask prompt with configuration
-launch({
+await launch({
   // Actions define what happens on submit
   actions: [
     {

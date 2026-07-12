@@ -31,7 +31,7 @@ export const useContentLoader = function useContentLoader(contentProvider: Conte
         requestId,
       });
       const iterator = loaded[Symbol.asyncIterator]();
-      (async () => {
+      void (async () => {
         try {
           while (true) {
             const result = await iterator.next();

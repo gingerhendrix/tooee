@@ -59,7 +59,6 @@ export default defineConfig({
     "typescript/no-deprecated": "off",
     "typescript/no-empty-object-type": "off",
     "typescript/no-explicit-any": "off",
-    "typescript/no-floating-promises": "off",
     "typescript/no-invalid-void-type": "off",
     "typescript/no-misused-promises": "off",
     "typescript/no-non-null-assertion": "off",

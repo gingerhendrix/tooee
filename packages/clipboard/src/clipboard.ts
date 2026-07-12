@@ -159,8 +159,8 @@ const getCopyMethod = function getCopyMethod(): (text: string) => Promise<void> 
           stdin: "pipe",
           stdout: "ignore",
         });
-        proc.stdin.write(text);
-        proc.stdin.end();
+        await proc.stdin.write(text);
+        await proc.stdin.end();
         await proc.exited.catch(() => null);
       };
       return copyMethod;
@@ -172,8 +172,8 @@ const getCopyMethod = function getCopyMethod(): (text: string) => Promise<void> 
           stdin: "pipe",
           stdout: "ignore",
         });
-        proc.stdin.write(text);
-        proc.stdin.end();
+        await proc.stdin.write(text);
+        await proc.stdin.end();
         await proc.exited.catch(() => null);
       };
       return copyMethod;
@@ -185,8 +185,8 @@ const getCopyMethod = function getCopyMethod(): (text: string) => Promise<void> 
           stdin: "pipe",
           stdout: "ignore",
         });
-        proc.stdin.write(text);
-        proc.stdin.end();
+        await proc.stdin.write(text);
+        await proc.stdin.end();
         await proc.exited.catch(() => null);
       };
       return copyMethod;
@@ -228,8 +228,8 @@ const getPrimaryCopyMethod = function getPrimaryCopyMethod(): (text: string) => 
           stdin: "pipe",
           stdout: "ignore",
         });
-        proc.stdin.write(text);
-        proc.stdin.end();
+        await proc.stdin.write(text);
+        await proc.stdin.end();
         await proc.exited.catch(() => null);
       };
       return primaryCopyMethod;
@@ -241,8 +241,8 @@ const getPrimaryCopyMethod = function getPrimaryCopyMethod(): (text: string) => 
           stdin: "pipe",
           stdout: "ignore",
         });
-        proc.stdin.write(text);
-        proc.stdin.end();
+        await proc.stdin.write(text);
+        await proc.stdin.end();
         await proc.exited.catch(() => null);
       };
       return primaryCopyMethod;
@@ -254,8 +254,8 @@ const getPrimaryCopyMethod = function getPrimaryCopyMethod(): (text: string) => 
           stdin: "pipe",
           stdout: "ignore",
         });
-        proc.stdin.write(text);
-        proc.stdin.end();
+        await proc.stdin.write(text);
+        await proc.stdin.end();
         await proc.exited.catch(() => null);
       };
       return primaryCopyMethod;

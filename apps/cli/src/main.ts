@@ -97,7 +97,7 @@ switch (command) {
             console.error("--renderer cannot be used with directory view");
             process.exit(1);
           }
-          launchDirectory({ dirPath: filePath });
+          await launchDirectory({ dirPath: filePath });
           break;
         }
       } catch {
@@ -108,7 +108,7 @@ switch (command) {
       filePath !== undefined && filePath !== ""
         ? createFileProvider(filePath, { renderer })
         : createStdinProvider({ renderer });
-    launchView({ contentProvider });
+    await launchView({ contentProvider });
     break;
   }
 
@@ -118,7 +118,7 @@ switch (command) {
       (a) => a !== "--multiline" && a !== "-m" && a !== "--single-line" && a !== "-s",
     );
     const prompt = filtered.join(" ") || undefined;
-    launchAsk({ multiline: !singleLine, prompt });
+    await launchAsk({ multiline: !singleLine, prompt });
     break;
   }
 
@@ -144,7 +144,7 @@ switch (command) {
       filePath !== undefined && filePath !== ""
         ? createFileProvider(filePath, { renderer: "table" })
         : createStdinProvider({ renderer: "table" });
-    launchView({ contentProvider });
+    await launchView({ contentProvider });
     break;
   }
 

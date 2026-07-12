@@ -319,4 +319,4 @@ const actions: ActionDefinition[] = [
 
 // === Launch ===
 
-launch({ actions, contentProvider });
+await launch({ actions, contentProvider });

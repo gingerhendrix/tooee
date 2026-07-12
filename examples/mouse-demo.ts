@@ -123,4 +123,4 @@ const actions: ActionDefinition[] = [
   },
 ];
 
-launch({ actions, contentProvider });
+await launch({ actions, contentProvider });

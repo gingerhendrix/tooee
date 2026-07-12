@@ -123,7 +123,7 @@ const contentProvider: ContentProvider = {
 
 // === Launch ===
 
-launch({
+await launch({
   codeBlockRenderers: {
     chart: ChartRenderer,
   },

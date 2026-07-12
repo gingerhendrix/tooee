@@ -73,4 +73,4 @@ count.set(3) // no log - unsubscribed
 };
 
 // Launch the viewer with our code content
-launch({ contentProvider });
+await launch({ contentProvider });

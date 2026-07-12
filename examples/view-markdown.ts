@@ -64,4 +64,4 @@ Check out the other examples in this directory to see the full API surface.
 };
 
 // Launch the viewer with our content provider
-launch({ contentProvider });
+await launch({ contentProvider });

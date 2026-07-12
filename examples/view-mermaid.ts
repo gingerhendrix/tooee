@@ -76,4 +76,4 @@ this is not valid mermaid syntax {{{
   }),
 };
 
-launch({ contentProvider });
+await launch({ contentProvider });

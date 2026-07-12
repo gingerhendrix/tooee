@@ -231,7 +231,7 @@ describe("useRouterCommands", () => {
     // Invoke the back command handler
     const backCommand = ctx!.commands.find((c) => c.id === "router.back");
     await act(async () => {
-      backCommand!.handler({} as any);
+      await backCommand!.handler({} as any);
       await Promise.resolve();
     });
     await testSetup.renderOnce();

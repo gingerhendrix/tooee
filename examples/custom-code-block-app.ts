@@ -277,7 +277,7 @@ const contentProvider: ContentProvider = {
 
 // === Launch ===
 
-launch({
+await launch({
   codeBlockRenderers: {
     callout: CalloutRenderer,
     progress: ProgressRenderer,

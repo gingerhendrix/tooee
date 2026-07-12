@@ -573,7 +573,9 @@ export const createCommandStore = function createCommandStore(
           }
           const cmdCtx = record.buildCtx();
           if (!cmd.when || cmd.when(cmdCtx)) {
-            cmd.handler(cmdCtx);
+            void Promise.resolve(cmd.handler(cmdCtx)).catch((error: unknown) => {
+              console.error("Command handler failed", error);
+            });
           }
         },
         register(command: Command) {

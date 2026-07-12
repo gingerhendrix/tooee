@@ -75,4 +75,4 @@ const contentProvider: ContentProvider = {
   },
 };
 
-launch({ contentProvider });
+await launch({ contentProvider });

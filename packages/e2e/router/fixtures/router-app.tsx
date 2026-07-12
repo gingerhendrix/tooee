@@ -351,4 +351,4 @@ const App = function App(): React.ReactNode {
   );
 };
 
-launchCli(<App />);
+await launchCli(<App />);

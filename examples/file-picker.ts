@@ -92,4 +92,4 @@ const main = async function main() {
   }
 };
 
-main();
+await main();
