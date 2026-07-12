@@ -190,7 +190,7 @@ describe("useActionResultHandler", () => {
   });
 
   test("handler is stable across re-renders", async () => {
-    const handlerRefs: Array<(result: ActionNavigationResult) => void> = [];
+    const handlerRefs: ((result: ActionNavigationResult) => void)[] = [];
     let forceUpdate: () => void;
 
     const HandlerCapture = function HandlerCapture() {

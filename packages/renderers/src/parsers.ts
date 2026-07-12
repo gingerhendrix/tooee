@@ -143,7 +143,7 @@ export const parseAuto = function parseAuto(input: string): ParsedTable {
       ({ columns, rows } = parseJSON(input));
       break;
     }
-    default: {
+    case "unknown": {
       // Fall back to CSV
       ({ columns, rows } = parseCSV(input));
       break;

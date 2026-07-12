@@ -369,7 +369,7 @@ describe("flattenMarkdown row order and provenance", () => {
   });
 
   describe("LF vs CRLF equivalence", () => {
-    const cases: Array<[string, string]> = [
+    const cases: [string, string][] = [
       ["no terminal newline", "para one\n\npara two"],
       ["terminal newline", "para one\n\npara two\n"],
     ];

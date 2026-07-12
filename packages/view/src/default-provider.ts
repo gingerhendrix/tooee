@@ -77,7 +77,7 @@ const contentFromText = function contentFromText(
       const parsed = parseAuto(text);
       return { columns: parsed.columns, format: "table", rows: parsed.rows, title };
     }
-    default: {
+    case "text": {
       return { format: "text", text, title };
     }
   }
