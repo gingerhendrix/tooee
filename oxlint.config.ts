@@ -37,7 +37,6 @@ export default defineConfig({
     "no-promise-executor-return": "off",
     "prefer-destructuring": "off",
     "prefer-named-capture-group": "off",
-    "prefer-regex-literals": "off",
     "import/no-duplicates": "off",
     "promise/avoid-new": "off",
     "promise/param-names": "off",

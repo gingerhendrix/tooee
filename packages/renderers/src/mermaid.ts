@@ -24,7 +24,8 @@ export interface MermaidRenderOptions {
   theme?: BeautifulMermaidAsciiTheme;
 }
 
-const SGR_SEQUENCE = new RegExp(String.raw`\u001B\[([0-9;]*)m`, "gu");
+// oxlint-disable-next-line no-control-regex -- ANSI SGR sequences start with the ESC control character
+const SGR_SEQUENCE = /\u001B\[([0-9;]*)m/gu;
 
 /**
  * Marked may include extra info-string content after the language. Treat only
