@@ -2,7 +2,12 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { chmodSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { findNewDiagnostics, mapInheritedLine, parseHunks } from "./check-staged-quality.ts";
+import {
+  findNewDiagnosticCounts,
+  findNewDiagnostics,
+  mapInheritedLine,
+  parseHunks,
+} from "./check-staged-quality.ts";
 
 const diagnostic = (line: number, message = "inherited") => ({
   code: "test(rule)",
@@ -28,6 +33,13 @@ describe("staged diagnostic comparison", () => {
 
   test("explicit snapshots make unstaged files irrelevant", () => {
     expect(findNewDiagnostics([], [], [], "/does/not/exist", "/does/not/exist")).toEqual([]);
+  });
+
+  test("proven formatter output permits moved inherited diagnostics but not count growth", () => {
+    expect(findNewDiagnosticCounts([diagnostic(1)], [diagnostic(20)])).toEqual([]);
+    expect(findNewDiagnosticCounts([diagnostic(1)], [diagnostic(20), diagnostic(21)])).toEqual([
+      diagnostic(21),
+    ]);
   });
 });
 

@@ -128,6 +128,26 @@ export const findNewDiagnostics = (
   });
 };
 
+export const findNewDiagnosticCounts = (
+  headDiagnostics: Diagnostic[],
+  indexDiagnostics: Diagnostic[],
+) => {
+  const inherited = new Map<string, number>();
+  const key = (diagnostic: Diagnostic) =>
+    `${diagnostic.filename}\0${diagnostic.code}\0${diagnostic.message}`;
+  for (const diagnostic of headDiagnostics) {
+    const diagnosticKey = key(diagnostic);
+    inherited.set(diagnosticKey, (inherited.get(diagnosticKey) ?? 0) + 1);
+  }
+  return indexDiagnostics.filter((diagnostic) => {
+    const diagnosticKey = key(diagnostic);
+    const count = inherited.get(diagnosticKey) ?? 0;
+    if (count === 0) return true;
+    inherited.set(diagnosticKey, count - 1);
+    return false;
+  });
+};
+
 const parseChanges = (): FileChange[] => {
   const result = run(["git", "diff", "--cached", "--name-status", "-z", "--find-renames"]);
   if (result.exitCode !== 0) throw new Error(result.stderr);
@@ -161,6 +181,23 @@ const materialize = (root: string) => {
   symlinkSync(resolve("node_modules"), join(head, "node_modules"), "dir");
   symlinkSync(resolve("node_modules"), join(index, "node_modules"), "dir");
   return { head, index };
+};
+
+const isPinnedFormatterOutput = (root: string, indexRoot: string, changes: FileChange[]) => {
+  if (changes.some((change) => !change.headPath || !change.indexPath)) return false;
+  const expected = join(root, "formatted-head");
+  mkdirSync(expected);
+  const archive = run(["sh", "-c", 'git archive HEAD | tar -x -C "$1"', "sh", expected]);
+  if (archive.exitCode !== 0) throw new Error(archive.stderr);
+  symlinkSync(resolve("node_modules"), join(expected, "node_modules"), "dir");
+  const paths = changes.map((change) => change.headPath!);
+  const formatted = run([resolve("node_modules/.bin/oxfmt"), "--write", ...paths], expected);
+  if (formatted.exitCode !== 0) throw new Error(formatted.stderr || formatted.stdout);
+  return changes.every((change) =>
+    readFileSync(join(expected, change.headPath!)).equals(
+      readFileSync(join(indexRoot, change.indexPath!)),
+    ),
+  );
 };
 
 const lint = (root: string, paths: string[]): Diagnostic[] => {
@@ -248,19 +285,15 @@ const main = () => {
     const indexPaths = changes.flatMap(({ indexPath }) =>
       indexPath && LINT_FILE.test(indexPath) ? [indexPath] : [],
     );
-    const newDiagnostics = findNewDiagnostics(
-      lint(head, headPaths),
-      lint(index, indexPaths),
-      changes,
-      head,
-      index,
-    );
-    const formatting = formattingRegressions(
-      head,
-      index,
-      changes,
-      join(temporaryRoot, "before-format"),
-    );
+    const headDiagnostics = lint(head, headPaths);
+    const indexDiagnostics = lint(index, indexPaths);
+    const pinnedFormatterOutput = isPinnedFormatterOutput(temporaryRoot, index, changes);
+    const newDiagnostics = pinnedFormatterOutput
+      ? findNewDiagnosticCounts(headDiagnostics, indexDiagnostics)
+      : findNewDiagnostics(headDiagnostics, indexDiagnostics, changes, head, index);
+    const formatting = pinnedFormatterOutput
+      ? []
+      : formattingRegressions(head, index, changes, join(temporaryRoot, "before-format"));
     if (newDiagnostics.length > 0 || formatting.length > 0) {
       for (const diagnostic of newDiagnostics) {
         console.error(
