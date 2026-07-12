@@ -72,7 +72,9 @@ export const OverlayProvider = function OverlayProvider({
   }
   const overlayStore = storeRef.current;
   bridgeRef.current.setMode = setMode;
-  bridgeRef.current.resetSequence = () => commandStore.reset();
+  bridgeRef.current.resetSequence = () => {
+    commandStore.reset();
+  };
 
   const stack = useSelector(overlayStore, (s) => selectStack(s.context));
 
@@ -107,7 +109,9 @@ export const OverlayProvider = function OverlayProvider({
       }
 
       const handle: OverlayHandle<TPayload> = {
-        close: (reason: OverlayCloseReason = "close") => removeEntry(id, reason),
+        close: (reason: OverlayCloseReason = "close") => {
+          removeEntry(id, reason);
+        },
         id,
         update: (next: TPayload | ((prev: TPayload) => TPayload)) => {
           overlayStore.trigger.updated({ id, next });
@@ -183,7 +187,9 @@ export const OverlayProvider = function OverlayProvider({
   }));
 
   useCommand({
-    handler: () => closeTop("escape"),
+    handler: () => {
+      closeTop("escape");
+    },
     hidden: true,
     hotkey: "Escape",
     id: "overlay.close-top",
@@ -201,11 +207,15 @@ export const OverlayProvider = function OverlayProvider({
         {stack.map((entry, index): ReactNode => {
           const isTop = index === stack.length - 1;
           let node = entry.render({
-            close: (reason: OverlayCloseReason = "close") => removeEntry(entry.id, reason),
+            close: (reason: OverlayCloseReason = "close") => {
+              removeEntry(entry.id, reason);
+            },
             id: entry.id,
             isTop,
             payload: entry.payload,
-            update: (next: unknown) => update(entry.id, next),
+            update: (next: unknown) => {
+              update(entry.id, next);
+            },
           });
 
           // An overlay that owns its commands is mounted as a command surface:

@@ -73,11 +73,17 @@ export const useSearchBindings = function useSearchBindings(
 
   useEffect(() => {
     const subscription = store.on("jumped", ({ index }) => onJumpRef.current?.(index));
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [store]);
   useEffect(() => {
-    const subscription = store.on("restoreMode", ({ mode: restored }) => setMode(restored));
-    return () => subscription.unsubscribe();
+    const subscription = store.on("restoreMode", ({ mode: restored }) => {
+      setMode(restored);
+    });
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [store, setMode]);
 
   const searchQuery = useSelector(store, (snapshot) => selectSearchQuery(snapshot.context));
@@ -125,7 +131,9 @@ export const useSearchBindings = function useSearchBindings(
   });
   useCommand({
     enabled,
-    handler: () => store.trigger.searchNext({}),
+    handler: () => {
+      store.trigger.searchNext({});
+    },
     hotkey: "n",
     id: "cursor-search-next",
     modes: CURSOR_MODES,
@@ -134,7 +142,9 @@ export const useSearchBindings = function useSearchBindings(
   });
   useCommand({
     enabled,
-    handler: () => store.trigger.searchPrevious({}),
+    handler: () => {
+      store.trigger.searchPrevious({});
+    },
     hotkey: "shift+n",
     id: "cursor-search-prev",
     modes: CURSOR_MODES,
@@ -143,7 +153,9 @@ export const useSearchBindings = function useSearchBindings(
   });
   useCommand({
     enabled,
-    handler: () => store.trigger.searchCancelled({}),
+    handler: () => {
+      store.trigger.searchCancelled({});
+    },
     hotkey: "escape",
     id: "search-cancel",
     modes: ALL_MODES,
@@ -157,7 +169,9 @@ export const useSearchBindings = function useSearchBindings(
     searchActive,
     searchQuery,
     setSearchQuery: updateSearchQuery,
-    submitSearch: () => store.trigger.searchSubmitted({}),
+    submitSearch: () => {
+      store.trigger.searchSubmitted({});
+    },
   };
 };
 

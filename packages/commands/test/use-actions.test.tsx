@@ -13,8 +13,9 @@ afterEach(() => {
 });
 
 const press = async function press(session: TestSession, key: string) {
-  await act(() => {
+  await act(async () => {
     session.mockInput.pressKey(key);
+    await Promise.resolve();
   });
   await session.renderOnce();
 };
@@ -26,7 +27,9 @@ describe("useActions re-registration key (R-07)", () => {
       const [count, setCount] = useState(0);
       useActions([
         {
-          handler: () => setCount((n) => n + 1),
+          handler: () => {
+            setCount((n) => n + 1);
+          },
           hotkey: "x",
           id: "act",
           modes,
@@ -34,7 +37,9 @@ describe("useActions re-registration key (R-07)", () => {
         },
       ]);
       useCommand({
-        handler: () => setModes(["insert"]),
+        handler: () => {
+          setModes(["insert"]);
+        },
         hotkey: "s",
         id: "swap-modes",
         title: "Swap modes",
@@ -67,7 +72,9 @@ describe("useActions re-registration key (R-07)", () => {
       const [count, setCount] = useState(0);
       useActions([
         {
-          handler: () => setCount((n) => n + 1),
+          handler: () => {
+            setCount((n) => n + 1);
+          },
           hotkey: "x",
           id: "act",
           title: "Action",
@@ -75,7 +82,9 @@ describe("useActions re-registration key (R-07)", () => {
         },
       ]);
       useCommand({
-        handler: () => setRestricted(true),
+        handler: () => {
+          setRestricted(true);
+        },
         hotkey: "s",
         id: "restrict",
         title: "Restrict",

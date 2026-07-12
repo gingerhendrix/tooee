@@ -350,7 +350,9 @@ export const useDocumentController = function useDocumentController<T>(
       const items = typeof menu === "function" ? menu({ ...hit, context, event }) : menu;
       const entries = resolveContextMenuEntries(items, context);
       if (entries.length === 0) return;
-      openContextMenu(event.x, event.y, entries, (id) => invokeRef.current(id));
+      openContextMenu(event.x, event.y, entries, (id) => {
+        invokeRef.current(id);
+      });
     },
     [getRowAtScreenY, selectRow, openContextMenu, buildCommandContext],
   );

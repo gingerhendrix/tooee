@@ -17,7 +17,11 @@ const PROVIDER: ContentProvider = { format: "chart", load: () => CONTENT };
 // A renderer with its own markup: it resolves its own row and asks the
 // controller to select it.
 const RENDERER: ContentRenderer = ({ document }): React.ReactNode => (
-  <box onMouseDown={() => document.selectRow(2)}>
+  <box
+    onMouseDown={() => {
+      document.selectRow(2);
+    }}
+  >
     <text content="CUSTOM-BODY" />
   </box>
 );
@@ -83,8 +87,9 @@ describe("Custom renderer document bindings", () => {
     testSetup = await setup(RENDERER);
     const pos = lineOf(testSetup.captureCharFrame(), "CUSTOM-BODY");
 
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressKey("t");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("Filter themes");
@@ -94,8 +99,9 @@ describe("Custom renderer document bindings", () => {
     });
     await testSetup.renderOnce();
 
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressEscape();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -109,8 +115,9 @@ describe("Custom renderer document bindings", () => {
     expect(testSetup.captureCharFrame()).toContain("rows:4");
     expect(testSetup.captureCharFrame()).toContain("active:0");
 
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressKey("j");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 

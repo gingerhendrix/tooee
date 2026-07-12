@@ -70,7 +70,12 @@ export const ToastProvider = function ToastProvider({
   );
 
   // Cleanup on unmount
-  useEffect(() => () => clearTimer(), [clearTimer]);
+  useEffect(
+    () => () => {
+      clearTimer();
+    },
+    [clearTimer],
+  );
 
   const controller = useMemo<ToastController>(
     () => ({

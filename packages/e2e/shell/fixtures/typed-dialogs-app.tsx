@@ -56,7 +56,9 @@ const TypedDialogsApp = function TypedDialogsApp(): React.ReactNode {
           multiline: false,
           prompt: "Type something",
         })
-        .then((value) => setAskResult(value === null ? "<null>" : `[${value}]`));
+        .then((value) => {
+          setAskResult(value === null ? "<null>" : `[${value}]`);
+        });
     },
     hotkey: "a",
     id: "open-ask",
@@ -72,7 +74,9 @@ const TypedDialogsApp = function TypedDialogsApp(): React.ReactNode {
           prompt: "Pick a model",
           toItem: (model) => ({ text: model.label }),
         })
-        .then((model) => setChooseResult(model === null ? "<null>" : model.id));
+        .then((model) => {
+          setChooseResult(model === null ? "<null>" : model.id);
+        });
     },
     hotkey: "c",
     id: "open-choose",

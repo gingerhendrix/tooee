@@ -53,8 +53,9 @@ const press = async function press(
   key: string,
   modifiers?: { ctrl?: boolean; shift?: boolean },
 ) {
-  await act(() => {
+  await act(async () => {
     s.mockInput.pressKey(key, modifiers);
+    await Promise.resolve();
   });
   // Allow async content load after file switch
   await act(async () => {

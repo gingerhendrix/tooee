@@ -42,9 +42,9 @@ describe("cursor and selection e2e", () => {
     await session.press("v");
     await session.waitForText(/Mode:\s*select/u, { timeout: 5000 });
     // Send kitty-encoded Escape (raw \x1b is ambiguous)
-    await session.writeRaw("\u001B[27u");
+    session.writeRaw("\u001B[27u");
     await session.waitForText(/Mode:\s*cursor/u, { timeout: 8000 });
-    await session.writeRaw("\u001B[27u");
+    session.writeRaw("\u001B[27u");
     await session.waitForText(/Mode:\s*cursor/u, { timeout: 8000 });
   }, 30_000);
 });

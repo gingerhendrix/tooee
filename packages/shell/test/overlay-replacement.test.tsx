@@ -51,7 +51,9 @@ const Harness = function Harness({ onChord }: { onChord: () => void }): React.Re
   };
 
   useCommand({
-    handler: () => openSurface(overlay),
+    handler: () => {
+      openSurface(overlay);
+    },
     hotkey: "o",
     id: "open-surface",
     title: "Open surface",
@@ -95,13 +97,14 @@ describe("F-09: same-id overlay replacement resets a pending chord (shell bridge
     // does not remount (same id/key), so only the shell's replaced-close
     // bridge can clear the chord.
     const { act } = await import("react");
-    await act(() => {
+    await act(async () => {
       controller!.open(
         "chord-overlay",
         (): React.ReactNode => <ChordSurface generation={99} onChord={() => chordFired++} />,
         null,
         { ownCommands: true, role: "modal", surfaceMode: "cursor" },
       );
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("SURFACE gen:99");

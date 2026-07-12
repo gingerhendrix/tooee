@@ -64,15 +64,17 @@ const setup = async function setup(
 };
 
 const pressEscape = async function pressEscape() {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressEscape();
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
 
 const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressKey(key, modifiers);
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
@@ -85,15 +87,17 @@ const typeText = async function typeText(text: string) {
 };
 
 const pressEnter = async function pressEnter() {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressEnter();
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
 
 const pressShiftEnter = async function pressShiftEnter() {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressEnter({ shift: true });
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };

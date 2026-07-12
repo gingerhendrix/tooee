@@ -46,7 +46,9 @@ export const DirectoryView = function DirectoryView({
   );
 
   useCommand({
-    handler: () => setCurrentIndex((i) => Math.min(i + 1, files.length - 1)),
+    handler: () => {
+      setCurrentIndex((i) => Math.min(i + 1, files.length - 1));
+    },
     hotkey: "l",
     id: "dir.next-file",
     modes: ["cursor"],
@@ -54,7 +56,9 @@ export const DirectoryView = function DirectoryView({
   });
 
   useCommand({
-    handler: () => setCurrentIndex((i) => Math.max(i - 1, 0)),
+    handler: () => {
+      setCurrentIndex((i) => Math.max(i - 1, 0));
+    },
     hotkey: "h",
     id: "dir.prev-file",
     modes: ["cursor"],

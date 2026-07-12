@@ -53,11 +53,15 @@ export const useContentLoader = function useContentLoader(contentProvider: Conte
 
     if (loaded instanceof Promise) {
       loaded
-        .then((content) => store.trigger.loaded({ content, requestId }))
-        .catch((error: unknown) =>
-          store.trigger.loadFailed({ error: normalizeError(error), requestId }),
-        );
-      return () => store.trigger.loadCancelled({ requestId });
+        .then((content) => {
+          store.trigger.loaded({ content, requestId });
+        })
+        .catch((error: unknown) => {
+          store.trigger.loadFailed({ error: normalizeError(error), requestId });
+        });
+      return () => {
+        store.trigger.loadCancelled({ requestId });
+      };
     }
 
     store.trigger.loaded({ content: loaded, requestId });
@@ -68,7 +72,9 @@ export const useContentLoader = function useContentLoader(contentProvider: Conte
   const error = useSelector(store, (snapshot) => selectError(snapshot.context));
   const providerMarks = useSelector(store, (snapshot) => selectProviderMarks(snapshot.context));
   const status = useSelector(store, (snapshot) => selectStatus(snapshot.context));
-  const reload = useCallback(() => store.trigger.reloadRequested({}), [store]);
+  const reload = useCallback(() => {
+    store.trigger.reloadRequested({});
+  }, [store]);
 
   return { content, error, providerMarks, reload, status, streaming };
 };

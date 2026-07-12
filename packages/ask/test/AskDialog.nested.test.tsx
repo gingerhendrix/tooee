@@ -28,22 +28,25 @@ afterEach(() => {
 });
 
 const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressKey(key, modifiers);
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
 
 const pressEscape = async function pressEscape() {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressEscape();
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
 
 const pressEnter = async function pressEnter() {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressEnter();
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
@@ -131,8 +134,9 @@ const NestedHarness = function NestedHarness(): React.ReactNode {
 };
 
 const openNestedAsk = async function openNestedAsk() {
-  await act(() => {
+  await act(async () => {
     void nested.current!.open().then((value) => askSettlements.push(value));
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };

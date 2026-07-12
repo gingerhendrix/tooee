@@ -76,8 +76,9 @@ describe("Table view mouse integration", () => {
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("Copy row");
 
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressEscape();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).not.toContain("Copy row");
@@ -98,8 +99,9 @@ describe("Table view mouse integration", () => {
     expect(frame).toContain("Copy row");
     expect(frame).toMatch(/Mode:\s*insert/u);
 
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressEscape();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -118,8 +120,9 @@ describe("Table view mouse guards while a modal overlay is open", () => {
     expect(pos.y).toBeGreaterThan(-1);
 
     // `t` opens the theme picker (a modal owned command surface).
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressKey("t");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("Filter themes");
@@ -140,8 +143,9 @@ describe("Table view mouse guards while a modal overlay is open", () => {
     const pos = lineOf(frame0, "Bob");
     expect(pos.y).toBeGreaterThan(-1);
 
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressKey("t");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("Filter themes");
@@ -152,8 +156,9 @@ describe("Table view mouse guards while a modal overlay is open", () => {
     await testSetup.renderOnce();
 
     // Close the picker; the cursor must not have moved to Bob's row.
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressEscape();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -166,8 +171,9 @@ describe("Table view mouse guards while a modal overlay is open", () => {
 describe("Overlay close button integration", () => {
   test("clicking ✕ on the open theme picker closes it", async () => {
     testSetup = await setup();
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressKey("t");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 

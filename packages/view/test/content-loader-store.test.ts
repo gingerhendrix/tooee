@@ -42,16 +42,27 @@ describe("content loader store", () => {
     const staleId = store.getSnapshot().context.requestId;
     store.trigger.loadStarted({ marks: [] });
     const events = [
-      () => store.trigger.streamStarted({ format: "text", requestId: staleId }),
-      () =>
+      () => {
+        store.trigger.streamStarted({ format: "text", requestId: staleId });
+      },
+      () => {
         store.trigger.chunkReceived({
           chunk: { data: "stale", format: "text", type: "append" },
           requestId: staleId,
-        }),
-      () => store.trigger.loaded({ content: text("stale"), requestId: staleId }),
-      () => store.trigger.streamEnded({ requestId: staleId }),
-      () => store.trigger.loadFailed({ error: "stale", requestId: staleId }),
-      () => store.trigger.loadCancelled({ requestId: staleId }),
+        });
+      },
+      () => {
+        store.trigger.loaded({ content: text("stale"), requestId: staleId });
+      },
+      () => {
+        store.trigger.streamEnded({ requestId: staleId });
+      },
+      () => {
+        store.trigger.loadFailed({ error: "stale", requestId: staleId });
+      },
+      () => {
+        store.trigger.loadCancelled({ requestId: staleId });
+      },
     ];
     for (const trigger of events) {
       const before = store.getSnapshot().context;

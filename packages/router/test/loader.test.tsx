@@ -88,8 +88,9 @@ describe("route loaders", () => {
     expect(frame).toContain("screen:home");
 
     // Navigate to data route — loader starts, pending shows
-    await act(() => {
+    await act(async () => {
       router.push("data");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -98,8 +99,9 @@ describe("route loaders", () => {
     expect(frame).not.toContain("screen:data");
 
     // Resolve the loader
-    await act(() => {
+    await act(async () => {
       deferred.resolve({ message: "hello" });
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -153,8 +155,9 @@ describe("route loaders", () => {
     );
     await testSetup.renderOnce();
 
-    await act(() => {
+    await act(async () => {
       router.push("failing");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -163,8 +166,9 @@ describe("route loaders", () => {
     expect(frame).toContain("screen:loading");
 
     // Reject the loader
-    await act(() => {
+    await act(async () => {
       deferred.reject(new Error("load failed"));
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -197,8 +201,9 @@ describe("route loaders", () => {
     );
     await testSetup.renderOnce();
 
-    await act(() => {
+    await act(async () => {
       router.push("failing");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -206,8 +211,9 @@ describe("route loaders", () => {
     expect(frame).toContain("screen:loading");
 
     // Reject
-    await act(() => {
+    await act(async () => {
       deferred.reject(new Error("boom"));
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -276,8 +282,9 @@ describe("route loaders", () => {
     await testSetup.renderOnce();
 
     // Push to data route — loader runs
-    await act(() => {
+    await act(async () => {
       router.push("data");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -286,8 +293,9 @@ describe("route loaders", () => {
     expect(loadCount).toBe(1);
 
     // Pop back
-    await act(() => {
+    await act(async () => {
       router.pop();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -295,8 +303,9 @@ describe("route loaders", () => {
     expect(frame).toContain("screen:home");
 
     // Push again — loader should run again
-    await act(() => {
+    await act(async () => {
       router.push("data");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -333,8 +342,9 @@ describe("route loaders", () => {
     expect(frame).not.toContain("screen:data");
 
     // Resolve
-    await act(() => {
+    await act(async () => {
       deferred.resolve({ message: "loaded" });
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -375,8 +385,9 @@ describe("route loaders", () => {
     await testSetup.renderOnce();
 
     // Push to data route with first params — slow loader starts
-    await act(() => {
+    await act(async () => {
       router.push("data", { id: "1" });
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -385,15 +396,17 @@ describe("route loaders", () => {
     expect(callCount).toBe(1);
 
     // Before first loader resolves, push again with different params — second loader starts
-    await act(() => {
+    await act(async () => {
       router.push("data", { id: "2" });
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(callCount).toBe(2);
 
     // Resolve the FIRST (stale) loader — its result should be discarded
-    await act(() => {
+    await act(async () => {
       deferred1.resolve({ message: "stale" });
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -402,8 +415,9 @@ describe("route loaders", () => {
     expect(frame).not.toContain("screen:data:stale");
 
     // Resolve the second (current) loader
-    await act(() => {
+    await act(async () => {
       deferred2.resolve({ message: "current" });
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -446,8 +460,9 @@ describe("route loaders", () => {
     );
     await testSetup.renderOnce();
 
-    await act(() => {
+    await act(async () => {
       router.push("param", { id: "42" });
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 

@@ -59,7 +59,6 @@ export default defineConfig({
     "typescript/dot-notation": "off",
     "typescript/method-signature-style": "off",
     "typescript/no-base-to-string": "off",
-    "typescript/no-confusing-void-expression": "off",
     "typescript/no-deprecated": "off",
     "typescript/no-empty-object-type": "off",
     "typescript/no-explicit-any": "off",

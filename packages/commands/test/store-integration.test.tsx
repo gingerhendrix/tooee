@@ -23,8 +23,9 @@ afterEach(() => {
 });
 
 const press = async function press(session: TestSession, key: string) {
-  await act(() => {
+  await act(async () => {
     session.mockInput.pressKey(key);
+    await Promise.resolve();
   });
   await session.renderOnce();
 };
@@ -71,8 +72,9 @@ describe("F-08: mode changes reset a pending chord", () => {
     expect(testSetup.captureCharFrame()).toContain("pending:1");
 
     // Surface-local mode change mid-chord: the sequence must reset.
-    await act(() => {
+    await act(async () => {
       surfaceSetMode!("insert");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("pending:0");
@@ -111,8 +113,9 @@ describe("F-08: mode changes reset a pending chord", () => {
     await press(testSetup, "g");
     expect(testSetup.captureCharFrame()).toContain("pending:1");
 
-    await act(() => {
+    await act(async () => {
       rootSetMode!("insert");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("pending:0");
@@ -139,7 +142,9 @@ describe("F-09: surface replacement resets a pending chord", () => {
 
     const Harness = function Harness(): ReactNode {
       const [generation, setGeneration] = useState(0);
-      swap = () => setGeneration((g) => g + 1);
+      swap = () => {
+        setGeneration((g) => g + 1);
+      };
       return (
         <box flexDirection="column">
           <SequenceProbe />
@@ -164,8 +169,9 @@ describe("F-09: surface replacement resets a pending chord", () => {
 
     // Replace the surface with a same-id successor (a keypress would clear the
     // chord itself, so drive the swap directly).
-    await act(() => {
+    await act(async () => {
       swap!();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("pending:0");
@@ -192,7 +198,9 @@ describe("reactive registry", () => {
     const Harness = function Harness(): ReactNode {
       const [showLate, setShowLate] = useState(false);
       useCommand({
-        handler: () => setShowLate(true),
+        handler: () => {
+          setShowLate(true);
+        },
         hotkey: "o",
         id: "root.show",
         title: "Show late",
@@ -260,7 +268,11 @@ describe("F-13: surface command metadata", () => {
           <ActiveProbe />
           <CommandSurfaceProvider id="modal" role="modal" initialMode="cursor">
             <SurfaceContent>{showExtra && <ExtraCommand />}</SurfaceContent>
-            <ExtraToggle onToggle={() => setShowExtra(true)} />
+            <ExtraToggle
+              onToggle={() => {
+                setShowExtra(true);
+              }}
+            />
           </CommandSurfaceProvider>
         </box>
       );
@@ -299,7 +311,9 @@ describe("F-13: surface command metadata", () => {
     const Harness = function Harness(): ReactNode {
       const [showSurface, setShowSurface] = useState(false);
       useCommand({
-        handler: () => setShowSurface(true),
+        handler: () => {
+          setShowSurface(true);
+        },
         hotkey: "o",
         id: "root.open",
         title: "Open",

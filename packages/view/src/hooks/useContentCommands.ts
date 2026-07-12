@@ -24,7 +24,9 @@ export const useContentCommands = function useContentCommands({
     getText: () => (content ? textContent : undefined),
   });
   useToggleLineNumbersCommand({
-    onToggle: () => setShowLineNumbers((v) => !v),
+    onToggle: () => {
+      setShowLineNumbers((v) => !v);
+    },
     showLineNumbers,
   });
 

@@ -77,12 +77,42 @@ const ModelPickerBody = function ModelPickerBody({
   const { theme } = useTheme();
   const [index, setIndex] = useState(0);
 
-  const move = (delta: number) => setIndex((i) => (i + delta + MODELS.length) % MODELS.length);
+  const move = (delta: number) => {
+    setIndex((i) => (i + delta + MODELS.length) % MODELS.length);
+  };
 
-  useCommand({ handler: () => move(-1), hotkey: "k", id: "picker.up", title: "Up" });
-  useCommand({ handler: () => move(-1), hotkey: "up", id: "picker.up-arrow", title: "Up" });
-  useCommand({ handler: () => move(1), hotkey: "j", id: "picker.down", title: "Down" });
-  useCommand({ handler: () => move(1), hotkey: "down", id: "picker.down-arrow", title: "Down" });
+  useCommand({
+    handler: () => {
+      move(-1);
+    },
+    hotkey: "k",
+    id: "picker.up",
+    title: "Up",
+  });
+  useCommand({
+    handler: () => {
+      move(-1);
+    },
+    hotkey: "up",
+    id: "picker.up-arrow",
+    title: "Up",
+  });
+  useCommand({
+    handler: () => {
+      move(1);
+    },
+    hotkey: "j",
+    id: "picker.down",
+    title: "Down",
+  });
+  useCommand({
+    handler: () => {
+      move(1);
+    },
+    hotkey: "down",
+    id: "picker.down-arrow",
+    title: "Down",
+  });
   useCommand({
     handler: () => {
       onSelectModel(MODELS[index]!);
@@ -92,7 +122,14 @@ const ModelPickerBody = function ModelPickerBody({
     id: "picker.select",
     title: "Select model",
   });
-  useCommand({ handler: () => close(), hotkey: "Escape", id: "picker.cancel", title: "Cancel" });
+  useCommand({
+    handler: () => {
+      close();
+    },
+    hotkey: "Escape",
+    id: "picker.cancel",
+    title: "Cancel",
+  });
 
   // A nested modal panel. It is offset down/right from the Ask overlay so the
   // stacking is visible, and it paints a SOLID background so it cleanly occludes
@@ -153,14 +190,18 @@ const AskOverlayBody = function AskOverlayBody({
   const setMode = useSetMode();
 
   useCommand({
-    handler: () => setMode("insert"),
+    handler: () => {
+      setMode("insert");
+    },
     hotkey: "i",
     id: "ask.insert",
     modes: ["cursor"],
     title: "Insert mode",
   });
   useCommand({
-    handler: () => setMode("cursor"),
+    handler: () => {
+      setMode("cursor");
+    },
     hotkey: "Escape",
     id: "ask.normal",
     modes: ["insert"],
@@ -192,7 +233,9 @@ const AskOverlayBody = function AskOverlayBody({
     title: "Submit",
   });
   useCommand({
-    handler: () => close(),
+    handler: () => {
+      close();
+    },
     hotkey: "Escape",
     id: "ask.cancel",
     modes: ["cursor"],
@@ -250,7 +293,9 @@ const PassiveHelpBody = function PassiveHelpBody({ actions }: { actions: DemoAct
   // Bound to the SAME key as the root counter. Because this is a passive
   // surface it must never win arbitration — pressing `r` hits the root command.
   useCommand({
-    handler: () => actions.onPassiveShadow(),
+    handler: () => {
+      actions.onPassiveShadow();
+    },
     hotkey: "r",
     id: "passive.shadow-r",
     title: "Passive shadow",
@@ -311,15 +356,23 @@ export const OverlayCommandSurfacesDemo = function OverlayCommandSurfacesDemo():
 
   const actions = useMemo<DemoActions>(
     () => ({
-      onPassiveShadow: () => setPassiveFired((n) => n + 1),
-      onSelectModel: (model) => setSelectedModel(model),
-      onSubmit: (text) => setLastSubmit(text),
+      onPassiveShadow: () => {
+        setPassiveFired((n) => n + 1);
+      },
+      onSelectModel: (model) => {
+        setSelectedModel(model);
+      },
+      onSubmit: (text) => {
+        setLastSubmit(text);
+      },
     }),
     [],
   );
 
   useCommand({
-    handler: () => setRootCount((n) => n + 1),
+    handler: () => {
+      setRootCount((n) => n + 1);
+    },
     hotkey: "r",
     id: "root.increment",
     title: "Increment root counter",

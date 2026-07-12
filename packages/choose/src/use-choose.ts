@@ -228,8 +228,12 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     setActiveIndexState(next);
   }, []);
 
-  const moveUp = useCallback(() => setActiveIndex(activeIndexRef.current - 1), [setActiveIndex]);
-  const moveDown = useCallback(() => setActiveIndex(activeIndexRef.current + 1), [setActiveIndex]);
+  const moveUp = useCallback(() => {
+    setActiveIndex(activeIndexRef.current - 1);
+  }, [setActiveIndex]);
+  const moveDown = useCallback(() => {
+    setActiveIndex(activeIndexRef.current + 1);
+  }, [setActiveIndex]);
 
   const getActiveItem = useCallback(() => matchesRef.current[activeIndexRef.current]?.item, []);
 
@@ -259,8 +263,15 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
   }, [getSelectedItems]);
 
   const cancel = useCallback(() => optionsRef.current.onCancel?.(), []);
-  const reload = useCallback(() => setReloadRevision((revision) => revision + 1), []);
-  const setModeExternal = useCallback((nextMode: Mode) => setMode(nextMode), [setMode]);
+  const reload = useCallback(() => {
+    setReloadRevision((revision) => revision + 1);
+  }, []);
+  const setModeExternal = useCallback(
+    (nextMode: Mode) => {
+      setMode(nextMode);
+    },
+    [setMode],
+  );
 
   useProvideCommandContext(() => ({
     choose: {
@@ -303,7 +314,9 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     when: () => enabled("cancel") && optionsRef.current.onCancel !== undefined,
   });
   useCommand({
-    handler: () => setMode("insert"),
+    handler: () => {
+      setMode("insert");
+    },
     hidden: true,
     hotkey: "i",
     id: `${commandScope}:insert-mode-i`,
@@ -312,7 +325,9 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     when: () => enabled("mode"),
   });
   useCommand({
-    handler: () => setMode("insert"),
+    handler: () => {
+      setMode("insert");
+    },
     hidden: true,
     hotkey: "a",
     id: `${commandScope}:insert-mode-a`,
@@ -435,7 +450,9 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
   if (controllerRef.current === null) {
     controllerRef.current = {
       cancel,
-      clearFilter: () => setFilter(""),
+      clearFilter: () => {
+        setFilter("");
+      },
       getActiveItem,
       getFilter: () => filterQueryRef.current,
       getSelectedItems,

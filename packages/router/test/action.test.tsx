@@ -67,8 +67,9 @@ describe("useActionResultHandler", () => {
     let frame = testSetup.captureCharFrame();
     expect(frame).toContain("screen:home");
 
-    await act(() => {
+    await act(async () => {
       handler({ route: "detail", type: "navigate" });
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -99,8 +100,9 @@ describe("useActionResultHandler", () => {
     );
     await testSetup.renderOnce();
 
-    await act(() => {
+    await act(async () => {
       handler({ mode: "replace", route: "detail", type: "navigate" });
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -132,8 +134,9 @@ describe("useActionResultHandler", () => {
     );
     await testSetup.renderOnce();
 
-    await act(() => {
+    await act(async () => {
       handler({ params: { id: "1" }, route: "detail", type: "navigate" });
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -165,8 +168,9 @@ describe("useActionResultHandler", () => {
     await testSetup.renderOnce();
 
     // Push to detail first
-    await act(() => {
+    await act(async () => {
       router.push("detail");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -174,8 +178,9 @@ describe("useActionResultHandler", () => {
     expect(frame).toContain("screen:detail");
 
     // Use handler to go back
-    await act(() => {
+    await act(async () => {
       handler({ type: "back" });
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -190,7 +195,9 @@ describe("useActionResultHandler", () => {
 
     const HandlerCapture = function HandlerCapture() {
       const [, setState] = React.useState(0);
-      forceUpdate = () => setState((n) => n + 1);
+      forceUpdate = () => {
+        setState((n) => n + 1);
+      };
       const h = useActionResultHandler();
       handlerRefs.push(h);
       return null;
@@ -211,13 +218,15 @@ describe("useActionResultHandler", () => {
     await testSetup.renderOnce();
 
     // Force re-renders
-    await act(() => {
+    await act(async () => {
       forceUpdate();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
-    await act(() => {
+    await act(async () => {
       forceUpdate();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 

@@ -33,7 +33,7 @@ test("ask dialog cancel resolves null", async () => {
   await session.press("a");
   await session.waitForText("Type something", { timeout: 5000 });
 
-  await session.writeRaw(KITTY_ESCAPE); // insert -> cursor on the dialog surface
+  session.writeRaw(KITTY_ESCAPE); // insert -> cursor on the dialog surface
   await session.waitForText("i insert", { timeout: 5000 }); // cursor-mode hints
   await session.press("q"); // cancel
 

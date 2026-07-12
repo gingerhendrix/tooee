@@ -8,8 +8,9 @@ export const press = async function press(
   key: string,
   modifiers?: { ctrl?: boolean; shift?: boolean },
 ) {
-  await act(() => {
+  await act(async () => {
     session.mockInput.pressKey(key, modifiers);
+    await Promise.resolve();
   });
   await session.renderOnce();
 };
@@ -18,29 +19,33 @@ export const pressTab = async function pressTab(
   session: TestSession,
   modifiers?: { shift?: boolean },
 ) {
-  await act(() => {
+  await act(async () => {
     session.mockInput.pressTab(modifiers);
+    await Promise.resolve();
   });
   await session.renderOnce();
 };
 
 export const pressEscape = async function pressEscape(session: TestSession) {
-  await act(() => {
+  await act(async () => {
     session.mockInput.pressEscape();
+    await Promise.resolve();
   });
   await session.renderOnce();
 };
 
 export const pressEnter = async function pressEnter(session: TestSession) {
-  await act(() => {
+  await act(async () => {
     session.mockInput.pressEnter();
+    await Promise.resolve();
   });
   await session.renderOnce();
 };
 
 export const pressArrow = async function pressArrow(session: TestSession, dir: "up" | "down") {
-  await act(() => {
+  await act(async () => {
     session.mockInput.pressArrow(dir);
+    await Promise.resolve();
   });
   await session.renderOnce();
 };

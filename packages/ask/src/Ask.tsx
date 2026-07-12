@@ -66,7 +66,9 @@ export const Ask = function Ask({
   });
 
   useProvideCommandContext(() => ({
-    exit: () => renderer.destroy(),
+    exit: () => {
+      renderer.destroy();
+    },
   }));
 
   useActions(actions);

@@ -25,8 +25,9 @@ export const testRender = async function testRender(
     root?.render(nextNode);
   };
   const rerender = async (nextNode: React.ReactNode) => {
-    await act(() => {
+    await act(async () => {
       render(nextNode);
+      await Promise.resolve();
     });
   };
   await rerender(node);

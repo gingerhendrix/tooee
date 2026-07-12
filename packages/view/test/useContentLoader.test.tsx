@@ -61,7 +61,9 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
     let hide!: () => void;
     const Harness = function Harness(): React.ReactNode {
       const [show, setShow] = useState(true);
-      hide = () => setShow(false);
+      hide = () => {
+        setShow(false);
+      };
       return show ? <Loader provider={provider} /> : <text content="unmounted" />;
     };
 
@@ -73,8 +75,9 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
 
     // Unmount mid-stream: the iterator must be closed so the provider's
     // resources (subprocess, file handle, network stream) are released.
-    await act(() => {
+    await act(async () => {
       hide();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(returned).toBe(true);
@@ -130,7 +133,10 @@ describe("useContentLoader reload and request identity", () => {
     testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await flush(testSetup);
     expect(testSetup.captureCharFrame()).toContain("sync-1");
-    await act(() => reload());
+    await act(async () => {
+      reload();
+      await Promise.resolve();
+    });
     await flush(testSetup);
     expect(testSetup.captureCharFrame()).toContain("sync-2");
   });
@@ -149,7 +155,10 @@ describe("useContentLoader reload and request identity", () => {
     };
     testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await flush(testSetup);
-    await act(() => reload());
+    await act(async () => {
+      reload();
+      await Promise.resolve();
+    });
     await flush(testSetup);
     expect(resolvers).toHaveLength(2);
     resolvers[0]!({ format: "text", text: "stale" });
@@ -208,7 +217,10 @@ describe("useContentLoader reload and request identity", () => {
     testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await flush(testSetup);
     expect(testSetup.captureCharFrame()).toContain("old");
-    await act(() => reload());
+    await act(async () => {
+      reload();
+      await Promise.resolve();
+    });
     await flush(testSetup);
     expect(oldReturned).toBe(true);
     expect(testSetup.captureCharFrame()).toContain("ready:fresh");

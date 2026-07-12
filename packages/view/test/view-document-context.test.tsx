@@ -86,8 +86,9 @@ const setup = async function setup(provider: ContentProvider) {
 };
 
 const press = async function press(key: string, modifiers?: { shift?: boolean }) {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressKey(key, modifiers);
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
@@ -109,8 +110,9 @@ describe("ctx.document from a View screen", () => {
   test("tracks the cursor and reports toggled rows as selection", async () => {
     testSetup = await setup(TABLE);
     await press("j");
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressTab();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     await press("x");

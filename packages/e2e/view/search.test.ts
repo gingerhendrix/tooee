@@ -64,7 +64,7 @@ describe("search e2e", () => {
     }
     await session.type("Section");
     // Send kitty-encoded Escape (raw \x1b is ambiguous)
-    await session.writeRaw("\u001B[27u");
+    session.writeRaw("\u001B[27u");
     await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     const text = await session.text();
     expect(text).toMatch(/Mode:\s*cursor/u);

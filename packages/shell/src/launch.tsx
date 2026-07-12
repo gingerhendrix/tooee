@@ -292,8 +292,12 @@ export const runCliSession = async function runCliSession<T>(
     let node: ReactNode;
     try {
       node = render({
-        cancel: () => settle(null),
-        resolve: (value) => settle(value),
+        cancel: () => {
+          settle(null);
+        },
+        resolve: (value) => {
+          settle(value);
+        },
       });
     } catch {
       settle(null);
@@ -307,11 +311,15 @@ export const runCliSession = async function runCliSession<T>(
     launchCli(node, options)
       .then((sessionHandle) => {
         handle = sessionHandle;
-        handle.renderer.once("destroy", () => settle(null));
+        handle.renderer.once("destroy", () => {
+          settle(null);
+        });
         if (settled) {
           handle.destroy();
         }
       })
-      .catch(() => settle(null));
+      .catch(() => {
+        settle(null);
+      });
   });
 };

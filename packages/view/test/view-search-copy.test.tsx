@@ -65,8 +65,9 @@ const setup = async function setup(provider: ContentProvider) {
 };
 
 const press = async function press(key: string, modifiers?: { shift?: boolean }) {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressKey(key, modifiers);
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
@@ -76,8 +77,9 @@ const typeQuery = async function typeQuery(query: string) {
   for (const char of query) {
     await press(char);
   }
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressEnter();
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
@@ -127,14 +129,16 @@ describe("copy over migrated subviews", () => {
 
   test("a table View copies toggled rows as tab-separated cells", async () => {
     testSetup = await setup(staticProvider(TABLE));
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressTab();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     await press("j");
     await press("j");
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressTab();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 

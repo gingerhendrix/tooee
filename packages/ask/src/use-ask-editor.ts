@@ -123,7 +123,9 @@ export const useAskEditor = function useAskEditor(
   // Bumped whenever the editor viewport may have moved (cursor, content, wheel)
   // so the scrollbar thumb re-computes from the editor's internal scroll state.
   const [scrollRevision, setScrollRevision] = useState(0);
-  const bumpScroll = useCallback(() => setScrollRevision((r) => r + 1), []);
+  const bumpScroll = useCallback(() => {
+    setScrollRevision((r) => r + 1);
+  }, []);
 
   const optionsRef = useRef(options);
   optionsRef.current = options;
@@ -310,7 +312,9 @@ export const useAskEditor = function useAskEditor(
   );
 
   useCommand({
-    handler: () => motion((target) => target.moveCursorLeft()),
+    handler: () => {
+      motion((target) => target.moveCursorLeft());
+    },
     hidden: true,
     hotkey: "h",
     id: `${commandScope}:move-left`,
@@ -319,7 +323,9 @@ export const useAskEditor = function useAskEditor(
     when: () => enabled("motions"),
   });
   useCommand({
-    handler: () => motion((target) => target.moveCursorLeft()),
+    handler: () => {
+      motion((target) => target.moveCursorLeft());
+    },
     hidden: true,
     hotkey: "left",
     id: `${commandScope}:move-left-arrow`,
@@ -328,7 +334,9 @@ export const useAskEditor = function useAskEditor(
     when: () => enabled("motions"),
   });
   useCommand({
-    handler: () => motion((target) => target.moveCursorRight()),
+    handler: () => {
+      motion((target) => target.moveCursorRight());
+    },
     hidden: true,
     hotkey: "l",
     id: `${commandScope}:move-right`,
@@ -337,7 +345,9 @@ export const useAskEditor = function useAskEditor(
     when: () => enabled("motions"),
   });
   useCommand({
-    handler: () => motion((target) => target.moveCursorRight()),
+    handler: () => {
+      motion((target) => target.moveCursorRight());
+    },
     hidden: true,
     hotkey: "right",
     id: `${commandScope}:move-right-arrow`,
@@ -346,7 +356,9 @@ export const useAskEditor = function useAskEditor(
     when: () => enabled("motions"),
   });
   useCommand({
-    handler: () => motion((target) => target.moveCursorDown()),
+    handler: () => {
+      motion((target) => target.moveCursorDown());
+    },
     hidden: true,
     hotkey: "j",
     id: `${commandScope}:move-down`,
@@ -355,7 +367,9 @@ export const useAskEditor = function useAskEditor(
     when: () => enabled("motions"),
   });
   useCommand({
-    handler: () => motion((target) => target.moveCursorDown()),
+    handler: () => {
+      motion((target) => target.moveCursorDown());
+    },
     hidden: true,
     hotkey: "down",
     id: `${commandScope}:move-down-arrow`,
@@ -364,7 +378,9 @@ export const useAskEditor = function useAskEditor(
     when: () => enabled("motions"),
   });
   useCommand({
-    handler: () => motion((target) => target.moveCursorUp()),
+    handler: () => {
+      motion((target) => target.moveCursorUp());
+    },
     hidden: true,
     hotkey: "k",
     id: `${commandScope}:move-up`,
@@ -373,7 +389,9 @@ export const useAskEditor = function useAskEditor(
     when: () => enabled("motions"),
   });
   useCommand({
-    handler: () => motion((target) => target.moveCursorUp()),
+    handler: () => {
+      motion((target) => target.moveCursorUp());
+    },
     hidden: true,
     hotkey: "up",
     id: `${commandScope}:move-up-arrow`,
@@ -382,7 +400,9 @@ export const useAskEditor = function useAskEditor(
     when: () => enabled("motions"),
   });
   useCommand({
-    handler: () => motion((target) => target.gotoLineHome()),
+    handler: () => {
+      motion((target) => target.gotoLineHome());
+    },
     hidden: true,
     hotkey: "0",
     id: `${commandScope}:line-home`,
@@ -391,7 +411,9 @@ export const useAskEditor = function useAskEditor(
     when: () => enabled("motions"),
   });
   useCommand({
-    handler: () => motion((target) => target.gotoLineHome()),
+    handler: () => {
+      motion((target) => target.gotoLineHome());
+    },
     hidden: true,
     hotkey: "home",
     id: `${commandScope}:line-home-key`,
@@ -400,7 +422,9 @@ export const useAskEditor = function useAskEditor(
     when: () => enabled("motions"),
   });
   useCommand({
-    handler: () => motion((target) => target.gotoLineEnd()),
+    handler: () => {
+      motion((target) => target.gotoLineEnd());
+    },
     hidden: true,
     hotkey: "shift+4",
     id: `${commandScope}:line-end`,
@@ -409,7 +433,9 @@ export const useAskEditor = function useAskEditor(
     when: () => enabled("motions"),
   });
   useCommand({
-    handler: () => motion((target) => target.gotoLineEnd()),
+    handler: () => {
+      motion((target) => target.gotoLineEnd());
+    },
     hidden: true,
     hotkey: "end",
     id: `${commandScope}:line-end-key`,
@@ -418,7 +444,9 @@ export const useAskEditor = function useAskEditor(
     when: () => enabled("motions"),
   });
   useCommand({
-    handler: () => motion((target) => target.moveWordForward()),
+    handler: () => {
+      motion((target) => target.moveWordForward());
+    },
     hidden: true,
     hotkey: "w",
     id: `${commandScope}:word-forward`,
@@ -427,7 +455,9 @@ export const useAskEditor = function useAskEditor(
     when: () => enabled("motions"),
   });
   useCommand({
-    handler: () => motion((target) => target.moveWordBackward()),
+    handler: () => {
+      motion((target) => target.moveWordBackward());
+    },
     hidden: true,
     hotkey: "b",
     id: `${commandScope}:word-backward`,
@@ -436,7 +466,9 @@ export const useAskEditor = function useAskEditor(
     when: () => enabled("motions"),
   });
   useCommand({
-    handler: () => motion((target) => target.gotoBufferHome()),
+    handler: () => {
+      motion((target) => target.gotoBufferHome());
+    },
     hidden: true,
     hotkey: "g g",
     id: `${commandScope}:buffer-home`,
@@ -445,7 +477,9 @@ export const useAskEditor = function useAskEditor(
     when: () => enabled("motions"),
   });
   useCommand({
-    handler: () => motion((target) => target.gotoBufferEnd()),
+    handler: () => {
+      motion((target) => target.gotoBufferEnd());
+    },
     hidden: true,
     hotkey: "shift+g",
     id: `${commandScope}:buffer-end`,

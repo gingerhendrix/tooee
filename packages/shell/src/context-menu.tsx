@@ -45,7 +45,9 @@ export const useContextMenu = function useContextMenu(): ContextMenuController {
         ({ close }: { close: (reason?: OverlayCloseReason) => void }) =>
           createElement(ContextMenu, {
             entries,
-            onClose: () => close(),
+            onClose: () => {
+              close();
+            },
             onSelect: (id: string) => {
               close();
               onSelect(id);

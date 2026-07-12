@@ -16,8 +16,9 @@ const press = async function press(
   key: string,
   modifiers?: { ctrl?: boolean },
 ) {
-  await act(() => {
+  await act(async () => {
     session.mockInput.pressKey(key, modifiers);
+    await Promise.resolve();
   });
   await session.renderOnce();
 };
@@ -27,7 +28,9 @@ describe("leaderless <leader> hotkeys (R-06)", () => {
     const Harness = function Harness(): React.ReactNode {
       const [count, setCount] = useState(0);
       useCommand({
-        handler: () => setCount((n) => n + 1),
+        handler: () => {
+          setCount((n) => n + 1);
+        },
         hotkey: "<leader>n",
         id: "leader.cmd",
         title: "Leader command",
@@ -56,7 +59,9 @@ describe("leaderless <leader> hotkeys (R-06)", () => {
     const Harness = function Harness(): React.ReactNode {
       const [count, setCount] = useState(0);
       useCommand({
-        handler: () => setCount((n) => n + 1),
+        handler: () => {
+          setCount((n) => n + 1);
+        },
         hotkey: "<leader>n",
         id: "leader.cmd",
         title: "Leader command",

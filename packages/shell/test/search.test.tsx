@@ -110,8 +110,14 @@ describe("search hook", () => {
       { height: 10, kittyKeyboard: true, width: 40 },
     );
     await testSetup.renderOnce();
-    await act(() => searchHandle!.setSearchQuery("a"));
-    await act(() => searchHandle!.submitSearch());
+    await act(async () => {
+      searchHandle!.setSearchQuery("a");
+      await Promise.resolve();
+    });
+    await act(async () => {
+      searchHandle!.submitSearch();
+      await Promise.resolve();
+    });
     await testSetup.renderOnce();
     expect(calls).toBe(1);
   });
@@ -128,8 +134,9 @@ describe("search hook", () => {
     testSetup = await setup();
     await press(testSetup, "/");
 
-    await act(() => {
+    await act(async () => {
       searchHandle!.setSearchQuery("alpha");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -143,8 +150,9 @@ describe("search hook", () => {
     testSetup = await setup();
     await press(testSetup, "/");
 
-    await act(() => {
+    await act(async () => {
       searchHandle!.setSearchQuery("alpha");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -159,14 +167,16 @@ describe("search hook", () => {
     testSetup = await setup();
     await press(testSetup, "/");
 
-    await act(() => {
+    await act(async () => {
       searchHandle!.setSearchQuery("alpha");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
     // Submit search
-    await act(() => {
+    await act(async () => {
       searchHandle!.submitSearch();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -192,13 +202,15 @@ describe("search hook", () => {
     testSetup = await setup();
     await press(testSetup, "/");
 
-    await act(() => {
+    await act(async () => {
       searchHandle!.setSearchQuery("alpha");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
-    await act(() => {
+    await act(async () => {
       searchHandle!.submitSearch();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -219,7 +231,9 @@ const GrowingSearchHarness = function GrowingSearchHarness({
   deps: boolean;
 }): React.ReactNode {
   const [lines, setLines] = useState(["alpha", "beta"]);
-  appendLine = (line) => setLines((current) => [...current, line]);
+  appendLine = (line) => {
+    setLines((current) => [...current, line]);
+  };
 
   const text = lines.join("\n");
   const nav = useNavigation({ rowCount: lines.length, viewportHeight: 3 });
@@ -249,17 +263,20 @@ describe("search over changing content", () => {
     testSetup = await setupGrowing(true);
     await press(testSetup, "/");
 
-    await act(() => {
+    await act(async () => {
       searchHandle!.setSearchQuery("alpha");
+      await Promise.resolve();
     });
-    await act(() => {
+    await act(async () => {
       searchHandle!.submitSearch();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("matches:[0]");
 
-    await act(() => {
+    await act(async () => {
       appendLine!("alpha again");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -270,16 +287,19 @@ describe("search over changing content", () => {
     testSetup = await setupGrowing(false);
     await press(testSetup, "/");
 
-    await act(() => {
+    await act(async () => {
       searchHandle!.setSearchQuery("alpha");
+      await Promise.resolve();
     });
-    await act(() => {
+    await act(async () => {
       searchHandle!.submitSearch();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
-    await act(() => {
+    await act(async () => {
       appendLine!("alpha again");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 

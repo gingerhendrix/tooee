@@ -60,7 +60,9 @@ export const useThemePicker = function useThemePicker(): ThemePickerState {
       OVERLAY_ID,
       ({ close: closeOverlay }: { close: (reason?: OverlayCloseReason) => void }) =>
         createElement(ThemePickerOverlay, {
-          close: () => closeOverlay(),
+          close: () => {
+            closeOverlay();
+          },
           originalTheme: currentTheme,
         }),
       null,

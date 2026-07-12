@@ -81,8 +81,9 @@ describe("Code view mouse selection", () => {
     const frame0 = testSetup.captureCharFrame();
     const pos = lineOf(frame0, "line3");
 
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressKey("t");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("Filter themes");
@@ -92,8 +93,9 @@ describe("Code view mouse selection", () => {
     });
     await testSetup.renderOnce();
 
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressEscape();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -122,8 +124,9 @@ describe("Code view mouse selection", () => {
     testSetup = await setup(CODE, ACTIONS);
     const pos = lineOf(testSetup.captureCharFrame(), "line3");
 
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressKey("t");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("Filter themes");

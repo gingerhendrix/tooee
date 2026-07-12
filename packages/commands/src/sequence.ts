@@ -153,7 +153,9 @@ export class SequenceTracker {
 
   private resetTimer(): void {
     this.clearTimer();
-    this.timer = setTimeout(() => this.reset(), this.timeout);
+    this.timer = setTimeout(() => {
+      this.reset();
+    }, this.timeout);
   }
 
   private clearTimer(): void {

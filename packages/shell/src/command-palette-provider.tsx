@@ -24,7 +24,9 @@ export const CommandPaletteProvider = function CommandPaletteProvider({
       OVERLAY_ID,
       ({ close }: { close: (reason?: OverlayCloseReason) => void }) =>
         createElement(CommandPaletteOverlay, {
-          close: () => close(),
+          close: () => {
+            close();
+          },
           commands,
           invoke,
           launchMode: mode,

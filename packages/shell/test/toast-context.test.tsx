@@ -58,8 +58,9 @@ test("ctx.toast is available in command handlers", async () => {
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("ctx-toast:none");
 
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressKey("1");
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -76,15 +77,17 @@ test("ctx.toast.dismiss works from command handler", async () => {
   await testSetup.renderOnce();
 
   // Show a toast
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressKey("1");
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("ctx-toast:success:from context");
 
   // Dismiss it
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressKey("2");
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("ctx-toast:none");

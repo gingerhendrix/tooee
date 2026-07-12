@@ -79,15 +79,17 @@ test("dismiss clears the toast", async () => {
   testSetup = await renderWithProviders(<DismissTest />);
 
   // Show a toast
-  await act(() => {
+  await act(async () => {
     toastApi!.toast({ level: "info", message: "will dismiss" });
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("toast:will dismiss");
 
   // Dismiss it
-  await act(() => {
+  await act(async () => {
     toastApi!.dismiss();
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("toast:none");
@@ -129,8 +131,9 @@ test("same ID replaces existing toast and resets timer", async () => {
   testSetup = await renderWithProviders(<DedupTest />);
 
   // Show first toast
-  await act(() => {
+  await act(async () => {
     toastApi!.toast({ duration: 100, id: "dedup", level: "info", message: "first" });
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("toast:info:first");

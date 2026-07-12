@@ -129,7 +129,10 @@ const setupDynamic = async function setupDynamic(
   );
   await session.renderOnce();
   return async (rows: readonly Row[]) => {
-    await act(() => setRows(rows));
+    await act(async () => {
+      setRows(rows);
+      await Promise.resolve();
+    });
     await session.renderOnce();
   };
 };
@@ -290,7 +293,10 @@ describe("search", () => {
 
   const query = async function query(text: string) {
     await press(session, "/");
-    await act(() => controller().search!.setSearchQuery(text));
+    await act(async () => {
+      controller().search!.setSearchQuery(text);
+      await Promise.resolve();
+    });
     await session.renderOnce();
   };
 
@@ -309,7 +315,10 @@ describe("search", () => {
   test("submitting jumps to the first match; n and shift+n cycle", async () => {
     await setup(ROWS);
     await query("alpha");
-    await act(() => controller().search!.submitSearch());
+    await act(async () => {
+      controller().search!.submitSearch();
+      await Promise.resolve();
+    });
     await session.renderOnce();
     expect(active()).toBe("a/0");
 
@@ -369,7 +378,10 @@ describe("decorations", () => {
     await setup([row("a", "alpha"), row("b", "beta"), row("c", "alto")], { multiSelect: true });
     await pressTab(session); // toggle row 0
     await press(session, "/");
-    await act(() => controller().search!.setSearchQuery("al"));
+    await act(async () => {
+      controller().search!.setSearchQuery("al");
+      await Promise.resolve();
+    });
     await session.renderOnce();
 
     const { SEARCH_MATCH, TOGGLED, CURRENT_MATCH, CURSOR } = DocumentDecorationPriorities;

@@ -24,29 +24,33 @@ const setup = async function setup(node: React.ReactNode) {
 };
 
 const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressKey(key, modifiers);
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
 
 const pressEscape = async function pressEscape() {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressEscape();
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
 
 const pressEnter = async function pressEnter() {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressEnter();
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
 
 const pressShiftEnter = async function pressShiftEnter() {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressEnter({ shift: true });
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
@@ -91,8 +95,9 @@ describe("AskEditorController", () => {
     );
 
     expect(controllerRef.current).not.toBeNull();
-    await act(() => {
+    await act(async () => {
       controllerRef.current!.setText("replaced");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -119,8 +124,9 @@ describe("AskEditorController", () => {
       />,
     );
 
-    await act(() => {
+    await act(async () => {
       controllerRef.current!.setText("one\ntwo");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -146,9 +152,10 @@ describe("AskEditorController", () => {
       />,
     );
 
-    await act(() => {
+    await act(async () => {
       controllerRef.current!.insertText("XY");
       controllerRef.current!.submit();
+      await Promise.resolve();
     });
 
     expect(submitted).toBe("abXY");
@@ -167,12 +174,13 @@ describe("AskEditorController", () => {
       />,
     );
 
-    await act(() => {
+    await act(async () => {
       controllerRef.current!.insertText("XY");
       // The inserted text must be visible to getText()/submit() before the
       // next render, exactly like the multiline path.
       expect(controllerRef.current!.getText()).toBe("abXY");
       controllerRef.current!.submit();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -191,8 +199,9 @@ describe("AskEditorController", () => {
 
     expect(controllerRef.current!.mode).toBe("insert");
 
-    await act(() => {
+    await act(async () => {
       controllerRef.current!.setMode("cursor");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -279,7 +288,9 @@ describe("AskOverlay nested modal surfaces", () => {
         controllerRef={controllerRef}
         commands={[
           {
-            handler: () => setPickerOpen(true),
+            handler: () => {
+              setPickerOpen(true);
+            },
             hotkey: "m",
             id: "host:open-picker",
             modes: ["cursor"],
@@ -289,7 +300,11 @@ describe("AskOverlay nested modal surfaces", () => {
       >
         {pickerOpen && (
           <CommandSurfaceProvider id="host:picker" role="modal" initialMode="cursor">
-            <PickerSurface onClose={() => setPickerOpen(false)} />
+            <PickerSurface
+              onClose={() => {
+                setPickerOpen(false);
+              }}
+            />
           </CommandSurfaceProvider>
         )}
       </AskOverlay>

@@ -53,29 +53,33 @@ const setup = async function setup(
 };
 
 const press = async function press(s: TestSession, key: string, modifiers?: { ctrl?: boolean }) {
-  await act(() => {
+  await act(async () => {
     s.mockInput.pressKey(key, modifiers);
+    await Promise.resolve();
   });
   await s.renderOnce();
 };
 
 const pressEscape = async function pressEscape(s: TestSession) {
-  await act(() => {
+  await act(async () => {
     s.mockInput.pressEscape();
+    await Promise.resolve();
   });
   await s.renderOnce();
 };
 
 const pressEnter = async function pressEnter(s: TestSession) {
-  await act(() => {
+  await act(async () => {
     s.mockInput.pressEnter();
+    await Promise.resolve();
   });
   await s.renderOnce();
 };
 
 const pressArrow = async function pressArrow(s: TestSession, direction: "up" | "down") {
-  await act(() => {
+  await act(async () => {
     s.mockInput.pressArrow(direction);
+    await Promise.resolve();
   });
   await s.renderOnce();
 };

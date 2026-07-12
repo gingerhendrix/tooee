@@ -19,14 +19,18 @@ const AskSurface = function AskSurface({
   const setMode = useSetMode();
 
   useCommand({
-    handler: () => onSubmit("hello"),
+    handler: () => {
+      onSubmit("hello");
+    },
     hotkey: "Enter",
     id: "ask.submit",
     title: "Submit",
   });
   useCommand({ handler: onCancel, hotkey: "Escape", id: "ask.cancel", title: "Cancel" });
   useCommand({
-    handler: () => setMode("insert"),
+    handler: () => {
+      setMode("insert");
+    },
     hotkey: "i",
     id: "ask.insert",
     title: "Insert mode",
@@ -61,7 +65,11 @@ const Harness = function Harness(): React.ReactNode {
   const [cancelled, setCancelled] = useState(0);
   const [passiveAction, setPassiveAction] = useState(0);
 
-  useQuitCommand({ onQuit: () => setQuit((n) => n + 1) });
+  useQuitCommand({
+    onQuit: () => {
+      setQuit((n) => n + 1);
+    },
+  });
 
   useCommand({
     handler: () => {
@@ -92,7 +100,13 @@ const Harness = function Harness(): React.ReactNode {
     handler: () => {
       overlay.open(
         "passive",
-        (): React.ReactNode => <PassiveSurface onAction={() => setPassiveAction((n) => n + 1)} />,
+        (): React.ReactNode => (
+          <PassiveSurface
+            onAction={() => {
+              setPassiveAction((n) => n + 1);
+            }}
+          />
+        ),
         null,
         { ownCommands: true, role: "passive" },
       );

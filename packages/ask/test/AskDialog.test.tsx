@@ -18,22 +18,25 @@ afterEach(() => {
 });
 
 const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressKey(key, modifiers);
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
 
 const pressEscape = async function pressEscape() {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressEscape();
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
 
 const pressEnter = async function pressEnter() {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressEnter();
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
@@ -107,7 +110,9 @@ const Harness = function Harness(): React.ReactNode {
       return ownerDialogRef.current;
     },
     stackIds: () => stateRef.current.stack,
-    unmountOwner: () => setOwnerMounted(false),
+    unmountOwner: () => {
+      setOwnerMounted(false);
+    },
   };
 
   return (
@@ -135,8 +140,9 @@ const openDialog = async function openDialog(
   prompt: string,
   label: string,
 ) {
-  await act(() => {
+  await act(async () => {
     void open({ prompt }).then(record(label));
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
@@ -185,7 +191,7 @@ describe("useAskDialog settlement", () => {
     await openDialog(async (o) => await handles.current!.dialog.open(o), "Question?", "ask");
 
     const topId = handles.current!.stackIds().at(-1)!;
-    await act(() => {
+    await act(async () => {
       handles.current!.overlay.open(
         topId,
         (): React.ReactNode => <text content="REPLACEMENT" />,
@@ -195,6 +201,7 @@ describe("useAskDialog settlement", () => {
           role: "modal",
         },
       );
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -204,8 +211,9 @@ describe("useAskDialog settlement", () => {
     expect(frame).toContain("stack:1"); // the replacement record remains
 
     // Closing the replacement must not settle the dialog again.
-    await act(() => {
+    await act(async () => {
       handles.current!.overlay.hide(topId);
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(settlements).toEqual([null]);
@@ -217,8 +225,9 @@ describe("useAskDialog settlement", () => {
     expect(testSetup.captureCharFrame()).toContain("Owned?");
 
     const ownerDialog = handles.current!.ownerDialog!;
-    await act(() => {
+    await act(async () => {
       handles.current!.unmountOwner();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -226,8 +235,9 @@ describe("useAskDialog settlement", () => {
     expect(testSetup.captureCharFrame()).toContain("stack:0");
 
     // Opening on an unmounted owner resolves null without opening an overlay.
-    await act(() => {
+    await act(async () => {
       void ownerDialog.open({ prompt: "Too late?" }).then(record("late"));
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(settlements).toEqual([null, null]);
@@ -236,9 +246,10 @@ describe("useAskDialog settlement", () => {
 
   test("concurrent dialogs get unique overlay ids and settle independently", async () => {
     testSetup = await setup();
-    await act(() => {
+    await act(async () => {
       void handles.current!.dialog.open({ prompt: "First?" }).then(record("first"));
       void handles.current!.dialog.open({ prompt: "Second?" }).then(record("second"));
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -261,7 +272,7 @@ describe("useAskDialog settlement", () => {
     testSetup = await setup();
 
     let submitFromCommand: (() => void) | null = null;
-    await act(() => {
+    await act(async () => {
       void handles
         .current!.dialog.open({
           commands: [
@@ -274,19 +285,23 @@ describe("useAskDialog settlement", () => {
           ],
           controllerRef: (controller) => {
             if (controller) {
-              submitFromCommand = () => controller.submit();
+              submitFromCommand = () => {
+                controller.submit();
+              };
             }
           },
           prompt: "Once?",
         })
         .then(record("once"));
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
     await typeText("v");
-    await act(() => {
+    await act(async () => {
       submitFromCommand?.();
       submitFromCommand?.(); // second synchronous submit must be a no-op
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 

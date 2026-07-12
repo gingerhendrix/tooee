@@ -20,15 +20,17 @@ const press = async function press(
   key: string,
   modifiers?: { ctrl?: boolean; shift?: boolean },
 ) {
-  await act(() => {
+  await act(async () => {
     session.mockInput.pressKey(key, modifiers);
+    await Promise.resolve();
   });
   await session.renderOnce();
 };
 
 const pressEscape = async function pressEscape(session: TestSession) {
-  await act(() => {
+  await act(async () => {
     session.mockInput.pressEscape();
+    await Promise.resolve();
   });
   await session.renderOnce();
 };
@@ -51,7 +53,9 @@ const SurfaceA = function SurfaceA({
   useCommand({ handler: onClose, hotkey: "Escape", id: "a.close", title: "Close A" });
   useCommand({ handler: onOpenNested, hotkey: "n", id: "a.nested", title: "Open nested" });
   useCommand({
-    handler: () => setMode("insert"),
+    handler: () => {
+      setMode("insert");
+    },
     hotkey: "m",
     id: "a.insert",
     title: "Insert mode",
@@ -88,18 +92,29 @@ const Harness = function Harness({ aRole = "modal" }: { aRole?: CommandSurfaceRo
   const active = useActiveCommandSurface();
 
   useCommand({
-    handler: () => setRootQuit((n) => n + 1),
+    handler: () => {
+      setRootQuit((n) => n + 1);
+    },
     hotkey: "q",
     id: "root.quit",
     title: "Quit",
   });
   useCommand({
-    handler: () => setRootAction((n) => n + 1),
+    handler: () => {
+      setRootAction((n) => n + 1);
+    },
     hotkey: "a",
     id: "root.action",
     title: "Root action",
   });
-  useCommand({ handler: () => setShowA(true), hotkey: "o", id: "root.open", title: "Open A" });
+  useCommand({
+    handler: () => {
+      setShowA(true);
+    },
+    hotkey: "o",
+    id: "root.open",
+    title: "Open A",
+  });
 
   return (
     <box flexDirection="column">
@@ -112,15 +127,25 @@ const Harness = function Harness({ aRole = "modal" }: { aRole?: CommandSurfaceRo
       {showA && (
         <CommandSurfaceProvider id="surfaceA" role={aRole} initialMode="cursor">
           <SurfaceA
-            onAction={() => setAAction((n) => n + 1)}
-            onClose={() => setShowA(false)}
-            onOpenNested={() => setShowB(true)}
+            onAction={() => {
+              setAAction((n) => n + 1);
+            }}
+            onClose={() => {
+              setShowA(false);
+            }}
+            onOpenNested={() => {
+              setShowB(true);
+            }}
           >
             {showB && (
               <CommandSurfaceProvider id="surfaceB" role="modal" initialMode="cursor">
                 <SurfaceB
-                  onAction={() => setBAction((n) => n + 1)}
-                  onClose={() => setShowB(false)}
+                  onAction={() => {
+                    setBAction((n) => n + 1);
+                  }}
+                  onClose={() => {
+                    setShowB(false);
+                  }}
                 />
               </CommandSurfaceProvider>
             )}
@@ -236,7 +261,9 @@ describe("command surface arbitration", () => {
       const active = useActiveCommandSurface();
 
       useCommand({
-        handler: () => setShowSurface(true),
+        handler: () => {
+          setShowSurface(true);
+        },
         hotkey: "o",
         id: "root.open",
         title: "Open",
@@ -263,7 +290,11 @@ describe("command surface arbitration", () => {
           <text content={`surfaceAction:${surfaceAction}`} />
           {showSurface && (
             <CommandSurfaceProvider id="modal" role="modal" initialMode="cursor">
-              <ZCommandSurface onAction={() => setSurfaceAction((n) => n + 1)} />
+              <ZCommandSurface
+                onAction={() => {
+                  setSurfaceAction((n) => n + 1);
+                }}
+              />
             </CommandSurfaceProvider>
           )}
         </box>

@@ -85,12 +85,14 @@ describe("ContextMenu", () => {
     );
     await testSetup.renderOnce();
 
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressKey("j");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
-    await act(() => {
+    await act(async () => {
       testSetup.mockInput.pressEnter();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(selected).toEqual(["open"]);

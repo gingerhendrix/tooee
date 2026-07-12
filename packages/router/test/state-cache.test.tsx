@@ -74,8 +74,9 @@ describe("useScreenState", () => {
     router.stateCache.save("0:screenA", { value: "preserved" });
 
     // Navigate away
-    await act(() => {
+    await act(async () => {
       router.push("screenB");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -83,8 +84,9 @@ describe("useScreenState", () => {
     expect(frame).toContain("screenB");
 
     // Pop back
-    await act(() => {
+    await act(async () => {
       router.pop();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -111,11 +113,13 @@ describe("useScreenState", () => {
     router.stateCache.save("0:screenA", { value: "will-be-cleared" });
 
     // Push then reset
-    await act(() => {
+    await act(async () => {
       router.push("screenB");
+      await Promise.resolve();
     });
-    await act(() => {
+    await act(async () => {
       router.reset("screenA");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -142,11 +146,13 @@ describe("useScreenState", () => {
     router.stateCache.save("0:screenA", { value: "pos0" });
 
     // Push screenB, then push screenA again (now at position 2)
-    await act(() => {
+    await act(async () => {
       router.push("screenB");
+      await Promise.resolve();
     });
-    await act(() => {
+    await act(async () => {
       router.push("screenA");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -158,12 +164,14 @@ describe("useScreenState", () => {
     router.stateCache.save("2:screenA", { value: "pos2" });
 
     // Pop back to screenB
-    await act(() => {
+    await act(async () => {
       router.pop();
+      await Promise.resolve();
     });
     // Pop back to screenA at position 0
-    await act(() => {
+    await act(async () => {
       router.pop();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -205,8 +213,9 @@ describe("useScreenState", () => {
     );
     await testSetup.renderOnce();
 
-    await act(() => {
+    await act(async () => {
       router.push("screenB");
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -215,8 +224,9 @@ describe("useScreenState", () => {
     expect(router.stateCache.restore<{ data: string }>("1:screenB")).toEqual({ data: "temp" });
 
     // Pop screenB — its cache should be cleared
-    await act(() => {
+    await act(async () => {
       router.pop();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 

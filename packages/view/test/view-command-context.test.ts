@@ -14,10 +14,18 @@ describe("createViewCommandContext", () => {
     expect(ctx.title).toBeUndefined();
     expect(ctx.data).toBeUndefined();
 
-    expect(() => ctx.reload()).not.toThrow();
-    expect(() => ctx.marks.setMarkSet(userMark)).not.toThrow();
-    expect(() => ctx.marks.clearNamespace("user")).not.toThrow();
-    expect(() => ctx.marks.clearAll()).not.toThrow();
+    expect(() => {
+      ctx.reload();
+    }).not.toThrow();
+    expect(() => {
+      ctx.marks.setMarkSet(userMark);
+    }).not.toThrow();
+    expect(() => {
+      ctx.marks.clearNamespace("user");
+    }).not.toThrow();
+    expect(() => {
+      ctx.marks.clearAll();
+    }).not.toThrow();
     expect(ctx.marks.userMarks).toEqual([]);
     expect(ctx.marks.providerMarks).toEqual([]);
   });

@@ -38,36 +38,41 @@ const setup = async function setup(node: React.ReactNode) {
 };
 
 const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressKey(key, modifiers);
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
 
 const pressArrow = async function pressArrow(direction: "up" | "down") {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressArrow(direction);
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
 
 const pressEnter = async function pressEnter() {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressEnter();
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
 
 const pressTab = async function pressTab(modifiers?: { shift?: boolean }) {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressTab(modifiers);
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
 
 const pressEscape = async function pressEscape() {
-  await act(() => {
+  await act(async () => {
     testSetup.mockInput.pressEscape();
+    await Promise.resolve();
   });
   await testSetup.renderOnce();
 };
@@ -95,13 +100,14 @@ describe("ChooseController and normalized sources", () => {
       />,
     );
 
-    await act(() => {
+    await act(async () => {
       controllerRef.current!.setFilter("a");
       controllerRef.current!.setActiveIndex(1);
       controllerRef.current!.toggleActive();
       controllerRef.current!.moveDown();
       controllerRef.current!.toggleActive();
       controllerRef.current!.submit();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
 
@@ -129,7 +135,10 @@ describe("ChooseController and normalized sources", () => {
     );
     expect(testSetup.captureCharFrame()).toContain("item-1");
 
-    await act(() => controllerRef.current!.reload());
+    await act(async () => {
+      controllerRef.current!.reload();
+      await Promise.resolve();
+    });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("item-2");
   });
@@ -140,7 +149,9 @@ describe("ChooseController and normalized sources", () => {
 
     const Host = function Host(): React.ReactNode {
       const [items, setItems] = useState<ChooseItem[]>([{ text: "old-one" }, { text: "old-two" }]);
-      replace = () => setItems([{ text: "fresh-one" }]);
+      replace = () => {
+        setItems([{ text: "fresh-one" }]);
+      };
       return (
         <ChooseOverlay
           items={items}
@@ -152,10 +163,16 @@ describe("ChooseController and normalized sources", () => {
     };
 
     testSetup = await setup(<Host />);
-    await act(() => controllerRef.current!.setActiveIndex(1));
+    await act(async () => {
+      controllerRef.current!.setActiveIndex(1);
+      await Promise.resolve();
+    });
     await testSetup.renderOnce();
 
-    await act(() => replace());
+    await act(async () => {
+      replace();
+      await Promise.resolve();
+    });
     await testSetup.renderOnce();
 
     const frame = testSetup.captureCharFrame();
@@ -170,12 +187,17 @@ describe("ChooseController and normalized sources", () => {
 
     const Host = function Host(): React.ReactNode {
       const [source, setSource] = useState<ChooseSource>(() => async () => await slow.promise);
-      replace = () => setSource([{ text: "fresh" }]);
+      replace = () => {
+        setSource([{ text: "fresh" }]);
+      };
       return <ChooseOverlay items={source} onSelect={() => {}} onCancel={() => {}} />;
     };
 
     testSetup = await setup(<Host />);
-    await act(() => replace());
+    await act(async () => {
+      replace();
+      await Promise.resolve();
+    });
     await testSetup.renderOnce();
     await act(async () => {
       slow.resolve([{ text: "stale" }]);
@@ -313,7 +335,11 @@ describe("shared commands, context, and surfaces", () => {
       >
         {open && (
           <CommandSurfaceProvider id="choose-test.child" role="modal" initialMode="cursor">
-            <ChildSurface close={() => setOpen(false)} />
+            <ChildSurface
+              close={() => {
+                setOpen(false);
+              }}
+            />
           </CommandSurfaceProvider>
         )}
       </ChooseOverlay>

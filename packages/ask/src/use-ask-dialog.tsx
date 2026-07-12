@@ -128,7 +128,9 @@ export const useAskDialog = function useAskDialog(): AskDialogHandle {
                   settle(value);
                   handle.close("close");
                 }}
-                onCancel={() => handle.close("escape")}
+                onCancel={() => {
+                  handle.close("escape");
+                }}
               />
             ),
             undefined,
@@ -136,7 +138,9 @@ export const useAskDialog = function useAskDialog(): AskDialogHandle {
               // Single settlement funnel: every close path (cancel, escape,
               // replacement, unmount, external closeTop) lands here. Submit
               // settles first, making this a no-op.
-              onClose: () => settle(null),
+              onClose: () => {
+                settle(null);
+              },
               ownCommands: true,
               role: "modal",
               surfaceMode: "insert",

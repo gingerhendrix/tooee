@@ -7,17 +7,25 @@ import { useRouteDataContext } from "./loader.js";
 export const useNavigate = function useNavigate() {
   const router = useRouterInstance();
   return {
-    pop: useCallback(() => router.pop(), [router]),
+    pop: useCallback(() => {
+      router.pop();
+    }, [router]),
     push: useCallback(
-      (routeId: string, params?: Record<string, unknown>) => router.push(routeId, params),
+      (routeId: string, params?: Record<string, unknown>) => {
+        router.push(routeId, params);
+      },
       [router],
     ),
     replace: useCallback(
-      (routeId: string, params?: Record<string, unknown>) => router.replace(routeId, params),
+      (routeId: string, params?: Record<string, unknown>) => {
+        router.replace(routeId, params);
+      },
       [router],
     ),
     reset: useCallback(
-      (routeId: string, params?: Record<string, unknown>) => router.reset(routeId, params),
+      (routeId: string, params?: Record<string, unknown>) => {
+        router.reset(routeId, params);
+      },
       [router],
     ),
   };
@@ -77,7 +85,9 @@ export const useScreenState = function useScreenState<T>(): {
 
   return {
     saveState: useCallback(
-      (state: T) => router.stateCache.save(key, state),
+      (state: T) => {
+        router.stateCache.save(key, state);
+      },
       [router.stateCache, key],
     ),
     savedState: router.stateCache.restore<T>(key),

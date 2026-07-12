@@ -39,7 +39,9 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
   }, [counter, saveState]);
 
   useCommand({
-    handler: () => nav.push("detail", { id: "42" }),
+    handler: () => {
+      nav.push("detail", { id: "42" });
+    },
     hotkey: "1",
     id: "home.push-detail",
     modes: ["cursor"],
@@ -47,7 +49,9 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
   });
 
   useCommand({
-    handler: () => nav.push("settings"),
+    handler: () => {
+      nav.push("settings");
+    },
     hotkey: "2",
     id: "home.push-settings",
     modes: ["cursor"],
@@ -55,7 +59,9 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
   });
 
   useCommand({
-    handler: () => nav.push("slow"),
+    handler: () => {
+      nav.push("slow");
+    },
     hotkey: "3",
     id: "home.push-slow",
     modes: ["cursor"],
@@ -63,7 +69,9 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
   });
 
   useCommand({
-    handler: () => nav.push("error-route"),
+    handler: () => {
+      nav.push("error-route");
+    },
     hotkey: "4",
     id: "home.push-error",
     modes: ["cursor"],
@@ -71,7 +79,9 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
   });
 
   useCommand({
-    handler: () => nav.push("child"),
+    handler: () => {
+      nav.push("child");
+    },
     hotkey: "5",
     id: "home.push-nested",
     modes: ["cursor"],
@@ -79,7 +89,9 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
   });
 
   useCommand({
-    handler: () => nav.replace("settings"),
+    handler: () => {
+      nav.replace("settings");
+    },
     hotkey: "r",
     id: "home.replace-settings",
     modes: ["cursor"],
@@ -87,7 +99,9 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
   });
 
   useCommand({
-    handler: () => nav.reset("home"),
+    handler: () => {
+      nav.reset("home");
+    },
     hotkey: "x",
     id: "home.reset",
     modes: ["cursor"],
@@ -95,7 +109,9 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
   });
 
   useCommand({
-    handler: () => setCounter((c) => c + 1),
+    handler: () => {
+      setCounter((c) => c + 1);
+    },
     hotkey: "plus",
     id: "home.increment",
     modes: ["cursor"],
@@ -103,7 +119,9 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
   });
 
   useCommand({
-    handler: ({ exit }) => exit(),
+    handler: ({ exit }) => {
+      exit();
+    },
     hotkey: "q",
     id: "home.quit",
     modes: ["cursor"],
@@ -129,7 +147,9 @@ const DetailScreen = function DetailScreen(): React.ReactNode {
   const canGoBack = useCanGoBack();
 
   useCommand({
-    handler: () => nav.replace("settings"),
+    handler: () => {
+      nav.replace("settings");
+    },
     hotkey: "r",
     id: "detail.replace-settings",
     modes: ["cursor"],
@@ -137,7 +157,9 @@ const DetailScreen = function DetailScreen(): React.ReactNode {
   });
 
   useCommand({
-    handler: () => nav.reset("home"),
+    handler: () => {
+      nav.reset("home");
+    },
     hotkey: "x",
     id: "detail.reset",
     modes: ["cursor"],
@@ -145,7 +167,9 @@ const DetailScreen = function DetailScreen(): React.ReactNode {
   });
 
   useCommand({
-    handler: () => nav.push("settings"),
+    handler: () => {
+      nav.push("settings");
+    },
     hotkey: "2",
     id: "detail.push-settings",
     modes: ["cursor"],
@@ -153,7 +177,9 @@ const DetailScreen = function DetailScreen(): React.ReactNode {
   });
 
   useCommand({
-    handler: ({ exit }) => exit(),
+    handler: ({ exit }) => {
+      exit();
+    },
     hotkey: "q",
     id: "detail.quit",
     modes: ["cursor"],
@@ -178,7 +204,9 @@ const SettingsScreen = function SettingsScreen(): React.ReactNode {
   const canGoBack = useCanGoBack();
 
   useCommand({
-    handler: () => nav.reset("home"),
+    handler: () => {
+      nav.reset("home");
+    },
     hotkey: "x",
     id: "settings.reset",
     modes: ["cursor"],
@@ -186,7 +214,9 @@ const SettingsScreen = function SettingsScreen(): React.ReactNode {
   });
 
   useCommand({
-    handler: ({ exit }) => exit(),
+    handler: ({ exit }) => {
+      exit();
+    },
     hotkey: "q",
     id: "settings.quit",
     modes: ["cursor"],

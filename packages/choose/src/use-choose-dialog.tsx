@@ -182,7 +182,9 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
                   settle(values);
                   handle.close("close");
                 }}
-                onCancel={() => handle.close("escape")}
+                onCancel={() => {
+                  handle.close("escape");
+                }}
               />
             ) : (
               <ChooseOverlay
@@ -195,7 +197,9 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
                   settle(value === undefined ? null : value);
                   handle.close("close");
                 }}
-                onCancel={() => handle.close("escape")}
+                onCancel={() => {
+                  handle.close("escape");
+                }}
               />
             ),
           undefined,
@@ -203,7 +207,9 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
             // Single settlement funnel: every close path (cancel, escape,
             // replacement, unmount, external closeTop) lands here. Select and
             // submit settle first, making this a no-op.
-            onClose: () => settle(null),
+            onClose: () => {
+              settle(null);
+            },
             ownCommands: true,
             role: "modal",
             surfaceMode: "insert",

@@ -13,8 +13,9 @@ afterEach(() => {
 });
 
 const press = async function press(session: TestSession, key: string) {
-  await act(() => {
+  await act(async () => {
     session.mockInput.pressKey(key);
+    await Promise.resolve();
   });
   await session.renderOnce();
 };
@@ -31,7 +32,9 @@ describe("registry unregister guards (R-05)", () => {
       const [firstCount, setFirstCount] = useState(0);
       const [secondCount, setSecondCount] = useState(0);
       useCommand({
-        handler: () => setShowFirst(false),
+        handler: () => {
+          setShowFirst(false);
+        },
         hotkey: "h",
         id: "root.hide-first",
         title: "Hide first",
@@ -40,8 +43,18 @@ describe("registry unregister guards (R-05)", () => {
         <box flexDirection="column">
           <text content={`first:${firstCount}`} />
           <text content={`second:${secondCount}`} />
-          {showFirst && <Registrant onFire={() => setFirstCount((n) => n + 1)} />}
-          <Registrant onFire={() => setSecondCount((n) => n + 1)} />
+          {showFirst && (
+            <Registrant
+              onFire={() => {
+                setFirstCount((n) => n + 1);
+              }}
+            />
+          )}
+          <Registrant
+            onFire={() => {
+              setSecondCount((n) => n + 1);
+            }}
+          />
         </box>
       );
     };
@@ -83,7 +96,9 @@ describe("registry unregister guards (R-05)", () => {
     const Harness = function Harness(): React.ReactNode {
       const [showFirst, setShowFirst] = useState(true);
       useCommand({
-        handler: () => setShowFirst(false),
+        handler: () => {
+          setShowFirst(false);
+        },
         hotkey: "h",
         id: "root.hide-first",
         title: "Hide first",

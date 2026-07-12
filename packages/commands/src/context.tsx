@@ -116,10 +116,9 @@ export const CommandProvider = function CommandProvider({
 
   // Root mode changes are transitions: reset any pending chord synchronously
   // (this replaces the old post-render tracker-reset effect).
-  const handleModeChange = useCallback(
-    () => commandStore.modeChanged(ROOT_SURFACE_ID),
-    [commandStore],
-  );
+  const handleModeChange = useCallback(() => {
+    commandStore.modeChanged(ROOT_SURFACE_ID);
+  }, [commandStore]);
 
   return (
     <ModeProvider initialMode={initialMode} onModeChange={handleModeChange}>
@@ -160,7 +159,9 @@ const CommandDispatcher = function CommandDispatcher({
     const registry = commandStore.registryFor(commandStore.rootRecord);
     const ctx: Record<string, any> = {
       commands: {
-        invoke: (id: string) => registry.invoke(id),
+        invoke: (id: string) => {
+          registry.invoke(id);
+        },
         list: () => Array.from(registry.commands.values()),
       },
       exit: () => {},
@@ -195,7 +196,12 @@ const CommandDispatcher = function CommandDispatcher({
 
   // Clear the store's key buffer and pending timeout on dispatcher unmount so
   // the timer cannot fire after the tree is gone.
-  useEffect(() => () => commandStore.dispose(), [commandStore]);
+  useEffect(
+    () => () => {
+      commandStore.dispose();
+    },
+    [commandStore],
+  );
 
   const sequenceState = useSelector(commandStore.store, (s) => selectSequence(s.context));
 
@@ -247,7 +253,9 @@ export const CommandSurfaceProvider = function CommandSurfaceProvider({
 
   // Surface-local mode changes are transitions too (F-08): a mid-chord mode
   // switch on a modal surface resets the pending sequence.
-  const handleModeChange = useCallback(() => commandStore.modeChanged(id), [commandStore, id]);
+  const handleModeChange = useCallback(() => {
+    commandStore.modeChanged(id);
+  }, [commandStore, id]);
 
   return (
     <ModeProvider initialMode={initialMode} onModeChange={handleModeChange}>
@@ -285,7 +293,9 @@ const CommandSurfaceInner = function CommandSurfaceInner({
     const registry = commandStore.registryFor(recordRef.current!);
     const ctx: Record<string, any> = {
       commands: {
-        invoke: (cmdId: string) => registry.invoke(cmdId),
+        invoke: (cmdId: string) => {
+          registry.invoke(cmdId);
+        },
         list: () => Array.from(registry.commands.values()),
       },
       exit: () => {},

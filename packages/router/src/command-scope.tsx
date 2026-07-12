@@ -5,7 +5,9 @@ export const useRouterCommands = function useRouterCommands() {
   const router = useRouter();
 
   useCommand({
-    handler: () => router.pop(),
+    handler: () => {
+      router.pop();
+    },
     hotkey: "backspace",
     id: "router.back",
     modes: ["cursor"],

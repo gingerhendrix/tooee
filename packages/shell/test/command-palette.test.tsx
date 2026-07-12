@@ -107,7 +107,9 @@ describe("command palette", () => {
       const [showLate, setShowLate] = useState(false);
       const current = useCurrentOverlay();
       useCommand({
-        handler: () => setShowLate(true),
+        handler: () => {
+          setShowLate(true);
+        },
         hotkey: "l",
         id: "test.show-late",
         modes: ["cursor"],
@@ -152,7 +154,9 @@ const PaletteClickHarness = function PaletteClickHarness({
   const overlay = useCurrentOverlay();
 
   useCommand({
-    handler: () => onRun("test.clickable"),
+    handler: () => {
+      onRun("test.clickable");
+    },
     hotkey: "t",
     id: "test.clickable",
     modes: ["cursor"],

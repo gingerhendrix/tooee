@@ -19,7 +19,9 @@ const WhichKeyE2EApp = function WhichKeyE2EApp(): React.ReactNode {
       {
         category: "Stream",
         group: "Stream",
-        handler: () => setLastAction("opened today stream"),
+        handler: () => {
+          setLastAction("opened today stream");
+        },
         hotkey: "space s t",
         id: "e2e.stream.open-today",
         title: "Open today stream",
@@ -27,7 +29,9 @@ const WhichKeyE2EApp = function WhichKeyE2EApp(): React.ReactNode {
       {
         category: "Stream",
         group: "Stream",
-        handler: () => setLastAction("dispatched task"),
+        handler: () => {
+          setLastAction("dispatched task");
+        },
         hotkey: "space s d",
         id: "e2e.stream.dispatch",
         title: "Dispatch task",
@@ -35,7 +39,9 @@ const WhichKeyE2EApp = function WhichKeyE2EApp(): React.ReactNode {
       {
         category: "Artifact",
         group: "Artifact",
-        handler: () => setLastAction("opened artifact"),
+        handler: () => {
+          setLastAction("opened artifact");
+        },
         hotkey: "space a o",
         id: "e2e.artifact.open",
         title: "Open artifact",
@@ -43,13 +49,17 @@ const WhichKeyE2EApp = function WhichKeyE2EApp(): React.ReactNode {
       {
         category: "General",
         group: "General",
-        handler: () => setLastAction("refreshed"),
+        handler: () => {
+          setLastAction("refreshed");
+        },
         hotkey: "space r",
         id: "e2e.refresh",
         title: "Refresh",
       },
       {
-        handler: () => setLastAction("hidden maintenance"),
+        handler: () => {
+          setLastAction("hidden maintenance");
+        },
         hidden: true,
         hotkey: "space x",
         id: "e2e.hidden",
@@ -57,7 +67,9 @@ const WhichKeyE2EApp = function WhichKeyE2EApp(): React.ReactNode {
       },
       {
         category: "Navigation",
-        handler: () => setLastAction("local go"),
+        handler: () => {
+          setLastAction("local go");
+        },
         hotkey: "g g",
         id: "e2e.local-go",
         title: "Local go command",

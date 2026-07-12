@@ -77,7 +77,9 @@ describe("Choose async load (R-02)", () => {
     let swap!: () => void;
     const Harness = function Harness(): React.ReactNode {
       const [provider, setProvider] = useState(slowProvider);
-      swap = () => setProvider(fastProvider);
+      swap = () => {
+        setProvider(fastProvider);
+      };
       return <Choose contentProvider={provider} />;
     };
 
@@ -91,8 +93,9 @@ describe("Choose async load (R-02)", () => {
     expect(testSetup.captureCharFrame()).toContain("Loading...");
 
     // Replace the provider, then let the old (stale) load resolve afterwards.
-    await act(() => {
+    await act(async () => {
       swap();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     await act(async () => {
@@ -114,7 +117,9 @@ describe("Choose async load (R-02)", () => {
     let swap!: () => void;
     const Harness = function Harness(): React.ReactNode {
       const [provider, setProvider] = useState(slowProvider);
-      swap = () => setProvider(fastProvider);
+      swap = () => {
+        setProvider(fastProvider);
+      };
       return <Choose contentProvider={provider} />;
     };
 
@@ -126,8 +131,9 @@ describe("Choose async load (R-02)", () => {
     );
     await testSetup.renderOnce();
 
-    await act(() => {
+    await act(async () => {
       swap();
+      await Promise.resolve();
     });
     await testSetup.renderOnce();
     await act(async () => {
