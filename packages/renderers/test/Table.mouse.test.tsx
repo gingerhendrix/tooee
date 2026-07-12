@@ -92,7 +92,12 @@ describe("Table mouse interaction", () => {
     let ctx = 0;
     testSetup = await testRender(
       <ThemeSwitcherProvider>
-        <TableHarness onRowClick={() => {}} onRowContextMenu={() => ctx++} />
+        <TableHarness
+          onRowClick={() => {}}
+          onRowContextMenu={() => {
+            ctx += 1;
+          }}
+        />
       </ThemeSwitcherProvider>,
       { height: 15, width: 40 },
     );

@@ -87,7 +87,7 @@ describe("markdown gutter e2e", () => {
       session = await launchView("long.md");
       await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
       // Open search — retry until search bar appears (Mode: cursor disappears)
-      for (let attempt = 0; attempt < 3; attempt++) {
+      for (let attempt = 0; attempt < 3; attempt += 1) {
         await session.press("/");
         await Bun.sleep(500);
         const check = await session.text();
@@ -109,7 +109,7 @@ describe("markdown gutter e2e", () => {
       session = await launchView("long.md");
       await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
       // Open search — retry until search bar appears (Mode: cursor disappears)
-      for (let attempt = 0; attempt < 3; attempt++) {
+      for (let attempt = 0; attempt < 3; attempt += 1) {
         await session.press("/");
         await Bun.sleep(500);
         const check = await session.text();

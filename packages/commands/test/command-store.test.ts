@@ -169,7 +169,14 @@ describe("command store — registration", () => {
     const seen: Mode[] = [];
     let blocked = 0;
     registry.register(command("go", "g", { handler: (ctx) => seen.push(ctx.mode) }));
-    registry.register(command("no", "n", { handler: () => blocked++, when: () => false }));
+    registry.register(
+      command("no", "n", {
+        handler: () => {
+          blocked += 1;
+        },
+        when: () => false,
+      }),
+    );
 
     registry.invoke("go");
     registry.invoke("no");
@@ -217,7 +224,13 @@ describe("command store — key dispatch", () => {
   test("single-step match invokes the handler with the surface context", () => {
     const cs = makeStore();
     let fired = 0;
-    cs.registryFor(cs.rootRecord).register(command("a", "a", { handler: () => fired++ }));
+    cs.registryFor(cs.rootRecord).register(
+      command("a", "a", {
+        handler: () => {
+          fired += 1;
+        },
+      }),
+    );
 
     const result = cs.key(key("a"));
     expect(result.handled).toBe(true);
@@ -233,8 +246,22 @@ describe("command store — key dispatch", () => {
     let fired = 0;
     let gated = 0;
     const registry = cs.registryFor(cs.rootRecord);
-    registry.register(command("ins", "i", { handler: () => fired++, modes: ["insert"] }));
-    registry.register(command("gated", "g", { handler: () => gated++, when: () => false }));
+    registry.register(
+      command("ins", "i", {
+        handler: () => {
+          fired += 1;
+        },
+        modes: ["insert"],
+      }),
+    );
+    registry.register(
+      command("gated", "g", {
+        handler: () => {
+          gated += 1;
+        },
+        when: () => false,
+      }),
+    );
 
     expect(cs.key(key("i")).handled).toBe(false);
     expect(cs.key(key("g")).handled).toBe(false);
@@ -251,7 +278,13 @@ describe("command store — key dispatch", () => {
     const cs = makeStore();
     let fired = 0;
     const registry = cs.registryFor(cs.rootRecord);
-    registry.register(command("top", "g g", { handler: () => fired++ }));
+    registry.register(
+      command("top", "g g", {
+        handler: () => {
+          fired += 1;
+        },
+      }),
+    );
     const g = group("g g", "Goto");
     cs.store.trigger.groupRegistered({ group: g });
 
@@ -297,7 +330,13 @@ describe("command store — key dispatch", () => {
   test("modeChanged clears the pending buffer and display (F-08 at store level)", () => {
     const cs = makeStore();
     let fired = 0;
-    cs.registryFor(cs.rootRecord).register(command("top", "g g", { handler: () => fired++ }));
+    cs.registryFor(cs.rootRecord).register(
+      command("top", "g g", {
+        handler: () => {
+          fired += 1;
+        },
+      }),
+    );
 
     cs.key(key("g"));
     expect(selectSequence(cs.store.getSnapshot().context)).not.toBeNull();
@@ -329,7 +368,13 @@ describe("command store — key dispatch", () => {
     const cs = makeStore();
     const first = makeSurface("same", "modal", 1);
     let onFirst = 0;
-    cs.registryFor(first).register(command("chord", "g g", { handler: () => onFirst++ }));
+    cs.registryFor(first).register(
+      command("chord", "g g", {
+        handler: () => {
+          onFirst += 1;
+        },
+      }),
+    );
     cs.pushSurface(first);
 
     cs.key(key("g"));
@@ -358,7 +403,13 @@ describe("command store — key dispatch", () => {
 
     // ... and the chord still completes.
     let fired = 0;
-    cs.registryFor(cs.rootRecord).register(command("top2", "x x", { handler: () => fired++ }));
+    cs.registryFor(cs.rootRecord).register(
+      command("top2", "x x", {
+        handler: () => {
+          fired += 1;
+        },
+      }),
+    );
     const result = cs.key(key("g"));
     expect(result.handled).toBe(true);
   });
@@ -367,9 +418,21 @@ describe("command store — key dispatch", () => {
     const cs = makeStore();
     let rootFired = 0;
     let surfaceFired = 0;
-    cs.registryFor(cs.rootRecord).register(command("a", "a", { handler: () => rootFired++ }));
+    cs.registryFor(cs.rootRecord).register(
+      command("a", "a", {
+        handler: () => {
+          rootFired += 1;
+        },
+      }),
+    );
     const surface = makeSurface("s1", "modal", 1);
-    cs.registryFor(surface).register(command("s1.a", "a", { handler: () => surfaceFired++ }));
+    cs.registryFor(surface).register(
+      command("s1.a", "a", {
+        handler: () => {
+          surfaceFired += 1;
+        },
+      }),
+    );
     cs.pushSurface(surface);
 
     const result = cs.key(key("a"));
@@ -384,7 +447,13 @@ describe("command store — key dispatch", () => {
   test("timeout fires sequenceReset and cancels the chord", async () => {
     const cs = makeStore({ sequenceTimeoutMs: 20 });
     let fired = 0;
-    cs.registryFor(cs.rootRecord).register(command("top", "g g", { handler: () => fired++ }));
+    cs.registryFor(cs.rootRecord).register(
+      command("top", "g g", {
+        handler: () => {
+          fired += 1;
+        },
+      }),
+    );
 
     cs.key(key("g"));
     expect(selectSequence(cs.store.getSnapshot().context)).not.toBeNull();
@@ -401,7 +470,9 @@ describe("command store — key dispatch", () => {
 
     cs.key(key("g"));
     let notified = 0;
-    cs.store.subscribe(() => notified++);
+    cs.store.subscribe(() => {
+      notified += 1;
+    });
     cs.dispose();
     await sleep(40);
     // No timer fire after dispose: the store was not touched.
@@ -411,7 +482,13 @@ describe("command store — key dispatch", () => {
   test("keymap overrides the default hotkey", () => {
     const cs = makeStore({ keymap: { save: "w" } });
     let fired = 0;
-    cs.registryFor(cs.rootRecord).register(command("save", "s", { handler: () => fired++ }));
+    cs.registryFor(cs.rootRecord).register(
+      command("save", "s", {
+        handler: () => {
+          fired += 1;
+        },
+      }),
+    );
 
     expect(cs.key(key("s")).handled).toBe(false);
     const result = cs.key(key("w"));
@@ -423,9 +500,13 @@ describe("command store — key dispatch", () => {
   test("leader parsing works and leaderless <leader> hotkeys never match", () => {
     const withLeader = makeStore({ leader: "space" });
     let fired = 0;
-    withLeader
-      .registryFor(withLeader.rootRecord)
-      .register(command("leader.cmd", "<leader>n", { handler: () => fired++ }));
+    withLeader.registryFor(withLeader.rootRecord).register(
+      command("leader.cmd", "<leader>n", {
+        handler: () => {
+          fired += 1;
+        },
+      }),
+    );
     withLeader.key(key("space"));
     const result = withLeader.key(key("n"));
     expect(result.handled).toBe(true);
@@ -434,9 +515,13 @@ describe("command store — key dispatch", () => {
 
     const without = makeStore();
     let ghost = 0;
-    without
-      .registryFor(without.rootRecord)
-      .register(command("leader.cmd", "<leader>n", { handler: () => ghost++ }));
+    without.registryFor(without.rootRecord).register(
+      command("leader.cmd", "<leader>n", {
+        handler: () => {
+          ghost += 1;
+        },
+      }),
+    );
     expect(without.key(key("x", { ctrl: true })).handled).toBe(false);
     expect(without.key(key("n")).handled).toBe(false);
     expect(without.key(key("a")).handled).toBe(false);

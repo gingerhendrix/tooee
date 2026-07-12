@@ -88,7 +88,7 @@ const actions: ActionDefinition[] = [
   },
   {
     handler: (ctx) => {
-      dedupCounter++;
+      dedupCounter += 1;
       ctx.toast.toast({
         id: "dedup-counter",
         level: "info",

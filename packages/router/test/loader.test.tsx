@@ -263,7 +263,7 @@ describe("route loaders", () => {
       component: DataScreen,
       id: "data",
       loader: async ({ params: _params }) => {
-        loadCount++;
+        loadCount += 1;
         return await Promise.resolve({ message: `load-${loadCount}` });
       },
     });
@@ -362,7 +362,7 @@ describe("route loaders", () => {
       component: DataScreen,
       id: "data",
       loader: async ({ params: _params }) => {
-        callCount++;
+        callCount += 1;
         if (callCount === 1) {
           return await deferred1.promise;
         }

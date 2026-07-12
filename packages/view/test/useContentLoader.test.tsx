@@ -122,7 +122,10 @@ describe("useContentLoader reload and request identity", () => {
     let calls = 0;
     let reload!: () => void;
     const provider: ContentProvider = {
-      load: () => ({ format: "text", text: `sync-${++calls}` }),
+      load: () => {
+        calls += 1;
+        return { format: "text", text: `sync-${calls}` };
+      },
     };
     const Harness = function Harness(): React.ReactNode {
       const result = useContentLoader(provider);
@@ -177,7 +180,7 @@ describe("useContentLoader reload and request identity", () => {
     const provider: ContentProvider = {
       format: "text",
       load: () => {
-        calls++;
+        calls += 1;
         if (calls === 1) {
           let first = true;
           return {

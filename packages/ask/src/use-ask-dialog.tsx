@@ -95,7 +95,8 @@ export const useAskDialog = function useAskDialog(): AskDialogHandle {
             return;
           }
 
-          const id = `ask-dialog-${++askDialogSequence}`;
+          askDialogSequence += 1;
+          const id = `ask-dialog-${askDialogSequence}`;
           let settled = false;
           const settle = (value: string | null) => {
             if (settled) {

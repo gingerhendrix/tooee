@@ -873,7 +873,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
 
     // Wheel down over the diagram body
     const { mockMouse } = testSetup;
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 10; i += 1) {
       await mockMouse.scroll(30, 3, "down");
     }
     await testSetup.renderOnce();
@@ -900,7 +900,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
 
     // Shift+wheel-down over the diagram body maps to pan-right
     const { mockMouse } = testSetup;
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 30; i += 1) {
       await mockMouse.scroll(30, 3, "down", { modifiers: { shift: true } });
     }
     await testSetup.renderOnce();
@@ -909,7 +909,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
     expect(panned).not.toContain("Alpha station");
 
     // Shift+wheel-up pans back left
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 30; i += 1) {
       await mockMouse.scroll(30, 3, "up", { modifiers: { shift: true } });
     }
     await testSetup.renderOnce();
@@ -1080,7 +1080,7 @@ describe("wide code block horizontal scrolling", () => {
 
     // Shift+wheel-down over the code block body maps to pan-right
     const { mockMouse } = testSetup;
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 40; i += 1) {
       await mockMouse.scroll(30, 3, "down", { modifiers: { shift: true } });
     }
     await testSetup.renderOnce();
@@ -1089,7 +1089,7 @@ describe("wide code block horizontal scrolling", () => {
     expect(panned).not.toContain("Alpha station");
 
     // Shift+wheel-up pans back left
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 40; i += 1) {
       await mockMouse.scroll(30, 3, "up", { modifiers: { shift: true } });
     }
     await testSetup.renderOnce();
@@ -1115,7 +1115,7 @@ describe("wide code block horizontal scrolling", () => {
 
     // Wheel down over the code block body
     const { mockMouse } = testSetup;
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 10; i += 1) {
       await mockMouse.scroll(30, 3, "down");
     }
     await testSetup.renderOnce();
@@ -1184,7 +1184,7 @@ describe("scroll isolation", () => {
 
     // Send scroll events at the code block position (roughly row 4-5, col 40)
     const { mockMouse } = testSetup;
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 3; i += 1) {
       await mockMouse.scroll(40, 4, "down");
     }
     await testSetup.renderOnce();

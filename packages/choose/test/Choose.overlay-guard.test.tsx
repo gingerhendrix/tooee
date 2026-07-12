@@ -94,7 +94,11 @@ const openThemePicker = async function openThemePicker(s: TestSession) {
 describe("Choose raw keyboard handler with theme picker open (R-01)", () => {
   test("Escape closes the picker without cancelling the app", async () => {
     let cancelled = 0;
-    testSetup = await setup({ onCancel: () => cancelled++ });
+    testSetup = await setup({
+      onCancel: () => {
+        cancelled += 1;
+      },
+    });
     await openThemePicker(testSetup);
 
     await pressEscape(testSetup);

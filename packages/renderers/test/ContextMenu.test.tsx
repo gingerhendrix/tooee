@@ -20,7 +20,7 @@ afterEach(() => {
 
 const lineOf = function lineOf(frame: string, text: string): { x: number; y: number } {
   const lines = frame.split("\n");
-  for (let y = 0; y < lines.length; y++) {
+  for (let y = 0; y < lines.length; y += 1) {
     const x = lines[y].indexOf(text);
     if (x >= 0) {
       return { x, y };
@@ -102,7 +102,15 @@ describe("ContextMenu", () => {
     let closed = 0;
     testSetup = await testRender(
       <ThemeSwitcherProvider>
-        <ContextMenu entries={ENTRIES} x={4} y={2} onSelect={() => {}} onClose={() => closed++} />
+        <ContextMenu
+          entries={ENTRIES}
+          x={4}
+          y={2}
+          onSelect={() => {}}
+          onClose={() => {
+            closed += 1;
+          }}
+        />
       </ThemeSwitcherProvider>,
       { height: 20, width: 50 },
     );

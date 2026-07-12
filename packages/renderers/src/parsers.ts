@@ -33,7 +33,7 @@ const parseCSVLine = function parseCSVLine(line: string): string[] {
             field += '"';
             i += 2;
           } else {
-            i++;
+            i += 1;
             break;
           }
         } else {

@@ -113,7 +113,8 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
           return;
         }
 
-        const id = `choose-dialog-${++chooseDialogSequence}`;
+        chooseDialogSequence += 1;
+        const id = `choose-dialog-${chooseDialogSequence}`;
         let settled = false;
         const settle = (value: T | T[] | null) => {
           if (settled) {

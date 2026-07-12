@@ -83,7 +83,7 @@ describe("table sticky header", () => {
     // Header should be visible initially
     expect(await session.text()).toContain("name");
     // Scroll down significantly
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 20; i += 1) {
       await session.press("j");
     }
     await session.waitForText(/Cursor:\s*(1\d|2\d)/u, { timeout: 5000 });

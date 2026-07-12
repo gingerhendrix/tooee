@@ -113,7 +113,7 @@ export class SourceIndex {
     if (end > starts[line]! && this.text.charCodeAt(end - 1) === LINE_FEED_CODE) {
       end -= 1;
       if (end > starts[line]! && this.text.charCodeAt(end - 1) === CARRIAGE_RETURN_CODE) {
-        end--;
+        end -= 1;
       }
     }
     return end;
@@ -131,7 +131,7 @@ export class SourceIndex {
       while (end > rawStart && this.text.charCodeAt(end - 1) === 10) {
         end -= 1;
         if (end > rawStart && this.text.charCodeAt(end - 1) === 13) {
-          end--;
+          end -= 1;
         }
       }
     }

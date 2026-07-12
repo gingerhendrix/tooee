@@ -21,7 +21,11 @@ const SPACE_THEN_N: ParsedHotkey[] = [
 describe("SequenceTracker", () => {
   test("keeps pending multi-key combos alive beyond the old 500ms default", async () => {
     let resets = 0;
-    const tracker = new SequenceTracker({ onReset: () => resets++ });
+    const tracker = new SequenceTracker({
+      onReset: () => {
+        resets += 1;
+      },
+    });
 
     expect(DEFAULT_SEQUENCE_TIMEOUT_MS).toBe(1500);
     expect(tracker.feedWithState(key("space"), SPACE_THEN_N).pending).toEqual({
@@ -37,7 +41,12 @@ describe("SequenceTracker", () => {
 
   test("resets pending multi-key combos after the configured timeout", async () => {
     let resets = 0;
-    const tracker = new SequenceTracker({ onReset: () => resets++, timeout: 20 });
+    const tracker = new SequenceTracker({
+      onReset: () => {
+        resets += 1;
+      },
+      timeout: 20,
+    });
 
     expect(tracker.feedWithState(key("space"), SPACE_THEN_N).pending).not.toBeNull();
 

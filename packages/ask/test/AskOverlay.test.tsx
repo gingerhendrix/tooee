@@ -474,7 +474,7 @@ describe("AskOverlay escape handling", () => {
     let cancelCount = 0;
     testSetup = await setup({
       onCancel: () => {
-        cancelCount++;
+        cancelCount += 1;
       },
     });
 
@@ -493,7 +493,7 @@ describe("AskOverlay escape handling", () => {
     let cancelCount = 0;
     testSetup = await setup({
       onCancel: () => {
-        cancelCount++;
+        cancelCount += 1;
       },
     });
 

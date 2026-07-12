@@ -127,7 +127,14 @@ describe("commands", () => {
 
   test("quit accepts explicit options", async () => {
     let quits = 0;
-    await setup({ quit: { hotkey: "ctrl+c", onQuit: () => quits++ } });
+    await setup({
+      quit: {
+        hotkey: "ctrl+c",
+        onQuit: () => {
+          quits += 1;
+        },
+      },
+    });
 
     expect(commandIds).toContain("quit");
     await press(session, "c", { ctrl: true });
@@ -142,7 +149,9 @@ describe("ctx.document", () => {
       context: {
         extras: { flavour: "vanilla" },
         kind: "test-doc",
-        reload: () => reloads++,
+        reload: () => {
+          reloads += 1;
+        },
         title: "Docs",
       },
     });

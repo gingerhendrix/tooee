@@ -316,7 +316,7 @@ describe("AskOverlay nested modal surfaces", () => {
     testSetup = await setup(
       <Host
         onCancel={() => {
-          cancelCount++;
+          cancelCount += 1;
         }}
         onSubmit={() => {}}
       />,

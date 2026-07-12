@@ -35,7 +35,6 @@ export default defineConfig({
     "no-lonely-if": "off",
     "no-negated-condition": "off",
     "no-nested-ternary": "off",
-    "no-plusplus": "off",
     "no-promise-executor-return": "off",
     "no-use-before-define": "off",
     "prefer-destructuring": "off",

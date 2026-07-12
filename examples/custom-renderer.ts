@@ -129,7 +129,7 @@ const KanbanRenderer = function KanbanRenderer({ content }: ContentRendererProps
   lines.push({ fg: theme.border, text: sepLine });
 
   // Card rows
-  for (let cardIdx = 0; cardIdx < maxCards; cardIdx++) {
+  for (let cardIdx = 0; cardIdx < maxCards; cardIdx += 1) {
     // Top border of card
     const topLine = data.columns
       .map((col) => {

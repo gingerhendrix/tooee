@@ -288,7 +288,7 @@ describe("createRouter (imperative)", () => {
 
     let callCount = 0;
     const unsub = router.subscribe(() => {
-      callCount++;
+      callCount += 1;
     });
 
     router.push("detail");

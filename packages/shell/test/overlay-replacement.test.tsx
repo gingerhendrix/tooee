@@ -41,7 +41,8 @@ const Harness = function Harness({ onChord }: { onChord: () => void }): React.Re
   const generationRef = useRef(0);
 
   const openSurface = (ctrl: OverlayController) => {
-    const generation = generationRef.current++;
+    const generation = generationRef.current;
+    generationRef.current += 1;
     ctrl.open(
       "chord-overlay",
       (): React.ReactNode => <ChordSurface generation={generation} onChord={onChord} />,
@@ -80,7 +81,11 @@ describe("F-09: same-id overlay replacement resets a pending chord (shell bridge
     testSetup = await testRender(
       <TooeeProvider>
         <ControllerCapture />
-        <Harness onChord={() => chordFired++} />
+        <Harness
+          onChord={() => {
+            chordFired += 1;
+          }}
+        />
       </TooeeProvider>,
       { height: 24, kittyKeyboard: true, width: 80 },
     );
@@ -100,7 +105,14 @@ describe("F-09: same-id overlay replacement resets a pending chord (shell bridge
     await act(async () => {
       controller!.open(
         "chord-overlay",
-        (): React.ReactNode => <ChordSurface generation={99} onChord={() => chordFired++} />,
+        (): React.ReactNode => (
+          <ChordSurface
+            generation={99}
+            onChord={() => {
+              chordFired += 1;
+            }}
+          />
+        ),
         null,
         { ownCommands: true, role: "modal", surfaceMode: "cursor" },
       );

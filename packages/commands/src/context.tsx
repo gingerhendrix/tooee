@@ -552,7 +552,8 @@ export const useProvideCommandContext = function useProvideCommandContext(
 
   const idRef = useRef<string | null>(null);
   if (idRef.current === null) {
-    idRef.current = `ctx-${nextContextSourceId++}`;
+    idRef.current = `ctx-${nextContextSourceId}`;
+    nextContextSourceId += 1;
   }
 
   const getterRef = useRef(getter);

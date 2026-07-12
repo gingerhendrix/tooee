@@ -68,13 +68,13 @@ describe("custom code block app e2e", () => {
     await session.waitForText("edge-cache", { timeout: 5000 });
 
     // Pan right until the far end of the timeline is visible
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 30; i += 1) {
       await session.press("l");
     }
     await session.waitForText("24:00", { timeout: 8000 });
 
     // Pan back to the start
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 30; i += 1) {
       await session.press("h");
     }
     await session.waitForText("0:00", { timeout: 8000 });

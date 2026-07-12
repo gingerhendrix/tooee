@@ -95,7 +95,7 @@ const Harness = function Harness(): React.ReactNode {
 
   useCommand({
     handler: () => {
-      hostProbeCount++;
+      hostProbeCount += 1;
     },
     hotkey: "z",
     id: "host-probe",

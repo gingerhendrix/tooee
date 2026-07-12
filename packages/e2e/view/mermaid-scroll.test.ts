@@ -30,7 +30,7 @@ describe("wide mermaid diagram horizontal scrolling e2e", () => {
     await session.press("j");
 
     // Scroll right until the far end of the diagram is visible
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 20; i += 1) {
       await session.press("l");
     }
     await session.waitForText("Zeta terminal", { timeout: 8000 });
@@ -39,7 +39,7 @@ describe("wide mermaid diagram horizontal scrolling e2e", () => {
     expect(scrolled).not.toContain("Alpha station");
 
     // Scroll back to the start
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 20; i += 1) {
       await session.press("h");
     }
     await session.waitForText("Alpha station", { timeout: 8000 });

@@ -27,7 +27,11 @@ test("left-click invokes onClose", async () => {
   testSetup = await testRender(
     <ThemeSwitcherProvider>
       <box paddingLeft={2} paddingTop={1}>
-        <CloseButton onClose={() => closed++} />
+        <CloseButton
+          onClose={() => {
+            closed += 1;
+          }}
+        />
       </box>
     </ThemeSwitcherProvider>,
     { height: 5, width: 20 },
@@ -47,7 +51,11 @@ test("right-click does not invoke onClose", async () => {
   testSetup = await testRender(
     <ThemeSwitcherProvider>
       <box paddingLeft={2} paddingTop={1}>
-        <CloseButton onClose={() => closed++} />
+        <CloseButton
+          onClose={() => {
+            closed += 1;
+          }}
+        />
       </box>
     </ThemeSwitcherProvider>,
     { height: 5, width: 20 },

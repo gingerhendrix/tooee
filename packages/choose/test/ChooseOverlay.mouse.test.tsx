@@ -27,7 +27,7 @@ afterEach(() => {
 
 const lineOf = function lineOf(frame: string, text: string): { x: number; y: number } {
   const lines = frame.split("\n");
-  for (let y = 0; y < lines.length; y++) {
+  for (let y = 0; y < lines.length; y += 1) {
     const x = lines[y].indexOf(text);
     if (x >= 0) {
       return { x, y };

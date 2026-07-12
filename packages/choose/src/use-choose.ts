@@ -156,7 +156,8 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
   }, []);
 
   useEffect(() => {
-    const requestId = ++requestIdRef.current;
+    requestIdRef.current += 1;
+    const requestId = requestIdRef.current;
     let active = true;
     let result: ChooseItem[] | Promise<ChooseItem[]>;
 

@@ -123,7 +123,10 @@ describe("ChooseController and normalized sources", () => {
   test("accepts a synchronous loader and reloads it through the controller", async () => {
     const controllerRef = { current: null as ChooseController | null };
     let revision = 0;
-    const source = () => [{ text: `item-${++revision}` }];
+    const source = () => {
+      revision += 1;
+      return [{ text: `item-${revision}` }];
+    };
 
     testSetup = await setup(
       <ChooseOverlay
@@ -240,7 +243,9 @@ describe("shared commands, context, and surfaces", () => {
         items={[{ text: "alpha" }]}
         controllerRef={controllerRef}
         onSelect={() => {}}
-        onCancel={() => cancellations++}
+        onCancel={() => {
+          cancellations += 1;
+        }}
       />,
     );
 
@@ -387,7 +392,9 @@ describe("shared commands, context, and surfaces", () => {
             title: "Submit",
           },
         ]}
-        onConfirm={() => confirms++}
+        onConfirm={() => {
+          confirms += 1;
+        }}
       />,
     );
 

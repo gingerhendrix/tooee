@@ -96,7 +96,7 @@ const groupByCategory = function groupByCategory(points: DataPoint[]): Map<strin
 const generateSampleData = function generateSampleData(count: number): DataPoint[] {
   const names = ["alpha", "beta", "gamma", "delta", "epsilon"];
   const results: DataPoint[] = [];
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < count; i += 1) {
     const name = names[i % names.length] ?? "unknown";
     const value = Math.floor(Math.random() * 100);
     results.push(createDataPoint(i, name, value));

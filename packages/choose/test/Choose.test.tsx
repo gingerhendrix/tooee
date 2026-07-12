@@ -326,7 +326,7 @@ describe("Choose visual alignment", () => {
     const lines = charFrame.split("\n");
     let alphaLine = -1;
     let betaLine = -1;
-    for (let i = 0; i < lines.length; i++) {
+    for (let i = 0; i < lines.length; i += 1) {
       if (lines[i].includes("alpha")) {
         alphaLine = i;
       }
@@ -380,7 +380,7 @@ describe("Choose visual alignment", () => {
     });
 
     // Navigate past the end
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 10; i += 1) {
       await pressArrow(testSetup, "down");
     }
 
@@ -398,7 +398,7 @@ describe("Choose visual alignment", () => {
 describe("Choose mouse interaction", () => {
   const lineOf = function lineOf(frame: string, text: string): { x: number; y: number } {
     const lines = frame.split("\n");
-    for (let y = 0; y < lines.length; y++) {
+    for (let y = 0; y < lines.length; y += 1) {
       const x = lines[y].indexOf(text);
       if (x >= 0) {
         return { x, y };

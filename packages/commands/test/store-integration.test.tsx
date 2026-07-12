@@ -46,7 +46,9 @@ describe("F-08: mode changes reset a pending chord", () => {
       // Available in both modes, so a completion after the mode change would
       // fire if the chord buffer survived the transition.
       useCommand({
-        handler: () => fired++,
+        handler: () => {
+          fired += 1;
+        },
         hotkey: "g g",
         id: "s.chord",
         modes: ["cursor", "insert"],
@@ -93,7 +95,9 @@ describe("F-08: mode changes reset a pending chord", () => {
       const setMode = useSetMode();
       rootSetMode = setMode;
       useCommand({
-        handler: () => fired++,
+        handler: () => {
+          fired += 1;
+        },
         hotkey: "g g",
         id: "root.chord",
         modes: ["cursor", "insert"],
@@ -132,7 +136,9 @@ describe("F-09: surface replacement resets a pending chord", () => {
 
     const SurfaceContent = function SurfaceContent(): ReactNode {
       useCommand({
-        handler: () => fired++,
+        handler: () => {
+          fired += 1;
+        },
         hotkey: "g g",
         id: "s.chord",
         title: "Chord",

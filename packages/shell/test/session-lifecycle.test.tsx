@@ -45,7 +45,7 @@ describe("mountTooee", () => {
     const originalDestroy = renderer.destroy.bind(renderer);
     let destroyCalls = 0;
     renderer.destroy = () => {
-      destroyCalls++;
+      destroyCalls += 1;
       originalDestroy();
     };
 
@@ -77,7 +77,9 @@ describe("mountTooee", () => {
 describe("local sessions", () => {
   test("destroy releases the renderer and health listeners exactly once", async () => {
     let rendererDestroyCalls = 0;
-    const rendererOptions = remoteRendererOptions(() => rendererDestroyCalls++);
+    const rendererOptions = remoteRendererOptions(() => {
+      rendererDestroyCalls += 1;
+    });
     const stdin = rendererOptions.stdin!;
     const beforeEnd = stdin.listenerCount("end");
     const beforeClose = stdin.listenerCount("close");
@@ -109,7 +111,9 @@ describe("local sessions", () => {
         return <text>settlement</text>;
       },
       {
-        renderer: remoteRendererOptions(() => rendererDestroyCalls++),
+        renderer: remoteRendererOptions(() => {
+          rendererDestroyCalls += 1;
+        }),
         terminalHealth: false,
       },
     );

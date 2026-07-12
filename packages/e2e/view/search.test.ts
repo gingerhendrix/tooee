@@ -19,7 +19,7 @@ describe("search e2e", () => {
     expect(before).toMatch(/Mode:\s*cursor/u);
     // Press / to open search — retry until the status bar changes
     // (on slow CI the first keypress can be dropped)
-    for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
       await session.press("/");
       await Bun.sleep(500);
       const check = await session.text();
@@ -36,7 +36,7 @@ describe("search e2e", () => {
     session = await launchView("long.md");
     await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     // Open search — retry until search bar appears
-    for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
       await session.press("/");
       await Bun.sleep(500);
       const check = await session.text();
@@ -60,7 +60,7 @@ describe("search e2e", () => {
     session = await launchView("long.md");
     await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     // Open search — retry until search bar appears
-    for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
       await session.press("/");
       await Bun.sleep(500);
       const check = await session.text();

@@ -95,7 +95,7 @@ describe("search hook", () => {
       const nav = useNavigation({ rowCount: 2 });
       const search = useSearch({
         match: () => {
-          calls++;
+          calls += 1;
           return [0];
         },
         onJump: nav.setCursor,

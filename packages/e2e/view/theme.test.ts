@@ -35,7 +35,7 @@ describe("theme switching", () => {
     await session.press("enter");
     // Wait for theme picker to close and a different previewed theme to apply.
     let after = "";
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 20; i += 1) {
       const text = await session.text();
       after = extractTheme(text);
       if (after && after !== initial && !text.includes("aura")) {
