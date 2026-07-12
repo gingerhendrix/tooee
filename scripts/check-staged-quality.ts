@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 
@@ -157,18 +157,20 @@ const materialize = (root: string) => {
 
 const lint = (root: string, paths: string[]): Diagnostic[] => {
   if (paths.length === 0) return [];
+  const pathSet = new Set(paths);
+  const scanPaths = existsSync(join(root, "oxlint.config.ts")) ? ["."] : paths;
   const result = run(
     [
       resolve("node_modules/.bin/oxlint"),
       "--format",
       "json",
       "--no-error-on-unmatched-pattern",
-      ...paths,
+      ...scanPaths,
     ],
     root,
   );
   const parsed = JSON.parse(result.stdout || '{"diagnostics":[]}') as { diagnostics: Diagnostic[] };
-  return parsed.diagnostics;
+  return parsed.diagnostics.filter((diagnostic) => pathSet.has(diagnostic.filename));
 };
 
 const formatDiagnostics = (root: string, paths: string[], backupRoot: string): Diagnostic[] => {
