@@ -10,10 +10,10 @@ afterEach(() => {
   } catch {}
 });
 
-function extractTheme(text: string): string {
+const extractTheme = function extractTheme(text: string): string {
   const match = text.match(/Theme:\s*(\S+)/u);
   return match ? match[1] : "";
-}
+};
 
 describe("theme switching", () => {
   test("t opens theme picker", async () => {

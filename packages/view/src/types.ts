@@ -114,15 +114,17 @@ export type { ColumnDef, TableRow } from "@tooee/renderers";
 
 const BUILTIN_FORMATS = new Set<string>(["markdown", "code", "text", "table"]);
 
-export function isBuiltinContent(content: AnyContent): content is Content {
+export const isBuiltinContent = function isBuiltinContent(content: AnyContent): content is Content {
   return BUILTIN_FORMATS.has(content.format);
-}
+};
 
-export function isCustomContent(content: AnyContent): content is CustomContent {
+export const isCustomContent = function isCustomContent(
+  content: AnyContent,
+): content is CustomContent {
   return !BUILTIN_FORMATS.has(content.format);
-}
+};
 
-function stringifyCell(value: unknown): string {
+const stringifyCell = function stringifyCell(value: unknown): string {
   if (value == null) {
     return "";
   }
@@ -137,9 +139,9 @@ function stringifyCell(value: unknown): string {
   } catch {
     return String(value);
   }
-}
+};
 
-export function getTextContent(content: AnyContent): string {
+export const getTextContent = function getTextContent(content: AnyContent): string {
   if (content.getTextContent) {
     return content.getTextContent();
   }
@@ -169,4 +171,4 @@ export function getTextContent(content: AnyContent): string {
       return "";
     }
   }
-}
+};

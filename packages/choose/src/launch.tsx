@@ -9,7 +9,9 @@ export interface ChooseLaunchOptions {
   actions?: ActionDefinition[];
 }
 
-export async function launch(opts: ChooseLaunchOptions): Promise<ChooseResult | null> {
+export const launch = async function launch(
+  opts: ChooseLaunchOptions,
+): Promise<ChooseResult | null> {
   return runCliSession<ChooseResult>(
     ({ resolve, cancel }) => (
       <Choose
@@ -26,4 +28,4 @@ export async function launch(opts: ChooseLaunchOptions): Promise<ChooseResult | 
       stdinPolicy: "tty-if-piped",
     },
   );
-}
+};

@@ -29,7 +29,13 @@ const BORDER = 2;
  * additive: j/k + arrows move, Enter invokes, Escape closes (handled by the
  * overlay layer), click selects.
  */
-export function ContextMenu({ entries, x, y, onSelect, onClose }: ContextMenuProps) {
+export const ContextMenu = function ContextMenu({
+  entries,
+  x,
+  y,
+  onSelect,
+  onClose,
+}: ContextMenuProps) {
   const { theme } = useTheme();
   const { width: termWidth, height: termHeight } = useTerminalDimensions();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -144,4 +150,4 @@ export function ContextMenu({ entries, x, y, onSelect, onClose }: ContextMenuPro
       </box>
     </box>
   );
-}
+};

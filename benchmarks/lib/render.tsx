@@ -13,22 +13,27 @@ export const DEFAULT_VIEWPORT: BenchmarkViewport = { height: 36, width: 140 };
 
 export type TestRendererSetup = Awaited<ReturnType<typeof testRender>>;
 
-export async function renderPass(setup: TestRendererSetup, passes = 1): Promise<void> {
+export const renderPass = async function renderPass(
+  setup: TestRendererSetup,
+  passes = 1,
+): Promise<void> {
   for (let pass = 0; pass < passes; pass += 1) {
     await act(async () => {
       await setup.renderOnce();
       await Bun.sleep(0);
     });
   }
-}
+};
 
-export async function destroyRenderer(setup: TestRendererSetup): Promise<void> {
+export const destroyRenderer = async function destroyRenderer(
+  setup: TestRendererSetup,
+): Promise<void> {
   await act(async () => {
     setup.renderer.destroy();
   });
-}
+};
 
-export async function measureFirstFrame(
+export const measureFirstFrame = async function measureFirstFrame(
   metricPrefix: string,
   node: ReactNode,
   viewport: BenchmarkViewport = DEFAULT_VIEWPORT,
@@ -46,18 +51,18 @@ export async function measureFirstFrame(
       await destroyRenderer(setup);
     }
   }
-}
+};
 
-export async function mountForInteraction(
+export const mountForInteraction = async function mountForInteraction(
   node: ReactNode,
   viewport: BenchmarkViewport = DEFAULT_VIEWPORT,
 ): Promise<TestRendererSetup> {
   const setup = await testRender(node, { ...viewport, kittyKeyboard: true });
   await renderPass(setup, 3);
   return setup;
-}
+};
 
-export async function measureKeyPressLatencies(
+export const measureKeyPressLatencies = async function measureKeyPressLatencies(
   setup: TestRendererSetup,
   key: string,
   presses: number,
@@ -76,18 +81,21 @@ export async function measureKeyPressLatencies(
   }
 
   return latencies;
-}
+};
 
-export function printLatencySummary(metricPrefix: string, latencies: number[]): void {
+export const printLatencySummary = function printLatencySummary(
+  metricPrefix: string,
+  latencies: number[],
+): void {
   printTimedMetric(`${metricPrefix}_median_ms`, percentile(latencies, 50));
   printTimedMetric(`${metricPrefix}_p95_ms`, percentile(latencies, 95));
-}
+};
 
-export function printMemoryMetrics(metricPrefix: string): void {
+export const printMemoryMetrics = function printMemoryMetrics(metricPrefix: string): void {
   if (typeof Bun.gc === "function") {
     Bun.gc(true);
   }
   const usage = process.memoryUsage();
   console.log(`METRIC ${metricPrefix}_rss_bytes=${usage.rss}`);
   console.log(`METRIC ${metricPrefix}_heap_used_bytes=${usage.heapUsed}`);
-}
+};

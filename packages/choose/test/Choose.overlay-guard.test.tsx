@@ -22,9 +22,9 @@ const ITEMS = [
   { text: "epsilon" },
 ];
 
-function makeProvider(): ChooseContentProvider {
+const makeProvider = function makeProvider(): ChooseContentProvider {
   return { load: () => ITEMS };
-}
+};
 
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
@@ -34,7 +34,9 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-async function setup(opts: { onConfirm?: (r: any) => void; onCancel?: () => void } = {}) {
+const setup = async function setup(
+  opts: { onConfirm?: (r: any) => void; onCancel?: () => void } = {},
+) {
   const s = await testRender(
     <TooeeProvider initialMode="insert">
       <Choose
@@ -48,42 +50,42 @@ async function setup(opts: { onConfirm?: (r: any) => void; onCancel?: () => void
   );
   await s.renderOnce();
   return s;
-}
+};
 
-async function press(s: TestSession, key: string, modifiers?: { ctrl?: boolean }) {
+const press = async function press(s: TestSession, key: string, modifiers?: { ctrl?: boolean }) {
   await act(async () => {
     s.mockInput.pressKey(key, modifiers);
   });
   await s.renderOnce();
-}
+};
 
-async function pressEscape(s: TestSession) {
+const pressEscape = async function pressEscape(s: TestSession) {
   await act(async () => {
     s.mockInput.pressEscape();
   });
   await s.renderOnce();
-}
+};
 
-async function pressEnter(s: TestSession) {
+const pressEnter = async function pressEnter(s: TestSession) {
   await act(async () => {
     s.mockInput.pressEnter();
   });
   await s.renderOnce();
-}
+};
 
-async function pressArrow(s: TestSession, direction: "up" | "down") {
+const pressArrow = async function pressArrow(s: TestSession, direction: "up" | "down") {
   await act(async () => {
     s.mockInput.pressArrow(direction);
   });
   await s.renderOnce();
-}
+};
 
 /** Escape to cursor mode, then `t` to open the theme picker overlay. */
-async function openThemePicker(s: TestSession) {
+const openThemePicker = async function openThemePicker(s: TestSession) {
   await pressEscape(s);
   await press(s, "t");
   expect(s.captureCharFrame()).toContain("Filter themes...");
-}
+};
 
 describe("Choose raw keyboard handler with theme picker open (R-01)", () => {
   test("Escape closes the picker without cancelling the app", async () => {

@@ -26,7 +26,7 @@ export interface DocumentScreenProps<T> {
  * `ctx.document`, the app layout, and the standard status items. Router
  * commands, domain status, data loading, and row rendering stay with the app.
  */
-export function DocumentScreen<T>({
+export const DocumentScreen = function DocumentScreen<T>({
   controller,
   titleBar,
   statusItems,
@@ -68,4 +68,4 @@ export function DocumentScreen<T>({
       {children}
     </AppLayout>
   );
-}
+};

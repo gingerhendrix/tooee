@@ -28,7 +28,7 @@ export interface AppLayoutProps {
   children: ReactNode;
 }
 
-export function AppLayout({
+export const AppLayout = function AppLayout({
   titleBar,
   statusBar,
   scrollRef,
@@ -84,4 +84,4 @@ export function AppLayout({
       )}
     </box>
   );
-}
+};

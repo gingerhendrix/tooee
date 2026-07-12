@@ -6,7 +6,7 @@ import { useCommand } from "@tooee/commands";
 import { useToast } from "@tooee/toasts";
 import type { TestSession } from "./support/test-helpers.ts";
 
-function ToastContextHarness() {
+const ToastContextHarness = function ToastContextHarness() {
   const { currentToast } = useToast();
 
   useCommand({
@@ -40,7 +40,7 @@ function ToastContextHarness() {
       />
     </box>
   );
-}
+};
 
 let testSetup: TestSession;
 

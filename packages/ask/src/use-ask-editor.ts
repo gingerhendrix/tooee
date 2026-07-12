@@ -107,7 +107,9 @@ export interface UseAskEditorResult {
  * command surface, so it works identically at the app root, inside an
  * `ownCommands` overlay, or under any `CommandSurfaceProvider`.
  */
-export function useAskEditor(options: UseAskEditorOptions = {}): UseAskEditorResult {
+export const useAskEditor = function useAskEditor(
+  options: UseAskEditorOptions = {},
+): UseAskEditorResult {
   const { multiline = false, defaultValue, placeholder, commandScope = "ask" } = options;
 
   const mode = useMode();
@@ -556,4 +558,4 @@ export function useAskEditor(options: UseAskEditorOptions = {}): UseAskEditorRes
       value,
     },
   };
-}
+};

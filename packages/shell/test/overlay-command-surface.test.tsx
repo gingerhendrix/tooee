@@ -8,7 +8,7 @@ import type { OverlayCloseReason } from "@tooee/overlays";
 import { press, pressEnter, pressEscape } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
 
-function AskSurface({
+const AskSurface = function AskSurface({
   onSubmit,
   onCancel,
 }: {
@@ -38,15 +38,15 @@ function AskSurface({
       <text content={`askmode:${mode}`} />
     </box>
   );
-}
+};
 
-function PassiveSurface({ onAction }: { onAction: () => void }) {
+const PassiveSurface = function PassiveSurface({ onAction }: { onAction: () => void }) {
   // Bound to the same hotkey the root uses to prove passive surfaces never win.
   useCommand({ handler: onAction, hotkey: "q", id: "passive.quit-like", title: "Passive" });
   return <text content="PASSIVE_OVERLAY" />;
-}
+};
 
-function Harness() {
+const Harness = function Harness() {
   const overlay = useOverlay();
   const current = useCurrentOverlay();
   const mode = useMode();
@@ -109,9 +109,9 @@ function Harness() {
       {current}
     </box>
   );
-}
+};
 
-async function setup() {
+const setup = async function setup() {
   const session = await testRender(
     <TooeeProvider>
       <Harness />
@@ -120,7 +120,7 @@ async function setup() {
   );
   await session.renderOnce();
   return session;
-}
+};
 
 let testSetup: TestSession;
 

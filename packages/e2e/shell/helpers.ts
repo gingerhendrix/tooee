@@ -7,7 +7,7 @@ const REPO_ROOT = resolve(import.meta.dir, "../../..");
 const CONFIG_NAMESPACE = "shell-e2e";
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
 
-export async function launchShellFixture(
+export const launchShellFixture = async function launchShellFixture(
   fixture: string,
   readyText = "which-key e2e ready",
 ): Promise<Session> {
@@ -24,4 +24,4 @@ export async function launchShellFixture(
   await session.waitForText(readyText, { timeout: 15_000 });
   await Bun.sleep(150);
   return session;
-}
+};

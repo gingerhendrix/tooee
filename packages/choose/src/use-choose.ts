@@ -94,7 +94,7 @@ export interface UseChooseResult {
  * Shared headless chooser: source lifecycle, fuzzy matches, selection,
  * command context, controller, and all built-in keyboard commands.
  */
-export function useChoose(options: UseChooseOptions): UseChooseResult {
+export const useChoose = function useChoose(options: UseChooseOptions): UseChooseResult {
   const { source, multi = false, initialFilter = "", commandScope = "choose" } = options;
   const initialItems = Array.isArray(source) ? source : [];
 
@@ -476,4 +476,4 @@ export function useChoose(options: UseChooseOptions): UseChooseResult {
       suspended,
     },
   };
-}
+};

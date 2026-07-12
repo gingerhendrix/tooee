@@ -193,10 +193,13 @@ export const FALLBACKS: Record<string, string> = {
 // Resolution
 // ---------------------------------------------------------------------------
 
-export function resolveTheme(json: ThemeJSON, mode: "dark" | "light"): ResolvedTheme {
+export const resolveTheme = function resolveTheme(
+  json: ThemeJSON,
+  mode: "dark" | "light",
+): ResolvedTheme {
   const defs = json.defs ?? {};
 
-  function resolveColor(c: ColorValue, seen = new Set<string>()): string {
+  const resolveColor = function resolveColor(c: ColorValue, seen = new Set<string>()): string {
     if (typeof c === "string") {
       if (c === "transparent" || c === "none") return "#00000000";
       if (c.startsWith("#")) return c;
@@ -207,7 +210,7 @@ export function resolveTheme(json: ThemeJSON, mode: "dark" | "light"): ResolvedT
       return "#808080";
     }
     return resolveColor(c[mode], seen);
-  }
+  };
 
   const result = {} as Record<string, string>;
   for (const key of RESOLVED_KEYS) {
@@ -218,4 +221,4 @@ export function resolveTheme(json: ThemeJSON, mode: "dark" | "light"): ResolvedT
   if (json.theme["cursorLine"] === undefined) result.cursorLine = result.backgroundElement;
   if (json.theme["selection"] === undefined) result.selection = result.backgroundPanel;
   return result as unknown as ResolvedTheme;
-}
+};

@@ -17,7 +17,7 @@ interface CloseButtonProps {
  * Renders a small themed glyph that calls `onClose` on left-click. Purely
  * additive — overlays keep their existing Escape / cancel keyboard paths.
  */
-export function CloseButton({ onClose, glyph = "✕", color }: CloseButtonProps) {
+export const CloseButton = function CloseButton({ onClose, glyph = "✕", color }: CloseButtonProps) {
   const { theme } = useTheme();
 
   const handleMouseDown = useCallback(
@@ -38,4 +38,4 @@ export function CloseButton({ onClose, glyph = "✕", color }: CloseButtonProps)
       <text content={glyph} fg={color ?? theme.textMuted} />
     </box>
   );
-}
+};

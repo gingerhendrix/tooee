@@ -19,7 +19,7 @@ interface ViewArgs {
   renderer?: ContentFormat;
 }
 
-function parseRenderer(value: string | undefined): ContentFormat | undefined {
+const parseRenderer = function parseRenderer(value: string | undefined): ContentFormat | undefined {
   if (value === undefined || value === "") {
     console.error("Missing value for --renderer");
     process.exit(1);
@@ -30,9 +30,9 @@ function parseRenderer(value: string | undefined): ContentFormat | undefined {
     process.exit(1);
   }
   return value as ContentFormat;
-}
+};
 
-function parseViewArgs(rawArgs: string[]): ViewArgs {
+const parseViewArgs = function parseViewArgs(rawArgs: string[]): ViewArgs {
   let renderer: ContentFormat | undefined;
   let filePath: string | undefined;
 
@@ -57,9 +57,9 @@ function parseViewArgs(rawArgs: string[]): ViewArgs {
   }
 
   return { filePath, renderer };
-}
+};
 
-function printUsage(): void {
+const printUsage = function printUsage(): void {
   console.log("Usage: tooee <command> [options]");
   console.log("");
   console.log("Commands:");
@@ -84,7 +84,7 @@ function printUsage(): void {
   console.log('  echo -e "foo\\nbar\\nbaz" | tooee choose');
   console.log('  echo -e "foo\\nbar\\nbaz" | tooee choose --multi');
   console.log("  tooee table data.csv");
-}
+};
 
 switch (command) {
   case "view": {

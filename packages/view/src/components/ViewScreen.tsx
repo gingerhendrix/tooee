@@ -28,7 +28,7 @@ export interface ViewScreenProps<T> {
  * (theme/quit commands, actions, `ctx.document`, layout, standard status) plus
  * the content-only `ctx.view` slice that viewers contribute on top.
  */
-export function ViewScreen<T>({
+export const ViewScreen = function ViewScreen<T>({
   content,
   controller,
   streaming,
@@ -74,4 +74,4 @@ export function ViewScreen<T>({
       {children}
     </DocumentScreen>
   );
-}
+};

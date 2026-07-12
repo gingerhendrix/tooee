@@ -23,11 +23,13 @@ export interface VimMotionState {
   pendingG: boolean;
 }
 
-export function appendAtCursor(target: EditableInsertTarget | null | undefined): void {
+export const appendAtCursor = function appendAtCursor(
+  target: EditableInsertTarget | null | undefined,
+): void {
   target?.moveCursorRight();
-}
+};
 
-export function openLineAtCursor(
+export const openLineAtCursor = function openLineAtCursor(
   target: EditableInsertTarget | null | undefined,
   position: "above" | "below",
 ): void {
@@ -49,14 +51,14 @@ export function openLineAtCursor(
 
   target.cursorOffset = currentLineEnd;
   target.insertText("\n");
-}
+};
 
-function consume(key: KeyEvent): true {
+const consume = function consume(key: KeyEvent): true {
   key.preventDefault();
   return true;
-}
+};
 
-function isPlainKey(key: KeyEvent, name: string): boolean {
+const isPlainKey = function isPlainKey(key: KeyEvent, name: string): boolean {
   return (
     !key.ctrl &&
     !key.meta &&
@@ -64,9 +66,9 @@ function isPlainKey(key: KeyEvent, name: string): boolean {
     (key.name === name || key.raw === name) &&
     (!key.shift || key.raw === name)
   );
-}
+};
 
-export function handleEditBufferVimMotion(
+export const handleEditBufferVimMotion = function handleEditBufferVimMotion(
   key: KeyEvent,
   target: EditableMotionTarget | null | undefined,
   state: VimMotionState,
@@ -126,4 +128,4 @@ export function handleEditBufferVimMotion(
   }
 
   return false;
-}
+};

@@ -6,7 +6,10 @@ export interface ParsedTable {
   format: Format;
 }
 
-export function parseCSV(input: string): { columns: ColumnDef[]; rows: TableRow[] } {
+export const parseCSV = function parseCSV(input: string): {
+  columns: ColumnDef[];
+  rows: TableRow[];
+} {
   const lines = splitLines(input);
   if (lines.length === 0) {
     return { columns: [], rows: [] };
@@ -14,9 +17,9 @@ export function parseCSV(input: string): { columns: ColumnDef[]; rows: TableRow[
   const columns = createColumnDefs(parseCSVLine(lines[0]));
   const rows = buildRows(columns, lines.slice(1).map(parseCSVLine));
   return { columns, rows };
-}
+};
 
-function parseCSVLine(line: string): string[] {
+const parseCSVLine = function parseCSVLine(line: string): string[] {
   const fields: string[] = [];
   let i = 0;
   while (i < line.length) {
@@ -55,9 +58,12 @@ function parseCSVLine(line: string): string[] {
     }
   }
   return fields;
-}
+};
 
-export function parseTSV(input: string): { columns: ColumnDef[]; rows: TableRow[] } {
+export const parseTSV = function parseTSV(input: string): {
+  columns: ColumnDef[];
+  rows: TableRow[];
+} {
   const lines = splitLines(input);
   if (lines.length === 0) {
     return { columns: [], rows: [] };
@@ -68,9 +74,12 @@ export function parseTSV(input: string): { columns: ColumnDef[]; rows: TableRow[
     lines.slice(1).map((line) => line.split("\t")),
   );
   return { columns, rows };
-}
+};
 
-export function parseJSON(input: string): { columns: ColumnDef[]; rows: TableRow[] } {
+export const parseJSON = function parseJSON(input: string): {
+  columns: ColumnDef[];
+  rows: TableRow[];
+} {
   const data = JSON.parse(input);
   if (!Array.isArray(data) || data.length === 0) {
     return { columns: [], rows: [] };
@@ -87,11 +96,11 @@ export function parseJSON(input: string): { columns: ColumnDef[]; rows: TableRow
     return row;
   });
   return { columns, rows };
-}
+};
 
 export type Format = "csv" | "tsv" | "json" | "unknown";
 
-export function detectFormat(input: string): Format {
+export const detectFormat = function detectFormat(input: string): Format {
   const trimmed = input.trimStart();
   if (trimmed.startsWith("[")) {
     try {
@@ -109,9 +118,9 @@ export function detectFormat(input: string): Format {
     return "csv";
   }
   return "unknown";
-}
+};
 
-export function parseAuto(input: string): ParsedTable {
+export const parseAuto = function parseAuto(input: string): ParsedTable {
   const format = detectFormat(input);
   let columns: ColumnDef[];
   let rows: TableRow[];
@@ -135,13 +144,13 @@ export function parseAuto(input: string): ParsedTable {
     }
   }
   return { columns, format, rows };
-}
+};
 
-function splitLines(input: string): string[] {
+const splitLines = function splitLines(input: string): string[] {
   return input.split("\n").filter((line) => line.trim().length > 0);
-}
+};
 
-function createColumnDefs(rawHeaders: string[]): ColumnDef[] {
+const createColumnDefs = function createColumnDefs(rawHeaders: string[]): ColumnDef[] {
   const seen = new Map<string, number>();
   return rawHeaders.map((header, index) => {
     const trimmed = header.trim();
@@ -155,9 +164,9 @@ function createColumnDefs(rawHeaders: string[]): ColumnDef[] {
       key,
     };
   });
-}
+};
 
-function buildRows(columns: ColumnDef[], rawRows: string[][]): TableRow[] {
+const buildRows = function buildRows(columns: ColumnDef[], rawRows: string[][]): TableRow[] {
   return rawRows.map((row) => {
     const record: TableRow = {};
     columns.forEach((column, index) => {
@@ -165,4 +174,4 @@ function buildRows(columns: ColumnDef[], rawRows: string[][]): TableRow[] {
     });
     return record;
   });
-}
+};

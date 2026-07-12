@@ -17,7 +17,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-function deferred<T>() {
+const deferred = function deferred<T>() {
   let resolve!: (value: T) => void;
   let reject!: (error: unknown) => void;
   const promise = new Promise<T>((res, rej) => {
@@ -25,9 +25,9 @@ function deferred<T>() {
     reject = rej;
   });
   return { promise, reject, resolve };
-}
+};
 
-async function setup(node: React.ReactNode) {
+const setup = async function setup(node: React.ReactNode) {
   const session = await testRender(<TooeeProvider initialMode="insert">{node}</TooeeProvider>, {
     height: 24,
     kittyKeyboard: true,
@@ -35,49 +35,49 @@ async function setup(node: React.ReactNode) {
   });
   await session.renderOnce();
   return session;
-}
+};
 
-async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
+const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
   await act(async () => {
     testSetup.mockInput.pressKey(key, modifiers);
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressArrow(direction: "up" | "down") {
+const pressArrow = async function pressArrow(direction: "up" | "down") {
   await act(async () => {
     testSetup.mockInput.pressArrow(direction);
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressEnter() {
+const pressEnter = async function pressEnter() {
   await act(async () => {
     testSetup.mockInput.pressEnter();
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressTab(modifiers?: { shift?: boolean }) {
+const pressTab = async function pressTab(modifiers?: { shift?: boolean }) {
   await act(async () => {
     testSetup.mockInput.pressTab(modifiers);
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressEscape() {
+const pressEscape = async function pressEscape() {
   await act(async () => {
     testSetup.mockInput.pressEscape();
   });
   await testSetup.renderOnce();
-}
+};
 
-async function typeText(text: string) {
+const typeText = async function typeText(text: string) {
   await act(async () => {
     await testSetup.mockInput.typeText(text);
   });
   await testSetup.renderOnce();
-}
+};
 
 describe("ChooseController and normalized sources", () => {
   test("controls filter, active item, multi-selection, and same-tick submission", async () => {
@@ -138,7 +138,7 @@ describe("ChooseController and normalized sources", () => {
     const controllerRef = { current: null as ChooseController | null };
     let replace!: () => void;
 
-    function Host() {
+    const Host = function Host() {
       const [items, setItems] = useState<ChooseItem[]>([{ text: "old-one" }, { text: "old-two" }]);
       replace = () => setItems([{ text: "fresh-one" }]);
       return (
@@ -149,7 +149,7 @@ describe("ChooseController and normalized sources", () => {
           onCancel={() => {}}
         />
       );
-    }
+    };
 
     testSetup = await setup(<Host />);
     await act(async () => controllerRef.current!.setActiveIndex(1));
@@ -168,11 +168,11 @@ describe("ChooseController and normalized sources", () => {
     const slow = deferred<ChooseItem[]>();
     let replace!: () => void;
 
-    function Host() {
+    const Host = function Host() {
       const [source, setSource] = useState<ChooseSource>(() => () => slow.promise);
       replace = () => setSource([{ text: "fresh" }]);
       return <ChooseOverlay items={source} onSelect={() => {}} onCancel={() => {}} />;
-    }
+    };
 
     testSetup = await setup(<Host />);
     await act(async () => replace());
@@ -284,7 +284,7 @@ describe("shared commands, context, and surfaces", () => {
     expect(contextFilter).toBe("");
   });
 
-  function ChildSurface({ close }: { close: () => void }) {
+  const ChildSurface = function ChildSurface({ close }: { close: () => void }) {
     useCommand({
       handler: close,
       hotkey: "x",
@@ -297,9 +297,9 @@ describe("shared commands, context, and surfaces", () => {
         <text content="CHILD PICKER" />
       </box>
     );
-  }
+  };
 
-  function NestedHost({ onSelect }: { onSelect: (item: ChooseItem) => void }) {
+  const NestedHost = function NestedHost({ onSelect }: { onSelect: (item: ChooseItem) => void }) {
     const [open, setOpen] = useState(true);
     return (
       <ChooseOverlay
@@ -314,7 +314,7 @@ describe("shared commands, context, and surfaces", () => {
         )}
       </ChooseOverlay>
     );
-  }
+  };
 
   test("a nested modal surface suspends navigation, submission, and filter focus", async () => {
     const selected: ChooseItem[] = [];

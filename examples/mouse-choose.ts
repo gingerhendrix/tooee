@@ -39,7 +39,7 @@ const frameworks: ChooseItem[] = [
   { description: "Utility-first styling", icon: "\u{1F3A8}", text: "Tailwind", value: "tailwind" },
 ];
 
-async function main() {
+const main = async function main() {
   const result = await launch({
     contentProvider: createStaticProvider(frameworks),
     options: { prompt: "Left-click a row, then press Enter" },
@@ -51,6 +51,6 @@ async function main() {
     const selected = result.items[0];
     console.log(`You chose: ${selected.text} (${selected.value})`);
   }
-}
+};
 
 main();

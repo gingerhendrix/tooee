@@ -12,7 +12,10 @@ export interface WhichKeyProviderProps {
   leaderOnly?: boolean;
 }
 
-export function WhichKeyProvider({ children, leaderOnly }: WhichKeyProviderProps) {
+export const WhichKeyProvider = function WhichKeyProvider({
+  children,
+  leaderOnly,
+}: WhichKeyProviderProps) {
   const sequence = useCommandSequenceState();
   const { leaderKey } = useCommandRegistry();
   const overlay = useOverlay();
@@ -60,9 +63,13 @@ export function WhichKeyProvider({ children, leaderOnly }: WhichKeyProviderProps
   );
 
   return <>{children}</>;
-}
+};
 
-export function WhichKeyOverlay({ state }: { state: CommandSequenceState }) {
+export const WhichKeyOverlay = function WhichKeyOverlay({
+  state,
+}: {
+  state: CommandSequenceState;
+}) {
   const { theme } = useTheme();
   const entries = useMemo(() => summarizeCandidates(state), [state]);
   const prefix = state.prefix.map(formatStep).join(" ");
@@ -92,9 +99,11 @@ export function WhichKeyOverlay({ state }: { state: CommandSequenceState }) {
       </box>
     </box>
   );
-}
+};
 
-function summarizeCandidates(state: CommandSequenceState): { key: string; title: string }[] {
+const summarizeCandidates = function summarizeCandidates(
+  state: CommandSequenceState,
+): { key: string; title: string }[] {
   const byKey = new Map<string, string[]>();
   for (const candidate of state.candidates) {
     const key = formatStep(candidate.nextStep);
@@ -107,18 +116,20 @@ function summarizeCandidates(state: CommandSequenceState): { key: string; title:
   return Array.from(byKey.entries())
     .map(([key, titles]) => ({ key, title: titles.join(" / ") }))
     .toSorted((a, b) => a.key.localeCompare(b.key));
-}
+};
 
-function fallbackCandidateLabel(candidate: CommandSequenceState["candidates"][number]): string {
+const fallbackCandidateLabel = function fallbackCandidateLabel(
+  candidate: CommandSequenceState["candidates"][number],
+): string {
   if (candidate.remainingSteps.length === 1) return candidate.command.title;
 
   if (candidate.command.group) return candidate.command.group;
   if (candidate.command.category) return candidate.command.category;
 
   return `${formatStep(candidate.remainingSteps[1]!)}… ${candidate.command.title}`;
-}
+};
 
-function formatStep(step: ParsedStep): string {
+const formatStep = function formatStep(step: ParsedStep): string {
   const modifiers = [];
   if (step.ctrl) modifiers.push("ctrl");
   if (step.meta) modifiers.push("meta");
@@ -126,4 +137,4 @@ function formatStep(step: ParsedStep): string {
   if (step.shift) modifiers.push("shift");
   modifiers.push(step.key);
   return modifiers.join("+");
-}
+};

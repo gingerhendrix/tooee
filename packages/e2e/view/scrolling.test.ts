@@ -11,10 +11,10 @@ afterEach(() => {
   } catch {}
 });
 
-function extractCursor(text: string): number {
+const extractCursor = function extractCursor(text: string): number {
   const match = text.match(/Cursor:\s*(\d+)/u);
   return match ? parseInt(match[1], 10) : -1;
-}
+};
 
 describe("markdown scrolling", () => {
   test("cursor down past viewport scrolls content", async () => {

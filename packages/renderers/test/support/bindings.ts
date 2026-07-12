@@ -7,9 +7,11 @@ import type { RowDocumentRenderable } from "../../src/RowDocumentRenderable.js";
 const NO_DECORATIONS: readonly DecorationLayer[] = [];
 
 /** Paint-only bindings: decoration layers with no ref sharing or mouse handling. */
-export function decorationBindings(decorations: readonly DecorationLayer[]): DocumentBindings {
+export const decorationBindings = function decorationBindings(
+  decorations: readonly DecorationLayer[],
+): DocumentBindings {
   return { decorations, onMouseDown() {}, ref: { current: null } };
-}
+};
 
 export interface RowMouseCallbacks {
   onRowClick?: (index: number) => void;
@@ -20,7 +22,7 @@ export interface RowMouseCallbacks {
  * Stands in for `useDocumentController`'s mouse mapping so renderer tests can
  * assert screen-Y → row geometry without pulling in `@tooee/shell`.
  */
-export function useRowMouseBindings({
+export const useRowMouseBindings = function useRowMouseBindings({
   onRowClick,
   onRowContextMenu,
 }: RowMouseCallbacks): DocumentBindings {
@@ -42,4 +44,4 @@ export function useRowMouseBindings({
     },
     ref,
   };
-}
+};

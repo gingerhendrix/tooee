@@ -45,15 +45,15 @@ const WORDS = [
   "lumen",
 ];
 
-function sentence(seed: number, words = 16): string {
+const sentence = function sentence(seed: number, words = 16): string {
   const parts: string[] = [];
   for (let index = 0; index < words; index += 1) {
     parts.push(WORDS[(seed + index * 7) % WORDS.length] ?? "word");
   }
   return `${parts.join(" ")}.`;
-}
+};
 
-function markdownTable(section: number): string {
+const markdownTable = function markdownTable(section: number): string {
   const rows = ["| Metric | Value | Notes |", "| --- | ---: | --- |"];
   for (let row = 0; row < 6; row += 1) {
     rows.push(
@@ -61,9 +61,11 @@ function markdownTable(section: number): string {
     );
   }
   return rows.join("\n");
-}
+};
 
-export function makeMarkdownFixture(tier: FixtureTier = FIXTURE_TIERS.moderate): MarkdownContent {
+export const makeMarkdownFixture = function makeMarkdownFixture(
+  tier: FixtureTier = FIXTURE_TIERS.moderate,
+): MarkdownContent {
   const sections: string[] = ["# Tooee synthetic markdown benchmark", ""];
 
   for (let section = 0; section < tier.markdownSections; section += 1) {
@@ -98,9 +100,11 @@ export function makeMarkdownFixture(tier: FixtureTier = FIXTURE_TIERS.moderate):
     markdown,
     title: `markdown-${tier.name}`,
   };
-}
+};
 
-export function makeCodeFixture(tier: FixtureTier = FIXTURE_TIERS.moderate): CodeContent {
+export const makeCodeFixture = function makeCodeFixture(
+  tier: FixtureTier = FIXTURE_TIERS.moderate,
+): CodeContent {
   const lines: string[] = [];
   for (let line = 0; line < tier.codeLines; line += 1) {
     const label = WORDS[line % WORDS.length];
@@ -115,9 +119,11 @@ export function makeCodeFixture(tier: FixtureTier = FIXTURE_TIERS.moderate): Cod
     language: "ts",
     title: `code-${tier.name}`,
   };
-}
+};
 
-export function makeTableFixture(tier: FixtureTier = FIXTURE_TIERS.moderate): TableContent {
+export const makeTableFixture = function makeTableFixture(
+  tier: FixtureTier = FIXTURE_TIERS.moderate,
+): TableContent {
   const columns: ColumnDef[] = Array.from({ length: tier.tableColumns }, (_, index) => ({
     align: index % 3 === 0 ? "right" : "left",
     header: `Column ${index}`,
@@ -141,8 +147,8 @@ export function makeTableFixture(tier: FixtureTier = FIXTURE_TIERS.moderate): Ta
     rows,
     title: `table-${tier.name}`,
   };
-}
+};
 
-export function countLines(text: string): number {
+export const countLines = function countLines(text: string): number {
   return text.split("\n").length;
-}
+};

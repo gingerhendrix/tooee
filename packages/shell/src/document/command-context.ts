@@ -46,7 +46,7 @@ export interface ProvideDocumentCommandContextOptions {
  * document gets active/selected rows; content-specific fields belong on the
  * owning package's own context key.
  */
-export function useProvideDocumentCommandContext<T>(
+export const useProvideDocumentCommandContext = function useProvideDocumentCommandContext<T>(
   controller: DocumentController<T>,
   options: ProvideDocumentCommandContextOptions = {},
 ): void {
@@ -65,4 +65,4 @@ export function useProvideDocumentCommandContext<T>(
     title: options.title,
     toggledIndices: controller.toggledIndices,
   }));
-}
+};

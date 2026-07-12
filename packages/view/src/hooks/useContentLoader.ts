@@ -13,7 +13,7 @@ import {
   selectStreaming,
 } from "../content-loader-store.js";
 
-export function useContentLoader(contentProvider: ContentProvider) {
+export const useContentLoader = function useContentLoader(contentProvider: ContentProvider) {
   const [store] = useState(createContentLoaderStore);
   const loadSeq = useSelector(store, (snapshot) => selectLoadSeq(snapshot.context));
 
@@ -71,4 +71,4 @@ export function useContentLoader(contentProvider: ContentProvider) {
   const reload = useCallback(() => store.trigger.reloadRequested({}), [store]);
 
   return { content, error, providerMarks, reload, status, streaming };
-}
+};

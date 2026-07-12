@@ -11,7 +11,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-async function setupAsk(
+const setupAsk = async function setupAsk(
   opts: {
     multiline?: boolean;
     defaultValue?: string;
@@ -37,9 +37,9 @@ async function setupAsk(
   );
   await s.renderOnce();
   return s;
-}
+};
 
-async function setup(
+const setup = async function setup(
   opts: {
     multiline?: boolean;
     defaultValue?: string;
@@ -61,52 +61,55 @@ async function setup(
   );
   await s.renderOnce();
   return s;
-}
+};
 
-async function pressEscape() {
+const pressEscape = async function pressEscape() {
   await act(async () => {
     testSetup.mockInput.pressEscape();
   });
   await testSetup.renderOnce();
-}
+};
 
-async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
+const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
   await act(async () => {
     testSetup.mockInput.pressKey(key, modifiers);
   });
   await testSetup.renderOnce();
-}
+};
 
-async function typeText(text: string) {
+const typeText = async function typeText(text: string) {
   await act(async () => {
     await testSetup.mockInput.typeText(text);
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressEnter() {
+const pressEnter = async function pressEnter() {
   await act(async () => {
     testSetup.mockInput.pressEnter();
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressShiftEnter() {
+const pressShiftEnter = async function pressShiftEnter() {
   await act(async () => {
     testSetup.mockInput.pressEnter({ shift: true });
   });
   await testSetup.renderOnce();
-}
+};
 
-function cursorState() {
+const cursorState = function cursorState() {
   return testSetup.renderer.getCursorState();
-}
+};
 
-function cursorIsVisible(): boolean {
+const cursorIsVisible = function cursorIsVisible(): boolean {
   return cursorState().visible;
-}
+};
 
-function findEditableWithText(node: unknown, text: string): { cursorOffset: number } | undefined {
+const findEditableWithText = function findEditableWithText(
+  node: unknown,
+  text: string,
+): { cursorOffset: number } | undefined {
   if (!node || typeof node !== "object") {
     return undefined;
   }
@@ -129,7 +132,7 @@ function findEditableWithText(node: unknown, text: string): { cursorOffset: numb
   }
 
   return undefined;
-}
+};
 
 describe("Ask default value cursor", () => {
   test("single-line typing appends after the default value", async () => {

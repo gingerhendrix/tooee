@@ -15,13 +15,13 @@ interface RunOptions {
   scripts: string[];
 }
 
-function readArgValue(args: string[], index: number): string {
+const readArgValue = function readArgValue(args: string[], index: number): string {
   const value = args[index + 1];
   if (!value) throw new Error(`Missing value for ${args[index]}`);
   return value;
-}
+};
 
-function parseArgs(args: string[]): RunOptions {
+const parseArgs = function parseArgs(args: string[]): RunOptions {
   const options: RunOptions = {
     includeHeavy: process.env.TOOEE_BENCH_INCLUDE_HEAVY === "1",
     samples: Number(process.env.TOOEE_BENCH_SAMPLES ?? 3),
@@ -68,9 +68,9 @@ function parseArgs(args: string[]): RunOptions {
 
   options.samples = Math.floor(options.samples);
   return options;
-}
+};
 
-function printHelp(): void {
+const printHelp = function printHelp(): void {
   console.log(`Usage: bun run bench -- [options]
 
 Options:
@@ -80,9 +80,9 @@ Options:
   --include-heavy    Include opt-in large fixture benchmarks
   -h, --help         Show this help
 `);
-}
+};
 
-function parseMetrics(output: string): Map<string, number> {
+const parseMetrics = function parseMetrics(output: string): Map<string, number> {
   const metrics = new Map<string, number>();
   const metricPattern = /^METRIC\s+([A-Za-z0-9_.:-]+)=(-?\d+(?:\.\d+)?)$/u;
 
@@ -94,9 +94,9 @@ function parseMetrics(output: string): Map<string, number> {
   }
 
   return metrics;
-}
+};
 
-async function runScript(script: string): Promise<Map<string, number>> {
+const runScript = async function runScript(script: string): Promise<Map<string, number>> {
   const proc = Bun.spawn(["bun", "--conditions=@tooee/source", `benchmarks/${script}`], {
     env: { ...process.env, CI: process.env.CI ?? "1" },
     stderr: "pipe",
@@ -120,9 +120,9 @@ async function runScript(script: string): Promise<Map<string, number>> {
 
   process.stdout.write(stdout);
   return parseMetrics(stdout);
-}
+};
 
-function gitSha(): string | undefined {
+const gitSha = function gitSha(): string | undefined {
   const proc = Bun.spawnSync(["git", "rev-parse", "HEAD"], {
     stderr: "ignore",
     stdin: "ignore",
@@ -130,9 +130,9 @@ function gitSha(): string | undefined {
   });
   if (proc.exitCode !== 0) return undefined;
   return Buffer.from(proc.stdout).toString("utf-8").trim();
-}
+};
 
-async function packageInfo(): Promise<{ name?: string; version?: string }> {
+const packageInfo = async function packageInfo(): Promise<{ name?: string; version?: string }> {
   try {
     const packageJson = JSON.parse(await Bun.file("package.json").text()) as {
       name?: string;
@@ -142,13 +142,13 @@ async function packageInfo(): Promise<{ name?: string; version?: string }> {
   } catch {
     return {};
   }
-}
+};
 
-function formatValue(value: number, unit: string): string {
+const formatValue = function formatValue(value: number, unit: string): string {
   if (unit === "bytes") return `${Math.round(value).toLocaleString()} bytes`;
   if (unit === "ms") return `${value >= 100 ? value.toFixed(1) : value.toFixed(2)}ms`;
   return value.toFixed(2);
-}
+};
 
 const options = parseArgs(Bun.argv.slice(2));
 const scripts = options.scripts.length > 0 ? [...options.scripts] : [...DEFAULT_SCRIPTS];

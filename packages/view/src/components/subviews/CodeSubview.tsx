@@ -11,7 +11,12 @@ interface CodeSubviewProps extends SubviewProps {
   content: CodeContent | TextContent;
 }
 
-export function CodeSubview({ content, decorations, actions, ...screen }: CodeSubviewProps) {
+export const CodeSubview = function CodeSubview({
+  content,
+  decorations,
+  actions,
+  ...screen
+}: CodeSubviewProps) {
   const textContent = content.format === "code" ? content.code : content.text;
   // One navigation row per physical source line; row index is the source line.
   const lineRows = useMemo(() => sourceLines(textContent), [textContent]);
@@ -51,4 +56,4 @@ export function CodeSubview({ content, decorations, actions, ...screen }: CodeSu
       />
     </ViewScreen>
   );
-}
+};

@@ -40,7 +40,12 @@ export interface ThemeProviderProps {
   children: ReactNode;
 }
 
-export function ThemeProvider({ name, mode, theme: themeProp, children }: ThemeProviderProps) {
+export const ThemeProvider = function ThemeProvider({
+  name,
+  mode,
+  theme: themeProp,
+  children,
+}: ThemeProviderProps) {
   const resolved = useMemo<ThemeContextValue>(() => {
     if (themeProp) {
       return {
@@ -56,11 +61,11 @@ export function ThemeProvider({ name, mode, theme: themeProp, children }: ThemeP
   }, [themeProp, name, mode]);
 
   return <ThemeContext.Provider value={resolved}>{children}</ThemeContext.Provider>;
-}
+};
 
-export function useTheme(): ThemeContextValue {
+export const useTheme = function useTheme(): ThemeContextValue {
   return useContext(ThemeContext);
-}
+};
 
 // ---------------------------------------------------------------------------
 // ThemeSwitcherProvider + useThemeSwitcher
@@ -81,7 +86,7 @@ export interface ThemeSwitcherProviderProps {
   children: ReactNode;
 }
 
-export function ThemeSwitcherProvider({
+export const ThemeSwitcherProvider = function ThemeSwitcherProvider({
   initialTheme,
   initialMode,
   children,
@@ -140,12 +145,12 @@ export function ThemeSwitcherProvider({
       <ThemeContext.Provider value={themeValue}>{children}</ThemeContext.Provider>
     </ThemeSwitcherContext.Provider>
   );
-}
+};
 
-export function useThemeSwitcher(): ThemeSwitcherContextValue {
+export const useThemeSwitcher = function useThemeSwitcher(): ThemeSwitcherContextValue {
   const ctx = useContext(ThemeSwitcherContext);
   if (!ctx) {
     throw new Error("useThemeSwitcher must be used within ThemeSwitcherProvider");
   }
   return ctx;
-}
+};

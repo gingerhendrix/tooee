@@ -13,49 +13,49 @@ import {
 
 // Route components
 
-function HomeScreen() {
+const HomeScreen = function HomeScreen() {
   return (
     <box>
       <text content="screen:home" />
     </box>
   );
-}
+};
 
-function DetailScreen() {
+const DetailScreen = function DetailScreen() {
   const params = useParams<{ id: string }>();
   return (
     <box>
       <text content={`screen:detail:${params.id ?? "none"}`} />
     </box>
   );
-}
+};
 
-function SettingsScreen() {
+const SettingsScreen = function SettingsScreen() {
   return (
     <box>
       <text content="screen:settings" />
     </box>
   );
-}
+};
 
 // Parent/child for nested outlet tests
 
-function LayoutScreen() {
+const LayoutScreen = function LayoutScreen() {
   return (
     <box>
       <text content="layout:" />
       <Outlet />
     </box>
   );
-}
+};
 
-function NestedChild() {
+const NestedChild = function NestedChild() {
   return (
     <box>
       <text content="nested-child" />
     </box>
   );
-}
+};
 
 // Route definitions
 
@@ -72,7 +72,7 @@ const nestedRoute = createRoute({
 
 // Test harness that exposes navigation controls via rendered text
 
-function NavHarness() {
+const NavHarness = function NavHarness() {
   const current = useCurrentRoute();
   const canGoBack = useCanGoBack();
 
@@ -83,7 +83,7 @@ function NavHarness() {
       <Outlet />
     </box>
   );
-}
+};
 
 // Test setup
 

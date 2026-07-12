@@ -7,10 +7,10 @@ import { Table } from "../src/Table.js";
 import { useRowMouseBindings } from "./support/bindings.js";
 import type { RowMouseCallbacks } from "./support/bindings.js";
 
-function cols(headers: string[]) {
+const cols = function cols(headers: string[]) {
   return headers.map((header, index) => ({ header, key: `col_${index}` }));
-}
-function rows(columns: ReturnType<typeof cols>, values: string[][]) {
+};
+const rows = function rows(columns: ReturnType<typeof cols>, values: string[][]) {
   return values.map((row) => {
     const record: Record<string, string> = {};
     columns.forEach((column, index) => {
@@ -18,7 +18,7 @@ function rows(columns: ReturnType<typeof cols>, values: string[][]) {
     });
     return record;
   });
-}
+};
 
 const COLUMNS = cols(["Name", "Age"]);
 const DATA = rows(COLUMNS, [
@@ -33,11 +33,11 @@ const DATA = rows(COLUMNS, [
 const DATA_TOP_Y = 2;
 const CONTENT_X = 8;
 
-function TableHarness(callbacks: RowMouseCallbacks) {
+const TableHarness = function TableHarness(callbacks: RowMouseCallbacks) {
   return (
     <Table columns={COLUMNS} rows={DATA} maxWidth={40} document={useRowMouseBindings(callbacks)} />
   );
-}
+};
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 

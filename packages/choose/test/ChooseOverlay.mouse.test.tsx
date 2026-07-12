@@ -25,7 +25,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-function lineOf(frame: string, text: string): { x: number; y: number } {
+const lineOf = function lineOf(frame: string, text: string): { x: number; y: number } {
   const lines = frame.split("\n");
   for (let y = 0; y < lines.length; y++) {
     const x = lines[y].indexOf(text);
@@ -34,9 +34,12 @@ function lineOf(frame: string, text: string): { x: number; y: number } {
     }
   }
   return { x: -1, y: -1 };
-}
+};
 
-async function setup(opts: { onSelect?: (item: ChooseItem) => void; onCancel?: () => void }) {
+const setup = async function setup(opts: {
+  onSelect?: (item: ChooseItem) => void;
+  onCancel?: () => void;
+}) {
   const s = await testRender(
     <TooeeProvider initialMode="insert">
       <ChooseOverlay
@@ -50,7 +53,7 @@ async function setup(opts: { onSelect?: (item: ChooseItem) => void; onCancel?: (
   );
   await s.renderOnce();
   return s;
-}
+};
 
 describe("ChooseOverlay mouse", () => {
   test("left-click on a row selects that item (same path as Enter)", async () => {

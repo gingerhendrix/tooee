@@ -1,7 +1,7 @@
 import { useCommand } from "@tooee/commands";
 import { useRouter } from "./hooks.js";
 
-export function useRouterCommands() {
+export const useRouterCommands = function useRouterCommands() {
   const router = useRouter();
 
   useCommand({
@@ -12,4 +12,4 @@ export function useRouterCommands() {
     title: "Go back",
     when: () => router.canGoBack(),
   });
-}
+};

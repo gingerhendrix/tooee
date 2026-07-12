@@ -77,7 +77,7 @@ export interface ChooseDialogHandle<T> {
  * (`AppLayout` does this automatically; custom hosts render
  * `useCurrentOverlay()`).
  */
-export function useChooseDialog<T>(): ChooseDialogHandle<T> {
+export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle<T> {
   const overlay = useOverlay();
   const overlayRef = useRef(overlay);
   overlayRef.current = overlay;
@@ -216,4 +216,4 @@ export function useChooseDialog<T>(): ChooseDialogHandle<T> {
   }
 
   return handleRef.current;
-}
+};

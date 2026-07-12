@@ -45,7 +45,7 @@ type NavSearchEmitted = {
   jumped: { index: number };
 };
 
-export function resolveIndex(
+export const resolveIndex = function resolveIndex(
   target: number,
   direction: 1 | -1,
   rowCount: number,
@@ -78,11 +78,11 @@ export function resolveIndex(
     }
   }
   return null;
-}
+};
 
 const EMPTY_KEYS: readonly RowKey[] = [];
 
-export function createNavSearchStore(
+export const createNavSearchStore = function createNavSearchStore(
   options: {
     keys?: readonly RowKey[];
     deps?: NavSearchDeps;
@@ -248,9 +248,9 @@ export function createNavSearchStore(
       toggleCurrent: (ctx) => toggle(ctx),
     },
   });
-}
+};
 
-function toggle(ctx: NavSearchContext): NavSearchContext {
+const toggle = function toggle(ctx: NavSearchContext): NavSearchContext {
   if (ctx.cursor === null) {
     return ctx;
   }
@@ -265,9 +265,9 @@ function toggle(ctx: NavSearchContext): NavSearchContext {
     toggledKeys.add(key);
   }
   return { ...ctx, toggledKeys };
-}
+};
 
-function searchStep(
+const searchStep = function searchStep(
   ctx: NavSearchContext,
   delta: 1 | -1,
   enqueue: { emit: { jumped: (event: { index: number }) => void } },
@@ -280,7 +280,7 @@ function searchStep(
   const cursor = ctx.search.matches[currentMatchIndex];
   enqueue.emit.jumped({ index: cursor });
   return { ...ctx, cursor, search: { ...ctx.search, currentMatchIndex } };
-}
+};
 
 export type NavSearchStore = ReturnType<typeof createNavSearchStore>;
 
@@ -294,11 +294,11 @@ export const selectSearchQuery = (ctx: NavSearchContext) =>
   ctx.search.status === "editing" ? ctx.search.query : ctx.search.committedQuery;
 export const selectMatches = (ctx: NavSearchContext) => ctx.search.matches;
 export const selectCurrentMatchIndex = (ctx: NavSearchContext) => ctx.search.currentMatchIndex;
-export function deriveSelection(ctx: NavSearchContext, mode: Mode) {
+export const deriveSelection = function deriveSelection(ctx: NavSearchContext, mode: Mode) {
   return mode === "select" && ctx.selectionAnchor !== null && ctx.cursor !== null
     ? {
         end: Math.max(ctx.selectionAnchor, ctx.cursor),
         start: Math.min(ctx.selectionAnchor, ctx.cursor),
       }
     : null;
-}
+};

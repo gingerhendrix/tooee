@@ -67,7 +67,9 @@ export interface CommandStoreContext {
  * The topmost modal surface: role === "modal", max depth, then max order.
  * Passive surfaces and the root never win.
  */
-export function selectActiveModalSurface(ctx: CommandStoreContext): SurfaceRecord | null {
+export const selectActiveModalSurface = function selectActiveModalSurface(
+  ctx: CommandStoreContext,
+): SurfaceRecord | null {
   let best: SurfaceRecord | null = null;
   for (const record of ctx.surfaces) {
     if (record.role !== "modal") continue;
@@ -80,41 +82,43 @@ export function selectActiveModalSurface(ctx: CommandStoreContext): SurfaceRecor
     }
   }
   return best;
-}
+};
 
 /**
  * Commands registered on a surface. Returns a fresh array; memoize against
  * `selectSurfaceCommandMap` identity in render paths.
  */
-export function selectSurfaceCommands(
+export const selectSurfaceCommands = function selectSurfaceCommands(
   ctx: CommandStoreContext,
   surfaceId: string,
 ): readonly Command[] {
   const commands = ctx.commandsBySurface.get(surfaceId);
   return commands ? [...commands.values()] : [];
-}
+};
 
 /** Identity-stable per-surface command map (undefined when none registered). */
-export function selectSurfaceCommandMap(
+export const selectSurfaceCommandMap = function selectSurfaceCommandMap(
   ctx: CommandStoreContext,
   surfaceId: string,
 ): ReadonlyMap<string, Command> | undefined {
   return ctx.commandsBySurface.get(surfaceId);
-}
+};
 
-export function selectSequence(ctx: CommandStoreContext): CommandSequenceState | null {
+export const selectSequence = function selectSequence(
+  ctx: CommandStoreContext,
+): CommandSequenceState | null {
   return ctx.sequence;
-}
+};
 
-export function selectGroups(
+export const selectGroups = function selectGroups(
   ctx: CommandStoreContext,
 ): ReadonlyMap<string, RegisteredCommandGroup> {
   return ctx.groups;
-}
+};
 
 // --- Step-key helpers (shared by key dispatch and group registration) --------
 
-export function formatStepKey(step: ParsedStep): string {
+export const formatStepKey = function formatStepKey(step: ParsedStep): string {
   const modifiers = [];
   if (step.ctrl) modifiers.push("ctrl");
   if (step.meta) modifiers.push("meta");
@@ -123,11 +127,11 @@ export function formatStepKey(step: ParsedStep): string {
   if (step.super) modifiers.push("super");
   modifiers.push(step.key);
   return modifiers.join("+");
-}
+};
 
-export function stepsKey(steps: readonly ParsedStep[]): string {
+export const stepsKey = function stepsKey(steps: readonly ParsedStep[]): string {
   return steps.map(formatStepKey).join(" ");
-}
+};
 
 // --- Store -------------------------------------------------------------------
 
@@ -138,15 +142,15 @@ export function stepsKey(steps: readonly ParsedStep[]): string {
  * sequence it is displaying; replacing the active modal surface with a same-id
  * record clears it (F-09) because the record identity changes.
  */
-function sequenceAfterStackChange(
+const sequenceAfterStackChange = function sequenceAfterStackChange(
   before: SurfaceRecord | null,
   after: SurfaceRecord | null,
   sequence: CommandSequenceState | null,
 ): CommandSequenceState | null {
   return before === after ? sequence : null;
-}
+};
 
-function createBaseStore(initialContext: CommandStoreContext) {
+const createBaseStore = function createBaseStore(initialContext: CommandStoreContext) {
   return createStore({
     context: initialContext,
     on: {
@@ -255,7 +259,7 @@ function createBaseStore(initialContext: CommandStoreContext) {
       },
     },
   });
-}
+};
 
 export type CommandStoreInstance = ReturnType<typeof createBaseStore>;
 
@@ -320,7 +324,9 @@ export interface CommandStore {
   setConfig: (config: CommandStoreConfig) => void;
 }
 
-export function createCommandStore(options: CreateCommandStoreOptions): CommandStore {
+export const createCommandStore = function createCommandStore(
+  options: CreateCommandStoreOptions,
+): CommandStore {
   const rootRecord: SurfaceRecord = {
     buildCtx: options.root.buildCtx,
     depth: 0,
@@ -351,33 +357,33 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
   const registries = new Map<SurfaceRecord, CommandRegistry>();
   let orderCounter = 1;
 
-  function clearTimer(): void {
+  const clearTimer = function clearTimer(): void {
     if (timer !== null) {
       clearTimeout(timer);
       timer = null;
     }
-  }
+  };
 
-  function clearBufferAndTimer(): void {
+  const clearBufferAndTimer = function clearBufferAndTimer(): void {
     buffer = [];
     clearTimer();
-  }
+  };
 
-  function reset(): void {
+  const reset = function reset(): void {
     clearBufferAndTimer();
     store.trigger.sequenceReset();
-  }
+  };
 
-  function armTimer(): void {
+  const armTimer = function armTimer(): void {
     clearTimer();
     timer = setTimeout(reset, config.sequenceTimeoutMs ?? DEFAULT_SEQUENCE_TIMEOUT_MS);
-  }
+  };
 
-  function dispose(): void {
+  const dispose = function dispose(): void {
     clearBufferAndTimer();
-  }
+  };
 
-  function getParsedHotkey(hotkey: string): ParsedHotkey {
+  const getParsedHotkey = function getParsedHotkey(hotkey: string): ParsedHotkey {
     const cacheKey = `${hotkey}:${config.leader ?? ""}`;
     let parsed = parseCache.get(cacheKey);
     if (!parsed) {
@@ -385,9 +391,9 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
       parseCache.set(cacheKey, parsed);
     }
     return parsed;
-  }
+  };
 
-  function key(event: KeyEvent): KeyDispatchResult {
+  const key = function key(event: KeyEvent): KeyDispatchResult {
     const ctx = store.getSnapshot().context;
 
     // Arbitration: a topmost modal surface owns input; otherwise the root app.
@@ -482,9 +488,9 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
     // the root app while a modal surface is topmost. (The caller does not
     // preventDefault unmatched keys — same as today.)
     return { handled: false };
-  }
+  };
 
-  function pushSurface(surface: SurfaceRecord): () => void {
+  const pushSurface = function pushSurface(surface: SurfaceRecord): () => void {
     surface.order = orderCounter;
     orderCounter += 1;
     const before = selectActiveModalSurface(store.getSnapshot().context);
@@ -500,14 +506,14 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
       const afterPop = selectActiveModalSurface(store.getSnapshot().context);
       if (beforePop !== afterPop) clearBufferAndTimer();
     };
-  }
+  };
 
-  function modeChanged(surfaceId: string): void {
+  const modeChanged = function modeChanged(surfaceId: string): void {
     clearBufferAndTimer();
     store.trigger.modeChanged({ surfaceId });
-  }
+  };
 
-  function registryFor(record: SurfaceRecord): CommandRegistry {
+  const registryFor = function registryFor(record: SurfaceRecord): CommandRegistry {
     let registry = registries.get(record);
     if (!registry) {
       registry = {
@@ -536,11 +542,11 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
       registries.set(record, registry);
     }
     return registry;
-  }
+  };
 
-  function setConfig(next: CommandStoreConfig): void {
+  const setConfig = function setConfig(next: CommandStoreConfig): void {
     config = next;
-  }
+  };
 
   return {
     dispose,
@@ -553,4 +559,4 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
     setConfig,
     store,
   };
-}
+};

@@ -19,7 +19,10 @@ export interface Theme {
 /** Cache of loaded theme JSONs by name */
 const themeJsonCache = new Map<string, ThemeJSON>();
 
-function loadJsonThemesFromDir(dir: string, target: Map<string, ThemeJSON>) {
+const loadJsonThemesFromDir = function loadJsonThemesFromDir(
+  dir: string,
+  target: Map<string, ThemeJSON>,
+) {
   try {
     if (!existsSync(dir)) {
       return;
@@ -39,10 +42,10 @@ function loadJsonThemesFromDir(dir: string, target: Map<string, ThemeJSON>) {
   } catch {
     // dir not readable
   }
-}
+};
 
 /** Load all bundled themes from packages/themes/themes/ */
-function loadBundledThemes(): Map<string, ThemeJSON> {
+const loadBundledThemes = function loadBundledThemes(): Map<string, ThemeJSON> {
   if (themeJsonCache.size > 0) {
     return themeJsonCache;
   }
@@ -69,15 +72,15 @@ function loadBundledThemes(): Map<string, ThemeJSON> {
   }
 
   return themeJsonCache;
-}
+};
 
-export function loadThemes(): Map<string, ThemeJSON> {
+export const loadThemes = function loadThemes(): Map<string, ThemeJSON> {
   return loadBundledThemes();
-}
+};
 
-export function getThemeNames(): string[] {
+export const getThemeNames = function getThemeNames(): string[] {
   return [...loadThemes().keys()].toSorted();
-}
+};
 
 // ---------------------------------------------------------------------------
 // Default theme
@@ -86,7 +89,7 @@ export function getThemeNames(): string[] {
 export const DEFAULT_THEME_NAME = "tokyonight";
 export const DEFAULT_MODE: "dark" | "light" = "dark";
 
-export function buildTheme(name: string, mode: "dark" | "light"): Theme {
+export const buildTheme = function buildTheme(name: string, mode: "dark" | "light"): Theme {
   const themes = loadThemes();
   const json = themes.get(name);
   if (!json) {
@@ -105,7 +108,7 @@ export function buildTheme(name: string, mode: "dark" | "light"): Theme {
   } catch {
     return hardcodedDefaultTheme;
   }
-}
+};
 
 const hardcodedDefaultTheme: Theme = (() => {
   const colors: ResolvedTheme = {

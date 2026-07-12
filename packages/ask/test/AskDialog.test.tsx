@@ -17,33 +17,33 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
+const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
   await act(async () => {
     testSetup.mockInput.pressKey(key, modifiers);
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressEscape() {
+const pressEscape = async function pressEscape() {
   await act(async () => {
     testSetup.mockInput.pressEscape();
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressEnter() {
+const pressEnter = async function pressEnter() {
   await act(async () => {
     testSetup.mockInput.pressEnter();
   });
   await testSetup.renderOnce();
-}
+};
 
-async function typeText(text: string) {
+const typeText = async function typeText(text: string) {
   await act(async () => {
     await testSetup.mockInput.typeText(text);
   });
   await testSetup.renderOnce();
-}
+};
 
 interface HarnessHandles {
   dialog: AskDialogHandle;
@@ -63,20 +63,24 @@ beforeEach(() => {
   settlements = [];
 });
 
-function record(label: string) {
+const record = function record(label: string) {
   return (value: string | null) => {
     settlements.push(value === null ? null : `${label}:${value}`);
   };
-}
+};
 
 /** Child that owns its own dialog hook, so owner unmount can be exercised. */
-function DialogOwner({ openRef }: { openRef: { current: AskDialogHandle | null } }) {
+const DialogOwner = function DialogOwner({
+  openRef,
+}: {
+  openRef: { current: AskDialogHandle | null };
+}) {
   const dialog = useAskDialog();
   openRef.current = dialog;
   return null;
-}
+};
 
-function Harness() {
+const Harness = function Harness() {
   const overlay = useOverlay();
   const overlayState = useOverlayState();
   const current = useCurrentOverlay();
@@ -113,9 +117,9 @@ function Harness() {
       {current}
     </box>
   );
-}
+};
 
-async function setup() {
+const setup = async function setup() {
   const session = await testRender(
     <TooeeProvider>
       <Harness />
@@ -124,9 +128,9 @@ async function setup() {
   );
   await session.renderOnce();
   return session;
-}
+};
 
-async function openDialog(
+const openDialog = async function openDialog(
   open: (options: { prompt: string }) => Promise<string | null>,
   prompt: string,
   label: string,
@@ -135,7 +139,7 @@ async function openDialog(
     void open({ prompt }).then(record(label));
   });
   await testSetup.renderOnce();
-}
+};
 
 describe("useAskDialog settlement", () => {
   test("submit resolves the typed value, closes the overlay, and settles once", async () => {

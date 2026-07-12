@@ -1,5 +1,5 @@
-function greet(name: string): string {
+const greet = function greet(name: string): string {
   return `Hello, ${name}!`;
-}
+};
 
 export default greet;

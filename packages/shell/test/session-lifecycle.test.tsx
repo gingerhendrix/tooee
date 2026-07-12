@@ -15,7 +15,9 @@ afterEach(() => {
   testRenderer = undefined;
 });
 
-function remoteRendererOptions(onDestroy?: () => void): CliRendererConfig {
+const remoteRendererOptions = function remoteRendererOptions(
+  onDestroy?: () => void,
+): CliRendererConfig {
   const stdin = new PassThrough() as PassThrough & NodeJS.ReadStream;
   stdin.isTTY = true;
   stdin.setRawMode = () => stdin;
@@ -34,7 +36,7 @@ function remoteRendererOptions(onDestroy?: () => void): CliRendererConfig {
     useThread: false,
     width: 40,
   };
-}
+};
 
 describe("mountTooee", () => {
   test("unmounts idempotently without destroying an external renderer", async () => {

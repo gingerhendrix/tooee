@@ -27,9 +27,9 @@ export interface FlattenMarkdownOptions {
 }
 
 /** Empty synthetic token stamped onto bullet-only rows (nested-list/block/empty items). */
-function syntheticTextToken(): Token {
+const syntheticTextToken = function syntheticTextToken(): Token {
   return { raw: "", text: "", tokens: [], type: "text" } as unknown as Token;
-}
+};
 
 /**
  * The visible/searchable text for a block. Non-synthetic blocks use the token's
@@ -37,7 +37,7 @@ function syntheticTextToken(): Token {
  * bullet/checkbox text, then to the resolved source text. This keeps default
  * search and copy in agreement with the source mapping on synthetic rows.
  */
-export function getFlatBlockText(block: FlatBlock): string {
+export const getFlatBlockText = function getFlatBlockText(block: FlatBlock): string {
   const raw = "raw" in block.token && typeof block.token.raw === "string" ? block.token.raw : "";
   if (raw.length > 0) {
     return raw;
@@ -47,7 +47,7 @@ export function getFlatBlockText(block: FlatBlock): string {
     return block.bullet + checkbox;
   }
   return block.source?.primary.text ?? "";
-}
+};
 
 // ---------------------------------------------------------------------------
 // Markdown provenance resolver
@@ -183,11 +183,11 @@ class MarkdownResolver {
 // Flattening (shared by mapped and unmapped forms)
 // ---------------------------------------------------------------------------
 
-function bulletFor(list: Tokens.List, itemIndex: number): string {
+const bulletFor = function bulletFor(list: Tokens.List, itemIndex: number): string {
   return list.ordered ? `${itemIndex + (list.start || 1)}. ` : "- ";
-}
+};
 
-function flattenList(
+const flattenList = function flattenList(
   list: Tokens.List,
   indent: number,
   out: FlatBlock[],
@@ -215,9 +215,9 @@ function flattenList(
       res.cursor = itemEnd;
     }
   }
-}
+};
 
-function flattenListItem(
+const flattenListItem = function flattenListItem(
   item: Tokens.ListItem,
   indent: number,
   bullet: string,
@@ -278,9 +278,9 @@ function flattenListItem(
   if (!bulletUsed) {
     emitBulletMarker();
   }
-}
+};
 
-function flattenWalk(
+const flattenWalk = function flattenWalk(
   tokens: Token[],
   indent: number,
   out: FlatBlock[],
@@ -297,7 +297,7 @@ function flattenWalk(
       out.push({ indent, source: res ? res.resolveRaw(token.raw ?? "", bound) : null, token });
     }
   }
-}
+};
 
 // ---------------------------------------------------------------------------
 // Public entry points
@@ -308,12 +308,15 @@ function flattenWalk(
  * carries a `source` anchor (or `null` when a marked edge case leaves a token
  * genuinely unresolvable), in the exact order used for navigation/rendering.
  */
-export function flattenMarkdown(markdown: string, options?: FlattenMarkdownOptions): FlatBlock[] {
+export const flattenMarkdown = function flattenMarkdown(
+  markdown: string,
+  options?: FlattenMarkdownOptions,
+): FlatBlock[] {
   const res = new MarkdownResolver(markdown, options?.sourceId);
   const out: FlatBlock[] = [];
   flattenWalk(marked.lexer(markdown), 0, out, res, markdown.length);
   return out;
-}
+};
 
 /**
  * The unmapped low-level form: flatten already-lexed tokens with no source
@@ -323,8 +326,8 @@ export function flattenMarkdown(markdown: string, options?: FlattenMarkdownOptio
  * carry no positions and the original source is unavailable here, so offsets
  * cannot be reconstructed.
  */
-export function flattenTokens(tokens: Token[]): FlatBlock[] {
+export const flattenTokens = function flattenTokens(tokens: Token[]): FlatBlock[] {
   const out: FlatBlock[] = [];
   flattenWalk(tokens, 0, out, null, 0);
   return out;
-}
+};

@@ -115,7 +115,7 @@ describe("pure sequence helpers", () => {
   });
 });
 
-function key(name: string): KeyEvent {
+const key = function key(name: string): KeyEvent {
   return {
     ctrl: false,
     meta: false,
@@ -123,8 +123,8 @@ function key(name: string): KeyEvent {
     option: false,
     shift: false,
   } as KeyEvent;
-}
+};
 
-function sleep(ms: number): Promise<void> {
+const sleep = function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
+};

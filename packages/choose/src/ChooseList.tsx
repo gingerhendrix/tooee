@@ -30,20 +30,20 @@ export interface ChooseListProps {
   suspended?: boolean;
 }
 
-function ThemedLine({ content, color }: { content: ReactNode; color: string }) {
+const ThemedLine = function ThemedLine({ content, color }: { content: ReactNode; color: string }) {
   return (
     <box height={1} style={{ paddingLeft: 2 }}>
       {typeof content === "string" ? <text content={content} fg={color} /> : content}
     </box>
   );
-}
+};
 
-function defaultErrorContent(error: string): ReactNode {
+const defaultErrorContent = function defaultErrorContent(error: string): ReactNode {
   return `Error: ${error}`;
-}
+};
 
 /** Scrollable chooser rows plus loading/error/empty presentation. */
-export function ChooseList({
+export const ChooseList = function ChooseList({
   choose,
   rowClick = "activate",
   renderItem,
@@ -137,4 +137,4 @@ export function ChooseList({
       })}
     </scrollbox>
   );
-}
+};

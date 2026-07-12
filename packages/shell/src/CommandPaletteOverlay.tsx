@@ -5,7 +5,7 @@ import { CommandPalette } from "@tooee/renderers";
 
 const DEFAULT_MODES: Mode[] = ["cursor"];
 
-export function CommandPaletteOverlay({
+export const CommandPaletteOverlay = function CommandPaletteOverlay({
   commands,
   invoke,
   launchMode,
@@ -42,4 +42,4 @@ export function CommandPaletteOverlay({
       invoke(id);
     },
   });
-}
+};

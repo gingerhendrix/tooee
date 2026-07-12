@@ -9,7 +9,7 @@ export interface MarkState {
   getSet(namespace: string): MarkSet | undefined;
 }
 
-function makeMarkState(sets: readonly MarkSet[]): MarkState {
+const makeMarkState = function makeMarkState(sets: readonly MarkSet[]): MarkState {
   const sortedSets = [...sets].toSorted((a, b) => a.priority - b.priority);
   const namespaces = sortedSets.map((s) => s.namespace);
 
@@ -41,13 +41,13 @@ function makeMarkState(sets: readonly MarkSet[]): MarkState {
     namespaces,
     sets: sortedSets,
   };
-}
+};
 
-export function createMarkState(sets: MarkSet[]): MarkState {
+export const createMarkState = function createMarkState(sets: MarkSet[]): MarkState {
   return makeMarkState(sets);
-}
+};
 
-export function updateMarkState(
+export const updateMarkState = function updateMarkState(
   state: MarkState,
   namespace: string,
   newSet: MarkSet | null,
@@ -60,4 +60,4 @@ export function updateMarkState(
     filtered.push(newSet);
   }
   return makeMarkState(filtered);
-}
+};

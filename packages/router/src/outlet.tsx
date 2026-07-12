@@ -11,7 +11,7 @@ const OutletDepthContext = createContext<number>(0);
 
 // Helper: walk parent chain and return [root, ..., leaf]
 
-export function getRouteChain(
+export const getRouteChain = function getRouteChain(
   routeMap: { get(id: string): RouteDefinition | undefined },
   routeId: string,
 ): RouteDefinition[] {
@@ -22,11 +22,11 @@ export function getRouteChain(
     current = current.parent;
   }
   return chain;
-}
+};
 
 // RouteRenderer: handles loader lifecycle for a route
 
-function RouteRenderer({
+const RouteRenderer = function RouteRenderer({
   entry,
   routeDef,
   children,
@@ -76,11 +76,11 @@ function RouteRenderer({
   }
 
   return <RouteDataProvider data={data}>{children}</RouteDataProvider>;
-}
+};
 
 // Outlet component
 
-export function Outlet() {
+export const Outlet = function Outlet() {
   const router = useRouterInstance();
   const stack = useRouterStack();
   const depth = useContext(OutletDepthContext);
@@ -120,4 +120,4 @@ export function Outlet() {
   }
 
   return content;
-}
+};

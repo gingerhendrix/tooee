@@ -14,7 +14,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-function createMarkdownDocument(opts: {
+const createMarkdownDocument = function createMarkdownDocument(opts: {
   activeBlock?: number;
   selectedBlocks?: { start: number; end: number };
 }) {
@@ -41,7 +41,7 @@ function createMarkdownDocument(opts: {
   }
 
   return decorationBindings(createMarkState(sets).sets);
-}
+};
 
 test("renders heading text", async () => {
   testSetup = await testRender(

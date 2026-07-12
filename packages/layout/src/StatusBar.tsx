@@ -9,7 +9,7 @@ export interface StatusBarItem {
   value?: string;
 }
 
-export function StatusBar({ items }: StatusBarProps) {
+export const StatusBar = function StatusBar({ items }: StatusBarProps) {
   const { theme } = useTheme();
   return (
     <box
@@ -30,4 +30,4 @@ export function StatusBar({ items }: StatusBarProps) {
       ))}
     </box>
   );
-}
+};

@@ -9,9 +9,9 @@ import { View } from "../src/View.js";
 import type { ViewCommandContext } from "../src/hooks/useViewCommandContext.js";
 import type { AnyContent, ContentProvider } from "../src/types.js";
 
-function staticProvider(content: AnyContent): ContentProvider {
+const staticProvider = function staticProvider(content: AnyContent): ContentProvider {
   return { format: content.format, load: () => content };
-}
+};
 
 const TABLE = staticProvider({
   columns: [
@@ -51,11 +51,11 @@ const ACTIONS: ActionDefinition[] = [
 ];
 
 /** Reports the commands registered on the surface the View renders into. */
-function CommandProbe() {
+const CommandProbe = function CommandProbe() {
   const { commands } = useCommandContext();
   commandIds = commands.map((command) => command.id);
   return null;
-}
+};
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
@@ -69,7 +69,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-async function setup(provider: ContentProvider) {
+const setup = async function setup(provider: ContentProvider) {
   const s = await testRender(
     <TooeeProvider>
       <View contentProvider={provider} actions={ACTIONS} />
@@ -83,14 +83,14 @@ async function setup(provider: ContentProvider) {
   });
   await s.renderOnce();
   return s;
-}
+};
 
-async function press(key: string, modifiers?: { shift?: boolean }) {
+const press = async function press(key: string, modifiers?: { shift?: boolean }) {
   await act(async () => {
     testSetup.mockInput.pressKey(key, modifiers);
   });
   await testSetup.renderOnce();
-}
+};
 
 describe("ctx.document from a View screen", () => {
   test("carries row count, cursor, active row and kind", async () => {

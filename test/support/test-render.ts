@@ -3,11 +3,14 @@ import type { TestRendererOptions } from "@opentui/core/testing";
 import { act } from "react";
 import { createRoot } from "@opentui/react";
 
-function setIsReactActEnvironment(isReactActEnvironment: boolean) {
+const setIsReactActEnvironment = function setIsReactActEnvironment(isReactActEnvironment: boolean) {
   (globalThis as any).IS_REACT_ACT_ENVIRONMENT = isReactActEnvironment;
-}
+};
 
-export async function testRender(node: React.ReactNode, testRendererOptions: TestRendererOptions) {
+export const testRender = async function testRender(
+  node: React.ReactNode,
+  testRendererOptions: TestRendererOptions,
+) {
   let root: ReturnType<typeof createRoot> | null = null;
   setIsReactActEnvironment(true);
   const testSetup = await createTestRenderer({
@@ -34,4 +37,4 @@ export async function testRender(node: React.ReactNode, testRendererOptions: Tes
     });
   };
   return { ...testSetup, rerender };
-}
+};

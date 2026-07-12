@@ -47,7 +47,7 @@ const branchProvider = {
   },
 };
 
-async function main() {
+const main = async function main() {
   const result = await launch({
     contentProvider: branchProvider,
     options: { prompt: "Switch branch" },
@@ -61,6 +61,6 @@ async function main() {
     });
     await proc.exited;
   }
-}
+};
 
 main();

@@ -19,7 +19,7 @@ export interface AskProps extends AskOptions {
   onSubmit?: (value: string) => void;
 }
 
-export function Ask({
+export const Ask = function Ask({
   title,
   prompt,
   placeholder,
@@ -111,4 +111,4 @@ export function Ask({
       </box>
     </AppLayout>
   );
-}
+};

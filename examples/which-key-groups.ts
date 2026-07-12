@@ -26,15 +26,15 @@ import { AppLayout } from "@tooee/layout";
 import { launchCli, useQuitCommand } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
 
-function h(
+const h = function h(
   tag: string | ComponentType<any>,
   props: Record<string, unknown>,
   ...children: ReactNode[]
 ): ReactNode {
   return createElement(tag, props, ...children);
-}
+};
 
-function WhichKeyGroupsDemo(): ReactNode {
+const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
   const { theme } = useTheme();
   const [lastAction, setLastAction] = useState("Press space to open the which-key overlay");
 
@@ -264,6 +264,6 @@ function WhichKeyGroupsDemo(): ReactNode {
     },
     content,
   );
-}
+};
 
 await launchCli(createElement(WhichKeyGroupsDemo), { leader: "space" });

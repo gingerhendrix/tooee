@@ -10,7 +10,7 @@ export interface UseCopyOptions {
   enabled?: boolean;
 }
 
-export function useCopy({
+export const useCopy = function useCopy({
   getRowText,
   cursor,
   selection,
@@ -50,4 +50,4 @@ export function useCopy({
     modes: ["select"],
     title: "Copy selection",
   });
-}
+};

@@ -12,11 +12,11 @@
 import { launch } from "@tooee/choose";
 import type { ChooseItem } from "@tooee/choose";
 
-async function commandExists(cmd: string): Promise<boolean> {
+const commandExists = async function commandExists(cmd: string): Promise<boolean> {
   const proc = Bun.spawn(["which", cmd], { stderr: "pipe", stdout: "pipe" });
   await proc.exited;
   return proc.exitCode === 0;
-}
+};
 
 const fileProvider = {
   async load(): Promise<ChooseItem[]> {
@@ -68,7 +68,7 @@ const fileProvider = {
   },
 };
 
-async function main() {
+const main = async function main() {
   const result = await launch({
     contentProvider: fileProvider,
     options: { prompt: "Pick a file" },
@@ -78,6 +78,6 @@ async function main() {
     // Output selected file path to stdout
     console.log(result.items[0].value);
   }
-}
+};
 
 main();

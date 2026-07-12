@@ -17,7 +17,7 @@ export interface RouterProviderProps {
   children: ReactNode;
 }
 
-export function RouterProvider({
+export const RouterProvider = function RouterProvider({
   router,
   initialRoute,
   initialParams,
@@ -43,22 +43,22 @@ export function RouterProvider({
       <RouterStackContext value={stack}>{children}</RouterStackContext>
     </RouterInstanceContext>
   );
-}
+};
 
 // Internal hooks
 
-export function useRouterInstance(): RouterInstance {
+export const useRouterInstance = function useRouterInstance(): RouterInstance {
   const ctx = useContext(RouterInstanceContext);
   if (!ctx) {
     throw new Error("useRouterInstance must be used within RouterProvider");
   }
   return ctx;
-}
+};
 
-export function useRouterStack(): readonly StackEntry[] {
+export const useRouterStack = function useRouterStack(): readonly StackEntry[] {
   return useContext(RouterStackContext);
-}
+};
 
-export function useStackEntryIndex(): number {
+export const useStackEntryIndex = function useStackEntryIndex(): number {
   return useContext(StackEntryIndexContext);
-}
+};

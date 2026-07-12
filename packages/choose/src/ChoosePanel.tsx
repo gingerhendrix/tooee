@@ -3,7 +3,7 @@ import { useMode } from "@tooee/commands";
 import type { Mode } from "@tooee/commands";
 import { CloseButton, useTheme } from "@tooee/themes";
 
-export function buildChooseHints(
+export const buildChooseHints = function buildChooseHints(
   mode: Mode,
   options: { multi?: boolean; extra?: string[] } = {},
 ): string[] {
@@ -18,7 +18,7 @@ export function buildChooseHints(
           "Enter confirm",
         ];
   return options.extra ? [...base, ...options.extra] : base;
-}
+};
 
 export type ChoosePanelInsetValue = number | "auto" | `${number}%`;
 
@@ -42,7 +42,7 @@ export interface ChoosePanelProps {
 }
 
 /** Bordered chooser chrome with filter, content, hint/status, and footer slots. */
-export function ChoosePanel({
+export const ChoosePanel = function ChoosePanel({
   title,
   filter,
   children,
@@ -122,4 +122,4 @@ export function ChoosePanel({
       </box>
     </box>
   );
-}
+};

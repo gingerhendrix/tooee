@@ -22,7 +22,7 @@ export interface DirectoryLaunchOptions {
   actions?: ActionDefinition[];
 }
 
-export async function launch(options: ViewLaunchOptions): Promise<void> {
+export const launch = async function launch(options: ViewLaunchOptions): Promise<void> {
   await launchCli(
     <View
       contentProvider={options.contentProvider}
@@ -31,8 +31,10 @@ export async function launch(options: ViewLaunchOptions): Promise<void> {
       codeBlockRenderers={options.codeBlockRenderers}
     />,
   );
-}
+};
 
-export async function launchDirectory(options: DirectoryLaunchOptions): Promise<void> {
+export const launchDirectory = async function launchDirectory(
+  options: DirectoryLaunchOptions,
+): Promise<void> {
   await launchCli(<DirectoryView dirPath={options.dirPath} actions={options.actions} />);
-}
+};

@@ -10,7 +10,7 @@ interface LineShape {
   line: string;
 }
 
-function lines(source: string, sourceId?: string): LineShape[] {
+const lines = function lines(source: string, sourceId?: string): LineShape[] {
   return sourceLines(source, sourceId ? { sourceId } : undefined).map((row) => {
     const p = row.source.primary;
     return {
@@ -22,7 +22,7 @@ function lines(source: string, sourceId?: string): LineShape[] {
       text: row.text,
     };
   });
-}
+};
 
 describe("sourceLines identity mapping", () => {
   test("an empty source has a single empty row", () => {

@@ -119,22 +119,22 @@ export const OverlayContext = createContext<OverlayContextValue>({
 
 // Hooks
 
-export function useOverlay(): OverlayController {
+export const useOverlay = function useOverlay(): OverlayController {
   return useContext(OverlayControllerContext);
-}
+};
 
-export function useOverlayState(): OverlayState {
+export const useOverlayState = function useOverlayState(): OverlayState {
   return useContext(OverlayStateContext);
-}
+};
 
-export function useHasOverlay(): boolean {
+export const useHasOverlay = function useHasOverlay(): boolean {
   return useContext(OverlayStateContext).hasOverlay;
-}
+};
 
-export function useHasModalOverlay(): boolean {
+export const useHasModalOverlay = function useHasModalOverlay(): boolean {
   return useContext(OverlayStateContext).hasModalOverlay;
-}
+};
 
-export function useCurrentOverlay(): ReactNode | null {
+export const useCurrentOverlay = function useCurrentOverlay(): ReactNode | null {
   return useContext(OverlayStateContext).current;
-}
+};

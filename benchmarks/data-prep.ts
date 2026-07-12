@@ -11,12 +11,12 @@ if (!Number.isFinite(iterations) || iterations < 1) {
   throw new Error("TOOEE_BENCH_DATA_PREP_ITERATIONS must be a positive number");
 }
 
-function median(values: number[]): number {
+const median = function median(values: number[]): number {
   const sorted = [...values].sort((left, right) => left - right);
   return sorted[Math.floor(sorted.length / 2)] ?? 0;
-}
+};
 
-function formatCellValue(value: unknown): string {
+const formatCellValue = function formatCellValue(value: unknown): string {
   if (value == null) {
     return "";
   }
@@ -34,9 +34,12 @@ function formatCellValue(value: unknown): string {
   } catch {
     return String(value);
   }
-}
+};
 
-function timeIterations(operation: () => number): { medianMs: number; lastCount: number } {
+const timeIterations = function timeIterations(operation: () => number): {
+  medianMs: number;
+  lastCount: number;
+} {
   const samples: number[] = [];
   let lastCount = 0;
 
@@ -47,7 +50,7 @@ function timeIterations(operation: () => number): { medianMs: number; lastCount:
   }
 
   return { lastCount, medianMs: median(samples) };
-}
+};
 
 for (const tier of [FIXTURE_TIERS.moderate, FIXTURE_TIERS.large]) {
   const markdown = makeMarkdownFixture(tier);

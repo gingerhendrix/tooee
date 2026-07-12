@@ -8,7 +8,7 @@ import { useCurrentOverlay, useHasOverlay } from "@tooee/overlays";
 import { press, pressEscape } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
 
-function PaletteHarness() {
+const PaletteHarness = function PaletteHarness() {
   const mode = useMode();
   const hasOverlay = useHasOverlay();
 
@@ -52,9 +52,9 @@ function PaletteHarness() {
       <text content={`open:${hasOverlay}`} />
     </box>
   );
-}
+};
 
-async function setup() {
+const setup = async function setup() {
   const s = await testRender(
     <TooeeProvider>
       <PaletteHarness />
@@ -63,7 +63,7 @@ async function setup() {
   );
   await s.renderOnce();
   return s;
-}
+};
 
 let testSetup: TestSession;
 
@@ -93,7 +93,7 @@ describe("command palette", () => {
   });
 
   test("a command registered after the provider mounts appears in the palette", async () => {
-    function LateRegistrant() {
+    const LateRegistrant = function LateRegistrant() {
       useCommand({
         handler: () => {},
         id: "test.late",
@@ -101,9 +101,9 @@ describe("command palette", () => {
         title: "Late Arrival Command",
       });
       return null;
-    }
+    };
 
-    function LateHarness() {
+    const LateHarness = function LateHarness() {
       const [showLate, setShowLate] = useState(false);
       const current = useCurrentOverlay();
       useCommand({
@@ -119,7 +119,7 @@ describe("command palette", () => {
           {current}
         </box>
       );
-    }
+    };
 
     testSetup = await testRender(
       <TooeeProvider>
@@ -142,7 +142,11 @@ describe("command palette", () => {
 
 // Harness that also renders the overlay content so mouse clicks can hit
 // palette rows through the hit-grid.
-function PaletteClickHarness({ onRun }: { onRun: (id: string) => void }) {
+const PaletteClickHarness = function PaletteClickHarness({
+  onRun,
+}: {
+  onRun: (id: string) => void;
+}) {
   const mode = useMode();
   const hasOverlay = useHasOverlay();
   const overlay = useCurrentOverlay();
@@ -162,9 +166,9 @@ function PaletteClickHarness({ onRun }: { onRun: (id: string) => void }) {
       {overlay}
     </box>
   );
-}
+};
 
-function lineOf(frame: string, text: string): { x: number; y: number } {
+const lineOf = function lineOf(frame: string, text: string): { x: number; y: number } {
   const lines = frame.split("\n");
   for (let y = 0; y < lines.length; y++) {
     const x = lines[y].indexOf(text);
@@ -173,9 +177,9 @@ function lineOf(frame: string, text: string): { x: number; y: number } {
     }
   }
   return { x: -1, y: -1 };
-}
+};
 
-async function setupClick(onRun: (id: string) => void) {
+const setupClick = async function setupClick(onRun: (id: string) => void) {
   const s = await testRender(
     <TooeeProvider>
       <PaletteClickHarness onRun={onRun} />
@@ -184,7 +188,7 @@ async function setupClick(onRun: (id: string) => void) {
   );
   await s.renderOnce();
   return s;
-}
+};
 
 describe("command palette mouse", () => {
   test("left-click on a palette row runs the command and closes the palette", async () => {

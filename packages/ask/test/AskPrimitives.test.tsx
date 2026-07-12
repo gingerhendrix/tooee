@@ -13,7 +13,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-async function setup(node: React.ReactNode) {
+const setup = async function setup(node: React.ReactNode) {
   const s = await testRender(<TooeeProvider initialMode="insert">{node}</TooeeProvider>, {
     height: 24,
     kittyKeyboard: true,
@@ -21,45 +21,45 @@ async function setup(node: React.ReactNode) {
   });
   await s.renderOnce();
   return s;
-}
+};
 
-async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
+const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
   await act(async () => {
     testSetup.mockInput.pressKey(key, modifiers);
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressEscape() {
+const pressEscape = async function pressEscape() {
   await act(async () => {
     testSetup.mockInput.pressEscape();
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressEnter() {
+const pressEnter = async function pressEnter() {
   await act(async () => {
     testSetup.mockInput.pressEnter();
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressShiftEnter() {
+const pressShiftEnter = async function pressShiftEnter() {
   await act(async () => {
     testSetup.mockInput.pressEnter({ shift: true });
   });
   await testSetup.renderOnce();
-}
+};
 
-async function typeText(text: string) {
+const typeText = async function typeText(text: string) {
   await act(async () => {
     await testSetup.mockInput.typeText(text);
   });
   await testSetup.renderOnce();
-}
+};
 
 describe("AskEditorController", () => {
-  function ControllerHost(props: {
+  const ControllerHost = function ControllerHost(props: {
     multiline?: boolean;
     defaultValue?: string;
     onSubmit?: (value: string) => void;
@@ -75,7 +75,7 @@ describe("AskEditorController", () => {
         controllerRef={props.controllerRef}
       />
     );
-  }
+  };
 
   test("setText replaces the single-line value through React state", async () => {
     const controllerRef = { current: null as AskEditorController | null };
@@ -245,7 +245,7 @@ describe("AskOverlay chrome extension points", () => {
 });
 
 describe("AskOverlay nested modal surfaces", () => {
-  function PickerSurface({ onClose }: { onClose: () => void }) {
+  const PickerSurface = function PickerSurface({ onClose }: { onClose: () => void }) {
     useCommand({
       handler: onClose,
       hotkey: "x",
@@ -258,9 +258,9 @@ describe("AskOverlay nested modal surfaces", () => {
         <text content="PICKER" />
       </box>
     );
-  }
+  };
 
-  function Host(props: { onCancel: () => void; onSubmit: (value: string) => void }) {
+  const Host = function Host(props: { onCancel: () => void; onSubmit: (value: string) => void }) {
     const [pickerOpen, setPickerOpen] = useState(true);
     const controllerRef = useRef<AskEditorController>(null);
     return (
@@ -287,7 +287,7 @@ describe("AskOverlay nested modal surfaces", () => {
         )}
       </AskOverlay>
     );
-  }
+  };
 
   test("a modal child surface suspends ask commands and editor focus without guards", async () => {
     let cancelCount = 0;

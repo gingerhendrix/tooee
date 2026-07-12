@@ -17,7 +17,11 @@ interface ProcessingResult {
   count: number;
 }
 
-function createDataPoint(id: number, name: string, value: number): DataPoint {
+const createDataPoint = function createDataPoint(
+  id: number,
+  name: string,
+  value: number,
+): DataPoint {
   return {
     category: categorize(value),
     id,
@@ -25,9 +29,9 @@ function createDataPoint(id: number, name: string, value: number): DataPoint {
     timestamp: new Date(),
     value,
   };
-}
+};
 
-function categorize(value: number): string {
+const categorize = function categorize(value: number): string {
   if (value < 10) {
     return "low";
   }
@@ -38,9 +42,9 @@ function categorize(value: number): string {
     return "high";
   }
   return "critical";
-}
+};
 
-function processData(points: DataPoint[]): ProcessingResult {
+const processData = function processData(points: DataPoint[]): ProcessingResult {
   if (points.length === 0) {
     return { average: 0, count: 0, max: 0, min: 0, total: 0 };
   }
@@ -66,17 +70,20 @@ function processData(points: DataPoint[]): ProcessingResult {
     min,
     total,
   };
-}
+};
 
-function filterByCategory(points: DataPoint[], category: string): DataPoint[] {
+const filterByCategory = function filterByCategory(
+  points: DataPoint[],
+  category: string,
+): DataPoint[] {
   return points.filter((p) => p.category === category);
-}
+};
 
-function sortByValue(points: DataPoint[], ascending = true): DataPoint[] {
+const sortByValue = function sortByValue(points: DataPoint[], ascending = true): DataPoint[] {
   return [...points].sort((a, b) => (ascending ? a.value - b.value : b.value - a.value));
-}
+};
 
-function groupByCategory(points: DataPoint[]): Map<string, DataPoint[]> {
+const groupByCategory = function groupByCategory(points: DataPoint[]): Map<string, DataPoint[]> {
   const groups = new Map<string, DataPoint[]>();
   for (const point of points) {
     const group = groups.get(point.category) ?? [];
@@ -84,9 +91,9 @@ function groupByCategory(points: DataPoint[]): Map<string, DataPoint[]> {
     groups.set(point.category, group);
   }
   return groups;
-}
+};
 
-function generateSampleData(count: number): DataPoint[] {
+const generateSampleData = function generateSampleData(count: number): DataPoint[] {
   const names = ["alpha", "beta", "gamma", "delta", "epsilon"];
   const results: DataPoint[] = [];
   for (let i = 0; i < count; i++) {
@@ -95,9 +102,9 @@ function generateSampleData(count: number): DataPoint[] {
     results.push(createDataPoint(i, name, value));
   }
   return results;
-}
+};
 
-function formatResult(result: ProcessingResult): string {
+const formatResult = function formatResult(result: ProcessingResult): string {
   const lines = [
     `Total: ${result.total}`,
     `Average: ${result.average.toFixed(2)}`,
@@ -106,9 +113,9 @@ function formatResult(result: ProcessingResult): string {
     `Count: ${result.count}`,
   ];
   return lines.join("\n");
-}
+};
 
-function validateDataPoint(point: DataPoint): boolean {
+const validateDataPoint = function validateDataPoint(point: DataPoint): boolean {
   if (point.id < 0) {
     return false;
   }
@@ -122,9 +129,12 @@ function validateDataPoint(point: DataPoint): boolean {
     return false;
   }
   return true;
-}
+};
 
-function mergeResults(a: ProcessingResult, b: ProcessingResult): ProcessingResult {
+const mergeResults = function mergeResults(
+  a: ProcessingResult,
+  b: ProcessingResult,
+): ProcessingResult {
   return {
     average: (a.total + b.total) / (a.count + b.count),
     count: a.count + b.count,
@@ -132,7 +142,7 @@ function mergeResults(a: ProcessingResult, b: ProcessingResult): ProcessingResul
     min: Math.min(a.min, b.min),
     total: a.total + b.total,
   };
-}
+};
 
 export {
   createDataPoint,

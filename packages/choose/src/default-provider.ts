@@ -1,19 +1,22 @@
 import type { ChooseItem, ChooseContentProvider } from "./types.js";
 
-export function createStdinChooseProvider(): ChooseContentProvider {
-  return {
-    async load(): Promise<ChooseItem[]> {
-      const text = await new Response(Bun.stdin.stream()).text();
-      return text
-        .split("\n")
-        .filter((line) => line.length > 0)
-        .map((line) => ({ text: line }));
-    },
+export const createStdinChooseProvider =
+  function createStdinChooseProvider(): ChooseContentProvider {
+    return {
+      async load(): Promise<ChooseItem[]> {
+        const text = await new Response(Bun.stdin.stream()).text();
+        return text
+          .split("\n")
+          .filter((line) => line.length > 0)
+          .map((line) => ({ text: line }));
+      },
+    };
   };
-}
 
-export function createStaticProvider(items: ChooseItem[]): ChooseContentProvider {
+export const createStaticProvider = function createStaticProvider(
+  items: ChooseItem[],
+): ChooseContentProvider {
   return {
     load: () => items,
   };
-}
+};

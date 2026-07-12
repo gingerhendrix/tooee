@@ -22,24 +22,24 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-async function press(session: TestSession, key: string) {
+const press = async function press(session: TestSession, key: string) {
   await act(async () => {
     session.mockInput.pressKey(key);
   });
   await session.renderOnce();
-}
+};
 
-function SequenceProbe() {
+const SequenceProbe = function SequenceProbe() {
   const sequence = useCommandSequenceState();
   return <text content={`pending:${sequence ? sequence.prefix.length : 0}`} />;
-}
+};
 
 describe("F-08: mode changes reset a pending chord", () => {
   test("a surface-local setMode mid-chord clears the pending sequence", async () => {
     let fired = 0;
     let surfaceSetMode: ((mode: Mode) => void) | null = null;
 
-    function SurfaceContent() {
+    const SurfaceContent = function SurfaceContent() {
       const setMode = useSetMode();
       surfaceSetMode = setMode;
       // Available in both modes, so a completion after the mode change would
@@ -52,7 +52,7 @@ describe("F-08: mode changes reset a pending chord", () => {
         title: "Chord",
       });
       return <text content="surface" />;
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>
@@ -87,7 +87,7 @@ describe("F-08: mode changes reset a pending chord", () => {
     let fired = 0;
     let rootSetMode: ((mode: Mode) => void) | null = null;
 
-    function Harness() {
+    const Harness = function Harness() {
       const setMode = useSetMode();
       rootSetMode = setMode;
       useCommand({
@@ -98,7 +98,7 @@ describe("F-08: mode changes reset a pending chord", () => {
         title: "Chord",
       });
       return <SequenceProbe />;
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>
@@ -127,7 +127,7 @@ describe("F-09: surface replacement resets a pending chord", () => {
     let fired = 0;
     let swap: (() => void) | null = null;
 
-    function SurfaceContent() {
+    const SurfaceContent = function SurfaceContent() {
       useCommand({
         handler: () => fired++,
         hotkey: "g g",
@@ -135,9 +135,9 @@ describe("F-09: surface replacement resets a pending chord", () => {
         title: "Chord",
       });
       return <text content="surface" />;
-    }
+    };
 
-    function Harness() {
+    const Harness = function Harness() {
       const [generation, setGeneration] = useState(0);
       swap = () => setGeneration((g) => g + 1);
       return (
@@ -149,7 +149,7 @@ describe("F-09: surface replacement resets a pending chord", () => {
           </CommandSurfaceProvider>
         </box>
       );
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>
@@ -179,17 +179,17 @@ describe("F-09: surface replacement resets a pending chord", () => {
 
 describe("reactive registry", () => {
   test("useCommandContext().commands updates when a sibling registers post-mount", async () => {
-    function LateRegistrant() {
+    const LateRegistrant = function LateRegistrant() {
       useCommand({ handler: () => {}, hotkey: "l", id: "late", title: "Late" });
       return null;
-    }
+    };
 
-    function CommandCount() {
+    const CommandCount = function CommandCount() {
       const { commands } = useCommandContext();
       return <text content={`count:${commands.length}`} />;
-    }
+    };
 
-    function Harness() {
+    const Harness = function Harness() {
       const [showLate, setShowLate] = useState(false);
       useCommand({
         handler: () => setShowLate(true),
@@ -203,7 +203,7 @@ describe("reactive registry", () => {
           {showLate && <LateRegistrant />}
         </box>
       );
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>
@@ -221,7 +221,7 @@ describe("reactive registry", () => {
 });
 
 describe("F-13: surface command metadata", () => {
-  function SurfaceContent({ children }: { children?: ReactNode }) {
+  const SurfaceContent = function SurfaceContent({ children }: { children?: ReactNode }) {
     useCommand({ handler: () => {}, hotkey: "1", id: "s.one", title: "One" });
     return (
       <box flexDirection="column">
@@ -229,15 +229,15 @@ describe("F-13: surface command metadata", () => {
         {children}
       </box>
     );
-  }
+  };
 
-  function ExtraCommand() {
+  const ExtraCommand = function ExtraCommand() {
     useCommand({ handler: () => {}, hotkey: "2", id: "s.two", title: "Two" });
     return null;
-  }
+  };
 
   test("useActiveCommandSurface().commands lists the modal surface's commands reactively", async () => {
-    function ActiveProbe() {
+    const ActiveProbe = function ActiveProbe() {
       const active = useActiveCommandSurface();
       const ids = active
         ? active.commands
@@ -246,9 +246,9 @@ describe("F-13: surface command metadata", () => {
             .join(",")
         : "none";
       return <text content={`active-commands:[${ids}]`} />;
-    }
+    };
 
-    function Harness() {
+    const Harness = function Harness() {
       const [showExtra, setShowExtra] = useState(false);
       useCommand({ handler: () => {}, hotkey: "a", id: "root.a", title: "Root A" });
       return (
@@ -260,12 +260,12 @@ describe("F-13: surface command metadata", () => {
           </CommandSurfaceProvider>
         </box>
       );
-    }
+    };
 
-    function ExtraToggle({ onToggle }: { onToggle: () => void }) {
+    const ExtraToggle = function ExtraToggle({ onToggle }: { onToggle: () => void }) {
       useCommand({ handler: onToggle, hotkey: "m", id: "s.more", title: "More" });
       return null;
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>
@@ -283,16 +283,16 @@ describe("F-13: surface command metadata", () => {
   });
 
   test("useSurfaceCommands defaults to the active surface and falls back to root", async () => {
-    function SurfaceCommandsProbe() {
+    const SurfaceCommandsProbe = function SurfaceCommandsProbe() {
       const commands = useSurfaceCommands();
       const ids = commands
         .map((c) => c.id)
         .sort()
         .join(",");
       return <text content={`surface-commands:[${ids}]`} />;
-    }
+    };
 
-    function Harness() {
+    const Harness = function Harness() {
       const [showSurface, setShowSurface] = useState(false);
       useCommand({
         handler: () => setShowSurface(true),
@@ -310,7 +310,7 @@ describe("F-13: surface command metadata", () => {
           )}
         </box>
       );
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>

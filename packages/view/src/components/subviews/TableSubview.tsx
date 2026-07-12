@@ -12,7 +12,7 @@ interface TableSubviewProps extends SubviewProps {
   content: TableContent;
 }
 
-function stringifyRowCell(value: unknown): string {
+const stringifyRowCell = function stringifyRowCell(value: unknown): string {
   if (value === null || value === undefined) {
     return "";
   }
@@ -27,9 +27,14 @@ function stringifyRowCell(value: unknown): string {
   } catch {
     return String(value);
   }
-}
+};
 
-export function TableSubview({ content, decorations, actions, ...screen }: TableSubviewProps) {
+export const TableSubview = function TableSubview({
+  content,
+  decorations,
+  actions,
+  ...screen
+}: TableSubviewProps) {
   const textContent = useMemo(() => getTextContent(content), [content]);
   const { showLineNumbers } = useContentCommands({ content, textContent });
 
@@ -70,4 +75,4 @@ export function TableSubview({ content, decorations, actions, ...screen }: Table
       <Table columns={columns} rows={rows} showLineNumbers={showLineNumbers} document={document} />
     </ViewScreen>
   );
-}
+};

@@ -48,13 +48,13 @@ import { AppLayout } from "@tooee/layout";
 import { launchCli, useQuitCommand } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
 
-function h(
+const h = function h(
   tag: string | ComponentType<any>,
   props: Record<string, unknown>,
   ...children: ReactNode[]
 ): ReactNode {
   return createElement(tag, props, ...children);
-}
+};
 
 const MODELS = ["claude-opus", "claude-sonnet", "gpt-4o", "local-llama"];
 
@@ -67,7 +67,7 @@ interface DemoActions {
 
 // -- Nested modal overlay: a model picker ------------------------------------
 
-function ModelPickerBody({
+const ModelPickerBody = function ModelPickerBody({
   close,
   onSelectModel,
 }: {
@@ -134,11 +134,11 @@ function ModelPickerBody({
       }),
     ),
   );
-}
+};
 
 // -- Modal overlay: an Ask-style prompt --------------------------------------
 
-function AskOverlayBody({
+const AskOverlayBody = function AskOverlayBody({
   close,
   actions,
 }: {
@@ -239,11 +239,11 @@ function AskOverlayBody({
       }),
     ),
   );
-}
+};
 
 // -- Passive overlay: a help panel that never owns input ---------------------
 
-function PassiveHelpBody({ actions }: { actions: DemoActions }): ReactNode {
+const PassiveHelpBody = function PassiveHelpBody({ actions }: { actions: DemoActions }): ReactNode {
   const { theme } = useTheme();
 
   // Bound to the SAME key as the root counter. Because this is a passive
@@ -291,11 +291,11 @@ function PassiveHelpBody({ actions }: { actions: DemoActions }): ReactNode {
       h("text", { content: "Press Escape to close this passive overlay.", fg: theme.text }),
     ),
   );
-}
+};
 
 // -- Root app ----------------------------------------------------------------
 
-export function OverlayCommandSurfacesDemo(): ReactNode {
+export const OverlayCommandSurfacesDemo = function OverlayCommandSurfacesDemo(): ReactNode {
   const { theme } = useTheme();
   const overlay = useOverlay();
   const rootMode = useMode();
@@ -403,7 +403,7 @@ export function OverlayCommandSurfacesDemo(): ReactNode {
     },
     content,
   );
-}
+};
 
 if (import.meta.main) {
   await launchCli(createElement(OverlayCommandSurfacesDemo));

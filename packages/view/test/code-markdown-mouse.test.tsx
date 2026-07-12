@@ -7,9 +7,9 @@ import type { ActionDefinition } from "@tooee/commands";
 import { View } from "../src/View.js";
 import type { AnyContent, ContentProvider } from "../src/types.js";
 
-function staticProvider(content: AnyContent): ContentProvider {
+const staticProvider = function staticProvider(content: AnyContent): ContentProvider {
   return { format: content.format, load: () => content };
-}
+};
 
 const CODE = staticProvider({
   code: ["line0", "line1", "line2", "line3", "line4"].join("\n"),
@@ -33,7 +33,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-async function setup(provider: ContentProvider, actions?: ActionDefinition[]) {
+const setup = async function setup(provider: ContentProvider, actions?: ActionDefinition[]) {
   const s = await testRender(
     <TooeeProvider>
       <View contentProvider={provider} actions={actions} />
@@ -46,9 +46,9 @@ async function setup(provider: ContentProvider, actions?: ActionDefinition[]) {
   });
   await s.renderOnce();
   return s;
-}
+};
 
-function lineOf(frame: string, text: string): { x: number; y: number } {
+const lineOf = function lineOf(frame: string, text: string): { x: number; y: number } {
   const lines = frame.split("\n");
   for (let y = 0; y < lines.length; y++) {
     const x = lines[y].indexOf(text);
@@ -57,7 +57,7 @@ function lineOf(frame: string, text: string): { x: number; y: number } {
     }
   }
   return { x: -1, y: -1 };
-}
+};
 
 describe("Code view mouse selection", () => {
   test("left-click on a source line selects that line", async () => {

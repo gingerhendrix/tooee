@@ -9,7 +9,7 @@ export const VIEW_FIXTURES = resolve(REPO_ROOT, "packages/view/test/fixtures");
 const CONFIG_NAMESPACE = "view-e2e";
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
 
-export async function launchView(fixture: string): Promise<Session> {
+export const launchView = async function launchView(fixture: string): Promise<Session> {
   const fixturePath = resolve(VIEW_FIXTURES, fixture);
   resetTestConfig(CONFIG_NAMESPACE);
   const session = await launchTerminal({
@@ -26,4 +26,4 @@ export async function launchView(fixture: string): Promise<Session> {
   // Buffer for key handler registration after render (prevents CI flakes)
   await Bun.sleep(150);
   return session;
-}
+};

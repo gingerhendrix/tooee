@@ -4,22 +4,22 @@ import { join, resolve } from "node:path";
 const REPO_ROOT = resolve(import.meta.dir, "../../..");
 const BASE_DIR = join(REPO_ROOT, ".tmp", "test-config");
 
-function resolveHome(namespace: string): string {
+const resolveHome = function resolveHome(namespace: string): string {
   return join(BASE_DIR, namespace);
-}
+};
 
-function resolveTooeeDir(namespace: string): string {
+const resolveTooeeDir = function resolveTooeeDir(namespace: string): string {
   return join(resolveHome(namespace), "tooee");
-}
+};
 
-export function ensureTestConfigHome(namespace: string): string {
+export const ensureTestConfigHome = function ensureTestConfigHome(namespace: string): string {
   const dir = resolveTooeeDir(namespace);
   mkdirSync(dir, { recursive: true });
   return resolveHome(namespace);
-}
+};
 
-export function resetTestConfig(namespace: string): void {
+export const resetTestConfig = function resetTestConfig(namespace: string): void {
   const dir = resolveTooeeDir(namespace);
   rmSync(dir, { force: true, recursive: true });
   mkdirSync(dir, { recursive: true });
-}
+};

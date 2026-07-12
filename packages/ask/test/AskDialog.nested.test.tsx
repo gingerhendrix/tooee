@@ -27,33 +27,33 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
+const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
   await act(async () => {
     testSetup.mockInput.pressKey(key, modifiers);
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressEscape() {
+const pressEscape = async function pressEscape() {
   await act(async () => {
     testSetup.mockInput.pressEscape();
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressEnter() {
+const pressEnter = async function pressEnter() {
   await act(async () => {
     testSetup.mockInput.pressEnter();
   });
   await testSetup.renderOnce();
-}
+};
 
-async function typeText(text: string) {
+const typeText = async function typeText(text: string) {
   await act(async () => {
     await testSetup.mockInput.typeText(text);
   });
   await testSetup.renderOnce();
-}
+};
 
 let askSettlements: Array<string | null> = [];
 let chooseSettlements: Array<string | null> = [];
@@ -64,7 +64,7 @@ beforeEach(() => {
   chooseSettlements = [];
 });
 
-async function setupNested() {
+const setupNested = async function setupNested() {
   const session = await testRender(
     <TooeeProvider>
       <NestedHarness />
@@ -73,7 +73,7 @@ async function setupNested() {
   );
   await session.renderOnce();
   return session;
-}
+};
 
 interface NestedHarnessHandles {
   open: () => Promise<string | null>;
@@ -85,7 +85,7 @@ const nested: { current: NestedHarnessHandles | null } = { current: null };
  * PTUI AskWithModel shape: an ask dialog whose surface command opens a nested
  * typed chooser, then inserts the chosen model into the parent editor.
  */
-function NestedHarness() {
+const NestedHarness = function NestedHarness() {
   const current = useCurrentOverlay();
   const ask = useAskDialog();
   const choose = useChooseDialog<Model>();
@@ -128,14 +128,14 @@ function NestedHarness() {
       {current}
     </box>
   );
-}
+};
 
-async function openNestedAsk() {
+const openNestedAsk = async function openNestedAsk() {
   await act(async () => {
     void nested.current!.open().then((value) => askSettlements.push(value));
   });
   await testSetup.renderOnce();
-}
+};
 
 describe("nested Choose dialog over Ask dialog", () => {
   test("nested pick suspends the ask editor, inserts, and restores focus/value", async () => {

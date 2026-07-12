@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 const ScreenFocusContext = createContext({ isFocused: false });
 
-export function ScreenFocusProvider({
+export const ScreenFocusProvider = function ScreenFocusProvider({
   active,
   children,
 }: {
@@ -12,13 +12,13 @@ export function ScreenFocusProvider({
 }) {
   const value = useMemo(() => ({ isFocused: active }), [active]);
   return <ScreenFocusContext value={value}>{children}</ScreenFocusContext>;
-}
+};
 
-export function useScreenFocus() {
+export const useScreenFocus = function useScreenFocus() {
   return useContext(ScreenFocusContext);
-}
+};
 
-export function useScreenEffect(effect: () => void | (() => void)) {
+export const useScreenEffect = function useScreenEffect(effect: () => void | (() => void)) {
   const { isFocused } = useScreenFocus();
   const effectRef = useRef(effect);
   effectRef.current = effect;
@@ -28,4 +28,4 @@ export function useScreenEffect(effect: () => void | (() => void)) {
     }
     return effectRef.current();
   }, [isFocused]);
-}
+};

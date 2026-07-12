@@ -30,11 +30,15 @@ const SGR_SEQUENCE = new RegExp(String.raw`\u001B\[([0-9;]*)m`, "gu");
  * Marked may include extra info-string content after the language. Treat only
  * the first word as the fence language, matching common Markdown behavior.
  */
-export function isMermaidFence(lang?: string): boolean {
+export const isMermaidFence = function isMermaidFence(lang?: string): boolean {
   return (lang ?? "").trim().split(/\s+/u)[0]?.toLowerCase() === "mermaid";
-}
+};
 
-function appendStyledChunk(chunks: TextChunk[], text: string, fg?: string) {
+const appendStyledChunk = function appendStyledChunk(
+  chunks: TextChunk[],
+  text: string,
+  fg?: string,
+) {
   if (text.length === 0) {
     return;
   }
@@ -44,16 +48,19 @@ function appendStyledChunk(chunks: TextChunk[], text: string, fg?: string) {
     text,
     ...(fg ? { fg: parseColor(fg) } : {}),
   });
-}
+};
 
-function sgrParams(rawParams: string): number[] {
+const sgrParams = function sgrParams(rawParams: string): number[] {
   if (rawParams === "") {
     return [0];
   }
   return rawParams.split(";").map((param) => (param === "" ? 0 : Number(param)));
-}
+};
 
-function updateAnsiForeground(params: number[], currentFg: string | undefined): string | undefined {
+const updateAnsiForeground = function updateAnsiForeground(
+  params: number[],
+  currentFg: string | undefined,
+): string | undefined {
   let fg = currentFg;
 
   for (let i = 0; i < params.length; i += 1) {
@@ -86,10 +93,13 @@ function updateAnsiForeground(params: number[], currentFg: string | undefined): 
   }
 
   return fg;
-}
+};
 
 /** Convert beautiful-mermaid truecolor ANSI output into OpenTUI StyledText. */
-export function ansiToStyledText(input: string): { text: string; content: StyledText } {
+export const ansiToStyledText = function ansiToStyledText(input: string): {
+  text: string;
+  content: StyledText;
+} {
   const chunks: TextChunk[] = [];
   let plainText = "";
   let cursor = 0;
@@ -110,14 +120,14 @@ export function ansiToStyledText(input: string): { text: string; content: Styled
   plainText += tail;
 
   return { content: new StyledText(chunks), text: plainText };
-}
+};
 
 /**
  * Render Mermaid source for terminal display. This wrapper keeps third-party
  * parser/layout failures out of React render paths so MarkdownView can fall
  * back to the original source block.
  */
-export function renderMermaidForTerminal(
+export const renderMermaidForTerminal = function renderMermaidForTerminal(
   source: string,
   options: MermaidRenderOptions = {},
 ): MermaidRenderResult {
@@ -145,4 +155,4 @@ export function renderMermaidForTerminal(
       reason: "render-error",
     };
   }
-}
+};

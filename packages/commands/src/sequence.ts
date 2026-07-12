@@ -30,7 +30,10 @@ export interface SequenceFeedResult {
  * Zero-step hotkeys (e.g. a disabled leaderless `<leader>` binding) never
  * match anything.
  */
-export function matchesBuffer(buffer: readonly KeyEvent[], hotkey: ParsedHotkey): boolean {
+export const matchesBuffer = function matchesBuffer(
+  buffer: readonly KeyEvent[],
+  hotkey: ParsedHotkey,
+): boolean {
   const { steps } = hotkey;
   if (steps.length === 0) return false;
   if (buffer.length < steps.length) return false;
@@ -40,14 +43,14 @@ export function matchesBuffer(buffer: readonly KeyEvent[], hotkey: ParsedHotkey)
     if (!matchStep(buffer[start + i]!, steps[i]!)) return false;
   }
   return true;
-}
+};
 
 /**
  * Find the longest buffer tail that is a proper prefix of at least one hotkey.
  * Returns the prefix length and the indexes of the hotkeys it could still
  * complete, or null when nothing is pending.
  */
-export function findPendingMatch(
+export const findPendingMatch = function findPendingMatch(
   buffer: readonly KeyEvent[],
   hotkeys: readonly ParsedHotkey[],
 ): SequencePendingMatch | null {
@@ -79,13 +82,13 @@ export function findPendingMatch(
   }
 
   return null;
-}
+};
 
 /**
  * Drop buffer entries older than the longest hotkey could ever consume.
  * Returns the same array when nothing needs pruning.
  */
-export function pruneBuffer(
+export const pruneBuffer = function pruneBuffer(
   buffer: readonly KeyEvent[],
   hotkeys: readonly ParsedHotkey[],
 ): readonly KeyEvent[] {
@@ -94,7 +97,7 @@ export function pruneBuffer(
     return buffer.slice(buffer.length - maxLen);
   }
   return buffer;
-}
+};
 
 export class SequenceTracker {
   private buffer: KeyEvent[] = [];

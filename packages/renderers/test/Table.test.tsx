@@ -4,14 +4,17 @@ import { ThemeSwitcherProvider } from "@tooee/themes";
 import { Table } from "../src/Table.js";
 import { computeColumnWidths, isNumeric } from "../src/Table.js";
 
-function createColumns(headers: string[]) {
+const createColumns = function createColumns(headers: string[]) {
   return headers.map((header, index) => ({
     header,
     key: `col_${index}`,
   }));
-}
+};
 
-function createRows(columns: ReturnType<typeof createColumns>, values: string[][]) {
+const createRows = function createRows(
+  columns: ReturnType<typeof createColumns>,
+  values: string[][],
+) {
   return values.map((row) => {
     const record: Record<string, string> = {};
     columns.forEach((column, index) => {
@@ -19,7 +22,7 @@ function createRows(columns: ReturnType<typeof createColumns>, values: string[][
     });
     return record;
   });
-}
+};
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 

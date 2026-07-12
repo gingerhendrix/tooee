@@ -8,7 +8,7 @@
  */
 export const copied: string[] = [];
 
-export function clipboardStub() {
+export const clipboardStub = function clipboardStub() {
   return {
     copyToClipboard: (text: string) => {
       copied.push(text);
@@ -19,4 +19,4 @@ export function clipboardStub() {
     readClipboardText: () => Promise.resolve(""),
     readPrimaryText: () => Promise.resolve(""),
   };
-}
+};

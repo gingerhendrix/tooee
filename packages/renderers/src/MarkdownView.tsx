@@ -76,7 +76,7 @@ interface MarkdownViewProps {
 // Component
 // ---------------------------------------------------------------------------
 
-export function MarkdownView({
+export const MarkdownView = function MarkdownView({
   content,
   blocks: providedBlocks,
   showLineNumbers = true,
@@ -130,13 +130,13 @@ export function MarkdownView({
       {blockElements}
     </row-document>
   );
-}
+};
 
 // ---------------------------------------------------------------------------
 // Block renderer (flat)
 // ---------------------------------------------------------------------------
 
-function FlatBlockRenderer({
+const FlatBlockRenderer = function FlatBlockRenderer({
   block,
   blockIndex,
   theme,
@@ -204,13 +204,19 @@ function FlatBlockRenderer({
       }
       return null;
   }
-}
+};
 
 // ---------------------------------------------------------------------------
 // List line renderer
 // ---------------------------------------------------------------------------
 
-function ListLineRenderer({ block, theme }: { block: FlatBlock; theme: ResolvedTheme }) {
+const ListLineRenderer = function ListLineRenderer({
+  block,
+  theme,
+}: {
+  block: FlatBlock;
+  theme: ResolvedTheme;
+}) {
   const { token, indent, bullet, checked } = block;
   const checkboxPrefix = checked !== undefined ? (checked ? "[x] " : "[ ] ") : "";
 
@@ -241,13 +247,13 @@ function ListLineRenderer({ block, theme }: { block: FlatBlock; theme: ResolvedT
       </text>
     </box>
   );
-}
+};
 
 // ---------------------------------------------------------------------------
 // Block renderers
 // ---------------------------------------------------------------------------
 
-function HeadingRenderer({
+const HeadingRenderer = function HeadingRenderer({
   token,
   theme,
   indent,
@@ -284,9 +290,9 @@ function HeadingRenderer({
       </text>
     </box>
   );
-}
+};
 
-function ParagraphRenderer({
+const ParagraphRenderer = function ParagraphRenderer({
   token,
   theme,
   indent,
@@ -302,9 +308,9 @@ function ParagraphRenderer({
       </text>
     </box>
   );
-}
+};
 
-function BlockquoteRenderer({
+const BlockquoteRenderer = function BlockquoteRenderer({
   token,
   theme,
   indent,
@@ -344,9 +350,15 @@ function BlockquoteRenderer({
       </text>
     </box>
   );
-}
+};
 
-function MarkdownTableRenderer({ token, indent }: { token: Tokens.Table; indent: number }) {
+const MarkdownTableRenderer = function MarkdownTableRenderer({
+  token,
+  indent,
+}: {
+  token: Tokens.Table;
+  indent: number;
+}) {
   const { theme } = useTheme();
 
   const content: TextTableContent = useMemo(() => {
@@ -384,21 +396,33 @@ function MarkdownTableRenderer({ token, indent }: { token: Tokens.Table; indent:
       />
     </box>
   );
-}
+};
 
-function HorizontalRule({ theme, indent }: { theme: ResolvedTheme; indent: number }) {
+const HorizontalRule = function HorizontalRule({
+  theme,
+  indent,
+}: {
+  theme: ResolvedTheme;
+  indent: number;
+}) {
   return (
     <box style={{ marginBottom: 1, marginLeft: 1 + indent, marginRight: 1, marginTop: 0 }}>
       <text style={{ fg: theme.markdownHorizontalRule }} content={"─".repeat(40)} />
     </box>
   );
-}
+};
 
 // ---------------------------------------------------------------------------
 // Inline token rendering (React elements)
 // ---------------------------------------------------------------------------
 
-function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme }): ReactNode {
+const InlineTokens = function InlineTokens({
+  tokens,
+  theme,
+}: {
+  tokens: Token[];
+  theme: ResolvedTheme;
+}): ReactNode {
   const result: ReactNode[] = [];
 
   for (let i = 0; i < tokens.length; i += 1) {
@@ -488,13 +512,16 @@ function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme
   }
 
   return <>{result}</>;
-}
+};
 
 // ---------------------------------------------------------------------------
 // Inline token rendering (TextChunks — for text-table cells)
 // ---------------------------------------------------------------------------
 
-function inlineTokensToChunks(tokens: Token[], theme: ResolvedTheme): TextChunk[] {
+const inlineTokensToChunks = function inlineTokensToChunks(
+  tokens: Token[],
+  theme: ResolvedTheme,
+): TextChunk[] {
   const chunks: TextChunk[] = [];
 
   for (const token of tokens) {
@@ -545,13 +572,13 @@ function inlineTokensToChunks(tokens: Token[], theme: ResolvedTheme): TextChunk[
   }
 
   return chunks;
-}
+};
 
 // ---------------------------------------------------------------------------
 // Plain text extraction (only for width computation, not rendering)
 // ---------------------------------------------------------------------------
 
-function getPlainText(tokens: Token[]): string {
+const getPlainText = function getPlainText(tokens: Token[]): string {
   return tokens
     .map((token) => {
       if (token.type === "text") {
@@ -569,4 +596,4 @@ function getPlainText(tokens: Token[]): string {
       return "";
     })
     .join("");
-}
+};

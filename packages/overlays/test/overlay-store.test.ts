@@ -10,15 +10,21 @@ import {
 import type { OverlayClosedEmit, OverlayRecord } from "../src/overlay-store.js";
 import type { OverlayOpenOptions } from "../src/overlay-context.js";
 
-function record(id: string, options: OverlayOpenOptions = {}, prevMode = "cursor"): OverlayRecord {
+const record = function record(
+  id: string,
+  options: OverlayOpenOptions = {},
+  prevMode = "cursor",
+): OverlayRecord {
   return { id, options, payload: null, prevMode, render: () => null };
-}
+};
 
-function collectCloses(store: ReturnType<typeof createOverlayStore>): OverlayClosedEmit[] {
+const collectCloses = function collectCloses(
+  store: ReturnType<typeof createOverlayStore>,
+): OverlayClosedEmit[] {
   const closes: OverlayClosedEmit[] = [];
   store.on("closed", (emit) => closes.push(emit));
   return closes;
-}
+};
 
 describe("overlay store — stack transitions", () => {
   test("open/close/closeTop/update", () => {

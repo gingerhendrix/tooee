@@ -24,12 +24,16 @@ const EMPTY_MATCHES: readonly number[] = [];
 const EMPTY_ROWS: readonly never[] = [];
 const EMPTY_ANCHORS: readonly never[] = [];
 
-function rowKey<T>(adapter: DocumentRowAdapter<T>, row: T | undefined, index: number): Key {
+const rowKey = function rowKey<T>(
+  adapter: DocumentRowAdapter<T>,
+  row: T | undefined,
+  index: number,
+): Key {
   return adapter.getKey && row !== undefined ? adapter.getKey(row, index) : index;
-}
+};
 
 /** Build the anchor for a row from the current rows + adapter, or `null` if out of range. */
-function makeAnchor<T>(
+const makeAnchor = function makeAnchor<T>(
   rows: readonly T[],
   adapter: DocumentRowAdapter<T>,
   index: number,
@@ -43,7 +47,7 @@ function makeAnchor<T>(
     source: adapter.getSource?.(row, index) ?? null,
     text: adapter.getText(row, index),
   };
-}
+};
 
 /**
  * Menu items may be prepared entries or the consumer's own action definitions;
@@ -51,7 +55,7 @@ function makeAnchor<T>(
  * `actionsToContextMenuEntries`, which drops `hidden` actions and actions
  * whose `when` rejects the context the menu is opening in.
  */
-function resolveContextMenuEntries(
+const resolveContextMenuEntries = function resolveContextMenuEntries(
   items: DocumentContextMenuItems,
   context: CommandContext,
 ): ContextMenuEntry[] {
@@ -60,9 +64,9 @@ function resolveContextMenuEntries(
     return actionsToContextMenuEntries(items as readonly ActionDefinition[], context);
   }
   return [...(items as readonly ContextMenuEntry[])];
-}
+};
 
-function defaultMatch<T>(
+const defaultMatch = function defaultMatch<T>(
   query: string,
   rows: readonly T[],
   getText: (row: T, index: number) => string,
@@ -75,7 +79,7 @@ function defaultMatch<T>(
     }
   }
   return matches;
-}
+};
 
 /**
  * The headless row model and interaction controller behind a row document:
@@ -84,7 +88,7 @@ function defaultMatch<T>(
  * count, rendered children, search results, copy text, and the active row all
  * derive from it, so they cannot drift apart.
  */
-export function useDocumentController<T>(
+export const useDocumentController = function useDocumentController<T>(
   options: UseDocumentControllerOptions<T>,
 ): DocumentController<T> {
   const {
@@ -392,4 +396,4 @@ export function useDocumentController<T>(
       onMouseDown,
     ],
   );
-}
+};

@@ -24,7 +24,12 @@ interface ViewProps {
   codeBlockRenderers?: Record<string, CodeBlockRenderer>;
 }
 
-export function View({ contentProvider, actions, renderers, codeBlockRenderers }: ViewProps) {
+export const View = function View({
+  contentProvider,
+  actions,
+  renderers,
+  codeBlockRenderers,
+}: ViewProps) {
   const { theme } = useTheme();
   const { content, streaming, error, providerMarks, reload } = useContentLoader(contentProvider);
 
@@ -95,4 +100,4 @@ export function View({ contentProvider, actions, renderers, codeBlockRenderers }
       return <TableSubview content={content} {...shared} />;
     }
   }
-}
+};

@@ -30,9 +30,13 @@ import type { ReactNode } from "react";
 
 type Theme = CodeBlockRendererProps["theme"];
 
-function h(tag: string, props: Record<string, unknown>, ...children: ReactNode[]): ReactNode {
+const h = function h(
+  tag: string,
+  props: Record<string, unknown>,
+  ...children: ReactNode[]
+): ReactNode {
   return createElement(tag, props, ...children);
-}
+};
 
 // === Markdown content ===
 
@@ -97,7 +101,11 @@ edge-cache,20,4
 
 const PROGRESS_BAR_WIDTH = 24;
 
-function ProgressRenderer({ text, theme, indent }: CodeBlockRendererProps): ReactNode {
+const ProgressRenderer = function ProgressRenderer({
+  text,
+  theme,
+  indent,
+}: CodeBlockRendererProps): ReactNode {
   const rows = text
     .split("\n")
     .map((line) => line.trim())
@@ -129,7 +137,7 @@ function ProgressRenderer({ text, theme, indent }: CodeBlockRendererProps): Reac
       );
     }),
   );
-}
+};
 
 // === callout: admonition box; kind comes from the fence info string ===
 
@@ -141,7 +149,12 @@ const CALLOUT_STYLES: Record<string, { label: string; color: (theme: Theme) => s
   warning: { color: (theme) => theme.warning, label: "WARNING" },
 };
 
-function CalloutRenderer({ text, info, theme, indent }: CodeBlockRendererProps): ReactNode {
+const CalloutRenderer = function CalloutRenderer({
+  text,
+  info,
+  theme,
+  indent,
+}: CodeBlockRendererProps): ReactNode {
   // ```callout warning — the kind is the second word of the info string
   const kind = info.trim().split(/\s+/u)[1]?.toLowerCase() ?? "info";
   const style = CALLOUT_STYLES[kind];
@@ -171,7 +184,7 @@ function CalloutRenderer({ text, info, theme, indent }: CodeBlockRendererProps):
       h("text", { content: line, key: i, style: { fg: theme.text, height: 1 } }),
     ),
   );
-}
+};
 
 // === timeline: "label,startHour,durationHours" as a wide deploy timeline ===
 //
@@ -183,7 +196,12 @@ function CalloutRenderer({ text, info, theme, indent }: CodeBlockRendererProps):
 const TIMELINE_HOURS = 24;
 const TIMELINE_HOUR_COLS = 5;
 
-function TimelineRenderer({ text, theme, indent, hScroll }: CodeBlockRendererProps): ReactNode {
+const TimelineRenderer = function TimelineRenderer({
+  text,
+  theme,
+  indent,
+  hScroll,
+}: CodeBlockRendererProps): ReactNode {
   const rows = text
     .split("\n")
     .map((line) => line.trim())
@@ -238,7 +256,7 @@ function TimelineRenderer({ text, theme, indent, hScroll }: CodeBlockRendererPro
       wrapMode: "none",
     }),
   );
-}
+};
 
 // === Content provider ===
 

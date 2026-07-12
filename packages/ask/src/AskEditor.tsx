@@ -11,7 +11,7 @@ export interface AskEditorProps {
  * Presentational ask editor: the themed textarea/input plus scrollbar. All
  * behaviour lives in the view-model from `useAskEditor`.
  */
-export function AskEditor({ editor }: AskEditorProps) {
+export const AskEditor = function AskEditor({ editor }: AskEditorProps) {
   const { theme } = useTheme();
 
   const cursorStyle: CursorStyleOptions =
@@ -66,4 +66,4 @@ export function AskEditor({ editor }: AskEditorProps) {
       onPaste={editor.onEditorPaste}
     />
   );
-}
+};

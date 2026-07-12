@@ -56,13 +56,13 @@ export interface DocumentRowAnchor<T> {
 // ---------------------------------------------------------------------------
 
 /** Offsets of the first character of every physical line. */
-function buildLineStarts(text: string): number[] {
+const buildLineStarts = function buildLineStarts(text: string): number[] {
   const starts = [0];
   for (let i = 0; i < text.length; i += 1) {
     if (text.charCodeAt(i) === 10 /* \n */) starts.push(i + 1);
   }
   return starts;
-}
+};
 
 /**
  * A CRLF-aware line-start index over an original source string. A `\r\n` is one
@@ -160,7 +160,10 @@ export interface SourceLineRow {
  * its newline delimiter; CRLF is one line break while offsets keep addressing
  * the original `\r\n` string.
  */
-export function sourceLines(source: string, options?: { sourceId?: string }): SourceLineRow[] {
+export const sourceLines = function sourceLines(
+  source: string,
+  options?: { sourceId?: string },
+): SourceLineRow[] {
   const index = new SourceIndex(source, options?.sourceId);
   const rows: SourceLineRow[] = [];
   for (let line = 0; line < index.lineStarts.length; line += 1) {
@@ -172,7 +175,7 @@ export function sourceLines(source: string, options?: { sourceId?: string }): So
     });
   }
   return rows;
-}
+};
 
 /** Adapter for `sourceLines()` rows: identity mapping in row/line space. */
 export const sourceLineAdapter = {

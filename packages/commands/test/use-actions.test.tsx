@@ -12,16 +12,16 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-async function press(session: TestSession, key: string) {
+const press = async function press(session: TestSession, key: string) {
   await act(async () => {
     session.mockInput.pressKey(key);
   });
   await session.renderOnce();
-}
+};
 
 describe("useActions re-registration key (R-07)", () => {
   test("changing an action's modes re-registers the command", async () => {
-    function Harness() {
+    const Harness = function Harness() {
       const [modes, setModes] = useState<Mode[]>(["cursor"]);
       const [count, setCount] = useState(0);
       useActions([
@@ -40,7 +40,7 @@ describe("useActions re-registration key (R-07)", () => {
         title: "Swap modes",
       });
       return <text content={`count:${count}`} />;
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>
@@ -62,7 +62,7 @@ describe("useActions re-registration key (R-07)", () => {
   });
 
   test("adding a when clause after mount re-registers the command", async () => {
-    function Harness() {
+    const Harness = function Harness() {
       const [restricted, setRestricted] = useState(false);
       const [count, setCount] = useState(0);
       useActions([
@@ -81,7 +81,7 @@ describe("useActions re-registration key (R-07)", () => {
         title: "Restrict",
       });
       return <text content={`count:${count}`} />;
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>

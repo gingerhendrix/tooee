@@ -7,7 +7,7 @@ import { useCurrentOverlay, useHasOverlay } from "@tooee/overlays";
 import { press } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
 
-function WhichKeyHarness() {
+const WhichKeyHarness = function WhichKeyHarness() {
   const sequence = useCommandSequenceState();
   const overlay = useCurrentOverlay();
   const hasOverlay = useHasOverlay();
@@ -57,9 +57,9 @@ function WhichKeyHarness() {
       {overlay}
     </box>
   );
-}
+};
 
-function ActionMetadataHarness() {
+const ActionMetadataHarness = function ActionMetadataHarness() {
   const sequence = useCommandSequenceState();
   const overlay = useCurrentOverlay();
   const hasOverlay = useHasOverlay();
@@ -96,9 +96,9 @@ function ActionMetadataHarness() {
       {overlay}
     </box>
   );
-}
+};
 
-async function setup(children = <WhichKeyHarness />) {
+const setup = async function setup(children = <WhichKeyHarness />) {
   const s = await testRender(<TooeeProvider leader="space">{children}</TooeeProvider>, {
     height: 24,
     kittyKeyboard: true,
@@ -106,7 +106,7 @@ async function setup(children = <WhichKeyHarness />) {
   });
   await s.renderOnce();
   return s;
-}
+};
 
 let testSetup: TestSession;
 
@@ -220,6 +220,6 @@ describe("which-key", () => {
   });
 });
 
-function step(key: string): ParsedStep {
+const step = function step(key: string): ParsedStep {
   return { ctrl: false, key, meta: false, option: false, shift: false };
-}
+};

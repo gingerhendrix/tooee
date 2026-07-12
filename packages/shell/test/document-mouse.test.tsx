@@ -26,12 +26,12 @@ let handle: DocumentController<Row> | null = null;
 let presses: DocumentRowEvent<Row>[] = [];
 let menuEvents: DocumentContextMenuEvent<Row>[] = [];
 
-function menuFor(event: DocumentContextMenuEvent<Row>): ContextMenuEntry[] {
+const menuFor = function menuFor(event: DocumentContextMenuEvent<Row>): ContextMenuEntry[] {
   menuEvents.push(event);
   return [{ id: `open-${event.row.id}`, title: `Open ${event.row.label}` }];
-}
+};
 
-function Harness({ rows, gap = false }: { rows: readonly Row[]; gap?: boolean }) {
+const Harness = function Harness({ rows, gap = false }: { rows: readonly Row[]; gap?: boolean }) {
   const document = useDocumentController<Row>({
     adapter: ADAPTER,
     contextMenu: menuFor,
@@ -56,7 +56,7 @@ function Harness({ rows, gap = false }: { rows: readonly Row[]; gap?: boolean })
       />
     </AppLayout>
   );
-}
+};
 
 let session: TestSession;
 
@@ -70,7 +70,10 @@ afterEach(() => {
   handle = null;
 });
 
-async function setup(rows: readonly Row[], options: { gap?: boolean; height?: number } = {}) {
+const setup = async function setup(
+  rows: readonly Row[],
+  options: { gap?: boolean; height?: number } = {},
+) {
   session = await testRender(
     <TooeeProvider>
       <Harness rows={rows} gap={options.gap} />
@@ -79,7 +82,7 @@ async function setup(rows: readonly Row[], options: { gap?: boolean; height?: nu
   );
   await session.renderOnce();
   return session;
-}
+};
 
 const click = async (x: number, y: number, button: MouseButton = MouseButtons.LEFT) => {
   await act(async () => {
@@ -187,7 +190,7 @@ describe("variable-height rows", () => {
   let tallHandle: DocumentController<TallRow> | null = null;
   let tallPresses: DocumentRowEvent<TallRow>[] = [];
 
-  function TallHarness({ rows }: { rows: readonly TallRow[] }) {
+  const TallHarness = function TallHarness({ rows }: { rows: readonly TallRow[] }) {
     const document = useDocumentController<TallRow>({
       adapter: TALL_ADAPTER,
       onRowPress: (event) => {
@@ -212,7 +215,7 @@ describe("variable-height rows", () => {
         />
       </AppLayout>
     );
-  }
+  };
 
   beforeEach(() => {
     tallPresses = [];
@@ -222,7 +225,7 @@ describe("variable-height rows", () => {
     tallHandle = null;
   });
 
-  async function setupTall(rows: readonly TallRow[], height = 12) {
+  const setupTall = async function setupTall(rows: readonly TallRow[], height = 12) {
     session = await testRender(
       <TooeeProvider>
         <TallHarness rows={rows} />
@@ -231,7 +234,7 @@ describe("variable-height rows", () => {
     );
     await session.renderOnce();
     return session;
-  }
+  };
 
   // Heights 1, 3, 2 — rows start at y=0, y=1, y=4; content ends at y=6.
   const MIXED: TallRow[] = [
@@ -294,7 +297,7 @@ describe("non-selectable rows", () => {
   let sectionHandle: DocumentController<Row> | null = null;
   let sectionPresses: DocumentRowEvent<Row>[] = [];
 
-  function SectionHarness({ rows }: { rows: readonly Row[] }) {
+  const SectionHarness = function SectionHarness({ rows }: { rows: readonly Row[] }) {
     const document = useDocumentController<Row>({
       adapter: {
         ...ADAPTER,
@@ -316,7 +319,7 @@ describe("non-selectable rows", () => {
         />
       </AppLayout>
     );
-  }
+  };
 
   beforeEach(() => {
     sectionPresses = [];
@@ -357,7 +360,7 @@ describe("non-selectable rows", () => {
 describe("action-backed context menu", () => {
   let invoked: string[] = [];
 
-  function makeActions(): ActionDefinition[] {
+  const makeActions = function makeActions(): ActionDefinition[] {
     return [
       {
         handler: () => {
@@ -391,9 +394,9 @@ describe("action-backed context menu", () => {
         when: () => false,
       },
     ];
-  }
+  };
 
-  function ActionsHarness({ rows }: { rows: readonly Row[] }) {
+  const ActionsHarness = function ActionsHarness({ rows }: { rows: readonly Row[] }) {
     const actions = makeActions();
     useActions(actions);
     const document = useDocumentController<Row>({
@@ -412,13 +415,13 @@ describe("action-backed context menu", () => {
         />
       </AppLayout>
     );
-  }
+  };
 
   beforeEach(() => {
     invoked = [];
   });
 
-  async function setupActions() {
+  const setupActions = async function setupActions() {
     session = await testRender(
       <TooeeProvider>
         <ActionsHarness rows={THREE} />
@@ -427,7 +430,7 @@ describe("action-backed context menu", () => {
     );
     await session.renderOnce();
     return session;
-  }
+  };
 
   test("right-click builds the menu from actions, dropping hidden and inapplicable ones", async () => {
     await setupActions();
@@ -455,7 +458,11 @@ describe("action-backed context menu", () => {
   test("a function menu may also return action definitions", async () => {
     let seenKey: unknown = null;
 
-    function FunctionActionsHarness({ rows }: { rows: readonly Row[] }) {
+    const FunctionActionsHarness = function FunctionActionsHarness({
+      rows,
+    }: {
+      rows: readonly Row[];
+    }) {
       const actions = makeActions();
       useActions(actions);
       const document = useDocumentController<Row>({
@@ -477,7 +484,7 @@ describe("action-backed context menu", () => {
           />
         </AppLayout>
       );
-    }
+    };
 
     session = await testRender(
       <TooeeProvider>

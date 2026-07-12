@@ -12,21 +12,21 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-async function press(session: TestSession, key: string) {
+const press = async function press(session: TestSession, key: string) {
   await act(async () => {
     session.mockInput.pressKey(key);
   });
   await session.renderOnce();
-}
+};
 
 describe("registry unregister guards (R-05)", () => {
   test("first registrant's unmount does not delete the second's live command", async () => {
-    function Registrant({ onFire }: { onFire: () => void }) {
+    const Registrant = function Registrant({ onFire }: { onFire: () => void }) {
       useCommand({ handler: onFire, hotkey: "d", id: "dup", title: "Dup" });
       return null;
-    }
+    };
 
-    function Harness() {
+    const Harness = function Harness() {
       const [showFirst, setShowFirst] = useState(true);
       const [firstCount, setFirstCount] = useState(0);
       const [secondCount, setSecondCount] = useState(0);
@@ -44,7 +44,7 @@ describe("registry unregister guards (R-05)", () => {
           <Registrant onFire={() => setSecondCount((n) => n + 1)} />
         </box>
       );
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>
@@ -70,17 +70,17 @@ describe("registry unregister guards (R-05)", () => {
   test("first group registrant's unmount does not delete the second's live group", async () => {
     let groups: Map<string, RegisteredCommandGroup> | null = null;
 
-    function Probe() {
+    const Probe = function Probe() {
       groups = useCommandRegistry().groups;
       return null;
-    }
+    };
 
-    function GroupRegistrant({ title }: { title: string }) {
+    const GroupRegistrant = function GroupRegistrant({ title }: { title: string }) {
       useCommandGroup({ id: `group-${title}`, prefix: "g", title });
       return null;
-    }
+    };
 
-    function Harness() {
+    const Harness = function Harness() {
       const [showFirst, setShowFirst] = useState(true);
       useCommand({
         handler: () => setShowFirst(false),
@@ -95,7 +95,7 @@ describe("registry unregister guards (R-05)", () => {
           <GroupRegistrant title="Second group" />
         </box>
       );
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>

@@ -9,7 +9,7 @@ const DEFAULTS: TooeeConfig = {
   },
 };
 
-function deepMerge(target: any, source: any): any {
+const deepMerge = function deepMerge(target: any, source: any): any {
   const result = { ...target };
   for (const key of Object.keys(source)) {
     if (source[key] && typeof source[key] === "object" && !Array.isArray(source[key])) {
@@ -19,9 +19,9 @@ function deepMerge(target: any, source: any): any {
     }
   }
   return result;
-}
+};
 
-function readJsonFile(path: string): Partial<TooeeConfig> {
+const readJsonFile = function readJsonFile(path: string): Partial<TooeeConfig> {
   try {
     if (!existsSync(path)) {
       return {};
@@ -30,14 +30,14 @@ function readJsonFile(path: string): Partial<TooeeConfig> {
   } catch {
     return {};
   }
-}
+};
 
-function getGlobalConfigPath(): string {
+const getGlobalConfigPath = function getGlobalConfigPath(): string {
   const xdg = process.env.XDG_CONFIG_HOME ?? join(process.env.HOME ?? "", ".config");
   return join(xdg, "tooee", "config.json");
-}
+};
 
-function findProjectConfig(): Partial<TooeeConfig> {
+const findProjectConfig = function findProjectConfig(): Partial<TooeeConfig> {
   let dir = process.cwd();
   const seen = new Set<string>();
   while (dir && !seen.has(dir)) {
@@ -53,9 +53,9 @@ function findProjectConfig(): Partial<TooeeConfig> {
     dir = parent;
   }
   return {};
-}
+};
 
-export function loadConfig(overrides?: Partial<TooeeConfig>): TooeeConfig {
+export const loadConfig = function loadConfig(overrides?: Partial<TooeeConfig>): TooeeConfig {
   let config: TooeeConfig = { ...DEFAULTS };
   config = deepMerge(config, readJsonFile(getGlobalConfigPath()));
   config = deepMerge(config, findProjectConfig());
@@ -63,9 +63,9 @@ export function loadConfig(overrides?: Partial<TooeeConfig>): TooeeConfig {
     config = deepMerge(config, overrides);
   }
   return config;
-}
+};
 
-export function writeGlobalConfig(partial: Partial<TooeeConfig>): void {
+export const writeGlobalConfig = function writeGlobalConfig(partial: Partial<TooeeConfig>): void {
   const path = getGlobalConfigPath();
   const dir = dirname(path);
   try {
@@ -76,4 +76,4 @@ export function writeGlobalConfig(partial: Partial<TooeeConfig>): void {
   } catch {
     // ignore write errors
   }
-}
+};

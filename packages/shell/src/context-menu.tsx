@@ -20,14 +20,14 @@ export interface ContextMenuController {
  * actions whose `when` predicate rejects it, so a menu built at click time
  * shows only the actions that would actually run.
  */
-export function actionsToContextMenuEntries(
+export const actionsToContextMenuEntries = function actionsToContextMenuEntries(
   actions: readonly ActionDefinition[] | undefined,
   context?: CommandContext,
 ): ContextMenuEntry[] {
   return (actions ?? [])
     .filter((action) => !action.hidden && (!context || !action.when || action.when(context)))
     .map((action) => ({ hotkey: action.hotkey, id: action.id, title: action.title }));
-}
+};
 
 /**
  * Opens a right-click context menu as an overlay positioned near the cursor.
@@ -35,7 +35,7 @@ export function actionsToContextMenuEntries(
  * The menu is keyboard-navigable and dismisses on Escape, click-outside, or
  * selection. Restores the previous mode on close (handled by the overlay layer).
  */
-export function useContextMenu(): ContextMenuController {
+export const useContextMenu = function useContextMenu(): ContextMenuController {
   const overlay = useOverlay();
 
   const open = useCallback(
@@ -65,4 +65,4 @@ export function useContextMenu(): ContextMenuController {
   }, [overlay]);
 
   return { close, open };
-}
+};

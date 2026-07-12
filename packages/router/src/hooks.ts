@@ -4,7 +4,7 @@ import type { ActionNavigationResult } from "./action-types.js";
 import { useRouterInstance, useRouterStack, useStackEntryIndex } from "./context.js";
 import { useRouteDataContext } from "./loader.js";
 
-export function useNavigate() {
+export const useNavigate = function useNavigate() {
   const router = useRouterInstance();
   return {
     pop: useCallback(() => router.pop(), [router]),
@@ -21,33 +21,33 @@ export function useNavigate() {
       [router],
     ),
   };
-}
+};
 
-export function useParams<T = Record<string, unknown>>(): T {
+export const useParams = function useParams<T = Record<string, unknown>>(): T {
   const stack = useRouterStack();
   const entry = stack[stack.length - 1];
   return (entry?.params ?? {}) as T;
-}
+};
 
-export function useRouteData<T = unknown>(): T | undefined {
+export const useRouteData = function useRouteData<T = unknown>(): T | undefined {
   return useRouteDataContext<T>();
-}
+};
 
-export function useCurrentRoute(): StackEntry {
+export const useCurrentRoute = function useCurrentRoute(): StackEntry {
   const stack = useRouterStack();
   return stack[stack.length - 1];
-}
+};
 
-export function useCanGoBack(): boolean {
+export const useCanGoBack = function useCanGoBack(): boolean {
   const stack = useRouterStack();
   return stack.length > 1;
-}
+};
 
-export function useRouter(): RouterInstance {
+export const useRouter = function useRouter(): RouterInstance {
   return useRouterInstance();
-}
+};
 
-export function useActionResultHandler() {
+export const useActionResultHandler = function useActionResultHandler() {
   const router = useRouterInstance();
   return useCallback(
     (result: ActionNavigationResult) => {
@@ -63,9 +63,9 @@ export function useActionResultHandler() {
     },
     [router],
   );
-}
+};
 
-export function useScreenState<T>(): {
+export const useScreenState = function useScreenState<T>(): {
   savedState: T | undefined;
   saveState: (state: T) => void;
 } {
@@ -82,4 +82,4 @@ export function useScreenState<T>(): {
     ),
     savedState: router.stateCache.restore<T>(key),
   };
-}
+};

@@ -2,11 +2,11 @@ import { test, expect, describe } from "bun:test";
 import { stackReducer } from "@tooee/router";
 import type { RouterState } from "@tooee/router";
 
-function makeState(...routeIds: string[]): RouterState {
+const makeState = function makeState(...routeIds: string[]): RouterState {
   return {
     stack: routeIds.map((routeId) => ({ params: {}, routeId })),
   };
-}
+};
 
 describe("stackReducer", () => {
   test("push adds entry to stack", () => {

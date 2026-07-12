@@ -5,7 +5,10 @@ export interface CreateProviderOptions {
   renderer?: ContentFormat;
 }
 
-function detectFormat(filePath: string): { format: ContentFormat; language?: string } {
+const detectFormat = function detectFormat(filePath: string): {
+  format: ContentFormat;
+  language?: string;
+} {
   const ext = filePath.split(".").pop()?.toLowerCase();
   if (!ext) {
     return { format: "text" };
@@ -55,9 +58,9 @@ function detectFormat(filePath: string): { format: ContentFormat; language?: str
   }
 
   return { format: "text" };
-}
+};
 
-function contentFromText(
+const contentFromText = function contentFromText(
   text: string,
   format: ContentFormat,
   title: string | undefined,
@@ -79,9 +82,9 @@ function contentFromText(
       return { format: "text", text, title };
     }
   }
-}
+};
 
-export function createFileProvider(
+export const createFileProvider = function createFileProvider(
   filePath: string,
   options: CreateProviderOptions = {},
 ): ContentProvider {
@@ -96,9 +99,11 @@ export function createFileProvider(
       return contentFromText(text, format, title, detected.language);
     },
   };
-}
+};
 
-export function createStdinProvider(options: CreateProviderOptions = {}): ContentProvider {
+export const createStdinProvider = function createStdinProvider(
+  options: CreateProviderOptions = {},
+): ContentProvider {
   return {
     async load(): Promise<Content> {
       const text = await new Response(Bun.stdin.stream()).text();
@@ -106,12 +111,14 @@ export function createStdinProvider(options: CreateProviderOptions = {}): Conten
       return contentFromText(text, format, "stdin");
     },
   };
-}
+};
 
-export function createTableFileProvider(filePath: string): ContentProvider {
+export const createTableFileProvider = function createTableFileProvider(
+  filePath: string,
+): ContentProvider {
   return createFileProvider(filePath, { renderer: "table" });
-}
+};
 
-export function createTableStdinProvider(): ContentProvider {
+export const createTableStdinProvider = function createTableStdinProvider(): ContentProvider {
   return createStdinProvider({ renderer: "table" });
-}
+};

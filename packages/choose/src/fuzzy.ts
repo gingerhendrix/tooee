@@ -8,7 +8,7 @@ export interface FuzzyMatch {
   positions: number[];
 }
 
-export function fuzzyFilter(items: ChooseItem[], query: string): FuzzyMatch[] {
+export const fuzzyFilter = function fuzzyFilter(items: ChooseItem[], query: string): FuzzyMatch[] {
   if (!query) {
     return items.map((item, i) => ({ item, originalIndex: i, positions: [], score: 0 }));
   }
@@ -25,4 +25,4 @@ export function fuzzyFilter(items: ChooseItem[], query: string): FuzzyMatch[] {
 
   results.sort((a, b) => b.score - a.score);
   return results;
-}
+};

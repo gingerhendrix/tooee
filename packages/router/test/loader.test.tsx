@@ -5,7 +5,7 @@ import { createRoute, createRouter, RouterProvider, Outlet, useRouteData } from 
 
 // Helpers to control async loaders in tests
 
-function createDeferred<T>() {
+const createDeferred = function createDeferred<T>() {
   let resolve!: (value: T) => void;
   let reject!: (error: Error) => void;
   const promise = new Promise<T>((res, rej) => {
@@ -13,42 +13,42 @@ function createDeferred<T>() {
     reject = rej;
   });
   return { promise, reject, resolve };
-}
+};
 
 // Screen components
 
-function HomeScreen() {
+const HomeScreen = function HomeScreen() {
   return (
     <box>
       <text content="screen:home" />
     </box>
   );
-}
+};
 
-function DataScreen() {
+const DataScreen = function DataScreen() {
   const data = useRouteData<{ message: string }>();
   return (
     <box>
       <text content={`screen:data:${data?.message ?? "none"}`} />
     </box>
   );
-}
+};
 
-function LoadingScreen() {
+const LoadingScreen = function LoadingScreen() {
   return (
     <box>
       <text content="screen:loading" />
     </box>
   );
-}
+};
 
-function ErrorScreen({ error }: { error: Error }) {
+const ErrorScreen = function ErrorScreen({ error }: { error: Error }) {
   return (
     <box>
       <text content={`screen:error:${error.message}`} />
     </box>
   );
-}
+};
 
 // Test setup
 
@@ -220,14 +220,14 @@ describe("route loaders", () => {
   test("useRouteData returns undefined for routes without loaders", async () => {
     let capturedData: unknown = "sentinel";
 
-    function NoLoaderScreen() {
+    const NoLoaderScreen = function NoLoaderScreen() {
       capturedData = useRouteData();
       return (
         <box>
           <text content="screen:noloader" />
         </box>
       );
-    }
+    };
 
     const noLoaderRoute = createRoute({ component: NoLoaderScreen, id: "noloader" });
 
@@ -414,14 +414,14 @@ describe("route loaders", () => {
   test("loader receives route params", async () => {
     let receivedParams: Record<string, unknown> = {};
 
-    function ParamScreen() {
+    const ParamScreen = function ParamScreen() {
       const data = useRouteData<{ echo: string }>();
       return (
         <box>
           <text content={`screen:param:${data?.echo ?? "none"}`} />
         </box>
       );
-    }
+    };
 
     const homeRoute = createRoute({ component: HomeScreen, id: "home" });
     const paramRoute = createRoute({

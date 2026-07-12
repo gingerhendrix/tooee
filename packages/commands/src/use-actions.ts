@@ -16,7 +16,7 @@ export interface ActionDefinition {
   hidden?: boolean;
 }
 
-export function useActions(actions: ActionDefinition[] | undefined): void {
+export const useActions = function useActions(actions: ActionDefinition[] | undefined): void {
   const registry = useSurfaceRegistry();
   const actionsRef = useRef(actions);
   actionsRef.current = actions;
@@ -62,4 +62,4 @@ export function useActions(actions: ActionDefinition[] | undefined): void {
       }
     };
   }, [key, registry]);
-}
+};

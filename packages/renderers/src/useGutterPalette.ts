@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useTheme } from "@tooee/themes";
 import type { RowDocumentPalette } from "./RowDocumentRenderable.js";
 
-export function useGutterPalette(): RowDocumentPalette {
+export const useGutterPalette = function useGutterPalette(): RowDocumentPalette {
   const { theme } = useTheme();
 
   return useMemo(
@@ -12,4 +12,4 @@ export function useGutterPalette(): RowDocumentPalette {
     }),
     [theme.textMuted, theme.backgroundElement],
   );
-}
+};

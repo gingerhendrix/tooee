@@ -77,7 +77,7 @@ interface RootAccess {
   getMode: () => Mode;
 }
 
-export function CommandProvider({
+export const CommandProvider = function CommandProvider({
   children,
   leader,
   keymap,
@@ -134,9 +134,9 @@ export function CommandProvider({
       </CommandDispatcher>
     </ModeProvider>
   );
-}
+};
 
-function CommandDispatcher({
+const CommandDispatcher = function CommandDispatcher({
   children,
   commandStore,
   rootAccess,
@@ -213,7 +213,7 @@ function CommandDispatcher({
       <CommandSequenceContext value={sequenceState}>{children}</CommandSequenceContext>
     </CommandContext.Provider>
   );
-}
+};
 
 export interface CommandSurfaceProviderProps {
   children: ReactNode;
@@ -233,7 +233,7 @@ export interface CommandSurfaceProviderProps {
  * While a `modal` surface is topmost it owns keyboard input and suspends the
  * parent app's commands; a `passive` surface never becomes the keyboard owner.
  */
-export function CommandSurfaceProvider({
+export const CommandSurfaceProvider = function CommandSurfaceProvider({
   children,
   id,
   role = "modal",
@@ -256,9 +256,9 @@ export function CommandSurfaceProvider({
       </CommandSurfaceInner>
     </ModeProvider>
   );
-}
+};
 
-function CommandSurfaceInner({
+const CommandSurfaceInner = function CommandSurfaceInner({
   children,
   id,
   role,
@@ -339,9 +339,12 @@ function CommandSurfaceInner({
       </CommandSurfaceDepthContext.Provider>
     </CommandContext.Provider>
   );
-}
+};
 
-export function useCommandContext(): { commands: Command[]; invoke: (id: string) => void } {
+export const useCommandContext = function useCommandContext(): {
+  commands: Command[];
+  invoke: (id: string) => void;
+} {
   const ctx = useContext(CommandContext);
   if (!ctx) {
     throw new Error("useCommandContext must be used within a CommandProvider");
@@ -362,21 +365,21 @@ export function useCommandContext(): { commands: Command[]; invoke: (id: string)
     }),
     [commandMap, registry],
   );
-}
+};
 
 /**
  * Builds the live command context of the nearest surface — the same value
  * command handlers receive. For callers that must hand a context to something
  * outside the dispatch path (e.g. a context-menu entry resolver).
  */
-export function useBuildCommandContext(): () => CommandContext {
+export const useBuildCommandContext = function useBuildCommandContext(): () => CommandContext {
   const ctx = useContext(CommandContext);
   if (!ctx) {
     throw new Error("useBuildCommandContext must be used within a CommandProvider");
   }
   const { surface } = ctx;
   return useCallback(() => surface.buildCtx(), [surface]);
-}
+};
 
 /**
  * Internal: the stable registry facade for the nearest surface, without
@@ -384,15 +387,15 @@ export function useBuildCommandContext(): () => CommandContext {
  * only need the facade; subscribing them would re-render every command host
  * on unrelated group/context-source registrations.
  */
-export function useSurfaceRegistry(): CommandRegistry {
+export const useSurfaceRegistry = function useSurfaceRegistry(): CommandRegistry {
   const ctx = useContext(CommandContext);
   if (!ctx) {
     throw new Error("useCommandRegistry must be used within a CommandProvider");
   }
   return ctx.commandStore.registryFor(ctx.surface);
-}
+};
 
-export function useCommandRegistry(): CommandContextValue {
+export const useCommandRegistry = function useCommandRegistry(): CommandContextValue {
   const ctx = useContext(CommandContext);
   if (!ctx) {
     throw new Error("useCommandRegistry must be used within a CommandProvider");
@@ -414,11 +417,12 @@ export function useCommandRegistry(): CommandContextValue {
     }),
     [registry, leaderKey, contextSources, groups],
   );
-}
+};
 
-export function useCommandSequenceState(): CommandSequenceState | null {
-  return useContext(CommandSequenceContext);
-}
+export const useCommandSequenceState =
+  function useCommandSequenceState(): CommandSequenceState | null {
+    return useContext(CommandSequenceContext);
+  };
 
 /**
  * Id of the command surface this subtree registers commands to: the nearest
@@ -426,44 +430,47 @@ export function useCommandSequenceState(): CommandSequenceState | null {
  * root. Compare against `useActiveCommandSurface()` to tell whether another
  * modal surface currently owns keyboard input above this subtree.
  */
-export function useCommandSurfaceId(): string {
+export const useCommandSurfaceId = function useCommandSurfaceId(): string {
   const ctx = useContext(CommandContext);
   if (!ctx) {
     throw new Error("useCommandSurfaceId must be used within a CommandProvider");
   }
   return ctx.surface.id;
-}
+};
 
 /**
  * Metadata for the topmost modal command surface, or null when the root app is
  * the active surface. Intended for which-key/help to read shortcuts from the
  * active interaction surface. `commands` is reactive (F-13).
  */
-export function useActiveCommandSurface(): ActiveCommandSurface | null {
-  const ctx = useContext(CommandContext);
-  const store = (ctx?.commandStore ?? FALLBACK_COMMAND_STORE).store;
+export const useActiveCommandSurface =
+  function useActiveCommandSurface(): ActiveCommandSurface | null {
+    const ctx = useContext(CommandContext);
+    const store = (ctx?.commandStore ?? FALLBACK_COMMAND_STORE).store;
 
-  const record = useSelector(store, (s) => selectActiveModalSurface(s.context));
-  const commandMap = useSelector(store, (s) => {
-    const active = selectActiveModalSurface(s.context);
-    return active ? selectSurfaceCommandMap(s.context, active.id) : undefined;
-  });
+    const record = useSelector(store, (s) => selectActiveModalSurface(s.context));
+    const commandMap = useSelector(store, (s) => {
+      const active = selectActiveModalSurface(s.context);
+      return active ? selectSurfaceCommandMap(s.context, active.id) : undefined;
+    });
 
-  return useMemo(() => {
-    if (!record) return null;
-    return {
-      commands: commandMap ? Array.from(commandMap.values()) : [],
-      id: record.id,
-      role: record.role as CommandSurfaceRole,
-    };
-  }, [record, commandMap]);
-}
+    return useMemo(() => {
+      if (!record) return null;
+      return {
+        commands: commandMap ? Array.from(commandMap.values()) : [],
+        id: record.id,
+        role: record.role as CommandSurfaceRole,
+      };
+    }, [record, commandMap]);
+  };
 
 /**
  * Commands registered on a surface (reactive). Defaults to the active modal
  * surface, falling back to the root surface when none is active.
  */
-export function useSurfaceCommands(surfaceId?: string): readonly Command[] {
+export const useSurfaceCommands = function useSurfaceCommands(
+  surfaceId?: string,
+): readonly Command[] {
   const ctx = useContext(CommandContext);
   const store = (ctx?.commandStore ?? FALLBACK_COMMAND_STORE).store;
 
@@ -473,22 +480,22 @@ export function useSurfaceCommands(surfaceId?: string): readonly Command[] {
   });
 
   return useMemo(() => (commandMap ? Array.from(commandMap.values()) : []), [commandMap]);
-}
+};
 
 /**
  * Advanced/internal — subject to change. The command store instance backing
  * this provider tree, for bridges that must reach the dispatch machinery
  * (e.g. the shell's overlay-replacement sequence reset).
  */
-export function useCommandStore(): CommandStore {
+export const useCommandStore = function useCommandStore(): CommandStore {
   const ctx = useContext(CommandContext);
   if (!ctx) {
     throw new Error("useCommandStore must be used within a CommandProvider");
   }
   return ctx.commandStore;
-}
+};
 
-export function useCommandGroup(group: CommandGroup): void {
+export const useCommandGroup = function useCommandGroup(group: CommandGroup): void {
   const ctx = useContext(CommandContext);
   if (!ctx) {
     throw new Error("useCommandGroup must be used within a CommandProvider");
@@ -519,11 +526,13 @@ export function useCommandGroup(group: CommandGroup): void {
     commandStore,
     leaderKey,
   ]);
-}
+};
 
 let nextContextSourceId = 0;
 
-export function useProvideCommandContext(getter: () => Partial<CommandContext>): void {
+export const useProvideCommandContext = function useProvideCommandContext(
+  getter: () => Partial<CommandContext>,
+): void {
   const ctx = useContext(CommandContext);
   if (!ctx) {
     throw new Error("useProvideCommandContext must be used within a CommandProvider");
@@ -549,11 +558,10 @@ export function useProvideCommandContext(getter: () => Partial<CommandContext>):
       commandStore.store.trigger.contextSourceUnregistered({ id });
     };
   }, [commandStore]);
-}
+};
 
-export function useProvideCommandContextKey<K extends keyof CommandContext>(
-  key: K,
-  getter: () => CommandContext[K],
-): void {
+export const useProvideCommandContextKey = function useProvideCommandContextKey<
+  K extends keyof CommandContext,
+>(key: K, getter: () => CommandContext[K]): void {
   useProvideCommandContext(() => ({ [key]: getter() }) as Pick<CommandContext, K>);
-}
+};

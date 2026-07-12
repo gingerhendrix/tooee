@@ -10,7 +10,7 @@ const WORD_BOUNDARY_CHARS = new Set([" ", "-", "_", ".", "/"]);
  *
  * Returns null if the query doesn't match.
  */
-export function fuzzyMatchPositions(
+export const fuzzyMatchPositions = function fuzzyMatchPositions(
   query: string,
   text: string,
 ): { score: number; positions: number[] } | null {
@@ -40,13 +40,13 @@ export function fuzzyMatchPositions(
     return null;
   }
   return { positions, score };
-}
+};
 
 /**
  * Fuzzy match a query against text, returning only the score.
  * Returns null if the query doesn't match.
  */
-export function fuzzyMatch(query: string, text: string): number | null {
+export const fuzzyMatch = function fuzzyMatch(query: string, text: string): number | null {
   const result = fuzzyMatchPositions(query, text);
   return result ? result.score : null;
-}
+};

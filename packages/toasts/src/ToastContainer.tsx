@@ -10,7 +10,10 @@ const LEVEL_ICONS: Record<ToastLevel, string> = {
   warning: "⚠",
 };
 
-function getLevelColor(theme: ReturnType<typeof useTheme>["theme"], level: ToastLevel): string {
+const getLevelColor = function getLevelColor(
+  theme: ReturnType<typeof useTheme>["theme"],
+  level: ToastLevel,
+): string {
   switch (level) {
     case "info": {
       return theme.info;
@@ -25,9 +28,9 @@ function getLevelColor(theme: ReturnType<typeof useTheme>["theme"], level: Toast
       return theme.error;
     }
   }
-}
+};
 
-export function ToastContainer() {
+export const ToastContainer = function ToastContainer() {
   const { currentToast } = useToast();
   const { theme } = useTheme();
   const { width: termWidth } = useTerminalDimensions();
@@ -55,4 +58,4 @@ export function ToastContainer() {
       <text content={`${icon} ${currentToast.message}`} fg={theme.text} />
     </box>
   );
-}
+};

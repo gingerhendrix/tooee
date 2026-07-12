@@ -8,7 +8,7 @@ const FIXTURE_APP = resolve(import.meta.dir, "fixtures/router-app.tsx");
 const CONFIG_NAMESPACE = "router-e2e";
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
 
-export async function launchRouter(args: string[] = []): Promise<Session> {
+export const launchRouter = async function launchRouter(args: string[] = []): Promise<Session> {
   resetTestConfig(CONFIG_NAMESPACE);
   const session = await launchTerminal({
     args: ["--conditions=@tooee/source", FIXTURE_APP, ...args],
@@ -20,4 +20,4 @@ export async function launchRouter(args: string[] = []): Promise<Session> {
   });
   await session.waitForText("Route:", { timeout: 15_000 });
   return session;
-}
+};

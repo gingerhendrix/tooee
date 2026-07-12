@@ -1,4 +1,4 @@
-export function findMatchingLines(text: string, query: string): number[] {
+export const findMatchingLines = function findMatchingLines(text: string, query: string): number[] {
   if (!query) {
     return [];
   }
@@ -17,4 +17,4 @@ export function findMatchingLines(text: string, query: string): number[] {
     }
   }
   return results;
-}
+};

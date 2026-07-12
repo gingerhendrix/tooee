@@ -28,7 +28,7 @@ const MARKDOWN_BLOCK_ADAPTER: DocumentRowAdapter<FlatBlock> = {
   getText: (block) => getFlatBlockText(block),
 };
 
-export function MarkdownSubview({
+export const MarkdownSubview = function MarkdownSubview({
   content,
   codeBlockRenderers,
   decorations,
@@ -104,4 +104,4 @@ export function MarkdownSubview({
       />
     </ViewScreen>
   );
-}
+};

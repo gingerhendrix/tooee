@@ -11,16 +11,20 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-async function press(session: TestSession, key: string, modifiers?: { ctrl?: boolean }) {
+const press = async function press(
+  session: TestSession,
+  key: string,
+  modifiers?: { ctrl?: boolean },
+) {
   await act(async () => {
     session.mockInput.pressKey(key, modifiers);
   });
   await session.renderOnce();
-}
+};
 
 describe("leaderless <leader> hotkeys (R-06)", () => {
   test("a <leader> hotkey with no configured leader never fires", async () => {
-    function Harness() {
+    const Harness = function Harness() {
       const [count, setCount] = useState(0);
       useCommand({
         handler: () => setCount((n) => n + 1),
@@ -29,7 +33,7 @@ describe("leaderless <leader> hotkeys (R-06)", () => {
         title: "Leader command",
       });
       return <text content={`count:${count}`} />;
-    }
+    };
 
     testSetup = await testRender(
       // No leader configured on the provider
@@ -49,7 +53,7 @@ describe("leaderless <leader> hotkeys (R-06)", () => {
   });
 
   test("a <leader> hotkey with a configured leader still works", async () => {
-    function Harness() {
+    const Harness = function Harness() {
       const [count, setCount] = useState(0);
       useCommand({
         handler: () => setCount((n) => n + 1),
@@ -58,7 +62,7 @@ describe("leaderless <leader> hotkeys (R-06)", () => {
         title: "Leader command",
       });
       return <text content={`count:${count}`} />;
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider leader="space">

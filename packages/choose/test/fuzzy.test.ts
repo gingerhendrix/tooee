@@ -2,9 +2,9 @@ import { test, expect, describe } from "bun:test";
 import { fuzzyFilter } from "../src/fuzzy.js";
 import type { ChooseItem } from "../src/types.js";
 
-function items(...texts: string[]): ChooseItem[] {
+const items = function items(...texts: string[]): ChooseItem[] {
   return texts.map((text) => ({ text }));
-}
+};
 
 describe("fuzzyFilter", () => {
   test("empty query returns all items with score 0", () => {

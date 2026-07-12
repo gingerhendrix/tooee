@@ -61,15 +61,23 @@ graph LR
 
 const BAR_WIDTH = 30;
 
-function h(tag: string, props: Record<string, unknown>, ...children: ReactNode[]): ReactNode {
+const h = function h(
+  tag: string,
+  props: Record<string, unknown>,
+  ...children: ReactNode[]
+): ReactNode {
   return createElement(tag, props, ...children);
-}
+};
 
 /**
  * Renders "label,value" lines as a horizontal bar chart. Returns null on
  * unparseable input, which falls back to the default code block.
  */
-function ChartRenderer({ text, theme, indent }: CodeBlockRendererProps): ReactNode {
+const ChartRenderer = function ChartRenderer({
+  text,
+  theme,
+  indent,
+}: CodeBlockRendererProps): ReactNode {
   const rows = text
     .split("\n")
     .map((line) => line.trim())
@@ -101,7 +109,7 @@ function ChartRenderer({ text, theme, indent }: CodeBlockRendererProps): ReactNo
       );
     }),
   );
-}
+};
 
 // === Content provider ===
 

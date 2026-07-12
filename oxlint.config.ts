@@ -27,7 +27,6 @@ export default defineConfig({
     "default-case": "off",
     eqeqeq: "off",
     "func-names": "off",
-    "func-style": "off",
     "no-await-in-loop": "off",
     "no-bitwise": "off",
     "no-duplicate-imports": "off",

@@ -49,7 +49,7 @@ const colors: ChooseItem[] = [
   },
 ];
 
-async function main() {
+const main = async function main() {
   // Launch returns the selected item(s) or null if cancelled
   const result = await launch({
     // createStaticProvider wraps an array as a ChooseContentProvider
@@ -69,6 +69,6 @@ async function main() {
     const selected = result.items[0];
     console.log(`You chose: ${selected.text} (${selected.value})`);
   }
-}
+};
 
 main();

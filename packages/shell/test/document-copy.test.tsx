@@ -17,7 +17,7 @@ const ROWS: Row[] = [
   { id: "c", label: "gamma" },
 ];
 
-function Harness({ copy }: { copy?: boolean }) {
+const Harness = function Harness({ copy }: { copy?: boolean }) {
   const document = useDocumentController<Row>({
     // Copy must use the same semantic text projection as search.
     adapter: { getKey: (r) => r.id, getText: (r) => `${r.id}\t${r.label}` },
@@ -36,7 +36,7 @@ function Harness({ copy }: { copy?: boolean }) {
       />
     </box>
   );
-}
+};
 
 let session: TestSession;
 
@@ -48,7 +48,7 @@ afterEach(() => {
   session?.renderer.destroy();
 });
 
-async function setup(copy?: boolean) {
+const setup = async function setup(copy?: boolean) {
   session = await testRender(
     <TooeeProvider>
       <Harness copy={copy} />
@@ -57,7 +57,7 @@ async function setup(copy?: boolean) {
   );
   await session.renderOnce();
   return session;
-}
+};
 
 describe("copy", () => {
   test("copies the cursor row using the adapter text", async () => {

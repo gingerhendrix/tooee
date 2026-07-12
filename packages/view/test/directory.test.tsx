@@ -32,7 +32,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-async function setup() {
+const setup = async function setup() {
   const s = await testRender(
     <TooeeProvider>
       <DirectoryView dirPath={TEST_DIR} />
@@ -46,9 +46,9 @@ async function setup() {
   });
   await s.renderOnce();
   return s;
-}
+};
 
-async function press(
+const press = async function press(
   s: Awaited<ReturnType<typeof testRender>>,
   key: string,
   modifiers?: { ctrl?: boolean; shift?: boolean },
@@ -61,7 +61,7 @@ async function press(
     await new Promise((r) => setTimeout(r, 100));
   });
   await s.renderOnce();
-}
+};
 
 test("shows first file on load", async () => {
   testSetup = await setup();

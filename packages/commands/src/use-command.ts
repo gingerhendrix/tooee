@@ -22,7 +22,7 @@ export interface UseCommandOptions {
   enabled?: boolean;
 }
 
-export function useCommand(options: UseCommandOptions): void {
+export const useCommand = function useCommand(options: UseCommandOptions): void {
   const registry = useSurfaceRegistry();
   const optionsRef = useRef(options);
   optionsRef.current = options;
@@ -66,4 +66,4 @@ export function useCommand(options: UseCommandOptions): void {
     options.enabled,
     registry,
   ]);
-}
+};

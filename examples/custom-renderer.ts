@@ -84,25 +84,29 @@ const PRIORITY_INDICATORS: Record<string, string> = {
 const COLUMN_WIDTH = 36;
 const CARD_INNER_WIDTH = COLUMN_WIDTH - 4; // borders + padding
 
-function truncateText(text: string, maxLen: number): string {
+const truncateText = function truncateText(text: string, maxLen: number): string {
   if (text.length <= maxLen) {
     return text;
   }
   return `${text.slice(0, maxLen - 1)}\u2026`;
-}
+};
 
-function padRight(text: string, width: number): string {
+const padRight = function padRight(text: string, width: number): string {
   if (text.length >= width) {
     return text.slice(0, width);
   }
   return text + " ".repeat(width - text.length);
-}
+};
 
-function h(tag: string, props: Record<string, unknown>, ...children: ReactNode[]): ReactNode {
+const h = function h(
+  tag: string,
+  props: Record<string, unknown>,
+  ...children: ReactNode[]
+): ReactNode {
   return createElement(tag, props, ...children);
-}
+};
 
-function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
+const KanbanRenderer = function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
   const { theme } = useTheme();
   const data = (content as CustomContent<KanbanData>).data;
 
@@ -203,7 +207,7 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
     { style: { flexDirection: "column", marginLeft: 1, marginTop: 1 } },
     ...lines.map((line, i) => h("text", { content: line.text, fg: line.fg ?? theme.text, key: i })),
   );
-}
+};
 
 // === Content provider ===
 

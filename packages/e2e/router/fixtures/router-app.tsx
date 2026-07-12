@@ -24,7 +24,7 @@ const loaderDelay = loaderDelayArg ? parseInt(loaderDelayArg.split("=")[1], 10) 
 
 // --- Screen Components ---
 
-function HomeScreen() {
+const HomeScreen = function HomeScreen() {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
   const nav = useNavigate();
@@ -118,9 +118,9 @@ function HomeScreen() {
       />
     </box>
   );
-}
+};
 
-function DetailScreen() {
+const DetailScreen = function DetailScreen() {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
   const params = useParams<{ id: string }>();
@@ -168,9 +168,9 @@ function DetailScreen() {
       />
     </box>
   );
-}
+};
 
-function SettingsScreen() {
+const SettingsScreen = function SettingsScreen() {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
   const nav = useNavigate();
@@ -201,9 +201,9 @@ function SettingsScreen() {
       />
     </box>
   );
-}
+};
 
-function SlowScreen() {
+const SlowScreen = function SlowScreen() {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
   const data = useRouteData<{ message: string }>();
@@ -218,33 +218,33 @@ function SlowScreen() {
       />
     </box>
   );
-}
+};
 
-function SlowPending() {
+const SlowPending = function SlowPending() {
   return (
     <box>
       <text content="Loading..." />
     </box>
   );
-}
+};
 
-function ErrorRouteScreen() {
+const ErrorRouteScreen = function ErrorRouteScreen() {
   return (
     <box>
       <text content="Screen:error-route" />
     </box>
   );
-}
+};
 
-function ErrorComponent({ error }: { error: Error }) {
+const ErrorComponent = function ErrorComponent({ error }: { error: Error }) {
   return (
     <box>
       <text content={`Error:${error.message}`} />
     </box>
   );
-}
+};
 
-function ParentLayout() {
+const ParentLayout = function ParentLayout() {
   const { isFocused } = useScreenFocus();
   return (
     <box flexDirection="column">
@@ -252,9 +252,9 @@ function ParentLayout() {
       <Outlet />
     </box>
   );
-}
+};
 
-function ChildScreen() {
+const ChildScreen = function ChildScreen() {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
   const current = useCurrentRoute();
@@ -268,7 +268,7 @@ function ChildScreen() {
       />
     </box>
   );
-}
+};
 
 // --- Route Definitions ---
 
@@ -312,12 +312,12 @@ const router = createRouter({
 
 // --- Launch ---
 
-function App() {
+const App = function App() {
   return (
     <RouterProvider router={router}>
       <Outlet />
     </RouterProvider>
   );
-}
+};
 
 launchCli(<App />);

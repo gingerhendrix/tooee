@@ -36,7 +36,7 @@ export interface BenchmarkRunResult {
   results: BenchmarkMetricResult[];
 }
 
-export function percentile(values: number[], percentileValue: number): number {
+export const percentile = function percentile(values: number[], percentileValue: number): number {
   if (values.length === 0) {
     return 0;
   }
@@ -47,9 +47,9 @@ export function percentile(values: number[], percentileValue: number): number {
     Math.max(0, Math.ceil((percentileValue / 100) * sorted.length) - 1),
   );
   return sorted[index] ?? 0;
-}
+};
 
-export function classifyMetric(
+export const classifyMetric = function classifyMetric(
   metric: string,
 ): Pick<BenchmarkMetricResult, "unit" | "comparable" | "threshold"> {
   if (metric.endsWith("_ms")) {
@@ -77,9 +77,9 @@ export function classifyMetric(
   }
 
   return { comparable: false, unit: "count" };
-}
+};
 
-export function aggregateMetric(
+export const aggregateMetric = function aggregateMetric(
   source: string,
   metric: string,
   samples: number[],
@@ -99,15 +99,15 @@ export function aggregateMetric(
     source,
     ...classification,
   };
-}
+};
 
-export function printMetric(name: string, value: number): void {
+export const printMetric = function printMetric(name: string, value: number): void {
   if (!Number.isFinite(value)) {
     throw new Error(`Metric ${name} is not finite: ${value}`);
   }
   console.log(`METRIC ${name}=${value}`);
-}
+};
 
-export function printTimedMetric(name: string, valueMs: number): void {
+export const printTimedMetric = function printTimedMetric(name: string, valueMs: number): void {
   printMetric(name.endsWith("_ms") ? name : `${name}_ms`, Number(valueMs.toFixed(2)));
-}
+};

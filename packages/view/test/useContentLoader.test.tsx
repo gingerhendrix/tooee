@@ -12,7 +12,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-function Loader({ provider }: { provider: ContentProvider }) {
+const Loader = function Loader({ provider }: { provider: ContentProvider }) {
   const { content, streaming, error } = useContentLoader(provider);
   const text = content && "text" in content ? content.text : "";
   return (
@@ -22,14 +22,14 @@ function Loader({ provider }: { provider: ContentProvider }) {
       <text content={`error:${error ?? "none"}`} />
     </box>
   );
-}
+};
 
-async function flush(s: TestSession) {
+const flush = async function flush(s: TestSession) {
   await act(async () => {
     await Promise.resolve();
   });
   await s.renderOnce();
-}
+};
 
 describe("useContentLoader streaming lifecycle (R-03)", () => {
   test("cleanup closes the streaming iterator", async () => {
@@ -59,11 +59,11 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
     const provider: ContentProvider = { format: "text", load: () => iterable };
 
     let hide!: () => void;
-    function Harness() {
+    const Harness = function Harness() {
       const [show, setShow] = useState(true);
       hide = () => setShow(false);
       return show ? <Loader provider={provider} /> : <text content="unmounted" />;
-    }
+    };
 
     testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await testSetup.renderOnce();
@@ -81,11 +81,11 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
   });
 
   test("non-Error stream failure is surfaced, not dropped", async () => {
-    async function* failing(): AsyncIterable<ContentChunk> {
+    const failing = async function* failing(): AsyncIterable<ContentChunk> {
       yield { data: "partial", format: "text", type: "append" };
       // eslint-disable-next-line no-throw-literal
       throw "stream blew up";
-    }
+    };
     const provider: ContentProvider = { format: "text", load: () => failing() };
 
     testSetup = await testRender(<Loader provider={provider} />, { height: 10, width: 60 });
@@ -119,12 +119,12 @@ describe("useContentLoader reload and request identity", () => {
     const provider: ContentProvider = {
       load: () => ({ format: "text", text: `sync-${++calls}` }),
     };
-    function Harness() {
+    const Harness = function Harness() {
       const result = useContentLoader(provider);
       reload = result.reload;
       const value = result.content && "text" in result.content ? result.content.text : "";
       return <text content={value} />;
-    }
+    };
     testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await flush(testSetup);
     expect(testSetup.captureCharFrame()).toContain("sync-1");
@@ -139,12 +139,12 @@ describe("useContentLoader reload and request identity", () => {
     const provider: ContentProvider = {
       load: () => new Promise((resolve) => resolvers.push(resolve)),
     };
-    function Harness() {
+    const Harness = function Harness() {
       const result = useContentLoader(provider);
       reload = result.reload;
       const value = result.content && "text" in result.content ? result.content.text : "loading";
       return <text content={value} />;
-    }
+    };
     testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await flush(testSetup);
     await act(async () => reload());
@@ -197,12 +197,12 @@ describe("useContentLoader reload and request identity", () => {
         })();
       },
     };
-    function Harness() {
+    const Harness = function Harness() {
       const result = useContentLoader(provider);
       reload = result.reload;
       const value = result.content && "text" in result.content ? result.content.text : "";
       return <text content={`${result.status}:${value}`} />;
-    }
+    };
     testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await flush(testSetup);
     expect(testSetup.captureCharFrame()).toContain("old");

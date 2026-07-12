@@ -15,7 +15,7 @@ afterEach(() => {
   } catch {}
 });
 
-async function launchViewDir(): Promise<Session> {
+const launchViewDir = async function launchViewDir(): Promise<Session> {
   const s = await launchTerminal({
     args: ["--conditions=@tooee/source", CLI, "view", TEST_DIR],
     cols: 80,
@@ -25,7 +25,7 @@ async function launchViewDir(): Promise<Session> {
   });
   await s.waitForText("Format:", { timeout: 15_000 });
   return s;
-}
+};
 
 describe("directory mode e2e", () => {
   test("opens first file and shows position", async () => {

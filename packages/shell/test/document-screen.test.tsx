@@ -36,17 +36,20 @@ const ACTIONS: ActionDefinition[] = [
 ];
 
 /** Reports the commands registered on the surface DocumentScreen renders into. */
-function CommandProbe() {
+const CommandProbe = function CommandProbe() {
   const { commands } = useCommandContext();
   commandIds = commands.map((command) => command.id);
   return null;
-}
+};
 
 type ScreenOptions = Partial<
   Pick<DocumentScreenProps<Row>, "actions" | "quit" | "themeCommands" | "statusItems" | "context">
 >;
 
-function Harness({ multiSelect = true, ...screen }: ScreenOptions & { multiSelect?: boolean }) {
+const Harness = function Harness({
+  multiSelect = true,
+  ...screen
+}: ScreenOptions & { multiSelect?: boolean }) {
   const document = useDocumentController<Row>({
     adapter: { getKey: (r) => r.id, getText: (r) => r.label },
     multiSelect,
@@ -64,7 +67,7 @@ function Harness({ multiSelect = true, ...screen }: ScreenOptions & { multiSelec
       />
     </DocumentScreen>
   );
-}
+};
 
 let session: TestSession;
 
@@ -78,7 +81,7 @@ afterEach(() => {
   session?.renderer.destroy();
 });
 
-async function setup(props: ScreenOptions & { multiSelect?: boolean } = {}) {
+const setup = async function setup(props: ScreenOptions & { multiSelect?: boolean } = {}) {
   session = await testRender(
     <TooeeProvider>
       <Harness {...props} />
@@ -87,16 +90,16 @@ async function setup(props: ScreenOptions & { multiSelect?: boolean } = {}) {
   );
   await session.renderOnce();
   return session;
-}
+};
 
-function statusLine(): string {
+const statusLine = function statusLine(): string {
   const lines = session.captureCharFrame().split("\n");
   return lines.find((line) => line.includes("Theme:")) ?? "";
-}
+};
 
-function orderOf(line: string, labels: string[]): number[] {
+const orderOf = function orderOf(line: string, labels: string[]): number[] {
   return labels.map((label) => line.indexOf(label));
-}
+};
 
 describe("commands", () => {
   test("registers theme, quit and the supplied actions exactly once", async () => {
@@ -209,7 +212,7 @@ describe("status bar", () => {
   });
 });
 
-function EmptyHarness() {
+const EmptyHarness = function EmptyHarness() {
   const document = useDocumentController<Row>({
     adapter: { getKey: (r) => r.id, getText: (r) => r.label },
     rows: [],
@@ -223,4 +226,4 @@ function EmptyHarness() {
       />
     </DocumentScreen>
   );
-}
+};

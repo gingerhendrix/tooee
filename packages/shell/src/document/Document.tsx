@@ -20,7 +20,11 @@ export interface DocumentProps<T> extends Omit<
  * with the controller's ref, decorations, and mouse handler wired in. Callers
  * cannot remember navigation but forget scroll-follow or mouse binding.
  */
-export function Document<T>({ controller, renderRow, ...rowDocumentProps }: DocumentProps<T>) {
+export const Document = function Document<T>({
+  controller,
+  renderRow,
+  ...rowDocumentProps
+}: DocumentProps<T>) {
   return (
     <row-document
       {...rowDocumentProps}
@@ -33,4 +37,4 @@ export function Document<T>({ controller, renderRow, ...rowDocumentProps }: Docu
       ))}
     </row-document>
   );
-}
+};

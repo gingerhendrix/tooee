@@ -12,21 +12,21 @@ import type { ActionNavigationResult } from "@tooee/router";
 
 // Screens
 
-function HomeScreen() {
+const HomeScreen = function HomeScreen() {
   return (
     <box>
       <text content="screen:home" />
     </box>
   );
-}
+};
 
-function DetailScreen() {
+const DetailScreen = function DetailScreen() {
   return (
     <box>
       <text content="screen:detail" />
     </box>
   );
-}
+};
 
 // Route definitions
 
@@ -45,10 +45,10 @@ describe("useActionResultHandler", () => {
   test("navigate result triggers router.push", async () => {
     let handler: (result: ActionNavigationResult) => void;
 
-    function HandlerCapture() {
+    const HandlerCapture = function HandlerCapture() {
       handler = useActionResultHandler();
       return null;
-    }
+    };
 
     const router = createRouter({
       defaultRoute: "home",
@@ -80,10 +80,10 @@ describe("useActionResultHandler", () => {
   test("navigate with mode replace triggers router.replace", async () => {
     let handler: (result: ActionNavigationResult) => void;
 
-    function HandlerCapture() {
+    const HandlerCapture = function HandlerCapture() {
       handler = useActionResultHandler();
       return null;
-    }
+    };
 
     const router = createRouter({
       defaultRoute: "home",
@@ -113,10 +113,10 @@ describe("useActionResultHandler", () => {
   test("navigate with params passes params to push", async () => {
     let handler: (result: ActionNavigationResult) => void;
 
-    function HandlerCapture() {
+    const HandlerCapture = function HandlerCapture() {
       handler = useActionResultHandler();
       return null;
-    }
+    };
 
     const router = createRouter({
       defaultRoute: "home",
@@ -145,10 +145,10 @@ describe("useActionResultHandler", () => {
   test("back result triggers router.pop", async () => {
     let handler: (result: ActionNavigationResult) => void;
 
-    function HandlerCapture() {
+    const HandlerCapture = function HandlerCapture() {
       handler = useActionResultHandler();
       return null;
-    }
+    };
 
     const router = createRouter({
       defaultRoute: "home",
@@ -188,13 +188,13 @@ describe("useActionResultHandler", () => {
     const handlerRefs: Array<(result: ActionNavigationResult) => void> = [];
     let forceUpdate: () => void;
 
-    function HandlerCapture() {
+    const HandlerCapture = function HandlerCapture() {
       const [, setState] = React.useState(0);
       forceUpdate = () => setState((n) => n + 1);
       const h = useActionResultHandler();
       handlerRefs.push(h);
       return null;
-    }
+    };
 
     const router = createRouter({
       defaultRoute: "home",

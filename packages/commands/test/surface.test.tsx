@@ -15,7 +15,7 @@ import type { CommandSurfaceRole } from "../src/index.js";
 
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
-async function press(
+const press = async function press(
   session: TestSession,
   key: string,
   modifiers?: { ctrl?: boolean; shift?: boolean },
@@ -24,16 +24,16 @@ async function press(
     session.mockInput.pressKey(key, modifiers);
   });
   await session.renderOnce();
-}
+};
 
-async function pressEscape(session: TestSession) {
+const pressEscape = async function pressEscape(session: TestSession) {
   await act(async () => {
     session.mockInput.pressEscape();
   });
   await session.renderOnce();
-}
+};
 
-function SurfaceA({
+const SurfaceA = function SurfaceA({
   children,
   onAction,
   onClose,
@@ -63,15 +63,21 @@ function SurfaceA({
       {children}
     </box>
   );
-}
+};
 
-function SurfaceB({ onAction, onClose }: { onAction: () => void; onClose: () => void }) {
+const SurfaceB = function SurfaceB({
+  onAction,
+  onClose,
+}: {
+  onAction: () => void;
+  onClose: () => void;
+}) {
   useCommand({ handler: onAction, hotkey: "b", id: "b.action", title: "B action" });
   useCommand({ handler: onClose, hotkey: "Escape", id: "b.close", title: "Close B" });
   return <text content="surface-b" />;
-}
+};
 
-function Harness({ aRole = "modal" }: { aRole?: CommandSurfaceRole }) {
+const Harness = function Harness({ aRole = "modal" }: { aRole?: CommandSurfaceRole }) {
   const [showA, setShowA] = useState(false);
   const [showB, setShowB] = useState(false);
   const [rootQuit, setRootQuit] = useState(0);
@@ -123,9 +129,9 @@ function Harness({ aRole = "modal" }: { aRole?: CommandSurfaceRole }) {
       )}
     </box>
   );
-}
+};
 
-async function setup(aRole: CommandSurfaceRole = "modal") {
+const setup = async function setup(aRole: CommandSurfaceRole = "modal") {
   const session = await testRender(
     <CommandProvider>
       <Harness aRole={aRole} />
@@ -134,7 +140,7 @@ async function setup(aRole: CommandSurfaceRole = "modal") {
   );
   await session.renderOnce();
   return session;
-}
+};
 
 let testSetup: TestSession;
 
@@ -222,7 +228,7 @@ describe("command surface arbitration", () => {
     // or useActiveCommandSurface here). This test documents the hazard: the
     // unguarded handler still fires while a modal surface owns input; the
     // guarded handler does not.
-    function RawKeyboardHarness() {
+    const RawKeyboardHarness = function RawKeyboardHarness() {
       const [showSurface, setShowSurface] = useState(false);
       const [unguarded, setUnguarded] = useState(0);
       const [guarded, setGuarded] = useState(0);
@@ -262,12 +268,12 @@ describe("command surface arbitration", () => {
           )}
         </box>
       );
-    }
+    };
 
-    function ZCommandSurface({ onAction }: { onAction: () => void }) {
+    const ZCommandSurface = function ZCommandSurface({ onAction }: { onAction: () => void }) {
       useCommand({ handler: onAction, hotkey: "z", id: "modal.z", title: "Z action" });
       return <text content="modal-surface" />;
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>

@@ -7,13 +7,13 @@ import {
   MarkPriorities,
 } from "@tooee/marks";
 
-function buildSet(namespace: string, priority: number, lines: number[]): MarkSet {
+const buildSet = function buildSet(namespace: string, priority: number, lines: number[]): MarkSet {
   const builder = new MarkSetBuilder();
   for (const line of lines) {
     builder.addLine(line, { background: `${namespace}-bg` });
   }
   return builder.build(namespace, priority);
-}
+};
 
 describe("createMarkState", () => {
   test("creates empty state", () => {

@@ -60,7 +60,7 @@ export interface AskDialogHandle {
  * (`AppLayout` does this automatically; custom hosts render
  * `useCurrentOverlay()`).
  */
-export function useAskDialog(): AskDialogHandle {
+export const useAskDialog = function useAskDialog(): AskDialogHandle {
   const overlay = useOverlay();
   const overlayRef = useRef(overlay);
   overlayRef.current = overlay;
@@ -149,4 +149,4 @@ export function useAskDialog(): AskDialogHandle {
   }
 
   return handleRef.current;
-}
+};

@@ -23,9 +23,9 @@ interface Row {
   selectable?: boolean;
 }
 
-function row(id: string, label = id, selectable = true): Row {
+const row = function row(id: string, label = id, selectable = true): Row {
   return { id, label, selectable };
-}
+};
 
 const ADAPTER = {
   getKey: (r: Row) => r.id,
@@ -39,15 +39,15 @@ const THREE = [row("a"), row("b"), row("c")];
 // pattern in search.test.tsx.
 let handle: DocumentController<Row> | null = null;
 
-function controller(): DocumentController<Row> {
+const controller = function controller(): DocumentController<Row> {
   if (!handle) {
     throw new Error("controller not mounted");
   }
   return handle;
-}
+};
 
 /** Renders every layer as `priority@row+row` so decoration composition is observable. */
-function describeLayers(layers: readonly DecorationLayer[]): string {
+const describeLayers = function describeLayers(layers: readonly DecorationLayer[]): string {
   return layers
     .map(
       (layer) =>
@@ -56,11 +56,11 @@ function describeLayers(layers: readonly DecorationLayer[]): string {
           .join("+")}`,
     )
     .join(" ");
-}
+};
 
 type HarnessOptions = Omit<UseDocumentControllerOptions<Row>, "adapter" | "rows">;
 
-function Harness({ rows, ...options }: HarnessOptions & { rows: readonly Row[] }) {
+const Harness = function Harness({ rows, ...options }: HarnessOptions & { rows: readonly Row[] }) {
   const document = useDocumentController<Row>({ adapter: ADAPTER, rows, ...options });
   const mode = useMode();
   handle = document;
@@ -79,10 +79,10 @@ function Harness({ rows, ...options }: HarnessOptions & { rows: readonly Row[] }
       />
     </box>
   );
-}
+};
 
 /** Lets a test swap the row collection after mount. */
-function DynamicHarness({
+const DynamicHarness = function DynamicHarness({
   initial,
   onReady,
   ...options
@@ -93,7 +93,7 @@ function DynamicHarness({
   const [rows, setRows] = useState(initial);
   onReady(setRows);
   return <Harness rows={rows} {...options} />;
-}
+};
 
 let session: TestSession;
 
@@ -102,7 +102,7 @@ afterEach(() => {
   handle = null;
 });
 
-async function setup(rows: readonly Row[], options: HarnessOptions = {}) {
+const setup = async function setup(rows: readonly Row[], options: HarnessOptions = {}) {
   session = await testRender(
     <TooeeProvider>
       <Harness rows={rows} {...options} />
@@ -111,9 +111,12 @@ async function setup(rows: readonly Row[], options: HarnessOptions = {}) {
   );
   await session.renderOnce();
   return session;
-}
+};
 
-async function setupDynamic(initial: readonly Row[], options: HarnessOptions = {}) {
+const setupDynamic = async function setupDynamic(
+  initial: readonly Row[],
+  options: HarnessOptions = {},
+) {
   let setRows!: (rows: readonly Row[]) => void;
   session = await testRender(
     <TooeeProvider>
@@ -126,11 +129,11 @@ async function setupDynamic(initial: readonly Row[], options: HarnessOptions = {
     await act(async () => setRows(rows));
     await session.renderOnce();
   };
-}
+};
 
-function active(): string {
+const active = function active(): string {
   return `${controller().activeKey ?? "-"}/${controller().activeIndex ?? "-"}`;
-}
+};
 
 describe("row lifecycle", () => {
   test("0 rows leaves no active row; N rows adopt the first selectable one", async () => {
@@ -282,11 +285,11 @@ describe("selection", () => {
 describe("search", () => {
   const ROWS = [row("a", "alpha"), row("b", "beta"), row("c", "gamma"), row("d", "Alphabet")];
 
-  async function query(text: string) {
+  const query = async function query(text: string) {
     await press(session, "/");
     await act(async () => controller().search!.setSearchQuery(text));
     await session.renderOnce();
-  }
+  };
 
   test("the default matcher searches adapter text case-insensitively", async () => {
     await setup(ROWS);

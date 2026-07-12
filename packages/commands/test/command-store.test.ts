@@ -13,7 +13,7 @@ import { parseHotkey } from "../src/parse.js";
 import type { Command, CommandContext, RegisteredCommandGroup } from "../src/types.js";
 import type { Mode } from "../src/mode.js";
 
-function key(name: string, modifiers?: Partial<KeyEvent>): KeyEvent {
+const key = function key(name: string, modifiers?: Partial<KeyEvent>): KeyEvent {
   return {
     ctrl: false,
     meta: false,
@@ -22,18 +22,18 @@ function key(name: string, modifiers?: Partial<KeyEvent>): KeyEvent {
     shift: false,
     ...modifiers,
   } as KeyEvent;
-}
+};
 
-function fakeCtx(mode: Mode): CommandContext {
+const fakeCtx = function fakeCtx(mode: Mode): CommandContext {
   return {
     commands: { invoke: () => {}, list: () => [] },
     exit: () => {},
     mode,
     setMode: () => {},
   };
-}
+};
 
-function makeStore(options?: {
+const makeStore = function makeStore(options?: {
   leader?: string;
   keymap?: Record<string, string>;
   sequenceTimeoutMs?: number;
@@ -46,9 +46,9 @@ function makeStore(options?: {
     root: { buildCtx: () => fakeCtx(getMode()), getMode },
     sequenceTimeoutMs: options?.sequenceTimeoutMs,
   });
-}
+};
 
-function makeSurface(
+const makeSurface = function makeSurface(
   id: string,
   role: "modal" | "passive",
   depth: number,
@@ -62,24 +62,32 @@ function makeSurface(
     order: 0,
     role,
   };
-}
+};
 
-function command(id: string, hotkey: string, overrides?: Partial<Command>): Command {
+const command = function command(
+  id: string,
+  hotkey: string,
+  overrides?: Partial<Command>,
+): Command {
   return { defaultHotkey: hotkey, handler: () => {}, id, title: id, ...overrides };
-}
+};
 
-function group(prefix: string, title: string, leader?: string): RegisteredCommandGroup {
+const group = function group(
+  prefix: string,
+  title: string,
+  leader?: string,
+): RegisteredCommandGroup {
   return {
     id: `group-${title}`,
     prefix,
     prefixKey: stepsKey(parseHotkey(prefix, leader).steps),
     title,
   };
-}
+};
 
-function sleep(ms: number): Promise<void> {
+const sleep = function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
+};
 
 describe("command store — registration", () => {
   test("registers and unregisters commands on the root surface", () => {

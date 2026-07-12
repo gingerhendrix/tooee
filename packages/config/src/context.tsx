@@ -12,7 +12,7 @@ const DEFAULTS: TooeeConfig = {
 
 const ConfigContext = createContext<TooeeConfig>(DEFAULTS);
 
-export function ConfigProvider({
+export const ConfigProvider = function ConfigProvider({
   overrides,
   children,
 }: {
@@ -21,16 +21,16 @@ export function ConfigProvider({
 }) {
   const config = useMemo(() => loadConfig(overrides), [overrides]);
   return <ConfigContext.Provider value={config}>{children}</ConfigContext.Provider>;
-}
+};
 
-export function useConfig(): TooeeConfig {
+export const useConfig = function useConfig(): TooeeConfig {
   return useContext(ConfigContext);
-}
+};
 
-export function useThemeConfig(): TooeeConfig["theme"] {
+export const useThemeConfig = function useThemeConfig(): TooeeConfig["theme"] {
   return useConfig().theme;
-}
+};
 
-export function useKeymapConfig(): Record<string, string> {
+export const useKeymapConfig = function useKeymapConfig(): Record<string, string> {
   return useConfig().keys ?? {};
-}
+};

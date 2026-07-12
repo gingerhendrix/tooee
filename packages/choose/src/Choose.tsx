@@ -29,7 +29,7 @@ export interface ChooseProps {
   onCancel?: () => void;
 }
 
-export function Choose({
+export const Choose = function Choose({
   contentProvider,
   options,
   actions,
@@ -130,4 +130,4 @@ export function Choose({
       </box>
     </AppLayout>
   );
-}
+};

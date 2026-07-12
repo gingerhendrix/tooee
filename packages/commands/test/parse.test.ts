@@ -3,7 +3,7 @@ import type { KeyEvent } from "@opentui/core";
 import { parseHotkey } from "../src/parse.js";
 import { matchStep } from "../src/match.js";
 
-function key(name: string, modifiers: Partial<KeyEvent> = {}): KeyEvent {
+const key = function key(name: string, modifiers: Partial<KeyEvent> = {}): KeyEvent {
   return {
     ctrl: false,
     meta: false,
@@ -12,7 +12,7 @@ function key(name: string, modifiers: Partial<KeyEvent> = {}): KeyEvent {
     shift: false,
     ...modifiers,
   } as KeyEvent;
-}
+};
 
 describe("parseHotkey super modifier (R-06)", () => {
   test("super is tracked in the parsed step", () => {

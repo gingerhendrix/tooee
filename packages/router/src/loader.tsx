@@ -5,10 +5,16 @@ import type { ReactNode } from "react";
 
 const RouteDataContext = createContext<unknown>(undefined);
 
-export function RouteDataProvider({ data, children }: { data: unknown; children: ReactNode }) {
+export const RouteDataProvider = function RouteDataProvider({
+  data,
+  children,
+}: {
+  data: unknown;
+  children: ReactNode;
+}) {
   return <RouteDataContext value={data}>{children}</RouteDataContext>;
-}
+};
 
-export function useRouteDataContext<T = unknown>(): T | undefined {
+export const useRouteDataContext = function useRouteDataContext<T = unknown>(): T | undefined {
   return useContext(RouteDataContext) as T | undefined;
-}
+};

@@ -9,7 +9,7 @@ export interface SearchBarProps {
   currentMatch?: number;
 }
 
-export function SearchBar({
+export const SearchBar = function SearchBar({
   query,
   onQueryChange,
   onSubmit,
@@ -52,4 +52,4 @@ export function SearchBar({
       {matchDisplay ? <text content={` ${matchDisplay}`} style={{ fg: theme.textMuted }} /> : null}
     </box>
   );
-}
+};

@@ -13,9 +13,9 @@ afterEach(() => {
 // OpenTUI expects kitty-encoded Escape in a real PTY (see docs/testing.md).
 const KITTY_ESCAPE = "\u001B[27u";
 
-async function launch(): Promise<Session> {
+const launch = async function launch(): Promise<Session> {
   return launchShellFixture("typed-dialogs-app.tsx", "typed dialogs e2e ready");
-}
+};
 
 test("ask dialog open -> type -> submit resolves the value", async () => {
   session = await launch();

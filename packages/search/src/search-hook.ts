@@ -30,7 +30,7 @@ export interface SearchState {
 const CURSOR_MODES: Mode[] = ["cursor"];
 const ALL_MODES: Mode[] = ["cursor", "select", "insert"];
 
-export function useNavSearchStore(options: {
+export const useNavSearchStore = function useNavSearchStore(options: {
   keys: readonly RowKey[];
   isSelectable?: (index: number) => boolean;
   preserveCursorByKey?: boolean;
@@ -53,9 +53,9 @@ export function useNavSearchStore(options: {
     }
   }, [store, options.keys, options.preserveCursorByKey]);
   return store;
-}
+};
 
-export function useSearchBindings(
+export const useSearchBindings = function useSearchBindings(
   store: NavSearchStore,
   {
     match,
@@ -159,9 +159,9 @@ export function useSearchBindings(
     setSearchQuery: updateSearchQuery,
     submitSearch: () => store.trigger.searchSubmitted({}),
   };
-}
+};
 
-export function useSearch(options: UseSearchOptions): SearchState {
+export const useSearch = function useSearch(options: UseSearchOptions): SearchState {
   const store = useNavSearchStore({ keys: [] });
   return useSearchBindings(store, options);
-}
+};

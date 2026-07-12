@@ -86,7 +86,7 @@ console.log(\`Server running at http://\${server.hostname}:\${server.port}\`)
 
 // === Build static diagnostic marks (simulating a linter) ===
 
-function buildDiagnosticMarks(): MarkSet {
+const buildDiagnosticMarks = function buildDiagnosticMarks(): MarkSet {
   const builder = new MarkSetBuilder();
 
   // Warning on line 7 (0-indexed line 6): unused field
@@ -130,11 +130,11 @@ function buildDiagnosticMarks(): MarkSet {
   );
 
   return builder.build("diagnostics", MarkPriorities.DIAGNOSTIC);
-}
+};
 
 // === Build static bookmark marks ===
 
-function buildInitialBookmarks(): MarkSet {
+const buildInitialBookmarks = function buildInitialBookmarks(): MarkSet {
   const builder = new MarkSetBuilder();
 
   // Pre-bookmark the main handler function and the server startup
@@ -142,11 +142,11 @@ function buildInitialBookmarks(): MarkSet {
   builder.addLine(42, { signBefore: "\u2691" }); // flag on serve()
 
   return builder.build("bookmarks", MarkPriorities.USER);
-}
+};
 
 // === Streaming marks: simulate a slow analysis that adds marks over time ===
 
-async function* streamContent(): AsyncIterable<ContentChunk> {
+const streamContent = async function* streamContent(): AsyncIterable<ContentChunk> {
   // First, deliver the code content
   yield {
     data: SOURCE_CODE,
@@ -191,7 +191,7 @@ async function* streamContent(): AsyncIterable<ContentChunk> {
     set: coverageBuilder.build("analysis:coverage", 75),
     type: "marks",
   };
-}
+};
 
 // === Content provider: uses streaming to deliver content + marks ===
 
@@ -208,21 +208,21 @@ const contentProvider: ContentProvider = {
 const userBookmarks = new Set<number>();
 const userDiagnostics = new Set<number>();
 
-function rebuildUserBookmarks(): MarkSet {
+const rebuildUserBookmarks = function rebuildUserBookmarks(): MarkSet {
   const builder = new MarkSetBuilder();
   for (const line of userBookmarks) {
     builder.addLine(line, { background: "#1a1a3a", signBefore: "\u2605" }); // star
   }
   return builder.build("user:bookmarks", MarkPriorities.USER + 10);
-}
+};
 
-function rebuildUserDiagnostics(): MarkSet {
+const rebuildUserDiagnostics = function rebuildUserDiagnostics(): MarkSet {
   const builder = new MarkSetBuilder();
   for (const line of userDiagnostics) {
     builder.addLine(line, { background: "#4a2800", signBefore: "!" });
   }
   return builder.build("user:diagnostics", MarkPriorities.USER + 5);
-}
+};
 
 const actions: ActionDefinition[] = [
   {

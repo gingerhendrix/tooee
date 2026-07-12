@@ -10,13 +10,16 @@ afterEach(() => {
   } catch {}
 });
 
-function expectSomeFrame(frames: string[], pattern: RegExp | string): string {
+const expectSomeFrame = function expectSomeFrame(
+  frames: string[],
+  pattern: RegExp | string,
+): string {
   const matchingFrame = frames.find((frame) =>
     typeof pattern === "string" ? frame.includes(pattern) : pattern.test(frame),
   );
   expect(matchingFrame, frames.join("\n--- frame ---\n")).toBeDefined();
   return matchingFrame!;
-}
+};
 
 describe("which-key overlay", () => {
   test("leader opens a real terminal overlay with visible groups and actions", async () => {

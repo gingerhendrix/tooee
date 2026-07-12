@@ -73,11 +73,11 @@ const contentProvider: ContentProvider = {
 };
 
 /** Name of the row currently under the cursor, or a fallback. */
-function activeName(ctx: CommandContext): string {
+const activeName = function activeName(ctx: CommandContext): string {
   const row = ctx.document?.activeRow as Record<string, unknown> | undefined;
   const name = row?.name;
   return typeof name === "string" ? name : "(no row)";
-}
+};
 
 // These actions populate the right-click context menu. They are also reachable
 // from the command palette (:) and via their hotkeys.

@@ -1,13 +1,13 @@
 import type { Mark } from "./types.js";
 
-function deepFreezeMark(mark: Mark): Mark {
+const deepFreezeMark = function deepFreezeMark(mark: Mark): Mark {
   Object.freeze(mark.range.from);
   Object.freeze(mark.range.to);
   Object.freeze(mark.range);
   Object.freeze(mark.style);
   Object.freeze(mark);
   return mark;
-}
+};
 
 export class MarkSet {
   readonly namespace: string;

@@ -2,13 +2,13 @@ import { test, expect, describe } from "bun:test";
 import { MarkSet } from "@tooee/marks";
 import type { Mark } from "@tooee/marks";
 
-function mark(from: number, to?: number, id?: string): Mark {
+const mark = function mark(from: number, to?: number, id?: string): Mark {
   return {
     id,
     range: { from: { line: from }, to: { line: to ?? from } },
     style: { background: `bg-${from}` },
   };
-}
+};
 
 describe("MarkSet", () => {
   describe("construction", () => {

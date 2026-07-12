@@ -18,7 +18,7 @@ beforeEach(() => {
   resetTestConfig(CONFIG_NAMESPACE);
 });
 
-function ThemePickerHarness() {
+const ThemePickerHarness = function ThemePickerHarness() {
   const { name: themeName, picker } = useThemeCommands();
   const mode = useMode();
   const { name: activeTheme } = useTheme();
@@ -33,9 +33,9 @@ function ThemePickerHarness() {
       {overlay}
     </box>
   );
-}
+};
 
-async function setup() {
+const setup = async function setup() {
   const s = await testRender(
     <TooeeProvider>
       <ThemePickerHarness />
@@ -44,7 +44,7 @@ async function setup() {
   );
   await s.renderOnce();
   return s;
-}
+};
 
 let testSetup: TestSession;
 

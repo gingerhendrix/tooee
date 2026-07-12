@@ -8,7 +8,7 @@ import type { Mode } from "@tooee/commands";
  * Default hint-bar entries for the current mode. Composites append their own
  * entries via `extra` rather than re-writing the whole string.
  */
-export function buildAskHints(
+export const buildAskHints = function buildAskHints(
   mode: Mode,
   opts: { multiline?: boolean; extra?: string[] } = {},
 ): string[] {
@@ -16,7 +16,7 @@ export function buildAskHints(
   const base =
     mode === "insert" ? [submitHint, "Esc commands"] : ["i insert", "q quit", submitHint];
   return opts.extra ? [...base, ...opts.extra] : base;
-}
+};
 
 export type AskPanelInsetValue = number | "auto" | `${number}%`;
 
@@ -54,7 +54,7 @@ export interface AskPanelProps {
  * Shared bordered panel chrome for ask surfaces: title bar, optional prompt
  * line, editor area, optional footer, and a hint bar with slots.
  */
-export function AskPanel({
+export const AskPanel = function AskPanel({
   title,
   prompt,
   children,
@@ -151,4 +151,4 @@ export function AskPanel({
       </box>
     </box>
   );
-}
+};

@@ -21,7 +21,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-async function setup() {
+const setup = async function setup() {
   const s = await testRender(
     <TooeeProvider>
       <View contentProvider={createTableFileProvider(CSV)} actions={ACTIONS} />
@@ -34,9 +34,9 @@ async function setup() {
   });
   await s.renderOnce();
   return s;
-}
+};
 
-function lineOf(frame: string, text: string): { x: number; y: number } {
+const lineOf = function lineOf(frame: string, text: string): { x: number; y: number } {
   const lines = frame.split("\n");
   for (let y = 0; y < lines.length; y++) {
     const x = lines[y].indexOf(text);
@@ -45,7 +45,7 @@ function lineOf(frame: string, text: string): { x: number; y: number } {
     }
   }
   return { x: -1, y: -1 };
-}
+};
 
 describe("Table view mouse integration", () => {
   test("right-click on a row opens the context menu with row actions", async () => {

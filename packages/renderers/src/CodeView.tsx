@@ -21,7 +21,12 @@ interface CodeViewProps {
   document?: DocumentBindings;
 }
 
-export function CodeView({ content, language, showLineNumbers = true, document }: CodeViewProps) {
+export const CodeView = function CodeView({
+  content,
+  language,
+  showLineNumbers = true,
+  document,
+}: CodeViewProps) {
   const { syntax } = useTheme();
   const palette = useGutterPalette();
 
@@ -38,4 +43,4 @@ export function CodeView({ content, language, showLineNumbers = true, document }
       <code content={content} filetype={language} syntaxStyle={syntax} />
     </row-document>
   );
-}
+};

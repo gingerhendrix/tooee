@@ -25,16 +25,21 @@ export type ContentLoaderEvents = {
   reloadRequested: {};
 };
 
-export function isAsyncIterable(value: unknown): value is AsyncIterable<ContentChunk> {
+export const isAsyncIterable = function isAsyncIterable(
+  value: unknown,
+): value is AsyncIterable<ContentChunk> {
   return (
     value !== null &&
     value !== undefined &&
     typeof value === "object" &&
     Symbol.asyncIterator in value
   );
-}
+};
 
-export function createEmptyContent(format: string, title?: string): AnyContent {
+export const createEmptyContent = function createEmptyContent(
+  format: string,
+  title?: string,
+): AnyContent {
   switch (format) {
     case "markdown": {
       return { format, markdown: "", title };
@@ -52,9 +57,9 @@ export function createEmptyContent(format: string, title?: string): AnyContent {
       return { data: undefined, format, title } as CustomContent;
     }
   }
-}
+};
 
-function ensureContentFormat<F extends ContentFormat>(
+const ensureContentFormat = function ensureContentFormat<F extends ContentFormat>(
   current: AnyContent | null,
   format: F,
   title?: string,
@@ -63,9 +68,9 @@ function ensureContentFormat<F extends ContentFormat>(
     return createEmptyContent(format, title) as Extract<Content, { format: F }>;
   }
   return current as Extract<Content, { format: F }>;
-}
+};
 
-export function applyContentChunk(
+export const applyContentChunk = function applyContentChunk(
   current: AnyContent | null,
   chunk: ContentChunk,
   title?: string,
@@ -99,13 +104,13 @@ export function applyContentChunk(
       return current ?? createEmptyContent("markdown", title);
     }
   }
-}
+};
 
-export function normalizeError(error: unknown): string {
+export const normalizeError = function normalizeError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
-}
+};
 
-export function createContentLoaderStore() {
+export const createContentLoaderStore = function createContentLoaderStore() {
   return createStore<ContentLoaderContext, ContentLoaderEvents>({
     context: {
       content: null,
@@ -160,7 +165,7 @@ export function createContentLoaderStore() {
             },
     },
   });
-}
+};
 
 export const selectContent = (ctx: ContentLoaderContext) => ctx.content;
 export const selectStatus = (ctx: ContentLoaderContext) => ctx.status;

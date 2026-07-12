@@ -12,23 +12,23 @@ import { CommandProvider, useCommandContext, useCommand } from "@tooee/commands"
 
 // Screen that calls useRouterCommands
 
-function HomeScreen() {
+const HomeScreen = function HomeScreen() {
   useRouterCommands();
   return (
     <box>
       <text content="screen:home" />
     </box>
   );
-}
+};
 
-function DetailScreen() {
+const DetailScreen = function DetailScreen() {
   useRouterCommands();
   return (
     <box>
       <text content="screen:detail" />
     </box>
   );
-}
+};
 
 // Route definitions
 
@@ -52,10 +52,10 @@ describe("useRouterCommands", () => {
 
     let ctx: ReturnType<typeof useCommandContext>;
 
-    function CtxCapture() {
+    const CtxCapture = function CtxCapture() {
       ctx = useCommandContext();
       return null;
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>
@@ -83,10 +83,10 @@ describe("useRouterCommands", () => {
 
     let ctx: ReturnType<typeof useCommandContext>;
 
-    function CtxCapture() {
+    const CtxCapture = function CtxCapture() {
       ctx = useCommandContext();
       return null;
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>
@@ -112,10 +112,10 @@ describe("useRouterCommands", () => {
 
     let ctx: ReturnType<typeof useCommandContext>;
 
-    function CtxCapture() {
+    const CtxCapture = function CtxCapture() {
       ctx = useCommandContext();
       return null;
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>
@@ -146,10 +146,10 @@ describe("useRouterCommands", () => {
 
     let ctx: ReturnType<typeof useCommandContext>;
 
-    function CtxCapture() {
+    const CtxCapture = function CtxCapture() {
       ctx = useCommandContext();
       return null;
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>
@@ -185,7 +185,7 @@ describe("useRouterCommands", () => {
 
 describe("natural command scoping via unmount", () => {
   test("commands from unmounted screens are removed from registry", async () => {
-    function ScreenA() {
+    const ScreenA = function ScreenA() {
       useRouterCommands();
       useCommand({
         handler: () => {},
@@ -199,9 +199,9 @@ describe("natural command scoping via unmount", () => {
           <text content="screen:A" />
         </box>
       );
-    }
+    };
 
-    function ScreenB() {
+    const ScreenB = function ScreenB() {
       useCommand({
         handler: () => {},
         hotkey: "b",
@@ -214,7 +214,7 @@ describe("natural command scoping via unmount", () => {
           <text content="screen:B" />
         </box>
       );
-    }
+    };
 
     const routeA = createRoute({ component: ScreenA, id: "screenA" });
     const routeB = createRoute({ component: ScreenB, id: "screenB" });
@@ -226,10 +226,10 @@ describe("natural command scoping via unmount", () => {
 
     let ctx: ReturnType<typeof useCommandContext>;
 
-    function CtxCapture() {
+    const CtxCapture = function CtxCapture() {
       ctx = useCommandContext();
       return null;
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>
@@ -263,7 +263,7 @@ describe("natural command scoping via unmount", () => {
   });
 
   test("commands re-register when screen remounts after pop", async () => {
-    function ScreenA() {
+    const ScreenA = function ScreenA() {
       useRouterCommands();
       useCommand({
         handler: () => {},
@@ -277,15 +277,15 @@ describe("natural command scoping via unmount", () => {
           <text content="screen:A" />
         </box>
       );
-    }
+    };
 
-    function ScreenB() {
+    const ScreenB = function ScreenB() {
       return (
         <box>
           <text content="screen:B" />
         </box>
       );
-    }
+    };
 
     const routeA = createRoute({ component: ScreenA, id: "screenA" });
     const routeB = createRoute({ component: ScreenB, id: "screenB" });
@@ -297,10 +297,10 @@ describe("natural command scoping via unmount", () => {
 
     let ctx: ReturnType<typeof useCommandContext>;
 
-    function CtxCapture() {
+    const CtxCapture = function CtxCapture() {
       ctx = useCommandContext();
       return null;
-    }
+    };
 
     testSetup = await testRender(
       <CommandProvider>

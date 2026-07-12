@@ -9,7 +9,7 @@ export const VIEW_FIXTURES = resolve(REPO_ROOT, "packages/view/test/fixtures");
 const CONFIG_NAMESPACE = "view-context-e2e";
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
 
-export async function launchTable(fixture: string): Promise<Session> {
+export const launchTable = async function launchTable(fixture: string): Promise<Session> {
   const fixturePath = resolve(VIEW_FIXTURES, fixture);
   resetTestConfig(CONFIG_NAMESPACE);
   const session = await launchTerminal({
@@ -22,4 +22,4 @@ export async function launchTable(fixture: string): Promise<Session> {
   });
   await session.waitForText("Rows:", { timeout: 15_000 });
   return session;
-}
+};

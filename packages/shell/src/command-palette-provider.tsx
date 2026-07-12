@@ -7,7 +7,11 @@ import { CommandPaletteOverlay } from "./CommandPaletteOverlay.js";
 
 const OVERLAY_ID = "command-palette";
 
-export function CommandPaletteProvider({ children }: { children: ReactNode }) {
+export const CommandPaletteProvider = function CommandPaletteProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const mode = useMode();
   const overlay = useOverlay();
   // Reactive: the registry is a subscribable store, so this provider
@@ -39,4 +43,4 @@ export function CommandPaletteProvider({ children }: { children: ReactNode }) {
   });
 
   return <>{children}</>;
-}
+};

@@ -14,7 +14,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-function deferred<T>() {
+const deferred = function deferred<T>() {
   let resolve!: (value: T) => void;
   let reject!: (err: unknown) => void;
   const promise = new Promise<T>((res, rej) => {
@@ -22,14 +22,14 @@ function deferred<T>() {
     reject = rej;
   });
   return { promise, reject, resolve };
-}
+};
 
-async function flush(s: TestSession) {
+const flush = async function flush(s: TestSession) {
   await act(async () => {
     await Promise.resolve();
   });
   await s.renderOnce();
-}
+};
 
 describe("Choose async load (R-02)", () => {
   test("load rejection shows an error instead of eternal Loading", async () => {
@@ -73,11 +73,11 @@ describe("Choose async load (R-02)", () => {
     const fastProvider: ChooseContentProvider = { load: () => [{ text: "fresh-item" }] };
 
     let swap!: () => void;
-    function Harness() {
+    const Harness = function Harness() {
       const [provider, setProvider] = useState(slowProvider);
       swap = () => setProvider(fastProvider);
       return <Choose contentProvider={provider} />;
-    }
+    };
 
     testSetup = await testRender(
       <TooeeProvider initialMode="insert">
@@ -110,11 +110,11 @@ describe("Choose async load (R-02)", () => {
     const fastProvider: ChooseContentProvider = { load: () => [{ text: "fresh-item" }] };
 
     let swap!: () => void;
-    function Harness() {
+    const Harness = function Harness() {
       const [provider, setProvider] = useState(slowProvider);
       swap = () => setProvider(fastProvider);
       return <Choose contentProvider={provider} />;
-    }
+    };
 
     testSetup = await testRender(
       <TooeeProvider initialMode="insert">

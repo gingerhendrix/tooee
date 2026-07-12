@@ -6,7 +6,7 @@ import { useTheme } from "@tooee/themes";
 import { useMode } from "@tooee/commands";
 import type { TestSession } from "./support/test-helpers.ts";
 
-function ThemeHarness() {
+const ThemeHarness = function ThemeHarness() {
   const { picker } = useThemeCommands();
   const { name: themeName } = useTheme();
   const mode = useMode();
@@ -17,16 +17,16 @@ function ThemeHarness() {
       <text content={`mode:${mode}`} />
     </box>
   );
-}
+};
 
-function QuitHarness({ onQuit }: { onQuit: () => void }) {
+const QuitHarness = function QuitHarness({ onQuit }: { onQuit: () => void }) {
   useQuitCommand({ onQuit });
   return (
     <box>
       <text content="quit-harness" />
     </box>
   );
-}
+};
 
 let testSetup: TestSession;
 

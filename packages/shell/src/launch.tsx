@@ -71,7 +71,7 @@ export interface TerminalHealthGuardOptions {
  * Guard a locally owned renderer from a dead terminal and return an idempotent
  * function that removes every listener installed by the guard.
  */
-export function guardTerminalHealth(
+export const guardTerminalHealth = function guardTerminalHealth(
   renderer: CliRenderer,
   options: TerminalHealthGuardOptions = {},
 ): () => void {
@@ -113,10 +113,10 @@ export function guardTerminalHealth(
   stdin.on("close", onTerminalEnd);
   renderer.once("destroy", dispose);
   return dispose;
-}
+};
 
 /** Mount Tooee into a renderer whose lifetime remains owned by the caller. */
-export function mountTooee(
+export const mountTooee = function mountTooee(
   renderer: CliRenderer,
   node: ReactNode,
   options: MountTooeeOptions = {},
@@ -158,9 +158,11 @@ export function mountTooee(
       return unmounted;
     },
   };
-}
+};
 
-function resolveProviderOptions(options: LaunchCliOptions): TooeeProviderOptions {
+const resolveProviderOptions = function resolveProviderOptions(
+  options: LaunchCliOptions,
+): TooeeProviderOptions {
   const { leader, config, initialMode, sequenceTimeoutMs } = options;
   return {
     ...(leader === undefined ? {} : { leader }),
@@ -169,9 +171,9 @@ function resolveProviderOptions(options: LaunchCliOptions): TooeeProviderOptions
     ...(sequenceTimeoutMs === undefined ? {} : { sequenceTimeoutMs }),
     ...options.provider,
   };
-}
+};
 
-function openTtyInput(policy: CliStdinPolicy): tty.ReadStream | undefined {
+const openTtyInput = function openTtyInput(policy: CliStdinPolicy): tty.ReadStream | undefined {
   if (policy !== "tty-if-piped" || process.stdin.isTTY) {
     return undefined;
   }
@@ -182,10 +184,10 @@ function openTtyInput(policy: CliStdinPolicy): tty.ReadStream | undefined {
     fs.closeSync(fd);
     throw error;
   }
-}
+};
 
 /** Create, mount, and return a locally owned Tooee renderer session. */
-export async function launchCli(
+export const launchCli = async function launchCli(
   node: ReactNode,
   options: LaunchCliOptions = {},
 ): Promise<TooeeSessionHandle> {
@@ -264,10 +266,10 @@ export async function launchCli(
   }
 
   return handle;
-}
+};
 
 /** Run one locally owned CLI session and settle its result at most once. */
-export async function runCliSession<T>(
+export const runCliSession = async function runCliSession<T>(
   render: CliSessionRender<T>,
   options: LaunchCliOptions = {},
 ): Promise<T | null> {
@@ -312,4 +314,4 @@ export async function runCliSession<T>(
       })
       .catch(() => settle(null));
   });
-}
+};

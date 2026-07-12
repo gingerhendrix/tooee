@@ -25,7 +25,7 @@ const TRACK_CHAR = "░";
  *
  * Renders nothing when content fits within the viewport (no overflow).
  */
-export function EditorScrollbar({ target, color }: EditorScrollbarProps) {
+export const EditorScrollbar = function EditorScrollbar({ target, color }: EditorScrollbarProps) {
   if (!target) {
     return null;
   }
@@ -61,4 +61,4 @@ export function EditorScrollbar({ target, color }: EditorScrollbarProps) {
   }
 
   return <text content={content} fg={color} selectable={false} />;
-}
+};

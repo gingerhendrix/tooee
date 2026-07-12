@@ -7,7 +7,7 @@ export interface ClipboardContent {
   mime: string;
 }
 
-export async function readClipboard(): Promise<ClipboardContent | undefined> {
+export const readClipboard = async function readClipboard(): Promise<ClipboardContent | undefined> {
   const os = platform();
 
   if (os === "darwin") {
@@ -70,9 +70,9 @@ export async function readClipboard(): Promise<ClipboardContent | undefined> {
   }
 
   return undefined;
-}
+};
 
-export async function readClipboardText(): Promise<string | undefined> {
+export const readClipboardText = async function readClipboardText(): Promise<string | undefined> {
   const os = platform();
 
   if (os === "darwin") {
@@ -101,9 +101,9 @@ export async function readClipboardText(): Promise<string | undefined> {
   }
 
   return undefined;
-}
+};
 
-export async function readPrimaryText(): Promise<string | undefined> {
+export const readPrimaryText = async function readPrimaryText(): Promise<string | undefined> {
   const os = platform();
 
   if (os === "linux") {
@@ -123,11 +123,11 @@ export async function readPrimaryText(): Promise<string | undefined> {
 
   // macOS/Windows don't have PRIMARY selection — fall back to clipboard
   return readClipboardText();
-}
+};
 
 let copyMethod: ((text: string) => Promise<void>) | null = null;
 
-function getCopyMethod(): (text: string) => Promise<void> {
+const getCopyMethod = function getCopyMethod(): (text: string) => Promise<void> {
   if (copyMethod) {
     return copyMethod;
   }
@@ -196,15 +196,15 @@ function getCopyMethod(): (text: string) => Promise<void> {
     // Silent no-op — no clipboard support available
   };
   return copyMethod;
-}
+};
 
-export async function copyToClipboard(text: string): Promise<void> {
+export const copyToClipboard = async function copyToClipboard(text: string): Promise<void> {
   await getCopyMethod()(text);
-}
+};
 
 let primaryCopyMethod: ((text: string) => Promise<void>) | null = null;
 
-function getPrimaryCopyMethod(): (text: string) => Promise<void> {
+const getPrimaryCopyMethod = function getPrimaryCopyMethod(): (text: string) => Promise<void> {
   if (primaryCopyMethod) {
     return primaryCopyMethod;
   }
@@ -256,8 +256,8 @@ function getPrimaryCopyMethod(): (text: string) => Promise<void> {
   // macOS/Windows don't have PRIMARY selection — fall back to clipboard
   primaryCopyMethod = getCopyMethod();
   return primaryCopyMethod;
-}
+};
 
-export async function copyToPrimary(text: string): Promise<void> {
+export const copyToPrimary = async function copyToPrimary(text: string): Promise<void> {
   await getPrimaryCopyMethod()(text);
-}
+};

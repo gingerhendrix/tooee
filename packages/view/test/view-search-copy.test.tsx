@@ -8,9 +8,12 @@ const { TooeeProvider } = await import("@tooee/shell");
 const { MarkSetBuilder, MarkPriorities } = await import("@tooee/marks");
 const { View } = await import("../src/View.js");
 
-function staticProvider(content: AnyContent, marks?: ContentProvider["marks"]): ContentProvider {
+const staticProvider = function staticProvider(
+  content: AnyContent,
+  marks?: ContentProvider["marks"],
+): ContentProvider {
   return { format: content.format, load: () => content, marks };
-}
+};
 
 const CODE: AnyContent = {
   code: ["alpha", "beta", "gamma", "alpha again"].join("\n"),
@@ -46,7 +49,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-async function setup(provider: ContentProvider) {
+const setup = async function setup(provider: ContentProvider) {
   const s = await testRender(
     <TooeeProvider>
       <View contentProvider={provider} />
@@ -59,16 +62,16 @@ async function setup(provider: ContentProvider) {
   });
   await s.renderOnce();
   return s;
-}
+};
 
-async function press(key: string, modifiers?: { shift?: boolean }) {
+const press = async function press(key: string, modifiers?: { shift?: boolean }) {
   await act(async () => {
     testSetup.mockInput.pressKey(key, modifiers);
   });
   await testSetup.renderOnce();
-}
+};
 
-async function typeQuery(query: string) {
+const typeQuery = async function typeQuery(query: string) {
   await press("/");
   for (const char of query) {
     await press(char);
@@ -77,7 +80,7 @@ async function typeQuery(query: string) {
     testSetup.mockInput.pressEnter();
   });
   await testSetup.renderOnce();
-}
+};
 
 describe("search over migrated subviews", () => {
   test("a code View jumps the cursor to the first real match, n cycles", async () => {

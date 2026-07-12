@@ -36,7 +36,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-function lineOf(frame: string, text: string): { x: number; y: number } {
+const lineOf = function lineOf(frame: string, text: string): { x: number; y: number } {
   const lines = frame.split("\n");
   for (let y = 0; y < lines.length; y++) {
     const x = lines[y].indexOf(text);
@@ -45,9 +45,9 @@ function lineOf(frame: string, text: string): { x: number; y: number } {
     }
   }
   return { x: -1, y: -1 };
-}
+};
 
-async function setup(renderer: ContentRenderer) {
+const setup = async function setup(renderer: ContentRenderer) {
   const s = await testRender(
     <TooeeProvider>
       <View contentProvider={PROVIDER} renderers={{ chart: renderer }} />
@@ -60,7 +60,7 @@ async function setup(renderer: ContentRenderer) {
   });
   await s.renderOnce();
   return s;
-}
+};
 
 describe("Custom renderer document bindings", () => {
   test("a custom renderer can select a row via document.selectRow", async () => {

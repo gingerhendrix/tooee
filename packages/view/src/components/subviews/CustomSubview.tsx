@@ -13,7 +13,7 @@ interface CustomSubviewProps extends SubviewProps {
   renderers?: Record<string, ContentRenderer>;
 }
 
-export function CustomSubview({
+export const CustomSubview = function CustomSubview({
   content,
   decorations,
   actions,
@@ -59,4 +59,4 @@ export function CustomSubview({
       )}
     </ViewScreen>
   );
-}
+};

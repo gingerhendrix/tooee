@@ -30,7 +30,7 @@ export interface NavigationState {
   toggledIndices: Set<number>;
 }
 
-export function useNavigationBindings(
+export const useNavigationBindings = function useNavigationBindings(
   store: NavSearchStore,
   {
     viewportHeight,
@@ -161,13 +161,15 @@ export function useNavigationBindings(
       ? deriveSelection({ ...context, cursor, selectionAnchor: anchor }, mode)
       : null;
   return { cursor, selection, setCursor, toggledIndices };
-}
+};
 
-export function useNavigation(options: UseNavigationOptions): NavigationState {
+export const useNavigation = function useNavigation(
+  options: UseNavigationOptions,
+): NavigationState {
   const keys = useMemo(
     () => Array.from({ length: options.rowCount }, (_, index) => index),
     [options.rowCount],
   );
   const store = useNavSearchStore({ isSelectable: options.isSelectable, keys });
   return useNavigationBindings(store, options);
-}
+};

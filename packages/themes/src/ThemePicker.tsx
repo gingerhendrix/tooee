@@ -17,7 +17,7 @@ interface ThemePickerProps {
   onNavigate: (name: string) => void;
 }
 
-export function ThemePicker({
+export const ThemePicker = function ThemePicker({
   entries,
   currentTheme,
   onSelect,
@@ -186,4 +186,4 @@ export function ThemePicker({
       </scrollbox>
     </box>
   );
-}
+};

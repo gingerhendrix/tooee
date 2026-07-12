@@ -48,14 +48,14 @@ export interface OverlayClosedEmit {
  * mutated on open, so there is nothing to restore. For legacy entries, only
  * the topmost non-ownCommands overlay owns the host mode.
  */
-function restoreModeDecision(
+const restoreModeDecision = function restoreModeDecision(
   stack: readonly OverlayRecord[],
   record: OverlayRecord,
 ): string | null {
   if (record.options.ownCommands || record.options.restoreMode === false) return null;
   const topLegacy = stack.findLast((entry) => !entry.options.ownCommands);
   return topLegacy === record ? record.prevMode : null;
-}
+};
 
 /**
  * Event payload map, passed explicitly as a `createStore` generic
@@ -79,7 +79,7 @@ type OverlayStoreEmitted = {
   closed: OverlayClosedEmit;
 };
 
-export function createOverlayStore() {
+export const createOverlayStore = function createOverlayStore() {
   return createStore<OverlayStoreContext, OverlayStoreEvents, OverlayStoreEmitted>({
     context: { stack: [] },
     on: {
@@ -130,29 +130,36 @@ export function createOverlayStore() {
       },
     },
   });
-}
+};
 
 export type OverlayStore = ReturnType<typeof createOverlayStore>;
 
 // --- Selectors ---------------------------------------------------------------
 
-export function selectStack(ctx: OverlayStoreContext): readonly OverlayRecord[] {
+export const selectStack = function selectStack(
+  ctx: OverlayStoreContext,
+): readonly OverlayRecord[] {
   return ctx.stack;
-}
+};
 
-export function selectTop(ctx: OverlayStoreContext): OverlayRecord | null {
+export const selectTop = function selectTop(ctx: OverlayStoreContext): OverlayRecord | null {
   return ctx.stack.length > 0 ? ctx.stack[ctx.stack.length - 1]! : null;
-}
+};
 
-export function selectHasOverlay(ctx: OverlayStoreContext): boolean {
+export const selectHasOverlay = function selectHasOverlay(ctx: OverlayStoreContext): boolean {
   return ctx.stack.length > 0;
-}
+};
 
-export function selectIsOpen(ctx: OverlayStoreContext, id: OverlayId): boolean {
+export const selectIsOpen = function selectIsOpen(
+  ctx: OverlayStoreContext,
+  id: OverlayId,
+): boolean {
   return ctx.stack.some((entry) => entry.id === id);
-}
+};
 
 /** Fresh array; prefer selectStack identity + memo in render paths. */
-export function selectStackIds(ctx: OverlayStoreContext): readonly OverlayId[] {
+export const selectStackIds = function selectStackIds(
+  ctx: OverlayStoreContext,
+): readonly OverlayId[] {
   return ctx.stack.map((entry) => entry.id);
-}
+};

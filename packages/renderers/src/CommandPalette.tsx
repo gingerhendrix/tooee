@@ -17,7 +17,11 @@ interface CommandPaletteProps {
   onClose: () => void;
 }
 
-export function CommandPalette({ commands, onSelect, onClose }: CommandPaletteProps) {
+export const CommandPalette = function CommandPalette({
+  commands,
+  onSelect,
+  onClose,
+}: CommandPaletteProps) {
   const { theme } = useTheme();
   const [filter, setFilter] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -150,4 +154,4 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
       </scrollbox>
     </box>
   );
-}
+};

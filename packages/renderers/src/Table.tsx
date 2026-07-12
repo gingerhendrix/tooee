@@ -41,9 +41,9 @@ const DEFAULT_MIN_COL_WIDTH = 4;
 const DEFAULT_MAX_COL_WIDTH = 80;
 const DEFAULT_SAMPLE_SIZE = 100;
 
-function isNumeric(value: string): boolean {
+const isNumeric = function isNumeric(value: string): boolean {
   return /^\s*-?[\d,]+\.?\d*\s*$/u.test(value);
-}
+};
 
 interface ColumnWidthOptions {
   minColumnWidth: number;
@@ -52,7 +52,7 @@ interface ColumnWidthOptions {
   columnWidthMode?: "content" | "fill";
 }
 
-function sampleRows(rows: string[][], sampleSize: number): string[][] {
+const sampleRows = function sampleRows(rows: string[][], sampleSize: number): string[][] {
   if (rows.length <= sampleSize) {
     return rows;
   }
@@ -63,9 +63,9 @@ function sampleRows(rows: string[][], sampleSize: number): string[][] {
     sampled.push(rows[Math.floor(i * step)]);
   }
   return sampled;
-}
+};
 
-function computeColumnWidths(
+const computeColumnWidths = function computeColumnWidths(
   headers: string[],
   rows: string[][],
   maxWidth: number,
@@ -139,9 +139,9 @@ function computeColumnWidths(
     }
     return Math.max(minColWidthWithPadding, Math.floor((w / longTotal) * remaining));
   });
-}
+};
 
-function formatCellValue(value: unknown): string {
+const formatCellValue = function formatCellValue(value: unknown): string {
   if (value == null) return "";
   if (typeof value === "string") return value;
   if (typeof value === "number" || typeof value === "boolean") return String(value);
@@ -151,9 +151,9 @@ function formatCellValue(value: unknown): string {
   } catch {
     return String(value);
   }
-}
+};
 
-export function Table({
+export const Table = function Table({
   columns,
   rows,
   maxWidth,
@@ -305,7 +305,7 @@ export function Table({
       </row-document>
     </box>
   );
-}
+};
 
 // Exported for testing and MarkdownView
 export { computeColumnWidths, isNumeric, sampleRows };

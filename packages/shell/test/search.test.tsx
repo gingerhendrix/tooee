@@ -47,7 +47,7 @@ const TEST_TEXT = "alpha\nbeta\ngamma\nalpha again\ndelta";
 // Module-level ref for imperative access to search state from tests
 let searchHandle: SearchState | null = null;
 
-function SearchHarness() {
+const SearchHarness = function SearchHarness() {
   const nav = useNavigation({ rowCount: TEST_TEXT.split("\n").length, viewportHeight: 3 });
   const mode = useMode();
   const search = useSearch({
@@ -68,9 +68,9 @@ function SearchHarness() {
       <text content={`query:${search.searchQuery}`} />
     </box>
   );
-}
+};
 
-async function setup() {
+const setup = async function setup() {
   const session = await testRender(
     <TooeeProvider>
       <SearchHarness />
@@ -79,7 +79,7 @@ async function setup() {
   );
   await session.renderOnce();
   return session;
-}
+};
 
 let testSetup: TestSession;
 
@@ -91,7 +91,7 @@ afterEach(() => {
 describe("search hook", () => {
   test("computes matches once per query event and not again on submit", async () => {
     let calls = 0;
-    function CountingHarness() {
+    const CountingHarness = function CountingHarness() {
       const nav = useNavigation({ rowCount: 2 });
       const search = useSearch({
         match: () => {
@@ -102,7 +102,7 @@ describe("search hook", () => {
       });
       searchHandle = search;
       return <text content={search.searchQuery} />;
-    }
+    };
     testSetup = await testRender(
       <TooeeProvider>
         <CountingHarness />
@@ -213,7 +213,7 @@ describe("search hook", () => {
 // reloaded provider delivers it.
 let appendLine: ((line: string) => void) | null = null;
 
-function GrowingSearchHarness({ deps }: { deps: boolean }) {
+const GrowingSearchHarness = function GrowingSearchHarness({ deps }: { deps: boolean }) {
   const [lines, setLines] = useState(["alpha", "beta"]);
   appendLine = (line) => setLines((current) => [...current, line]);
 
@@ -227,9 +227,9 @@ function GrowingSearchHarness({ deps }: { deps: boolean }) {
   searchHandle = search;
 
   return <text content={`matches:[${search.matchingLines.join(",")}]`} />;
-}
+};
 
-async function setupGrowing(deps: boolean) {
+const setupGrowing = async function setupGrowing(deps: boolean) {
   const session = await testRender(
     <TooeeProvider>
       <GrowingSearchHarness deps={deps} />
@@ -238,7 +238,7 @@ async function setupGrowing(deps: boolean) {
   );
   await session.renderOnce();
   return session;
-}
+};
 
 describe("search over changing content", () => {
   test("a committed query re-matches rows added after the search", async () => {

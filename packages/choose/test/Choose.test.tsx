@@ -14,9 +14,9 @@ const ITEMS = [
   { text: "epsilon" },
 ];
 
-function makeProvider(items = ITEMS): ChooseContentProvider {
+const makeProvider = function makeProvider(items = ITEMS): ChooseContentProvider {
   return { load: () => items };
-}
+};
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
@@ -24,7 +24,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-async function setup(
+const setup = async function setup(
   opts: {
     multi?: boolean;
     prompt?: string;
@@ -46,9 +46,9 @@ async function setup(
   );
   await s.renderOnce();
   return s;
-}
+};
 
-async function press(
+const press = async function press(
   s: Awaited<ReturnType<typeof testRender>>,
   key: string,
   modifiers?: { ctrl?: boolean; shift?: boolean },
@@ -57,9 +57,9 @@ async function press(
     s.mockInput.pressKey(key, modifiers);
   });
   await s.renderOnce();
-}
+};
 
-async function pressArrow(
+const pressArrow = async function pressArrow(
   s: Awaited<ReturnType<typeof testRender>>,
   direction: "up" | "down" | "left" | "right",
 ) {
@@ -67,7 +67,7 @@ async function pressArrow(
     s.mockInput.pressArrow(direction);
   });
   await s.renderOnce();
-}
+};
 
 describe("Choose rendering", () => {
   test("renders all items", async () => {
@@ -377,14 +377,14 @@ describe("Choose visual alignment", () => {
 });
 
 describe("Choose mouse interaction", () => {
-  function lineOf(frame: string, text: string): { x: number; y: number } {
+  const lineOf = function lineOf(frame: string, text: string): { x: number; y: number } {
     const lines = frame.split("\n");
     for (let y = 0; y < lines.length; y++) {
       const x = lines[y].indexOf(text);
       if (x >= 0) return { x, y };
     }
     return { x: -1, y: -1 };
-  }
+  };
 
   test("left-click on a row selects it (Enter then confirms that row)", async () => {
     let confirmed: any = null;
@@ -456,7 +456,7 @@ describe("Choose mouse interaction", () => {
 });
 
 describe("Choose emptyMessage", () => {
-  async function setupEmpty(
+  const setupEmpty = async function setupEmpty(
     opts: {
       items?: typeof ITEMS;
       emptyMessage?: string;
@@ -475,7 +475,7 @@ describe("Choose emptyMessage", () => {
     );
     await s.renderOnce();
     return s;
-  }
+  };
 
   test("shows emptyMessage when items list is empty", async () => {
     testSetup = await setupEmpty({ emptyMessage: "No items available." });

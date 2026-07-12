@@ -5,26 +5,26 @@ import { createRoute, createRouter, RouterProvider, Outlet, useScreenState } fro
 
 // Screen that displays saved state from useScreenState hook
 
-function ScreenA() {
+const ScreenA = function ScreenA() {
   const { savedState } = useScreenState<{ value: string }>();
   return (
     <box>
       <text content={`screenA:saved:${savedState?.value ?? "none"}`} />
     </box>
   );
-}
+};
 
-function ScreenB() {
+const ScreenB = function ScreenB() {
   return (
     <box>
       <text content="screenB" />
     </box>
   );
-}
+};
 
 // Screen that saves state via the hook on mount
 
-function SavingScreen() {
+const SavingScreen = function SavingScreen() {
   const { savedState, saveState } = useScreenState<{ counter: number }>();
   const count = savedState?.counter ?? 0;
   useEffect(() => {
@@ -35,7 +35,7 @@ function SavingScreen() {
       <text content={`saving:count:${count}`} />
     </box>
   );
-}
+};
 
 // Route definitions
 

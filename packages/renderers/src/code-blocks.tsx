@@ -15,9 +15,9 @@ import { renderMermaidForTerminal } from "./mermaid.js";
  * Matches common Markdown behavior (marked may include extra info-string
  * content after the language).
  */
-export function getFenceType(info?: string): string {
+export const getFenceType = function getFenceType(info?: string): string {
   return (info ?? "").trim().split(/\s+/u)[0]?.toLowerCase() ?? "";
-}
+};
 
 /**
  * Opt-in horizontal panning hooks for wide block content. Attach `register`
@@ -70,7 +70,7 @@ export type CodeBlockRenderer = (props: CodeBlockRendererProps) => ReactNode;
  * The standard bordered-box chrome used by built-in code and mermaid blocks.
  * Custom renderers can wrap their content in this to match the default look.
  */
-export function CodeBlockChrome({
+export const CodeBlockChrome = function CodeBlockChrome({
   theme,
   indent,
   children,
@@ -95,7 +95,7 @@ export function CodeBlockChrome({
       {children}
     </box>
   );
-}
+};
 
 // ---------------------------------------------------------------------------
 // Default renderer (syntax-highlighted code block)
@@ -203,7 +203,7 @@ export const DEFAULT_CODE_BLOCK_RENDERERS: Record<string, CodeBlockRenderer> = {
  * stopped, so plain vertical wheel keeps bubbling to the surrounding
  * row-document.
  */
-function useHScrollableBlock(
+const useHScrollableBlock = function useHScrollableBlock(
   blockIndex: number,
   hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>,
 ) {
@@ -228,7 +228,7 @@ function useHScrollableBlock(
   }, []);
 
   return { handleMouseScroll, register };
-}
+};
 
 // ---------------------------------------------------------------------------
 // Dispatching block component
@@ -240,7 +240,7 @@ function useHScrollableBlock(
  * syntax-highlighted code block when there is no match, the renderer
  * returns `null`, or the renderer throws.
  */
-export function CodeBlock({
+export const CodeBlock = function CodeBlock({
   token,
   blockIndex,
   theme,
@@ -280,14 +280,14 @@ export function CodeBlock({
   }
 
   return defaultCodeBlockRenderer(rendererProps);
-}
+};
 
 /**
  * Invokes a custom renderer, falling back to the default code block when it
  * returns `null` or throws. Isolated in its own component so renderer hooks
  * have a stable home that remounts when the fence type changes.
  */
-function CustomCodeBlock({
+const CustomCodeBlock = function CustomCodeBlock({
   renderer,
   rendererProps,
 }: {
@@ -301,4 +301,4 @@ function CustomCodeBlock({
     node = null;
   }
   return node ?? defaultCodeBlockRenderer(rendererProps);
-}
+};

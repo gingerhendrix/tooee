@@ -18,7 +18,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-function lineOf(frame: string, text: string): { x: number; y: number } {
+const lineOf = function lineOf(frame: string, text: string): { x: number; y: number } {
   const lines = frame.split("\n");
   for (let y = 0; y < lines.length; y++) {
     const x = lines[y].indexOf(text);
@@ -27,7 +27,7 @@ function lineOf(frame: string, text: string): { x: number; y: number } {
     }
   }
   return { x: -1, y: -1 };
-}
+};
 
 describe("ContextMenu", () => {
   test("renders all entries", async () => {

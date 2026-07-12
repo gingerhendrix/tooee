@@ -4,7 +4,7 @@ import type { ParsedStep } from "./types.js";
 /**
  * Check if a KeyEvent matches a ParsedStep.
  */
-export function matchStep(event: KeyEvent, step: ParsedStep): boolean {
+export const matchStep = function matchStep(event: KeyEvent, step: ParsedStep): boolean {
   if (event.name !== step.key) {
     return false;
   }
@@ -24,4 +24,4 @@ export function matchStep(event: KeyEvent, step: ParsedStep): boolean {
     return false;
   }
   return true;
-}
+};

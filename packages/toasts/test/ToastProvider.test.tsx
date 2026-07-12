@@ -14,7 +14,7 @@ afterEach(() => {
 /**
  * Harness that exposes toast state as text for assertions.
  */
-function ToastHarness() {
+const ToastHarness = function ToastHarness() {
   const { currentToast } = useToast();
   return (
     <box>
@@ -26,9 +26,9 @@ function ToastHarness() {
       <text content={`id:${currentToast?.id ?? "none"}`} />
     </box>
   );
-}
+};
 
-function ToastTrigger({
+const ToastTrigger = function ToastTrigger({
   level,
   message,
   id,
@@ -44,16 +44,16 @@ function ToastTrigger({
     toast({ duration, id, level, message });
   }, [toast, message, level, id, duration]);
   return null;
-}
+};
 
-function renderWithProviders(children: React.ReactNode) {
+const renderWithProviders = function renderWithProviders(children: React.ReactNode) {
   return testRender(
     <ThemeSwitcherProvider>
       <ToastProvider>{children}</ToastProvider>
     </ThemeSwitcherProvider>,
     { height: 24, width: 60 },
   );
-}
+};
 
 test("toast appears with correct level and message", async () => {
   testSetup = await renderWithProviders(
@@ -70,11 +70,11 @@ test("toast appears with correct level and message", async () => {
 test("dismiss clears the toast", async () => {
   let toastApi: ReturnType<typeof useToast>;
 
-  function DismissTest() {
+  const DismissTest = function DismissTest() {
     toastApi = useToast();
     const { currentToast } = toastApi;
     return <text content={currentToast ? `toast:${currentToast.message}` : "toast:none"} />;
-  }
+  };
 
   testSetup = await renderWithProviders(<DismissTest />);
 
@@ -114,7 +114,7 @@ test("auto-dismisses after duration", async () => {
 test("same ID replaces existing toast and resets timer", async () => {
   let toastApi: ReturnType<typeof useToast>;
 
-  function DedupTest() {
+  const DedupTest = function DedupTest() {
     toastApi = useToast();
     const { currentToast } = toastApi;
     return (
@@ -124,7 +124,7 @@ test("same ID replaces existing toast and resets timer", async () => {
         }
       />
     );
-  }
+  };
 
   testSetup = await renderWithProviders(<DedupTest />);
 
@@ -160,7 +160,7 @@ test("same ID replaces existing toast and resets timer", async () => {
 });
 
 test("each level gets correct default duration", async () => {
-  function DurationTest() {
+  const DurationTest = function DurationTest() {
     const { toast, currentToast } = useToast();
     useEffect(() => {
       for (const l of ["info", "success", "warning", "error"] as ToastLevel[]) {
@@ -168,7 +168,7 @@ test("each level gets correct default duration", async () => {
       }
     }, [toast]);
     return <text content={`duration:${currentToast?.duration ?? "none"}`} />;
-  }
+  };
 
   testSetup = await renderWithProviders(<DurationTest />);
   await testSetup.renderOnce();
@@ -177,13 +177,13 @@ test("each level gets correct default duration", async () => {
 });
 
 test("level defaults: info=2000, success=1500, warning=3000, error=5000", async () => {
-  function SingleLevelTest({ level }: { level: ToastLevel }) {
+  const SingleLevelTest = function SingleLevelTest({ level }: { level: ToastLevel }) {
     const { toast, currentToast } = useToast();
     useEffect(() => {
       toast({ level, message: "test" });
     }, [toast, level]);
     return <text content={`duration:${currentToast?.duration ?? "none"}`} />;
-  }
+  };
 
   // Test info
   testSetup = await renderWithProviders(<SingleLevelTest level="info" />);
@@ -263,7 +263,7 @@ test("ToastContainer renders nothing when no toast", async () => {
 });
 
 test("defaults to info level when level not specified", async () => {
-  function DefaultLevelTest() {
+  const DefaultLevelTest = function DefaultLevelTest() {
     const { toast, currentToast } = useToast();
     useEffect(() => {
       toast({ message: "no level" });
@@ -273,7 +273,7 @@ test("defaults to info level when level not specified", async () => {
         content={currentToast ? `level:${currentToast.level}:dur:${currentToast.duration}` : "none"}
       />
     );
-  }
+  };
 
   testSetup = await renderWithProviders(<DefaultLevelTest />);
   await testSetup.renderOnce();

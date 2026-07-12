@@ -15,7 +15,7 @@ const createEscapeDismissibleOverlay = () => <text content="overlay-escape" />;
 const createEscapePersistentOverlay = () => <text content="overlay-persistent" />;
 const createAppLayoutOverlay = () => <text content="OVERLAY_CONTENT" />;
 
-function OverlayHarness() {
+const OverlayHarness = function OverlayHarness() {
   const overlay = useOverlay();
   const current = useCurrentOverlay();
   const has = useHasOverlay();
@@ -99,9 +99,9 @@ function OverlayHarness() {
       <text content={`current:${current ? "yes" : "no"}`} />
     </box>
   );
-}
+};
 
-function AppLayoutOverlayHarness() {
+const AppLayoutOverlayHarness = function AppLayoutOverlayHarness() {
   const overlay = useOverlay();
 
   useCommand({
@@ -129,9 +129,9 @@ function AppLayoutOverlayHarness() {
       <text content="main-content" />
     </AppLayout>
   );
-}
+};
 
-async function setup(component: React.ReactNode) {
+const setup = async function setup(component: React.ReactNode) {
   const s = await testRender(<TooeeProvider>{component}</TooeeProvider>, {
     height: 24,
     kittyKeyboard: true,
@@ -139,7 +139,7 @@ async function setup(component: React.ReactNode) {
   });
   await s.renderOnce();
   return s;
-}
+};
 
 let testSetup: TestSession;
 
@@ -245,7 +245,7 @@ describe("overlay lifecycle correctness (R-04)", () => {
   test("replacing a same-id overlay fires onClose with 'replaced'", async () => {
     const reasons: OverlayCloseReason[] = [];
 
-    function ReplaceHarness() {
+    const ReplaceHarness = function ReplaceHarness() {
       const overlay = useOverlay();
       useCommand({
         handler: () => {
@@ -260,7 +260,7 @@ describe("overlay lifecycle correctness (R-04)", () => {
         title: "Open",
       });
       return <text content="replace-harness" />;
-    }
+    };
 
     testSetup = await setup(<ReplaceHarness />);
     await press(testSetup, "a");
@@ -270,7 +270,7 @@ describe("overlay lifecycle correctness (R-04)", () => {
   });
 
   test("closing a buried legacy overlay does not clobber the mode set by the one above", async () => {
-    function BuriedHarness() {
+    const BuriedHarness = function BuriedHarness() {
       const overlay = useOverlay();
       const mode = useMode();
       useCommand({
@@ -314,7 +314,7 @@ describe("overlay lifecycle correctness (R-04)", () => {
         title: "Close over",
       });
       return <text content={`hostmode:${mode}`} />;
-    }
+    };
 
     testSetup = await setup(<BuriedHarness />);
     expect(testSetup.captureCharFrame()).toContain("hostmode:cursor");

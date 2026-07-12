@@ -24,7 +24,7 @@ interface MetricComparison {
   thresholdExceeded: boolean;
 }
 
-function printHelp(): void {
+const printHelp = function printHelp(): void {
   console.log(`Usage: bun run bench:compare -- BASELINE.json CANDIDATE.json [options]
 
 Compares aggregated benchmark JSON files produced by \`bun run bench -- --out\`.
@@ -35,9 +35,9 @@ Options:
   --all                  Include non-comparable/count metrics in the table
   -h, --help             Show this help
 `);
-}
+};
 
-function parseArgs(args: string[]): CompareOptions {
+const parseArgs = function parseArgs(args: string[]): CompareOptions {
   const positional: string[] = [];
   let failOnRegression = false;
   let onlyComparable = true;
@@ -68,17 +68,17 @@ function parseArgs(args: string[]): CompareOptions {
     failOnRegression,
     onlyComparable,
   };
-}
+};
 
-function readRun(path: string): BenchmarkRunResult {
+const readRun = function readRun(path: string): BenchmarkRunResult {
   const parsed = JSON.parse(readFileSync(path, "utf-8")) as BenchmarkRunResult;
   if (parsed.version !== 1 || !Array.isArray(parsed.results)) {
     throw new Error(`${path} is not a supported Tooee benchmark result file`);
   }
   return parsed;
-}
+};
 
-function formatValue(value: number, unit: BenchmarkUnit): string {
+const formatValue = function formatValue(value: number, unit: BenchmarkUnit): string {
   if (unit === "bytes") {
     return formatBytes(value);
   }
@@ -92,9 +92,9 @@ function formatValue(value: number, unit: BenchmarkUnit): string {
     return value === 0 ? "false" : "true";
   }
   return Number.isInteger(value) ? value.toLocaleString() : value.toFixed(2);
-}
+};
 
-function formatBytes(value: number): string {
+const formatBytes = function formatBytes(value: number): string {
   const units = ["B", "KiB", "MiB", "GiB"];
   let next = value;
   let unit = 0;
@@ -103,14 +103,14 @@ function formatBytes(value: number): string {
     unit += 1;
   }
   return `${next >= 100 ? next.toFixed(1) : next.toFixed(2)} ${units[unit]}`;
-}
+};
 
-function formatDelta(value: number, unit: BenchmarkUnit): string {
+const formatDelta = function formatDelta(value: number, unit: BenchmarkUnit): string {
   const sign = value > 0 ? "+" : "";
   return `${sign}${formatValue(value, unit)}`;
-}
+};
 
-function compareRuns(
+const compareRuns = function compareRuns(
   baseline: BenchmarkRunResult,
   candidate: BenchmarkRunResult,
   onlyComparable: boolean,
@@ -162,17 +162,21 @@ function compareRuns(
     }
     return right.percent - left.percent;
   });
-}
+};
 
-function printRunHeader(label: string, path: string, run: BenchmarkRunResult): void {
+const printRunHeader = function printRunHeader(
+  label: string,
+  path: string,
+  run: BenchmarkRunResult,
+): void {
   console.log(`${label}: ${path}`);
   console.log(
     `  sha=${run.gitSha ?? "unknown"} generated=${run.generatedAt} samples=${run.samplesPerBenchmark}`,
   );
   console.log(`  scripts=${run.scripts.join(", ")}`);
-}
+};
 
-function printComparisons(comparisons: MetricComparison[]): void {
+const printComparisons = function printComparisons(comparisons: MetricComparison[]): void {
   console.log("\n| Metric | Baseline | Candidate | Delta | Change | Status |");
   console.log("|---|---:|---:|---:|---:|---|");
   for (const comparison of comparisons) {
@@ -185,7 +189,7 @@ function printComparisons(comparisons: MetricComparison[]): void {
       `| ${comparison.name} | ${formatValue(comparison.baseline.median, comparison.unit)} | ${formatValue(comparison.candidate.median, comparison.unit)} | ${formatDelta(comparison.delta, comparison.unit)} | ${comparison.percent >= 0 ? "+" : ""}${comparison.percent.toFixed(1)}% | ${status} |`,
     );
   }
-}
+};
 
 const options = parseArgs(Bun.argv.slice(2));
 const baseline = readRun(options.baselinePath);

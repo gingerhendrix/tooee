@@ -14,22 +14,28 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-function ChordSurface({ generation, onChord }: { generation: number; onChord: () => void }) {
+const ChordSurface = function ChordSurface({
+  generation,
+  onChord,
+}: {
+  generation: number;
+  onChord: () => void;
+}) {
   useCommand({ handler: onChord, hotkey: "g g", id: "s.chord", title: "Chord" });
   return <text content={`SURFACE gen:${generation}`} />;
-}
+};
 
 let pendingLength = -1;
 
-function SequenceProbe() {
+const SequenceProbe = function SequenceProbe() {
   // Captured to a variable: overlays render absolutely positioned and can
   // cover a probe text row in the frame.
   const sequence = useCommandSequenceState();
   pendingLength = sequence ? sequence.prefix.length : 0;
   return null;
-}
+};
 
-function Harness({ onChord }: { onChord: () => void }) {
+const Harness = function Harness({ onChord }: { onChord: () => void }) {
   const overlay = useOverlay();
   const current = useCurrentOverlay();
   const generationRef = useRef(0);
@@ -57,17 +63,17 @@ function Harness({ onChord }: { onChord: () => void }) {
       {current}
     </box>
   );
-}
+};
 
 describe("F-09: same-id overlay replacement resets a pending chord (shell bridge)", () => {
   test("replacing the active ownCommands overlay mid-chord clears the sequence", async () => {
     let chordFired = 0;
     let controller: OverlayController | null = null;
 
-    function ControllerCapture() {
+    const ControllerCapture = function ControllerCapture() {
       controller = useOverlay();
       return null;
-    }
+    };
 
     testSetup = await testRender(
       <TooeeProvider>

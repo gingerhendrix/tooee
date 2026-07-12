@@ -22,7 +22,7 @@ export interface ThemePickerState {
 
 const OVERLAY_ID = "theme-picker";
 
-export function useThemePicker(): ThemePickerState {
+export const useThemePicker = function useThemePicker(): ThemePickerState {
   const { allThemes, setTheme, name: currentTheme } = useThemeSwitcher();
   const overlay = useOverlay();
   const { stack } = useOverlayState();
@@ -82,4 +82,4 @@ export function useThemePicker(): ThemePickerState {
     originalTheme: originalThemeRef.current,
     preview,
   };
-}
+};

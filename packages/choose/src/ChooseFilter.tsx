@@ -11,7 +11,7 @@ export interface ChooseFilterProps {
 }
 
 /** Controlled filter row shared by fullscreen and overlay chooser assemblies. */
-export function ChooseFilter({
+export const ChooseFilter = function ChooseFilter({
   choose,
   prompt = "> ",
   placeholder = "Filter...",
@@ -42,4 +42,4 @@ export function ChooseFilter({
       {onClose && <CloseButton onClose={onClose} />}
     </box>
   );
-}
+};

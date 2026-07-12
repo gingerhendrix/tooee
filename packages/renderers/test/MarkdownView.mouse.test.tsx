@@ -11,7 +11,7 @@ import type { RowMouseCallbacks } from "./support/bindings.js";
 
 const CONTENT_X = 8;
 
-function MarkdownHarness({
+const MarkdownHarness = function MarkdownHarness({
   content,
   codeBlockRenderers,
   ...callbacks
@@ -26,7 +26,7 @@ function MarkdownHarness({
       codeBlockRenderers={codeBlockRenderers}
     />
   );
-}
+};
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 

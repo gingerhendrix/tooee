@@ -12,18 +12,18 @@ import {
 
 // Simple screen that reports its focus state
 
-function HomeScreen() {
+const HomeScreen = function HomeScreen() {
   const { isFocused } = useScreenFocus();
   return (
     <box>
       <text content={`home:focused:${isFocused}`} />
     </box>
   );
-}
+};
 
 // Nested layout that reports focus and renders child outlet
 
-function FocusLayout() {
+const FocusLayout = function FocusLayout() {
   const { isFocused } = useScreenFocus();
   return (
     <box>
@@ -31,22 +31,22 @@ function FocusLayout() {
       <Outlet />
     </box>
   );
-}
+};
 
-function FocusChild() {
+const FocusChild = function FocusChild() {
   const { isFocused } = useScreenFocus();
   return (
     <box>
       <text content={`child:focused:${isFocused}`} />
     </box>
   );
-}
+};
 
 // Effect tracking components
 
 let effectLog: string[] = [];
 
-function EffectLayout() {
+const EffectLayout = function EffectLayout() {
   useScreenEffect(() => {
     effectLog.push("layout:effect");
     return () => {
@@ -60,9 +60,9 @@ function EffectLayout() {
       <Outlet />
     </box>
   );
-}
+};
 
-function EffectChild() {
+const EffectChild = function EffectChild() {
   useScreenEffect(() => {
     effectLog.push("child:effect");
     return () => {
@@ -74,7 +74,7 @@ function EffectChild() {
       <text content="echild" />
     </box>
   );
-}
+};
 
 // Route definitions
 

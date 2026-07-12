@@ -21,7 +21,7 @@ export interface ModeProviderProps {
   onModeChange?: (mode: Mode) => void;
 }
 
-export function ModeProvider({
+export const ModeProvider = function ModeProvider({
   children,
   initialMode = "cursor",
   onModeChange,
@@ -42,20 +42,20 @@ export function ModeProvider({
   const value = useMemo<ModeContextValue>(() => ({ mode, setMode }), [mode, setMode]);
 
   return <ModeContext.Provider value={value}>{children}</ModeContext.Provider>;
-}
+};
 
-export function useMode(): Mode {
+export const useMode = function useMode(): Mode {
   const ctx = useContext(ModeContext);
   if (!ctx) {
     throw new Error("useMode must be used within a ModeProvider");
   }
   return ctx.mode;
-}
+};
 
-export function useSetMode(): (mode: Mode) => void {
+export const useSetMode = function useSetMode(): (mode: Mode) => void {
   const ctx = useContext(ModeContext);
   if (!ctx) {
     throw new Error("useSetMode must be used within a ModeProvider");
   }
   return ctx.setMode;
-}
+};

@@ -1,9 +1,9 @@
 import { useQuitCommand, launchCli } from "@tooee/shell";
 
-function SessionCleanupApp() {
+const SessionCleanupApp = function SessionCleanupApp() {
   useQuitCommand();
   return <text>session cleanup ready</text>;
-}
+};
 
 const beforeEnd = process.stdin.listenerCount("end");
 const beforeClose = process.stdin.listenerCount("close");

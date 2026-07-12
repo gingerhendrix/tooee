@@ -21,7 +21,7 @@ let nextToastId = 0;
 
 const ToastContext = createContext<ToastController | null>(null);
 
-export function ToastProvider({ children }: { children: ReactNode }) {
+export const ToastProvider = function ToastProvider({ children }: { children: ReactNode }) {
   const [currentToast, setCurrentToast] = useState<ToastEntry | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -78,12 +78,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
 
   return <ToastContext.Provider value={controller}>{children}</ToastContext.Provider>;
-}
+};
 
-export function useToast(): ToastController {
+export const useToast = function useToast(): ToastController {
   const ctx = useContext(ToastContext);
   if (!ctx) {
     throw new Error("useToast must be used within a ToastProvider");
   }
   return ctx;
-}
+};

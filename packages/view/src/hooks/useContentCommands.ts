@@ -13,7 +13,10 @@ interface UseContentCommandsParams {
  * whole document and toggling the line-number gutter. Theme, quit, actions and
  * every row-level command belong to the document controller and its screen.
  */
-export function useContentCommands({ content, textContent }: UseContentCommandsParams) {
+export const useContentCommands = function useContentCommands({
+  content,
+  textContent,
+}: UseContentCommandsParams) {
   const config = useConfig();
   const [showLineNumbers, setShowLineNumbers] = useState(config.view?.gutter ?? true);
 
@@ -26,4 +29,4 @@ export function useContentCommands({ content, textContent }: UseContentCommandsP
   });
 
   return { showLineNumbers };
-}
+};

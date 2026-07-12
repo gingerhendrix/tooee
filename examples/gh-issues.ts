@@ -56,7 +56,7 @@ const issueProvider = {
   },
 };
 
-async function viewIssue(issueNumber: string) {
+const viewIssue = async function viewIssue(issueNumber: string) {
   const contentProvider: ContentProvider = {
     async load() {
       const proc = Bun.spawn(["gh", "issue", "view", issueNumber]);
@@ -71,9 +71,9 @@ async function viewIssue(issueNumber: string) {
   };
 
   await launchView({ contentProvider });
-}
+};
 
-async function main() {
+const main = async function main() {
   const result = await launchChoose({
     contentProvider: issueProvider,
     options: { prompt: "Select an issue to view" },
@@ -82,6 +82,6 @@ async function main() {
   if (result && result.items[0].value) {
     await viewIssue(result.items[0].value);
   }
-}
+};
 
 main();

@@ -26,7 +26,7 @@ export interface TooeeProviderProps {
   sequenceTimeoutMs?: number;
 }
 
-export function TooeeProvider({
+export const TooeeProvider = function TooeeProvider({
   children,
   leader,
   config: configOverrides,
@@ -44,9 +44,9 @@ export function TooeeProvider({
       </TooeeProviderInner>
     </ConfigProvider>
   );
-}
+};
 
-function TooeeProviderInner({
+const TooeeProviderInner = function TooeeProviderInner({
   children,
   leader,
   initialMode,
@@ -78,9 +78,9 @@ function TooeeProviderInner({
       </CommandProvider>
     </ThemeSwitcherProvider>
   );
-}
+};
 
-function ToastContextBridge({ children }: { children: ReactNode }) {
+const ToastContextBridge = function ToastContextBridge({ children }: { children: ReactNode }) {
   const toastController = useToast();
 
   useProvideCommandContext(() => ({
@@ -91,4 +91,4 @@ function ToastContextBridge({ children }: { children: ReactNode }) {
   useDebugConsoleCommand();
 
   return <>{children}</>;
-}
+};

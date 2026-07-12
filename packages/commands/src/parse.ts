@@ -10,22 +10,22 @@ const KEY_ALIASES: Record<string, string> = {
   tab: "tab",
 };
 
-function normalizeKey(key: string): string {
+const normalizeKey = function normalizeKey(key: string): string {
   const lower = key.toLowerCase();
   return KEY_ALIASES[lower] ?? lower;
-}
+};
 
 const warned = new Set<string>();
 
-function warnOnce(message: string): void {
+const warnOnce = function warnOnce(message: string): void {
   if (warned.has(message)) {
     return;
   }
   warned.add(message);
   console.warn(message);
-}
+};
 
-function parseStep(step: string): ParsedStep {
+const parseStep = function parseStep(step: string): ParsedStep {
   const parts = step.toLowerCase().split("+");
   let key = "";
   let ctrl = false;
@@ -52,7 +52,7 @@ function parseStep(step: string): ParsedStep {
   }
 
   return { ctrl, key, meta, option, shift, super: superKey };
-}
+};
 
 /**
  * Parse a hotkey string into a ParsedHotkey.
@@ -62,7 +62,7 @@ function parseStep(step: string): ParsedStep {
  * - Sequences (space-separated): "g g", "d d"
  * - Leader prefix: "<leader>n" expands to leaderKey + "n"
  */
-export function parseHotkey(hotkey: string, leaderKey?: string): ParsedHotkey {
+export const parseHotkey = function parseHotkey(hotkey: string, leaderKey?: string): ParsedHotkey {
   const trimmed = hotkey.trim();
 
   // Handle leader prefix
@@ -85,4 +85,4 @@ export function parseHotkey(hotkey: string, leaderKey?: string): ParsedHotkey {
   const parts = trimmed.split(/\s+/u);
   const steps = parts.map(parseStep);
   return { steps };
-}
+};

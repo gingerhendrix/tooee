@@ -17,7 +17,7 @@ const MODELS: Model[] = [
   { id: "large", label: "Large model" },
 ];
 
-function TypedDialogsApp() {
+const TypedDialogsApp = function TypedDialogsApp() {
   useQuitCommand();
   const current = useCurrentOverlay();
   const ask = useAskDialog();
@@ -88,6 +88,6 @@ function TypedDialogsApp() {
       <box style={{ flexGrow: 1, position: "relative" }}>{current}</box>
     </box>
   );
-}
+};
 
 await launchCli(<TypedDialogsApp />, { exitOnCtrlC: true });

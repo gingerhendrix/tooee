@@ -2,7 +2,7 @@ import { createElement } from "react";
 import type { ReactNode } from "react";
 import { useThemeSwitcher, ThemePicker } from "@tooee/themes";
 
-export function ThemePickerOverlay({
+export const ThemePickerOverlay = function ThemePickerOverlay({
   originalTheme,
   close,
 }: {
@@ -25,4 +25,4 @@ export function ThemePickerOverlay({
       close();
     },
   });
-}
+};

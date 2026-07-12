@@ -6,7 +6,7 @@ const SEARCH_SIGN = "●";
 const CURSOR_SIGN = "▸";
 
 /** A decoration layer backed by an explicit row → decoration map. */
-function rowLayer(
+const rowLayer = function rowLayer(
   priority: number,
   rows: Map<number, Omit<RowDecoration, "row">>,
 ): DecorationLayer {
@@ -21,15 +21,15 @@ function rowLayer(
     },
     priority,
   };
-}
+};
 
-function singleRowLayer(
+const singleRowLayer = function singleRowLayer(
   priority: number,
   row: number,
   decoration: Omit<RowDecoration, "row">,
 ): DecorationLayer {
   return rowLayer(priority, new Map([[row, decoration]]));
-}
+};
 
 export interface InteractionDecorationInput {
   cursor: number | null;
@@ -45,7 +45,7 @@ export interface InteractionDecorationInput {
  * rows, the active range selection, the current search match, and the cursor.
  * Returned in ascending priority; the renderer sorts, so order is informative.
  */
-export function buildInteractionDecorations({
+export const buildInteractionDecorations = function buildInteractionDecorations({
   cursor,
   selection,
   toggledIndices,
@@ -102,4 +102,4 @@ export function buildInteractionDecorations({
   }
 
   return layers;
-}
+};

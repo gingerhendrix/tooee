@@ -19,10 +19,10 @@ interface Model {
 
 declare const modelDialog: ChooseDialogHandle<Model>;
 declare const rowDialog: ChooseDialogHandle<ChooseItem>;
-declare function expectType<T>(value: T): void;
+declare const expectType: <T>(value: T) => void;
 
 // Never called; exists only to be typechecked.
-export async function chooseDialogTypeChecks(): Promise<void> {
+export const chooseDialogTypeChecks = async function chooseDialogTypeChecks(): Promise<void> {
   // --- Single select resolves T | null, cast-free ---------------------------
   const single = await modelDialog.open({
     items: [{ id: "a", label: "A" }],
@@ -56,4 +56,4 @@ export async function chooseDialogTypeChecks(): Promise<void> {
 
   // @ts-expect-error items must be T, not ChooseItem
   await modelDialog.open({ items: [{ text: "raw" }], toItem: (model) => ({ text: model.label }) });
-}
+};

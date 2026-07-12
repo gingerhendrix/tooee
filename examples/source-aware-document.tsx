@@ -15,7 +15,7 @@ Document rows can retain their original source coordinates.
 Right-click a row to open application-owned command entries.
 `;
 
-function SourceAwareDocument({ content }: { content: string }) {
+const SourceAwareDocument = function SourceAwareDocument({ content }: { content: string }) {
   const rows = useMemo(() => sourceLines(content, { sourceId: "release-notes.txt" }), [content]);
 
   const controller = useDocumentController({
@@ -50,6 +50,6 @@ function SourceAwareDocument({ content }: { content: string }) {
       />
     </DocumentScreen>
   );
-}
+};
 
 void launchCli(<SourceAwareDocument content={source} />);

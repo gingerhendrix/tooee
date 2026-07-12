@@ -48,7 +48,7 @@ export interface CreateViewCommandContextOptions {
 
 export type ProvideViewCommandContextOptions = CreateViewCommandContextOptions;
 
-export function createViewCommandContext({
+export const createViewCommandContext = function createViewCommandContext({
   content,
   format,
   title,
@@ -79,12 +79,12 @@ export function createViewCommandContext({
     reload: reload ?? noop,
     title: title ?? content?.title,
   };
-}
+};
 
-export function useProvideViewCommandContext(
+export const useProvideViewCommandContext = function useProvideViewCommandContext(
   options: ProvideViewCommandContextOptions | (() => ProvideViewCommandContextOptions),
 ) {
   useProvideCommandContextKey("view", () =>
     createViewCommandContext(typeof options === "function" ? options() : options),
   );
-}
+};

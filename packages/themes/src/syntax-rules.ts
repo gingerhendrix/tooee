@@ -5,7 +5,7 @@ import type { ResolvedTheme } from "./types.js";
 // SyntaxStyle builder
 // ---------------------------------------------------------------------------
 
-function getSyntaxRules(resolved: ResolvedTheme) {
+const getSyntaxRules = function getSyntaxRules(resolved: ResolvedTheme) {
   return [
     { scope: ["default"], style: { foreground: RGBA.fromHex(resolved.text) } },
     { scope: ["prompt"], style: { foreground: RGBA.fromHex(resolved.accent) } },
@@ -203,8 +203,8 @@ function getSyntaxRules(resolved: ResolvedTheme) {
     { scope: ["info"], style: { foreground: RGBA.fromHex(resolved.info) } },
     { scope: ["debug"], style: { foreground: RGBA.fromHex(resolved.textMuted) } },
   ];
-}
+};
 
-export function buildSyntaxStyle(resolved: ResolvedTheme): SyntaxStyle {
+export const buildSyntaxStyle = function buildSyntaxStyle(resolved: ResolvedTheme): SyntaxStyle {
   return SyntaxStyle.fromTheme(getSyntaxRules(resolved));
-}
+};

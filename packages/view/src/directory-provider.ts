@@ -40,7 +40,7 @@ export interface DirectoryEntry {
   path: string;
 }
 
-export function listDirectoryFiles(dirPath: string): DirectoryEntry[] {
+export const listDirectoryFiles = function listDirectoryFiles(dirPath: string): DirectoryEntry[] {
   const entries = readdirSync(dirPath);
   const files: DirectoryEntry[] = [];
 
@@ -60,8 +60,10 @@ export function listDirectoryFiles(dirPath: string): DirectoryEntry[] {
 
   files.sort((a, b) => a.name.localeCompare(b.name));
   return files;
-}
+};
 
-export function createDirectoryFileProvider(filePath: string): ContentProvider {
+export const createDirectoryFileProvider = function createDirectoryFileProvider(
+  filePath: string,
+): ContentProvider {
   return createFileProvider(filePath);
-}
+};

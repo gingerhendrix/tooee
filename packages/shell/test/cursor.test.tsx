@@ -5,7 +5,7 @@ import { useMode } from "@tooee/commands";
 import { press, pressTab, pressEscape } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
 
-function CursorHarness({ rowCount }: { rowCount: number }) {
+const CursorHarness = function CursorHarness({ rowCount }: { rowCount: number }) {
   const nav = useNavigation({ multiSelect: true, rowCount, viewportHeight: 10 });
   const mode = useMode();
   const selection = nav.selection;
@@ -22,9 +22,9 @@ function CursorHarness({ rowCount }: { rowCount: number }) {
       />
     </box>
   );
-}
+};
 
-async function setup(rowCount = 100) {
+const setup = async function setup(rowCount = 100) {
   const session = await testRender(
     <TooeeProvider>
       <CursorHarness rowCount={rowCount} />
@@ -33,7 +33,7 @@ async function setup(rowCount = 100) {
   );
   await session.renderOnce();
   return session;
-}
+};
 
 let testSetup: TestSession;
 

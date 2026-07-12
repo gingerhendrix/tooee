@@ -47,7 +47,7 @@ export type ChooseOverlayProps = ChooseOverlayBaseProps &
  * Composed picker surface. Hosts should mount it on an owned modal command
  * surface (as Tooee's overlay manager does) so nested surfaces suspend it.
  */
-export function ChooseOverlay(props: ChooseOverlayProps) {
+export const ChooseOverlay = function ChooseOverlay(props: ChooseOverlayProps) {
   const multi = props.multi === true;
   const choose = useChoose({
     commandScope: "choose-overlay",
@@ -89,4 +89,4 @@ export function ChooseOverlay(props: ChooseOverlayProps) {
       {props.children}
     </>
   );
-}
+};

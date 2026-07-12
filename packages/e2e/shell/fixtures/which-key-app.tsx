@@ -6,7 +6,7 @@ import type { ActionDefinition } from "@tooee/commands";
 import { AppLayout } from "@tooee/layout";
 import { launchCli, useQuitCommand } from "@tooee/shell";
 
-function WhichKeyE2EApp() {
+const WhichKeyE2EApp = function WhichKeyE2EApp() {
   const [lastAction, setLastAction] = useState("none");
 
   useQuitCommand();
@@ -76,6 +76,6 @@ function WhichKeyE2EApp() {
       </box>
     </AppLayout>
   );
-}
+};
 
 await launchCli(<WhichKeyE2EApp />, { leader: "space" });

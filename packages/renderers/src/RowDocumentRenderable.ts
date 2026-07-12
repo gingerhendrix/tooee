@@ -40,11 +40,11 @@ export interface RowDocumentOptions extends ScrollBoxOptions {
 // Provider detection
 // ---------------------------------------------------------------------------
 
-function isRowContentProvider(x: unknown): x is LineInfoProvider {
+const isRowContentProvider = function isRowContentProvider(x: unknown): x is LineInfoProvider {
   return (
     !!x && typeof x === "object" && "lineInfo" in x && "lineCount" in x && "virtualLineCount" in x
   );
-}
+};
 
 // ---------------------------------------------------------------------------
 // Color cache — avoids re-parsing hex strings every frame
@@ -52,32 +52,34 @@ function isRowContentProvider(x: unknown): x is LineInfoProvider {
 
 const colorCache = new Map<string, RGBA>();
 
-function cachedColor(hex: string): RGBA {
+const cachedColor = function cachedColor(hex: string): RGBA {
   let c = colorCache.get(hex);
   if (!c) {
     c = RGBA.fromHex(hex);
     colorCache.set(hex, c);
   }
   return c;
-}
+};
 
-function normalizePalette(palette: RowDocumentPalette = {}): Required<RowDocumentPalette> {
+const normalizePalette = function normalizePalette(
+  palette: RowDocumentPalette = {},
+): Required<RowDocumentPalette> {
   return {
     gutterBg: palette.gutterBg ?? "#0d1117",
     gutterFg: palette.gutterFg ?? "#6e7681",
   };
-}
+};
 
-function normalizeDecorationLayers(
+const normalizeDecorationLayers = function normalizeDecorationLayers(
   layers: readonly DecorationLayer[] | undefined,
 ): readonly DecorationLayer[] {
   if (!layers || layers.length === 0) {
     return [];
   }
   return [...layers].toSorted((a, b) => a.priority - b.priority);
-}
+};
 
-export function computeRowDocumentGutterWidth(opts: {
+export const computeRowDocumentGutterWidth = function computeRowDocumentGutterWidth(opts: {
   showLineNumbers: boolean;
   rowCount: number;
   lineNumberStart?: number;
@@ -92,7 +94,7 @@ export function computeRowDocumentGutterWidth(opts: {
   width += opts.signColumnWidth ?? 0;
   width += opts.gutterPaddingRight ?? 1;
   return width;
-}
+};
 
 // ---------------------------------------------------------------------------
 // RowDocumentRenderable

@@ -19,7 +19,7 @@ declare const record: OverlayRecord;
 declare const reason: OverlayCloseReason;
 
 // Never called; exists only to be typechecked.
-export function overlayStoreTypeChecks(): void {
+export const overlayStoreTypeChecks = function overlayStoreTypeChecks(): void {
   const store = createOverlayStore();
 
   // --- Valid usage must compile -------------------------------------------
@@ -56,4 +56,4 @@ export function overlayStoreTypeChecks(): void {
   store.trigger.closedTop({ reason: 42 });
   // @ts-expect-error record is required
   store.trigger.opened({});
-}
+};

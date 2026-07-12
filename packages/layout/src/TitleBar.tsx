@@ -5,7 +5,7 @@ interface TitleBarProps {
   subtitle?: string;
 }
 
-export function TitleBar({ title, subtitle }: TitleBarProps) {
+export const TitleBar = function TitleBar({ title, subtitle }: TitleBarProps) {
   const { theme } = useTheme();
   return (
     <box
@@ -22,4 +22,4 @@ export function TitleBar({ title, subtitle }: TitleBarProps) {
       {subtitle && <text content={` — ${subtitle}`} style={{ fg: theme.textMuted }} />}
     </box>
   );
-}
+};

@@ -19,7 +19,7 @@ const tallValue = Array.from({ length: 30 }, (_, i) => `L${String(i + 1).padStar
   "\n",
 );
 
-async function setupAsk(value: string, width = 40, height = 14) {
+const setupAsk = async function setupAsk(value: string, width = 40, height = 14) {
   const s = await testRender(
     <TooeeProvider initialMode="insert">
       <Ask prompt="Q" multiline defaultValue={value} />
@@ -28,9 +28,9 @@ async function setupAsk(value: string, width = 40, height = 14) {
   );
   await s.renderOnce();
   return s;
-}
+};
 
-async function setupOverlay(value: string, width = 60, height = 20) {
+const setupOverlay = async function setupOverlay(value: string, width = 60, height = 20) {
   const s = await testRender(
     <TooeeProvider initialMode="insert">
       <AskOverlay
@@ -45,28 +45,28 @@ async function setupOverlay(value: string, width = 60, height = 20) {
   );
   await s.renderOnce();
   return s;
-}
+};
 
-async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
+const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
   await act(async () => {
     testSetup.mockInput.pressKey(key, modifiers);
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressEscape() {
+const pressEscape = async function pressEscape() {
   await act(async () => {
     testSetup.mockInput.pressEscape();
   });
   await testSetup.renderOnce();
-}
+};
 
-async function wheel(x: number, y: number, direction: "up" | "down") {
+const wheel = async function wheel(x: number, y: number, direction: "up" | "down") {
   await act(async () => {
     await testSetup.mockMouse.scroll(x, y, direction);
   });
   await testSetup.renderOnce();
-}
+};
 
 describe("Ask overflow scrolling", () => {
   test("the tail of overflowing content is reachable (cursor follows to the bottom)", async () => {
@@ -158,11 +158,11 @@ describe("AskOverlay overflow scrolling", () => {
 });
 
 /** Index of the first frame row that contains a thumb character. */
-function thumbRow(frame: string): number {
+const thumbRow = function thumbRow(frame: string): number {
   const rows = frame.split("\n");
   const idx = rows.findIndex((row) => row.includes(THUMB));
   if (idx === -1) {
     throw new Error("no thumb found in frame");
   }
   return idx;
-}
+};

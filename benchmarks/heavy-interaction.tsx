@@ -19,7 +19,10 @@ if (!Number.isFinite(interactionPresses) || interactionPresses < 1) {
   throw new Error("TOOEE_BENCH_HEAVY_INTERACTIONS must be a positive number");
 }
 
-async function benchmarkViewContent(name: string, contentProvider: ContentProvider): Promise<void> {
+const benchmarkViewContent = async function benchmarkViewContent(
+  name: string,
+  contentProvider: ContentProvider,
+): Promise<void> {
   const setup = await mountForInteraction(
     <TooeeProvider initialMode="cursor" sequenceTimeoutMs={250}>
       <View contentProvider={contentProvider} />
@@ -43,7 +46,7 @@ async function benchmarkViewContent(name: string, contentProvider: ContentProvid
   } finally {
     await destroyRenderer(setup);
   }
-}
+};
 
 const table = makeTableFixture(tier);
 printMetric("table_large_row_count", table.rows.length);

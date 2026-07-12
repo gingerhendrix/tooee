@@ -27,40 +27,40 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
+const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
   await act(async () => {
     testSetup.mockInput.pressKey(key, modifiers);
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressEscape() {
+const pressEscape = async function pressEscape() {
   await act(async () => {
     testSetup.mockInput.pressEscape();
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressEnter() {
+const pressEnter = async function pressEnter() {
   await act(async () => {
     testSetup.mockInput.pressEnter();
   });
   await testSetup.renderOnce();
-}
+};
 
-async function pressTab() {
+const pressTab = async function pressTab() {
   await act(async () => {
     testSetup.mockInput.pressTab();
   });
   await testSetup.renderOnce();
-}
+};
 
-async function typeText(text: string) {
+const typeText = async function typeText(text: string) {
   await act(async () => {
     await testSetup.mockInput.typeText(text);
   });
   await testSetup.renderOnce();
-}
+};
 
 interface HarnessHandles {
   fruits: ChooseDialogHandle<Fruit>;
@@ -78,13 +78,17 @@ beforeEach(() => {
   settlements = [];
 });
 
-function DialogOwner({ openRef }: { openRef: { current: ChooseDialogHandle<Fruit> | null } }) {
+const DialogOwner = function DialogOwner({
+  openRef,
+}: {
+  openRef: { current: ChooseDialogHandle<Fruit> | null };
+}) {
   const dialog = useChooseDialog<Fruit>();
   openRef.current = dialog;
   return null;
-}
+};
 
-function Harness() {
+const Harness = function Harness() {
   const overlayState = useOverlayState();
   const current = useCurrentOverlay();
   const fruits = useChooseDialog<Fruit>();
@@ -111,9 +115,9 @@ function Harness() {
       {current}
     </box>
   );
-}
+};
 
-async function setup() {
+const setup = async function setup() {
   const session = await testRender(
     <TooeeProvider>
       <Harness />
@@ -122,7 +126,7 @@ async function setup() {
   );
   await session.renderOnce();
   return session;
-}
+};
 
 const toItem = (fruit: Fruit): ChooseItem => ({ text: fruit.name });
 

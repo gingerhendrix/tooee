@@ -21,7 +21,7 @@ interface RowShape {
   } | null;
 }
 
-function shape(block: FlatBlock): RowShape {
+const shape = function shape(block: FlatBlock): RowShape {
   const p = block.source?.primary;
   const row: RowShape = {
     source: p
@@ -47,11 +47,11 @@ function shape(block: FlatBlock): RowShape {
     row.checked = block.checked;
   }
   return row;
-}
+};
 
-function rows(markdown: string, options?: { sourceId?: string }): RowShape[] {
+const rows = function rows(markdown: string, options?: { sourceId?: string }): RowShape[] {
   return flattenMarkdown(markdown, options).map(shape);
-}
+};
 
 describe("flattenMarkdown row order and provenance", () => {
   test("headings separated by blank lines", () => {

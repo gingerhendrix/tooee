@@ -20,7 +20,7 @@ export interface UseQuitCommandOptions {
   enabled?: boolean;
 }
 
-export function useThemeCommands(opts?: UseThemeCommandsOptions): {
+export const useThemeCommands = function useThemeCommands(opts?: UseThemeCommandsOptions): {
   name: string;
   picker: ThemePickerState;
 } {
@@ -48,9 +48,9 @@ export function useThemeCommands(opts?: UseThemeCommandsOptions): {
   });
 
   return { name: picker.currentTheme, picker: confirmedPicker };
-}
+};
 
-export function useQuitCommand(opts?: UseQuitCommandOptions) {
+export const useQuitCommand = function useQuitCommand(opts?: UseQuitCommandOptions) {
   const renderer = useRenderer();
 
   useCommand({
@@ -67,9 +67,12 @@ export function useQuitCommand(opts?: UseQuitCommandOptions) {
     title: "Quit",
     when: opts?.when,
   });
-}
+};
 
-export function useCopyCommand(opts: { getText: () => string | undefined; when?: CommandWhen }) {
+export const useCopyCommand = function useCopyCommand(opts: {
+  getText: () => string | undefined;
+  when?: CommandWhen;
+}) {
   useCommand({
     handler: (ctx) => {
       const text = opts.getText();
@@ -85,9 +88,9 @@ export function useCopyCommand(opts: { getText: () => string | undefined; when?:
     title: "Copy to clipboard",
     when: opts.when,
   });
-}
+};
 
-export function usePasteCommands(opts: {
+export const usePasteCommands = function usePasteCommands(opts: {
   getTarget: () => { insertText: (text: string) => void } | null;
   when?: CommandWhen;
 }) {
@@ -129,9 +132,11 @@ export function usePasteCommands(opts: {
     title: "Paste from selection",
     when: opts.when,
   });
-}
+};
 
-export function useDebugConsoleCommand(opts?: { when?: CommandWhen }) {
+export const useDebugConsoleCommand = function useDebugConsoleCommand(opts?: {
+  when?: CommandWhen;
+}) {
   const renderer = useRenderer();
 
   useCommand({
@@ -143,9 +148,9 @@ export function useDebugConsoleCommand(opts?: { when?: CommandWhen }) {
     title: "Toggle debug console",
     when: opts?.when,
   });
-}
+};
 
-export function useToggleLineNumbersCommand(opts: {
+export const useToggleLineNumbersCommand = function useToggleLineNumbersCommand(opts: {
   showLineNumbers: boolean;
   onToggle: () => void;
   when?: CommandWhen;
@@ -165,4 +170,4 @@ export function useToggleLineNumbersCommand(opts: {
     title: "Toggle line numbers",
     when: opts.when,
   });
-}
+};

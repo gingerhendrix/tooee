@@ -39,7 +39,7 @@ interface OverlayBridge {
   resetSequence: () => void;
 }
 
-export function OverlayProvider({ children }: { children: ReactNode }) {
+export const OverlayProvider = function OverlayProvider({ children }: { children: ReactNode }) {
   const mode = useMode();
   const setMode = useSetMode();
   const modeRef = useRef(mode);
@@ -249,4 +249,4 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
       <OverlayStateContext value={state}>{children}</OverlayStateContext>
     </OverlayControllerContext>
   );
-}
+};

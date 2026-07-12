@@ -7,7 +7,7 @@ import type { DirectoryEntry } from "./directory-provider.js";
 import type { AnyContent, ContentProvider } from "./types.js";
 import { createFileProvider } from "./default-provider.js";
 
-function createDirectoryFileProvider(
+const createDirectoryFileProvider = function createDirectoryFileProvider(
   entry: DirectoryEntry,
   index: number,
   total: number,
@@ -23,14 +23,14 @@ function createDirectoryFileProvider(
       };
     },
   };
-}
+};
 
 interface DirectoryViewProps {
   dirPath: string;
   actions?: ActionDefinition[];
 }
 
-export function DirectoryView({ dirPath, actions }: DirectoryViewProps) {
+export const DirectoryView = function DirectoryView({ dirPath, actions }: DirectoryViewProps) {
   const files = useMemo(() => listDirectoryFiles(dirPath), [dirPath]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -67,4 +67,4 @@ export function DirectoryView({ dirPath, actions }: DirectoryViewProps) {
   }
 
   return <View contentProvider={contentProvider} actions={actions} />;
-}
+};

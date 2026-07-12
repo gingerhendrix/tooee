@@ -8,7 +8,7 @@ export interface ChooseHighlightedTextProps {
 }
 
 /** Render fuzzy-match characters with one shared segmentation implementation. */
-export function ChooseHighlightedText({
+export const ChooseHighlightedText = function ChooseHighlightedText({
   text,
   positions,
   highlightColor,
@@ -44,4 +44,4 @@ export function ChooseHighlightedText({
       {part.highlighted ? <span fg={highlightColor}>{part.text}</span> : part.text}
     </Fragment>
   ));
-}
+};

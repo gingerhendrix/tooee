@@ -7,7 +7,7 @@ import { useMode } from "@tooee/commands";
 import { press } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
 
-function ModalHarness({
+const ModalHarness = function ModalHarness({
   rowCount,
   isSelectable,
 }: {
@@ -28,9 +28,9 @@ function ModalHarness({
       <text content={`search:${search.searchActive}`} />
     </box>
   );
-}
+};
 
-async function setup(rowCount = 100, isSelectable?: (index: number) => boolean) {
+const setup = async function setup(rowCount = 100, isSelectable?: (index: number) => boolean) {
   const session = await testRender(
     <TooeeProvider>
       <ModalHarness rowCount={rowCount} isSelectable={isSelectable} />
@@ -39,7 +39,7 @@ async function setup(rowCount = 100, isSelectable?: (index: number) => boolean) 
   );
   await session.renderOnce();
   return session;
-}
+};
 
 let testSetup: TestSession;
 

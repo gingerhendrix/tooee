@@ -8,7 +8,7 @@ import type {
 import { stackReducer } from "./stack.js";
 import { StateCache } from "./state-cache.js";
 
-export function createRouter(options: RouterOptions): RouterInstance {
+export const createRouter = function createRouter(options: RouterOptions): RouterInstance {
   const routeMap = new Map<string, RouteDefinition>();
   for (const route of options.routes) {
     routeMap.set(route.id, route);
@@ -30,7 +30,7 @@ export function createRouter(options: RouterOptions): RouterInstance {
   const listeners = new Set<() => void>();
   const stateCache = new StateCache();
 
-  function dispatch(action: Parameters<typeof stackReducer>[1]) {
+  const dispatch = function dispatch(action: Parameters<typeof stackReducer>[1]) {
     if (action.type !== "pop" && !routeMap.has(action.routeId)) {
       throw new Error(`Route "${action.routeId}" not found`);
     }
@@ -49,7 +49,7 @@ export function createRouter(options: RouterOptions): RouterInstance {
         listener();
       }
     }
-  }
+  };
 
   const instance: RouterInstance = {
     canGoBack() {
@@ -88,4 +88,4 @@ export function createRouter(options: RouterOptions): RouterInstance {
   };
 
   return instance;
-}
+};

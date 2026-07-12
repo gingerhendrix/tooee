@@ -9,7 +9,7 @@ const DEMO = resolve(REPO_ROOT, "examples/custom-code-block.ts");
 const CONFIG_NAMESPACE = "custom-code-block-e2e";
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
 
-async function launchDemo(): Promise<Session> {
+const launchDemo = async function launchDemo(): Promise<Session> {
   resetTestConfig(CONFIG_NAMESPACE);
   const session = await launchTerminal({
     args: ["--conditions=@tooee/source", DEMO],
@@ -22,7 +22,7 @@ async function launchDemo(): Promise<Session> {
   // Wait for the app to be ready — status bar shows "Format:"
   await session.waitForText("Format:", { timeout: 15_000 });
   return session;
-}
+};
 
 let session: Session;
 

@@ -30,7 +30,7 @@ export interface AskOverlayProps {
   children?: ReactNode;
 }
 
-export function AskOverlay({
+export const AskOverlay = function AskOverlay({
   prompt,
   title,
   multiline,
@@ -76,4 +76,4 @@ export function AskOverlay({
       {children}
     </>
   );
-}
+};
