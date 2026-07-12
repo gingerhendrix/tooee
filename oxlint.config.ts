@@ -21,11 +21,8 @@ export default defineConfig({
   rules: {
     // Rule gate: rules with findings at the migration baseline are disabled.
     // All other Ultracite rules remain enabled, so any newly failing rule blocks the gate.
-    "accessor-pairs": "off",
     complexity: "off",
-    "default-case": "off",
     eqeqeq: "off",
-    "func-names": "off",
     "no-bitwise": "off",
     "no-duplicate-imports": ["error", { allowSeparateTypeImports: true }],
     "no-empty": "off",
@@ -41,7 +38,6 @@ export default defineConfig({
     "promise/prefer-await-to-then": "off",
     "react/hook-use-state": "off",
     "react/jsx-handler-names": "off",
-    "typescript/array-type": "off",
     "typescript/await-thenable": "off",
     "typescript/ban-types": "off",
     "typescript/consistent-return": "off",
@@ -64,7 +60,6 @@ export default defineConfig({
     "typescript/prefer-regexp-exec": "off",
     "typescript/restrict-template-expressions": "off",
     "typescript/return-await": "off",
-    "typescript/switch-exhaustiveness-check": "off",
     "unicorn/consistent-existence-index-check": "off",
     "unicorn/import-style": "off",
     "unicorn/no-array-for-each": "off",
