@@ -205,13 +205,15 @@ const FlatBlockRenderer = function FlatBlockRenderer({
       // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
       return <MarkdownTableRenderer token={tableToken} indent={indent} />;
     }
-    case "hr":
+    case "hr": {
       // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
       return <HorizontalRule theme={theme} indent={indent} />;
+    }
     case "space":
-    case "html":
+    case "html": {
       return null;
-    default:
+    }
+    default: {
       if ("text" in token && typeof token.text === "string") {
         return (
           <text
@@ -227,6 +229,7 @@ const FlatBlockRenderer = function FlatBlockRenderer({
         );
       }
       return null;
+    }
   }
 };
 
