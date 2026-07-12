@@ -80,6 +80,9 @@ const contentFromText = function contentFromText(
     case "text": {
       return { format: "text", text, title };
     }
+    default: {
+      return { format: "text", text, title };
+    }
   }
 };
 

@@ -148,6 +148,10 @@ export const parseAuto = function parseAuto(input: string): ParsedTable {
       ({ columns, rows } = parseCSV(input));
       break;
     }
+    default: {
+      ({ columns, rows } = parseCSV(input));
+      break;
+    }
   }
   return { columns, format, rows };
 };
