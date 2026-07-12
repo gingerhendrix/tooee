@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { act } from "react";
-import { useRef, useState } from "react";
+import { act, useRef, useState } from "react";
 import { TooeeProvider } from "@tooee/shell";
 import { useCommand } from "@tooee/commands";
 import { useCurrentOverlay, useOverlay, useOverlayState } from "@tooee/overlays";

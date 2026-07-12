@@ -27,7 +27,7 @@ export default defineConfig({
     eqeqeq: "off",
     "func-names": "off",
     "no-bitwise": "off",
-    "no-duplicate-imports": "off",
+    "no-duplicate-imports": ["error", { allowSeparateTypeImports: true }],
     "no-empty": "off",
     "no-empty-function": "off",
     "no-eq-null": "off",

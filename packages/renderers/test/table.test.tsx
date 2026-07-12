@@ -1,8 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, describe, afterEach } from "bun:test";
 import { ThemeSwitcherProvider } from "@tooee/themes";
-import { Table } from "../src/table.js";
-import { computeColumnWidths, isNumeric } from "../src/table.js";
+import { Table, computeColumnWidths, isNumeric } from "../src/table.js";
 
 const createColumns = function createColumns(headers: string[]) {
   return headers.map((header, index) => ({
