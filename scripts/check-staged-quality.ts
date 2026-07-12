@@ -87,6 +87,11 @@ export const findNewDiagnostics = (
 ) => {
   const exact = new Map<string, number>();
   const fallback = new Map<string, number>();
+  const indexLocations = new Set(
+    indexDiagnostics.map((diagnostic) =>
+      diagnosticKey(diagnostic, diagnostic.filename, diagnostic.labels[0]?.span.line ?? 1),
+    ),
+  );
   const increment = (map: Map<string, number>, key: string) =>
     map.set(key, (map.get(key) ?? 0) + 1);
   const consume = (map: Map<string, number>, key: string) => {
@@ -101,7 +106,9 @@ export const findNewDiagnostics = (
     if (!change?.indexPath) continue;
     const oldLine = diagnostic.labels[0]?.span.line ?? 1;
     const mappedLine =
-      mapContentLine(headRoot, indexRoot, diagnostic.filename, change.indexPath, oldLine) ??
+      (indexLocations.has(diagnosticKey(diagnostic, change.indexPath, oldLine))
+        ? oldLine
+        : mapContentLine(headRoot, indexRoot, diagnostic.filename, change.indexPath, oldLine)) ??
       mapInheritedLine(oldLine, change.hunks);
     increment(fallback, fallbackKey(diagnostic, lineAt(headRoot, diagnostic.filename, oldLine)));
     if (mappedLine !== null) {
