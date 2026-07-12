@@ -155,7 +155,7 @@ function createBaseStore(initialContext: CommandStoreContext) {
         event: { surfaceId: string; command: Command },
       ): CommandStoreContext => {
         const existing = ctx.commandsBySurface.get(event.surfaceId);
-        const commands = new Map(existing ?? []);
+        const commands = new Map(existing);
         commands.set(event.command.id, event.command);
         const commandsBySurface = new Map(ctx.commandsBySurface);
         commandsBySurface.set(event.surfaceId, commands);
