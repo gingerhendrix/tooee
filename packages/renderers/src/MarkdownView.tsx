@@ -447,9 +447,8 @@ function InlineTokens({ tokens, theme }: { tokens: Token[]; theme: ResolvedTheme
       case "del":
         result.push(
           <span key={key} fg={theme.textMuted}>
-            {"~"}
-            <InlineTokens tokens={(token as Tokens.Del).tokens || []} theme={theme} />
-            {"~"}
+            ~
+            <InlineTokens tokens={(token as Tokens.Del).tokens || []} theme={theme} />~
           </span>,
         );
         break;

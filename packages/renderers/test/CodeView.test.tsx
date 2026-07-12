@@ -39,7 +39,7 @@ test("shows line numbers by default", async () => {
 test("hides line numbers when disabled", async () => {
   testSetup = await testRender(
     <ThemeSwitcherProvider>
-      <CodeView content={"only content"} showLineNumbers={false} />
+      <CodeView content="only content" showLineNumbers={false} />
     </ThemeSwitcherProvider>,
     { width: 80, height: 24 },
   );
