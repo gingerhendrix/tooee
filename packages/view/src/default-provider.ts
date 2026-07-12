@@ -75,8 +75,9 @@ function contentFromText(
       return { format: "table", columns: parsed.columns, rows: parsed.rows, title };
     }
     case "text":
-    default:
+    default: {
       return { format: "text", text, title };
+    }
   }
 }
 

@@ -31,16 +31,21 @@ export function isAsyncIterable(value: unknown): value is AsyncIterable<ContentC
 
 export function createEmptyContent(format: string, title?: string): AnyContent {
   switch (format) {
-    case "markdown":
+    case "markdown": {
       return { format, markdown: "", title };
-    case "code":
+    }
+    case "code": {
       return { format, code: "", title };
-    case "text":
+    }
+    case "text": {
       return { format, text: "", title };
-    case "table":
+    }
+    case "table": {
       return { format, columns: [], rows: [], title };
-    default:
+    }
+    default: {
       return { format, data: undefined, title } as CustomContent;
+    }
   }
 }
 

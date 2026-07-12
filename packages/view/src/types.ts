@@ -148,8 +148,9 @@ export function getTextContent(content: AnyContent): string {
       );
       return [headers.join("\t"), ...rowLines].join("\n");
     }
-    default:
+    default: {
       return "";
+    }
   }
 }
 

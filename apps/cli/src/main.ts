@@ -149,12 +149,14 @@ switch (command) {
   case "help":
   case "--help":
   case "-h":
-  case undefined:
+  case undefined: {
     printUsage();
     break;
+  }
 
-  default:
+  default: {
     console.error(`Unknown command: ${command}`);
     printUsage();
     process.exit(1);
+  }
 }
