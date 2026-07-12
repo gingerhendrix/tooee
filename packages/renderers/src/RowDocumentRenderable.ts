@@ -407,7 +407,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
       return;
     }
 
-    const provider = children[0] as unknown as LineInfoProvider;
+    const [provider] = children;
     if (!isRowContentProvider(provider)) {
       return;
     }
