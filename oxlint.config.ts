@@ -81,7 +81,6 @@ export default defineConfig({
     "typescript/prefer-regexp-exec": "off",
     "typescript/restrict-template-expressions": "off",
     "typescript/return-await": "off",
-    "typescript/strict-boolean-expressions": "off",
     "typescript/strict-void-return": "off",
     "typescript/switch-exhaustiveness-check": "off",
     "typescript/unbound-method": "off",

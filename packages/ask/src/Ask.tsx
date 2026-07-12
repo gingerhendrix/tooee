@@ -45,7 +45,7 @@ export const Ask = function Ask({
   const hasOverlay = useHasOverlay();
 
   const handleSubmit = (text: string) => {
-    if (actions?.some((a) => a.id === "submit")) {
+    if (actions?.some((a) => a.id === "submit") === true) {
       invoke("submit");
       return;
     }
@@ -85,7 +85,7 @@ export const Ask = function Ask({
 
   return (
     <AppLayout
-      titleBar={title ? { title } : undefined}
+      titleBar={title !== undefined && title !== "" ? { title } : undefined}
       statusBar={{
         items: [
           { label: "Mode:", value: mode },
@@ -103,7 +103,7 @@ export const Ask = function Ask({
         onMouseDown={editor.onMouseDown}
       >
         <box flexDirection="column" width="100%" maxWidth={80} style={{ flexGrow: 1, padding: 1 }}>
-          {prompt && (
+          {(prompt?.length ?? 0) > 0 && (
             <text fg={theme.text} style={{ marginBottom: 1 }}>
               <strong>{prompt}</strong>
             </text>

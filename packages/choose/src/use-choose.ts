@@ -114,13 +114,13 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
   const activeItem = matches[activeIndex]?.item;
   const selectedItems = useMemo(() => {
     if (!multi) {
-      return activeItem ? [activeItem] : [];
+      return activeItem === undefined ? [] : [activeItem];
     }
     const selected = Array.from(selectedOriginalIndices).flatMap((index) => {
       const item = items[index];
-      return item ? [item] : [];
+      return item === undefined ? [] : [item];
     });
-    return selected.length > 0 ? selected : activeItem ? [activeItem] : [];
+    return selected.length > 0 ? selected : activeItem === undefined ? [] : [activeItem];
   }, [multi, activeItem, selectedOriginalIndices, items]);
 
   const mode = useMode();
@@ -248,13 +248,13 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
   const getSelectedItems = useCallback((): ChooseItem[] => {
     const active = getActiveItem();
     if (!multiRef.current) {
-      return active ? [active] : [];
+      return active === undefined ? [] : [active];
     }
     const selected = Array.from(selectedRef.current).flatMap((index) => {
       const item = itemsRef.current[index];
-      return item ? [item] : [];
+      return item === undefined ? [] : [item];
     });
-    return selected.length > 0 ? selected : active ? [active] : [];
+    return selected.length > 0 ? selected : active === undefined ? [] : [active];
   }, [getActiveItem]);
 
   const toggleActive = useCallback(() => {

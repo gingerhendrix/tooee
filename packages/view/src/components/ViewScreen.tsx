@@ -63,7 +63,7 @@ export const ViewScreen = function ViewScreen<T>({
     <DocumentScreen
       controller={controller}
       titleBar={
-        content.title
+        content.title !== undefined && content.title !== ""
           ? { subtitle: content.format, title: content.title }
           : { title: content.format }
       }

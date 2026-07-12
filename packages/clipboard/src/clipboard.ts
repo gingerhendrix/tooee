@@ -44,18 +44,21 @@ export const readClipboard = async function readClipboard(): Promise<ClipboardCo
   }
 
   if (os === "linux") {
-    if (process.env.WAYLAND_DISPLAY && Bun.which("wl-paste")) {
+    if (
+      (process.env.WAYLAND_DISPLAY?.length ?? 0) > 0 &&
+      (Bun.which("wl-paste")?.length ?? 0) > 0
+    ) {
       const wayland = await $`wl-paste -t image/png`.nothrow().arrayBuffer();
-      if (wayland && wayland.byteLength > 0) {
+      if (wayland.byteLength > 0) {
         return {
           data: Buffer.from(wayland).toString("base64"),
           mime: "image/png",
         };
       }
     }
-    if (Bun.which("xclip")) {
+    if ((Bun.which("xclip")?.length ?? 0) > 0) {
       const x11 = await $`xclip -selection clipboard -t image/png -o`.nothrow().arrayBuffer();
-      if (x11 && x11.byteLength > 0) {
+      if (x11.byteLength > 0) {
         return {
           data: Buffer.from(x11).toString("base64"),
           mime: "image/png",
@@ -65,7 +68,7 @@ export const readClipboard = async function readClipboard(): Promise<ClipboardCo
   }
 
   const text = await readClipboardText();
-  if (text) {
+  if (text !== undefined && text !== "") {
     return { data: text, mime: "text/plain" };
   }
 
@@ -81,15 +84,18 @@ export const readClipboardText = async function readClipboardText(): Promise<str
   }
 
   if (os === "linux") {
-    if (process.env.WAYLAND_DISPLAY && Bun.which("wl-paste")) {
+    if (
+      (process.env.WAYLAND_DISPLAY?.length ?? 0) > 0 &&
+      (Bun.which("wl-paste")?.length ?? 0) > 0
+    ) {
       const result = await $`wl-paste`.nothrow().quiet().text();
       return result || undefined;
     }
-    if (Bun.which("xclip")) {
+    if ((Bun.which("xclip")?.length ?? 0) > 0) {
       const result = await $`xclip -selection clipboard -o`.nothrow().quiet().text();
       return result || undefined;
     }
-    if (Bun.which("xsel")) {
+    if ((Bun.which("xsel")?.length ?? 0) > 0) {
       const result = await $`xsel --clipboard --output`.nothrow().quiet().text();
       return result || undefined;
     }
@@ -107,15 +113,18 @@ export const readPrimaryText = async function readPrimaryText(): Promise<string 
   const os = platform();
 
   if (os === "linux") {
-    if (process.env.WAYLAND_DISPLAY && Bun.which("wl-paste")) {
+    if (
+      (process.env.WAYLAND_DISPLAY?.length ?? 0) > 0 &&
+      (Bun.which("wl-paste")?.length ?? 0) > 0
+    ) {
       const result = await $`wl-paste --primary`.nothrow().quiet().text();
       return result || undefined;
     }
-    if (Bun.which("xclip")) {
+    if ((Bun.which("xclip")?.length ?? 0) > 0) {
       const result = await $`xclip -selection primary -o`.nothrow().quiet().text();
       return result || undefined;
     }
-    if (Bun.which("xsel")) {
+    if ((Bun.which("xsel")?.length ?? 0) > 0) {
       const result = await $`xsel --primary --output`.nothrow().quiet().text();
       return result || undefined;
     }
@@ -134,7 +143,7 @@ const getCopyMethod = function getCopyMethod(): (text: string) => Promise<void> 
 
   const os = platform();
 
-  if (os === "darwin" && Bun.which("osascript")) {
+  if (os === "darwin" && (Bun.which("osascript")?.length ?? 0) > 0) {
     copyMethod = async (text: string) => {
       const escaped = text.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
       await $`osascript -e 'set the clipboard to "${escaped}"'`.nothrow().quiet();
@@ -143,7 +152,7 @@ const getCopyMethod = function getCopyMethod(): (text: string) => Promise<void> 
   }
 
   if (os === "linux") {
-    if (process.env.WAYLAND_DISPLAY && Bun.which("wl-copy")) {
+    if ((process.env.WAYLAND_DISPLAY?.length ?? 0) > 0 && (Bun.which("wl-copy")?.length ?? 0) > 0) {
       copyMethod = async (text: string) => {
         const proc = Bun.spawn(["wl-copy"], {
           stderr: "ignore",
@@ -156,7 +165,7 @@ const getCopyMethod = function getCopyMethod(): (text: string) => Promise<void> 
       };
       return copyMethod;
     }
-    if (Bun.which("xclip")) {
+    if ((Bun.which("xclip")?.length ?? 0) > 0) {
       copyMethod = async (text: string) => {
         const proc = Bun.spawn(["xclip", "-selection", "clipboard"], {
           stderr: "ignore",
@@ -169,7 +178,7 @@ const getCopyMethod = function getCopyMethod(): (text: string) => Promise<void> 
       };
       return copyMethod;
     }
-    if (Bun.which("xsel")) {
+    if ((Bun.which("xsel")?.length ?? 0) > 0) {
       copyMethod = async (text: string) => {
         const proc = Bun.spawn(["xsel", "--clipboard", "--input"], {
           stderr: "ignore",
@@ -212,7 +221,7 @@ const getPrimaryCopyMethod = function getPrimaryCopyMethod(): (text: string) => 
   const os = platform();
 
   if (os === "linux") {
-    if (process.env.WAYLAND_DISPLAY && Bun.which("wl-copy")) {
+    if ((process.env.WAYLAND_DISPLAY?.length ?? 0) > 0 && (Bun.which("wl-copy")?.length ?? 0) > 0) {
       primaryCopyMethod = async (text: string) => {
         const proc = Bun.spawn(["wl-copy", "--primary"], {
           stderr: "ignore",
@@ -225,7 +234,7 @@ const getPrimaryCopyMethod = function getPrimaryCopyMethod(): (text: string) => 
       };
       return primaryCopyMethod;
     }
-    if (Bun.which("xclip")) {
+    if ((Bun.which("xclip")?.length ?? 0) > 0) {
       primaryCopyMethod = async (text: string) => {
         const proc = Bun.spawn(["xclip", "-selection", "primary"], {
           stderr: "ignore",
@@ -238,7 +247,7 @@ const getPrimaryCopyMethod = function getPrimaryCopyMethod(): (text: string) => 
       };
       return primaryCopyMethod;
     }
-    if (Bun.which("xsel")) {
+    if ((Bun.which("xsel")?.length ?? 0) > 0) {
       primaryCopyMethod = async (text: string) => {
         const proc = Bun.spawn(["xsel", "--primary", "--input"], {
           stderr: "ignore",

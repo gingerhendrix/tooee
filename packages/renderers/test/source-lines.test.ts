@@ -11,7 +11,7 @@ interface LineShape {
 }
 
 const lines = function lines(source: string, sourceId?: string): LineShape[] {
-  return sourceLines(source, sourceId ? { sourceId } : undefined).map((row) => {
+  return sourceLines(source, (sourceId?.length ?? 0) > 0 ? { sourceId } : undefined).map((row) => {
     const p = row.source.primary;
     return {
       e: p.end.offset,

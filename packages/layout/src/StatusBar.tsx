@@ -26,7 +26,9 @@ export const StatusBar = function StatusBar({ items }: StatusBarProps): React.Re
         (item, index): React.ReactNode => (
           <box key={index} style={{ flexDirection: "row", marginRight: 2 }}>
             <text content={item.label} style={{ fg: theme.textMuted }} />
-            {item.value && <text content={` ${item.value}`} style={{ fg: theme.text }} />}
+            {(item.value?.length ?? 0) > 0 && (
+              <text content={` ${item.value}`} style={{ fg: theme.text }} />
+            )}
           </box>
         ),
       )}

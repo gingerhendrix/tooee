@@ -79,7 +79,7 @@ const main = async function main() {
     options: { prompt: "Select an issue to view" },
   });
 
-  if (result && result.items[0].value) {
+  if (result && result.items[0].value !== undefined && result.items[0].value !== "") {
     await viewIssue(result.items[0].value);
   }
 };

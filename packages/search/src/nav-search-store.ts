@@ -134,7 +134,7 @@ export const createNavSearchStore = function createNavSearchStore(
         let cursor = ctx.cursor;
         if (event.keys.length === 0) {
           cursor = null;
-        } else if (event.preserveCursorByKey && previousKey !== undefined) {
+        } else if (event.preserveCursorByKey === true && previousKey !== undefined) {
           const preserved = event.keys.indexOf(previousKey);
           cursor =
             preserved >= 0

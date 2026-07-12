@@ -88,7 +88,7 @@ export const Outlet = function Outlet(): ReactNode {
   const depth = useContext(OutletDepthContext);
 
   const topEntry = stack[stack.length - 1];
-  if (!topEntry) {
+  if (topEntry === undefined) {
     return null;
   }
 
@@ -103,7 +103,7 @@ export const Outlet = function Outlet(): ReactNode {
   );
 
   const routeAtDepth = chain[depth];
-  if (!routeAtDepth) {
+  if (routeAtDepth === undefined) {
     return null;
   }
 

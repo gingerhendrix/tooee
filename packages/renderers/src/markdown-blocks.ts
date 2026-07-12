@@ -186,7 +186,9 @@ class MarkdownResolver {
 // ---------------------------------------------------------------------------
 
 const bulletFor = function bulletFor(list: Tokens.List, itemIndex: number): string {
-  return list.ordered ? `${itemIndex + (list.start || 1)}. ` : "- ";
+  return list.ordered
+    ? `${itemIndex + (list.start === "" || list.start === 0 ? 1 : list.start)}. `
+    : "- ";
 };
 
 const flattenList = function flattenList(
@@ -229,7 +231,7 @@ const flattenListItem = function flattenListItem(
   itemEnd: number,
 ): void {
   const checked = item.checked === null ? undefined : item.checked;
-  const childTokens = item.tokens || [];
+  const childTokens = item.tokens;
   let bulletUsed = false;
 
   const emitBulletMarker = () => {

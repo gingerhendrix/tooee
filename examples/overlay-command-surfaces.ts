@@ -443,7 +443,7 @@ export const OverlayCommandSurfacesDemo = function OverlayCommandSurfacesDemo():
         (line, i): ReactNode => h("text", { content: line, fg: theme.text, key: `state-${i}` }),
       ),
     ),
-    overlay.topId ? null : h("text", { content: "" }),
+    (overlay.topId?.length ?? 0) > 0 ? null : h("text", { content: "" }),
   );
 
   return h(

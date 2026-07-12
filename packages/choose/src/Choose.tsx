@@ -57,7 +57,7 @@ export const Choose = function Choose({
     onSubmit: (result) => {
       // Historical standalone behaviour: a command named `submit` wins over
       // the deprecated callback, so existing action-driven CLIs are unchanged.
-      if (effectiveCommands?.some((action) => action.id === "submit")) {
+      if (effectiveCommands?.some((action) => action.id === "submit") === true) {
         invoke("submit");
         return;
       }
@@ -81,7 +81,7 @@ export const Choose = function Choose({
     );
   }
 
-  if (choose.state.error) {
+  if ((choose.state.error?.length ?? 0) > 0) {
     return (
       <box>
         <text content={`Error: ${choose.state.error}`} fg={theme.error} />
@@ -94,9 +94,11 @@ export const Choose = function Choose({
   return (
     <AppLayout
       titleBar={
-        (options?.title ?? options?.prompt)
-          ? { title: (options.title ?? options.prompt)! }
-          : undefined
+        options?.title !== undefined && options.title !== ""
+          ? { title: options.title }
+          : options?.prompt !== undefined && options.prompt !== ""
+            ? { title: options.prompt }
+            : undefined
       }
       statusBar={{
         items: [

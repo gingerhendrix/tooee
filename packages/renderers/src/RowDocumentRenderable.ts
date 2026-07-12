@@ -42,7 +42,12 @@ export interface RowDocumentOptions extends ScrollBoxOptions {
 
 const isRowContentProvider = function isRowContentProvider(x: unknown): x is LineInfoProvider {
   return (
-    !!x && typeof x === "object" && "lineInfo" in x && "lineCount" in x && "virtualLineCount" in x
+    x !== null &&
+    x !== undefined &&
+    typeof x === "object" &&
+    "lineInfo" in x &&
+    "lineCount" in x &&
+    "virtualLineCount" in x
   );
 };
 
@@ -536,10 +541,10 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
     for (const layer of this._layers) {
       for (const deco of layer.forVisibleRows(firstRow, lastRow)) {
-        if (deco.background) {
+        if (deco.background !== undefined && deco.background !== "") {
           rowBgs.set(deco.row, deco.background);
         }
-        if (deco.gutterBackground) {
+        if (deco.gutterBackground !== undefined && deco.gutterBackground !== "") {
           rowGutterBgs.set(deco.row, deco.gutterBackground);
         }
         if (deco.sign) {
@@ -559,7 +564,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
         continue;
       }
       const bg = rowBgs.get(row);
-      if (!bg) {
+      if (bg === undefined || bg === "") {
         continue;
       }
       buffer.fillRect(vpX, vpY + screenY, vpWidth, 1, cachedColor(bg));
@@ -614,8 +619,9 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
       let col = 0;
 
       const rowGutterHex = this._layerGutterBgs.get(row);
-      const effectiveGutterBg = rowGutterHex ? cachedColor(rowGutterHex) : gutterBg;
-      if (rowGutterHex) {
+      const effectiveGutterBg =
+        rowGutterHex !== undefined && rowGutterHex !== "" ? cachedColor(rowGutterHex) : gutterBg;
+      if (rowGutterHex !== undefined && rowGutterHex !== "") {
         buffer.fillRect(drawX, vpY + screenY, gutterWidth, 1, effectiveGutterBg);
       }
 
@@ -632,7 +638,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
         const sign = this._layerSigns.get(row);
 
         if (sign) {
-          const signFg = sign.fg ? cachedColor(sign.fg) : gutterFg;
+          const signFg = sign.fg !== undefined && sign.fg !== "" ? cachedColor(sign.fg) : gutterFg;
           buffer.drawText(
             sign.text.slice(0, this._signColumnWidth),
             drawX + col,

@@ -160,7 +160,7 @@ const CalloutRenderer = function CalloutRenderer({
   // ```callout warning — the kind is the second word of the info string
   const kind = info.trim().split(/\s+/u)[1]?.toLowerCase() ?? "info";
   const style = CALLOUT_STYLES[kind];
-  if (!style || text.trim() === "") {
+  if (style === undefined || text.trim() === "") {
     return null;
   }
 

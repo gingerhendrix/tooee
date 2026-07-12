@@ -361,7 +361,7 @@ export const useDocumentController = function useDocumentController<T>(
         return;
       }
       const menu = contextMenuOptionsRef.current;
-      if (!menu) {
+      if (menu === false || menu === undefined) {
         return;
       }
 

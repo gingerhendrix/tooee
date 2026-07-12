@@ -9,11 +9,16 @@ export const buildChooseHints = function buildChooseHints(
 ): string[] {
   const base =
     mode === "insert"
-      ? ["↑↓ navigate", "Enter confirm", ...(options.multi ? ["Tab toggle"] : []), "Esc commands"]
+      ? [
+          "↑↓ navigate",
+          "Enter confirm",
+          ...(options.multi === true ? ["Tab toggle"] : []),
+          "Esc commands",
+        ]
       : [
           "j/k navigate",
           "i insert",
-          ...(options.multi ? ["Tab toggle"] : []),
+          ...(options.multi === true ? ["Tab toggle"] : []),
           "Esc/q cancel",
           "Enter confirm",
         ];

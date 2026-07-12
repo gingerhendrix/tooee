@@ -68,7 +68,7 @@ const fileProvider = {
         ts: "\u{1F4DC}",
         tsx: "\u{269B}",
       };
-      return icons[ext || ""] || "\u{1F4C4}";
+      return icons[ext ?? ""] || "\u{1F4C4}";
     };
 
     return files.map((file) => ({
@@ -85,7 +85,7 @@ const main = async function main() {
     options: { prompt: "Pick a file" },
   });
 
-  if (result && result.items[0].value) {
+  if (result && (result.items[0].value?.length ?? 0) > 0) {
     // Output selected file path to stdout
     console.log(result.items[0].value);
   }

@@ -134,7 +134,7 @@ export const formatStepKey = function formatStepKey(step: ParsedStep): string {
   if (step.shift) {
     modifiers.push("shift");
   }
-  if (step.super) {
+  if (step.super === true) {
     modifiers.push("super");
   }
   modifiers.push(step.key);
@@ -437,7 +437,7 @@ export const createCommandStore = function createCommandStore(
         }
 
         const hotkey = config.keymap?.[command.id] ?? command.defaultHotkey;
-        if (!hotkey) {
+        if (hotkey === undefined || hotkey === "") {
           continue;
         }
 
@@ -486,7 +486,7 @@ export const createCommandStore = function createCommandStore(
         const state: CommandSequenceState = {
           candidates: pending.indexes
             .map((idx) => multiStepCandidates[idx])
-            .filter(({ command }) => !command.hidden)
+            .filter(({ command }) => command.hidden !== true)
             .map(({ command, hotkey, parsed }) => ({
               command,
               group: ctx.groups.get(stepsKey(parsed.steps.slice(0, pending.prefixLength + 1))),

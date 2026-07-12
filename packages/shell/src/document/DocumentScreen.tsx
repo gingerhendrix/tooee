@@ -60,7 +60,7 @@ export const DocumentScreen = function DocumentScreen<T>({
       value: controller.activeIndex === null ? "-" : String(controller.activeIndex),
     },
     ...(selectionCount > 0 ? [{ label: "Selected:", value: String(selectionCount) }] : []),
-    ...(search?.searchActive ? [{ label: "Search:", value: search.searchQuery }] : []),
+    ...(search?.searchActive === true ? [{ label: "Search:", value: search.searchQuery }] : []),
   ];
 
   return (

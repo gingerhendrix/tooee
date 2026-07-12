@@ -58,7 +58,7 @@ export const listDirectoryFiles = function listDirectoryFiles(dirPath: string): 
       continue;
     }
     const ext = entry.split(".").pop()?.toLowerCase();
-    if (!ext || !SUPPORTED_EXTENSIONS.has(ext)) {
+    if (ext === undefined || ext === "" || !SUPPORTED_EXTENSIONS.has(ext)) {
       continue;
     }
     files.push({ name: entry, path: fullPath });

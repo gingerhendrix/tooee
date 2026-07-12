@@ -20,7 +20,8 @@ import {
 // Parse CLI args
 const args = process.argv.slice(2);
 const loaderDelayArg = args.find((a) => a.startsWith("--loader-delay="));
-const loaderDelay = loaderDelayArg ? parseInt(loaderDelayArg.split("=")[1], 10) : 500;
+const loaderDelay =
+  (loaderDelayArg?.length ?? 0) > 0 ? parseInt(loaderDelayArg.split("=")[1], 10) : 500;
 
 // --- Screen Components ---
 

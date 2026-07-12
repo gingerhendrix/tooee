@@ -54,7 +54,7 @@ export const View = function View({
   // interaction layers it generates, ordered by each set's own priority.
   const decorations = useMemo(() => [...providerMarks, ...userMarks], [providerMarks, userMarks]);
 
-  if (error) {
+  if ((error?.length ?? 0) > 0) {
     return (
       <box style={{ flexDirection: "column" }}>
         <text content={`Error: ${error}`} fg={theme.error} />

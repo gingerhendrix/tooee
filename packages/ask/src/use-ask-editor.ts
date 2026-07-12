@@ -153,7 +153,7 @@ export const useAskEditor = function useAskEditor(
   }, []);
 
   useEffect(() => {
-    if (didPositionInitialCursorRef.current || !defaultValue) {
+    if (didPositionInitialCursorRef.current || (defaultValue?.length ?? 0) === 0) {
       return;
     }
 
@@ -198,7 +198,7 @@ export const useAskEditor = function useAskEditor(
 
   const resolveSubmitKey = useCallback((): AskSubmitKey => {
     const current = optionsRef.current;
-    return current.submitKey ?? (current.multiline ? "shift+enter" : "enter");
+    return current.submitKey ?? (current.multiline === true ? "shift+enter" : "enter");
   }, []);
 
   const enterInsertMode = useCallback(() => {
@@ -505,7 +505,7 @@ export const useAskEditor = function useAskEditor(
       if (event.button === 1) {
         event.preventDefault();
         void readPrimaryText().then((text) => {
-          if (!text) {
+          if (text === undefined || text === "") {
             return;
           }
           getTarget()?.insertText(text);

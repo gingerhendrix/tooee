@@ -73,13 +73,14 @@ export const ChooseList = function ChooseList({
     <scrollbox ref={scrollRef} flexDirection="column" style={{ flexGrow: 1 }} focused={false}>
       {state.loading && <ThemedLine content={loadingContent} color={theme.textMuted} />}
 
-      {!state.loading && state.error && (
+      {!state.loading && state.error !== null && state.error !== "" && (
         <ThemedLine content={errorContent(state.error)} color={theme.error} />
       )}
 
-      {!state.loading && !state.error && state.matches.length === 0 && emptyContent != null && (
-        <ThemedLine content={emptyContent} color={theme.textMuted} />
-      )}
+      {!state.loading &&
+        (state.error?.length ?? 0) === 0 &&
+        state.matches.length === 0 &&
+        emptyContent != null && <ThemedLine content={emptyContent} color={theme.textMuted} />}
 
       {state.matches.map((match, index): ReactNode => {
         const isActive = index === state.activeIndex;
@@ -92,7 +93,9 @@ export const ChooseList = function ChooseList({
                 fg={isSelected ? theme.accent : theme.textMuted}
               />
             )}
-            {match.item.icon && <text content={`${match.item.icon} `} fg={theme.textMuted} />}
+            {(match.item.icon?.length ?? 0) > 0 && (
+              <text content={`${match.item.icon} `} fg={theme.textMuted} />
+            )}
             <text fg={isActive ? theme.primary : theme.text}>
               <ChooseHighlightedText
                 text={match.item.text}
@@ -100,7 +103,7 @@ export const ChooseList = function ChooseList({
                 highlightColor={theme.warning}
               />
             </text>
-            {match.item.description && (
+            {(match.item.description?.length ?? 0) > 0 && (
               <text content={`  ${match.item.description}`} fg={theme.textMuted} />
             )}
           </>

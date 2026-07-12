@@ -68,7 +68,7 @@ export const parseHotkey = function parseHotkey(hotkey: string, leaderKey?: stri
   // Handle leader prefix
   const leaderMatch = trimmed.match(/^<leader>(.+)$/u);
   if (leaderMatch) {
-    if (!leaderKey) {
+    if (leaderKey === undefined || leaderKey === "") {
       // No leader configured: the hotkey must not spring to life on some
       // invented default. Zero steps = unmatchable; the dispatcher skips it.
       warnOnce(

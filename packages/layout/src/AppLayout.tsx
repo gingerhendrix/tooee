@@ -62,7 +62,18 @@ export const AppLayout = function AppLayout({
         ) : (
           <box style={{ flexGrow: 1, overflow: "hidden" }}>{children}</box>
         )}
-        {(contextOverlay || compatibilityOverlay) && (
+        {((contextOverlay !== null &&
+          contextOverlay !== undefined &&
+          contextOverlay !== false &&
+          contextOverlay !== "" &&
+          contextOverlay !== 0 &&
+          contextOverlay !== 0n) ||
+          (compatibilityOverlay !== null &&
+            compatibilityOverlay !== undefined &&
+            compatibilityOverlay !== false &&
+            compatibilityOverlay !== "" &&
+            compatibilityOverlay !== 0 &&
+            compatibilityOverlay !== 0n)) && (
           <box position="absolute" left={0} top={0} width="100%" height="100%">
             {contextOverlay}
             {compatibilityOverlay}
@@ -70,7 +81,7 @@ export const AppLayout = function AppLayout({
         )}
         <ToastContainer />
       </box>
-      {searchBar?.searchActive ? (
+      {searchBar?.searchActive === true ? (
         <SearchBar
           query={searchBar.searchQuery}
           onQueryChange={searchBar.setSearchQuery}

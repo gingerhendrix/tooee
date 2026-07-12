@@ -15,7 +15,7 @@ export const useCopyOnSelect = function useCopyOnSelect() {
     // Default: on for Linux, off elsewhere
     const effective = copyOnSelect === undefined ? platform() === "linux" : copyOnSelect;
 
-    if (!effective) {
+    if (effective === false) {
       return;
     }
 

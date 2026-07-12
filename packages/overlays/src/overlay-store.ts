@@ -52,10 +52,10 @@ const restoreModeDecision = function restoreModeDecision(
   stack: readonly OverlayRecord[],
   record: OverlayRecord,
 ): string | null {
-  if (record.options.ownCommands || record.options.restoreMode === false) {
+  if (record.options.ownCommands === true || record.options.restoreMode === false) {
     return null;
   }
-  const topLegacy = stack.findLast((entry) => !entry.options.ownCommands);
+  const topLegacy = stack.findLast((entry) => entry.options.ownCommands !== true);
   return topLegacy === record ? record.prevMode : null;
 };
 

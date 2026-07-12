@@ -10,7 +10,7 @@ const detectFormat = function detectFormat(filePath: string): {
   language?: string;
 } {
   const ext = filePath.split(".").pop()?.toLowerCase();
-  if (!ext) {
+  if (ext === undefined || ext === "") {
     return { format: "text" };
   }
 
@@ -53,7 +53,7 @@ const detectFormat = function detectFormat(filePath: string): {
   };
 
   const language = codeExts[ext];
-  if (language) {
+  if (typeof language === "string") {
     return { format: "code", language };
   }
 

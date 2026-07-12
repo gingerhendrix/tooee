@@ -31,7 +31,11 @@ export const RouterProvider = function RouterProvider({
   useEffect(() => {
     const mountInitialRoute = initialRouteRef.current;
     const mountRouter = routerRef.current;
-    if (mountInitialRoute && mountRouter.currentRoute.routeId !== mountInitialRoute) {
+    if (
+      mountInitialRoute !== undefined &&
+      mountInitialRoute !== "" &&
+      mountRouter.currentRoute.routeId !== mountInitialRoute
+    ) {
       mountRouter.reset(mountInitialRoute, initialParamsRef.current);
     }
   }, []);

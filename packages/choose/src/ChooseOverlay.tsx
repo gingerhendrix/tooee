@@ -59,7 +59,7 @@ export const ChooseOverlay = function ChooseOverlay(props: ChooseOverlayProps): 
         return props.onSubmit(result);
       }
       const [item] = result.items;
-      if (item) {
+      if (item !== undefined) {
         return props.onSelect(item);
       }
     },

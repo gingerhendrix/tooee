@@ -76,7 +76,7 @@ export const useCopyCommand = function useCopyCommand(opts: {
   useCommand({
     handler: (ctx) => {
       const text = opts.getText();
-      if (text) {
+      if (text !== undefined && text !== "") {
         void copyToClipboard(text);
         ctx.toast.toast({ level: "success", message: "Copied to clipboard" });
       } else {
@@ -101,7 +101,7 @@ export const usePasteCommands = function usePasteCommands(opts: {
         return;
       }
       void readClipboardText().then((text) => {
-        if (text) {
+        if (text !== undefined && text !== "") {
           target.insertText(text);
         } else {
           ctx.toast.toast({ level: "warning", message: "Clipboard empty" });
@@ -121,7 +121,7 @@ export const usePasteCommands = function usePasteCommands(opts: {
         return;
       }
       void readPrimaryText().then((text) => {
-        if (text) {
+        if (text !== undefined && text !== "") {
           target.insertText(text);
         } else {
           ctx.toast.toast({ level: "warning", message: "Selection empty" });

@@ -53,7 +53,7 @@ const main = async function main() {
     options: { prompt: "Switch branch" },
   });
 
-  if (result && result.items[0].value) {
+  if (result && result.items[0].value !== undefined && result.items[0].value !== "") {
     const branch = result.items[0].value;
     const proc = Bun.spawn(["git", "checkout", branch], {
       stderr: "inherit",

@@ -96,7 +96,9 @@ const OverlayHarness = function OverlayHarness(): React.ReactNode {
   return (
     <box flexDirection="column">
       <text content={`has:${has}`} />
-      <text content={`current:${current ? "yes" : "no"}`} />
+      <text
+        content={`current:${current === null || current === false || current === "" || current === 0 || current === 0n ? "no" : "yes"}`}
+      />
     </box>
   );
 };

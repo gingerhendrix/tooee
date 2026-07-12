@@ -43,7 +43,7 @@ export const ContextMenu = function ContextMenu({
   const select = useCallback(
     (index: number) => {
       const entry = entries[index];
-      if (entry) {
+      if (entry !== undefined) {
         onSelect(entry.id);
       }
     },
@@ -144,7 +144,9 @@ export const ContextMenu = function ContextMenu({
                   fg={i === activeIndex ? theme.primary : theme.text}
                   style={{ flexGrow: 1 }}
                 />
-                {entry.hotkey && <text content={` ${entry.hotkey}`} fg={theme.textMuted} />}
+                {(entry.hotkey?.length ?? 0) > 0 && (
+                  <text content={` ${entry.hotkey}`} fg={theme.textMuted} />
+                )}
               </box>
             ),
           )

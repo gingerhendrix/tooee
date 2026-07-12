@@ -106,10 +106,10 @@ export class MarkSet {
           sign?: { text: string; fg?: string };
         } = { row: line };
 
-        if (mark.style.background) {
+        if ((mark.style.background?.length ?? 0) > 0) {
           decoration.background = mark.style.background;
         }
-        if (mark.style.gutterBackground) {
+        if ((mark.style.gutterBackground?.length ?? 0) > 0) {
           decoration.gutterBackground = mark.style.gutterBackground;
         }
 

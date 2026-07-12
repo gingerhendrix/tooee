@@ -136,10 +136,10 @@ const fallbackCandidateLabel = function fallbackCandidateLabel(
     return candidate.command.title;
   }
 
-  if (candidate.command.group) {
+  if (candidate.command.group !== undefined && candidate.command.group !== "") {
     return candidate.command.group;
   }
-  if (candidate.command.category) {
+  if (candidate.command.category !== undefined && candidate.command.category !== "") {
     return candidate.command.category;
   }
 

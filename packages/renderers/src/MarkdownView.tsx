@@ -234,7 +234,7 @@ const ListLineRenderer = function ListLineRenderer({
       <text style={{ fg: theme.markdownText }}>
         <span fg={theme.markdownListItem}>{bullet}</span>
         {checkboxPrefix !== "" && (
-          <span fg={checked ? theme.accent : theme.textMuted}>{checkboxPrefix}</span>
+          <span fg={checked === true ? theme.accent : theme.textMuted}>{checkboxPrefix}</span>
         )}
         {hasContent &&
           (inlineTokens.length > 0 ? (
@@ -287,7 +287,7 @@ const HeadingRenderer = function HeadingRenderer({
       <text style={{ fg: headingColors[token.depth] || theme.text }}>
         <span fg={theme.textMuted}>{prefixes[token.depth]}</span>
         <strong>
-          <InlineTokens tokens={token.tokens || []} theme={theme} />
+          <InlineTokens tokens={token.tokens} theme={theme} />
         </strong>
       </text>
     </box>
@@ -306,7 +306,7 @@ const ParagraphRenderer = function ParagraphRenderer({
   return (
     <box style={{ marginBottom: 1, marginLeft: 1 + indent, marginRight: 1 }}>
       <text style={{ fg: theme.markdownText }}>
-        <InlineTokens tokens={token.tokens || []} theme={theme} />
+        <InlineTokens tokens={token.tokens} theme={theme} />
       </text>
     </box>
   );
@@ -323,16 +323,14 @@ const BlockquoteRenderer = function BlockquoteRenderer({
 }): ReactNode {
   // Collect inline tokens from blockquote's child paragraphs/text
   const inlineTokens: Token[] = [];
-  if (token.tokens) {
-    for (const child of token.tokens) {
-      if ("tokens" in child && Array.isArray(child.tokens)) {
-        if (inlineTokens.length > 0) {
-          inlineTokens.push({ raw: "\n", text: "\n", type: "text" } as Token);
-        }
-        inlineTokens.push(...child.tokens);
-      } else if ("text" in child && typeof child.text === "string") {
-        inlineTokens.push(child);
+  for (const child of token.tokens) {
+    if ("tokens" in child && Array.isArray(child.tokens)) {
+      if (inlineTokens.length > 0) {
+        inlineTokens.push({ raw: "\n", text: "\n", type: "text" } as Token);
       }
+      inlineTokens.push(...child.tokens);
+    } else if ("text" in child && typeof child.text === "string") {
+      inlineTokens.push(child);
     }
   }
 
@@ -429,7 +427,7 @@ const InlineTokens = function InlineTokens({
 
   for (let i = 0; i < tokens.length; i += 1) {
     const token = tokens[i];
-    if (!token) {
+    if (token === undefined) {
       continue;
     }
     const key = i;
@@ -442,7 +440,7 @@ const InlineTokens = function InlineTokens({
       case "strong": {
         result.push(
           <strong key={key}>
-            <InlineTokens tokens={(token as Tokens.Strong).tokens || []} theme={theme} />
+            <InlineTokens tokens={(token as Tokens.Strong).tokens} theme={theme} />
           </strong>,
         );
         break;
@@ -450,7 +448,7 @@ const InlineTokens = function InlineTokens({
       case "em": {
         result.push(
           <em key={key}>
-            <InlineTokens tokens={(token as Tokens.Em).tokens || []} theme={theme} />
+            <InlineTokens tokens={(token as Tokens.Em).tokens} theme={theme} />
           </em>,
         );
         break;
@@ -468,7 +466,7 @@ const InlineTokens = function InlineTokens({
         result.push(
           <u key={key}>
             <a href={linkToken.href} fg={theme.markdownLink}>
-              <InlineTokens tokens={linkToken.tokens || []} theme={theme} />
+              <InlineTokens tokens={linkToken.tokens} theme={theme} />
             </a>
           </u>,
         );
@@ -478,7 +476,7 @@ const InlineTokens = function InlineTokens({
         result.push(
           <span key={key} fg={theme.textMuted}>
             ~
-            <InlineTokens tokens={(token as Tokens.Del).tokens || []} theme={theme} />~
+            <InlineTokens tokens={(token as Tokens.Del).tokens} theme={theme} />~
           </span>,
         );
         break;
@@ -533,13 +531,13 @@ const inlineTokensToChunks = function inlineTokensToChunks(
         break;
       }
       case "strong": {
-        for (const sub of inlineTokensToChunks((token as Tokens.Strong).tokens || [], theme)) {
+        for (const sub of inlineTokensToChunks((token as Tokens.Strong).tokens, theme)) {
           chunks.push(boldChunk(sub));
         }
         break;
       }
       case "em": {
-        for (const sub of inlineTokensToChunks((token as Tokens.Em).tokens || [], theme)) {
+        for (const sub of inlineTokensToChunks((token as Tokens.Em).tokens, theme)) {
           chunks.push(italicChunk(sub));
         }
         break;
@@ -555,7 +553,7 @@ const inlineTokensToChunks = function inlineTokensToChunks(
       }
       case "link": {
         const linkToken = token as Tokens.Link;
-        for (const sub of inlineTokensToChunks(linkToken.tokens || [], theme)) {
+        for (const sub of inlineTokensToChunks(linkToken.tokens, theme)) {
           chunks.push(underlineChunk({ ...sub, fg: parseColor(theme.markdownLink) }));
         }
         break;

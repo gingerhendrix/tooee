@@ -46,7 +46,7 @@ const appendStyledChunk = function appendStyledChunk(
   chunks.push({
     __isChunk: true,
     text,
-    ...(fg ? { fg: parseColor(fg) } : {}),
+    ...(fg !== undefined && fg !== "" ? { fg: parseColor(fg) } : {}),
   });
 };
 

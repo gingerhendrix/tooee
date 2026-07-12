@@ -19,7 +19,7 @@ export const CommandPaletteOverlay = function CommandPaletteOverlay({
   const entries = useMemo(
     () =>
       commands
-        .filter((cmd) => !cmd.hidden)
+        .filter((cmd) => cmd.hidden !== true)
         .filter((cmd) => {
           const cmdModes = cmd.modes ?? DEFAULT_MODES;
           return cmdModes.includes(launchMode);

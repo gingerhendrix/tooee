@@ -12,7 +12,12 @@ const DEFAULTS: TooeeConfig = {
 const deepMerge = function deepMerge(target: any, source: any): any {
   const result = { ...target };
   for (const key of Object.keys(source)) {
-    if (source[key] && typeof source[key] === "object" && !Array.isArray(source[key])) {
+    if (
+      source[key] !== null &&
+      source[key] !== undefined &&
+      typeof source[key] === "object" &&
+      !Array.isArray(source[key])
+    ) {
       result[key] = deepMerge(result[key] ?? {}, source[key]);
     } else if (source[key] !== undefined) {
       result[key] = source[key];

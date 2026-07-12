@@ -114,7 +114,7 @@ const findEditableWithText = function findEditableWithText(
   node: unknown,
   text: string,
 ): { cursorOffset: number } | undefined {
-  if (!node || typeof node !== "object") {
+  if (node === null || node === undefined || typeof node !== "object") {
     return undefined;
   }
 

@@ -48,7 +48,7 @@ export const ThemePicker = function ThemePicker({
 
   const handleSelect = useCallback(() => {
     const item = filtered[activeIndex];
-    if (item) {
+    if (item !== undefined) {
       onSelect(item.id);
     }
   }, [filtered, activeIndex, onSelect]);
@@ -57,7 +57,7 @@ export const ThemePicker = function ThemePicker({
     (index: number) => {
       setActiveIndex(index);
       const item = filtered[index];
-      if (item) {
+      if (item !== undefined) {
         onNavigate(item.id);
       }
     },

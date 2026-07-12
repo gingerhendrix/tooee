@@ -35,7 +35,7 @@ export const useContentLoader = function useContentLoader(contentProvider: Conte
         try {
           while (true) {
             const result = await iterator.next();
-            if (result.done) {
+            if (result.done === true) {
               break;
             }
             store.trigger.chunkReceived({ chunk: result.value, requestId });

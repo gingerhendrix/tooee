@@ -25,7 +25,9 @@ export const actionsToContextMenuEntries = function actionsToContextMenuEntries(
   context?: CommandContext,
 ): ContextMenuEntry[] {
   return (actions ?? [])
-    .filter((action) => !action.hidden && (!context || !action.when || action.when(context)))
+    .filter(
+      (action) => action.hidden !== true && (!context || !action.when || action.when(context)),
+    )
     .map((action) => ({ hotkey: action.hotkey, id: action.id, title: action.title }));
 };
 

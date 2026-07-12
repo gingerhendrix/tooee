@@ -95,11 +95,8 @@ export const OverlayProvider = function OverlayProvider({
       const prevMode = modeRef.current;
       // Owned command surfaces carry their own local mode and never touch the
       // host's global mode.
-      const overlayMode = options.ownCommands
-        ? null
-        : options.mode === undefined
-          ? "insert"
-          : options.mode;
+      const overlayMode =
+        options.ownCommands === true ? null : options.mode === undefined ? "insert" : options.mode;
 
       const record: OverlayRecord<TPayload> = { id, options, payload, prevMode, render };
       overlayStore.trigger.opened({ record: record as OverlayRecord });
@@ -222,7 +219,7 @@ export const OverlayProvider = function OverlayProvider({
           // its children bind to a local registry/mode, and modal surfaces
           // suspend parent command dispatch while topmost. Passive surfaces stay
           // mounted for visuals/help without becoming the keyboard owner.
-          if (entry.options.ownCommands && node != null) {
+          if (entry.options.ownCommands === true && node != null) {
             node = (
               <CommandSurfaceProvider
                 id={entry.id}
@@ -253,7 +250,9 @@ export const OverlayProvider = function OverlayProvider({
     // Passive owned surfaces (e.g. the which-key hint) render for visuals only
     // and never own input, so they don't count as modal. Everything else —
     // legacy overlays and modal owned surfaces — does.
-    hasModalOverlay: stack.some((e) => !(e.options.ownCommands && e.options.role === "passive")),
+    hasModalOverlay: stack.some(
+      (e) => !(e.options.ownCommands === true && e.options.role === "passive"),
+    ),
     hasOverlay: stack.length > 0,
     stack: stack.map((e) => e.id),
   };

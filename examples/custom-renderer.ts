@@ -178,7 +178,7 @@ const KanbanRenderer = function KanbanRenderer({ content }: ContentRendererProps
           return " ".repeat(COLUMN_WIDTH);
         }
         const card = col.cards[cardIdx];
-        const assignee = card.assignee ? `@${card.assignee}` : "(unassigned)";
+        const assignee = (card.assignee?.length ?? 0) > 0 ? `@${card.assignee}` : "(unassigned)";
         const inner = padRight(` ${assignee} `, CARD_INNER_WIDTH);
         return `\u2502${inner}\u2502`;
       })
@@ -225,7 +225,7 @@ const contentProvider: ContentProvider = {
           const cards = col.cards
             .map(
               (card) =>
-                `  ${card.id}: ${card.title} [${card.priority}]${card.assignee ? ` @${card.assignee}` : ""}`,
+                `  ${card.id}: ${card.title} [${card.priority}]${(card.assignee?.length ?? 0) > 0 ? ` @${card.assignee}` : ""}`,
             )
             .join("\n");
           return `${header}\n${cards}`;

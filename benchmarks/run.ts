@@ -211,7 +211,7 @@ for (const result of results) {
   );
 }
 
-if (options.out) {
+if ((options.out?.length ?? 0) > 0) {
   const outPath = resolve(options.out);
   mkdirSync(dirname(outPath), { recursive: true });
   writeFileSync(outPath, `${JSON.stringify(runResult, null, 2)}\n`);
