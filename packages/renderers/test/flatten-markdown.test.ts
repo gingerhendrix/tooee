@@ -375,7 +375,7 @@ describe("flattenMarkdown row order and provenance", () => {
     ];
     for (const [label, lf] of cases) {
       test(label, () => {
-        const crlf = lf.replace(/\n/gu, "\r\n");
+        const crlf = lf.replaceAll("\n", "\r\n");
         const lfRows = rows(lf);
         const crlfRows = rows(crlf);
 

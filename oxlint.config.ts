@@ -93,7 +93,6 @@ export default defineConfig({
     "unicorn/prefer-regexp-test": "off",
     "unicorn/prefer-single-call": "off",
     "unicorn/prefer-spread": "off",
-    "unicorn/prefer-string-replace-all": "off",
     "unicorn/prefer-type-error": "off",
     "unicorn/switch-case-braces": "off",
     // Tooee does not use React Compiler, so compiler-adoption guidance is not applicable.
