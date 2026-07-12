@@ -83,7 +83,6 @@ export default defineConfig({
     "unicorn/prefer-code-point": "off",
     "unicorn/prefer-export-from": "off",
     "unicorn/prefer-number-coercion": "off",
-    "unicorn/prefer-number-properties": "off",
     "unicorn/prefer-regexp-test": "off",
     "unicorn/prefer-single-call": "off",
     "unicorn/prefer-spread": "off",
