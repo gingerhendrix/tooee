@@ -27,6 +27,10 @@ const getLevelColor = function getLevelColor(
     case "error": {
       return theme.error;
     }
+    default: {
+      const exhaustiveLevel: never = level;
+      return exhaustiveLevel;
+    }
   }
 };
 
