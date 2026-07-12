@@ -129,7 +129,7 @@ function gitSha(): string | undefined {
     stdin: "ignore",
   });
   if (proc.exitCode !== 0) return undefined;
-  return Buffer.from(proc.stdout).toString("utf8").trim();
+  return Buffer.from(proc.stdout).toString("utf-8").trim();
 }
 
 async function packageInfo(): Promise<{ name?: string; version?: string }> {

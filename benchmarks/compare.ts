@@ -71,7 +71,7 @@ function parseArgs(args: string[]): CompareOptions {
 }
 
 function readRun(path: string): BenchmarkRunResult {
-  const parsed = JSON.parse(readFileSync(path, "utf8")) as BenchmarkRunResult;
+  const parsed = JSON.parse(readFileSync(path, "utf-8")) as BenchmarkRunResult;
   if (parsed.version !== 1 || !Array.isArray(parsed.results)) {
     throw new Error(`${path} is not a supported Tooee benchmark result file`);
   }
