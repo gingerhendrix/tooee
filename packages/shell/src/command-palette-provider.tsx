@@ -44,5 +44,5 @@ export const CommandPaletteProvider = function CommandPaletteProvider({
     title: "Command Palette",
   });
 
-  return <>{children}</>;
+  return children;
 };

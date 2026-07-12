@@ -560,7 +560,7 @@ const InlineTokens = function InlineTokens({
     }
   }
 
-  return <>{result}</>;
+  return result;
 };
 
 // ---------------------------------------------------------------------------

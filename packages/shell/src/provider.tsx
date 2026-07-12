@@ -100,5 +100,5 @@ const ToastContextBridge = function ToastContextBridge({
   useCopyOnSelect();
   useDebugConsoleCommand();
 
-  return <>{children}</>;
+  return children;
 };

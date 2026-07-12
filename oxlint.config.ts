@@ -43,7 +43,6 @@ export default defineConfig({
     "promise/prefer-await-to-then": "off",
     "react/hook-use-state": "off",
     "react/jsx-handler-names": "off",
-    "react/jsx-no-useless-fragment": "off",
     "typescript/array-type": "off",
     "typescript/await-thenable": "off",
     "typescript/ban-types": "off",

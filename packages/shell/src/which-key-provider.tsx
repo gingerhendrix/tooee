@@ -94,7 +94,7 @@ export const WhichKeyProvider = function WhichKeyProvider({
     [],
   );
 
-  return <>{children}</>;
+  return children;
 };
 
 export const WhichKeyOverlay = function WhichKeyOverlay({
