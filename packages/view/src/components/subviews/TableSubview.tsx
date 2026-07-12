@@ -12,6 +12,23 @@ interface TableSubviewProps extends SubviewProps {
   content: TableContent;
 }
 
+function stringifyRowCell(value: unknown): string {
+  if (value == null) {
+    return "";
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
+
 export function TableSubview({ content, decorations, actions, ...screen }: TableSubviewProps) {
   const textContent = useMemo(() => getTextContent(content), [content]);
   const { showLineNumbers } = useContentCommands({ content, textContent });
@@ -53,21 +70,4 @@ export function TableSubview({ content, decorations, actions, ...screen }: Table
       <Table columns={columns} rows={rows} showLineNumbers={showLineNumbers} document={document} />
     </ViewScreen>
   );
-}
-
-function stringifyRowCell(value: unknown): string {
-  if (value == null) {
-    return "";
-  }
-  if (typeof value === "string") {
-    return value;
-  }
-  if (typeof value === "number" || typeof value === "boolean") {
-    return String(value);
-  }
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return String(value);
-  }
 }

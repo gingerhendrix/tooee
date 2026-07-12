@@ -122,6 +122,23 @@ export function isCustomContent(content: AnyContent): content is CustomContent {
   return !BUILTIN_FORMATS.has(content.format);
 }
 
+function stringifyCell(value: unknown): string {
+  if (value == null) {
+    return "";
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
+
 export function getTextContent(content: AnyContent): string {
   if (content.getTextContent) {
     return content.getTextContent();
@@ -151,22 +168,5 @@ export function getTextContent(content: AnyContent): string {
     default: {
       return "";
     }
-  }
-}
-
-function stringifyCell(value: unknown): string {
-  if (value == null) {
-    return "";
-  }
-  if (typeof value === "string") {
-    return value;
-  }
-  if (typeof value === "number" || typeof value === "boolean") {
-    return String(value);
-  }
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return String(value);
   }
 }

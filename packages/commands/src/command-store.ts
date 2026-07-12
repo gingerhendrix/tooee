@@ -114,10 +114,6 @@ export function selectGroups(
 
 // --- Step-key helpers (shared by key dispatch and group registration) --------
 
-export function stepsKey(steps: readonly ParsedStep[]): string {
-  return steps.map(formatStepKey).join(" ");
-}
-
 export function formatStepKey(step: ParsedStep): string {
   const modifiers = [];
   if (step.ctrl) modifiers.push("ctrl");
@@ -127,6 +123,10 @@ export function formatStepKey(step: ParsedStep): string {
   if (step.super) modifiers.push("super");
   modifiers.push(step.key);
   return modifiers.join("+");
+}
+
+export function stepsKey(steps: readonly ParsedStep[]): string {
+  return steps.map(formatStepKey).join(" ");
 }
 
 // --- Store -------------------------------------------------------------------
@@ -358,11 +358,6 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
     }
   }
 
-  function armTimer(): void {
-    clearTimer();
-    timer = setTimeout(reset, config.sequenceTimeoutMs ?? DEFAULT_SEQUENCE_TIMEOUT_MS);
-  }
-
   function clearBufferAndTimer(): void {
     buffer = [];
     clearTimer();
@@ -371,6 +366,11 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
   function reset(): void {
     clearBufferAndTimer();
     store.trigger.sequenceReset();
+  }
+
+  function armTimer(): void {
+    clearTimer();
+    timer = setTimeout(reset, config.sequenceTimeoutMs ?? DEFAULT_SEQUENCE_TIMEOUT_MS);
   }
 
   function dispose(): void {
