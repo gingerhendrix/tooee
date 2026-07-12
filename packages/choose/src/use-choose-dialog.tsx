@@ -107,7 +107,7 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
     const open = async (
       options: ChooseDialogOptionsBase<T> & { toItem?: (item: T) => ChooseItem },
     ): Promise<T | T[] | null> =>
-      new Promise<T | T[] | null>((resolvePromise) => {
+      await new Promise<T | T[] | null>((resolvePromise) => {
         if (unmountedRef.current) {
           resolvePromise(null);
           return;

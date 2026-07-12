@@ -41,15 +41,15 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
           next: async () => {
             if (first) {
               first = false;
-              return {
+              return await {
                 done: false as const,
                 value: { data: "hello", format: "text" as const, type: "append" as const },
               };
             }
             // Long-lived stream: never yields again
-            return new Promise<IteratorResult<ContentChunk>>(() => {});
+            return await new Promise<IteratorResult<ContentChunk>>(() => {});
           },
-          return: async () => {
+          return: () => {
             returned = true;
             return { done: true as const, value: undefined };
           },
@@ -73,7 +73,7 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
 
     // Unmount mid-stream: the iterator must be closed so the provider's
     // resources (subprocess, file handle, network stream) are released.
-    await act(async () => {
+    await act(() => {
       hide();
     });
     await testSetup.renderOnce();
@@ -130,7 +130,7 @@ describe("useContentLoader reload and request identity", () => {
     testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await flush(testSetup);
     expect(testSetup.captureCharFrame()).toContain("sync-1");
-    await act(async () => reload());
+    await act(() => reload());
     await flush(testSetup);
     expect(testSetup.captureCharFrame()).toContain("sync-2");
   });
@@ -139,7 +139,7 @@ describe("useContentLoader reload and request identity", () => {
     const resolvers: Array<(value: { format: "text"; text: string }) => void> = [];
     let reload!: () => void;
     const provider: ContentProvider = {
-      load: async () => new Promise((resolve) => resolvers.push(resolve)),
+      load: async () => await new Promise((resolve) => resolvers.push(resolve)),
     };
     const Harness = function Harness(): React.ReactNode {
       const result = useContentLoader(provider);
@@ -149,7 +149,7 @@ describe("useContentLoader reload and request identity", () => {
     };
     testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await flush(testSetup);
-    await act(async () => reload());
+    await act(() => reload());
     await flush(testSetup);
     expect(resolvers).toHaveLength(2);
     resolvers[0]!({ format: "text", text: "stale" });
@@ -177,16 +177,16 @@ describe("useContentLoader reload and request identity", () => {
                 async next() {
                   if (first) {
                     first = false;
-                    return {
+                    return await {
                       done: false as const,
                       value: { data: "old", format: "text" as const, type: "append" as const },
                     };
                   }
-                  return new Promise<IteratorResult<ContentChunk>>((resolve) => {
+                  return await new Promise<IteratorResult<ContentChunk>>((resolve) => {
                     resolveOldNext = resolve;
                   });
                 },
-                async return() {
+                return() {
                   oldReturned = true;
                   return { done: true as const, value: undefined };
                 },
@@ -208,7 +208,7 @@ describe("useContentLoader reload and request identity", () => {
     testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await flush(testSetup);
     expect(testSetup.captureCharFrame()).toContain("old");
-    await act(async () => reload());
+    await act(() => reload());
     await flush(testSetup);
     expect(oldReturned).toBe(true);
     expect(testSetup.captureCharFrame()).toContain("ready:fresh");

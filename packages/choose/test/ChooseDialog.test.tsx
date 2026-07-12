@@ -28,28 +28,28 @@ afterEach(() => {
 });
 
 const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressKey(key, modifiers);
   });
   await testSetup.renderOnce();
 };
 
 const pressEscape = async function pressEscape() {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressEscape();
   });
   await testSetup.renderOnce();
 };
 
 const pressEnter = async function pressEnter() {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressEnter();
   });
   await testSetup.renderOnce();
 };
 
 const pressTab = async function pressTab() {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressTab();
   });
   await testSetup.renderOnce();
@@ -133,7 +133,7 @@ const toItem = (fruit: Fruit): ChooseItem => ({ text: fruit.name });
 describe("useChooseDialog", () => {
   test("single select resolves the typed item without casts", async () => {
     testSetup = await setup();
-    await act(async () => {
+    await act(() => {
       void handles
         .current!.fruits.open({ items: FRUITS, prompt: "Pick fruit", toItem })
         .then((fruit) => {
@@ -152,7 +152,7 @@ describe("useChooseDialog", () => {
 
   test("navigation + Enter resolves the highlighted typed item", async () => {
     testSetup = await setup();
-    await act(async () => {
+    await act(() => {
       void handles
         .current!.fruits.open({ items: FRUITS, prompt: "Pick fruit", toItem })
         .then((fruit) => settlements.push(fruit === null ? null : fruit.id));
@@ -167,7 +167,7 @@ describe("useChooseDialog", () => {
 
   test("filtering resolves the matching typed item", async () => {
     testSetup = await setup();
-    await act(async () => {
+    await act(() => {
       void handles
         .current!.fruits.open({ items: FRUITS, prompt: "Pick fruit", toItem })
         .then((fruit) => settlements.push(fruit === null ? null : fruit.name));
@@ -182,7 +182,7 @@ describe("useChooseDialog", () => {
 
   test("multi select resolves the toggled typed items", async () => {
     testSetup = await setup();
-    await act(async () => {
+    await act(() => {
       void handles
         .current!.fruits.open({ items: FRUITS, multi: true, prompt: "Pick fruits", toItem })
         .then((fruits) => {
@@ -202,7 +202,7 @@ describe("useChooseDialog", () => {
 
   test("cancel resolves null exactly once", async () => {
     testSetup = await setup();
-    await act(async () => {
+    await act(() => {
       void handles
         .current!.fruits.open({ items: FRUITS, prompt: "Pick fruit", toItem })
         .then((fruit) => settlements.push(fruit));
@@ -218,10 +218,10 @@ describe("useChooseDialog", () => {
 
   test("async item loaders resolve typed items", async () => {
     testSetup = await setup();
-    await act(async () => {
+    await act(() => {
       void handles
         .current!.fruits.open({
-          items: async () => FRUITS,
+          items: () => FRUITS,
           prompt: "Pick fruit",
           toItem,
         })
@@ -239,7 +239,7 @@ describe("useChooseDialog", () => {
   test("ChooseItem items work without toItem and resolve the original object", async () => {
     testSetup = await setup();
     const rows: ChooseItem[] = [{ text: "one" }, { text: "two" }];
-    await act(async () => {
+    await act(() => {
       void handles.current!.rows.open({ items: rows, prompt: "Pick row" }).then((row) => {
         settlements.push(row);
       });
@@ -261,7 +261,7 @@ describe("useChooseDialog", () => {
       { id: 10, name: "same" },
       { id: 20, name: "same" },
     ];
-    await act(async () => {
+    await act(() => {
       void handles
         .current!.fruits.open({ items: twins, prompt: "Pick twin", toItem })
         .then((fruit) => settlements.push(fruit === null ? null : fruit.id));
@@ -277,7 +277,7 @@ describe("useChooseDialog", () => {
   test("unmounting the owner settles null and later opens resolve null", async () => {
     testSetup = await setup();
     const ownerDialog = handles.current!.ownerFruits!;
-    await act(async () => {
+    await act(() => {
       void ownerDialog
         .open({ items: FRUITS, prompt: "Owned picker", toItem })
         .then((fruit) => settlements.push(fruit));
@@ -285,7 +285,7 @@ describe("useChooseDialog", () => {
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("Owned picker");
 
-    await act(async () => {
+    await act(() => {
       handles.current!.unmountOwner();
     });
     await testSetup.renderOnce();
@@ -293,7 +293,7 @@ describe("useChooseDialog", () => {
     expect(settlements).toEqual([null]);
     expect(handles.current!.stackSize()).toBe(0);
 
-    await act(async () => {
+    await act(() => {
       void ownerDialog
         .open({ items: FRUITS, prompt: "Too late", toItem })
         .then((fruit) => settlements.push(fruit));

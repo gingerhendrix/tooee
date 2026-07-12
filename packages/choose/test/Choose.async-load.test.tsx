@@ -34,9 +34,7 @@ const flush = async function flush(s: TestSession) {
 describe("Choose async load (R-02)", () => {
   test("load rejection shows an error instead of eternal Loading", async () => {
     const provider: ChooseContentProvider = {
-      load: async () => {
-        throw new Error("boom");
-      },
+      load: async () => await Promise.reject(new Error("boom")),
     };
     testSetup = await testRender(
       <TooeeProvider initialMode="insert">
@@ -73,7 +71,7 @@ describe("Choose async load (R-02)", () => {
 
   test("stale results from a replaced provider are ignored", async () => {
     const slow = deferred<ChooseItem[]>();
-    const slowProvider: ChooseContentProvider = { load: async () => slow.promise };
+    const slowProvider: ChooseContentProvider = { load: async () => await slow.promise };
     const fastProvider: ChooseContentProvider = { load: () => [{ text: "fresh-item" }] };
 
     let swap!: () => void;
@@ -93,7 +91,7 @@ describe("Choose async load (R-02)", () => {
     expect(testSetup.captureCharFrame()).toContain("Loading...");
 
     // Replace the provider, then let the old (stale) load resolve afterwards.
-    await act(async () => {
+    await act(() => {
       swap();
     });
     await testSetup.renderOnce();
@@ -110,7 +108,7 @@ describe("Choose async load (R-02)", () => {
 
   test("stale rejection from a replaced provider is ignored", async () => {
     const slow = deferred<ChooseItem[]>();
-    const slowProvider: ChooseContentProvider = { load: async () => slow.promise };
+    const slowProvider: ChooseContentProvider = { load: async () => await slow.promise };
     const fastProvider: ChooseContentProvider = { load: () => [{ text: "fresh-item" }] };
 
     let swap!: () => void;
@@ -128,7 +126,7 @@ describe("Choose async load (R-02)", () => {
     );
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       swap();
     });
     await testSetup.renderOnce();
@@ -149,9 +147,7 @@ describe("ChooseOverlay async load (R-02)", () => {
     testSetup = await testRender(
       <TooeeProvider initialMode="insert">
         <ChooseOverlay
-          items={async () => {
-            throw new Error("overlay boom");
-          }}
+          items={async () => await Promise.reject(new Error("overlay boom"))}
           onSelect={() => {}}
           onCancel={() => {}}
         />

@@ -138,7 +138,7 @@ describe("useScreenFocus", () => {
     );
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       router.push("nested");
     });
     await testSetup.renderOnce();
@@ -167,7 +167,7 @@ describe("useScreenFocus", () => {
     expect(frame).toContain("layout:focused:true");
 
     // Push nested: layout loses focus, child gains it
-    await act(async () => {
+    await act(() => {
       router.push("nested");
     });
     await testSetup.renderOnce();
@@ -177,7 +177,7 @@ describe("useScreenFocus", () => {
     expect(frame).toContain("child:focused:true");
 
     // Pop: layout regains focus
-    await act(async () => {
+    await act(() => {
       router.pop();
     });
     await testSetup.renderOnce();
@@ -242,7 +242,7 @@ describe("useScreenEffect", () => {
     expect(effectLog).toEqual(["layout:effect"]);
 
     // Push nested: layout loses focus
-    await act(async () => {
+    await act(() => {
       router.push("enested");
     });
     await testSetup.renderOnce();
@@ -252,7 +252,7 @@ describe("useScreenEffect", () => {
 
     // Clear log and pop: layout regains focus
     effectLog = [];
-    await act(async () => {
+    await act(() => {
       router.pop();
     });
     await testSetup.renderOnce();

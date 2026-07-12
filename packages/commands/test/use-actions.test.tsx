@@ -13,7 +13,7 @@ afterEach(() => {
 });
 
 const press = async function press(session: TestSession, key: string) {
-  await act(async () => {
+  await act(() => {
     session.mockInput.pressKey(key);
   });
   await session.renderOnce();

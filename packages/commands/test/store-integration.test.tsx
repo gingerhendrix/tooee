@@ -23,7 +23,7 @@ afterEach(() => {
 });
 
 const press = async function press(session: TestSession, key: string) {
-  await act(async () => {
+  await act(() => {
     session.mockInput.pressKey(key);
   });
   await session.renderOnce();
@@ -71,7 +71,7 @@ describe("F-08: mode changes reset a pending chord", () => {
     expect(testSetup.captureCharFrame()).toContain("pending:1");
 
     // Surface-local mode change mid-chord: the sequence must reset.
-    await act(async () => {
+    await act(() => {
       surfaceSetMode!("insert");
     });
     await testSetup.renderOnce();
@@ -111,7 +111,7 @@ describe("F-08: mode changes reset a pending chord", () => {
     await press(testSetup, "g");
     expect(testSetup.captureCharFrame()).toContain("pending:1");
 
-    await act(async () => {
+    await act(() => {
       rootSetMode!("insert");
     });
     await testSetup.renderOnce();
@@ -164,7 +164,7 @@ describe("F-09: surface replacement resets a pending chord", () => {
 
     // Replace the surface with a same-id successor (a keypress would clear the
     // chord itself, so drive the swap directly).
-    await act(async () => {
+    await act(() => {
       swap!();
     });
     await testSetup.renderOnce();

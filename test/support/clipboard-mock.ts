@@ -10,12 +10,12 @@ export const copied: string[] = [];
 
 export const clipboardStub = function clipboardStub() {
   return {
-    copyToClipboard: async (text: string) => {
+    copyToClipboard: (text: string) => {
       copied.push(text);
     },
     copyToPrimary: async () => {},
     readClipboard: async () => {},
-    readClipboardText: async () => "",
-    readPrimaryText: async () => "",
+    readClipboardText: () => "",
+    readPrimaryText: () => "",
   };
 };

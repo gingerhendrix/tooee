@@ -48,14 +48,14 @@ const setupOverlay = async function setupOverlay(value: string, width = 60, heig
 };
 
 const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressKey(key, modifiers);
   });
   await testSetup.renderOnce();
 };
 
 const pressEscape = async function pressEscape() {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressEscape();
   });
   await testSetup.renderOnce();

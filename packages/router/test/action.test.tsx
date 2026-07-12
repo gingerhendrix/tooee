@@ -67,7 +67,7 @@ describe("useActionResultHandler", () => {
     let frame = testSetup.captureCharFrame();
     expect(frame).toContain("screen:home");
 
-    await act(async () => {
+    await act(() => {
       handler({ route: "detail", type: "navigate" });
     });
     await testSetup.renderOnce();
@@ -99,7 +99,7 @@ describe("useActionResultHandler", () => {
     );
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       handler({ mode: "replace", route: "detail", type: "navigate" });
     });
     await testSetup.renderOnce();
@@ -132,7 +132,7 @@ describe("useActionResultHandler", () => {
     );
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       handler({ params: { id: "1" }, route: "detail", type: "navigate" });
     });
     await testSetup.renderOnce();
@@ -165,7 +165,7 @@ describe("useActionResultHandler", () => {
     await testSetup.renderOnce();
 
     // Push to detail first
-    await act(async () => {
+    await act(() => {
       router.push("detail");
     });
     await testSetup.renderOnce();
@@ -174,7 +174,7 @@ describe("useActionResultHandler", () => {
     expect(frame).toContain("screen:detail");
 
     // Use handler to go back
-    await act(async () => {
+    await act(() => {
       handler({ type: "back" });
     });
     await testSetup.renderOnce();
@@ -211,12 +211,12 @@ describe("useActionResultHandler", () => {
     await testSetup.renderOnce();
 
     // Force re-renders
-    await act(async () => {
+    await act(() => {
       forceUpdate();
     });
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       forceUpdate();
     });
     await testSetup.renderOnce();

@@ -83,7 +83,7 @@ describe("Custom renderer document bindings", () => {
     testSetup = await setup(RENDERER);
     const pos = lineOf(testSetup.captureCharFrame(), "CUSTOM-BODY");
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressKey("t");
     });
     await testSetup.renderOnce();
@@ -94,7 +94,7 @@ describe("Custom renderer document bindings", () => {
     });
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEscape();
     });
     await testSetup.renderOnce();
@@ -109,7 +109,7 @@ describe("Custom renderer document bindings", () => {
     expect(testSetup.captureCharFrame()).toContain("rows:4");
     expect(testSetup.captureCharFrame()).toContain("active:0");
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressKey("j");
     });
     await testSetup.renderOnce();

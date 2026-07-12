@@ -20,14 +20,14 @@ const press = async function press(
   key: string,
   modifiers?: { ctrl?: boolean; shift?: boolean },
 ) {
-  await act(async () => {
+  await act(() => {
     session.mockInput.pressKey(key, modifiers);
   });
   await session.renderOnce();
 };
 
 const pressEscape = async function pressEscape(session: TestSession) {
-  await act(async () => {
+  await act(() => {
     session.mockInput.pressEscape();
   });
   await session.renderOnce();

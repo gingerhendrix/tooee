@@ -28,7 +28,7 @@ export const renderPass = async function renderPass(
 export const destroyRenderer = async function destroyRenderer(
   setup: TestRendererSetup,
 ): Promise<void> {
-  await act(async () => {
+  await act(() => {
     setup.renderer.destroy();
   });
 };

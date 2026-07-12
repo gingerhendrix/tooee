@@ -95,7 +95,7 @@ describe("F-09: same-id overlay replacement resets a pending chord (shell bridge
     // does not remount (same id/key), so only the shell's replaced-close
     // bridge can clear the chord.
     const { act } = await import("react");
-    await act(async () => {
+    await act(() => {
       controller!.open(
         "chord-overlay",
         (): React.ReactNode => <ChordSurface generation={99} onChord={() => chordFired++} />,

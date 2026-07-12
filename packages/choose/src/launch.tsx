@@ -12,7 +12,7 @@ export interface ChooseLaunchOptions {
 export const launch = async function launch(
   opts: ChooseLaunchOptions,
 ): Promise<ChooseResult | null> {
-  return runCliSession<ChooseResult>(
+  return await runCliSession<ChooseResult>(
     ({ resolve, cancel }): React.ReactNode => (
       <Choose
         contentProvider={opts.contentProvider}

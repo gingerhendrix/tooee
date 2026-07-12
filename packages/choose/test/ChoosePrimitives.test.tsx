@@ -38,35 +38,35 @@ const setup = async function setup(node: React.ReactNode) {
 };
 
 const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressKey(key, modifiers);
   });
   await testSetup.renderOnce();
 };
 
 const pressArrow = async function pressArrow(direction: "up" | "down") {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressArrow(direction);
   });
   await testSetup.renderOnce();
 };
 
 const pressEnter = async function pressEnter() {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressEnter();
   });
   await testSetup.renderOnce();
 };
 
 const pressTab = async function pressTab(modifiers?: { shift?: boolean }) {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressTab(modifiers);
   });
   await testSetup.renderOnce();
 };
 
 const pressEscape = async function pressEscape() {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressEscape();
   });
   await testSetup.renderOnce();
@@ -95,7 +95,7 @@ describe("ChooseController and normalized sources", () => {
       />,
     );
 
-    await act(async () => {
+    await act(() => {
       controllerRef.current!.setFilter("a");
       controllerRef.current!.setActiveIndex(1);
       controllerRef.current!.toggleActive();
@@ -129,7 +129,7 @@ describe("ChooseController and normalized sources", () => {
     );
     expect(testSetup.captureCharFrame()).toContain("item-1");
 
-    await act(async () => controllerRef.current!.reload());
+    await act(() => controllerRef.current!.reload());
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("item-2");
   });
@@ -152,10 +152,10 @@ describe("ChooseController and normalized sources", () => {
     };
 
     testSetup = await setup(<Host />);
-    await act(async () => controllerRef.current!.setActiveIndex(1));
+    await act(() => controllerRef.current!.setActiveIndex(1));
     await testSetup.renderOnce();
 
-    await act(async () => replace());
+    await act(() => replace());
     await testSetup.renderOnce();
 
     const frame = testSetup.captureCharFrame();
@@ -169,13 +169,13 @@ describe("ChooseController and normalized sources", () => {
     let replace!: () => void;
 
     const Host = function Host(): React.ReactNode {
-      const [source, setSource] = useState<ChooseSource>(() => async () => slow.promise);
+      const [source, setSource] = useState<ChooseSource>(() => async () => await slow.promise);
       replace = () => setSource([{ text: "fresh" }]);
       return <ChooseOverlay items={source} onSelect={() => {}} onCancel={() => {}} />;
     };
 
     testSetup = await setup(<Host />);
-    await act(async () => replace());
+    await act(() => replace());
     await testSetup.renderOnce();
     await act(async () => {
       slow.resolve([{ text: "stale" }]);

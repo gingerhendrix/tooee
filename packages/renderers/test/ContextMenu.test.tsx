@@ -85,11 +85,11 @@ describe("ContextMenu", () => {
     );
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressKey("j");
     });
     await testSetup.renderOnce();
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEnter();
     });
     await testSetup.renderOnce();

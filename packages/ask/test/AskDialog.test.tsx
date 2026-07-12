@@ -18,21 +18,21 @@ afterEach(() => {
 });
 
 const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressKey(key, modifiers);
   });
   await testSetup.renderOnce();
 };
 
 const pressEscape = async function pressEscape() {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressEscape();
   });
   await testSetup.renderOnce();
 };
 
 const pressEnter = async function pressEnter() {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressEnter();
   });
   await testSetup.renderOnce();
@@ -135,7 +135,7 @@ const openDialog = async function openDialog(
   prompt: string,
   label: string,
 ) {
-  await act(async () => {
+  await act(() => {
     void open({ prompt }).then(record(label));
   });
   await testSetup.renderOnce();
@@ -144,7 +144,7 @@ const openDialog = async function openDialog(
 describe("useAskDialog settlement", () => {
   test("submit resolves the typed value, closes the overlay, and settles once", async () => {
     testSetup = await setup();
-    await openDialog(async (o) => handles.current!.dialog.open(o), "Question?", "ask");
+    await openDialog(async (o) => await handles.current!.dialog.open(o), "Question?", "ask");
     expect(testSetup.captureCharFrame()).toContain("Question?");
 
     await typeText("hello");
@@ -157,7 +157,7 @@ describe("useAskDialog settlement", () => {
 
   test("cancel via q in cursor mode resolves null exactly once", async () => {
     testSetup = await setup();
-    await openDialog(async (o) => handles.current!.dialog.open(o), "Question?", "ask");
+    await openDialog(async (o) => await handles.current!.dialog.open(o), "Question?", "ask");
 
     await pressEscape(); // dialog surface: insert -> cursor
     await press("q"); // ask cancel
@@ -168,7 +168,7 @@ describe("useAskDialog settlement", () => {
 
   test("host commands are suspended while the dialog is open and resume after", async () => {
     testSetup = await setup();
-    await openDialog(async (o) => handles.current!.dialog.open(o), "Question?", "ask");
+    await openDialog(async (o) => await handles.current!.dialog.open(o), "Question?", "ask");
 
     await pressEscape(); // dialog cursor mode; 'z' would now be dispatchable if not suspended
     await press("z");
@@ -182,10 +182,10 @@ describe("useAskDialog settlement", () => {
 
   test("same-id replacement settles the displaced dialog null exactly once", async () => {
     testSetup = await setup();
-    await openDialog(async (o) => handles.current!.dialog.open(o), "Question?", "ask");
+    await openDialog(async (o) => await handles.current!.dialog.open(o), "Question?", "ask");
 
     const topId = handles.current!.stackIds().at(-1)!;
-    await act(async () => {
+    await act(() => {
       handles.current!.overlay.open(
         topId,
         (): React.ReactNode => <text content="REPLACEMENT" />,
@@ -204,7 +204,7 @@ describe("useAskDialog settlement", () => {
     expect(frame).toContain("stack:1"); // the replacement record remains
 
     // Closing the replacement must not settle the dialog again.
-    await act(async () => {
+    await act(() => {
       handles.current!.overlay.hide(topId);
     });
     await testSetup.renderOnce();
@@ -213,11 +213,11 @@ describe("useAskDialog settlement", () => {
 
   test("unmounting the owning component settles null and removes the overlay record", async () => {
     testSetup = await setup();
-    await openDialog(async (o) => handles.current!.ownerDialog!.open(o), "Owned?", "owned");
+    await openDialog(async (o) => await handles.current!.ownerDialog!.open(o), "Owned?", "owned");
     expect(testSetup.captureCharFrame()).toContain("Owned?");
 
     const ownerDialog = handles.current!.ownerDialog!;
-    await act(async () => {
+    await act(() => {
       handles.current!.unmountOwner();
     });
     await testSetup.renderOnce();
@@ -226,7 +226,7 @@ describe("useAskDialog settlement", () => {
     expect(testSetup.captureCharFrame()).toContain("stack:0");
 
     // Opening on an unmounted owner resolves null without opening an overlay.
-    await act(async () => {
+    await act(() => {
       void ownerDialog.open({ prompt: "Too late?" }).then(record("late"));
     });
     await testSetup.renderOnce();
@@ -236,7 +236,7 @@ describe("useAskDialog settlement", () => {
 
   test("concurrent dialogs get unique overlay ids and settle independently", async () => {
     testSetup = await setup();
-    await act(async () => {
+    await act(() => {
       void handles.current!.dialog.open({ prompt: "First?" }).then(record("first"));
       void handles.current!.dialog.open({ prompt: "Second?" }).then(record("second"));
     });
@@ -261,7 +261,7 @@ describe("useAskDialog settlement", () => {
     testSetup = await setup();
 
     let submitFromCommand: (() => void) | null = null;
-    await act(async () => {
+    await act(() => {
       void handles
         .current!.dialog.open({
           commands: [
@@ -284,7 +284,7 @@ describe("useAskDialog settlement", () => {
     await testSetup.renderOnce();
 
     await typeText("v");
-    await act(async () => {
+    await act(() => {
       submitFromCommand?.();
       submitFromCommand?.(); // second synchronous submit must be a no-op
     });

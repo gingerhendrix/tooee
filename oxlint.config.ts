@@ -43,7 +43,6 @@ export default defineConfig({
     "prefer-destructuring": "off",
     "prefer-named-capture-group": "off",
     "prefer-regex-literals": "off",
-    "require-await": "off",
     "import/no-duplicates": "off",
     "promise/avoid-new": "off",
     "promise/param-names": "off",

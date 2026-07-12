@@ -14,7 +14,7 @@ afterEach(() => {
 const KITTY_ESCAPE = "\u001B[27u";
 
 const launch = async function launch(): Promise<Session> {
-  return launchShellFixture("typed-dialogs-app.tsx", "typed dialogs e2e ready");
+  return await launchShellFixture("typed-dialogs-app.tsx", "typed dialogs e2e ready");
 };
 
 test("ask dialog open -> type -> submit resolves the value", async () => {

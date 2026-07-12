@@ -66,7 +66,7 @@ describe("route loaders", () => {
     const dataRoute = createRoute({
       component: DataScreen,
       id: "data",
-      loader: async () => deferred.promise,
+      loader: async () => await deferred.promise,
       pendingComponent: LoadingScreen,
     });
 
@@ -88,7 +88,7 @@ describe("route loaders", () => {
     expect(frame).toContain("screen:home");
 
     // Navigate to data route — loader starts, pending shows
-    await act(async () => {
+    await act(() => {
       router.push("data");
     });
     await testSetup.renderOnce();
@@ -98,7 +98,7 @@ describe("route loaders", () => {
     expect(frame).not.toContain("screen:data");
 
     // Resolve the loader
-    await act(async () => {
+    await act(() => {
       deferred.resolve({ message: "hello" });
     });
     await testSetup.renderOnce();
@@ -136,7 +136,7 @@ describe("route loaders", () => {
       component: DataScreen,
       errorComponent: ErrorScreen,
       id: "failing",
-      loader: async () => deferred.promise,
+      loader: async () => await deferred.promise,
       pendingComponent: LoadingScreen,
     });
 
@@ -153,7 +153,7 @@ describe("route loaders", () => {
     );
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       router.push("failing");
     });
     await testSetup.renderOnce();
@@ -163,7 +163,7 @@ describe("route loaders", () => {
     expect(frame).toContain("screen:loading");
 
     // Reject the loader
-    await act(async () => {
+    await act(() => {
       deferred.reject(new Error("load failed"));
     });
     await testSetup.renderOnce();
@@ -180,7 +180,7 @@ describe("route loaders", () => {
     const errorRoute = createRoute({
       component: DataScreen,
       id: "failing",
-      loader: async () => deferred.promise,
+      loader: async () => await deferred.promise,
       pendingComponent: LoadingScreen,
     });
 
@@ -197,7 +197,7 @@ describe("route loaders", () => {
     );
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       router.push("failing");
     });
     await testSetup.renderOnce();
@@ -206,7 +206,7 @@ describe("route loaders", () => {
     expect(frame).toContain("screen:loading");
 
     // Reject
-    await act(async () => {
+    await act(() => {
       deferred.reject(new Error("boom"));
     });
     await testSetup.renderOnce();
@@ -256,7 +256,7 @@ describe("route loaders", () => {
     const dataRoute = createRoute({
       component: DataScreen,
       id: "data",
-      loader: async ({ params: _params }) => {
+      loader: ({ params: _params }) => {
         loadCount++;
         return { message: `load-${loadCount}` };
       },
@@ -276,7 +276,7 @@ describe("route loaders", () => {
     await testSetup.renderOnce();
 
     // Push to data route — loader runs
-    await act(async () => {
+    await act(() => {
       router.push("data");
     });
     await testSetup.renderOnce();
@@ -286,7 +286,7 @@ describe("route loaders", () => {
     expect(loadCount).toBe(1);
 
     // Pop back
-    await act(async () => {
+    await act(() => {
       router.pop();
     });
     await testSetup.renderOnce();
@@ -295,7 +295,7 @@ describe("route loaders", () => {
     expect(frame).toContain("screen:home");
 
     // Push again — loader should run again
-    await act(async () => {
+    await act(() => {
       router.push("data");
     });
     await testSetup.renderOnce();
@@ -311,7 +311,7 @@ describe("route loaders", () => {
     const dataRoute = createRoute({
       component: DataScreen,
       id: "data",
-      loader: async () => deferred.promise,
+      loader: async () => await deferred.promise,
       // No pendingComponent
     });
 
@@ -333,7 +333,7 @@ describe("route loaders", () => {
     expect(frame).not.toContain("screen:data");
 
     // Resolve
-    await act(async () => {
+    await act(() => {
       deferred.resolve({ message: "loaded" });
     });
     await testSetup.renderOnce();
@@ -354,9 +354,9 @@ describe("route loaders", () => {
       loader: async ({ params: _params }) => {
         callCount++;
         if (callCount === 1) {
-          return deferred1.promise;
+          return await deferred1.promise;
         }
-        return deferred2.promise;
+        return await deferred2.promise;
       },
       pendingComponent: LoadingScreen,
     });
@@ -375,7 +375,7 @@ describe("route loaders", () => {
     await testSetup.renderOnce();
 
     // Push to data route with first params — slow loader starts
-    await act(async () => {
+    await act(() => {
       router.push("data", { id: "1" });
     });
     await testSetup.renderOnce();
@@ -385,14 +385,14 @@ describe("route loaders", () => {
     expect(callCount).toBe(1);
 
     // Before first loader resolves, push again with different params — second loader starts
-    await act(async () => {
+    await act(() => {
       router.push("data", { id: "2" });
     });
     await testSetup.renderOnce();
     expect(callCount).toBe(2);
 
     // Resolve the FIRST (stale) loader — its result should be discarded
-    await act(async () => {
+    await act(() => {
       deferred1.resolve({ message: "stale" });
     });
     await testSetup.renderOnce();
@@ -402,7 +402,7 @@ describe("route loaders", () => {
     expect(frame).not.toContain("screen:data:stale");
 
     // Resolve the second (current) loader
-    await act(async () => {
+    await act(() => {
       deferred2.resolve({ message: "current" });
     });
     await testSetup.renderOnce();
@@ -427,7 +427,7 @@ describe("route loaders", () => {
     const paramRoute = createRoute({
       component: ParamScreen,
       id: "param",
-      loader: async ({ params }) => {
+      loader: ({ params }) => {
         receivedParams = params;
         return { echo: String(params.id) };
       },
@@ -446,7 +446,7 @@ describe("route loaders", () => {
     );
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       router.push("param", { id: "42" });
     });
     await testSetup.renderOnce();

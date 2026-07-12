@@ -290,9 +290,7 @@ const errorRoute = createRoute({
   component: ErrorRouteScreen,
   errorComponent: ErrorComponent,
   id: "error-route",
-  loader: async () => {
-    throw new Error("route-failed");
-  },
+  loader: async () => await Promise.reject(new Error("route-failed")),
   pendingComponent: SlowPending,
 });
 

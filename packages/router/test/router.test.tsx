@@ -128,7 +128,7 @@ describe("RouterProvider + Outlet", () => {
     );
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       router.push("detail", { id: "42" });
     });
     await testSetup.renderOnce();
@@ -153,12 +153,12 @@ describe("RouterProvider + Outlet", () => {
     );
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       router.push("detail", { id: "1" });
     });
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       router.pop();
     });
     await testSetup.renderOnce();
@@ -183,7 +183,7 @@ describe("RouterProvider + Outlet", () => {
     );
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       router.replace("settings");
     });
     await testSetup.renderOnce();
@@ -208,16 +208,16 @@ describe("RouterProvider + Outlet", () => {
     );
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       router.push("detail", { id: "1" });
     });
-    await act(async () => {
+    await act(() => {
       router.push("settings");
     });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("back:true");
 
-    await act(async () => {
+    await act(() => {
       router.reset("home");
     });
     await testSetup.renderOnce();
@@ -241,7 +241,7 @@ describe("RouterProvider + Outlet", () => {
     );
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       router.push("nested");
     });
     await testSetup.renderOnce();

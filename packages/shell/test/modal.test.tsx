@@ -75,10 +75,10 @@ test("gg moves cursor to top", async () => {
   await press(testSetup, "j");
   expect(testSetup.captureCharFrame()).toContain("cursor:3");
 
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressKey("g");
   });
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressKey("g");
   });
   await testSetup.renderOnce();
@@ -135,10 +135,10 @@ describe("selectable rows", () => {
     await press(testSetup, "g", { shift: true });
     expect(testSetup.captureCharFrame()).toContain("cursor:4");
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressKey("g");
     });
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressKey("g");
     });
     await testSetup.renderOnce();

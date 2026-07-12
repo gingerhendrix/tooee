@@ -47,7 +47,7 @@ const ToastTrigger = function ToastTrigger({
 };
 
 const renderWithProviders = async function renderWithProviders(children: React.ReactNode) {
-  return testRender(
+  return await testRender(
     <ThemeSwitcherProvider>
       <ToastProvider>{children}</ToastProvider>
     </ThemeSwitcherProvider>,
@@ -79,14 +79,14 @@ test("dismiss clears the toast", async () => {
   testSetup = await renderWithProviders(<DismissTest />);
 
   // Show a toast
-  await act(async () => {
+  await act(() => {
     toastApi!.toast({ level: "info", message: "will dismiss" });
   });
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("toast:will dismiss");
 
   // Dismiss it
-  await act(async () => {
+  await act(() => {
     toastApi!.dismiss();
   });
   await testSetup.renderOnce();
@@ -129,7 +129,7 @@ test("same ID replaces existing toast and resets timer", async () => {
   testSetup = await renderWithProviders(<DedupTest />);
 
   // Show first toast
-  await act(async () => {
+  await act(() => {
     toastApi!.toast({ duration: 100, id: "dedup", level: "info", message: "first" });
   });
   await testSetup.renderOnce();

@@ -128,7 +128,7 @@ describe("useRouterCommands", () => {
     );
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       router.push("detail");
     });
     await testSetup.renderOnce();
@@ -163,7 +163,7 @@ describe("useRouterCommands", () => {
     await testSetup.renderOnce();
 
     // Push to detail
-    await act(async () => {
+    await act(() => {
       router.push("detail");
     });
     await testSetup.renderOnce();
@@ -173,7 +173,7 @@ describe("useRouterCommands", () => {
 
     // Invoke the back command handler
     const backCommand = ctx!.commands.find((c) => c.id === "router.back");
-    await act(async () => {
+    await act(() => {
       backCommand!.handler({} as any);
     });
     await testSetup.renderOnce();
@@ -251,7 +251,7 @@ describe("natural command scoping via unmount", () => {
     expect(hasScreenA()).toBe(true);
 
     // Push screen B — screen A is unmounted, its commands should be gone
-    await act(async () => {
+    await act(() => {
       router.push("screenB");
     });
     await testSetup.renderOnce();
@@ -321,7 +321,7 @@ describe("natural command scoping via unmount", () => {
     expect(hasBack()).toBe(true);
 
     // Push screen B — screen A commands are gone
-    await act(async () => {
+    await act(() => {
       router.push("screenB");
     });
     await testSetup.renderOnce();
@@ -330,7 +330,7 @@ describe("natural command scoping via unmount", () => {
     expect(hasBack()).toBe(false);
 
     // Pop back to screen A — commands should re-register
-    await act(async () => {
+    await act(() => {
       router.pop();
     });
     await testSetup.renderOnce();

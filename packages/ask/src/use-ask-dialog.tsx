@@ -89,7 +89,7 @@ export const useAskDialog = function useAskDialog(): AskDialogHandle {
   if (handleRef.current === null) {
     handleRef.current = {
       async open(options: AskDialogOptions): Promise<string | null> {
-        return new Promise<string | null>((resolvePromise) => {
+        return await new Promise<string | null>((resolvePromise) => {
           if (unmountedRef.current) {
             resolvePromise(null);
             return;

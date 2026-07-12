@@ -81,7 +81,7 @@ describe("Code view mouse selection", () => {
     const frame0 = testSetup.captureCharFrame();
     const pos = lineOf(frame0, "line3");
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressKey("t");
     });
     await testSetup.renderOnce();
@@ -92,7 +92,7 @@ describe("Code view mouse selection", () => {
     });
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEscape();
     });
     await testSetup.renderOnce();
@@ -122,7 +122,7 @@ describe("Code view mouse selection", () => {
     testSetup = await setup(CODE, ACTIONS);
     const pos = lineOf(testSetup.captureCharFrame(), "line3");
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressKey("t");
     });
     await testSetup.renderOnce();

@@ -24,28 +24,28 @@ const setup = async function setup(node: React.ReactNode) {
 };
 
 const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressKey(key, modifiers);
   });
   await testSetup.renderOnce();
 };
 
 const pressEscape = async function pressEscape() {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressEscape();
   });
   await testSetup.renderOnce();
 };
 
 const pressEnter = async function pressEnter() {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressEnter();
   });
   await testSetup.renderOnce();
 };
 
 const pressShiftEnter = async function pressShiftEnter() {
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressEnter({ shift: true });
   });
   await testSetup.renderOnce();
@@ -91,7 +91,7 @@ describe("AskEditorController", () => {
     );
 
     expect(controllerRef.current).not.toBeNull();
-    await act(async () => {
+    await act(() => {
       controllerRef.current!.setText("replaced");
     });
     await testSetup.renderOnce();
@@ -119,7 +119,7 @@ describe("AskEditorController", () => {
       />,
     );
 
-    await act(async () => {
+    await act(() => {
       controllerRef.current!.setText("one\ntwo");
     });
     await testSetup.renderOnce();
@@ -146,7 +146,7 @@ describe("AskEditorController", () => {
       />,
     );
 
-    await act(async () => {
+    await act(() => {
       controllerRef.current!.insertText("XY");
       controllerRef.current!.submit();
     });
@@ -167,7 +167,7 @@ describe("AskEditorController", () => {
       />,
     );
 
-    await act(async () => {
+    await act(() => {
       controllerRef.current!.insertText("XY");
       // The inserted text must be visible to getText()/submit() before the
       // next render, exactly like the multiline path.
@@ -191,7 +191,7 @@ describe("AskEditorController", () => {
 
     expect(controllerRef.current!.mode).toBe("insert");
 
-    await act(async () => {
+    await act(() => {
       controllerRef.current!.setMode("cursor");
     });
     await testSetup.renderOnce();

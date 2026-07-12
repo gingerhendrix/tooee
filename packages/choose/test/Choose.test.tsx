@@ -53,7 +53,7 @@ const press = async function press(
   key: string,
   modifiers?: { ctrl?: boolean; shift?: boolean },
 ) {
-  await act(async () => {
+  await act(() => {
     s.mockInput.pressKey(key, modifiers);
   });
   await s.renderOnce();
@@ -63,7 +63,7 @@ const pressArrow = async function pressArrow(
   s: Awaited<ReturnType<typeof testRender>>,
   direction: "up" | "down" | "left" | "right",
 ) {
-  await act(async () => {
+  await act(() => {
     s.mockInput.pressArrow(direction);
   });
   await s.renderOnce();
@@ -99,7 +99,7 @@ describe("Choose arrow key navigation (kitty keyboard)", () => {
 
     await pressArrow(testSetup, "down");
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEnter();
     });
     await testSetup.renderOnce();
@@ -120,7 +120,7 @@ describe("Choose arrow key navigation (kitty keyboard)", () => {
     await pressArrow(testSetup, "down");
     await pressArrow(testSetup, "up");
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEnter();
     });
     await testSetup.renderOnce();
@@ -139,7 +139,7 @@ describe("Choose arrow key navigation (kitty keyboard)", () => {
 
     await pressArrow(testSetup, "up");
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEnter();
     });
     await testSetup.renderOnce();
@@ -158,7 +158,7 @@ describe("Choose arrow key navigation (kitty keyboard)", () => {
 
     await press(testSetup, "n", { ctrl: true });
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEnter();
     });
     await testSetup.renderOnce();
@@ -179,7 +179,7 @@ describe("Choose arrow key navigation (kitty keyboard)", () => {
     await press(testSetup, "n", { ctrl: true });
     await press(testSetup, "p", { ctrl: true });
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEnter();
     });
     await testSetup.renderOnce();
@@ -201,7 +201,7 @@ describe("Choose arrow key navigation (non-kitty keyboard)", () => {
 
     await pressArrow(testSetup, "down");
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEnter();
     });
     await testSetup.renderOnce();
@@ -223,7 +223,7 @@ describe("Choose arrow key navigation (non-kitty keyboard)", () => {
     await pressArrow(testSetup, "down");
     await pressArrow(testSetup, "up");
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEnter();
     });
     await testSetup.renderOnce();
@@ -242,7 +242,7 @@ describe("Choose confirm returns correct item", () => {
       },
     });
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEnter();
     });
     await testSetup.renderOnce();
@@ -263,7 +263,7 @@ describe("Choose confirm returns correct item", () => {
     await pressArrow(testSetup, "down");
     await pressArrow(testSetup, "down");
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEnter();
     });
     await testSetup.renderOnce();
@@ -283,7 +283,7 @@ describe("Choose cursor mode navigation", () => {
     });
 
     // Switch to cursor mode via Escape
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEscape();
     });
     await testSetup.renderOnce();
@@ -293,7 +293,7 @@ describe("Choose cursor mode navigation", () => {
     await press(testSetup, "j");
 
     // Confirm
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEnter();
     });
     await testSetup.renderOnce();
@@ -344,7 +344,7 @@ describe("Choose visual alignment", () => {
     await pressArrow(testSetup, "down");
     await pressArrow(testSetup, "down");
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEnter();
     });
     await testSetup.renderOnce();
@@ -366,7 +366,7 @@ describe("Choose visual alignment", () => {
       await pressArrow(testSetup, "down");
     }
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEnter();
     });
     await testSetup.renderOnce();
@@ -402,7 +402,7 @@ describe("Choose mouse interaction", () => {
     });
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEnter();
     });
     await testSetup.renderOnce();
@@ -425,7 +425,7 @@ describe("Choose mouse interaction", () => {
     expect(pos.y).toBeGreaterThan(-1);
 
     // Escape → cursor mode, then `t` opens the theme picker (modal surface).
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEscape();
     });
     await testSetup.renderOnce();
@@ -439,13 +439,13 @@ describe("Choose mouse interaction", () => {
     await testSetup.renderOnce();
 
     // Close the picker, then confirm: the active row must still be the first.
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEscape();
     });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).not.toContain("Filter themes");
 
-    await act(async () => {
+    await act(() => {
       testSetup.mockInput.pressEnter();
     });
     await testSetup.renderOnce();

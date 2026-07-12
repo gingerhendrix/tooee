@@ -16,7 +16,7 @@ const press = async function press(
   key: string,
   modifiers?: { ctrl?: boolean },
 ) {
-  await act(async () => {
+  await act(() => {
     session.mockInput.pressKey(key, modifiers);
   });
   await session.renderOnce();

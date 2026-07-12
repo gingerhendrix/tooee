@@ -110,8 +110,8 @@ describe("search hook", () => {
       { height: 10, kittyKeyboard: true, width: 40 },
     );
     await testSetup.renderOnce();
-    await act(async () => searchHandle!.setSearchQuery("a"));
-    await act(async () => searchHandle!.submitSearch());
+    await act(() => searchHandle!.setSearchQuery("a"));
+    await act(() => searchHandle!.submitSearch());
     await testSetup.renderOnce();
     expect(calls).toBe(1);
   });
@@ -128,7 +128,7 @@ describe("search hook", () => {
     testSetup = await setup();
     await press(testSetup, "/");
 
-    await act(async () => {
+    await act(() => {
       searchHandle!.setSearchQuery("alpha");
     });
     await testSetup.renderOnce();
@@ -143,7 +143,7 @@ describe("search hook", () => {
     testSetup = await setup();
     await press(testSetup, "/");
 
-    await act(async () => {
+    await act(() => {
       searchHandle!.setSearchQuery("alpha");
     });
     await testSetup.renderOnce();
@@ -159,13 +159,13 @@ describe("search hook", () => {
     testSetup = await setup();
     await press(testSetup, "/");
 
-    await act(async () => {
+    await act(() => {
       searchHandle!.setSearchQuery("alpha");
     });
     await testSetup.renderOnce();
 
     // Submit search
-    await act(async () => {
+    await act(() => {
       searchHandle!.submitSearch();
     });
     await testSetup.renderOnce();
@@ -192,12 +192,12 @@ describe("search hook", () => {
     testSetup = await setup();
     await press(testSetup, "/");
 
-    await act(async () => {
+    await act(() => {
       searchHandle!.setSearchQuery("alpha");
     });
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       searchHandle!.submitSearch();
     });
     await testSetup.renderOnce();
@@ -249,16 +249,16 @@ describe("search over changing content", () => {
     testSetup = await setupGrowing(true);
     await press(testSetup, "/");
 
-    await act(async () => {
+    await act(() => {
       searchHandle!.setSearchQuery("alpha");
     });
-    await act(async () => {
+    await act(() => {
       searchHandle!.submitSearch();
     });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("matches:[0]");
 
-    await act(async () => {
+    await act(() => {
       appendLine!("alpha again");
     });
     await testSetup.renderOnce();
@@ -270,15 +270,15 @@ describe("search over changing content", () => {
     testSetup = await setupGrowing(false);
     await press(testSetup, "/");
 
-    await act(async () => {
+    await act(() => {
       searchHandle!.setSearchQuery("alpha");
     });
-    await act(async () => {
+    await act(() => {
       searchHandle!.submitSearch();
     });
     await testSetup.renderOnce();
 
-    await act(async () => {
+    await act(() => {
       appendLine!("alpha again");
     });
     await testSetup.renderOnce();

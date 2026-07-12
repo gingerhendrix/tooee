@@ -44,7 +44,7 @@ test("t opens theme picker", async () => {
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("open:false");
 
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressKey("t");
   });
   await testSetup.renderOnce();
@@ -68,7 +68,7 @@ test("q calls onQuit handler", async () => {
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("quit-harness");
 
-  await act(async () => {
+  await act(() => {
     testSetup.mockInput.pressKey("q");
   });
   await testSetup.renderOnce();

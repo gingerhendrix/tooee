@@ -15,7 +15,7 @@ import { launch } from "@tooee/view";
 import type { ContentProvider, ContentChunk } from "@tooee/view";
 
 // Helper to create a delay
-const sleep = async (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = async (ms: number) => await new Promise((resolve) => setTimeout(resolve, ms));
 
 // Create a streaming content provider
 const contentProvider: ContentProvider = {
