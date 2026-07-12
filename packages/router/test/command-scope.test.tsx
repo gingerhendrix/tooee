@@ -10,6 +10,13 @@ import {
 } from "@tooee/router";
 import { CommandProvider, useCommandContext, useCommand } from "@tooee/commands";
 
+const expectDefined = function expectDefined<T>(value: T | undefined): T {
+  if (value === undefined) {
+    throw new Error("Expected test value to be defined");
+  }
+  return value;
+};
+
 const UnmountScreenA = function UnmountScreenA(): React.ReactNode {
   useRouterCommands();
   useCommand({
@@ -124,10 +131,10 @@ describe("useRouterCommands", () => {
     await testSetup.renderOnce();
 
     // ctx.commands is a live getter, so it reads the current state of the registry
-    const backCommand = ctx!.commands.find((c) => c.id === "router.back");
+    const backCommand = expectDefined(ctx).commands.find((c) => c.id === "router.back");
     expect(backCommand).toBeDefined();
-    expect(backCommand!.title).toBe("Go back");
-    expect(backCommand!.defaultHotkey).toBe("backspace");
+    expect(expectDefined(backCommand).title).toBe("Go back");
+    expect(expectDefined(backCommand).defaultHotkey).toBe("backspace");
   });
 
   test("when returns false when stack has single entry", async () => {
@@ -154,9 +161,9 @@ describe("useRouterCommands", () => {
     );
     await testSetup.renderOnce();
 
-    const backCommand = ctx!.commands.find((c) => c.id === "router.back");
+    const backCommand = expectDefined(ctx).commands.find((c) => c.id === "router.back");
     expect(backCommand).toBeDefined();
-    expect(backCommand!.when!({} as any)).toBe(false);
+    expect(expectDefined(expectDefined(backCommand).when)(expectDefined(ctx))).toBe(false);
   });
 
   test("when returns true when stack has multiple entries", async () => {
@@ -189,9 +196,9 @@ describe("useRouterCommands", () => {
     });
     await testSetup.renderOnce();
 
-    const backCommand = ctx!.commands.find((c) => c.id === "router.back");
+    const backCommand = expectDefined(ctx).commands.find((c) => c.id === "router.back");
     expect(backCommand).toBeDefined();
-    expect(backCommand!.when!({} as any)).toBe(true);
+    expect(expectDefined(expectDefined(backCommand).when)(expectDefined(ctx))).toBe(true);
   });
 
   test("calling handler triggers router.pop()", async () => {
@@ -229,9 +236,9 @@ describe("useRouterCommands", () => {
     expect(frame).toContain("screen:detail");
 
     // Invoke the back command handler
-    const backCommand = ctx!.commands.find((c) => c.id === "router.back");
+    const backCommand = expectDefined(ctx).commands.find((c) => c.id === "router.back");
     await act(async () => {
-      await backCommand!.handler({} as any);
+      await expectDefined(backCommand).handler(expectDefined(ctx));
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -270,9 +277,9 @@ describe("natural command scoping via unmount", () => {
     await testSetup.renderOnce();
 
     // Screen A is mounted — its commands should be registered
-    const hasBack = () => ctx!.commands.some((c) => c.id === "router.back");
-    const hasScreenA = () => ctx!.commands.some((c) => c.id === "screenA.action");
-    const hasScreenB = () => ctx!.commands.some((c) => c.id === "screenB.action");
+    const hasBack = () => expectDefined(ctx).commands.some((c) => c.id === "router.back");
+    const hasScreenA = () => expectDefined(ctx).commands.some((c) => c.id === "screenA.action");
+    const hasScreenB = () => expectDefined(ctx).commands.some((c) => c.id === "screenB.action");
 
     expect(hasBack()).toBe(true);
     expect(hasScreenA()).toBe(true);
@@ -317,8 +324,8 @@ describe("natural command scoping via unmount", () => {
     );
     await testSetup.renderOnce();
 
-    const hasBack = () => ctx!.commands.some((c) => c.id === "router.back");
-    const hasScreenA = () => ctx!.commands.some((c) => c.id === "screenA.action");
+    const hasBack = () => expectDefined(ctx).commands.some((c) => c.id === "router.back");
+    const hasScreenA = () => expectDefined(ctx).commands.some((c) => c.id === "screenA.action");
 
     // Screen A is mounted with its commands
     expect(hasScreenA()).toBe(true);

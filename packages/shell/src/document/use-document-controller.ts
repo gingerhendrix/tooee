@@ -63,6 +63,8 @@ const resolveContextMenuEntries = function resolveContextMenuEntries(
 ): ContextMenuEntry[] {
   const [first] = items;
   if (first !== undefined && "handler" in first) {
+    // Deferred(lint-sweep): add a typed discriminated-union API for mixed menu items.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- current public menu item union requires this projection
     return actionsToContextMenuEntries(items as readonly ActionDefinition[], context);
   }
   return [...(items as readonly ContextMenuEntry[])];
@@ -76,7 +78,8 @@ const defaultMatch = function defaultMatch<T>(
   const lowered = query.toLowerCase();
   const matches: number[] = [];
   for (let index = 0; index < rows.length; index += 1) {
-    if (getText(rows[index]!, index).toLowerCase().includes(lowered)) {
+    const row = rows[index];
+    if (row !== undefined && getText(row, index).toLowerCase().includes(lowered)) {
       matches.push(index);
     }
   }
@@ -213,7 +216,12 @@ export const useDocumentController = function useDocumentController<T>(
 
   const selectedRows = useMemo<readonly T[]>(
     () =>
-      selectedIndices.length === 0 ? EMPTY_ROWS : selectedIndices.map((index) => rows[index]!),
+      selectedIndices.length === 0
+        ? EMPTY_ROWS
+        : selectedIndices.flatMap((index) => {
+            const row = rows[index];
+            return row === undefined ? [] : [row];
+          }),
     [selectedIndices, rows],
   );
 
@@ -318,7 +326,8 @@ export const useDocumentController = function useDocumentController<T>(
       if (index == null || index < 0 || index >= rowsRef.current.length) {
         return null;
       }
-      return { index, key: getRowKey(index), row: rowsRef.current[index]! };
+      const row = rowsRef.current[index];
+      return row === undefined ? null : { index, key: getRowKey(index), row };
     },
     [getRowKey],
   );

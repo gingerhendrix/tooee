@@ -8,6 +8,13 @@ import {
   pruneBuffer,
 } from "../src/sequence.js";
 import type { ParsedHotkey } from "../src/types.js";
+import { keyEvent as key } from "./support/key-event.ts";
+
+const sleep = async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+};
 
 const SPACE_THEN_N: ParsedHotkey[] = [
   {
@@ -123,19 +130,3 @@ describe("pure sequence helpers", () => {
     });
   });
 });
-
-const key = function key(name: string): KeyEvent {
-  return {
-    ctrl: false,
-    meta: false,
-    name,
-    option: false,
-    shift: false,
-  } as KeyEvent;
-};
-
-const sleep = async function sleep(ms: number): Promise<void> {
-  await new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-};

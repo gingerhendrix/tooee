@@ -88,9 +88,10 @@ export const useSearchBindings = function useSearchBindings(
 
   const searchQuery = useSelector(store, (snapshot) => selectSearchQuery(snapshot.context));
   const searchActive = useSelector(store, (snapshot) => selectSearchActive(snapshot.context));
-  const matchingLines = useSelector(store, (snapshot) =>
-    selectMatches(snapshot.context),
-  ) as number[];
+  const selectedMatches = useSelector(store, (snapshot) => selectMatches(snapshot.context));
+  // Deferred(lint-sweep): redesign the public selector result as readonly (separate stream)
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- preserve the existing mutable public SearchState type
+  const matchingLines = selectedMatches as number[];
   const currentMatchIndex = useSelector(store, (snapshot) =>
     selectCurrentMatchIndex(snapshot.context),
   );

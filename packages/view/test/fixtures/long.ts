@@ -17,6 +17,19 @@ interface ProcessingResult {
   count: number;
 }
 
+const categorize = function categorize(value: number): string {
+  if (value < 10) {
+    return "low";
+  }
+  if (value < 50) {
+    return "medium";
+  }
+  if (value < 90) {
+    return "high";
+  }
+  return "critical";
+};
+
 const createDataPoint = function createDataPoint(
   id: number,
   name: string,
@@ -29,19 +42,6 @@ const createDataPoint = function createDataPoint(
     timestamp: new Date(),
     value,
   };
-};
-
-const categorize = function categorize(value: number): string {
-  if (value < 10) {
-    return "low";
-  }
-  if (value < 50) {
-    return "medium";
-  }
-  if (value < 90) {
-    return "high";
-  }
-  return "critical";
 };
 
 const processData = function processData(points: DataPoint[]): ProcessingResult {

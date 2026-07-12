@@ -77,6 +77,8 @@ const press = async function press(key: string, modifiers?: { shift?: boolean })
 const typeQuery = async function typeQuery(query: string) {
   await press("/");
   for (const char of query) {
+    // Deferred(lint-sweep): preserve sequential key delivery for deterministic input handling.
+    // oxlint-disable-next-line no-await-in-loop -- each key must be rendered before the next
     await press(char);
   }
   await act(async () => {

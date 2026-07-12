@@ -8,6 +8,7 @@ import { ChooseOverlay } from "../src/choose-overlay.js";
 import { buildChooseHints } from "../src/choose-panel.js";
 import type { ChooseContentProvider, ChooseItem, ChooseSource } from "../src/types.js";
 import type { ChooseController } from "../src/use-choose.js";
+import { expectDefined } from "./support/expect-defined.ts";
 
 const ChildSurface = function ChildSurface({ close }: { close: () => void }): React.ReactNode {
   useCommand({
@@ -141,22 +142,23 @@ describe("ChooseController and normalized sources", () => {
     );
 
     await act(async () => {
-      controllerRef.current!.setFilter("a");
-      controllerRef.current!.setActiveIndex(1);
-      controllerRef.current!.toggleActive();
-      controllerRef.current!.moveDown();
-      controllerRef.current!.toggleActive();
-      controllerRef.current!.submit();
+      expectDefined(controllerRef.current).setFilter("a");
+      expectDefined(controllerRef.current).setActiveIndex(1);
+      expectDefined(controllerRef.current).toggleActive();
+      expectDefined(controllerRef.current).moveDown();
+      expectDefined(controllerRef.current).toggleActive();
+      expectDefined(controllerRef.current).submit();
       await Promise.resolve();
     });
     await testSetup.renderOnce();
 
-    expect(controllerRef.current!.getFilter()).toBe("a");
-    expect(controllerRef.current!.getActiveItem()?.text).toBe("gamma");
-    expect(controllerRef.current!.getSelectedItems().map((item) => item.text)).toEqual([
-      "beta",
-      "gamma",
-    ]);
+    expect(expectDefined(controllerRef.current).getFilter()).toBe("a");
+    expect(expectDefined(controllerRef.current).getActiveItem()?.text).toBe("gamma");
+    expect(
+      expectDefined(controllerRef.current)
+        .getSelectedItems()
+        .map((item) => item.text),
+    ).toEqual(["beta", "gamma"]);
     expect(submitted.map((item) => item.text)).toEqual(["beta", "gamma"]);
   });
 
@@ -179,7 +181,7 @@ describe("ChooseController and normalized sources", () => {
     expect(testSetup.captureCharFrame()).toContain("item-1");
 
     await act(async () => {
-      controllerRef.current!.reload();
+      expectDefined(controllerRef.current).reload();
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -207,7 +209,7 @@ describe("ChooseController and normalized sources", () => {
 
     testSetup = await setup(<Host />);
     await act(async () => {
-      controllerRef.current!.setActiveIndex(1);
+      expectDefined(controllerRef.current).setActiveIndex(1);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -221,7 +223,7 @@ describe("ChooseController and normalized sources", () => {
     const frame = testSetup.captureCharFrame();
     expect(frame).toContain("fresh-one");
     expect(frame).not.toContain("old-one");
-    expect(controllerRef.current!.getActiveItem()?.text).toBe("fresh-one");
+    expect(expectDefined(controllerRef.current).getActiveItem()?.text).toBe("fresh-one");
   });
 
   test("ignores a stale loader completion after source replacement", async () => {
@@ -290,10 +292,10 @@ describe("shared commands, context, and surfaces", () => {
     );
 
     await pressEscape();
-    expect(controllerRef.current!.mode).toBe("cursor");
+    expect(expectDefined(controllerRef.current).mode).toBe("cursor");
     expect(cancellations).toBe(0);
     await press("i");
-    expect(controllerRef.current!.mode).toBe("insert");
+    expect(expectDefined(controllerRef.current).mode).toBe("insert");
     await pressEscape();
     await press("q");
     expect(cancellations).toBe(1);

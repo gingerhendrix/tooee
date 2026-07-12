@@ -5,6 +5,7 @@ import type {
   OverlayOpenOptions,
   OverlayRenderer,
 } from "./overlay-context.js";
+import type { Mode } from "@tooee/commands";
 
 /**
  * An overlay stack entry as tracked by the store. `prevMode` is the host mode
@@ -16,7 +17,7 @@ export interface OverlayRecord<TPayload = unknown> {
   render: OverlayRenderer<TPayload>;
   payload: TPayload;
   options: OverlayOpenOptions;
-  prevMode: string;
+  prevMode: Mode;
 }
 
 export interface OverlayStoreContext {
@@ -40,7 +41,7 @@ export interface OverlayClosedEmit {
    * above it — R-04); otherwise null. Same-id replacement displacement never
    * restores (the successor takes over).
    */
-  restoreModeTo: string | null;
+  restoreModeTo: Mode | null;
 }
 
 /**
@@ -51,7 +52,7 @@ export interface OverlayClosedEmit {
 const restoreModeDecision = function restoreModeDecision(
   stack: readonly OverlayRecord[],
   record: OverlayRecord,
-): string | null {
+): Mode | null {
   if (record.options.ownCommands === true || record.options.restoreMode === false) {
     return null;
   }
@@ -101,7 +102,10 @@ export const createOverlayStore = function createOverlayStore() {
         if (ctx.stack.length === 0) {
           return ctx;
         }
-        const record = ctx.stack[ctx.stack.length - 1]!;
+        const record = ctx.stack[ctx.stack.length - 1];
+        if (record === undefined) {
+          return ctx;
+        }
         enqueue.emit.closed({
           reason: event.reason,
           record,
@@ -127,11 +131,18 @@ export const createOverlayStore = function createOverlayStore() {
         if (idx === -1) {
           return ctx;
         }
-        const record = ctx.stack[idx]!;
-        const payload =
-          typeof event.next === "function"
-            ? (event.next as (prev: unknown) => unknown)(record.payload)
-            : event.next;
+        const record = ctx.stack[idx];
+        if (record === undefined) {
+          return ctx;
+        }
+        // Deferred(lint-sweep): make function-valued overlay payloads distinct from updater
+        // functions in the store API; until then the updater branch must trust the cast.
+        const applyUpdater = (next: unknown): unknown => {
+          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- updater/value ambiguity is an API-shaped deferred fix
+          const updater = next as (prev: unknown) => unknown;
+          return updater(record.payload);
+        };
+        const payload = typeof event.next === "function" ? applyUpdater(event.next) : event.next;
         const stack = [...ctx.stack];
         stack[idx] = { ...record, payload };
         return { stack };
@@ -151,7 +162,7 @@ export const selectStack = function selectStack(
 };
 
 export const selectTop = function selectTop(ctx: OverlayStoreContext): OverlayRecord | null {
-  return ctx.stack.length > 0 ? ctx.stack[ctx.stack.length - 1]! : null;
+  return ctx.stack.at(-1) ?? null;
 };
 
 export const selectHasOverlay = function selectHasOverlay(ctx: OverlayStoreContext): boolean {

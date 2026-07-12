@@ -3,6 +3,7 @@ import { test, expect, afterEach, describe } from "bun:test";
 import { act, useState } from "react";
 import { CommandProvider, useCommand, useCommandGroup, useCommandRegistry } from "../src/index.js";
 import type { RegisteredCommandGroup } from "../src/index.js";
+import { expectDefined } from "./support/expect-defined.ts";
 
 const CommandRegistrant = function CommandRegistrant({ onFire }: { onFire: () => void }) {
   useCommand({ handler: onFire, hotkey: "d", id: "dup", title: "Dup" });
@@ -124,9 +125,9 @@ describe("registry unregister guards (R-05)", () => {
     );
     await testSetup.renderOnce();
 
-    expect(groups!.get("g")?.title).toBe("Second group");
+    expect(expectDefined(groups).get("g")?.title).toBe("Second group");
 
     await press(testSetup, "h");
-    expect(groups!.get("g")?.title).toBe("Second group");
+    expect(expectDefined(groups).get("g")?.title).toBe("Second group");
   });
 });

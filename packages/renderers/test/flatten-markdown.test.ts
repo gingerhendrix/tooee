@@ -1,5 +1,6 @@
 import { test, expect, describe } from "bun:test";
 import { flattenMarkdown, getFlatBlockText } from "../src/markdown-blocks.js";
+import { expectDefined } from "./support/expect-defined.js";
 import type { FlatBlock } from "../src/markdown-blocks.js";
 
 /** Compact per-row projection: order, kind, bullet/checkbox, semantic text, and exact source. */
@@ -86,11 +87,11 @@ describe("flattenMarkdown row order and provenance", () => {
 
   test("repeated identical paragraphs resolve to distinct occurrences", () => {
     const result = rows("Same line\n\nSame line");
-    expect(result[0]!.source!.s).toBe(0);
-    expect(result[1]!.source!.s).toBe(11);
-    expect(result[1]!.source!.sl).toBe(2);
-    expect(result[0]!.source!.t).toBe("Same line");
-    expect(result[1]!.source!.t).toBe("Same line");
+    expect(expectDefined(expectDefined(result[0]).source).s).toBe(0);
+    expect(expectDefined(expectDefined(result[1]).source).s).toBe(11);
+    expect(expectDefined(expectDefined(result[1]).source).sl).toBe(2);
+    expect(expectDefined(expectDefined(result[0]).source).t).toBe("Same line");
+    expect(expectDefined(expectDefined(result[1]).source).t).toBe("Same line");
   });
 
   test("multi-line paragraph spans all its physical lines", () => {
@@ -270,7 +271,7 @@ describe("flattenMarkdown row order and provenance", () => {
       },
     ]);
     // The synthetic row's search/copy text is never empty.
-    expect(result[1]!.text.length).toBeGreaterThan(0);
+    expect(expectDefined(result[1]).text.length).toBeGreaterThan(0);
   });
 
   test("fenced code with internal blank lines keeps its exact span", () => {
@@ -297,11 +298,13 @@ describe("flattenMarkdown row order and provenance", () => {
     const md = "```\nx\n```\n\n```\nx\n```";
     const result = rows(md);
     expect(result).toHaveLength(2);
-    expect(result[0]!.source!.s).toBe(0);
-    expect(result[0]!.source!.e).toBe(9);
+    expect(expectDefined(expectDefined(result[0]).source).s).toBe(0);
+    expect(expectDefined(expectDefined(result[0]).source).e).toBe(9);
     // The second fence resolves to its own occurrence, not back to the first.
-    expect(result[1]!.source!.s).toBe(11);
-    expect(result[1]!.source!.s).toBeGreaterThan(result[0]!.source!.e);
+    expect(expectDefined(expectDefined(result[1]).source).s).toBe(11);
+    expect(expectDefined(expectDefined(result[1]).source).s).toBeGreaterThan(
+      expectDefined(expectDefined(result[0]).source).e,
+    );
   });
 
   test("blockquotes, nested blockquotes, thematic rules, HTML and tables", () => {
@@ -378,14 +381,22 @@ describe("flattenMarkdown row order and provenance", () => {
 
         // Row order and semantic text agree; CRLF offsets address the \r\n string.
         expect(lfRows.map((r) => r.text)).toEqual(crlfRows.map((r) => r.text));
-        expect(lfRows.map((r) => r.source!.sl)).toEqual(crlfRows.map((r) => r.source!.sl));
-        expect(lfRows.map((r) => r.source!.t)).toEqual(crlfRows.map((r) => r.source!.t));
-        expect(lfRows.map((r) => r.source!.line)).toEqual(crlfRows.map((r) => r.source!.line));
+        expect(lfRows.map((r) => expectDefined(r.source).sl)).toEqual(
+          crlfRows.map((r) => expectDefined(r.source).sl),
+        );
+        expect(lfRows.map((r) => expectDefined(r.source).t)).toEqual(
+          crlfRows.map((r) => expectDefined(r.source).t),
+        );
+        expect(lfRows.map((r) => expectDefined(r.source).line)).toEqual(
+          crlfRows.map((r) => expectDefined(r.source).line),
+        );
 
         // The second paragraph starts later under CRLF (extra \r per break).
-        expect(crlfRows[1]!.source!.s).toBeGreaterThan(lfRows[1]!.source!.s);
+        expect(expectDefined(expectDefined(crlfRows[1]).source).s).toBeGreaterThan(
+          expectDefined(expectDefined(lfRows[1]).source).s,
+        );
         // lineText excludes the \r\n delimiter.
-        expect(crlfRows[0]!.source!.line).toBe("para one");
+        expect(expectDefined(expectDefined(crlfRows[0]).source).line).toBe("para one");
       });
     }
 
@@ -394,7 +405,7 @@ describe("flattenMarkdown row order and provenance", () => {
       // finds the block in the CRLF source and keeps the original characters.
       const result = rows("line one\r\nline two\r\n\r\n> quote a\r\n> quote b");
       expect(result[0]).toMatchObject({ type: "paragraph" });
-      expect(result[0]!.source).toEqual({
+      expect(expectDefined(result[0]).source).toEqual({
         e: 18,
         ec: 8,
         el: 1,
@@ -405,25 +416,25 @@ describe("flattenMarkdown row order and provenance", () => {
         sl: 0,
         t: "line one\r\nline two",
       });
-      expect(result[1]!.type).toBe("blockquote");
-      expect(result[1]!.source!.t).toBe("> quote a\r\n> quote b");
+      expect(expectDefined(result[1]).type).toBe("blockquote");
+      expect(expectDefined(expectDefined(result[1]).source).t).toBe("> quote a\r\n> quote b");
     });
   });
 
   test("Unicode offsets are UTF-16 code units (astral chars advance by two)", () => {
     // 😀 (U+1F600) is a surrogate pair: two UTF-16 code units.
     const result = rows("😀 hi\n\nbye");
-    expect(result[0]!.source!.t).toBe("😀 hi");
+    expect(expectDefined(expectDefined(result[0]).source).t).toBe("😀 hi");
     // "😀 hi" = 2 (emoji) + 1 (space) + 2 (hi) = 5 code units.
-    expect(result[0]!.source!.e).toBe(5);
+    expect(expectDefined(expectDefined(result[0]).source).e).toBe(5);
     // "bye" starts after "😀 hi\n\n" = 5 + 2 = 7.
-    expect(result[1]!.source!.s).toBe(7);
-    expect(result[1]!.source!.t).toBe("bye");
+    expect(expectDefined(expectDefined(result[1]).source).s).toBe(7);
+    expect(expectDefined(expectDefined(result[1]).source).t).toBe("bye");
 
     // BMP characters count as a single code unit.
     const bmp = rows("café ☕\n\n日本語");
-    expect(bmp[0]!.source!.e).toBe(6);
-    expect(bmp[1]!.source!.s).toBe(8);
+    expect(expectDefined(expectDefined(bmp[0]).source).e).toBe(6);
+    expect(expectDefined(expectDefined(bmp[1]).source).s).toBe(8);
   });
 
   test("an unresolvable token (marked de-indents child block raw) returns source:null", () => {
@@ -432,17 +443,17 @@ describe("flattenMarkdown row order and provenance", () => {
     // than backtracking to a wrong location.
     const result = rows("- Setup:\n\n  ```bash\n  npm install\n  ```\n\n- Next");
     expect(result[0]).toMatchObject({ bullet: "- ", text: "Setup:", type: "paragraph" });
-    expect(result[1]!.type).toBe("code");
-    expect(result[1]!.source).toBeNull();
+    expect(expectDefined(result[1]).type).toBe("code");
+    expect(expectDefined(result[1]).source).toBeNull();
     expect(result[2]).toMatchObject({ bullet: "- ", text: "Next", type: "paragraph" });
     // Later rows still resolve — a null does not poison the monotonic cursor.
-    expect(result[2]!.source!.t).toBe("Next");
+    expect(expectDefined(expectDefined(result[2]).source).t).toBe("Next");
   });
 
   test("sourceId is stamped onto every resolved span when supplied", () => {
     const result = flattenMarkdown("# H\n\npara", { sourceId: "doc.md" });
-    expect(result[0]!.source!.primary.sourceId).toBe("doc.md");
-    expect(result[1]!.source!.primary.sourceId).toBe("doc.md");
+    expect(expectDefined(expectDefined(result[0]).source).primary.sourceId).toBe("doc.md");
+    expect(expectDefined(expectDefined(result[1]).source).primary.sourceId).toBe("doc.md");
   });
 });
 
@@ -453,6 +464,6 @@ describe("getFlatBlockText", () => {
     );
     // For a bullet-only synthetic row, text falls back to the visible bullet.
     expect(synthetic).toBeDefined();
-    expect(getFlatBlockText(synthetic!).length).toBeGreaterThan(0);
+    expect(getFlatBlockText(expectDefined(synthetic)).length).toBeGreaterThan(0);
   });
 });

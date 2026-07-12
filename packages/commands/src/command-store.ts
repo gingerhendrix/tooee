@@ -563,6 +563,8 @@ export const createCommandStore = function createCommandStore(
           const current = store.getSnapshot().context.commandsBySurface.get(record.id);
           // The registry contract exposes a Map; the store's per-surface maps
           // are Maps at runtime (readonly-typed). Consumers must not mutate.
+          // Deferred(lint-sweep): expose readonly command snapshots through an immutable registry API.
+          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- compatibility facade preserves the existing mutable Map API
           return (current ?? new Map()) as Map<string, Command>;
         },
         invoke(id: string) {

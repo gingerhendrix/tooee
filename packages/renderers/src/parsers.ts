@@ -10,11 +10,14 @@ export const parseCSV = function parseCSV(input: string): {
   columns: ColumnDef[];
   rows: TableRow[];
 } {
+  // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): parser helpers are kept below the public entry points
   const lines = splitLines(input);
   if (lines.length === 0) {
     return { columns: [], rows: [] };
   }
+  // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): parser helpers are kept below the public entry points
   const columns = createColumnDefs(parseCSVLine(lines[0]));
+  // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): parser helpers are kept below the public entry points
   const rows = buildRows(columns, lines.slice(1).map(parseCSVLine));
   return { columns, rows };
 };
@@ -64,11 +67,14 @@ export const parseTSV = function parseTSV(input: string): {
   columns: ColumnDef[];
   rows: TableRow[];
 } {
+  // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): parser helpers are kept below the public entry points
   const lines = splitLines(input);
   if (lines.length === 0) {
     return { columns: [], rows: [] };
   }
+  // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): parser helpers are kept below the public entry points
   const columns = createColumnDefs(lines[0].split("\t"));
+  // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): parser helpers are kept below the public entry points
   const rows = buildRows(
     columns,
     lines.slice(1).map((line) => line.split("\t")),

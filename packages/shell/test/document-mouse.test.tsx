@@ -9,7 +9,7 @@ import { AppLayout } from "@tooee/layout";
 import type { ContextMenuEntry } from "@tooee/renderers";
 import { Document, TooeeProvider, useDocumentController, useThemeCommands } from "@tooee/shell";
 import type { DocumentContextMenuEvent, DocumentController, DocumentRowEvent } from "@tooee/shell";
-import { press, pressEnter } from "./support/test-helpers.ts";
+import { expectDefined, press, pressEnter } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
 
 interface Row {
@@ -110,19 +110,19 @@ describe("screen-Y mapping", () => {
     await setup(THREE);
     await click(1, 1);
 
-    expect(handle!.activeIndex).toBe(1);
-    expect(handle!.activeKey).toBe("b");
+    expect(expectDefined(handle).activeIndex).toBe(1);
+    expect(expectDefined(handle).activeKey).toBe("b");
     expect(presses).toHaveLength(1);
-    expect(presses[0]!.index).toBe(1);
-    expect(presses[0]!.key).toBe("b");
-    expect(presses[0]!.row.label).toBe("beta");
+    expect(expectDefined(presses[0]).index).toBe(1);
+    expect(expectDefined(presses[0]).key).toBe("b");
+    expect(expectDefined(presses[0]).row.label).toBe("beta");
   });
 
   test("clicks on the empty trailing viewport are ignored", async () => {
     await setup(THREE);
     await click(1, 8);
 
-    expect(handle!.activeIndex).toBe(0);
+    expect(expectDefined(handle).activeIndex).toBe(0);
     expect(presses).toHaveLength(0);
   });
 
@@ -132,10 +132,10 @@ describe("screen-Y mapping", () => {
     await click(1, 1);
 
     expect(presses).toHaveLength(1);
-    expect(presses[0]!.index).toBe(0);
+    expect(expectDefined(presses[0]).index).toBe(0);
 
     await click(1, 2);
-    expect(presses[1]!.index).toBe(1);
+    expect(expectDefined(presses[1]).index).toBe(1);
   });
 
   test("clicks map through scrolled content", async () => {
@@ -143,20 +143,20 @@ describe("screen-Y mapping", () => {
     await setup(many);
     await press(session, "g", { shift: true });
 
-    const topLine = session.captureCharFrame().split("\n")[0]!.trim();
+    const topLine = expectDefined(session.captureCharFrame().split("\n")[0]).trim();
     expect(topLine).toMatch(/^row-\d+$/u);
     const topIndex = Number(topLine.slice("row-".length));
     expect(topIndex).toBeGreaterThan(0);
 
     await click(1, 0);
     expect(presses).toHaveLength(1);
-    expect(presses[0]!.index).toBe(topIndex);
+    expect(expectDefined(presses[0]).index).toBe(topIndex);
   });
 
   test("getRowAtScreenY exposes the same mapping and rejects misses", async () => {
     await setup(THREE);
-    expect(handle!.getRowAtScreenY(2)).toMatchObject({ index: 2, key: "c" });
-    expect(handle!.getRowAtScreenY(9)).toBeNull();
+    expect(expectDefined(handle).getRowAtScreenY(2)).toMatchObject({ index: 2, key: "c" });
+    expect(expectDefined(handle).getRowAtScreenY(9)).toBeNull();
   });
 });
 
@@ -167,12 +167,12 @@ describe("context menu", () => {
 
     await click(1, 1, MouseButtons.RIGHT);
 
-    expect(handle!.activeIndex).toBe(1);
+    expect(expectDefined(handle).activeIndex).toBe(1);
     expect(menuEvents).toHaveLength(1);
-    expect(menuEvents[0]!.row.id).toBe("b");
-    expect(menuEvents[0]!.index).toBe(1);
-    expect(menuEvents[0]!.key).toBe("b");
-    expect(menuEvents[0]!.context.mode).toBe("cursor");
+    expect(expectDefined(menuEvents[0]).row.id).toBe("b");
+    expect(expectDefined(menuEvents[0]).index).toBe(1);
+    expect(expectDefined(menuEvents[0]).key).toBe("b");
+    expect(expectDefined(menuEvents[0]).context.mode).toBe("cursor");
     expect(session.captureCharFrame()).toContain("Open beta");
   });
 
@@ -262,20 +262,20 @@ describe("variable-height rows", () => {
     await setupTall(MIXED);
 
     for (const y of [1, 2, 3]) {
-      expect(tallHandle!.getRowAtScreenY(y)).toMatchObject({ index: 1, key: "b" });
+      expect(expectDefined(tallHandle).getRowAtScreenY(y)).toMatchObject({ index: 1, key: "b" });
     }
-    expect(tallHandle!.getRowAtScreenY(0)).toMatchObject({ index: 0, key: "a" });
-    expect(tallHandle!.getRowAtScreenY(4)).toMatchObject({ index: 2, key: "c" });
-    expect(tallHandle!.getRowAtScreenY(5)).toMatchObject({ index: 2, key: "c" });
+    expect(expectDefined(tallHandle).getRowAtScreenY(0)).toMatchObject({ index: 0, key: "a" });
+    expect(expectDefined(tallHandle).getRowAtScreenY(4)).toMatchObject({ index: 2, key: "c" });
+    expect(expectDefined(tallHandle).getRowAtScreenY(5)).toMatchObject({ index: 2, key: "c" });
   });
 
   test("a click on the last line of a row selects that row, not its neighbor", async () => {
     await setupTall(MIXED);
     await click(1, 3);
 
-    expect(tallHandle!.activeIndex).toBe(1);
+    expect(expectDefined(tallHandle).activeIndex).toBe(1);
     expect(tallPresses).toHaveLength(1);
-    expect(tallPresses[0]!.key).toBe("b");
+    expect(expectDefined(tallPresses[0]).key).toBe("b");
   });
 
   test("clicks past variable-height content are ignored", async () => {
@@ -284,7 +284,7 @@ describe("variable-height rows", () => {
     await click(1, 9);
 
     expect(tallPresses).toHaveLength(0);
-    expect(tallHandle!.getRowAtScreenY(6)).toBeNull();
+    expect(expectDefined(tallHandle).getRowAtScreenY(6)).toBeNull();
   });
 
   test("clicks map through a scrolled variable-height document", async () => {
@@ -296,15 +296,15 @@ describe("variable-height rows", () => {
     await setupTall(many);
     await press(session, "g", { shift: true });
 
-    const topLine = session.captureCharFrame().split("\n")[0]!.trim();
+    const topLine = expectDefined(session.captureCharFrame().split("\n")[0]).trim();
     const match = topLine.match(/^row-(\d+):(\d+)$/u);
     expect(match).not.toBeNull();
-    const topIndex = Number(match![1]);
+    const topIndex = Number(expectDefined(match)[1]);
     expect(topIndex).toBeGreaterThan(0);
 
     await click(1, 0);
     expect(tallPresses).toHaveLength(1);
-    expect(tallPresses[0]!.index).toBe(topIndex);
+    expect(expectDefined(tallPresses[0]).index).toBe(topIndex);
   });
 });
 
@@ -362,17 +362,17 @@ describe("non-selectable rows", () => {
       { height: 12, kittyKeyboard: true, width: 40 },
     );
     await session.renderOnce();
-    expect(sectionHandle!.activeIndex).toBe(1);
+    expect(expectDefined(sectionHandle).activeIndex).toBe(1);
 
     await click(1, 2);
-    expect(sectionHandle!.activeIndex).toBe(2);
+    expect(expectDefined(sectionHandle).activeIndex).toBe(2);
 
     // The header is what was clicked, so the press event reports it; the
     // cursor resolves to the nearest selectable row per navigation rules.
     await click(1, 0);
-    expect(sectionPresses[1]!.index).toBe(0);
-    expect(sectionPresses[1]!.key).toBe("h1");
-    expect(sectionHandle!.activeIndex).toBe(1);
+    expect(expectDefined(sectionPresses[1]).index).toBe(0);
+    expect(expectDefined(sectionPresses[1]).key).toBe("h1");
+    expect(expectDefined(sectionHandle).activeIndex).toBe(1);
   });
 });
 
@@ -465,7 +465,7 @@ describe("action-backed context menu", () => {
     expect(frame).toContain(" x");
     expect(frame).not.toContain("Secret");
     expect(frame).not.toContain("Never applicable");
-    expect(handle!.activeIndex).toBe(1);
+    expect(expectDefined(handle).activeIndex).toBe(1);
   });
 
   test("choosing an entry invokes the action on the surface, then closes the menu", async () => {
@@ -533,7 +533,7 @@ describe("modal overlay guard", () => {
     expect(session.captureCharFrame()).toContain("Filter themes");
 
     await click(1, 1);
-    expect(handle!.activeIndex).toBe(0);
+    expect(expectDefined(handle).activeIndex).toBe(0);
     expect(presses).toHaveLength(0);
   });
 

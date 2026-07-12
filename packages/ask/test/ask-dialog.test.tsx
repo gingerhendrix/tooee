@@ -6,6 +6,7 @@ import { useCommand } from "@tooee/commands";
 import { useCurrentOverlay, useOverlay, useOverlayState } from "@tooee/overlays";
 import type { OverlayController } from "@tooee/overlays";
 import { testRender } from "../../../test/support/test-render.ts";
+import { expectDefined } from "./support/expect-defined.ts";
 import { useAskDialog } from "../src/use-ask-dialog.js";
 import type { AskDialogHandle } from "../src/use-ask-dialog.js";
 
@@ -150,7 +151,11 @@ const openDialog = async function openDialog(
 describe("useAskDialog settlement", () => {
   test("submit resolves the typed value, closes the overlay, and settles once", async () => {
     testSetup = await setup();
-    await openDialog(async (o) => await handles.current!.dialog.open(o), "Question?", "ask");
+    await openDialog(
+      async (o) => await expectDefined(handles.current).dialog.open(o),
+      "Question?",
+      "ask",
+    );
     expect(testSetup.captureCharFrame()).toContain("Question?");
 
     await typeText("hello");
@@ -163,7 +168,11 @@ describe("useAskDialog settlement", () => {
 
   test("cancel via q in cursor mode resolves null exactly once", async () => {
     testSetup = await setup();
-    await openDialog(async (o) => await handles.current!.dialog.open(o), "Question?", "ask");
+    await openDialog(
+      async (o) => await expectDefined(handles.current).dialog.open(o),
+      "Question?",
+      "ask",
+    );
 
     await pressEscape();
     await press("q");
@@ -174,7 +183,11 @@ describe("useAskDialog settlement", () => {
 
   test("host commands are suspended while the dialog is open and resume after", async () => {
     testSetup = await setup();
-    await openDialog(async (o) => await handles.current!.dialog.open(o), "Question?", "ask");
+    await openDialog(
+      async (o) => await expectDefined(handles.current).dialog.open(o),
+      "Question?",
+      "ask",
+    );
 
     await pressEscape();
     await press("z");
@@ -188,11 +201,15 @@ describe("useAskDialog settlement", () => {
 
   test("same-id replacement settles the displaced dialog null exactly once", async () => {
     testSetup = await setup();
-    await openDialog(async (o) => await handles.current!.dialog.open(o), "Question?", "ask");
+    await openDialog(
+      async (o) => await expectDefined(handles.current).dialog.open(o),
+      "Question?",
+      "ask",
+    );
 
-    const topId = handles.current!.stackIds().at(-1)!;
+    const topId = expectDefined(expectDefined(handles.current).stackIds().at(-1));
     await act(async () => {
-      handles.current!.overlay.open(
+      expectDefined(handles.current).overlay.open(
         topId,
         (): React.ReactNode => <text content="REPLACEMENT" />,
         undefined,
@@ -212,7 +229,7 @@ describe("useAskDialog settlement", () => {
 
     // Closing the replacement must not settle the dialog again.
     await act(async () => {
-      handles.current!.overlay.hide(topId);
+      expectDefined(handles.current).overlay.hide(topId);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -221,12 +238,16 @@ describe("useAskDialog settlement", () => {
 
   test("unmounting the owning component settles null and removes the overlay record", async () => {
     testSetup = await setup();
-    await openDialog(async (o) => await handles.current!.ownerDialog!.open(o), "Owned?", "owned");
+    await openDialog(
+      async (o) => await expectDefined(expectDefined(handles.current).ownerDialog).open(o),
+      "Owned?",
+      "owned",
+    );
     expect(testSetup.captureCharFrame()).toContain("Owned?");
 
-    const ownerDialog = handles.current!.ownerDialog!;
+    const ownerDialog = expectDefined(expectDefined(handles.current).ownerDialog);
     await act(async () => {
-      handles.current!.unmountOwner();
+      expectDefined(handles.current).unmountOwner();
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -247,13 +268,13 @@ describe("useAskDialog settlement", () => {
   test("concurrent dialogs get unique overlay ids and settle independently", async () => {
     testSetup = await setup();
     await act(async () => {
-      void handles.current!.dialog.open({ prompt: "First?" }).then(record("first"));
-      void handles.current!.dialog.open({ prompt: "Second?" }).then(record("second"));
+      void expectDefined(handles.current).dialog.open({ prompt: "First?" }).then(record("first"));
+      void expectDefined(handles.current).dialog.open({ prompt: "Second?" }).then(record("second"));
       await Promise.resolve();
     });
     await testSetup.renderOnce();
 
-    const ids = handles.current!.stackIds();
+    const ids = expectDefined(handles.current).stackIds();
     expect(ids.length).toBe(2);
     expect(new Set(ids).size).toBe(2);
     expect(settlements).toEqual([]);
@@ -273,8 +294,8 @@ describe("useAskDialog settlement", () => {
 
     let submitFromCommand: (() => void) | null = null;
     await act(async () => {
-      void handles
-        .current!.dialog.open({
+      void expectDefined(handles.current)
+        .dialog.open({
           commands: [
             {
               handler: () => {},

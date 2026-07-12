@@ -91,7 +91,7 @@ export class SourceIndex {
     let hi = starts.length - 1;
     while (lo < hi) {
       const mid = (lo + hi + 1) >> 1;
-      if (starts[mid]! <= offset) {
+      if (starts[mid] <= offset) {
         lo = mid;
       } else {
         hi = mid - 1;
@@ -102,17 +102,17 @@ export class SourceIndex {
 
   point(offset: number): SourcePoint {
     const line = this.lineAt(offset);
-    return { column: offset - this.lineStarts[line]!, line, offset };
+    return { column: offset - this.lineStarts[line], line, offset };
   }
 
   /** End offset of a line's content, excluding its `\n`/`\r\n` delimiter. */
   lineContentEnd(line: number): number {
     const starts = this.lineStarts;
-    const nextStart = line + 1 < starts.length ? starts[line + 1]! : this.text.length;
+    const nextStart = line + 1 < starts.length ? starts[line + 1] : this.text.length;
     let end = nextStart;
-    if (end > starts[line]! && this.text.charCodeAt(end - 1) === LINE_FEED_CODE) {
+    if (end > starts[line] && this.text.charCodeAt(end - 1) === LINE_FEED_CODE) {
       end -= 1;
-      if (end > starts[line]! && this.text.charCodeAt(end - 1) === CARRIAGE_RETURN_CODE) {
+      if (end > starts[line] && this.text.charCodeAt(end - 1) === CARRIAGE_RETURN_CODE) {
         end -= 1;
       }
     }
@@ -145,7 +145,7 @@ export class SourceIndex {
     const span: SourceSpan = {
       end: endPoint,
       lastLine,
-      lineText: this.text.slice(this.lineStarts[start.line]!, this.lineContentEnd(lastLine)),
+      lineText: this.text.slice(this.lineStarts[start.line], this.lineContentEnd(lastLine)),
       start,
       text: this.text.slice(rawStart, end),
     };
@@ -179,7 +179,7 @@ export const sourceLines = function sourceLines(
   const index = new SourceIndex(source, options?.sourceId);
   const rows: SourceLineRow[] = [];
   for (let line = 0; line < index.lineStarts.length; line += 1) {
-    const start = index.lineStarts[line]!;
+    const start = index.lineStarts[line];
     const end = index.lineContentEnd(line);
     rows.push({
       source: { primary: index.span(start, end, false) },

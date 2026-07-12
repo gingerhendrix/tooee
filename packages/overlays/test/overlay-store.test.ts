@@ -10,6 +10,13 @@ import {
 import type { OverlayClosedEmit, OverlayRecord } from "../src/overlay-store.js";
 import type { OverlayOpenOptions } from "../src/overlay-context.js";
 
+const expectDefined = function expectDefined<T>(value: T | undefined): T {
+  if (value === undefined) {
+    throw new Error("Expected test value to be defined");
+  }
+  return value;
+};
+
 const record = function record(
   id: string,
   options: OverlayOpenOptions = {},
@@ -45,12 +52,14 @@ describe("overlay store — stack transitions", () => {
 
     store.trigger.updated({ id: "a", next: "payload!" });
     ctx = store.getSnapshot().context;
-    expect(selectStack(ctx)[0]!.payload).toBe("payload!");
+    expect(expectDefined(selectStack(ctx)[0]).payload).toBe("payload!");
     // Untouched entries keep identity.
     expect(selectStack(ctx)[1]).toBe(b);
 
     store.trigger.updated({ id: "a", next: (prev: unknown) => `${prev}${prev}` });
-    expect(selectStack(store.getSnapshot().context)[0]!.payload).toBe("payload!payload!");
+    expect(expectDefined(selectStack(store.getSnapshot().context)[0]).payload).toBe(
+      "payload!payload!",
+    );
 
     store.trigger.closedTop({ reason: "escape" });
     expect(selectStackIds(store.getSnapshot().context)).toEqual(["a"]);
@@ -80,7 +89,7 @@ describe("overlay store — stack transitions", () => {
     store.trigger.opened({ record: record("a") });
     store.trigger.closed({ id: "a", reason: "unmounted" });
     expect(closes).toHaveLength(1);
-    expect(closes[0]!.reason).toBe("unmounted");
+    expect(expectDefined(closes[0]).reason).toBe("unmounted");
   });
 });
 
@@ -96,9 +105,9 @@ describe("overlay store — same-id replacement", () => {
     store.trigger.opened({ record: second });
 
     expect(closes).toHaveLength(1);
-    expect(closes[0]!.record).toBe(first);
-    expect(closes[0]!.reason).toBe("replaced");
-    expect(closes[0]!.restoreModeTo).toBeNull();
+    expect(expectDefined(closes[0]).record).toBe(first);
+    expect(expectDefined(closes[0]).reason).toBe("replaced");
+    expect(expectDefined(closes[0]).restoreModeTo).toBeNull();
 
     const ctx = store.getSnapshot().context;
     expect(selectStackIds(ctx)).toEqual(["picker"]);
@@ -125,7 +134,7 @@ describe("overlay store — restoreModeTo decision (R-04 parity)", () => {
     const closes = collectCloses(store);
     store.trigger.opened({ record: record("legacy", {}, "select") });
     store.trigger.closed({ id: "legacy", reason: "close" });
-    expect(closes[0]!.restoreModeTo).toBe("select");
+    expect(expectDefined(closes[0]).restoreModeTo).toBe("select");
   });
 
   test("closing a buried legacy entry does not restore (the one above owns the mode)", () => {
@@ -135,12 +144,12 @@ describe("overlay store — restoreModeTo decision (R-04 parity)", () => {
     store.trigger.opened({ record: record("above", {}, "insert") });
 
     store.trigger.closed({ id: "below", reason: "close" });
-    expect(closes[0]!.record.id).toBe("below");
-    expect(closes[0]!.restoreModeTo).toBeNull();
+    expect(expectDefined(closes[0]).record.id).toBe("below");
+    expect(expectDefined(closes[0]).restoreModeTo).toBeNull();
 
     // The topmost legacy entry still restores.
     store.trigger.closed({ id: "above", reason: "close" });
-    expect(closes[1]!.restoreModeTo).toBe("insert");
+    expect(expectDefined(closes[1]).restoreModeTo).toBe("insert");
   });
 
   test("ownCommands entries never restore, and do not shadow legacy entries", () => {
@@ -151,13 +160,13 @@ describe("overlay store — restoreModeTo decision (R-04 parity)", () => {
 
     // The owned surface never touched the host mode: nothing to restore.
     store.trigger.closed({ id: "owned", reason: "close" });
-    expect(closes[0]!.restoreModeTo).toBeNull();
+    expect(expectDefined(closes[0]).restoreModeTo).toBeNull();
 
     // The legacy entry is still the topmost non-ownCommands entry.
     store.trigger.opened({ record: record("owned2", { ownCommands: true }, "cursor") });
     store.trigger.closed({ id: "legacy", reason: "close" });
-    expect(closes[1]!.record.id).toBe("legacy");
-    expect(closes[1]!.restoreModeTo).toBe("select");
+    expect(expectDefined(closes[1]).record.id).toBe("legacy");
+    expect(expectDefined(closes[1]).restoreModeTo).toBe("select");
   });
 
   test("restoreMode: false is respected", () => {
@@ -165,7 +174,7 @@ describe("overlay store — restoreModeTo decision (R-04 parity)", () => {
     const closes = collectCloses(store);
     store.trigger.opened({ record: record("no-restore", { restoreMode: false }, "select") });
     store.trigger.closed({ id: "no-restore", reason: "close" });
-    expect(closes[0]!.restoreModeTo).toBeNull();
+    expect(expectDefined(closes[0]).restoreModeTo).toBeNull();
   });
 
   test("closedTop applies the same decision", () => {
@@ -173,6 +182,6 @@ describe("overlay store — restoreModeTo decision (R-04 parity)", () => {
     const closes = collectCloses(store);
     store.trigger.opened({ record: record("top", {}, "insert") });
     store.trigger.closedTop({ reason: "escape" });
-    expect(closes[0]!.restoreModeTo).toBe("insert");
+    expect(expectDefined(closes[0]).restoreModeTo).toBe("insert");
   });
 });

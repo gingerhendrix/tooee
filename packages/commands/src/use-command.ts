@@ -52,7 +52,15 @@ export const useCommand = function useCommand(options: UseCommandOptions): void 
       // the ref holds the same-render options when the effect runs.
       modes: optionsRef.current.modes,
       title: options.title,
-      when: optionsRef.current.when ? (ctx) => optionsRef.current.when!(ctx) : undefined,
+      when: optionsRef.current.when
+        ? (ctx) => {
+            const when = optionsRef.current.when;
+            if (!when) {
+              return false;
+            }
+            return when(ctx);
+          }
+        : undefined,
     };
     return registry.register(command);
   }, [

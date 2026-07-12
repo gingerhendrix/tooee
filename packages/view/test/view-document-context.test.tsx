@@ -8,6 +8,7 @@ import type { DocumentCommandContext } from "@tooee/shell";
 import { View } from "../src/view.js";
 import type { ViewCommandContext } from "../src/hooks/use-view-command-context.js";
 import type { AnyContent, ContentProvider } from "../src/types.js";
+import { expectDefined } from "./support/expect-defined.ts";
 
 const staticProvider = function staticProvider(content: AnyContent): ContentProvider {
   return { format: content.format, load: () => content };
@@ -101,12 +102,13 @@ describe("ctx.document from a View screen", () => {
     await press("x");
 
     expect(documentCtx).toBeDefined();
-    expect(documentCtx!.kind).toBe("table");
-    expect(documentCtx!.title).toBe("People");
-    expect(documentCtx!.rowCount).toBe(3);
-    expect(documentCtx!.cursor).toBe(0);
-    expect(documentCtx!.activeRow).toEqual({ name: "Alice", role: "dev" });
-    expect(documentCtx!.selectedRows).toEqual([]);
+    const document = expectDefined(documentCtx);
+    expect(document.kind).toBe("table");
+    expect(document.title).toBe("People");
+    expect(document.rowCount).toBe(3);
+    expect(document.cursor).toBe(0);
+    expect(document.activeRow).toEqual({ name: "Alice", role: "dev" });
+    expect(document.selectedRows).toEqual([]);
   });
 
   test("tracks the cursor and reports toggled rows as selection", async () => {
@@ -119,10 +121,11 @@ describe("ctx.document from a View screen", () => {
     await testSetup.renderOnce();
     await press("x");
 
-    expect(documentCtx!.cursor).toBe(1);
-    expect(documentCtx!.activeRow).toEqual({ name: "Bob", role: "ops" });
-    expect(Array.from(documentCtx!.toggledIndices)).toEqual([1]);
-    expect(documentCtx!.selectedRows).toEqual([{ name: "Bob", role: "ops" }]);
+    const document = expectDefined(documentCtx);
+    expect(document.cursor).toBe(1);
+    expect(document.activeRow).toEqual({ name: "Bob", role: "ops" });
+    expect(Array.from(document.toggledIndices)).toEqual([1]);
+    expect(document.selectedRows).toEqual([{ name: "Bob", role: "ops" }]);
   });
 
   test("a code View exposes its lines as document rows", async () => {
@@ -130,13 +133,18 @@ describe("ctx.document from a View screen", () => {
     await press("j");
     await press("x");
 
-    expect(documentCtx!.kind).toBe("code");
-    expect(documentCtx!.rowCount).toBe(4);
-    expect(documentCtx!.cursor).toBe(1);
+    const document = expectDefined(documentCtx);
+    expect(document.kind).toBe("code");
+    expect(document.rowCount).toBe(4);
+    expect(document.cursor).toBe(1);
     // Code rows are now source-backed SourceLineRow objects, not bare strings.
-    expect((documentCtx!.activeRow as { text: string }).text).toBe("beta");
-    expect(documentCtx!.activeAnchor?.text).toBe("beta");
-    expect(documentCtx!.activeAnchor?.source?.primary.start.line).toBe(1);
+    const activeRow = document.activeRow;
+    if (typeof activeRow !== "object" || activeRow === null || !("text" in activeRow)) {
+      throw new Error("Expected code document row to contain text");
+    }
+    expect(activeRow.text).toBe("beta");
+    expect(document.activeAnchor?.text).toBe("beta");
+    expect(document.activeAnchor?.source?.primary.start.line).toBe(1);
   });
 });
 
@@ -146,11 +154,12 @@ describe("ctx.view from a View screen", () => {
     await press("x");
 
     expect(viewCtx).toBeDefined();
-    expect(viewCtx!.format).toBe("table");
-    expect(viewCtx!.title).toBe("People");
-    expect(typeof viewCtx!.reload).toBe("function");
-    expect(viewCtx!.marks.userMarks).toEqual([]);
-    expect(viewCtx!.marks.providerMarks).toEqual([]);
+    const view = expectDefined(viewCtx);
+    expect(view.format).toBe("table");
+    expect(view.title).toBe("People");
+    expect(typeof view.reload).toBe("function");
+    expect(view.marks.userMarks).toEqual([]);
+    expect(view.marks.providerMarks).toEqual([]);
 
     expect(viewCtx).not.toHaveProperty("cursor");
     expect(viewCtx).not.toHaveProperty("selection");

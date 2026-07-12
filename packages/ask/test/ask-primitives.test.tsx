@@ -3,6 +3,7 @@ import { act, useRef, useState } from "react";
 import { TooeeProvider } from "@tooee/shell";
 import { CommandSurfaceProvider, useCommand } from "@tooee/commands";
 import { testRender } from "../../../test/support/test-render.ts";
+import { expectDefined } from "./support/expect-defined.ts";
 import { AskOverlay } from "../src/ask-overlay.js";
 import { buildAskHints } from "../src/ask-panel.js";
 import type { AskEditorController } from "../src/use-ask-editor.js";
@@ -153,12 +154,12 @@ describe("AskEditorController", () => {
 
     expect(controllerRef.current).not.toBeNull();
     await act(async () => {
-      controllerRef.current!.setText("replaced");
+      expectDefined(controllerRef.current).setText("replaced");
       await Promise.resolve();
     });
     await testSetup.renderOnce();
 
-    expect(controllerRef.current!.getText()).toBe("replaced");
+    expect(expectDefined(controllerRef.current).getText()).toBe("replaced");
 
     // Cursor moved to the end: further typing appends.
     await typeText("!");
@@ -182,12 +183,12 @@ describe("AskEditorController", () => {
     );
 
     await act(async () => {
-      controllerRef.current!.setText("one\ntwo");
+      expectDefined(controllerRef.current).setText("one\ntwo");
       await Promise.resolve();
     });
     await testSetup.renderOnce();
 
-    expect(controllerRef.current!.getText()).toBe("one\ntwo");
+    expect(expectDefined(controllerRef.current).getText()).toBe("one\ntwo");
 
     await typeText("!");
     await pressShiftEnter();
@@ -210,8 +211,8 @@ describe("AskEditorController", () => {
     );
 
     await act(async () => {
-      controllerRef.current!.insertText("XY");
-      controllerRef.current!.submit();
+      expectDefined(controllerRef.current).insertText("XY");
+      expectDefined(controllerRef.current).submit();
       await Promise.resolve();
     });
 
@@ -232,11 +233,11 @@ describe("AskEditorController", () => {
     );
 
     await act(async () => {
-      controllerRef.current!.insertText("XY");
+      expectDefined(controllerRef.current).insertText("XY");
       // The inserted text must be visible to getText()/submit() before the
       // next render, exactly like the multiline path.
-      expect(controllerRef.current!.getText()).toBe("abXY");
-      controllerRef.current!.submit();
+      expect(expectDefined(controllerRef.current).getText()).toBe("abXY");
+      expectDefined(controllerRef.current).submit();
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -254,15 +255,15 @@ describe("AskEditorController", () => {
     const controllerRef = { current: null as AskEditorController | null };
     testSetup = await setup(<ControllerHost defaultValue="hi" controllerRef={controllerRef} />);
 
-    expect(controllerRef.current!.mode).toBe("insert");
+    expect(expectDefined(controllerRef.current).mode).toBe("insert");
 
     await act(async () => {
-      controllerRef.current!.setMode("cursor");
+      expectDefined(controllerRef.current).setMode("cursor");
       await Promise.resolve();
     });
     await testSetup.renderOnce();
 
-    expect(controllerRef.current!.mode).toBe("cursor");
+    expect(expectDefined(controllerRef.current).mode).toBe("cursor");
     expect(testSetup.renderer.getCursorState().style).toBe("block");
   });
 });

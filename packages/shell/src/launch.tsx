@@ -84,7 +84,11 @@ export const guardTerminalHealth = function guardTerminalHealth(
       return;
     }
     disposed = true;
+    // Deferred(lint-sweep): retain the paired lifecycle callback closure.
+    // oxlint-disable-next-line no-use-before-define -- callback is declared below and only invoked during disposal
     stdin.removeListener("end", onTerminalEnd);
+    // Deferred(lint-sweep): retain the paired lifecycle callback closure.
+    // oxlint-disable-next-line no-use-before-define -- callback is declared below and only invoked during disposal
     stdin.removeListener("close", onTerminalEnd);
     renderer.removeListener("destroy", dispose);
   };

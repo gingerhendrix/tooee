@@ -34,6 +34,8 @@ export const useNavigate = function useNavigate() {
 export const useParams = function useParams<T = Record<string, unknown>>(): T {
   const stack = useRouterStack();
   const entry = stack[stack.length - 1];
+  // Deferred(lint-sweep): typed routes/keys redesign (separate stream)
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- caller-selected T over unknown storage
   return (entry?.params ?? {}) as T;
 };
 

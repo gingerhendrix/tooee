@@ -16,6 +16,8 @@ const createDirectoryFileProvider = function createDirectoryFileProvider(
   return {
     async load(): Promise<AnyContent> {
       const result = inner.load();
+      // Deferred(lint-sweep): add schema-based validation for custom and streamed content formats.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- file providers return external content at this boundary
       const content = result instanceof Promise ? await result : (result as AnyContent);
       return {
         ...content,

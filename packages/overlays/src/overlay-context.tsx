@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
 import type { ReactNode } from "react";
+import type { CommandSurfaceRole, Mode } from "@tooee/commands";
 
 // Types
 
@@ -7,11 +8,11 @@ export type OverlayId = string;
 
 export type OverlayCloseReason = "close" | "escape" | "replaced" | "unmounted";
 
-export type OverlayRole = "modal" | "passive";
+export type OverlayRole = CommandSurfaceRole;
 
 export interface OverlayOpenOptions {
   /** Mode to set while overlay is active (default: "insert"). null = don't change mode. */
-  mode?: string | null;
+  mode?: Mode | null;
   /** Restore previous mode on close (default: true) */
   restoreMode?: boolean;
   /** Allow Escape to close this overlay (default: true) */
@@ -30,7 +31,7 @@ export interface OverlayOpenOptions {
    */
   role?: OverlayRole;
   /** Initial local mode for an owned command surface (default "cursor"). */
-  surfaceMode?: string;
+  surfaceMode?: Mode;
   /** Lifecycle callback */
   onClose?: (reason: OverlayCloseReason) => void;
 }

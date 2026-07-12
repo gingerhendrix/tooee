@@ -50,6 +50,8 @@ const RawKeyboardHarness = function RawKeyboardHarness(): ReactNode {
       <text content={`surfaceAction:${surfaceAction}`} />
       {showSurface && (
         <CommandSurfaceProvider id="modal" role="modal" initialMode="cursor">
+          {/* Deferred(lint-sweep): preserve deliberate top-down test harness organization. */}
+          {/* oxlint-disable-next-line no-use-before-define -- component is declared below the harness */}
           <ZCommandSurface
             onAction={() => {
               setSurfaceAction((n) => n + 1);

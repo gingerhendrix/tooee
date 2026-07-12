@@ -130,6 +130,8 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
         // `toItem` results that share references stay unambiguous.
         // Safe default: `toItem` may only be omitted when T is a ChooseItem
         // (enforced by ChooseDialogToItem).
+        // Deferred(lint-sweep): replace the conditional generic API boundary with schema-safe overload implementation typing.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- default mapper is enforced by ChooseDialogToItem's public type
         const toItem = options.toItem ?? ((item: T) => item as unknown as ChooseItem);
         const rowToValue = new Map<ChooseItem, T>();
         const mapValues = (values: readonly T[]): ChooseItem[] => {
@@ -147,6 +149,8 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
         const source: ChooseSource = Array.isArray(items)
           ? mapValues(items as readonly T[])
           : (): ChooseItem[] | Promise<ChooseItem[]> => {
+              // Deferred(lint-sweep): replace the conditional generic API boundary with schema-safe overload implementation typing.
+              // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- implementation narrows the public source union after the branch
               const loaded = (items as () => readonly T[] | Promise<readonly T[]>)();
               return loaded instanceof Promise ? loaded.then(mapValues) : mapValues(loaded);
             };
@@ -219,6 +223,8 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
         openHandlesRef.current.set(id, handle);
       });
 
+    // Deferred(lint-sweep): replace the conditional generic API boundary with schema-safe overload implementation typing.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- implementation preserves the public overloaded handle contract
     handleRef.current = { open: open as ChooseDialogHandle<T>["open"] };
   }
 

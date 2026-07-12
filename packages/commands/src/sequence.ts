@@ -44,7 +44,9 @@ export const matchesBuffer = function matchesBuffer(
 
   const start = buffer.length - steps.length;
   for (let i = 0; i < steps.length; i += 1) {
-    if (!matchStep(buffer[start + i]!, steps[i]!)) {
+    const event = buffer[start + i];
+    const step = steps[i];
+    if (event === undefined || step === undefined || !matchStep(event, step)) {
       return false;
     }
   }

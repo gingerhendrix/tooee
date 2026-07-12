@@ -105,6 +105,7 @@ export const MarkdownView = function MarkdownView({
     () =>
       blocks.map(
         (block, index): ReactNode => (
+          // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
           <FlatBlockRenderer
             key={index}
             block={block}
@@ -157,19 +158,30 @@ const FlatBlockRenderer = function FlatBlockRenderer({
 
   // List item line (has bullet)
   if (bullet !== undefined) {
+    // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
     return <ListLineRenderer block={block} theme={theme} />;
   }
 
   // Regular block token
   switch (token.type) {
-    case "heading":
-      return <HeadingRenderer token={token as Tokens.Heading} theme={theme} indent={indent} />;
-    case "paragraph":
-      return <ParagraphRenderer token={token as Tokens.Paragraph} theme={theme} indent={indent} />;
-    case "code":
+    case "heading": {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+      const headingToken = token as Tokens.Heading;
+      // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
+      return <HeadingRenderer token={headingToken} theme={theme} indent={indent} />;
+    }
+    case "paragraph": {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+      const paragraphToken = token as Tokens.Paragraph;
+      // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
+      return <ParagraphRenderer token={paragraphToken} theme={theme} indent={indent} />;
+    }
+    case "code": {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+      const codeToken = token as Tokens.Code;
       return (
         <CodeBlock
-          token={token as Tokens.Code}
+          token={codeToken}
           blockIndex={blockIndex}
           theme={theme}
           syntax={syntax}
@@ -178,13 +190,23 @@ const FlatBlockRenderer = function FlatBlockRenderer({
           renderers={codeBlockRenderers}
         />
       );
-    case "blockquote":
+    }
+    case "blockquote": {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+      const blockquoteToken = token as Tokens.Blockquote;
       return (
-        <BlockquoteRenderer token={token as Tokens.Blockquote} theme={theme} indent={indent} />
+        // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
+        <BlockquoteRenderer token={blockquoteToken} theme={theme} indent={indent} />
       );
-    case "table":
-      return <MarkdownTableRenderer token={token as Tokens.Table} indent={indent} />;
+    }
+    case "table": {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+      const tableToken = token as Tokens.Table;
+      // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
+      return <MarkdownTableRenderer token={tableToken} indent={indent} />;
+    }
     case "hr":
+      // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
       return <HorizontalRule theme={theme} indent={indent} />;
     case "space":
     case "html":
@@ -238,10 +260,11 @@ const ListLineRenderer = function ListLineRenderer({
         )}
         {hasContent &&
           (inlineTokens.length > 0 ? (
+            /* oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization */
             <InlineTokens tokens={inlineTokens} theme={theme} />
           ) : hasText ? (
             "text" in token ? (
-              (token as { text: string }).text
+              token.text
             ) : (
               ""
             )
@@ -287,6 +310,7 @@ const HeadingRenderer = function HeadingRenderer({
       <text style={{ fg: headingColors[token.depth] || theme.text }}>
         <span fg={theme.textMuted}>{prefixes[token.depth]}</span>
         <strong>
+          {/* oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization */}
           <InlineTokens tokens={token.tokens} theme={theme} />
         </strong>
       </text>
@@ -306,6 +330,7 @@ const ParagraphRenderer = function ParagraphRenderer({
   return (
     <box style={{ marginBottom: 1, marginLeft: 1 + indent, marginRight: 1 }}>
       <text style={{ fg: theme.markdownText }}>
+        {/* oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization */}
         <InlineTokens tokens={token.tokens} theme={theme} />
       </text>
     </box>
@@ -326,7 +351,7 @@ const BlockquoteRenderer = function BlockquoteRenderer({
   for (const child of token.tokens) {
     if ("tokens" in child && Array.isArray(child.tokens)) {
       if (inlineTokens.length > 0) {
-        inlineTokens.push({ raw: "\n", text: "\n", type: "text" } as Token);
+        inlineTokens.push({ raw: "\n", text: "\n", type: "text" });
       }
       inlineTokens.push(...child.tokens);
     } else if ("text" in child && typeof child.text === "string") {
@@ -346,6 +371,7 @@ const BlockquoteRenderer = function BlockquoteRenderer({
     >
       <text style={{ fg: theme.markdownBlockQuote }} content="│ " />
       <text style={{ fg: theme.textMuted }}>
+        {/* oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization */}
         <InlineTokens tokens={inlineTokens} theme={theme} />
       </text>
     </box>
@@ -363,18 +389,24 @@ const MarkdownTableRenderer = function MarkdownTableRenderer({
 
   const content: TextTableContent = useMemo(() => {
     const headerRow: TextTableCellContent[] = token.header.map((cell) => {
+      // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
       const chunks = inlineTokensToChunks(cell.tokens, theme);
       // Wrap header chunks in bold
       return chunks.length > 0
         ? chunks.map((c) => boldChunk(c))
-        : [boldChunk(getPlainText(cell.tokens).trim())];
+        : [
+            // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
+            boldChunk(getPlainText(cell.tokens).trim()),
+          ];
     });
     const dataRows = token.rows.map((row) =>
       row.map((cell) => {
+        // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
         const chunks = inlineTokensToChunks(cell.tokens, theme);
         return chunks.length > 0
           ? chunks
           : ([
+              // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
               { __isChunk: true as const, text: getPlainText(cell.tokens) },
             ] as TextTableCellContent);
       }),
@@ -434,12 +466,15 @@ const InlineTokens = function InlineTokens({
 
     switch (token.type) {
       case "text": {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
         result.push((token as Tokens.Text).text);
         break;
       }
       case "strong": {
         result.push(
           <strong key={key}>
+            {/* oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization */}
+            {/* oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep */}
             <InlineTokens tokens={(token as Tokens.Strong).tokens} theme={theme} />
           </strong>,
         );
@@ -448,6 +483,8 @@ const InlineTokens = function InlineTokens({
       case "em": {
         result.push(
           <em key={key}>
+            {/* oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization */}
+            {/* oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep */}
             <InlineTokens tokens={(token as Tokens.Em).tokens} theme={theme} />
           </em>,
         );
@@ -456,16 +493,19 @@ const InlineTokens = function InlineTokens({
       case "codespan": {
         result.push(
           <span key={key} fg={theme.markdownCode} bg={theme.backgroundPanel}>
+            {/* oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep */}
             {` ${(token as Tokens.Codespan).text} `}
           </span>,
         );
         break;
       }
       case "link": {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
         const linkToken = token as Tokens.Link;
         result.push(
           <u key={key}>
             <a href={linkToken.href} fg={theme.markdownLink}>
+              {/* oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization */}
               <InlineTokens tokens={linkToken.tokens} theme={theme} />
             </a>
           </u>,
@@ -476,12 +516,15 @@ const InlineTokens = function InlineTokens({
         result.push(
           <span key={key} fg={theme.textMuted}>
             ~
+            {/* oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization */}
+            {/* oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep */}
             <InlineTokens tokens={(token as Tokens.Del).tokens} theme={theme} />~
           </span>,
         );
         break;
       }
       case "image": {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
         const imgToken = token as Tokens.Image;
         result.push(
           <span key={key} fg={theme.textMuted}>
@@ -495,6 +538,7 @@ const InlineTokens = function InlineTokens({
         break;
       }
       case "escape": {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
         result.push((token as Tokens.Escape).text);
         break;
       }
@@ -503,7 +547,9 @@ const InlineTokens = function InlineTokens({
         break;
       }
       default: {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
         if ("text" in token && typeof (token as { text?: string }).text === "string") {
+          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
           result.push((token as { text: string }).text);
         }
         break;
@@ -527,31 +573,37 @@ const inlineTokensToChunks = function inlineTokensToChunks(
   for (const token of tokens) {
     switch (token.type) {
       case "text": {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
         chunks.push({ __isChunk: true as const, text: (token as Tokens.Text).text });
         break;
       }
       case "strong": {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
         for (const sub of inlineTokensToChunks((token as Tokens.Strong).tokens, theme)) {
           chunks.push(boldChunk(sub));
         }
         break;
       }
       case "em": {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
         for (const sub of inlineTokensToChunks((token as Tokens.Em).tokens, theme)) {
           chunks.push(italicChunk(sub));
         }
         break;
       }
       case "codespan": {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+        const codespanToken = token as Tokens.Codespan;
         chunks.push({
           __isChunk: true as const,
           bg: parseColor(theme.backgroundPanel),
           fg: parseColor(theme.markdownCode),
-          text: ` ${(token as Tokens.Codespan).text} `,
+          text: ` ${codespanToken.text} `,
         });
         break;
       }
       case "link": {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
         const linkToken = token as Tokens.Link;
         for (const sub of inlineTokensToChunks(linkToken.tokens, theme)) {
           chunks.push(underlineChunk({ ...sub, fg: parseColor(theme.markdownLink) }));
@@ -559,11 +611,14 @@ const inlineTokensToChunks = function inlineTokensToChunks(
         break;
       }
       case "escape": {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
         chunks.push({ __isChunk: true as const, text: (token as Tokens.Escape).text });
         break;
       }
       default: {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
         if ("text" in token && typeof (token as { text?: string }).text === "string") {
+          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
           chunks.push({ __isChunk: true as const, text: (token as { text: string }).text });
         }
         break;
@@ -582,9 +637,11 @@ const getPlainText = function getPlainText(tokens: Token[]): string {
   return tokens
     .map((token) => {
       if (token.type === "text") {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
         return (token as { text: string }).text;
       }
       if (token.type === "codespan") {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
         return (token as Tokens.Codespan).text;
       }
       if ("tokens" in token && token.tokens) {

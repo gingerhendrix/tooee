@@ -80,6 +80,38 @@ export const resolveIndex = function resolveIndex(
   return null;
 };
 
+const toggle = function toggle(ctx: NavSearchContext): NavSearchContext {
+  if (ctx.cursor === null) {
+    return ctx;
+  }
+  const key = ctx.rowKeys[ctx.cursor];
+  if (key === undefined) {
+    return ctx;
+  }
+  const toggledKeys = new Set(ctx.toggledKeys);
+  if (toggledKeys.has(key)) {
+    toggledKeys.delete(key);
+  } else {
+    toggledKeys.add(key);
+  }
+  return { ...ctx, toggledKeys };
+};
+
+const searchStep = function searchStep(
+  ctx: NavSearchContext,
+  delta: 1 | -1,
+  enqueue: { emit: { jumped: (event: { index: number }) => void } },
+): NavSearchContext {
+  if (ctx.search.matches.length === 0) {
+    return ctx;
+  }
+  const currentMatchIndex =
+    (ctx.search.currentMatchIndex + delta + ctx.search.matches.length) % ctx.search.matches.length;
+  const cursor = ctx.search.matches[currentMatchIndex];
+  enqueue.emit.jumped({ index: cursor });
+  return { ...ctx, cursor, search: { ...ctx.search, currentMatchIndex } };
+};
+
 const EMPTY_KEYS: readonly RowKey[] = [];
 
 export const createNavSearchStore = function createNavSearchStore(
@@ -130,17 +162,22 @@ export const createNavSearchStore = function createNavSearchStore(
         return cursor === null || cursor === ctx.cursor ? ctx : { ...ctx, cursor };
       },
       rowsChanged: (ctx, event) => {
-        const previousKey = ctx.cursor === null ? undefined : ctx.rowKeys[ctx.cursor];
+        const previousCursor = ctx.cursor;
+        const previousKey = previousCursor === null ? undefined : ctx.rowKeys[previousCursor];
         let cursor = ctx.cursor;
         if (event.keys.length === 0) {
           cursor = null;
-        } else if (event.preserveCursorByKey === true && previousKey !== undefined) {
+        } else if (
+          event.preserveCursorByKey === true &&
+          previousCursor !== null &&
+          previousKey !== undefined
+        ) {
           const preserved = event.keys.indexOf(previousKey);
           cursor =
             preserved >= 0
               ? resolveIndex(preserved, 1, event.keys.length, deps.isSelectable)
               : resolveIndex(
-                  Math.min(ctx.cursor!, event.keys.length - 1),
+                  Math.min(previousCursor, event.keys.length - 1),
                   1,
                   event.keys.length,
                   deps.isSelectable,
@@ -248,38 +285,6 @@ export const createNavSearchStore = function createNavSearchStore(
       toggleCurrent: (ctx) => toggle(ctx),
     },
   });
-};
-
-const toggle = function toggle(ctx: NavSearchContext): NavSearchContext {
-  if (ctx.cursor === null) {
-    return ctx;
-  }
-  const key = ctx.rowKeys[ctx.cursor];
-  if (key === undefined) {
-    return ctx;
-  }
-  const toggledKeys = new Set(ctx.toggledKeys);
-  if (toggledKeys.has(key)) {
-    toggledKeys.delete(key);
-  } else {
-    toggledKeys.add(key);
-  }
-  return { ...ctx, toggledKeys };
-};
-
-const searchStep = function searchStep(
-  ctx: NavSearchContext,
-  delta: 1 | -1,
-  enqueue: { emit: { jumped: (event: { index: number }) => void } },
-): NavSearchContext {
-  if (ctx.search.matches.length === 0) {
-    return ctx;
-  }
-  const currentMatchIndex =
-    (ctx.search.currentMatchIndex + delta + ctx.search.matches.length) % ctx.search.matches.length;
-  const cursor = ctx.search.matches[currentMatchIndex];
-  enqueue.emit.jumped({ index: cursor });
-  return { ...ctx, cursor, search: { ...ctx.search, currentMatchIndex } };
 };
 
 export type NavSearchStore = ReturnType<typeof createNavSearchStore>;

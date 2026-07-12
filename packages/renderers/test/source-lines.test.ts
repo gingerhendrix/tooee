@@ -1,5 +1,6 @@
 import { test, expect, describe } from "bun:test";
 import { sourceLines, sourceLineAdapter } from "../src/source.js";
+import { expectDefined } from "./support/expect-defined.js";
 
 interface LineShape {
   text: string;
@@ -81,7 +82,8 @@ describe("sourceLines identity mapping", () => {
 
   test("sourceLineAdapter projects text and source", () => {
     const [row] = sourceLines("hello");
-    expect(sourceLineAdapter.getText(row!)).toBe("hello");
-    expect(sourceLineAdapter.getSource(row!)).toBe(row!.source);
+    const definedRow = expectDefined(row);
+    expect(sourceLineAdapter.getText(definedRow)).toBe("hello");
+    expect(sourceLineAdapter.getSource(definedRow)).toBe(definedRow.source);
   });
 });

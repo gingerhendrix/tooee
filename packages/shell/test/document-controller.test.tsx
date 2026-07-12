@@ -14,7 +14,7 @@ import type {
   DocumentSearchOptions,
   UseDocumentControllerOptions,
 } from "@tooee/shell";
-import { press, pressTab, pressEscape } from "./support/test-helpers.ts";
+import { expectDefined, press, pressTab, pressEscape } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
 
 interface Row {
@@ -300,7 +300,7 @@ describe("search", () => {
   const query = async function query(text: string) {
     await press(session, "/");
     await act(async () => {
-      controller().search!.setSearchQuery(text);
+      expectDefined(controller().search).setSearchQuery(text);
       await Promise.resolve();
     });
     await session.renderOnce();
@@ -309,20 +309,20 @@ describe("search", () => {
   test("the default matcher searches adapter text case-insensitively", async () => {
     await setup(ROWS);
     await query("alpha");
-    expect(controller().search!.matchingLines).toEqual([0, 3]);
+    expect(expectDefined(controller().search).matchingLines).toEqual([0, 3]);
   });
 
   test("an empty query matches nothing", async () => {
     await setup(ROWS);
     await query("");
-    expect(controller().search!.matchingLines).toEqual([]);
+    expect(expectDefined(controller().search).matchingLines).toEqual([]);
   });
 
   test("submitting jumps to the first match; n and shift+n cycle", async () => {
     await setup(ROWS);
     await query("alpha");
     await act(async () => {
-      controller().search!.submitSearch();
+      expectDefined(controller().search).submitSearch();
       await Promise.resolve();
     });
     await session.renderOnce();
@@ -341,11 +341,11 @@ describe("search", () => {
   test("escape cancels the search and clears matches", async () => {
     await setup(ROWS);
     await query("alpha");
-    expect(controller().search!.matchingLines).toEqual([0, 3]);
+    expect(expectDefined(controller().search).matchingLines).toEqual([0, 3]);
 
     await pressEscape(session);
-    expect(controller().search!.searchActive).toBe(false);
-    expect(controller().search!.matchingLines).toEqual([]);
+    expect(expectDefined(controller().search).searchActive).toBe(false);
+    expect(expectDefined(controller().search).matchingLines).toEqual([]);
   });
 
   test("a custom matcher receives the query and the typed rows", async () => {
@@ -354,7 +354,7 @@ describe("search", () => {
     };
     await setup(ROWS, { search });
     await query("c");
-    expect(controller().search!.matchingLines).toEqual([2]);
+    expect(expectDefined(controller().search).matchingLines).toEqual([2]);
   });
 
   test("search: false produces no search state and no / command", async () => {
@@ -385,7 +385,7 @@ describe("decorations", () => {
     await pressTab(session);
     await press(session, "/");
     await act(async () => {
-      controller().search!.setSearchQuery("al");
+      expectDefined(controller().search).setSearchQuery("al");
       await Promise.resolve();
     });
     await session.renderOnce();

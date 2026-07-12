@@ -7,6 +7,40 @@ export interface ClipboardContent {
   mime: string;
 }
 
+export const readClipboardText = async function readClipboardText(): Promise<string | undefined> {
+  const os = platform();
+
+  if (os === "darwin") {
+    const result = await $`pbpaste`.nothrow().quiet().text();
+    return result || undefined;
+  }
+
+  if (os === "linux") {
+    if (
+      (process.env.WAYLAND_DISPLAY?.length ?? 0) > 0 &&
+      (Bun.which("wl-paste")?.length ?? 0) > 0
+    ) {
+      const result = await $`wl-paste`.nothrow().quiet().text();
+      return result || undefined;
+    }
+    if ((Bun.which("xclip")?.length ?? 0) > 0) {
+      const result = await $`xclip -selection clipboard -o`.nothrow().quiet().text();
+      return result || undefined;
+    }
+    if ((Bun.which("xsel")?.length ?? 0) > 0) {
+      const result = await $`xsel --clipboard --output`.nothrow().quiet().text();
+      return result || undefined;
+    }
+  }
+
+  if (os === "win32") {
+    const result = await $`powershell -command "Get-Clipboard"`.nothrow().quiet().text();
+    return result || undefined;
+  }
+
+  return undefined;
+};
+
 export const readClipboard = async function readClipboard(): Promise<ClipboardContent | undefined> {
   const os = platform();
 
@@ -70,40 +104,6 @@ export const readClipboard = async function readClipboard(): Promise<ClipboardCo
   const text = await readClipboardText();
   if (text !== undefined && text !== "") {
     return { data: text, mime: "text/plain" };
-  }
-
-  return undefined;
-};
-
-export const readClipboardText = async function readClipboardText(): Promise<string | undefined> {
-  const os = platform();
-
-  if (os === "darwin") {
-    const result = await $`pbpaste`.nothrow().quiet().text();
-    return result || undefined;
-  }
-
-  if (os === "linux") {
-    if (
-      (process.env.WAYLAND_DISPLAY?.length ?? 0) > 0 &&
-      (Bun.which("wl-paste")?.length ?? 0) > 0
-    ) {
-      const result = await $`wl-paste`.nothrow().quiet().text();
-      return result || undefined;
-    }
-    if ((Bun.which("xclip")?.length ?? 0) > 0) {
-      const result = await $`xclip -selection clipboard -o`.nothrow().quiet().text();
-      return result || undefined;
-    }
-    if ((Bun.which("xsel")?.length ?? 0) > 0) {
-      const result = await $`xsel --clipboard --output`.nothrow().quiet().text();
-      return result || undefined;
-    }
-  }
-
-  if (os === "win32") {
-    const result = await $`powershell -command "Get-Clipboard"`.nothrow().quiet().text();
-    return result || undefined;
   }
 
   return undefined;

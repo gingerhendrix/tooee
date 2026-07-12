@@ -5,7 +5,7 @@ import { TooeeProvider } from "@tooee/shell";
 import { useCommand, useCommandSequenceState } from "@tooee/commands";
 import { useOverlay, useCurrentOverlay } from "@tooee/overlays";
 import type { OverlayController } from "@tooee/overlays";
-import { press } from "./support/test-helpers.ts";
+import { expectDefined, press } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
 
 let testSetup: TestSession;
@@ -103,7 +103,7 @@ describe("F-09: same-id overlay replacement resets a pending chord (shell bridge
     // bridge can clear the chord.
     const { act } = await import("react");
     await act(async () => {
-      controller!.open(
+      expectDefined(controller).open(
         "chord-overlay",
         (): React.ReactNode => (
           <ChordSurface

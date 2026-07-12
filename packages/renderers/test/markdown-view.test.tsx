@@ -900,6 +900,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
     // Wheel down over the diagram body
     const { mockMouse } = testSetup;
     for (let i = 0; i < 10; i += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- Deferred(lint-sweep): preserve sequential input and render ordering
       await mockMouse.scroll(30, 3, "down");
     }
     await testSetup.renderOnce();
@@ -927,6 +928,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
     // Shift+wheel-down over the diagram body maps to pan-right
     const { mockMouse } = testSetup;
     for (let i = 0; i < 30; i += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- Deferred(lint-sweep): preserve sequential input and render ordering
       await mockMouse.scroll(30, 3, "down", { modifiers: { shift: true } });
     }
     await testSetup.renderOnce();
@@ -936,6 +938,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
 
     // Shift+wheel-up pans back left
     for (let i = 0; i < 30; i += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- Deferred(lint-sweep): preserve sequential input and render ordering
       await mockMouse.scroll(30, 3, "up", { modifiers: { shift: true } });
     }
     await testSetup.renderOnce();
@@ -988,6 +991,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
     expect(maxScrollX).toBeGreaterThan(0);
     for (let offset = 1; offset <= maxScrollX; offset += 3) {
       diagram.scrollX = offset;
+      // oxlint-disable-next-line no-await-in-loop -- Deferred(lint-sweep): preserve sequential render ordering
       await testSetup.renderOnce();
       expect({ colors: spanColors(/►/u), offset }).toEqual({ colors: arrowBaseline, offset });
       expect({ colors: spanColors(/[a-z]/u), offset }).toEqual({ colors: letterBaseline, offset });
@@ -1107,6 +1111,7 @@ describe("wide code block horizontal scrolling", () => {
     // Shift+wheel-down over the code block body maps to pan-right
     const { mockMouse } = testSetup;
     for (let i = 0; i < 40; i += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- Deferred(lint-sweep): preserve sequential input and render ordering
       await mockMouse.scroll(30, 3, "down", { modifiers: { shift: true } });
     }
     await testSetup.renderOnce();
@@ -1116,6 +1121,7 @@ describe("wide code block horizontal scrolling", () => {
 
     // Shift+wheel-up pans back left
     for (let i = 0; i < 40; i += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- Deferred(lint-sweep): preserve sequential input and render ordering
       await mockMouse.scroll(30, 3, "up", { modifiers: { shift: true } });
     }
     await testSetup.renderOnce();
@@ -1142,6 +1148,7 @@ describe("wide code block horizontal scrolling", () => {
     // Wheel down over the code block body
     const { mockMouse } = testSetup;
     for (let i = 0; i < 10; i += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- Deferred(lint-sweep): preserve sequential input and render ordering
       await mockMouse.scroll(30, 3, "down");
     }
     await testSetup.renderOnce();
@@ -1211,6 +1218,7 @@ describe("scroll isolation", () => {
     // Send scroll events at the code block position (roughly row 4-5, col 40)
     const { mockMouse } = testSetup;
     for (let i = 0; i < 3; i += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- Deferred(lint-sweep): preserve sequential input and render ordering
       await mockMouse.scroll(40, 4, "down");
     }
     await testSetup.renderOnce();

@@ -392,6 +392,8 @@ describe("Choose visual alignment", () => {
 
     // Navigate past the end
     for (let i = 0; i < 10; i += 1) {
+      // Deferred(lint-sweep): preserve ordered input/render transitions while keeping this test sequential.
+      // oxlint-disable-next-line no-await-in-loop -- each arrow press must settle before the next
       await pressArrow(testSetup, "down");
     }
 

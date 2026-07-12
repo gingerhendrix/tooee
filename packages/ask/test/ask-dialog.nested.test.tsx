@@ -5,6 +5,7 @@ import { TooeeProvider } from "@tooee/shell";
 import { useCurrentOverlay } from "@tooee/overlays";
 import { useChooseDialog } from "@tooee/choose";
 import { testRender } from "../../../test/support/test-render.ts";
+import { expectDefined } from "./support/expect-defined.ts";
 import { useAskDialog } from "../src/use-ask-dialog.js";
 import type { AskEditorController } from "../src/use-ask-editor.js";
 
@@ -60,6 +61,7 @@ const typeText = async function typeText(text: string) {
 
 let askSettlements: Array<string | null> = [];
 let chooseSettlements: Array<string | null> = [];
+const nested: { current: NestedHarnessHandles | null } = { current: null };
 
 beforeEach(() => {
   nested.current = null;
@@ -67,22 +69,9 @@ beforeEach(() => {
   chooseSettlements = [];
 });
 
-const setupNested = async function setupNested() {
-  const session = await testRender(
-    <TooeeProvider>
-      <NestedHarness />
-    </TooeeProvider>,
-    { height: 30, kittyKeyboard: true, width: 80 },
-  );
-  await session.renderOnce();
-  return session;
-};
-
 interface NestedHarnessHandles {
   open: () => Promise<string | null>;
 }
-
-const nested: { current: NestedHarnessHandles | null } = { current: null };
 
 /**
  * PTUI AskWithModel shape: an ask dialog whose surface command opens a nested
@@ -133,9 +122,22 @@ const NestedHarness = function NestedHarness(): React.ReactNode {
   );
 };
 
+const setupNested = async function setupNested() {
+  const session = await testRender(
+    <TooeeProvider>
+      <NestedHarness />
+    </TooeeProvider>,
+    { height: 30, kittyKeyboard: true, width: 80 },
+  );
+  await session.renderOnce();
+  return session;
+};
+
 const openNestedAsk = async function openNestedAsk() {
   await act(async () => {
-    void nested.current!.open().then((value) => askSettlements.push(value));
+    void expectDefined(nested.current)
+      .open()
+      .then((value) => askSettlements.push(value));
     await Promise.resolve();
   });
   await testSetup.renderOnce();

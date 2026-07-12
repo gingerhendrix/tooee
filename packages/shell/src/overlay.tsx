@@ -26,7 +26,7 @@ import {
   useCommandStore,
   CommandSurfaceProvider,
 } from "@tooee/commands";
-import type { CommandSurfaceRole, Mode } from "@tooee/commands";
+import type { Mode } from "@tooee/commands";
 
 declare module "@tooee/commands" {
   interface CommandContext {
@@ -63,7 +63,7 @@ export const OverlayProvider = function OverlayProvider({
     storeRef.current.on("closed", ({ record, reason, restoreModeTo }) => {
       record.options.onClose?.(reason);
       if (restoreModeTo !== null) {
-        bridgeRef.current.setMode(restoreModeTo as Mode);
+        bridgeRef.current.setMode(restoreModeTo);
       }
       if (reason === "replaced") {
         bridgeRef.current.resetSequence();
@@ -99,10 +99,12 @@ export const OverlayProvider = function OverlayProvider({
         options.ownCommands === true ? null : options.mode === undefined ? "insert" : options.mode;
 
       const record: OverlayRecord<TPayload> = { id, options, payload, prevMode, render };
+      // Deferred(lint-sweep): preserve the store's generic payload type across its closed event API.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- store records are intentionally erased at this boundary
       overlayStore.trigger.opened({ record: record as OverlayRecord });
 
       if (overlayMode !== null) {
-        setMode(overlayMode as Mode);
+        setMode(overlayMode);
       }
 
       const handle: OverlayHandle<TPayload> = {
@@ -156,7 +158,7 @@ export const OverlayProvider = function OverlayProvider({
     [overlayStore],
   );
 
-  const topId = stack.length > 0 ? stack[stack.length - 1]!.id : null;
+  const topId = stack.at(-1)?.id ?? null;
 
   const controller = useMemo<OverlayController>(
     () => ({
@@ -223,8 +225,8 @@ export const OverlayProvider = function OverlayProvider({
             node = (
               <CommandSurfaceProvider
                 id={entry.id}
-                role={(entry.options.role as CommandSurfaceRole) ?? "modal"}
-                initialMode={(entry.options.surfaceMode as Mode) ?? "cursor"}
+                role={entry.options.role ?? "modal"}
+                initialMode={entry.options.surfaceMode ?? "cursor"}
               >
                 {node}
               </CommandSurfaceProvider>

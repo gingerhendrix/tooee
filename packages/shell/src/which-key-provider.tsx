@@ -7,6 +7,24 @@ import { useTheme } from "@tooee/themes";
 
 const OVERLAY_ID = "tooee.which-key";
 
+const formatStep = function formatStep(step: ParsedStep): string {
+  const modifiers = [];
+  if (step.ctrl) {
+    modifiers.push("ctrl");
+  }
+  if (step.meta) {
+    modifiers.push("meta");
+  }
+  if (step.option) {
+    modifiers.push("option");
+  }
+  if (step.shift) {
+    modifiers.push("shift");
+  }
+  modifiers.push(step.key);
+  return modifiers.join("+");
+};
+
 export interface WhichKeyProviderProps {
   children: ReactNode;
   leaderOnly?: boolean;
@@ -29,7 +47,9 @@ export const WhichKeyProvider = function WhichKeyProvider({
     sequence.candidates.length > 0 &&
     (!effectiveLeaderOnly ||
       leaderKey === undefined ||
-      (sequence.prefix.length > 0 && formatStep(sequence.prefix[0]!) === leaderKey));
+      (sequence.prefix.length > 0 &&
+        sequence.prefix[0] !== undefined &&
+        formatStep(sequence.prefix[0]) === leaderKey));
 
   useLayoutEffect(() => {
     if (!shouldShow) {
@@ -46,9 +66,14 @@ export const WhichKeyProvider = function WhichKeyProvider({
       return;
     }
 
+    // Deferred(lint-sweep): preserve the top-down overlay provider composition.
+    // oxlint-disable-next-line no-use-before-define -- overlay component is declared below and evaluated after mount
     overlay.open(
       OVERLAY_ID,
-      ({ payload }): ReactNode => <WhichKeyOverlay state={payload} />,
+      ({ payload }): ReactNode => (
+        // oxlint-disable-next-line no-use-before-define -- overlay component is declared below and evaluated after mount
+        <WhichKeyOverlay state={payload} />
+      ),
       sequence,
       {
         dismissOnEscape: false,
@@ -78,6 +103,8 @@ export const WhichKeyOverlay = function WhichKeyOverlay({
   state: CommandSequenceState;
 }): ReactNode {
   const { theme } = useTheme();
+  // Deferred(lint-sweep): preserve the deliberate top-down component organization.
+  // oxlint-disable-next-line no-use-before-define -- formatter helpers are pure and evaluated after module initialization
   const entries = useMemo(() => summarizeCandidates(state), [state]);
   const prefix = state.prefix.map(formatStep).join(" ");
 
@@ -116,6 +143,8 @@ const summarizeCandidates = function summarizeCandidates(
   const byKey = new Map<string, string[]>();
   for (const candidate of state.candidates) {
     const key = formatStep(candidate.nextStep);
+    // Deferred(lint-sweep): preserve the deliberate top-down component organization.
+    // oxlint-disable-next-line no-use-before-define -- fallback is a pure helper evaluated after module initialization
     const label = candidate.group?.title ?? fallbackCandidateLabel(candidate);
     const values = byKey.get(key) ?? [];
     if (!values.includes(label)) {
@@ -143,23 +172,8 @@ const fallbackCandidateLabel = function fallbackCandidateLabel(
     return candidate.command.category;
   }
 
-  return `${formatStep(candidate.remainingSteps[1]!)}… ${candidate.command.title}`;
-};
-
-const formatStep = function formatStep(step: ParsedStep): string {
-  const modifiers = [];
-  if (step.ctrl) {
-    modifiers.push("ctrl");
-  }
-  if (step.meta) {
-    modifiers.push("meta");
-  }
-  if (step.option) {
-    modifiers.push("option");
-  }
-  if (step.shift) {
-    modifiers.push("shift");
-  }
-  modifiers.push(step.key);
-  return modifiers.join("+");
+  const step = candidate.remainingSteps[1];
+  return step === undefined
+    ? candidate.command.title
+    : `${formatStep(step)}… ${candidate.command.title}`;
 };

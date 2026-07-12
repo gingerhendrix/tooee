@@ -4,7 +4,7 @@ import { useCommandContext } from "@tooee/commands";
 import type { ActionDefinition, CommandContext } from "@tooee/commands";
 import { Document, DocumentScreen, TooeeProvider, useDocumentController } from "@tooee/shell";
 import type { DocumentCommandContext, DocumentScreenProps } from "@tooee/shell";
-import { press, pressTab } from "./support/test-helpers.ts";
+import { expectDefined, press, pressTab } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
 
 interface Row {
@@ -161,18 +161,18 @@ describe("ctx.document", () => {
     await press(session, "x");
 
     expect(captured).toBeDefined();
-    expect(captured!.kind).toBe("test-doc");
-    expect(captured!.title).toBe("Docs");
-    expect(captured!.rowCount).toBe(3);
-    expect(captured!.cursor).toBe(1);
-    expect(captured!.activeKey).toBe("b");
-    expect(captured!.activeRow).toEqual(ROWS[1]!);
-    expect(captured!.selectedRows).toEqual([ROWS[1]!]);
-    expect(Array.from(captured!.toggledIndices)).toEqual([1]);
-    expect(captured!.selection).toBeNull();
-    expect(captured!.flavour).toBe("vanilla");
+    expect(expectDefined(captured).kind).toBe("test-doc");
+    expect(expectDefined(captured).title).toBe("Docs");
+    expect(expectDefined(captured).rowCount).toBe(3);
+    expect(expectDefined(captured).cursor).toBe(1);
+    expect(expectDefined(captured).activeKey).toBe("b");
+    expect(expectDefined(captured).activeRow).toEqual(expectDefined(ROWS[1]));
+    expect(expectDefined(captured).selectedRows).toEqual([expectDefined(ROWS[1])]);
+    expect(Array.from(expectDefined(captured).toggledIndices)).toEqual([1]);
+    expect(expectDefined(captured).selection).toBeNull();
+    expect(expectDefined(captured).flavour).toBe("vanilla");
 
-    captured!.reload!();
+    expectDefined(expectDefined(captured).reload)();
     expect(reloads).toBe(1);
   });
 
@@ -182,9 +182,12 @@ describe("ctx.document", () => {
     await press(session, "j");
     await press(session, "x");
 
-    expect(captured!.selection).toEqual({ end: 1, start: 0 });
-    expect(captured!.selectedRows).toEqual([ROWS[0]!, ROWS[1]!]);
-    expect(captured!.toggledIndices.size).toBe(0);
+    expect(expectDefined(captured).selection).toEqual({ end: 1, start: 0 });
+    expect(expectDefined(captured).selectedRows).toEqual([
+      expectDefined(ROWS[0]),
+      expectDefined(ROWS[1]),
+    ]);
+    expect(expectDefined(captured).toggledIndices.size).toBe(0);
   });
 });
 
@@ -205,13 +208,15 @@ describe("status bar", () => {
     await pressTab(session);
     const line = statusLine();
     const [cursor, selected] = orderOf(line, ["Cursor:", "Selected:"]);
-    expect(selected).toBeGreaterThan(cursor!);
+    expect(selected).toBeGreaterThan(expectDefined(cursor));
     expect(line).toMatch(/Selected:\s*1/u);
   });
 
   test("Cursor renders a dash when there is no active row", async () => {
     session = await testRender(
       <TooeeProvider>
+        {/* Deferred(lint-sweep): preserve the deliberate harness-before-helper test layout. */}
+        {/* oxlint-disable-next-line no-use-before-define -- harness is only evaluated after module initialization */}
         <EmptyHarness />
       </TooeeProvider>,
       { height: 16, kittyKeyboard: true, width: 90 },

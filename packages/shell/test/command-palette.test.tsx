@@ -135,7 +135,9 @@ describe("command palette", () => {
     await press(testSetup, "l");
     await press(testSetup, ":");
     // Filter down to the late command (the harness box only fits a few rows).
+    // Deferred(lint-sweep): preserve ordered filter input for the palette.
     for (const key of "arrival") {
+      // oxlint-disable-next-line no-await-in-loop -- each key must be rendered before the next key is sent
       await press(testSetup, key);
     }
     expect(testSetup.captureCharFrame()).toContain("Late Arrival Command");

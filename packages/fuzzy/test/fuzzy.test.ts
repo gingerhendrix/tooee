@@ -1,5 +1,6 @@
 import { test, expect, describe } from "bun:test";
 import { fuzzyMatch, fuzzyMatchPositions } from "../src/fuzzy.js";
+import { expectDefined } from "./support/expect-defined.ts";
 
 describe("fuzzyMatch", () => {
   test("returns null for non-matching text", () => {
@@ -40,28 +41,28 @@ describe("fuzzyMatchPositions", () => {
   test("returns positions and score", () => {
     const result = fuzzyMatchPositions("fb", "foobar");
     expect(result).not.toBeNull();
-    expect(result!.positions).toEqual([0, 3]);
+    expect(expectDefined(result).positions).toEqual([0, 3]);
     // 'f' at pos 0 = 3
-    expect(result!.score).toBe(3);
+    expect(expectDefined(result).score).toBe(3);
   });
 
   test("exact match positions", () => {
     const result = fuzzyMatchPositions("abc", "abcdef");
     expect(result).not.toBeNull();
-    expect(result!.positions).toEqual([0, 1, 2]);
-    expect(result!.score).toBe(5);
+    expect(expectDefined(result).positions).toEqual([0, 1, 2]);
+    expect(expectDefined(result).score).toBe(5);
   });
 
   test("case insensitive", () => {
     const result = fuzzyMatchPositions("hw", "Hello World");
     expect(result).not.toBeNull();
-    expect(result!.positions).toEqual([0, 6]);
+    expect(expectDefined(result).positions).toEqual([0, 6]);
   });
 
   test("empty query matches everything with score 0", () => {
     const result = fuzzyMatchPositions("", "anything");
     expect(result).not.toBeNull();
-    expect(result!.score).toBe(0);
-    expect(result!.positions).toEqual([]);
+    expect(expectDefined(result).score).toBe(0);
+    expect(expectDefined(result).positions).toEqual([]);
   });
 });

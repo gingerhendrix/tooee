@@ -5,6 +5,13 @@ import type { CliRendererConfig } from "@opentui/core";
 import { guardTerminalHealth, launchCli, mountTooee, runCliSession } from "../src/launch.js";
 import type { CliSessionController, TooeeSessionHandle } from "../src/launch.js";
 
+const expectDefined = function expectDefined<T>(value: T | undefined): T {
+  if (value === undefined) {
+    throw new Error("Expected test value to be defined");
+  }
+  return value;
+};
+
 let testRenderer: Awaited<ReturnType<typeof createTestRenderer>> | undefined;
 let sessionHandle: TooeeSessionHandle | undefined;
 
@@ -18,11 +25,11 @@ afterEach(() => {
 const remoteRendererOptions = function remoteRendererOptions(
   onDestroy?: () => void,
 ): CliRendererConfig {
-  const stdin = new PassThrough() as PassThrough & NodeJS.ReadStream;
+  const stdin = new PassThrough();
   stdin.isTTY = true;
   stdin.setRawMode = () => stdin;
 
-  const stdout = new PassThrough() as PassThrough & NodeJS.WriteStream;
+  const stdout = new PassThrough();
   stdout.isTTY = true;
   stdout.columns = 40;
   stdout.rows = 10;
@@ -80,7 +87,7 @@ describe("local sessions", () => {
     const rendererOptions = remoteRendererOptions(() => {
       rendererDestroyCalls += 1;
     });
-    const stdin = rendererOptions.stdin!;
+    const stdin = expectDefined(rendererOptions.stdin);
     const beforeEnd = stdin.listenerCount("end");
     const beforeClose = stdin.listenerCount("close");
 
@@ -119,9 +126,9 @@ describe("local sessions", () => {
     );
 
     await Bun.sleep(20);
-    controller!.resolve("first");
-    controller!.resolve("second");
-    controller!.cancel();
+    expectDefined(controller).resolve("first");
+    expectDefined(controller).resolve("second");
+    expectDefined(controller).cancel();
 
     expect(await resultPromise).toBe("first");
     expect(rendererDestroyCalls).toBe(1);
@@ -138,8 +145,8 @@ describe("local sessions", () => {
     );
 
     await Bun.sleep(20);
-    controller!.cancel();
-    controller!.resolve("late");
+    expectDefined(controller).cancel();
+    expectDefined(controller).resolve("late");
     expect(await cancelled).toBeNull();
 
     const failed = await runCliSession<string>(() => {

@@ -120,10 +120,12 @@ const findEditableWithText = function findEditableWithText(
 
   if (
     "plainText" in node &&
+    typeof node.plainText === "string" &&
+    node.plainText === text &&
     "cursorOffset" in node &&
-    (node as { plainText: string }).plainText === text
+    typeof node.cursorOffset === "number"
   ) {
-    return node as { cursorOffset: number };
+    return { cursorOffset: node.cursorOffset };
   }
 
   if ("getChildren" in node && typeof node.getChildren === "function") {

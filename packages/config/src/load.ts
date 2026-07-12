@@ -31,6 +31,8 @@ const readJsonFile = function readJsonFile(path: string): Partial<TooeeConfig> {
     if (!existsSync(path)) {
       return {};
     }
+    // Deferred(lint-sweep): replace with schema-based validation of untrusted JSON
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- untrusted external JSON, validated in a later sweep
     return JSON.parse(readFileSync(path, "utf-8")) as Partial<TooeeConfig>;
   } catch {
     return {};

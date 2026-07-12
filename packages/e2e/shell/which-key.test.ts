@@ -18,7 +18,10 @@ const expectSomeFrame = function expectSomeFrame(
     typeof pattern === "string" ? frame.includes(pattern) : pattern.test(frame),
   );
   expect(matchingFrame, frames.join("\n--- frame ---\n")).toBeDefined();
-  return matchingFrame!;
+  if (matchingFrame === undefined) {
+    throw new Error("Expected a frame matching the requested pattern");
+  }
+  return matchingFrame;
 };
 
 describe("which-key overlay", () => {

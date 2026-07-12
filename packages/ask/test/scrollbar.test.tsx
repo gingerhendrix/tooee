@@ -70,6 +70,16 @@ const wheel = async function wheel(x: number, y: number, direction: "up" | "down
   await testSetup.renderOnce();
 };
 
+/** Index of the first frame row that contains a thumb character. */
+const thumbRow = function thumbRow(frame: string): number {
+  const rows = frame.split("\n");
+  const idx = rows.findIndex((row) => row.includes(THUMB));
+  if (idx === -1) {
+    throw new Error("no thumb found in frame");
+  }
+  return idx;
+};
+
 describe("Ask overflow scrolling", () => {
   test("the tail of overflowing content is reachable (cursor follows to the bottom)", async () => {
     testSetup = await setupAsk(tallValue);
@@ -158,13 +168,3 @@ describe("AskOverlay overflow scrolling", () => {
     expect(frame).not.toContain(TRACK);
   });
 });
-
-/** Index of the first frame row that contains a thumb character. */
-const thumbRow = function thumbRow(frame: string): number {
-  const rows = frame.split("\n");
-  const idx = rows.findIndex((row) => row.includes(THUMB));
-  if (idx === -1) {
-    throw new Error("no thumb found in frame");
-  }
-  return idx;
-};

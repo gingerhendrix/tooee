@@ -30,7 +30,7 @@ export interface FlattenMarkdownOptions {
 
 /** Empty synthetic token stamped onto bullet-only rows (nested-list/block/empty items). */
 const syntheticTextToken = function syntheticTextToken(): Token {
-  return { raw: "", text: "", tokens: [], type: "text" } as unknown as Token;
+  return { raw: "", text: "", tokens: [], type: "text" };
 };
 
 /**
@@ -213,6 +213,7 @@ const flattenList = function flattenList(
       }
     }
 
+    // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down list flattening organization
     flattenListItem(item, indent, bullet, out, res, itemStart, itemEnd);
 
     if (res && itemStart !== null) {
@@ -264,6 +265,7 @@ const flattenListItem = function flattenListItem(
       if (!bulletUsed) {
         emitBulletMarker();
       }
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
       flattenList(token as Tokens.List, indent + bullet.length, out, res, itemEnd);
     } else {
       // Block content (code, table, blockquote, hr, etc.).
@@ -296,6 +298,7 @@ const flattenWalk = function flattenWalk(
       continue;
     }
     if (token.type === "list") {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
       flattenList(token as Tokens.List, indent, out, res, bound);
     } else {
       out.push({ indent, source: res ? res.resolveRaw(token.raw ?? "", bound) : null, token });

@@ -25,8 +25,14 @@ describe("marks rendering e2e (markdown content)", () => {
     await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     // Open search
     for (let attempt = 0; attempt < 3; attempt += 1) {
+      // Deferred(lint-sweep): Retry keystrokes must be delivered one at a time while the UI updates.
+      // oxlint-disable-next-line no-await-in-loop -- Preserve sequential terminal input.
       await session.press("/");
+      // Deferred(lint-sweep): The retry intentionally waits for the preceding key's render transition.
+      // oxlint-disable-next-line no-await-in-loop -- Preserve sequential render timing.
       await Bun.sleep(500);
+      // Deferred(lint-sweep): Inspect each frame before deciding whether another retry is needed.
+      // oxlint-disable-next-line no-await-in-loop -- Preserve ordered polling.
       const check = await session.text();
       if (!check.match(/Mode:\s*cursor/u)) {
         break;

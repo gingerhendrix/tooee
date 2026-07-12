@@ -91,9 +91,13 @@ describe("CodeView mouse interaction", () => {
     await testSetup.renderOnce();
 
     expect(events.length).toBe(1);
-    expect(events[0]!.index).toBe(1);
-    expect(events[0]!.x).toBe(CONTENT_X);
-    expect(events[0]!.y).toBe(1);
+    const event = events[0];
+    if (event === undefined) {
+      throw new Error("Expected a context-menu event");
+    }
+    expect(event.index).toBe(1);
+    expect(event.x).toBe(CONTENT_X);
+    expect(event.y).toBe(1);
   });
 
   test("clicking below the last line does nothing", async () => {

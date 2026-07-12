@@ -34,6 +34,8 @@ const loadJsonThemesFromDir = function loadJsonThemesFromDir(
       const name = basename(file, ".json");
       try {
         const content = readFileSync(join(dir, file), "utf-8");
+        // Deferred(lint-sweep): replace with schema-based validation of untrusted JSON
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- untrusted external JSON, validated in a later sweep
         target.set(name, JSON.parse(content) as ThemeJSON);
       } catch {
         // skip invalid files
@@ -88,27 +90,6 @@ export const getThemeNames = function getThemeNames(): string[] {
 
 export const DEFAULT_THEME_NAME = "tokyonight";
 export const DEFAULT_MODE: "dark" | "light" = "dark";
-
-export const buildTheme = function buildTheme(name: string, mode: "dark" | "light"): Theme {
-  const themes = loadThemes();
-  const json = themes.get(name);
-  if (!json) {
-    // Fall back to tokyonight, then first available, then hardcoded
-    const fallbackJson = themes.get(DEFAULT_THEME_NAME) ?? themes.values().next().value;
-    if (fallbackJson) {
-      const resolved = resolveTheme(fallbackJson, mode);
-      return { colors: resolved, mode, name, syntax: buildSyntaxStyle(resolved) };
-    }
-    // Absolute fallback — hardcoded Tokyo Night colors
-    return hardcodedDefaultTheme;
-  }
-  try {
-    const resolved = resolveTheme(json, mode);
-    return { colors: resolved, mode, name, syntax: buildSyntaxStyle(resolved) };
-  } catch {
-    return hardcodedDefaultTheme;
-  }
-};
 
 const hardcodedDefaultTheme: Theme = (() => {
   const colors: ResolvedTheme = {
@@ -169,3 +150,24 @@ const hardcodedDefaultTheme: Theme = (() => {
 })();
 
 export const defaultTheme: Theme = hardcodedDefaultTheme;
+
+export const buildTheme = function buildTheme(name: string, mode: "dark" | "light"): Theme {
+  const themes = loadThemes();
+  const json = themes.get(name);
+  if (!json) {
+    // Fall back to tokyonight, then first available, then hardcoded
+    const fallbackJson = themes.get(DEFAULT_THEME_NAME) ?? themes.values().next().value;
+    if (fallbackJson) {
+      const resolved = resolveTheme(fallbackJson, mode);
+      return { colors: resolved, mode, name, syntax: buildSyntaxStyle(resolved) };
+    }
+    // Absolute fallback — hardcoded Tokyo Night colors
+    return hardcodedDefaultTheme;
+  }
+  try {
+    const resolved = resolveTheme(json, mode);
+    return { colors: resolved, mode, name, syntax: buildSyntaxStyle(resolved) };
+  } catch {
+    return hardcodedDefaultTheme;
+  }
+};

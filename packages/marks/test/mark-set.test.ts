@@ -38,16 +38,16 @@ describe("MarkSet", () => {
       const set = new MarkSet("test", 100, [mark(1)]);
       const items = [...set];
       expect(() => {
-        (items[0] as any).style = { background: "hacked" };
+        items[0].style = { background: "hacked" };
       }).toThrow();
       expect(() => {
-        (items[0].style as any).background = "hacked";
+        items[0].style.background = "hacked";
       }).toThrow();
       expect(() => {
-        (items[0].range as any).from = { line: 999 };
+        items[0].range.from = { line: 999 };
       }).toThrow();
       expect(() => {
-        (items[0].range.from as any).line = 999;
+        items[0].range.from.line = 999;
       }).toThrow();
     });
 

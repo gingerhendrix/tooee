@@ -35,12 +35,15 @@ export const TooeeProvider = function TooeeProvider({
 }: TooeeProviderProps): ReactNode {
   return (
     <ConfigProvider overrides={configOverrides}>
+      {/* Deferred(lint-sweep): preserve the deliberate top-down provider composition. */}
+      {/* oxlint-disable-next-line no-use-before-define -- inner provider is a lifecycle wrapper declared below */}
       <TooeeProviderInner
         leader={leader}
         initialMode={initialMode}
         sequenceTimeoutMs={sequenceTimeoutMs}
       >
         {children}
+        {/* oxlint-disable-next-line no-use-before-define -- inner provider is a lifecycle wrapper declared below */}
       </TooeeProviderInner>
     </ConfigProvider>
   );
@@ -67,12 +70,15 @@ const TooeeProviderInner = function TooeeProviderInner({
         sequenceTimeoutMs={sequenceTimeoutMs}
       >
         <ToastProvider>
+          {/* Deferred(lint-sweep): preserve the deliberate top-down provider composition. */}
+          {/* oxlint-disable-next-line no-use-before-define -- bridge is part of the wrapper's lifecycle composition */}
           <ToastContextBridge>
             <OverlayProvider>
               <WhichKeyProvider>
                 <CommandPaletteProvider>{children}</CommandPaletteProvider>
               </WhichKeyProvider>
             </OverlayProvider>
+            {/* oxlint-disable-next-line no-use-before-define -- bridge is part of the wrapper's lifecycle composition */}
           </ToastContextBridge>
         </ToastProvider>
       </CommandProvider>

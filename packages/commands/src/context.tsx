@@ -46,20 +46,31 @@ const CommandSequenceContext = createContext<CommandSequenceState | null>(null);
 const CommandSurfaceDepthContext = createContext(0);
 
 /**
+ * Placeholder context: augmented domain fields (overlay, view, ...) are only
+ * present where their providers run, so the literal cannot satisfy the
+ * module-augmented `CommandContext` locally. Dispatch never reaches these
+ * placeholders.
+ *
+ * Deferred(lint-sweep): formalize context augmentation so this can be built type-safely.
+ */
+const placeholderCommandContext = function placeholderCommandContext(mode: Mode): CommandContext {
+  const placeholder = {
+    commands: { invoke: () => {}, list: () => [] },
+    exit: () => {},
+    mode,
+    setMode: () => {},
+  };
+  // oxlint-disable-next-line typescript/no-unnecessary-type-assertion, typescript/no-unsafe-type-assertion -- placeholder omits module-augmented fields contributed by other packages
+  return placeholder as unknown as CommandContext;
+};
+
+/**
  * Fallback store for hooks that must not throw outside a CommandProvider
  * (useActiveCommandSurface, useSurfaceCommands). Never dispatched to.
  */
 const FALLBACK_COMMAND_STORE = createCommandStore({
   root: {
-    // Placeholder context: augmented domain fields (overlay, view, ...) are
-    // only present where their providers run; dispatch never reaches this.
-    buildCtx: () =>
-      ({
-        commands: { invoke: () => {}, list: () => [] },
-        exit: () => {},
-        mode: "cursor",
-        setMode: () => {},
-      }) as unknown as CommandContext,
+    buildCtx: () => placeholderCommandContext("cursor"),
     getMode: () => "cursor",
   },
 });
@@ -90,13 +101,7 @@ export const CommandProvider = function CommandProvider({
   const rootAccessRef = useRef<RootAccess>({
     // Placeholder until CommandDispatcher installs the real accessors on its
     // first render (before any key can dispatch).
-    buildCtx: () =>
-      ({
-        commands: { invoke: () => {}, list: () => [] },
-        exit: () => {},
-        mode: initialMode ?? "cursor",
-        setMode: () => {},
-      }) as unknown as CommandContext,
+    buildCtx: () => placeholderCommandContext(initialMode ?? "cursor"),
     getMode: () => initialMode ?? "cursor",
   });
 
@@ -122,6 +127,7 @@ export const CommandProvider = function CommandProvider({
 
   return (
     <ModeProvider initialMode={initialMode} onModeChange={handleModeChange}>
+      {/* oxlint-disable-next-line no-use-before-define -- dispatcher is deliberately declared below provider */}
       <CommandDispatcher
         commandStore={commandStore}
         rootAccess={rootAccessRef}
@@ -130,11 +136,14 @@ export const CommandProvider = function CommandProvider({
         sequenceTimeoutMs={sequenceTimeoutMs}
       >
         {children}
+        {/* oxlint-disable-next-line no-use-before-define -- closing dispatcher declaration is below provider */}
       </CommandDispatcher>
     </ModeProvider>
   );
 };
 
+// Deferred(lint-sweep): preserve the top-down provider/dispatcher organization.
+// oxlint-disable-next-line no-use-before-define -- provider deliberately renders its dispatcher below
 const CommandDispatcher = function CommandDispatcher({
   children,
   commandStore,
@@ -171,6 +180,7 @@ const CommandDispatcher = function CommandDispatcher({
     for (const getter of commandStore.store.getSnapshot().context.contextSources.values()) {
       Object.assign(ctx, getter());
     }
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- CommandContext is intentionally module-augmentable
     return ctx as CommandContext;
   }, [commandStore, setMode]);
 
@@ -259,8 +269,11 @@ export const CommandSurfaceProvider = function CommandSurfaceProvider({
 
   return (
     <ModeProvider initialMode={initialMode} onModeChange={handleModeChange}>
+      {/* Deferred(lint-sweep): preserve top-down provider/wrapper organization. */}
+      {/* oxlint-disable-next-line no-use-before-define -- inner surface is deliberately declared below */}
       <CommandSurfaceInner id={id} role={role}>
         {children}
+        {/* oxlint-disable-next-line no-use-before-define -- closing inner surface declaration is below provider */}
       </CommandSurfaceInner>
     </ModeProvider>
   );
@@ -290,6 +303,8 @@ const CommandSurfaceInner = function CommandSurfaceInner({
   modeRef.current = mode;
 
   const buildCtx = useCallback((): CommandContext => {
+    // Deferred(lint-sweep): replace this lifecycle ref with an API that models render-time initialization.
+    // oxlint-disable-next-line typescript/no-non-null-assertion, no-use-before-define -- initialized lifecycle ref intentionally captured by closure
     const registry = commandStore.registryFor(recordRef.current!);
     const ctx: Record<string, any> = {
       commands: {
@@ -305,6 +320,8 @@ const CommandSurfaceInner = function CommandSurfaceInner({
     for (const getter of commandStore.store.getSnapshot().context.contextSources.values()) {
       Object.assign(ctx, getter());
     }
+    // Deferred(lint-sweep): validate module-augmented command context at this API boundary.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- CommandContext is intentionally module-augmentable
     return ctx as CommandContext;
   }, [commandStore, setMode]);
 
@@ -420,7 +437,11 @@ export const useCommandRegistry = function useCommandRegistry(): CommandContextV
 
   return useMemo(
     () => ({
+      // Deferred(lint-sweep): expose readonly store maps through an immutable registry API.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- compatibility facade preserves the existing mutable Map API
       contextSources: contextSources as Map<string, ContextGetter>,
+      // Deferred(lint-sweep): expose readonly store maps through an immutable registry API.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- compatibility facade preserves the existing mutable Map API
       groups: groups as Map<string, RegisteredCommandGroup>,
       leaderKey,
       registry,
@@ -471,6 +492,8 @@ export const useActiveCommandSurface =
       return {
         commands: commandMap ? Array.from(commandMap.values()) : [],
         id: record.id,
+        // Deferred(lint-sweep): model selector records with the public surface-role type.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- selector record is trusted store data
         role: record.role as CommandSurfaceRole,
       };
     }, [record, commandMap]);
@@ -562,6 +585,8 @@ export const useProvideCommandContext = function useProvideCommandContext(
   const { commandStore } = ctx;
 
   useEffect(() => {
+    // Deferred(lint-sweep): replace nullable ref bookkeeping with an API that returns the initialized id.
+    // oxlint-disable-next-line typescript/no-non-null-assertion -- idRef is initialized in the render immediately above
     const id = idRef.current!;
     commandStore.store.trigger.contextSourceRegistered({
       getter: () => getterRef.current(),
@@ -576,5 +601,7 @@ export const useProvideCommandContext = function useProvideCommandContext(
 export const useProvideCommandContextKey = function useProvideCommandContextKey<
   K extends keyof CommandContext,
 >(key: K, getter: () => CommandContext[K]): void {
-  useProvideCommandContext(() => ({ [key]: getter() }) as Pick<CommandContext, K>);
+  // Deferred(lint-sweep): provide a typed augmentation builder instead of asserting computed keys.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- computed key is constrained by K
+  useProvideCommandContext(() => ({ [key]: getter() }));
 };

@@ -127,7 +127,9 @@ describe("theme picker", () => {
 
     // Narrow the list so the target theme is the visible row (the headless
     // picker viewport only shows the top of the list).
+    // Deferred(lint-sweep): preserve ordered filter input for the picker.
     for (const ch of target) {
+      // oxlint-disable-next-line no-await-in-loop -- each key must be rendered before the next key is sent
       await press(testSetup, ch);
     }
 

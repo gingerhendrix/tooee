@@ -1,6 +1,6 @@
 import { createStore } from "@xstate/store";
 import type { MarkSet } from "@tooee/marks";
-import type { AnyContent, Content, ContentChunk, ContentFormat, CustomContent } from "./types.js";
+import type { AnyContent, Content, ContentChunk, ContentFormat } from "./types.js";
 
 export type ContentLoaderStatus = "idle" | "loading" | "streaming" | "ready" | "error";
 
@@ -54,7 +54,7 @@ export const createEmptyContent = function createEmptyContent(
       return { columns: [], format, rows: [], title };
     }
     default: {
-      return { data: undefined, format, title } as CustomContent;
+      return { data: undefined, format, title };
     }
   }
 };
@@ -65,8 +65,12 @@ const ensureContentFormat = function ensureContentFormat<F extends ContentFormat
   title?: string,
 ): Extract<Content, { format: F }> {
   if (!current || current.format !== format) {
+    // Deferred(lint-sweep): add schema-based validation for custom and streamed content formats.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- format-dependent content is trusted at this provider boundary
     return createEmptyContent(format, title) as Extract<Content, { format: F }>;
   }
+  // Deferred(lint-sweep): add schema-based validation for custom and streamed content formats.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the provider contract supplies the matching format
   return current as Extract<Content, { format: F }>;
 };
 

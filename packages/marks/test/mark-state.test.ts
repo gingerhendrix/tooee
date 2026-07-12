@@ -177,7 +177,10 @@ describe("getSet", () => {
 
     const set = state.getSet("search");
     expect(set).toBeDefined();
-    expect(set!.namespace).toBe("search");
+    if (set === undefined) {
+      throw new Error("Expected search mark set to exist");
+    }
+    expect(set.namespace).toBe("search");
   });
 
   test("returns undefined for unknown namespace", () => {

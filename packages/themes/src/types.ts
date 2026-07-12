@@ -211,10 +211,10 @@ export const resolveTheme = function resolveTheme(
         return "#808080";
       }
       if (defs[c] != null) {
-        return resolveColor(defs[c] as ColorValue, new Set(seen).add(c));
+        return resolveColor(defs[c], new Set(seen).add(c));
       }
       if (json.theme[c] !== undefined) {
-        return resolveColor(json.theme[c] as ColorValue, new Set(seen).add(c));
+        return resolveColor(json.theme[c], new Set(seen).add(c));
       }
       return "#808080";
     }
@@ -233,5 +233,7 @@ export const resolveTheme = function resolveTheme(
   if (json.theme["selection"] === undefined) {
     result.selection = result.backgroundPanel;
   }
+  // Deferred(lint-sweep): replace with a typed exhaustive key map for compile-time completeness
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- RESOLVED_KEYS drives every required key and defaults missing values
   return result as unknown as ResolvedTheme;
 };

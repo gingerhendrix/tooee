@@ -7,6 +7,10 @@ import { useCurrentOverlay, useHasOverlay } from "@tooee/overlays";
 import { press } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
 
+const step = function step(key: string): ParsedStep {
+  return { ctrl: false, key, meta: false, option: false, shift: false };
+};
+
 const WhichKeyHarness = function WhichKeyHarness(): React.ReactNode {
   const sequence = useCommandSequenceState();
   const overlay = useCurrentOverlay();
@@ -219,7 +223,3 @@ describe("which-key", () => {
     expect(frame).toContain("s → Stream");
   });
 });
-
-const step = function step(key: string): ParsedStep {
-  return { ctrl: false, key, meta: false, option: false, shift: false };
-};

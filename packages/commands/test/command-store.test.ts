@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import type { KeyEvent } from "@opentui/core";
 import {
   ROOT_SURFACE_ID,
   createCommandStore,
@@ -12,19 +11,10 @@ import type { CommandStore, SurfaceRecord } from "../src/command-store.js";
 import { parseHotkey } from "../src/parse.js";
 import type { Command, CommandContext, RegisteredCommandGroup } from "../src/types.js";
 import type { Mode } from "../src/mode.js";
+import { keyEvent as key } from "./support/key-event.ts";
+import { expectDefined } from "./support/expect-defined.ts";
 
 const cursorContextGetter = () => ({ mode: "cursor" as Mode });
-
-const key = function key(name: string, modifiers?: Partial<KeyEvent>): KeyEvent {
-  return {
-    ctrl: false,
-    meta: false,
-    name,
-    option: false,
-    shift: false,
-    ...modifiers,
-  } as KeyEvent;
-};
 
 const fakeCtx = function fakeCtx(mode: Mode): CommandContext {
   return {
@@ -41,7 +31,7 @@ const makeStore = function makeStore(options?: {
   sequenceTimeoutMs?: number;
   rootMode?: () => Mode;
 }): CommandStore {
-  const getMode = options?.rootMode ?? (() => "cursor" as Mode);
+  const getMode = options?.rootMode ?? (() => "cursor");
   return createCommandStore({
     keymap: options?.keymap,
     leader: options?.leader,
@@ -304,10 +294,12 @@ describe("command store — key dispatch", () => {
 
     const sequence = selectSequence(cs.store.getSnapshot().context);
     expect(sequence).not.toBeNull();
-    expect(sequence!.prefix).toHaveLength(1);
-    expect(sequence!.candidates).toHaveLength(1);
-    expect(sequence!.candidates[0]!.command.id).toBe("top");
-    expect(sequence!.candidates[0]!.group).toBe(g);
+    const pending = expectDefined(sequence);
+    expect(pending.prefix).toHaveLength(1);
+    expect(pending.candidates).toHaveLength(1);
+    const candidate = expectDefined(pending.candidates[0]);
+    expect(candidate.command.id).toBe("top");
+    expect(candidate.group).toBe(g);
 
     const second = cs.key(key("g"));
     expect(second.handled).toBe(true);
@@ -324,7 +316,7 @@ describe("command store — key dispatch", () => {
 
     cs.key(key("g"));
     const sequence = selectSequence(cs.store.getSnapshot().context);
-    expect(sequence!.candidates.map((c) => c.command.id)).toEqual(["shown"]);
+    expect(expectDefined(sequence).candidates.map((c) => c.command.id)).toEqual(["shown"]);
   });
 
   test("a non-matching key clears the pending display", () => {
@@ -562,7 +554,7 @@ describe("command store — selector discipline", () => {
     const after = cs.store.getSnapshot().context;
 
     expect(after.commandsBySurface.get(ROOT_SURFACE_ID)).toBe(
-      before.commandsBySurface.get(ROOT_SURFACE_ID)!,
+      expectDefined(before.commandsBySurface.get(ROOT_SURFACE_ID)),
     );
   });
 });

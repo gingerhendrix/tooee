@@ -7,6 +7,7 @@ import { testRender } from "../../../test/support/test-render.ts";
 import type { ChooseItem } from "../src/types.js";
 import { useChooseDialog } from "../src/use-choose-dialog.js";
 import type { ChooseDialogHandle } from "../src/use-choose-dialog.js";
+import { expectDefined } from "./support/expect-defined.ts";
 
 interface Fruit {
   id: number;
@@ -140,8 +141,8 @@ describe("useChooseDialog", () => {
   test("single select resolves the typed item without casts", async () => {
     testSetup = await setup();
     await act(async () => {
-      void handles
-        .current!.fruits.open({ items: FRUITS, prompt: "Pick fruit", toItem })
+      void expectDefined(handles.current)
+        .fruits.open({ items: FRUITS, prompt: "Pick fruit", toItem })
         .then((fruit) => {
           // Compile-time: `fruit` is Fruit | null (no cast needed for .id).
           settlements.push(fruit === null ? null : fruit.id);
@@ -154,14 +155,14 @@ describe("useChooseDialog", () => {
     await pressEnter();
 
     expect(settlements).toEqual([1]);
-    expect(handles.current!.stackSize()).toBe(0);
+    expect(expectDefined(handles.current).stackSize()).toBe(0);
   });
 
   test("navigation + Enter resolves the highlighted typed item", async () => {
     testSetup = await setup();
     await act(async () => {
-      void handles
-        .current!.fruits.open({ items: FRUITS, prompt: "Pick fruit", toItem })
+      void expectDefined(handles.current)
+        .fruits.open({ items: FRUITS, prompt: "Pick fruit", toItem })
         .then((fruit) => settlements.push(fruit === null ? null : fruit.id));
       await Promise.resolve();
     });
@@ -176,8 +177,8 @@ describe("useChooseDialog", () => {
   test("filtering resolves the matching typed item", async () => {
     testSetup = await setup();
     await act(async () => {
-      void handles
-        .current!.fruits.open({ items: FRUITS, prompt: "Pick fruit", toItem })
+      void expectDefined(handles.current)
+        .fruits.open({ items: FRUITS, prompt: "Pick fruit", toItem })
         .then((fruit) => settlements.push(fruit === null ? null : fruit.name));
       await Promise.resolve();
     });
@@ -192,8 +193,8 @@ describe("useChooseDialog", () => {
   test("multi select resolves the toggled typed items", async () => {
     testSetup = await setup();
     await act(async () => {
-      void handles
-        .current!.fruits.open({ items: FRUITS, multi: true, prompt: "Pick fruits", toItem })
+      void expectDefined(handles.current)
+        .fruits.open({ items: FRUITS, multi: true, prompt: "Pick fruits", toItem })
         .then((fruits) => {
           // Compile-time: `fruits` is Fruit[] | null.
           settlements.push(fruits === null ? null : fruits.map((fruit) => fruit.id));
@@ -207,14 +208,14 @@ describe("useChooseDialog", () => {
     await pressEnter();
 
     expect(settlements).toEqual([[1, 2]]);
-    expect(handles.current!.stackSize()).toBe(0);
+    expect(expectDefined(handles.current).stackSize()).toBe(0);
   });
 
   test("cancel resolves null exactly once", async () => {
     testSetup = await setup();
     await act(async () => {
-      void handles
-        .current!.fruits.open({ items: FRUITS, prompt: "Pick fruit", toItem })
+      void expectDefined(handles.current)
+        .fruits.open({ items: FRUITS, prompt: "Pick fruit", toItem })
         .then((fruit) => settlements.push(fruit));
       await Promise.resolve();
     });
@@ -224,14 +225,14 @@ describe("useChooseDialog", () => {
     await pressEscape();
 
     expect(settlements).toEqual([null]);
-    expect(handles.current!.stackSize()).toBe(0);
+    expect(expectDefined(handles.current).stackSize()).toBe(0);
   });
 
   test("async item loaders resolve typed items", async () => {
     testSetup = await setup();
     await act(async () => {
-      void handles
-        .current!.fruits.open({
+      void expectDefined(handles.current)
+        .fruits.open({
           items: () => FRUITS,
           prompt: "Pick fruit",
           toItem,
@@ -252,9 +253,11 @@ describe("useChooseDialog", () => {
     testSetup = await setup();
     const rows: ChooseItem[] = [{ text: "one" }, { text: "two" }];
     await act(async () => {
-      void handles.current!.rows.open({ items: rows, prompt: "Pick row" }).then((row) => {
-        settlements.push(row);
-      });
+      void expectDefined(handles.current)
+        .rows.open({ items: rows, prompt: "Pick row" })
+        .then((row) => {
+          settlements.push(row);
+        });
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -275,8 +278,8 @@ describe("useChooseDialog", () => {
       { id: 20, name: "same" },
     ];
     await act(async () => {
-      void handles
-        .current!.fruits.open({ items: twins, prompt: "Pick twin", toItem })
+      void expectDefined(handles.current)
+        .fruits.open({ items: twins, prompt: "Pick twin", toItem })
         .then((fruit) => settlements.push(fruit === null ? null : fruit.id));
       await Promise.resolve();
     });
@@ -290,7 +293,7 @@ describe("useChooseDialog", () => {
 
   test("unmounting the owner settles null and later opens resolve null", async () => {
     testSetup = await setup();
-    const ownerDialog = handles.current!.ownerFruits!;
+    const ownerDialog = expectDefined(expectDefined(handles.current).ownerFruits);
     await act(async () => {
       void ownerDialog
         .open({ items: FRUITS, prompt: "Owned picker", toItem })
@@ -301,13 +304,13 @@ describe("useChooseDialog", () => {
     expect(testSetup.captureCharFrame()).toContain("Owned picker");
 
     await act(async () => {
-      handles.current!.unmountOwner();
+      expectDefined(handles.current).unmountOwner();
       await Promise.resolve();
     });
     await testSetup.renderOnce();
 
     expect(settlements).toEqual([null]);
-    expect(handles.current!.stackSize()).toBe(0);
+    expect(expectDefined(handles.current).stackSize()).toBe(0);
 
     await act(async () => {
       void ownerDialog
@@ -317,6 +320,6 @@ describe("useChooseDialog", () => {
     });
     await testSetup.renderOnce();
     expect(settlements).toEqual([null, null]);
-    expect(handles.current!.stackSize()).toBe(0);
+    expect(expectDefined(handles.current).stackSize()).toBe(0);
   });
 });

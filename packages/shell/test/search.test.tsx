@@ -5,7 +5,7 @@ import { TooeeProvider, useNavigation } from "@tooee/shell";
 import { findMatchingLines, useSearch } from "@tooee/search";
 import type { SearchState } from "@tooee/search";
 import { useMode } from "@tooee/commands";
-import { press, pressEscape } from "./support/test-helpers.ts";
+import { expectDefined, press, pressEscape } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
 
 describe("findMatchingLines", () => {
@@ -111,11 +111,11 @@ describe("search hook", () => {
     );
     await testSetup.renderOnce();
     await act(async () => {
-      searchHandle!.setSearchQuery("a");
+      expectDefined(searchHandle).setSearchQuery("a");
       await Promise.resolve();
     });
     await act(async () => {
-      searchHandle!.submitSearch();
+      expectDefined(searchHandle).submitSearch();
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -135,7 +135,7 @@ describe("search hook", () => {
     await press(testSetup, "/");
 
     await act(async () => {
-      searchHandle!.setSearchQuery("alpha");
+      expectDefined(searchHandle).setSearchQuery("alpha");
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -151,7 +151,7 @@ describe("search hook", () => {
     await press(testSetup, "/");
 
     await act(async () => {
-      searchHandle!.setSearchQuery("alpha");
+      expectDefined(searchHandle).setSearchQuery("alpha");
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -168,14 +168,14 @@ describe("search hook", () => {
     await press(testSetup, "/");
 
     await act(async () => {
-      searchHandle!.setSearchQuery("alpha");
+      expectDefined(searchHandle).setSearchQuery("alpha");
       await Promise.resolve();
     });
     await testSetup.renderOnce();
 
     // Submit search
     await act(async () => {
-      searchHandle!.submitSearch();
+      expectDefined(searchHandle).submitSearch();
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -203,13 +203,13 @@ describe("search hook", () => {
     await press(testSetup, "/");
 
     await act(async () => {
-      searchHandle!.setSearchQuery("alpha");
+      expectDefined(searchHandle).setSearchQuery("alpha");
       await Promise.resolve();
     });
     await testSetup.renderOnce();
 
     await act(async () => {
-      searchHandle!.submitSearch();
+      expectDefined(searchHandle).submitSearch();
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -264,18 +264,18 @@ describe("search over changing content", () => {
     await press(testSetup, "/");
 
     await act(async () => {
-      searchHandle!.setSearchQuery("alpha");
+      expectDefined(searchHandle).setSearchQuery("alpha");
       await Promise.resolve();
     });
     await act(async () => {
-      searchHandle!.submitSearch();
+      expectDefined(searchHandle).submitSearch();
       await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("matches:[0]");
 
     await act(async () => {
-      appendLine!("alpha again");
+      expectDefined(appendLine)("alpha again");
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -288,17 +288,17 @@ describe("search over changing content", () => {
     await press(testSetup, "/");
 
     await act(async () => {
-      searchHandle!.setSearchQuery("alpha");
+      expectDefined(searchHandle).setSearchQuery("alpha");
       await Promise.resolve();
     });
     await act(async () => {
-      searchHandle!.submitSearch();
+      expectDefined(searchHandle).submitSearch();
       await Promise.resolve();
     });
     await testSetup.renderOnce();
 
     await act(async () => {
-      appendLine!("alpha again");
+      expectDefined(appendLine)("alpha again");
       await Promise.resolve();
     });
     await testSetup.renderOnce();

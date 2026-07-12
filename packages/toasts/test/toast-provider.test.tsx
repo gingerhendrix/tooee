@@ -4,6 +4,7 @@ import { act, useEffect } from "react";
 import { ThemeSwitcherProvider } from "@tooee/themes";
 import { ToastProvider, useToast, ToastContainer } from "@tooee/toasts";
 import type { ToastLevel } from "@tooee/toasts";
+import { expectDefined } from "./support/expect-defined.ts";
 
 const DurationTest = function DurationTest(): React.ReactNode {
   const { toast, currentToast } = useToast();
@@ -114,7 +115,7 @@ test("dismiss clears the toast", async () => {
 
   // Show a toast
   await act(async () => {
-    toastApi!.toast({ level: "info", message: "will dismiss" });
+    expectDefined(toastApi).toast({ level: "info", message: "will dismiss" });
     await Promise.resolve();
   });
   await testSetup.renderOnce();
@@ -122,7 +123,7 @@ test("dismiss clears the toast", async () => {
 
   // Dismiss it
   await act(async () => {
-    toastApi!.dismiss();
+    expectDefined(toastApi).dismiss();
     await Promise.resolve();
   });
   await testSetup.renderOnce();
@@ -168,7 +169,7 @@ test("same ID replaces existing toast and resets timer", async () => {
 
   // Show first toast
   await act(async () => {
-    toastApi!.toast({ duration: 100, id: "dedup", level: "info", message: "first" });
+    expectDefined(toastApi).toast({ duration: 100, id: "dedup", level: "info", message: "first" });
     await Promise.resolve();
   });
   await testSetup.renderOnce();
@@ -179,7 +180,12 @@ test("same ID replaces existing toast and resets timer", async () => {
     await new Promise((r) => {
       setTimeout(r, 50);
     });
-    toastApi!.toast({ duration: 100, id: "dedup", level: "success", message: "second" });
+    expectDefined(toastApi).toast({
+      duration: 100,
+      id: "dedup",
+      level: "success",
+      message: "second",
+    });
   });
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("toast:success:second");
@@ -257,13 +263,24 @@ test("ToastContainer renders correct icon per level", async () => {
     warning: "⚠",
   };
 
-  for (const [level, icon] of Object.entries(icons) as [ToastLevel, string][]) {
+  const iconEntries: readonly [ToastLevel, string][] = [
+    ["error", icons.error],
+    ["info", icons.info],
+    ["success", icons.success],
+    ["warning", icons.warning],
+  ];
+  for (const [level, icon] of iconEntries) {
+    // These renders must remain ordered: each iteration owns and destroys its renderer.
+    // Deferred(lint-sweep): preserve sequential renderer lifecycle while making the test parallel-safe.
+    // oxlint-disable-next-line no-await-in-loop -- renderer setup must complete before assertions
     testSetup = await renderWithProviders(
       <>
         <ToastTrigger level={level} message={`${level} msg`} />
         <ToastContainer />
       </>,
     );
+    // Deferred(lint-sweep): preserve sequential renderer lifecycle while making the test parallel-safe.
+    // oxlint-disable-next-line no-await-in-loop -- render must complete before inspecting the frame
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
     expect(frame).toContain(icon);

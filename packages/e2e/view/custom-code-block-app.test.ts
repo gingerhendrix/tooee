@@ -69,12 +69,16 @@ describe("custom code block app e2e", () => {
 
     // Pan right until the far end of the timeline is visible
     for (let i = 0; i < 30; i += 1) {
+      // Deferred(lint-sweep): Each key must be delivered in order to advance the viewport.
+      // oxlint-disable-next-line no-await-in-loop -- Preserve sequential terminal input.
       await session.press("l");
     }
     await session.waitForText("24:00", { timeout: 8000 });
 
     // Pan back to the start
     for (let i = 0; i < 30; i += 1) {
+      // Deferred(lint-sweep): Each key must be delivered in order to advance the viewport.
+      // oxlint-disable-next-line no-await-in-loop -- Preserve sequential terminal input.
       await session.press("h");
     }
     await session.waitForText("0:00", { timeout: 8000 });

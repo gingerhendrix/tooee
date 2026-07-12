@@ -3,6 +3,7 @@ import { test, expect, afterEach, describe } from "bun:test";
 import { act, useState } from "react";
 import { useContentLoader } from "../src/hooks/use-content-loader.js";
 import type { ContentChunk, ContentProvider } from "../src/types.js";
+import { expectDefined } from "./support/expect-defined.ts";
 
 const failing = async function* failing(): AsyncIterable<ContentChunk> {
   yield { data: "partial", format: "text", type: "append" };
@@ -168,10 +169,10 @@ describe("useContentLoader reload and request identity", () => {
     });
     await flush(testSetup);
     expect(resolvers).toHaveLength(2);
-    resolvers[0]!({ format: "text", text: "stale" });
+    expectDefined(resolvers[0])({ format: "text", text: "stale" });
     await flush(testSetup);
     expect(testSetup.captureCharFrame()).not.toContain("stale");
-    resolvers[1]!({ format: "text", text: "fresh" });
+    expectDefined(resolvers[1])({ format: "text", text: "fresh" });
     await flush(testSetup);
     expect(testSetup.captureCharFrame()).toContain("fresh");
   });

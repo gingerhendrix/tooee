@@ -13,6 +13,7 @@ import {
   useSurfaceCommands,
 } from "../src/index.js";
 import type { Mode } from "../src/index.js";
+import { expectDefined } from "./support/expect-defined.ts";
 
 const LateRegistrant = function LateRegistrant() {
   useCommand({ handler: () => {}, hotkey: "l", id: "late", title: "Late" });
@@ -80,6 +81,8 @@ const ActiveSurfaceHarness = function ActiveSurfaceHarness(): ReactNode {
       <ActiveProbe />
       <CommandSurfaceProvider id="modal" role="modal" initialMode="cursor">
         <MetadataSurfaceContent>{showExtra && <ExtraCommand />}</MetadataSurfaceContent>
+        {/* Deferred(lint-sweep): preserve deliberate top-down test harness organization. */}
+        {/* oxlint-disable-next-line no-use-before-define -- helper is declared below the harness */}
         <ExtraToggle
           onToggle={() => {
             setShowExtra(true);
@@ -187,7 +190,7 @@ describe("F-08: mode changes reset a pending chord", () => {
 
     // Surface-local mode change mid-chord: the sequence must reset.
     await act(async () => {
-      surfaceSetMode!("insert");
+      expectDefined(surfaceSetMode)("insert");
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -230,7 +233,7 @@ describe("F-08: mode changes reset a pending chord", () => {
     expect(testSetup.captureCharFrame()).toContain("pending:1");
 
     await act(async () => {
-      rootSetMode!("insert");
+      expectDefined(rootSetMode)("insert");
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -288,7 +291,7 @@ describe("F-09: surface replacement resets a pending chord", () => {
     // Replace the surface with a same-id successor (a keypress would clear the
     // chord itself, so drive the swap directly).
     await act(async () => {
-      swap!();
+      expectDefined(swap)();
       await Promise.resolve();
     });
     await testSetup.renderOnce();

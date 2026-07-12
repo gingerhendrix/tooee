@@ -286,10 +286,12 @@ export const CodeBlock = function CodeBlock({
   };
 
   const custom = rendererProps.lang === "" ? undefined : renderers?.[rendererProps.lang];
+  // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down custom renderer organization
   if (custom && custom !== defaultCodeBlockRenderer) {
     // Keyed by fence type so a type change remounts the custom renderer
     // (renderers may use hooks; see CodeBlockRenderer docs).
     return (
+      // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down custom renderer organization
       <CustomCodeBlock key={rendererProps.lang} renderer={custom} rendererProps={rendererProps} />
     );
   }
