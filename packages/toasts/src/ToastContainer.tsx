@@ -12,14 +12,18 @@ const LEVEL_ICONS: Record<ToastLevel, string> = {
 
 function getLevelColor(theme: ReturnType<typeof useTheme>["theme"], level: ToastLevel): string {
   switch (level) {
-    case "info":
+    case "info": {
       return theme.info;
-    case "success":
+    }
+    case "success": {
       return theme.success;
-    case "warning":
+    }
+    case "warning": {
       return theme.warning;
-    case "error":
+    }
+    case "error": {
       return theme.error;
+    }
   }
 }
 

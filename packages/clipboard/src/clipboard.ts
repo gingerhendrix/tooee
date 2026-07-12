@@ -44,7 +44,7 @@ export async function readClipboard(): Promise<ClipboardContent | undefined> {
   }
 
   if (os === "linux") {
-    if (process.env["WAYLAND_DISPLAY"] && Bun.which("wl-paste")) {
+    if (process.env.WAYLAND_DISPLAY && Bun.which("wl-paste")) {
       const wayland = await $`wl-paste -t image/png`.nothrow().arrayBuffer();
       if (wayland && wayland.byteLength > 0) {
         return {
@@ -81,7 +81,7 @@ export async function readClipboardText(): Promise<string | undefined> {
   }
 
   if (os === "linux") {
-    if (process.env["WAYLAND_DISPLAY"] && Bun.which("wl-paste")) {
+    if (process.env.WAYLAND_DISPLAY && Bun.which("wl-paste")) {
       const result = await $`wl-paste`.nothrow().quiet().text();
       return result || undefined;
     }
@@ -107,7 +107,7 @@ export async function readPrimaryText(): Promise<string | undefined> {
   const os = platform();
 
   if (os === "linux") {
-    if (process.env["WAYLAND_DISPLAY"] && Bun.which("wl-paste")) {
+    if (process.env.WAYLAND_DISPLAY && Bun.which("wl-paste")) {
       const result = await $`wl-paste --primary`.nothrow().quiet().text();
       return result || undefined;
     }
@@ -136,14 +136,14 @@ function getCopyMethod(): (text: string) => Promise<void> {
 
   if (os === "darwin" && Bun.which("osascript")) {
     copyMethod = async (text: string) => {
-      const escaped = text.replace(/\\/gu, "\\\\").replace(/"/gu, '\\"');
+      const escaped = text.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
       await $`osascript -e 'set the clipboard to "${escaped}"'`.nothrow().quiet();
     };
     return copyMethod;
   }
 
   if (os === "linux") {
-    if (process.env["WAYLAND_DISPLAY"] && Bun.which("wl-copy")) {
+    if (process.env.WAYLAND_DISPLAY && Bun.which("wl-copy")) {
       copyMethod = async (text: string) => {
         const proc = Bun.spawn(["wl-copy"], {
           stdin: "pipe",
@@ -186,7 +186,7 @@ function getCopyMethod(): (text: string) => Promise<void> {
 
   if (os === "win32") {
     copyMethod = async (text: string) => {
-      const escaped = text.replace(/"/gu, '""');
+      const escaped = text.replaceAll('"', '""');
       await $`powershell -command "Set-Clipboard -Value \"${escaped}\""`.nothrow().quiet();
     };
     return copyMethod;
@@ -212,7 +212,7 @@ function getPrimaryCopyMethod(): (text: string) => Promise<void> {
   const os = platform();
 
   if (os === "linux") {
-    if (process.env["WAYLAND_DISPLAY"] && Bun.which("wl-copy")) {
+    if (process.env.WAYLAND_DISPLAY && Bun.which("wl-copy")) {
       primaryCopyMethod = async (text: string) => {
         const proc = Bun.spawn(["wl-copy", "--primary"], {
           stdin: "pipe",

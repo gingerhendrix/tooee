@@ -1,7 +1,6 @@
 import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach } from "bun:test";
-import { useEffect } from "react";
-import { act } from "react";
+import { act, useEffect } from "react";
 import { ThemeSwitcherProvider } from "@tooee/themes";
 import { ToastProvider, useToast, ToastContainer } from "@tooee/toasts";
 import type { ToastLevel } from "@tooee/toasts";

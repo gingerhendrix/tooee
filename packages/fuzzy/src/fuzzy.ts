@@ -20,7 +20,7 @@ export function fuzzyMatchPositions(
   let score = 0;
   let qi = 0;
 
-  for (let ti = 0; ti < lowerText.length && qi < lowerQuery.length; ti++) {
+  for (let ti = 0; ti < lowerText.length && qi < lowerQuery.length; ti += 1) {
     if (lowerText[ti] === lowerQuery[qi]) {
       positions.push(ti);
 
@@ -28,11 +28,11 @@ export function fuzzyMatchPositions(
         score += 3;
       } else if (WORD_BOUNDARY_CHARS.has(lowerText[ti - 1])) {
         score += 2;
-      } else if (positions.length > 1 && positions[positions.length - 2] === ti - 1) {
+      } else if (positions.length > 1 && positions.at(-2) === ti - 1) {
         score += 1;
       }
 
-      qi++;
+      qi += 1;
     }
   }
 

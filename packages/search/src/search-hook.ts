@@ -102,11 +102,14 @@ export function useSearchBindings(
     if (
       depsRef.current.every((value, index) => Object.is(value, deps[index])) &&
       depsRef.current.length === deps.length
-    )
+    ) {
       return;
+    }
     depsRef.current = deps;
     const query = selectSearchQuery(store.getSnapshot().context);
-    if (query) store.trigger.searchChanged({ query, matches: matchRef.current(query) });
+    if (query) {
+      store.trigger.searchChanged({ query, matches: matchRef.current(query) });
+    }
   }, [deps, store]);
 
   useCommand({

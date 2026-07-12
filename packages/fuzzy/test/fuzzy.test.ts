@@ -41,7 +41,8 @@ describe("fuzzyMatchPositions", () => {
     const result = fuzzyMatchPositions("fb", "foobar");
     expect(result).not.toBeNull();
     expect(result!.positions).toEqual([0, 3]);
-    expect(result!.score).toBe(3); // 'f' at pos 0 = 3
+    // 'f' at pos 0 = 3
+    expect(result!.score).toBe(3);
   });
 
   test("exact match positions", () => {
