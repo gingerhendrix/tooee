@@ -5,7 +5,8 @@ import { matchStep } from "./match.js";
 export const DEFAULT_SEQUENCE_TIMEOUT_MS = 1500;
 
 export interface SequenceTrackerOptions {
-  timeout?: number; // ms, default DEFAULT_SEQUENCE_TIMEOUT_MS
+  /** Timeout in milliseconds; defaults to DEFAULT_SEQUENCE_TIMEOUT_MS. */
+  timeout?: number;
   onReset?: () => void;
 }
 
@@ -35,7 +36,7 @@ export function matchesBuffer(buffer: readonly KeyEvent[], hotkey: ParsedHotkey)
   if (buffer.length < steps.length) return false;
 
   const start = buffer.length - steps.length;
-  for (let i = 0; i < steps.length; i++) {
+  for (let i = 0; i < steps.length; i += 1) {
     if (!matchStep(buffer[start + i]!, steps[i]!)) return false;
   }
   return true;
@@ -55,16 +56,16 @@ export function findPendingMatch(
     Math.max(0, ...hotkeys.map((h) => h.steps.length - 1)),
   );
 
-  for (let prefixLength = maxPrefixLength; prefixLength > 0; prefixLength--) {
+  for (let prefixLength = maxPrefixLength; prefixLength > 0; prefixLength -= 1) {
     const start = buffer.length - prefixLength;
     const indexes: number[] = [];
 
-    for (let hotkeyIndex = 0; hotkeyIndex < hotkeys.length; hotkeyIndex++) {
+    for (let hotkeyIndex = 0; hotkeyIndex < hotkeys.length; hotkeyIndex += 1) {
       const hotkey = hotkeys[hotkeyIndex]!;
       if (hotkey.steps.length <= prefixLength) continue;
 
       let matches = true;
-      for (let i = 0; i < prefixLength; i++) {
+      for (let i = 0; i < prefixLength; i += 1) {
         if (!matchStep(buffer[start + i]!, hotkey.steps[i]!)) {
           matches = false;
           break;
@@ -121,7 +122,7 @@ export class SequenceTracker {
     this.buffer.push(event);
     this.resetTimer();
 
-    for (let i = 0; i < hotkeys.length; i++) {
+    for (let i = 0; i < hotkeys.length; i += 1) {
       if (matchesBuffer(this.buffer, hotkeys[i]!)) {
         this.reset();
         return { matchedIndex: i, pending: null };
@@ -142,7 +143,9 @@ export class SequenceTracker {
     const hadBuffer = this.buffer.length > 0;
     this.buffer = [];
     this.clearTimer();
-    if (hadBuffer) this.onReset?.();
+    if (hadBuffer) {
+      this.onReset?.();
+    }
   }
 
   private resetTimer(): void {

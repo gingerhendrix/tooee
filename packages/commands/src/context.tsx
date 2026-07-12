@@ -183,7 +183,9 @@ function CommandDispatcher({
   commandStore.setConfig({ leader, keymap, sequenceTimeoutMs });
 
   useKeyboard((event) => {
-    if (event.defaultPrevented) return;
+    if (event.defaultPrevented) {
+      return;
+    }
     const result = commandStore.key(event);
     if (result.handled) {
       event.preventDefault();

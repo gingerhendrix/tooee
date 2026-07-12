@@ -91,7 +91,7 @@ export function selectSurfaceCommands(
   surfaceId: string,
 ): readonly Command[] {
   const commands = ctx.commandsBySurface.get(surfaceId);
-  return commands ? Array.from(commands.values()) : [];
+  return commands ? [...commands.values()] : [];
 }
 
 /** Identity-stable per-surface command map (undefined when none registered). */
@@ -430,7 +430,7 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
       armTimer();
 
       let matchedIndex = -1;
-      for (let i = 0; i < hotkeys.length; i++) {
+      for (let i = 0; i < hotkeys.length; i += 1) {
         if (matchesBuffer(buffer, hotkeys[i]!)) {
           matchedIndex = i;
           break;
@@ -485,7 +485,8 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
   }
 
   function pushSurface(surface: SurfaceRecord): () => void {
-    surface.order = orderCounter++;
+    surface.order = orderCounter;
+    orderCounter += 1;
     const before = selectActiveModalSurface(store.getSnapshot().context);
     store.trigger.surfacePushed({ surface });
     const after = selectActiveModalSurface(store.getSnapshot().context);
