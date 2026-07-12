@@ -7,8 +7,8 @@ import { expectDefined } from "./support/expect-defined.ts";
 
 const failing = async function* failing(): AsyncIterable<ContentChunk> {
   yield { data: "partial", format: "text", type: "append" };
-  // eslint-disable-next-line no-throw-literal
-  throw "stream blew up";
+  // eslint-disable-next-line prefer-promise-reject-errors
+  await Promise.reject("stream blew up");
 };
 
 type TestSession = Awaited<ReturnType<typeof testRender>>;

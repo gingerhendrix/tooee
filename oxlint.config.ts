@@ -64,7 +64,6 @@ export default defineConfig({
     "typescript/no-unsafe-member-access": "off",
     "typescript/no-unsafe-return": "off",
     "typescript/non-nullable-type-assertion-style": "off",
-    "typescript/only-throw-error": "off",
     "typescript/parameter-properties": "off",
     "typescript/prefer-nullish-coalescing": "off",
     "typescript/prefer-readonly": "off",
