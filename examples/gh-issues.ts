@@ -48,10 +48,10 @@ const issueProvider = {
     }
 
     return issues.map((issue) => ({
+      description: issue.labels.map((l) => l.name).join(", ") || undefined,
+      icon: issue.state === "OPEN" ? "\u{1F7E2}" : "\u{1F534}",
       text: `#${issue.number} ${issue.title}`,
       value: String(issue.number),
-      icon: issue.state === "OPEN" ? "\u{1F7E2}" : "\u{1F534}",
-      description: issue.labels.map((l) => l.name).join(", ") || undefined,
     }));
   },
 };

@@ -223,78 +223,78 @@ export function useAskEditor(options: UseAskEditorOptions = {}): UseAskEditorRes
   }, [setMode]);
 
   useCommand({
-    id: `${commandScope}:leave-insert-mode`,
-    title: "Command mode",
-    hotkey: "Escape",
-    modes: ["insert"],
-    hidden: true,
-    when: () => enabled("escape"),
     handler: leaveInsertMode,
+    hidden: true,
+    hotkey: "Escape",
+    id: `${commandScope}:leave-insert-mode`,
+    modes: ["insert"],
+    title: "Command mode",
+    when: () => enabled("escape"),
   });
   useCommand({
-    id: `${commandScope}:cancel`,
-    title: "Cancel",
-    hotkey: "q",
-    modes: ["cursor"],
-    hidden: true,
-    when: () => enabled("cancel") && optionsRef.current.onCancel !== undefined,
     handler: () => optionsRef.current.onCancel?.(),
+    hidden: true,
+    hotkey: "q",
+    id: `${commandScope}:cancel`,
+    modes: ["cursor"],
+    title: "Cancel",
+    when: () => enabled("cancel") && optionsRef.current.onCancel !== undefined,
   });
   useCommand({
-    id: `${commandScope}:insert-mode-i`,
-    title: "Insert mode",
-    hotkey: "i",
-    modes: ["cursor"],
-    hidden: true,
-    when: () => enabled("insert-commands"),
     handler: enterInsertMode,
-  });
-  useCommand({
-    id: `${commandScope}:insert-mode-a`,
-    title: "Append",
-    hotkey: "a",
-    modes: ["cursor"],
     hidden: true,
+    hotkey: "i",
+    id: `${commandScope}:insert-mode-i`,
+    modes: ["cursor"],
+    title: "Insert mode",
     when: () => enabled("insert-commands"),
+  });
+  useCommand({
     handler: appendAndEnterInsertMode,
+    hidden: true,
+    hotkey: "a",
+    id: `${commandScope}:insert-mode-a`,
+    modes: ["cursor"],
+    title: "Append",
+    when: () => enabled("insert-commands"),
   });
   useCommand({
-    id: `${commandScope}:open-line-above`,
-    title: "Open line above",
-    hotkey: "shift+o",
-    modes: ["cursor"],
-    hidden: true,
-    when: () => enabled("insert-commands") && multilineRef.current,
     handler: openLineAbove,
-  });
-  useCommand({
-    id: `${commandScope}:open-line-below`,
-    title: "Open line below",
-    hotkey: "o",
+    hidden: true,
+    hotkey: "shift+o",
+    id: `${commandScope}:open-line-above`,
     modes: ["cursor"],
-    hidden: true,
+    title: "Open line above",
     when: () => enabled("insert-commands") && multilineRef.current,
+  });
+  useCommand({
     handler: openLineBelow,
+    hidden: true,
+    hotkey: "o",
+    id: `${commandScope}:open-line-below`,
+    modes: ["cursor"],
+    title: "Open line below",
+    when: () => enabled("insert-commands") && multilineRef.current,
   });
   useCommand({
-    id: `${commandScope}:submit-single-line`,
-    title: "Submit",
-    hotkey: "Enter",
-    modes: ["insert", "cursor"],
-    hidden: true,
-    when: () => enabled("submit") && resolveSubmitKey() === "enter",
     handler: submit,
+    hidden: true,
+    hotkey: "Enter",
+    id: `${commandScope}:submit-single-line`,
+    modes: ["insert", "cursor"],
+    title: "Submit",
+    when: () => enabled("submit") && resolveSubmitKey() === "enter",
   });
   useCommand({
-    id: `${commandScope}:submit-multiline`,
-    title: "Submit",
-    hotkey: "shift+Enter",
-    modes: ["insert", "cursor"],
+    handler: submit,
     hidden: true,
+    hotkey: "shift+Enter",
+    id: `${commandScope}:submit-multiline`,
+    modes: ["insert", "cursor"],
+    title: "Submit",
     // Shift+Enter always submits (single-line editors have no newline for it
     // to mean); plain Enter only when it is the configured submit key.
     when: () => enabled("submit") && resolveSubmitKey() !== "none",
-    handler: submit,
   });
 
   const motion = useCallback(
@@ -308,148 +308,148 @@ export function useAskEditor(options: UseAskEditorOptions = {}): UseAskEditorRes
   );
 
   useCommand({
-    id: `${commandScope}:move-left`,
-    title: "Move left",
+    handler: () => motion((target) => target.moveCursorLeft()),
+    hidden: true,
     hotkey: "h",
+    id: `${commandScope}:move-left`,
     modes: ["cursor"],
-    hidden: true,
-    when: () => enabled("motions"),
-    handler: () => motion((target) => target.moveCursorLeft()),
-  });
-  useCommand({
-    id: `${commandScope}:move-left-arrow`,
     title: "Move left",
-    hotkey: "left",
-    modes: ["cursor"],
-    hidden: true,
     when: () => enabled("motions"),
+  });
+  useCommand({
     handler: () => motion((target) => target.moveCursorLeft()),
+    hidden: true,
+    hotkey: "left",
+    id: `${commandScope}:move-left-arrow`,
+    modes: ["cursor"],
+    title: "Move left",
+    when: () => enabled("motions"),
   });
   useCommand({
-    id: `${commandScope}:move-right`,
-    title: "Move right",
+    handler: () => motion((target) => target.moveCursorRight()),
+    hidden: true,
     hotkey: "l",
+    id: `${commandScope}:move-right`,
     modes: ["cursor"],
-    hidden: true,
-    when: () => enabled("motions"),
-    handler: () => motion((target) => target.moveCursorRight()),
-  });
-  useCommand({
-    id: `${commandScope}:move-right-arrow`,
     title: "Move right",
-    hotkey: "right",
-    modes: ["cursor"],
-    hidden: true,
     when: () => enabled("motions"),
+  });
+  useCommand({
     handler: () => motion((target) => target.moveCursorRight()),
+    hidden: true,
+    hotkey: "right",
+    id: `${commandScope}:move-right-arrow`,
+    modes: ["cursor"],
+    title: "Move right",
+    when: () => enabled("motions"),
   });
   useCommand({
-    id: `${commandScope}:move-down`,
-    title: "Move down",
+    handler: () => motion((target) => target.moveCursorDown()),
+    hidden: true,
     hotkey: "j",
+    id: `${commandScope}:move-down`,
     modes: ["cursor"],
-    hidden: true,
-    when: () => enabled("motions"),
-    handler: () => motion((target) => target.moveCursorDown()),
-  });
-  useCommand({
-    id: `${commandScope}:move-down-arrow`,
     title: "Move down",
-    hotkey: "down",
-    modes: ["cursor"],
-    hidden: true,
     when: () => enabled("motions"),
+  });
+  useCommand({
     handler: () => motion((target) => target.moveCursorDown()),
+    hidden: true,
+    hotkey: "down",
+    id: `${commandScope}:move-down-arrow`,
+    modes: ["cursor"],
+    title: "Move down",
+    when: () => enabled("motions"),
   });
   useCommand({
-    id: `${commandScope}:move-up`,
-    title: "Move up",
+    handler: () => motion((target) => target.moveCursorUp()),
+    hidden: true,
     hotkey: "k",
+    id: `${commandScope}:move-up`,
     modes: ["cursor"],
-    hidden: true,
-    when: () => enabled("motions"),
-    handler: () => motion((target) => target.moveCursorUp()),
-  });
-  useCommand({
-    id: `${commandScope}:move-up-arrow`,
     title: "Move up",
-    hotkey: "up",
-    modes: ["cursor"],
-    hidden: true,
     when: () => enabled("motions"),
+  });
+  useCommand({
     handler: () => motion((target) => target.moveCursorUp()),
+    hidden: true,
+    hotkey: "up",
+    id: `${commandScope}:move-up-arrow`,
+    modes: ["cursor"],
+    title: "Move up",
+    when: () => enabled("motions"),
   });
   useCommand({
-    id: `${commandScope}:line-home`,
-    title: "Line home",
+    handler: () => motion((target) => target.gotoLineHome()),
+    hidden: true,
     hotkey: "0",
+    id: `${commandScope}:line-home`,
     modes: ["cursor"],
-    hidden: true,
-    when: () => enabled("motions"),
-    handler: () => motion((target) => target.gotoLineHome()),
-  });
-  useCommand({
-    id: `${commandScope}:line-home-key`,
     title: "Line home",
-    hotkey: "home",
-    modes: ["cursor"],
-    hidden: true,
     when: () => enabled("motions"),
+  });
+  useCommand({
     handler: () => motion((target) => target.gotoLineHome()),
+    hidden: true,
+    hotkey: "home",
+    id: `${commandScope}:line-home-key`,
+    modes: ["cursor"],
+    title: "Line home",
+    when: () => enabled("motions"),
   });
   useCommand({
-    id: `${commandScope}:line-end`,
-    title: "Line end",
+    handler: () => motion((target) => target.gotoLineEnd()),
+    hidden: true,
     hotkey: "shift+4",
+    id: `${commandScope}:line-end`,
     modes: ["cursor"],
-    hidden: true,
-    when: () => enabled("motions"),
-    handler: () => motion((target) => target.gotoLineEnd()),
-  });
-  useCommand({
-    id: `${commandScope}:line-end-key`,
     title: "Line end",
-    hotkey: "end",
-    modes: ["cursor"],
-    hidden: true,
     when: () => enabled("motions"),
+  });
+  useCommand({
     handler: () => motion((target) => target.gotoLineEnd()),
+    hidden: true,
+    hotkey: "end",
+    id: `${commandScope}:line-end-key`,
+    modes: ["cursor"],
+    title: "Line end",
+    when: () => enabled("motions"),
   });
   useCommand({
-    id: `${commandScope}:word-forward`,
-    title: "Word forward",
-    hotkey: "w",
-    modes: ["cursor"],
-    hidden: true,
-    when: () => enabled("motions"),
     handler: () => motion((target) => target.moveWordForward()),
+    hidden: true,
+    hotkey: "w",
+    id: `${commandScope}:word-forward`,
+    modes: ["cursor"],
+    title: "Word forward",
+    when: () => enabled("motions"),
   });
   useCommand({
-    id: `${commandScope}:word-backward`,
-    title: "Word backward",
-    hotkey: "b",
-    modes: ["cursor"],
-    hidden: true,
-    when: () => enabled("motions"),
     handler: () => motion((target) => target.moveWordBackward()),
+    hidden: true,
+    hotkey: "b",
+    id: `${commandScope}:word-backward`,
+    modes: ["cursor"],
+    title: "Word backward",
+    when: () => enabled("motions"),
   });
   useCommand({
-    id: `${commandScope}:buffer-home`,
-    title: "Buffer home",
-    hotkey: "g g",
-    modes: ["cursor"],
-    hidden: true,
-    when: () => enabled("motions"),
     handler: () => motion((target) => target.gotoBufferHome()),
+    hidden: true,
+    hotkey: "g g",
+    id: `${commandScope}:buffer-home`,
+    modes: ["cursor"],
+    title: "Buffer home",
+    when: () => enabled("motions"),
   });
   useCommand({
-    id: `${commandScope}:buffer-end`,
-    title: "Buffer end",
-    hotkey: "shift+g",
-    modes: ["cursor"],
-    hidden: true,
-    when: () => enabled("motions"),
     handler: () => motion((target) => target.gotoBufferEnd()),
+    hidden: true,
+    hotkey: "shift+g",
+    id: `${commandScope}:buffer-end`,
+    modes: ["cursor"],
+    title: "Buffer end",
+    when: () => enabled("motions"),
   });
 
   // Middle-click paste from primary selection
@@ -524,36 +524,36 @@ export function useAskEditor(options: UseAskEditorOptions = {}): UseAskEditorRes
   if (controllerRef.current === null) {
     controllerRef.current = {
       getText,
-      setText,
       insertText,
-      setCursorToEnd,
-      submit,
       get mode() {
         return modeRef.current;
       },
+      setCursorToEnd,
       setMode: setModeExternal,
+      setText,
+      submit,
     };
   }
 
   return {
     controller: controllerRef.current,
     editor: {
-      multiline,
+      bumpScroll,
       defaultValue,
-      placeholder,
-      value,
-      onInput: setValue,
-      textareaRef,
+      focused,
       inputRef,
       mode,
-      suspended,
-      focused,
-      scrollRevision,
-      bumpScroll,
+      multiline,
       onEditorKeyDown: preventCursorModeEditorInput,
       onEditorPaste: preventCursorModeEditorInput,
-      submit,
+      onInput: setValue,
       onMouseDown: handleMouseDown,
+      placeholder,
+      scrollRevision,
+      submit,
+      suspended,
+      textareaRef,
+      value,
     },
   };
 }

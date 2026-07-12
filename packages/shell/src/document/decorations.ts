@@ -11,7 +11,6 @@ function rowLayer(
   rows: Map<number, Omit<RowDecoration, "row">>,
 ): DecorationLayer {
   return {
-    priority,
     *forVisibleRows(from: number, to: number): Generator<RowDecoration> {
       for (let row = from; row <= to; row += 1) {
         const decoration = rows.get(row);
@@ -20,6 +19,7 @@ function rowLayer(
         }
       }
     },
+    priority,
   };
 }
 
@@ -60,7 +60,7 @@ export function buildInteractionDecorations({
     for (const row of matchingLines) {
       rows.set(row, {
         background: theme.warning,
-        sign: { text: SEARCH_SIGN, fg: theme.warning },
+        sign: { fg: theme.warning, text: SEARCH_SIGN },
       });
     }
     layers.push(rowLayer(DocumentDecorationPriorities.SEARCH_MATCH, rows));
@@ -87,7 +87,7 @@ export function buildInteractionDecorations({
     layers.push(
       singleRowLayer(DocumentDecorationPriorities.CURRENT_MATCH, currentMatch, {
         background: theme.primary,
-        sign: { text: SEARCH_SIGN, fg: theme.primary },
+        sign: { fg: theme.primary, text: SEARCH_SIGN },
       }),
     );
   }
@@ -96,7 +96,7 @@ export function buildInteractionDecorations({
     layers.push(
       singleRowLayer(DocumentDecorationPriorities.CURSOR, cursor, {
         background: theme.cursorLine,
-        sign: { text: CURSOR_SIGN, fg: theme.primary },
+        sign: { fg: theme.primary, text: CURSOR_SIGN },
       }),
     );
   }

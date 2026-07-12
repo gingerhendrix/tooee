@@ -152,16 +152,16 @@ export function useChooseDialog<T>(): ChooseDialogHandle<T> {
 
         const multi = options.multi === true;
         const shared = {
-          items: source,
-          prompt: options.prompt,
-          placeholder: options.placeholder,
-          emptyMessage: options.emptyMessage,
           commands: options.commands,
-          renderItem: options.renderItem,
-          hints: options.hints,
-          statusRight: options.statusRight,
+          emptyMessage: options.emptyMessage,
           footer: options.footer,
+          hints: options.hints,
           inset: options.inset,
+          items: source,
+          placeholder: options.placeholder,
+          prompt: options.prompt,
+          renderItem: options.renderItem,
+          statusRight: options.statusRight,
         };
 
         const handle = overlayRef.current.open(
@@ -200,13 +200,13 @@ export function useChooseDialog<T>(): ChooseDialogHandle<T> {
             ),
           undefined,
           {
-            ownCommands: true,
-            role: "modal",
-            surfaceMode: "insert",
             // Single settlement funnel: every close path (cancel, escape,
             // replacement, unmount, external closeTop) lands here. Select and
             // submit settle first, making this a no-op.
             onClose: () => settle(null),
+            ownCommands: true,
+            role: "modal",
+            surfaceMode: "insert",
           },
         );
         openHandlesRef.current.set(id, handle);

@@ -41,33 +41,33 @@ interface KanbanData {
 const kanbanData: KanbanData = {
   columns: [
     {
+      cards: [
+        { assignee: "alice", id: "T-101", priority: "medium", title: "Add dark mode support" },
+        { id: "T-102", priority: "low", title: "Write API documentation" },
+        { assignee: "bob", id: "T-103", priority: "low", title: "Upgrade dependencies" },
+      ],
       name: "Backlog",
-      cards: [
-        { id: "T-101", title: "Add dark mode support", assignee: "alice", priority: "medium" },
-        { id: "T-102", title: "Write API documentation", priority: "low" },
-        { id: "T-103", title: "Upgrade dependencies", assignee: "bob", priority: "low" },
-      ],
     },
     {
+      cards: [
+        { assignee: "carol", id: "T-104", priority: "critical", title: "Fix login timeout bug" },
+        { assignee: "alice", id: "T-105", priority: "high", title: "Implement search feature" },
+      ],
       name: "In Progress",
-      cards: [
-        { id: "T-104", title: "Fix login timeout bug", assignee: "carol", priority: "critical" },
-        { id: "T-105", title: "Implement search feature", assignee: "alice", priority: "high" },
-      ],
     },
     {
+      cards: [
+        { assignee: "bob", id: "T-106", priority: "medium", title: "Refactor auth middleware" },
+      ],
       name: "Review",
-      cards: [
-        { id: "T-106", title: "Refactor auth middleware", assignee: "bob", priority: "medium" },
-      ],
     },
     {
-      name: "Done",
       cards: [
-        { id: "T-107", title: "Set up CI pipeline", assignee: "carol", priority: "high" },
-        { id: "T-108", title: "Create project README", assignee: "alice", priority: "medium" },
-        { id: "T-109", title: "Configure linting", assignee: "bob", priority: "low" },
+        { assignee: "carol", id: "T-107", priority: "high", title: "Set up CI pipeline" },
+        { assignee: "alice", id: "T-108", priority: "medium", title: "Create project README" },
+        { assignee: "bob", id: "T-109", priority: "low", title: "Configure linting" },
       ],
+      name: "Done",
     },
   ],
 };
@@ -77,8 +77,8 @@ const kanbanData: KanbanData = {
 const PRIORITY_INDICATORS: Record<string, string> = {
   critical: "!!!",
   high: " !! ",
-  medium: "  ! ",
   low: "    ",
+  medium: "  ! ",
 };
 
 const COLUMN_WIDTH = 36;
@@ -118,11 +118,11 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
       return padRight(label, COLUMN_WIDTH);
     })
     .join("  ");
-  lines.push({ text: headerLine, fg: theme.primary });
+  lines.push({ fg: theme.primary, text: headerLine });
 
   // Separator
   const sepLine = data.columns.map(() => "\u2500".repeat(COLUMN_WIDTH)).join("  ");
-  lines.push({ text: sepLine, fg: theme.border });
+  lines.push({ fg: theme.border, text: sepLine });
 
   // Card rows
   for (let cardIdx = 0; cardIdx < maxCards; cardIdx++) {
@@ -135,7 +135,7 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
         return `\u250C${"\u2500".repeat(COLUMN_WIDTH - 2)}\u2510`;
       })
       .join("  ");
-    lines.push({ text: topLine, fg: theme.border });
+    lines.push({ fg: theme.border, text: topLine });
 
     // Card ID + priority line
     const idLine = data.columns
@@ -179,7 +179,7 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
         return `\u2502${inner}\u2502`;
       })
       .join("  ");
-    lines.push({ text: assigneeLine, fg: theme.textMuted });
+    lines.push({ fg: theme.textMuted, text: assigneeLine });
 
     // Bottom border of card
     const bottomLine = data.columns
@@ -190,7 +190,7 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
         return `\u2514${"\u2500".repeat(COLUMN_WIDTH - 2)}\u2518`;
       })
       .join("  ");
-    lines.push({ text: bottomLine, fg: theme.border });
+    lines.push({ fg: theme.border, text: bottomLine });
 
     // Spacing between cards
     if (cardIdx < maxCards - 1) {
@@ -201,7 +201,7 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
   return h(
     "box",
     { style: { flexDirection: "column", marginLeft: 1, marginTop: 1 } },
-    ...lines.map((line, i) => h("text", { key: i, content: line.text, fg: line.fg ?? theme.text })),
+    ...lines.map((line, i) => h("text", { content: line.text, fg: line.fg ?? theme.text, key: i })),
   );
 }
 
@@ -209,9 +209,8 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
 
 const contentProvider: ContentProvider = {
   load: (): CustomContent<KanbanData> => ({
-    format: "kanban",
     data: kanbanData,
-    title: "Project Board",
+    format: "kanban",
     getTextContent: () =>
       // Provide text representation for search and copy
       kanbanData.columns
@@ -226,6 +225,7 @@ const contentProvider: ContentProvider = {
           return `${header}\n${cards}`;
         })
         .join("\n\n"),
+    title: "Project Board",
   }),
 };
 

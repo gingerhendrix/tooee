@@ -94,7 +94,7 @@ export class SourceIndex {
 
   point(offset: number): SourcePoint {
     const line = this.lineAt(offset);
-    return { offset, line, column: offset - this.lineStarts[line]! };
+    return { column: offset - this.lineStarts[line]!, line, offset };
   }
 
   /** End offset of a line's content, excluding its `\n`/`\r\n` delimiter. */
@@ -131,11 +131,11 @@ export class SourceIndex {
     const endPoint = this.point(end);
     const lastLine = end > rawStart ? this.lineAt(end - 1) : start.line;
     const span: SourceSpan = {
-      start,
       end: endPoint,
       lastLine,
-      text: this.text.slice(rawStart, end),
       lineText: this.text.slice(this.lineStarts[start.line]!, this.lineContentEnd(lastLine)),
+      start,
+      text: this.text.slice(rawStart, end),
     };
     if (this.sourceId !== undefined) {
       span.sourceId = this.sourceId;
@@ -167,8 +167,8 @@ export function sourceLines(source: string, options?: { sourceId?: string }): So
     const start = index.lineStarts[line]!;
     const end = index.lineContentEnd(line);
     rows.push({
-      text: source.slice(start, end),
       source: { primary: index.span(start, end, false) },
+      text: source.slice(start, end),
     });
   }
   return rows;
@@ -176,6 +176,6 @@ export function sourceLines(source: string, options?: { sourceId?: string }): So
 
 /** Adapter for `sourceLines()` rows: identity mapping in row/line space. */
 export const sourceLineAdapter = {
-  getText: (row: SourceLineRow): string => row.text,
   getSource: (row: SourceLineRow): DocumentRowSource => row.source,
+  getText: (row: SourceLineRow): string => row.text,
 };

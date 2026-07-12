@@ -14,7 +14,7 @@ function ModalHarness({
   rowCount: number;
   isSelectable?: (index: number) => boolean;
 }) {
-  const nav = useNavigation({ rowCount, isSelectable, viewportHeight: 10 });
+  const nav = useNavigation({ isSelectable, rowCount, viewportHeight: 10 });
   const mode = useMode();
   const search = useSearch({
     match: () => [],
@@ -35,7 +35,7 @@ async function setup(rowCount = 100, isSelectable?: (index: number) => boolean) 
     <TooeeProvider>
       <ModalHarness rowCount={rowCount} isSelectable={isSelectable} />
     </TooeeProvider>,
-    { width: 60, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 60 },
   );
   await session.renderOnce();
   return session;

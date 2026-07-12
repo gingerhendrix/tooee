@@ -118,7 +118,7 @@ switch (command) {
       (a) => a !== "--multiline" && a !== "-m" && a !== "--single-line" && a !== "-s",
     );
     const prompt = filtered.join(" ") || undefined;
-    launchAsk({ prompt, multiline: !singleLine });
+    launchAsk({ multiline: !singleLine, prompt });
     break;
   }
 

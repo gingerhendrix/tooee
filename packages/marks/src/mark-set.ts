@@ -115,7 +115,7 @@ export class MarkSet {
 
         const signText = (mark.style.signBefore ?? "") + (mark.style.signAfter ?? "");
         if (signText) {
-          decoration.sign = { text: signText, fg: mark.style.foreground };
+          decoration.sign = { fg: mark.style.foreground, text: signText };
         }
 
         yield decoration;

@@ -46,7 +46,7 @@ function timeIterations(operation: () => number): { medianMs: number; lastCount:
     samples.push(performance.now() - started);
   }
 
-  return { medianMs: median(samples), lastCount };
+  return { lastCount, medianMs: median(samples) };
 }
 
 for (const tier of [FIXTURE_TIERS.moderate, FIXTURE_TIERS.large]) {
@@ -80,10 +80,10 @@ for (const tier of [FIXTURE_TIERS.moderate, FIXTURE_TIERS.large]) {
       table.columns.map((column) => formatCellValue(row[column.key])),
     );
     const widths = computeColumnWidths(headers, normalizedRows, maxWidth, {
-      minColumnWidth: 4,
-      maxColumnWidth: 80,
-      sampleSize: 100,
       columnWidthMode: "content",
+      maxColumnWidth: 80,
+      minColumnWidth: 4,
+      sampleSize: 100,
     });
     return widths.reduce((sum, value) => sum + value, 0);
   });

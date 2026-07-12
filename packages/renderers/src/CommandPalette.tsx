@@ -53,36 +53,36 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
   }, [filtered.length]);
 
   useCommand({
-    id: "command-palette:close",
-    title: "Close command palette",
-    hotkey: "Escape",
-    modes: ["insert", "cursor"],
-    hidden: true,
     handler: onClose,
+    hidden: true,
+    hotkey: "Escape",
+    id: "command-palette:close",
+    modes: ["insert", "cursor"],
+    title: "Close command palette",
   });
   useCommand({
-    id: "command-palette:select",
-    title: "Run selected command",
-    hotkey: "Enter",
-    modes: ["insert", "cursor"],
-    hidden: true,
     handler: handleSelect,
+    hidden: true,
+    hotkey: "Enter",
+    id: "command-palette:select",
+    modes: ["insert", "cursor"],
+    title: "Run selected command",
   });
   useCommand({
-    id: "command-palette:move-up",
-    title: "Move up",
-    hotkey: "up",
-    modes: ["insert", "cursor"],
-    hidden: true,
     handler: moveUp,
+    hidden: true,
+    hotkey: "up",
+    id: "command-palette:move-up",
+    modes: ["insert", "cursor"],
+    title: "Move up",
   });
   useCommand({
-    id: "command-palette:move-down",
-    title: "Move down",
-    hotkey: "down",
-    modes: ["insert", "cursor"],
-    hidden: true,
     handler: moveDown,
+    hidden: true,
+    hotkey: "down",
+    id: "command-palette:move-down",
+    modes: ["insert", "cursor"],
+    title: "Move down",
   });
 
   return (

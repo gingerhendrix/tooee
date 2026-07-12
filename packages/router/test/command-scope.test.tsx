@@ -32,8 +32,8 @@ function DetailScreen() {
 
 // Route definitions
 
-const homeRoute = createRoute({ id: "home", component: HomeScreen });
-const detailRoute = createRoute({ id: "detail", component: DetailScreen });
+const homeRoute = createRoute({ component: HomeScreen, id: "home" });
+const detailRoute = createRoute({ component: DetailScreen, id: "detail" });
 
 // Test setup
 
@@ -46,8 +46,8 @@ afterEach(() => {
 describe("useRouterCommands", () => {
   test("registers a router.back command", async () => {
     const router = createRouter({
-      routes: [homeRoute, detailRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute],
     });
 
     let ctx: ReturnType<typeof useCommandContext>;
@@ -64,7 +64,7 @@ describe("useRouterCommands", () => {
           <CtxCapture />
         </RouterProvider>
       </CommandProvider>,
-      { width: 80, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 80 },
     );
     await testSetup.renderOnce();
 
@@ -77,8 +77,8 @@ describe("useRouterCommands", () => {
 
   test("when returns false when stack has single entry", async () => {
     const router = createRouter({
-      routes: [homeRoute, detailRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute],
     });
 
     let ctx: ReturnType<typeof useCommandContext>;
@@ -95,7 +95,7 @@ describe("useRouterCommands", () => {
           <CtxCapture />
         </RouterProvider>
       </CommandProvider>,
-      { width: 80, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 80 },
     );
     await testSetup.renderOnce();
 
@@ -106,8 +106,8 @@ describe("useRouterCommands", () => {
 
   test("when returns true when stack has multiple entries", async () => {
     const router = createRouter({
-      routes: [homeRoute, detailRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute],
     });
 
     let ctx: ReturnType<typeof useCommandContext>;
@@ -124,7 +124,7 @@ describe("useRouterCommands", () => {
           <CtxCapture />
         </RouterProvider>
       </CommandProvider>,
-      { width: 80, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 80 },
     );
     await testSetup.renderOnce();
 
@@ -140,8 +140,8 @@ describe("useRouterCommands", () => {
 
   test("calling handler triggers router.pop()", async () => {
     const router = createRouter({
-      routes: [homeRoute, detailRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute],
     });
 
     let ctx: ReturnType<typeof useCommandContext>;
@@ -158,7 +158,7 @@ describe("useRouterCommands", () => {
           <CtxCapture />
         </RouterProvider>
       </CommandProvider>,
-      { width: 80, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 80 },
     );
     await testSetup.renderOnce();
 
@@ -188,11 +188,11 @@ describe("natural command scoping via unmount", () => {
     function ScreenA() {
       useRouterCommands();
       useCommand({
-        id: "screenA.action",
-        title: "Screen A action",
-        hotkey: "a",
-        modes: ["cursor"],
         handler: () => {},
+        hotkey: "a",
+        id: "screenA.action",
+        modes: ["cursor"],
+        title: "Screen A action",
       });
       return (
         <box>
@@ -203,11 +203,11 @@ describe("natural command scoping via unmount", () => {
 
     function ScreenB() {
       useCommand({
-        id: "screenB.action",
-        title: "Screen B action",
-        hotkey: "b",
-        modes: ["cursor"],
         handler: () => {},
+        hotkey: "b",
+        id: "screenB.action",
+        modes: ["cursor"],
+        title: "Screen B action",
       });
       return (
         <box>
@@ -216,12 +216,12 @@ describe("natural command scoping via unmount", () => {
       );
     }
 
-    const routeA = createRoute({ id: "screenA", component: ScreenA });
-    const routeB = createRoute({ id: "screenB", component: ScreenB });
+    const routeA = createRoute({ component: ScreenA, id: "screenA" });
+    const routeB = createRoute({ component: ScreenB, id: "screenB" });
 
     const router = createRouter({
-      routes: [routeA, routeB],
       defaultRoute: "screenA",
+      routes: [routeA, routeB],
     });
 
     let ctx: ReturnType<typeof useCommandContext>;
@@ -238,7 +238,7 @@ describe("natural command scoping via unmount", () => {
           <CtxCapture />
         </RouterProvider>
       </CommandProvider>,
-      { width: 80, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 80 },
     );
     await testSetup.renderOnce();
 
@@ -266,11 +266,11 @@ describe("natural command scoping via unmount", () => {
     function ScreenA() {
       useRouterCommands();
       useCommand({
-        id: "screenA.action",
-        title: "Screen A action",
-        hotkey: "a",
-        modes: ["cursor"],
         handler: () => {},
+        hotkey: "a",
+        id: "screenA.action",
+        modes: ["cursor"],
+        title: "Screen A action",
       });
       return (
         <box>
@@ -287,12 +287,12 @@ describe("natural command scoping via unmount", () => {
       );
     }
 
-    const routeA = createRoute({ id: "screenA", component: ScreenA });
-    const routeB = createRoute({ id: "screenB", component: ScreenB });
+    const routeA = createRoute({ component: ScreenA, id: "screenA" });
+    const routeB = createRoute({ component: ScreenB, id: "screenB" });
 
     const router = createRouter({
-      routes: [routeA, routeB],
       defaultRoute: "screenA",
+      routes: [routeA, routeB],
     });
 
     let ctx: ReturnType<typeof useCommandContext>;
@@ -309,7 +309,7 @@ describe("natural command scoping via unmount", () => {
           <CtxCapture />
         </RouterProvider>
       </CommandProvider>,
-      { width: 80, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 80 },
     );
     await testSetup.renderOnce();
 

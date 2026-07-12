@@ -79,20 +79,20 @@ function ModelPickerBody({
 
   const move = (delta: number) => setIndex((i) => (i + delta + MODELS.length) % MODELS.length);
 
-  useCommand({ id: "picker.up", title: "Up", hotkey: "k", handler: () => move(-1) });
-  useCommand({ id: "picker.up-arrow", title: "Up", hotkey: "up", handler: () => move(-1) });
-  useCommand({ id: "picker.down", title: "Down", hotkey: "j", handler: () => move(1) });
-  useCommand({ id: "picker.down-arrow", title: "Down", hotkey: "down", handler: () => move(1) });
+  useCommand({ handler: () => move(-1), hotkey: "k", id: "picker.up", title: "Up" });
+  useCommand({ handler: () => move(-1), hotkey: "up", id: "picker.up-arrow", title: "Up" });
+  useCommand({ handler: () => move(1), hotkey: "j", id: "picker.down", title: "Down" });
+  useCommand({ handler: () => move(1), hotkey: "down", id: "picker.down-arrow", title: "Down" });
   useCommand({
-    id: "picker.select",
-    title: "Select model",
-    hotkey: "Enter",
     handler: () => {
       onSelectModel(MODELS[index]!);
       close();
     },
+    hotkey: "Enter",
+    id: "picker.select",
+    title: "Select model",
   });
-  useCommand({ id: "picker.cancel", title: "Cancel", hotkey: "Escape", handler: () => close() });
+  useCommand({ handler: () => close(), hotkey: "Escape", id: "picker.cancel", title: "Cancel" });
 
   // A nested modal panel. It is offset down/right from the Ask overlay so the
   // stacking is visible, and it paints a SOLID background so it cleanly occludes
@@ -100,31 +100,31 @@ function ModelPickerBody({
   return h(
     "box",
     {
-      position: "absolute",
-      left: "32%",
-      right: "10%",
-      top: 8,
-      flexDirection: "column",
       backgroundColor: theme.backgroundPanel,
       border: true,
       borderColor: theme.accent,
+      flexDirection: "column",
+      left: "32%",
+      position: "absolute",
+      right: "10%",
+      top: 8,
     },
     // Title bar
     h(
       "box",
-      { paddingLeft: 1, paddingRight: 1, backgroundColor: theme.backgroundElement },
-      h("text", { content: "MODEL_PICKER · nested modal", fg: theme.accent, attributes: 1 }),
+      { backgroundColor: theme.backgroundElement, paddingLeft: 1, paddingRight: 1 },
+      h("text", { attributes: 1, content: "MODEL_PICKER · nested modal", fg: theme.accent }),
     ),
     // Body
     h(
       "box",
-      { flexDirection: "column", paddingLeft: 2, paddingRight: 2, paddingTop: 1, paddingBottom: 1 },
+      { flexDirection: "column", paddingBottom: 1, paddingLeft: 2, paddingRight: 2, paddingTop: 1 },
       ...MODELS.map((model, i) =>
         h("text", {
-          key: model,
+          attributes: i === index ? 1 : 0,
           content: `${i === index ? "> " : "  "}${model}`,
           fg: i === index ? theme.primary : theme.text,
-          attributes: i === index ? 1 : 0,
+          key: model,
         }),
       ),
       h("text", { content: "" }),
@@ -152,24 +152,20 @@ function AskOverlayBody({
   const setMode = useSetMode();
 
   useCommand({
-    id: "ask.insert",
-    title: "Insert mode",
-    hotkey: "i",
-    modes: ["cursor"],
     handler: () => setMode("insert"),
-  });
-  useCommand({
-    id: "ask.normal",
-    title: "Normal mode",
-    hotkey: "Escape",
-    modes: ["insert"],
-    handler: () => setMode("cursor"),
-  });
-  useCommand({
-    id: "ask.open-model-picker",
-    title: "Choose model",
-    hotkey: "m",
+    hotkey: "i",
+    id: "ask.insert",
     modes: ["cursor"],
+    title: "Insert mode",
+  });
+  useCommand({
+    handler: () => setMode("cursor"),
+    hotkey: "Escape",
+    id: "ask.normal",
+    modes: ["insert"],
+    title: "Normal mode",
+  });
+  useCommand({
     handler: () => {
       overlay.open(
         "model-picker",
@@ -179,23 +175,27 @@ function AskOverlayBody({
         { ownCommands: true, role: "modal", surfaceMode: "cursor" },
       );
     },
+    hotkey: "m",
+    id: "ask.open-model-picker",
+    modes: ["cursor"],
+    title: "Choose model",
   });
   useCommand({
-    id: "ask.submit",
-    title: "Submit",
-    hotkey: "Enter",
-    modes: ["cursor", "insert"],
     handler: () => {
       actions.onSubmit(`question answered in ${mode} mode`);
       close();
     },
+    hotkey: "Enter",
+    id: "ask.submit",
+    modes: ["cursor", "insert"],
+    title: "Submit",
   });
   useCommand({
-    id: "ask.cancel",
-    title: "Cancel",
-    hotkey: "Escape",
-    modes: ["cursor"],
     handler: () => close(),
+    hotkey: "Escape",
+    id: "ask.cancel",
+    modes: ["cursor"],
+    title: "Cancel",
   });
 
   // A centered modal panel with a SOLID background. Because it paints
@@ -204,29 +204,29 @@ function AskOverlayBody({
   return h(
     "box",
     {
-      position: "absolute",
-      left: "18%",
-      right: "18%",
-      top: 4,
-      flexDirection: "column",
       backgroundColor: theme.backgroundPanel,
       border: true,
       borderColor: theme.borderActive,
+      flexDirection: "column",
+      left: "18%",
+      position: "absolute",
+      right: "18%",
+      top: 4,
     },
     // Title bar
     h(
       "box",
-      { paddingLeft: 1, paddingRight: 1, backgroundColor: theme.backgroundElement },
+      { backgroundColor: theme.backgroundElement, paddingLeft: 1, paddingRight: 1 },
       h("text", {
+        attributes: 1,
         content: "ASK_OVERLAY · modal · owns input",
         fg: theme.primary,
-        attributes: 1,
       }),
     ),
     // Body
     h(
       "box",
-      { flexDirection: "column", paddingLeft: 2, paddingRight: 2, paddingTop: 1, paddingBottom: 1 },
+      { flexDirection: "column", paddingBottom: 1, paddingLeft: 2, paddingRight: 2, paddingTop: 1 },
       h("text", { content: `overlay-local mode: ${mode}`, fg: theme.accent }),
       h("text", { content: "" }),
       h("text", {
@@ -249,10 +249,10 @@ function PassiveHelpBody({ actions }: { actions: DemoActions }): ReactNode {
   // Bound to the SAME key as the root counter. Because this is a passive
   // surface it must never win arbitration — pressing `r` hits the root command.
   useCommand({
+    handler: () => actions.onPassiveShadow(),
+    hotkey: "r",
     id: "passive.shadow-r",
     title: "Passive shadow",
-    hotkey: "r",
-    handler: () => actions.onPassiveShadow(),
   });
 
   // A passive panel pinned to the BOTTOM of the screen with a solid background.
@@ -261,29 +261,29 @@ function PassiveHelpBody({ actions }: { actions: DemoActions }): ReactNode {
   return h(
     "box",
     {
-      position: "absolute",
-      left: "10%",
-      width: "80%",
-      top: 15,
-      flexDirection: "column",
       backgroundColor: theme.backgroundPanel,
       border: true,
       borderColor: theme.border,
+      flexDirection: "column",
+      left: "10%",
+      position: "absolute",
+      top: 15,
+      width: "80%",
     },
     // Title bar
     h(
       "box",
-      { paddingLeft: 1, paddingRight: 1, backgroundColor: theme.backgroundElement },
+      { backgroundColor: theme.backgroundElement, paddingLeft: 1, paddingRight: 1 },
       h("text", {
+        attributes: 1,
         content: "PASSIVE_HELP · passive · never owns input",
         fg: theme.textMuted,
-        attributes: 1,
       }),
     ),
     // Body
     h(
       "box",
-      { flexDirection: "column", paddingLeft: 2, paddingRight: 2, paddingTop: 1, paddingBottom: 1 },
+      { flexDirection: "column", paddingBottom: 1, paddingLeft: 2, paddingRight: 2, paddingTop: 1 },
       h("text", {
         content: "Press r: the ROOT counter increments (not this panel).",
         fg: theme.text,
@@ -310,44 +310,44 @@ export function OverlayCommandSurfacesDemo(): ReactNode {
 
   const actions = useMemo<DemoActions>(
     () => ({
-      onSubmit: (text) => setLastSubmit(text),
-      onSelectModel: (model) => setSelectedModel(model),
       onPassiveShadow: () => setPassiveFired((n) => n + 1),
+      onSelectModel: (model) => setSelectedModel(model),
+      onSubmit: (text) => setLastSubmit(text),
     }),
     [],
   );
 
   useCommand({
+    handler: () => setRootCount((n) => n + 1),
+    hotkey: "r",
     id: "root.increment",
     title: "Increment root counter",
-    hotkey: "r",
-    handler: () => setRootCount((n) => n + 1),
   });
 
   useCommand({
-    id: "root.open-ask",
-    title: "Open Ask overlay",
-    hotkey: "o",
     handler: () => {
       overlay.open(
         "ask",
-        ({ close }: OverlayRenderArgs<null>) => h(AskOverlayBody, { close, actions }),
+        ({ close }: OverlayRenderArgs<null>) => h(AskOverlayBody, { actions, close }),
         null,
         { ownCommands: true, role: "modal", surfaceMode: "cursor" },
       );
     },
+    hotkey: "o",
+    id: "root.open-ask",
+    title: "Open Ask overlay",
   });
 
   useCommand({
-    id: "root.open-passive",
-    title: "Open passive help",
-    hotkey: "p",
     handler: () => {
       overlay.open("passive-help", () => h(PassiveHelpBody, { actions }), null, {
         ownCommands: true,
         role: "passive",
       });
     },
+    hotkey: "p",
+    id: "root.open-passive",
+    title: "Open passive help",
   });
 
   const stateLines = [
@@ -368,23 +368,23 @@ export function OverlayCommandSurfacesDemo(): ReactNode {
   const content = h(
     "box",
     { style: { flexDirection: "column", paddingLeft: 2, paddingTop: 1 } },
-    h("text", { content: "Overlay Command Surfaces", fg: theme.primary, attributes: 1 }),
+    h("text", { attributes: 1, content: "Overlay Command Surfaces", fg: theme.primary }),
     h("text", { content: "" }),
-    ...help.map((line, i) => h("text", { key: `help-${i}`, content: line, fg: theme.textMuted })),
+    ...help.map((line, i) => h("text", { content: line, fg: theme.textMuted, key: `help-${i}` })),
     h("text", { content: "" }),
     h(
       "box",
       {
         style: {
-          flexDirection: "column",
           border: true,
           borderColor: theme.border,
+          flexDirection: "column",
           paddingLeft: 2,
           paddingRight: 2,
         },
       },
       ...stateLines.map((line, i) =>
-        h("text", { key: `state-${i}`, content: line, fg: theme.text }),
+        h("text", { content: line, fg: theme.text, key: `state-${i}` }),
       ),
     ),
     overlay.topId ? null : h("text", { content: "" }),
@@ -393,13 +393,13 @@ export function OverlayCommandSurfacesDemo(): ReactNode {
   return h(
     AppLayout,
     {
-      titleBar: { title: "Overlay Command Surfaces" },
       statusBar: {
         items: [
           { label: "active:", value: active ? active.id : "root" },
           { label: "root mode:", value: rootMode },
         ],
       },
+      titleBar: { title: "Overlay Command Surfaces" },
     },
     content,
   );

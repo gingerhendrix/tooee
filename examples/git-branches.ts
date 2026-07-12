@@ -38,10 +38,10 @@ const branchProvider = {
       const isMain = branch === "main" || branch === "master";
 
       return {
+        description: isCurrent ? "current" : undefined,
+        icon: isCurrent ? "\u{2713}" : isMain ? "\u{25CF}" : "\u{25CB}",
         text: branch,
         value: branch,
-        icon: isCurrent ? "\u{2713}" : isMain ? "\u{25CF}" : "\u{25CB}",
-        description: isCurrent ? "current" : undefined,
       };
     });
   },
@@ -56,8 +56,8 @@ async function main() {
   if (result && result.items[0].value) {
     const branch = result.items[0].value;
     const proc = Bun.spawn(["git", "checkout", branch], {
-      stdout: "inherit",
       stderr: "inherit",
+      stdout: "inherit",
     });
     await proc.exited;
   }

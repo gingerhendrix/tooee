@@ -133,13 +133,13 @@ export function useAskDialog(): AskDialogHandle {
             ),
             undefined,
             {
-              ownCommands: true,
-              role: "modal",
-              surfaceMode: "insert",
               // Single settlement funnel: every close path (cancel, escape,
               // replacement, unmount, external closeTop) lands here. Submit
               // settles first, making this a no-op.
               onClose: () => settle(null),
+              ownCommands: true,
+              role: "modal",
+              surfaceMode: "insert",
             },
           );
           openHandlesRef.current.set(id, handle);

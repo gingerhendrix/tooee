@@ -16,8 +16,8 @@ export function AskEditor({ editor }: AskEditorProps) {
 
   const cursorStyle: CursorStyleOptions =
     editor.mode === "cursor"
-      ? { style: "block", blinking: false }
-      : { style: "line", blinking: true };
+      ? { blinking: false, style: "block" }
+      : { blinking: true, style: "line" };
   const cursorColor = editor.mode === "cursor" ? theme.accent : theme.primary;
 
   if (editor.multiline) {

@@ -12,8 +12,8 @@ function staticProvider(content: AnyContent): ContentProvider {
 }
 
 const CODE = staticProvider({
-  format: "code",
   code: ["line0", "line1", "line2", "line3", "line4"].join("\n"),
+  format: "code",
   language: "text",
 });
 
@@ -23,8 +23,8 @@ const MD = staticProvider({
 });
 
 const ACTIONS: ActionDefinition[] = [
-  { id: "row.copy", title: "Copy row", hotkey: "y", modes: ["cursor"], handler: () => {} },
-  { id: "row.open", title: "Open row", modes: ["cursor"], handler: () => {} },
+  { handler: () => {}, hotkey: "y", id: "row.copy", modes: ["cursor"], title: "Copy row" },
+  { handler: () => {}, id: "row.open", modes: ["cursor"], title: "Open row" },
 ];
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
@@ -38,7 +38,7 @@ async function setup(provider: ContentProvider, actions?: ActionDefinition[]) {
     <TooeeProvider>
       <View contentProvider={provider} actions={actions} />
     </TooeeProvider>,
-    { width: 80, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 80 },
   );
   await s.renderOnce();
   await act(async () => {

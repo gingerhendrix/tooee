@@ -75,7 +75,7 @@ export function findPendingMatch(
       if (matches) indexes.push(hotkeyIndex);
     }
 
-    if (indexes.length > 0) return { prefixLength, indexes };
+    if (indexes.length > 0) return { indexes, prefixLength };
   }
 
   return null;

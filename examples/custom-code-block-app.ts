@@ -116,7 +116,7 @@ function ProgressRenderer({ text, theme, indent }: CodeBlockRendererProps): Reac
 
   return createElement(
     CodeBlockChrome,
-    { theme, indent },
+    { indent, theme },
     ...rows.map((row, i) => {
       const filled = Math.round((row.value / 100) * PROGRESS_BAR_WIDTH);
       return h(
@@ -134,11 +134,11 @@ function ProgressRenderer({ text, theme, indent }: CodeBlockRendererProps): Reac
 // === callout: admonition box; kind comes from the fence info string ===
 
 const CALLOUT_STYLES: Record<string, { label: string; color: (theme: Theme) => string }> = {
-  info: { label: "INFO", color: (theme) => theme.info },
-  warn: { label: "WARNING", color: (theme) => theme.warning },
-  warning: { label: "WARNING", color: (theme) => theme.warning },
-  error: { label: "ERROR", color: (theme) => theme.error },
-  success: { label: "SUCCESS", color: (theme) => theme.success },
+  error: { color: (theme) => theme.error, label: "ERROR" },
+  info: { color: (theme) => theme.info, label: "INFO" },
+  success: { color: (theme) => theme.success, label: "SUCCESS" },
+  warn: { color: (theme) => theme.warning, label: "WARNING" },
+  warning: { color: (theme) => theme.warning, label: "WARNING" },
 };
 
 function CalloutRenderer({ text, info, theme, indent }: CodeBlockRendererProps): ReactNode {
@@ -155,20 +155,20 @@ function CalloutRenderer({ text, info, theme, indent }: CodeBlockRendererProps):
     "box",
     {
       style: {
+        backgroundColor: theme.backgroundElement,
+        border: true,
+        borderColor: color,
+        flexDirection: "column",
         marginBottom: 1,
         marginLeft: 1 + indent,
         marginRight: 1,
-        border: true,
-        borderColor: color,
-        backgroundColor: theme.backgroundElement,
-        flexDirection: "column",
         paddingLeft: 1,
         paddingRight: 1,
       },
     },
     h("text", { style: { height: 1 } }, h("span", { fg: color }, `● ${style.label}`)),
     ...lines.map((line, i) =>
-      h("text", { key: i, content: line, style: { height: 1, fg: theme.text } }),
+      h("text", { content: line, key: i, style: { fg: theme.text, height: 1 } }),
     ),
   );
 }
@@ -191,9 +191,9 @@ function TimelineRenderer({ text, theme, indent, hScroll }: CodeBlockRendererPro
     .map((line) => {
       const [label, start, duration] = line.split(",");
       return {
+        duration: Number((duration ?? "").trim()),
         label: (label ?? "").trim(),
         start: Number((start ?? "").trim()),
-        duration: Number((duration ?? "").trim()),
       };
     });
 
@@ -229,13 +229,13 @@ function TimelineRenderer({ text, theme, indent, hScroll }: CodeBlockRendererPro
 
   return createElement(
     CodeBlockChrome,
-    { theme, indent },
+    { indent, theme },
     h("text", {
-      ref: hScroll.register,
       content: lines.join("\n"),
-      wrapMode: "none",
       onMouseScroll: hScroll.onMouseScroll,
+      ref: hScroll.register,
       style: { fg: theme.markdownText, height: lines.length },
+      wrapMode: "none",
     }),
   );
 }
@@ -253,10 +253,10 @@ const contentProvider: ContentProvider = {
 // === Launch ===
 
 launch({
-  contentProvider,
   codeBlockRenderers: {
-    progress: ProgressRenderer,
     callout: CalloutRenderer,
+    progress: ProgressRenderer,
     timeline: TimelineRenderer,
   },
+  contentProvider,
 });

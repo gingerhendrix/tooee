@@ -15,14 +15,14 @@ test("renders title bar with title and subtitle", async () => {
     <ThemeSwitcherProvider>
       <ToastProvider>
         <AppLayout
-          titleBar={{ title: "App Title", subtitle: "v1.0" }}
+          titleBar={{ subtitle: "v1.0", title: "App Title" }}
           statusBar={{ items: [{ label: "OK" }] }}
         >
           <text content="body" />
         </AppLayout>
       </ToastProvider>
     </ThemeSwitcherProvider>,
-    { width: 80, height: 24 },
+    { height: 24, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -39,7 +39,7 @@ test("renders status bar with items", async () => {
         </AppLayout>
       </ToastProvider>
     </ThemeSwitcherProvider>,
-    { width: 80, height: 24 },
+    { height: 24, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -56,7 +56,7 @@ test("renders children in scrollable area", async () => {
         </AppLayout>
       </ToastProvider>
     </ThemeSwitcherProvider>,
-    { width: 80, height: 24 },
+    { height: 24, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -68,7 +68,7 @@ test("snapshot full layout", async () => {
     <ThemeSwitcherProvider>
       <ToastProvider>
         <AppLayout
-          titleBar={{ title: "Test App", subtitle: "snapshot" }}
+          titleBar={{ subtitle: "snapshot", title: "Test App" }}
           statusBar={{
             items: [
               { label: "Mode", value: "cmd" },
@@ -80,7 +80,7 @@ test("snapshot full layout", async () => {
         </AppLayout>
       </ToastProvider>
     </ThemeSwitcherProvider>,
-    { width: 60, height: 10 },
+    { height: 10, width: 60 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();

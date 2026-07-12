@@ -5,11 +5,11 @@ export function useRouterCommands() {
   const router = useRouter();
 
   useCommand({
-    id: "router.back",
-    title: "Go back",
-    hotkey: "backspace",
-    modes: ["cursor"],
-    when: () => router.canGoBack(),
     handler: () => router.pop(),
+    hotkey: "backspace",
+    id: "router.back",
+    modes: ["cursor"],
+    title: "Go back",
+    when: () => router.canGoBack(),
   });
 }

@@ -26,9 +26,6 @@ import type { ActionDefinition } from "@tooee/commands";
 
 const contentProvider: ContentProvider = {
   load: () => ({
-    title: "Toast Demo",
-    format: "code",
-    language: "markdown",
     code: `# Toast Notification Demo
 
 Press the following keys to trigger toasts:
@@ -44,6 +41,9 @@ Press the following keys to trigger toasts:
   t  →  Theme picker
   y  →  Copy (demonstrates toast on copy)
 `,
+    format: "code",
+    language: "markdown",
+    title: "Toast Demo",
   }),
 };
 
@@ -51,68 +51,68 @@ let dedupCounter = 0;
 
 const actions: ActionDefinition[] = [
   {
-    id: "toast.info",
-    title: "Info toast",
+    handler: (ctx) => {
+      ctx.toast.toast({ level: "info", message: "This is an info message" });
+    },
     hotkey: "1",
+    id: "toast.info",
     modes: ["cursor"],
-    handler: (ctx) => {
-      ctx.toast.toast({ message: "This is an info message", level: "info" });
-    },
+    title: "Info toast",
   },
   {
-    id: "toast.success",
-    title: "Success toast",
+    handler: (ctx) => {
+      ctx.toast.toast({ level: "success", message: "Operation completed successfully" });
+    },
     hotkey: "2",
+    id: "toast.success",
     modes: ["cursor"],
-    handler: (ctx) => {
-      ctx.toast.toast({ message: "Operation completed successfully", level: "success" });
-    },
+    title: "Success toast",
   },
   {
-    id: "toast.warning",
-    title: "Warning toast",
+    handler: (ctx) => {
+      ctx.toast.toast({ level: "warning", message: "Watch out! Something needs attention" });
+    },
     hotkey: "3",
+    id: "toast.warning",
     modes: ["cursor"],
-    handler: (ctx) => {
-      ctx.toast.toast({ message: "Watch out! Something needs attention", level: "warning" });
-    },
+    title: "Warning toast",
   },
   {
-    id: "toast.error",
-    title: "Error toast",
+    handler: (ctx) => {
+      ctx.toast.toast({ level: "error", message: "Something went wrong!" });
+    },
     hotkey: "4",
+    id: "toast.error",
     modes: ["cursor"],
-    handler: (ctx) => {
-      ctx.toast.toast({ message: "Something went wrong!", level: "error" });
-    },
+    title: "Error toast",
   },
   {
-    id: "toast.dedup",
-    title: "Dedup demo",
-    hotkey: "5",
-    modes: ["cursor"],
     handler: (ctx) => {
       dedupCounter++;
       ctx.toast.toast({
-        message: `Pressed ${dedupCounter} time${dedupCounter === 1 ? "" : "s"}`,
-        level: "info",
         id: "dedup-counter",
+        level: "info",
+        message: `Pressed ${dedupCounter} time${dedupCounter === 1 ? "" : "s"}`,
       });
     },
+    hotkey: "5",
+    id: "toast.dedup",
+    modes: ["cursor"],
+    title: "Dedup demo",
   },
   {
-    id: "toast.custom-duration",
-    title: "Custom duration toast",
-    hotkey: "6",
-    modes: ["cursor"],
     handler: (ctx) => {
       ctx.toast.toast({
-        message: "This toast lasts 10 seconds",
-        level: "info",
         duration: 10_000,
+        level: "info",
+        message: "This toast lasts 10 seconds",
       });
     },
+    hotkey: "6",
+    id: "toast.custom-duration",
+    modes: ["cursor"],
+    title: "Custom duration toast",
   },
 ];
 
-launch({ contentProvider, actions });
+launch({ actions, contentProvider });

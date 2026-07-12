@@ -11,12 +11,12 @@ const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
 export async function launchRouter(args: string[] = []): Promise<Session> {
   resetTestConfig(CONFIG_NAMESPACE);
   const session = await launchTerminal({
-    command: "bun",
     args: ["--conditions=@tooee/source", FIXTURE_APP, ...args],
     cols: 80,
-    rows: 24,
+    command: "bun",
     cwd: REPO_ROOT,
     env: { ...process.env, XDG_CONFIG_HOME: TEST_CONFIG_HOME },
+    rows: 24,
   });
   await session.waitForText("Route:", { timeout: 15_000 });
   return session;

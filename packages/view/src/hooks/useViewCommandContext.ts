@@ -60,24 +60,24 @@ export function createViewCommandContext({
   const resolvedContent: AnyContent =
     content ??
     ({
-      format: resolvedFormat,
       data,
+      format: resolvedFormat,
       title,
     } satisfies AnyContent);
 
   return {
     content: resolvedContent,
-    format: resolvedFormat,
-    title: title ?? content?.title,
     data: data ?? ("data" in resolvedContent ? resolvedContent.data : undefined),
-    reload: reload ?? noop,
+    format: resolvedFormat,
     marks: {
-      setMarkSet: marks?.setMarkSet ?? noop,
-      clearNamespace: marks?.clearNamespace ?? noop,
       clearAll: marks?.clearAll ?? noop,
-      userMarks: marks?.userMarks ?? [],
+      clearNamespace: marks?.clearNamespace ?? noop,
       providerMarks: marks?.providerMarks ?? [],
+      setMarkSet: marks?.setMarkSet ?? noop,
+      userMarks: marks?.userMarks ?? [],
     },
+    reload: reload ?? noop,
+    title: title ?? content?.title,
   };
 }
 

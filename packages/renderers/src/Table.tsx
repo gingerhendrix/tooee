@@ -174,8 +174,8 @@ export function Table({
   const gutterWidth = useMemo(
     () =>
       computeRowDocumentGutterWidth({
-        showLineNumbers,
         rowCount: rows.length,
+        showLineNumbers,
         signColumnWidth: DEFAULT_SIGN_COLUMN_WIDTH,
       }),
     [showLineNumbers, rows.length],
@@ -191,10 +191,10 @@ export function Table({
   const colWidths = useMemo(
     () =>
       computeColumnWidths(headers, normalizedRows, effectiveMaxWidth, {
-        minColumnWidth,
-        maxColumnWidth,
-        sampleSize,
         columnWidthMode,
+        maxColumnWidth,
+        minColumnWidth,
+        sampleSize,
       }),
     [
       headers,
@@ -241,9 +241,9 @@ export function Table({
                 content={displayCell}
                 wrapMode="word"
                 style={{
-                  width: colWidths[j],
                   paddingLeft: PADDING,
                   paddingRight: PADDING,
+                  width: colWidths[j],
                 }}
                 fg={theme.text}
               />
@@ -259,9 +259,9 @@ export function Table({
       style={{
         flexDirection: "column",
         flexGrow: 1,
+        marginBottom: MARGIN,
         marginLeft: MARGIN,
         marginRight: MARGIN,
-        marginBottom: MARGIN,
       }}
     >
       {/* Fixed header row — outside row-document so it stays visible */}
@@ -270,7 +270,7 @@ export function Table({
           <text
             key={i}
             content={h}
-            style={{ width: colWidths[i], paddingLeft: PADDING, paddingRight: PADDING }}
+            style={{ paddingLeft: PADDING, paddingRight: PADDING, width: colWidths[i] }}
             fg={theme.primary}
           />
         ))}
@@ -282,7 +282,7 @@ export function Table({
           <text
             key={i}
             content={"\u2500".repeat(w - PADDING * 2)}
-            style={{ width: w, paddingLeft: PADDING, paddingRight: PADDING }}
+            style={{ paddingLeft: PADDING, paddingRight: PADDING, width: w }}
             fg={theme.border}
           />
         ))}

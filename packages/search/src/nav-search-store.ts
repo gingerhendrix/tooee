@@ -95,20 +95,40 @@ export function createNavSearchStore(
 
   return createStore<NavSearchContext, NavSearchEvents, NavSearchEmitted>({
     context: {
-      rowKeys: keys,
       cursor: resolve(0, 1),
+      rowKeys: keys,
+      search: {
+        committedQuery: "",
+        currentMatchIndex: 0,
+        matches: [],
+        preSearchMode: "cursor",
+        query: "",
+        status: "idle",
+      },
       selectionAnchor: null,
       toggledKeys: new Set(),
-      search: {
-        status: "idle",
-        query: "",
-        committedQuery: "",
-        matches: [],
-        currentMatchIndex: 0,
-        preSearchMode: "cursor",
-      },
     },
     on: {
+      cancelSelect: (ctx) =>
+        ctx.selectionAnchor === null ? ctx : { ...ctx, selectionAnchor: null },
+      enterSelect: (ctx) => ({ ...ctx, selectionAnchor: ctx.cursor }),
+      jump: (ctx, event) => ({
+        ...ctx,
+        cursor: resolveIndex(event.index, event.direction, ctx.rowKeys.length, deps.isSelectable),
+      }),
+      move: (ctx, event) => {
+        if (ctx.cursor === null) {
+          return ctx;
+        }
+        const direction: 1 | -1 = event.delta < 0 ? -1 : 1;
+        const cursor = resolveIndex(
+          ctx.cursor + event.delta,
+          direction,
+          ctx.rowKeys.length,
+          deps.isSelectable,
+        );
+        return cursor === null || cursor === ctx.cursor ? ctx : { ...ctx, cursor };
+      },
       rowsChanged: (ctx, event) => {
         const previousKey = ctx.cursor === null ? undefined : ctx.rowKeys[ctx.cursor];
         let cursor = ctx.cursor;
@@ -138,59 +158,22 @@ export function createNavSearchStore(
         const available = new Set(event.keys);
         const filtered = new Set([...ctx.toggledKeys].filter((key) => available.has(key)));
         const toggledKeys = filtered.size === ctx.toggledKeys.size ? ctx.toggledKeys : filtered;
-        return { ...ctx, rowKeys: event.keys, cursor, toggledKeys };
+        return { ...ctx, cursor, rowKeys: event.keys, toggledKeys };
       },
-      move: (ctx, event) => {
-        if (ctx.cursor === null) {
-          return ctx;
-        }
-        const direction: 1 | -1 = event.delta < 0 ? -1 : 1;
-        const cursor = resolveIndex(
-          ctx.cursor + event.delta,
-          direction,
-          ctx.rowKeys.length,
-          deps.isSelectable,
-        );
-        return cursor === null || cursor === ctx.cursor ? ctx : { ...ctx, cursor };
+      searchCancelled: (ctx, _event, enqueue) => {
+        enqueue.emit.restoreMode({ mode: ctx.search.preSearchMode });
+        return {
+          ...ctx,
+          search: {
+            ...ctx.search,
+            committedQuery: "",
+            currentMatchIndex: 0,
+            matches: [],
+            query: "",
+            status: "idle",
+          },
+        };
       },
-      jump: (ctx, event) => ({
-        ...ctx,
-        cursor: resolveIndex(event.index, event.direction, ctx.rowKeys.length, deps.isSelectable),
-      }),
-      setCursor: (ctx, event) => {
-        const direction: 1 | -1 = ctx.cursor !== null && event.index < ctx.cursor ? -1 : 1;
-        const cursor = resolveIndex(event.index, direction, ctx.rowKeys.length, deps.isSelectable);
-        return cursor === null ? ctx : { ...ctx, cursor };
-      },
-      enterSelect: (ctx) => ({ ...ctx, selectionAnchor: ctx.cursor }),
-      cancelSelect: (ctx) =>
-        ctx.selectionAnchor === null ? ctx : { ...ctx, selectionAnchor: null },
-      toggleCurrent: (ctx) => toggle(ctx),
-      toggleAndMove: (ctx, event) => {
-        const toggled = toggle(ctx);
-        if (toggled.cursor === null) {
-          return toggled;
-        }
-        const direction: 1 | -1 = event.delta < 0 ? -1 : 1;
-        const cursor = resolveIndex(
-          toggled.cursor + event.delta,
-          direction,
-          toggled.rowKeys.length,
-          deps.isSelectable,
-        );
-        return cursor === null ? toggled : { ...toggled, cursor };
-      },
-      searchStarted: (ctx, event) => ({
-        ...ctx,
-        search: {
-          ...ctx.search,
-          status: "editing",
-          query: "",
-          matches: [],
-          currentMatchIndex: 0,
-          preSearchMode: event.mode,
-        },
-      }),
       searchChanged: (ctx, event, enqueue) => {
         const first = event.matches[0];
         if (first !== undefined) {
@@ -204,12 +187,25 @@ export function createNavSearchStore(
               : resolveIndex(first, 1, ctx.rowKeys.length, deps.isSelectable),
           search: {
             ...ctx.search,
-            query: event.query,
-            matches: event.matches,
             currentMatchIndex: 0,
+            matches: event.matches,
+            query: event.query,
           },
         };
       },
+      searchNext: (ctx, _event, enqueue) => searchStep(ctx, 1, enqueue),
+      searchPrevious: (ctx, _event, enqueue) => searchStep(ctx, -1, enqueue),
+      searchStarted: (ctx, event) => ({
+        ...ctx,
+        search: {
+          ...ctx.search,
+          currentMatchIndex: 0,
+          matches: [],
+          preSearchMode: event.mode,
+          query: "",
+          status: "editing",
+        },
+      }),
       searchSubmitted: (ctx, _event, enqueue) => {
         const first = ctx.search.matches[0];
         if (first !== undefined) {
@@ -224,28 +220,32 @@ export function createNavSearchStore(
               : resolveIndex(first, 1, ctx.rowKeys.length, deps.isSelectable),
           search: {
             ...ctx.search,
-            status: "committed",
             committedQuery: ctx.search.query,
             currentMatchIndex: 0,
+            status: "committed",
           },
         };
       },
-      searchCancelled: (ctx, _event, enqueue) => {
-        enqueue.emit.restoreMode({ mode: ctx.search.preSearchMode });
-        return {
-          ...ctx,
-          search: {
-            ...ctx.search,
-            status: "idle",
-            query: "",
-            committedQuery: "",
-            matches: [],
-            currentMatchIndex: 0,
-          },
-        };
+      setCursor: (ctx, event) => {
+        const direction: 1 | -1 = ctx.cursor !== null && event.index < ctx.cursor ? -1 : 1;
+        const cursor = resolveIndex(event.index, direction, ctx.rowKeys.length, deps.isSelectable);
+        return cursor === null ? ctx : { ...ctx, cursor };
       },
-      searchNext: (ctx, _event, enqueue) => searchStep(ctx, 1, enqueue),
-      searchPrevious: (ctx, _event, enqueue) => searchStep(ctx, -1, enqueue),
+      toggleAndMove: (ctx, event) => {
+        const toggled = toggle(ctx);
+        if (toggled.cursor === null) {
+          return toggled;
+        }
+        const direction: 1 | -1 = event.delta < 0 ? -1 : 1;
+        const cursor = resolveIndex(
+          toggled.cursor + event.delta,
+          direction,
+          toggled.rowKeys.length,
+          deps.isSelectable,
+        );
+        return cursor === null ? toggled : { ...toggled, cursor };
+      },
+      toggleCurrent: (ctx) => toggle(ctx),
     },
   });
 }
@@ -297,8 +297,8 @@ export const selectCurrentMatchIndex = (ctx: NavSearchContext) => ctx.search.cur
 export function deriveSelection(ctx: NavSearchContext, mode: Mode) {
   return mode === "select" && ctx.selectionAnchor !== null && ctx.cursor !== null
     ? {
-        start: Math.min(ctx.selectionAnchor, ctx.cursor),
         end: Math.max(ctx.selectionAnchor, ctx.cursor),
+        start: Math.min(ctx.selectionAnchor, ctx.cursor),
       }
     : null;
 }

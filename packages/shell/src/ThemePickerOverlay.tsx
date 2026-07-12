@@ -13,15 +13,15 @@ export function ThemePickerOverlay({
   const entries = allThemes.map((name: string) => ({ id: name, title: name }));
 
   return createElement(ThemePicker, {
-    entries,
     currentTheme,
+    entries,
+    onClose: () => {
+      setTheme(originalTheme);
+      close();
+    },
     onNavigate: setTheme,
     onSelect: (name: string) => {
       setTheme(name, { persist: true });
-      close();
-    },
-    onClose: () => {
-      setTheme(originalTheme);
       close();
     },
   });

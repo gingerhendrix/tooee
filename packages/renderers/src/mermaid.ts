@@ -109,7 +109,7 @@ export function ansiToStyledText(input: string): { text: string; content: Styled
   appendStyledChunk(chunks, tail, currentFg);
   plainText += tail;
 
-  return { text: plainText, content: new StyledText(chunks) };
+  return { content: new StyledText(chunks), text: plainText };
 }
 
 /**
@@ -122,7 +122,7 @@ export function renderMermaidForTerminal(
   options: MermaidRenderOptions = {},
 ): MermaidRenderResult {
   if (source.trim().length === 0) {
-    return { ok: false, reason: "empty", message: "Mermaid block is empty" };
+    return { message: "Mermaid block is empty", ok: false, reason: "empty" };
   }
 
   try {
@@ -134,15 +134,15 @@ export function renderMermaidForTerminal(
     const { text, content } = ansiToStyledText(rendered);
 
     if (text.trim().length === 0) {
-      return { ok: false, reason: "empty", message: "Mermaid renderer returned no output" };
+      return { message: "Mermaid renderer returned no output", ok: false, reason: "empty" };
     }
 
-    return { ok: true, text, content };
+    return { content, ok: true, text };
   } catch (error) {
     return {
+      message: error instanceof Error ? error.message : String(error),
       ok: false,
       reason: "render-error",
-      message: error instanceof Error ? error.message : String(error),
     };
   }
 }

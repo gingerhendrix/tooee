@@ -54,19 +54,19 @@ const code = makeCodeFixture(tier);
 const table = makeTableFixture(tier);
 
 await benchmarkViewContent("markdown_moderate", {
-  title: markdown.title,
   format: markdown.format,
   load: () => markdown,
+  title: markdown.title,
 });
 
 await benchmarkViewContent("code_moderate", {
-  title: code.title,
   format: code.format,
   load: () => code,
+  title: code.title,
 });
 
 await benchmarkViewContent("table_moderate", {
-  title: table.title,
   format: table.format,
   load: () => table,
+  title: table.title,
 });

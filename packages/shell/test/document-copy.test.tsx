@@ -19,11 +19,11 @@ const ROWS: Row[] = [
 
 function Harness({ copy }: { copy?: boolean }) {
   const document = useDocumentController<Row>({
-    rows: ROWS,
     // Copy must use the same semantic text projection as search.
     adapter: { getKey: (r) => r.id, getText: (r) => `${r.id}\t${r.label}` },
-    multiSelect: true,
     copy,
+    multiSelect: true,
+    rows: ROWS,
   });
 
   return (
@@ -53,7 +53,7 @@ async function setup(copy?: boolean) {
     <TooeeProvider>
       <Harness copy={copy} />
     </TooeeProvider>,
-    { width: 40, height: 12, kittyKeyboard: true },
+    { height: 12, kittyKeyboard: true, width: 40 },
   );
   await session.renderOnce();
   return session;

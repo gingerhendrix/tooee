@@ -87,21 +87,21 @@ function Harness() {
   stateRef.current = overlayState;
 
   useCommand({
-    id: "host-probe",
-    title: "Host probe",
-    hotkey: "z",
-    modes: ["cursor"],
     handler: () => {
       hostProbeCount++;
     },
+    hotkey: "z",
+    id: "host-probe",
+    modes: ["cursor"],
+    title: "Host probe",
   });
 
   handles.current = {
     dialog,
+    overlay,
     get ownerDialog() {
       return ownerDialogRef.current;
     },
-    overlay,
     stackIds: () => stateRef.current.stack,
     unmountOwner: () => setOwnerMounted(false),
   };
@@ -120,7 +120,7 @@ async function setup() {
     <TooeeProvider>
       <Harness />
     </TooeeProvider>,
-    { width: 80, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 80 },
   );
   await session.renderOnce();
   return session;
@@ -255,13 +255,12 @@ describe("useAskDialog settlement", () => {
     await act(async () => {
       void handles
         .current!.dialog.open({
-          prompt: "Once?",
           commands: [
             {
+              handler: () => {},
+              hidden: true,
               id: "grab-submit",
               title: "Grab submit",
-              hidden: true,
-              handler: () => {},
             },
           ],
           controllerRef: (controller) => {
@@ -269,6 +268,7 @@ describe("useAskDialog settlement", () => {
               submitFromCommand = () => controller.submit();
             }
           },
+          prompt: "Once?",
         })
         .then(record("once"));
     });

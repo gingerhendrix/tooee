@@ -22,7 +22,7 @@ async function press(session: TestSession, key: string) {
 describe("registry unregister guards (R-05)", () => {
   test("first registrant's unmount does not delete the second's live command", async () => {
     function Registrant({ onFire }: { onFire: () => void }) {
-      useCommand({ id: "dup", title: "Dup", hotkey: "d", handler: onFire });
+      useCommand({ handler: onFire, hotkey: "d", id: "dup", title: "Dup" });
       return null;
     }
 
@@ -31,10 +31,10 @@ describe("registry unregister guards (R-05)", () => {
       const [firstCount, setFirstCount] = useState(0);
       const [secondCount, setSecondCount] = useState(0);
       useCommand({
+        handler: () => setShowFirst(false),
+        hotkey: "h",
         id: "root.hide-first",
         title: "Hide first",
-        hotkey: "h",
-        handler: () => setShowFirst(false),
       });
       return (
         <box flexDirection="column">
@@ -50,7 +50,7 @@ describe("registry unregister guards (R-05)", () => {
       <CommandProvider>
         <Harness />
       </CommandProvider>,
-      { width: 60, height: 10, kittyKeyboard: true },
+      { height: 10, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -76,17 +76,17 @@ describe("registry unregister guards (R-05)", () => {
     }
 
     function GroupRegistrant({ title }: { title: string }) {
-      useCommandGroup({ id: `group-${title}`, title, prefix: "g" });
+      useCommandGroup({ id: `group-${title}`, prefix: "g", title });
       return null;
     }
 
     function Harness() {
       const [showFirst, setShowFirst] = useState(true);
       useCommand({
+        handler: () => setShowFirst(false),
+        hotkey: "h",
         id: "root.hide-first",
         title: "Hide first",
-        hotkey: "h",
-        handler: () => setShowFirst(false),
       });
       return (
         <box>
@@ -101,7 +101,7 @@ describe("registry unregister guards (R-05)", () => {
       <CommandProvider>
         <Harness />
       </CommandProvider>,
-      { width: 60, height: 10, kittyKeyboard: true },
+      { height: 10, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 

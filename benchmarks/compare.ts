@@ -145,14 +145,14 @@ function compareRuns(
     );
 
     comparisons.push({
-      name: baselineMetric.name,
-      unit: baselineMetric.unit,
       baseline: baselineMetric,
       candidate: candidateMetric,
       delta,
-      ratio,
+      name: baselineMetric.name,
       percent,
+      ratio,
       thresholdExceeded,
+      unit: baselineMetric.unit,
     });
   }
 

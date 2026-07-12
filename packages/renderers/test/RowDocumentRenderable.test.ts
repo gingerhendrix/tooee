@@ -9,8 +9,8 @@ describe("row document gutter", () => {
     expect(DEFAULT_SIGN_COLUMN_WIDTH).toBe(3);
     expect(
       computeRowDocumentGutterWidth({
-        showLineNumbers: true,
         rowCount: 12,
+        showLineNumbers: true,
         signColumnWidth: DEFAULT_SIGN_COLUMN_WIDTH,
       }),
     ).toBe(6);

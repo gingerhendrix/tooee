@@ -39,7 +39,7 @@ describe("rows and cursor invariants", () => {
 
   test("skips non-selectable gaps in both directions", () => {
     const deps = { isSelectable: (index: number) => index === 0 || index === 3 };
-    const store = createNavSearchStore({ keys: [0, 1, 2, 3], deps });
+    const store = createNavSearchStore({ deps, keys: [0, 1, 2, 3] });
     store.trigger.move({ delta: 1 });
     expect(context(store).cursor).toBe(3);
     store.trigger.move({ delta: -1 });
@@ -53,7 +53,7 @@ describe("selection and toggles", () => {
     store.trigger.setCursor({ index: 2 });
     store.trigger.enterSelect({});
     store.trigger.move({ delta: -2 });
-    expect(deriveSelection(context(store), "select")).toEqual({ start: 0, end: 2 });
+    expect(deriveSelection(context(store), "select")).toEqual({ end: 2, start: 0 });
     store.trigger.cancelSelect({});
     expect(deriveSelection(context(store), "select")).toBeNull();
   });
@@ -72,7 +72,7 @@ describe("search", () => {
     const matches = [1, 3];
     const store = createNavSearchStore({ keys: [0, 1, 2, 3] });
     store.trigger.searchStarted({ mode: "select" });
-    store.trigger.searchChanged({ query: "x", matches });
+    store.trigger.searchChanged({ matches, query: "x" });
     expect(selectMatches(context(store))).toBe(matches);
     expect(context(store).cursor).toBe(1);
     store.trigger.searchNext({});
@@ -86,7 +86,7 @@ describe("search", () => {
     const restored: string[] = [];
     store.on("restoreMode", ({ mode }) => restored.push(mode));
     store.trigger.searchStarted({ mode: "select" });
-    store.trigger.searchChanged({ query: "one", matches: [1] });
+    store.trigger.searchChanged({ matches: [1], query: "one" });
     store.trigger.searchSubmitted({});
     expect(selectSearchStatus(context(store))).toBe("committed");
     expect(selectSearchQuery(context(store))).toBe("one");
@@ -98,7 +98,7 @@ describe("search", () => {
     const restored: string[] = [];
     store.on("restoreMode", ({ mode }) => restored.push(mode));
     store.trigger.searchStarted({ mode: "cursor" });
-    store.trigger.searchChanged({ query: "x", matches: [0] });
+    store.trigger.searchChanged({ matches: [0], query: "x" });
     store.trigger.searchCancelled({});
     expect(selectSearchStatus(context(store))).toBe("idle");
     expect(selectMatches(context(store))).toEqual([]);

@@ -13,17 +13,17 @@ function staticProvider(content: AnyContent, marks?: ContentProvider["marks"]): 
 }
 
 const CODE: AnyContent = {
-  format: "code",
   code: ["alpha", "beta", "gamma", "alpha again"].join("\n"),
+  format: "code",
   language: "text",
 };
 
 const TABLE: AnyContent = {
-  format: "table",
   columns: [
-    { key: "name", header: "Name" },
-    { key: "role", header: "Role" },
+    { header: "Name", key: "name" },
+    { header: "Role", key: "role" },
   ],
+  format: "table",
   rows: [
     { name: "Alice", role: "dev" },
     { name: "Bob", role: "ops" },
@@ -51,7 +51,7 @@ async function setup(provider: ContentProvider) {
     <TooeeProvider>
       <View contentProvider={provider} />
     </TooeeProvider>,
-    { width: 80, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 80 },
   );
   await s.renderOnce();
   await act(async () => {
@@ -145,7 +145,7 @@ describe("copy over migrated subviews", () => {
 describe("decoration composition", () => {
   test("provider marks paint alongside the controller's cursor layer", async () => {
     const builder = new MarkSetBuilder();
-    builder.addLine(2, { signBefore: "■", foreground: "#ff0000" });
+    builder.addLine(2, { foreground: "#ff0000", signBefore: "■" });
     const marks = [builder.build("provider:test", MarkPriorities.DIAGNOSTIC)];
 
     testSetup = await setup(staticProvider(CODE, marks));

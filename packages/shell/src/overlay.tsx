@@ -52,7 +52,7 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
   // is invisible to mount-driven surface registration, so the pending chord
   // must be cleared here). Subscribed at store creation — before any child
   // effect can open an overlay.
-  const bridgeRef = useRef<OverlayBridge>({ setMode: () => {}, resetSequence: () => {} });
+  const bridgeRef = useRef<OverlayBridge>({ resetSequence: () => {}, setMode: () => {} });
   const storeRef = useRef<OverlayStore | null>(null);
   if (storeRef.current === null) {
     storeRef.current = createOverlayStore();
@@ -95,7 +95,7 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
           ? "insert"
           : options.mode;
 
-      const record: OverlayRecord<TPayload> = { id, render, payload, options, prevMode };
+      const record: OverlayRecord<TPayload> = { id, options, payload, prevMode, render };
       overlayStore.trigger.opened({ record: record as OverlayRecord });
 
       if (overlayMode !== null) {
@@ -103,8 +103,8 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
       }
 
       const handle: OverlayHandle<TPayload> = {
-        id,
         close: (reason: OverlayCloseReason = "close") => removeEntry(id, reason),
+        id,
         update: (next: TPayload | ((prev: TPayload) => TPayload)) => {
           overlayStore.trigger.updated({ id, next });
         },
@@ -155,40 +155,40 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
 
   const controller = useMemo<OverlayController>(
     () => ({
-      open,
-      update,
-      show,
-      hide,
       closeTop,
+      hide,
       isOpen,
+      open,
+      show,
       topId,
+      update,
     }),
     [open, update, show, hide, closeTop, isOpen, topId],
   );
 
   useProvideCommandContext(() => ({
     overlay: {
+      closeTop: controller.closeTop,
+      hide: controller.hide,
+      isOpen: controller.isOpen,
       open: controller.open,
       show: controller.show,
-      hide: controller.hide,
-      update: controller.update,
-      closeTop: controller.closeTop,
-      isOpen: controller.isOpen,
       topId: controller.topId,
+      update: controller.update,
     },
   }));
 
   useCommand({
-    id: "overlay.close-top",
-    title: "Close overlay",
-    hotkey: "Escape",
-    modes: ["insert", "cursor", "select"],
+    handler: () => closeTop("escape"),
     hidden: true,
+    hotkey: "Escape",
+    id: "overlay.close-top",
+    modes: ["insert", "cursor", "select"],
+    title: "Close overlay",
     when: () => {
       const top = selectTop(overlayStore.getSnapshot().context);
       return top !== null && top.options.dismissOnEscape !== false;
     },
-    handler: () => closeTop("escape"),
   });
 
   const current =
@@ -197,10 +197,10 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
         {stack.map((entry, index) => {
           const isTop = index === stack.length - 1;
           let node = entry.render({
-            id: entry.id,
-            payload: entry.payload,
-            isTop,
             close: (reason: OverlayCloseReason = "close") => removeEntry(entry.id, reason),
+            id: entry.id,
+            isTop,
+            payload: entry.payload,
             update: (next: unknown) => update(entry.id, next),
           });
 
@@ -236,11 +236,11 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
 
   const state = {
     current,
-    hasOverlay: stack.length > 0,
     // Passive owned surfaces (e.g. the which-key hint) render for visuals only
     // and never own input, so they don't count as modal. Everything else —
     // legacy overlays and modal owned surfaces — does.
     hasModalOverlay: stack.some((e) => !(e.options.ownCommands && e.options.role === "passive")),
+    hasOverlay: stack.length > 0,
     stack: stack.map((e) => e.id),
   };
 

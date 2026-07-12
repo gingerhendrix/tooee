@@ -39,7 +39,7 @@ test("t opens theme picker", async () => {
     <TooeeProvider>
       <ThemeHarness />
     </TooeeProvider>,
-    { width: 60, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 60 },
   );
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("open:false");
@@ -63,7 +63,7 @@ test("q calls onQuit handler", async () => {
         }}
       />
     </TooeeProvider>,
-    { width: 60, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 60 },
   );
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("quit-harness");

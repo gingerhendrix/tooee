@@ -4,14 +4,14 @@ import type { RouterState } from "@tooee/router";
 
 function makeState(...routeIds: string[]): RouterState {
   return {
-    stack: routeIds.map((routeId) => ({ routeId, params: {} })),
+    stack: routeIds.map((routeId) => ({ params: {}, routeId })),
   };
 }
 
 describe("stackReducer", () => {
   test("push adds entry to stack", () => {
     const state = makeState("home");
-    const next = stackReducer(state, { type: "push", routeId: "detail" });
+    const next = stackReducer(state, { routeId: "detail", type: "push" });
     expect(next.stack).toHaveLength(2);
     expect(next.stack[1].routeId).toBe("detail");
   });
@@ -19,16 +19,16 @@ describe("stackReducer", () => {
   test("push preserves params", () => {
     const state = makeState("home");
     const next = stackReducer(state, {
-      type: "push",
-      routeId: "detail",
       params: { id: "123" },
+      routeId: "detail",
+      type: "push",
     });
     expect(next.stack[1].params).toEqual({ id: "123" });
   });
 
   test("push defaults params to empty object", () => {
     const state = makeState("home");
-    const next = stackReducer(state, { type: "push", routeId: "detail" });
+    const next = stackReducer(state, { routeId: "detail", type: "push" });
     expect(next.stack[1].params).toEqual({});
   });
 
@@ -49,9 +49,9 @@ describe("stackReducer", () => {
   test("replace swaps last entry", () => {
     const state = makeState("home", "detail");
     const next = stackReducer(state, {
-      type: "replace",
-      routeId: "settings",
       params: { tab: "general" },
+      routeId: "settings",
+      type: "replace",
     });
     expect(next.stack).toHaveLength(2);
     expect(next.stack[0].routeId).toBe("home");
@@ -61,7 +61,7 @@ describe("stackReducer", () => {
 
   test("reset clears stack to single entry", () => {
     const state = makeState("home", "detail", "nested");
-    const next = stackReducer(state, { type: "reset", routeId: "home" });
+    const next = stackReducer(state, { routeId: "home", type: "reset" });
     expect(next.stack).toHaveLength(1);
     expect(next.stack[0].routeId).toBe("home");
   });
@@ -69,9 +69,9 @@ describe("stackReducer", () => {
   test("reset preserves params", () => {
     const state = makeState("home", "detail");
     const next = stackReducer(state, {
-      type: "reset",
-      routeId: "settings",
       params: { fresh: true },
+      routeId: "settings",
+      type: "reset",
     });
     expect(next.stack).toHaveLength(1);
     expect(next.stack[0].params).toEqual({ fresh: true });
@@ -79,7 +79,7 @@ describe("stackReducer", () => {
 
   test("push then pop returns to original", () => {
     const state = makeState("home");
-    const pushed = stackReducer(state, { type: "push", routeId: "detail" });
+    const pushed = stackReducer(state, { routeId: "detail", type: "push" });
     const popped = stackReducer(pushed, { type: "pop" });
     expect(popped.stack).toHaveLength(1);
     expect(popped.stack[0].routeId).toBe("home");

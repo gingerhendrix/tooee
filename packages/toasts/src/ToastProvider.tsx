@@ -11,10 +11,10 @@ import type { ReactNode } from "react";
 import type { ToastOptions, ToastEntry, ToastController } from "./types.js";
 
 const DEFAULT_DURATIONS: Record<string, number> = {
+  error: 5000,
   info: 2000,
   success: 1500,
   warning: 3000,
-  error: 5000,
 };
 
 let nextToastId = 0;
@@ -49,10 +49,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       }
 
       const entry: ToastEntry = {
-        id,
-        message: options.message,
-        level,
         duration,
+        id,
+        level,
+        message: options.message,
       };
 
       setCurrentToast(entry);
@@ -70,9 +70,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const controller = useMemo<ToastController>(
     () => ({
-      toast,
-      dismiss,
       currentToast,
+      dismiss,
+      toast,
     }),
     [toast, dismiss, currentToast],
   );

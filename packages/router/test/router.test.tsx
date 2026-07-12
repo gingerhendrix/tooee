@@ -59,15 +59,15 @@ function NestedChild() {
 
 // Route definitions
 
-const homeRoute = createRoute({ id: "home", component: HomeScreen });
-const detailRoute = createRoute({ id: "detail", component: DetailScreen });
-const settingsRoute = createRoute({ id: "settings", component: SettingsScreen });
+const homeRoute = createRoute({ component: HomeScreen, id: "home" });
+const detailRoute = createRoute({ component: DetailScreen, id: "detail" });
+const settingsRoute = createRoute({ component: SettingsScreen, id: "settings" });
 
-const layoutRoute = createRoute({ id: "layout", component: LayoutScreen });
+const layoutRoute = createRoute({ component: LayoutScreen, id: "layout" });
 const nestedRoute = createRoute({
+  component: NestedChild,
   id: "nested",
   parent: layoutRoute,
-  component: NestedChild,
 });
 
 // Test harness that exposes navigation controls via rendered text
@@ -96,15 +96,15 @@ afterEach(() => {
 describe("RouterProvider + Outlet", () => {
   test("renders default route", async () => {
     const router = createRouter({
-      routes: [homeRoute, detailRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <NavHarness />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -116,15 +116,15 @@ describe("RouterProvider + Outlet", () => {
 
   test("push navigates to new route", async () => {
     const router = createRouter({
-      routes: [homeRoute, detailRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <NavHarness />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -141,15 +141,15 @@ describe("RouterProvider + Outlet", () => {
 
   test("pop returns to previous route", async () => {
     const router = createRouter({
-      routes: [homeRoute, detailRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <NavHarness />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -171,15 +171,15 @@ describe("RouterProvider + Outlet", () => {
 
   test("replace swaps current route", async () => {
     const router = createRouter({
-      routes: [homeRoute, detailRoute, settingsRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute, settingsRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <NavHarness />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -196,15 +196,15 @@ describe("RouterProvider + Outlet", () => {
 
   test("reset clears stack", async () => {
     const router = createRouter({
-      routes: [homeRoute, detailRoute, settingsRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute, settingsRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <NavHarness />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -229,15 +229,15 @@ describe("RouterProvider + Outlet", () => {
 
   test("nested outlet renders parent chain", async () => {
     const router = createRouter({
-      routes: [homeRoute, layoutRoute, nestedRoute],
       defaultRoute: "home",
+      routes: [homeRoute, layoutRoute, nestedRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -255,8 +255,8 @@ describe("RouterProvider + Outlet", () => {
 describe("createRouter (imperative)", () => {
   test("works outside React", () => {
     const router = createRouter({
-      routes: [homeRoute, detailRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute],
     });
 
     expect(router.currentRoute.routeId).toBe("home");
@@ -274,8 +274,8 @@ describe("createRouter (imperative)", () => {
 
   test("subscribe notifies on changes", () => {
     const router = createRouter({
-      routes: [homeRoute, detailRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute],
     });
 
     let callCount = 0;
@@ -300,8 +300,8 @@ describe("createRouter (imperative)", () => {
 
   test("getRouteDefinition returns route or undefined", () => {
     const router = createRouter({
-      routes: [homeRoute, detailRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute],
     });
 
     expect(router.getRouteDefinition("home")).toBe(homeRoute);

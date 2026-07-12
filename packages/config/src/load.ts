@@ -4,8 +4,8 @@ import type { TooeeConfig } from "./types.js";
 
 const DEFAULTS: TooeeConfig = {
   theme: {
-    name: "tokyonight",
     mode: "dark",
+    name: "tokyonight",
   },
 };
 

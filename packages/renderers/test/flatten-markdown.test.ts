@@ -24,21 +24,21 @@ interface RowShape {
 function shape(block: FlatBlock): RowShape {
   const p = block.source?.primary;
   const row: RowShape = {
-    type: block.token.type,
-    text: getFlatBlockText(block),
     source: p
       ? {
-          s: p.start.offset,
-          sl: p.start.line,
-          sc: p.start.column,
           e: p.end.offset,
-          el: p.end.line,
           ec: p.end.column,
+          el: p.end.line,
           last: p.lastLine,
-          t: p.text,
           line: p.lineText,
+          s: p.start.offset,
+          sc: p.start.column,
+          sl: p.start.line,
+          t: p.text,
         }
       : null,
+    text: getFlatBlockText(block),
+    type: block.token.type,
   };
   if (block.bullet !== undefined) {
     row.bullet = block.bullet;
@@ -57,29 +57,29 @@ describe("flattenMarkdown row order and provenance", () => {
   test("headings separated by blank lines", () => {
     expect(rows("# Title\n\n## Sub\n\nBody text.")).toEqual([
       {
-        type: "heading",
+        source: { e: 7, ec: 7, el: 0, last: 0, line: "# Title", s: 0, sc: 0, sl: 0, t: "# Title" },
         text: "# Title\n\n",
-        source: { s: 0, sl: 0, sc: 0, e: 7, el: 0, ec: 7, last: 0, t: "# Title", line: "# Title" },
-      },
-      {
         type: "heading",
-        text: "## Sub\n\n",
-        source: { s: 9, sl: 2, sc: 0, e: 15, el: 2, ec: 6, last: 2, t: "## Sub", line: "## Sub" },
       },
       {
-        type: "paragraph",
-        text: "Body text.",
+        source: { e: 15, ec: 6, el: 2, last: 2, line: "## Sub", s: 9, sc: 0, sl: 2, t: "## Sub" },
+        text: "## Sub\n\n",
+        type: "heading",
+      },
+      {
         source: {
-          s: 17,
-          sl: 4,
-          sc: 0,
           e: 27,
-          el: 4,
           ec: 10,
+          el: 4,
           last: 4,
-          t: "Body text.",
           line: "Body text.",
+          s: 17,
+          sc: 0,
+          sl: 4,
+          t: "Body text.",
         },
+        text: "Body text.",
+        type: "paragraph",
       },
     ]);
   });
@@ -96,19 +96,19 @@ describe("flattenMarkdown row order and provenance", () => {
   test("multi-line paragraph spans all its physical lines", () => {
     expect(rows("line one\nline two\nline three")).toEqual([
       {
-        type: "paragraph",
-        text: "line one\nline two\nline three",
         source: {
-          s: 0,
-          sl: 0,
-          sc: 0,
           e: 28,
-          el: 2,
           ec: 10,
+          el: 2,
           last: 2,
-          t: "line one\nline two\nline three",
           line: "line one\nline two\nline three",
+          s: 0,
+          sc: 0,
+          sl: 0,
+          t: "line one\nline two\nline three",
         },
+        text: "line one\nline two\nline three",
+        type: "paragraph",
       },
     ]);
   });
@@ -116,22 +116,22 @@ describe("flattenMarkdown row order and provenance", () => {
   test("unordered list items", () => {
     expect(rows("- alpha\n- beta\n- gamma")).toEqual([
       {
-        type: "text",
         bullet: "- ",
+        source: { e: 7, ec: 7, el: 0, last: 0, line: "- alpha", s: 2, sc: 2, sl: 0, t: "alpha" },
         text: "alpha",
-        source: { s: 2, sl: 0, sc: 2, e: 7, el: 0, ec: 7, last: 0, t: "alpha", line: "- alpha" },
+        type: "text",
       },
       {
-        type: "text",
         bullet: "- ",
+        source: { e: 14, ec: 6, el: 1, last: 1, line: "- beta", s: 10, sc: 2, sl: 1, t: "beta" },
         text: "beta",
-        source: { s: 10, sl: 1, sc: 2, e: 14, el: 1, ec: 6, last: 1, t: "beta", line: "- beta" },
+        type: "text",
       },
       {
-        type: "text",
         bullet: "- ",
+        source: { e: 22, ec: 7, el: 2, last: 2, line: "- gamma", s: 17, sc: 2, sl: 2, t: "gamma" },
         text: "gamma",
-        source: { s: 17, sl: 2, sc: 2, e: 22, el: 2, ec: 7, last: 2, t: "gamma", line: "- gamma" },
+        type: "text",
       },
     ]);
   });
@@ -139,16 +139,16 @@ describe("flattenMarkdown row order and provenance", () => {
   test("ordered list items carry their ordinal bullet", () => {
     expect(rows("1. one\n2. two")).toEqual([
       {
-        type: "text",
         bullet: "1. ",
+        source: { e: 6, ec: 6, el: 0, last: 0, line: "1. one", s: 3, sc: 3, sl: 0, t: "one" },
         text: "one",
-        source: { s: 3, sl: 0, sc: 3, e: 6, el: 0, ec: 6, last: 0, t: "one", line: "1. one" },
+        type: "text",
       },
       {
-        type: "text",
         bullet: "2. ",
+        source: { e: 13, ec: 6, el: 1, last: 1, line: "2. two", s: 10, sc: 3, sl: 1, t: "two" },
         text: "two",
-        source: { s: 10, sl: 1, sc: 3, e: 13, el: 1, ec: 6, last: 1, t: "two", line: "2. two" },
+        type: "text",
       },
     ]);
   });
@@ -156,38 +156,38 @@ describe("flattenMarkdown row order and provenance", () => {
   test("check list items report checkbox state and full-line source", () => {
     expect(rows("- [x] done\n- [ ] todo")).toEqual([
       {
-        type: "text",
         bullet: "- ",
         checked: true,
-        text: "done",
         source: {
-          s: 6,
-          sl: 0,
-          sc: 6,
           e: 10,
-          el: 0,
           ec: 10,
+          el: 0,
           last: 0,
-          t: "done",
           line: "- [x] done",
+          s: 6,
+          sc: 6,
+          sl: 0,
+          t: "done",
         },
+        text: "done",
+        type: "text",
       },
       {
-        type: "text",
         bullet: "- ",
         checked: false,
-        text: "todo",
         source: {
-          s: 17,
-          sl: 1,
-          sc: 6,
           e: 21,
-          el: 1,
           ec: 10,
+          el: 1,
           last: 1,
-          t: "todo",
           line: "- [ ] todo",
+          s: 17,
+          sc: 6,
+          sl: 1,
+          t: "todo",
         },
+        text: "todo",
+        type: "text",
       },
     ]);
   });
@@ -195,42 +195,42 @@ describe("flattenMarkdown row order and provenance", () => {
   test("nested lists resolve child text within the enclosing item", () => {
     expect(rows("- parent\n  - child a\n  - child b")).toEqual([
       {
-        type: "text",
         bullet: "- ",
+        source: { e: 8, ec: 8, el: 0, last: 0, line: "- parent", s: 2, sc: 2, sl: 0, t: "parent" },
         text: "parent\n",
-        source: { s: 2, sl: 0, sc: 2, e: 8, el: 0, ec: 8, last: 0, t: "parent", line: "- parent" },
+        type: "text",
       },
       {
-        type: "text",
         bullet: "- ",
-        text: "child a",
         source: {
-          s: 13,
-          sl: 1,
-          sc: 4,
           e: 20,
-          el: 1,
           ec: 11,
+          el: 1,
           last: 1,
-          t: "child a",
           line: "  - child a",
+          s: 13,
+          sc: 4,
+          sl: 1,
+          t: "child a",
         },
+        text: "child a",
+        type: "text",
       },
       {
-        type: "text",
         bullet: "- ",
-        text: "child b",
         source: {
-          s: 25,
-          sl: 2,
-          sc: 4,
           e: 32,
-          el: 2,
           ec: 11,
+          el: 2,
           last: 2,
-          t: "child b",
           line: "  - child b",
+          s: 25,
+          sc: 4,
+          sl: 2,
+          t: "child b",
         },
+        text: "child b",
+        type: "text",
       },
     ]);
   });
@@ -241,32 +241,32 @@ describe("flattenMarkdown row order and provenance", () => {
     const result = rows("1. first\n2.\n   - nested");
     expect(result).toEqual([
       {
-        type: "text",
         bullet: "1. ",
+        source: { e: 8, ec: 8, el: 0, last: 0, line: "1. first", s: 3, sc: 3, sl: 0, t: "first" },
         text: "first",
-        source: { s: 3, sl: 0, sc: 3, e: 8, el: 0, ec: 8, last: 0, t: "first", line: "1. first" },
+        type: "text",
       },
       {
-        type: "text",
         bullet: "2. ",
+        source: { e: 11, ec: 2, el: 1, last: 1, line: "2.", s: 9, sc: 0, sl: 1, t: "2." },
         text: "2. ", // synthetic: visible bullet text, non-empty for search/copy
-        source: { s: 9, sl: 1, sc: 0, e: 11, el: 1, ec: 2, last: 1, t: "2.", line: "2." },
+        type: "text",
       },
       {
-        type: "text",
         bullet: "- ",
-        text: "nested",
         source: {
-          s: 17,
-          sl: 2,
-          sc: 5,
           e: 23,
-          el: 2,
           ec: 11,
+          el: 2,
           last: 2,
-          t: "nested",
           line: "   - nested",
+          s: 17,
+          sc: 5,
+          sl: 2,
+          t: "nested",
         },
+        text: "nested",
+        type: "text",
       },
     ]);
     // The synthetic row's search/copy text is never empty.
@@ -276,19 +276,19 @@ describe("flattenMarkdown row order and provenance", () => {
   test("fenced code with internal blank lines keeps its exact span", () => {
     expect(rows("```js\na\n\nb\n```")).toEqual([
       {
-        type: "code",
-        text: "```js\na\n\nb\n```",
         source: {
-          s: 0,
-          sl: 0,
-          sc: 0,
           e: 14,
-          el: 4,
           ec: 3,
+          el: 4,
           last: 4,
-          t: "```js\na\n\nb\n```",
           line: "```js\na\n\nb\n```",
+          s: 0,
+          sc: 0,
+          sl: 0,
+          t: "```js\na\n\nb\n```",
         },
+        text: "```js\na\n\nb\n```",
+        type: "code",
       },
     ]);
   });
@@ -307,60 +307,60 @@ describe("flattenMarkdown row order and provenance", () => {
   test("blockquotes, nested blockquotes, thematic rules, HTML and tables", () => {
     expect(rows("> outer\n> > inner")).toEqual([
       {
-        type: "blockquote",
-        text: "> outer\n> > inner",
         source: {
-          s: 0,
-          sl: 0,
-          sc: 0,
           e: 17,
-          el: 1,
           ec: 9,
+          el: 1,
           last: 1,
-          t: "> outer\n> > inner",
           line: "> outer\n> > inner",
+          s: 0,
+          sc: 0,
+          sl: 0,
+          t: "> outer\n> > inner",
         },
+        text: "> outer\n> > inner",
+        type: "blockquote",
       },
     ]);
 
     expect(rows("---\n\n<div>x</div>")).toEqual([
       {
-        type: "hr",
+        source: { e: 3, ec: 3, el: 0, last: 0, line: "---", s: 0, sc: 0, sl: 0, t: "---" },
         text: "---",
-        source: { s: 0, sl: 0, sc: 0, e: 3, el: 0, ec: 3, last: 0, t: "---", line: "---" },
+        type: "hr",
       },
       {
-        type: "html",
-        text: "<div>x</div>",
         source: {
-          s: 5,
-          sl: 2,
-          sc: 0,
           e: 17,
-          el: 2,
           ec: 12,
+          el: 2,
           last: 2,
-          t: "<div>x</div>",
           line: "<div>x</div>",
+          s: 5,
+          sc: 0,
+          sl: 2,
+          t: "<div>x</div>",
         },
+        text: "<div>x</div>",
+        type: "html",
       },
     ]);
 
     expect(rows("| A | B |\n| --- | --- |\n| 1 | 2 |")).toEqual([
       {
-        type: "table",
-        text: "| A | B |\n| --- | --- |\n| 1 | 2 |",
         source: {
-          s: 0,
-          sl: 0,
-          sc: 0,
           e: 33,
-          el: 2,
           ec: 9,
+          el: 2,
           last: 2,
-          t: "| A | B |\n| --- | --- |\n| 1 | 2 |",
           line: "| A | B |\n| --- | --- |\n| 1 | 2 |",
+          s: 0,
+          sc: 0,
+          sl: 0,
+          t: "| A | B |\n| --- | --- |\n| 1 | 2 |",
         },
+        text: "| A | B |\n| --- | --- |\n| 1 | 2 |",
+        type: "table",
       },
     ]);
   });
@@ -395,15 +395,15 @@ describe("flattenMarkdown row order and provenance", () => {
       const result = rows("line one\r\nline two\r\n\r\n> quote a\r\n> quote b");
       expect(result[0]).toMatchObject({ type: "paragraph" });
       expect(result[0]!.source).toEqual({
-        s: 0,
-        sl: 0,
-        sc: 0,
         e: 18,
-        el: 1,
         ec: 8,
+        el: 1,
         last: 1,
-        t: "line one\r\nline two",
         line: "line one\r\nline two",
+        s: 0,
+        sc: 0,
+        sl: 0,
+        t: "line one\r\nline two",
       });
       expect(result[1]!.type).toBe("blockquote");
       expect(result[1]!.source!.t).toBe("> quote a\r\n> quote b");
@@ -431,10 +431,10 @@ describe("flattenMarkdown row order and provenance", () => {
     // no exact slice exists in the source: the algorithm returns null rather
     // than backtracking to a wrong location.
     const result = rows("- Setup:\n\n  ```bash\n  npm install\n  ```\n\n- Next");
-    expect(result[0]).toMatchObject({ type: "paragraph", bullet: "- ", text: "Setup:" });
+    expect(result[0]).toMatchObject({ bullet: "- ", text: "Setup:", type: "paragraph" });
     expect(result[1]!.type).toBe("code");
     expect(result[1]!.source).toBeNull();
-    expect(result[2]).toMatchObject({ type: "paragraph", bullet: "- ", text: "Next" });
+    expect(result[2]).toMatchObject({ bullet: "- ", text: "Next", type: "paragraph" });
     // Later rows still resolve — a null does not poison the monotonic cursor.
     expect(result[2]!.source!.t).toBe("Next");
   });

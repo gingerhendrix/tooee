@@ -43,19 +43,19 @@ export function DirectoryView({ dirPath, actions }: DirectoryViewProps) {
   );
 
   useCommand({
-    id: "dir.next-file",
-    title: "Next file",
-    hotkey: "l",
-    modes: ["cursor"],
     handler: () => setCurrentIndex((i) => Math.min(i + 1, files.length - 1)),
+    hotkey: "l",
+    id: "dir.next-file",
+    modes: ["cursor"],
+    title: "Next file",
   });
 
   useCommand({
-    id: "dir.prev-file",
-    title: "Previous file",
-    hotkey: "h",
-    modes: ["cursor"],
     handler: () => setCurrentIndex((i) => Math.max(i - 1, 0)),
+    hotkey: "h",
+    id: "dir.prev-file",
+    modes: ["cursor"],
+    title: "Previous file",
   });
 
   if (files.length === 0 || !contentProvider) {

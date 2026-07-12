@@ -26,19 +26,19 @@ function remoteRendererOptions(onDestroy?: () => void): CliRendererConfig {
   stdout.rows = 10;
 
   return {
+    height: 10,
+    onDestroy,
+    remote: true,
     stdin,
     stdout,
-    remote: true,
-    width: 40,
-    height: 10,
     useThread: false,
-    onDestroy,
+    width: 40,
   };
 }
 
 describe("mountTooee", () => {
   test("unmounts idempotently without destroying an external renderer", async () => {
-    testRenderer = await createTestRenderer({ width: 40, height: 10 });
+    testRenderer = await createTestRenderer({ height: 10, width: 40 });
     const renderer = testRenderer.renderer;
     const originalDestroy = renderer.destroy.bind(renderer);
     let destroyCalls = 0;
@@ -59,7 +59,7 @@ describe("mountTooee", () => {
   });
 
   test("does not install terminal-health listeners", async () => {
-    testRenderer = await createTestRenderer({ width: 40, height: 10 });
+    testRenderer = await createTestRenderer({ height: 10, width: 40 });
     const stdin = testRenderer.renderer.stdin;
     const beforeEnd = stdin.listenerCount("end");
     const beforeClose = stdin.listenerCount("close");
@@ -144,7 +144,7 @@ describe("local sessions", () => {
 });
 
 test("guardTerminalHealth owns and removes only its listeners", async () => {
-  testRenderer = await createTestRenderer({ width: 40, height: 10 });
+  testRenderer = await createTestRenderer({ height: 10, width: 40 });
   const renderer = testRenderer.renderer;
   const stdin = renderer.stdin;
   const beforeEnd = stdin.listenerCount("end");

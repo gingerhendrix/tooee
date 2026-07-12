@@ -88,7 +88,7 @@ function ChartRenderer({ text, theme, indent }: CodeBlockRendererProps): ReactNo
 
   return createElement(
     CodeBlockChrome,
-    { theme, indent },
+    { indent, theme },
     ...rows.map((row, i) => {
       const barLength = max > 0 ? Math.max(1, Math.round((row.value / max) * BAR_WIDTH)) : 0;
       const label = row.label.padEnd(labelWidth);
@@ -116,8 +116,8 @@ const contentProvider: ContentProvider = {
 // === Launch ===
 
 launch({
-  contentProvider,
   codeBlockRenderers: {
     chart: ChartRenderer,
   },
+  contentProvider,
 });

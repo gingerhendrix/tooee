@@ -24,10 +24,10 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: defaultTheme.colors,
-  syntax: defaultTheme.syntax,
-  name: defaultTheme.name,
   mode: defaultTheme.mode,
+  name: defaultTheme.name,
+  syntax: defaultTheme.syntax,
+  theme: defaultTheme.colors,
 });
 
 export interface ThemeProviderProps {
@@ -44,15 +44,15 @@ export function ThemeProvider({ name, mode, theme: themeProp, children }: ThemeP
   const resolved = useMemo<ThemeContextValue>(() => {
     if (themeProp) {
       return {
-        theme: themeProp.colors,
-        syntax: themeProp.syntax,
-        name: themeProp.name,
         mode: themeProp.mode,
+        name: themeProp.name,
+        syntax: themeProp.syntax,
+        theme: themeProp.colors,
       };
     }
 
     const t = buildTheme(name ?? DEFAULT_THEME_NAME, mode ?? DEFAULT_MODE);
-    return { theme: t.colors, syntax: t.syntax, name: t.name, mode: t.mode };
+    return { mode: t.mode, name: t.name, syntax: t.syntax, theme: t.colors };
   }, [themeProp, name, mode]);
 
   return <ThemeContext.Provider value={resolved}>{children}</ThemeContext.Provider>;
@@ -96,21 +96,21 @@ export function ThemeSwitcherProvider({
     const idx = allThemes.indexOf(themeName);
     const next = allThemes[(idx + 1) % allThemes.length];
     setThemeName(next);
-    writeGlobalConfig({ theme: { name: next, mode } });
+    writeGlobalConfig({ theme: { mode, name: next } });
   }, [allThemes, mode, themeName]);
 
   const prevTheme = useCallback(() => {
     const idx = allThemes.indexOf(themeName);
     const prev = allThemes[(idx - 1 + allThemes.length) % allThemes.length];
     setThemeName(prev);
-    writeGlobalConfig({ theme: { name: prev, mode } });
+    writeGlobalConfig({ theme: { mode, name: prev } });
   }, [allThemes, mode, themeName]);
 
   const setThemeByName = useCallback(
     (name: string, opts?: { persist?: boolean }) => {
       setThemeName(name);
       if (opts?.persist === true) {
-        writeGlobalConfig({ theme: { name, mode } });
+        writeGlobalConfig({ theme: { mode, name } });
       }
     },
     [mode],
@@ -118,20 +118,20 @@ export function ThemeSwitcherProvider({
 
   const value = useMemo<ThemeSwitcherContextValue>(
     () => ({
-      theme: theme.colors,
-      syntax: theme.syntax,
-      name: theme.name,
+      allThemes,
       mode,
+      name: theme.name,
       nextTheme,
       prevTheme,
       setTheme: setThemeByName,
-      allThemes,
+      syntax: theme.syntax,
+      theme: theme.colors,
     }),
     [theme, mode, nextTheme, prevTheme, setThemeByName, allThemes],
   );
 
   const themeValue = useMemo<ThemeContextValue>(
-    () => ({ theme: theme.colors, syntax: theme.syntax, name: theme.name, mode }),
+    () => ({ mode, name: theme.name, syntax: theme.syntax, theme: theme.colors }),
     [theme, mode],
   );
 

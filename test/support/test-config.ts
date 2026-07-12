@@ -20,6 +20,6 @@ export function ensureTestConfigHome(namespace: string): string {
 
 export function resetTestConfig(namespace: string): void {
   const dir = resolveTooeeDir(namespace);
-  rmSync(dir, { recursive: true, force: true });
+  rmSync(dir, { force: true, recursive: true });
   mkdirSync(dir, { recursive: true });
 }

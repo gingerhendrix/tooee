@@ -39,75 +39,75 @@ function HomeScreen() {
   }, [counter, saveState]);
 
   useCommand({
-    id: "home.push-detail",
-    title: "Push detail",
-    hotkey: "1",
-    modes: ["cursor"],
     handler: () => nav.push("detail", { id: "42" }),
+    hotkey: "1",
+    id: "home.push-detail",
+    modes: ["cursor"],
+    title: "Push detail",
   });
 
   useCommand({
-    id: "home.push-settings",
-    title: "Push settings",
-    hotkey: "2",
-    modes: ["cursor"],
     handler: () => nav.push("settings"),
+    hotkey: "2",
+    id: "home.push-settings",
+    modes: ["cursor"],
+    title: "Push settings",
   });
 
   useCommand({
-    id: "home.push-slow",
-    title: "Push slow",
-    hotkey: "3",
-    modes: ["cursor"],
     handler: () => nav.push("slow"),
+    hotkey: "3",
+    id: "home.push-slow",
+    modes: ["cursor"],
+    title: "Push slow",
   });
 
   useCommand({
-    id: "home.push-error",
-    title: "Push error route",
-    hotkey: "4",
-    modes: ["cursor"],
     handler: () => nav.push("error-route"),
+    hotkey: "4",
+    id: "home.push-error",
+    modes: ["cursor"],
+    title: "Push error route",
   });
 
   useCommand({
-    id: "home.push-nested",
-    title: "Push nested",
-    hotkey: "5",
-    modes: ["cursor"],
     handler: () => nav.push("child"),
+    hotkey: "5",
+    id: "home.push-nested",
+    modes: ["cursor"],
+    title: "Push nested",
   });
 
   useCommand({
-    id: "home.replace-settings",
-    title: "Replace with settings",
-    hotkey: "r",
-    modes: ["cursor"],
     handler: () => nav.replace("settings"),
+    hotkey: "r",
+    id: "home.replace-settings",
+    modes: ["cursor"],
+    title: "Replace with settings",
   });
 
   useCommand({
-    id: "home.reset",
-    title: "Reset to home",
-    hotkey: "x",
-    modes: ["cursor"],
     handler: () => nav.reset("home"),
+    hotkey: "x",
+    id: "home.reset",
+    modes: ["cursor"],
+    title: "Reset to home",
   });
 
   useCommand({
-    id: "home.increment",
-    title: "Increment counter",
-    hotkey: "plus",
-    modes: ["cursor"],
     handler: () => setCounter((c) => c + 1),
+    hotkey: "plus",
+    id: "home.increment",
+    modes: ["cursor"],
+    title: "Increment counter",
   });
 
   useCommand({
-    id: "home.quit",
-    title: "Quit",
-    hotkey: "q",
-    modes: ["cursor"],
     handler: ({ exit }) => exit(),
+    hotkey: "q",
+    id: "home.quit",
+    modes: ["cursor"],
+    title: "Quit",
   });
 
   return (
@@ -129,35 +129,35 @@ function DetailScreen() {
   const canGoBack = useCanGoBack();
 
   useCommand({
-    id: "detail.replace-settings",
-    title: "Replace with settings",
-    hotkey: "r",
-    modes: ["cursor"],
     handler: () => nav.replace("settings"),
+    hotkey: "r",
+    id: "detail.replace-settings",
+    modes: ["cursor"],
+    title: "Replace with settings",
   });
 
   useCommand({
-    id: "detail.reset",
-    title: "Reset to home",
-    hotkey: "x",
-    modes: ["cursor"],
     handler: () => nav.reset("home"),
+    hotkey: "x",
+    id: "detail.reset",
+    modes: ["cursor"],
+    title: "Reset to home",
   });
 
   useCommand({
-    id: "detail.push-settings",
-    title: "Push settings",
-    hotkey: "2",
-    modes: ["cursor"],
     handler: () => nav.push("settings"),
+    hotkey: "2",
+    id: "detail.push-settings",
+    modes: ["cursor"],
+    title: "Push settings",
   });
 
   useCommand({
-    id: "detail.quit",
-    title: "Quit",
-    hotkey: "q",
-    modes: ["cursor"],
     handler: ({ exit }) => exit(),
+    hotkey: "q",
+    id: "detail.quit",
+    modes: ["cursor"],
+    title: "Quit",
   });
 
   return (
@@ -178,19 +178,19 @@ function SettingsScreen() {
   const canGoBack = useCanGoBack();
 
   useCommand({
-    id: "settings.reset",
-    title: "Reset to home",
-    hotkey: "x",
-    modes: ["cursor"],
     handler: () => nav.reset("home"),
+    hotkey: "x",
+    id: "settings.reset",
+    modes: ["cursor"],
+    title: "Reset to home",
   });
 
   useCommand({
-    id: "settings.quit",
-    title: "Quit",
-    hotkey: "q",
-    modes: ["cursor"],
     handler: ({ exit }) => exit(),
+    hotkey: "q",
+    id: "settings.quit",
+    modes: ["cursor"],
+    title: "Quit",
   });
 
   return (
@@ -272,13 +272,13 @@ function ChildScreen() {
 
 // --- Route Definitions ---
 
-const homeRoute = createRoute({ id: "home", component: HomeScreen });
-const detailRoute = createRoute({ id: "detail", component: DetailScreen });
-const settingsRoute = createRoute({ id: "settings", component: SettingsScreen });
+const homeRoute = createRoute({ component: HomeScreen, id: "home" });
+const detailRoute = createRoute({ component: DetailScreen, id: "detail" });
+const settingsRoute = createRoute({ component: SettingsScreen, id: "settings" });
 
 const slowRoute = createRoute({
-  id: "slow",
   component: SlowScreen,
+  id: "slow",
   loader: async () => {
     await new Promise((r) => setTimeout(r, loaderDelay));
     return { message: "loaded" };
@@ -287,27 +287,27 @@ const slowRoute = createRoute({
 });
 
 const errorRoute = createRoute({
-  id: "error-route",
   component: ErrorRouteScreen,
+  errorComponent: ErrorComponent,
+  id: "error-route",
   loader: async () => {
     throw new Error("route-failed");
   },
   pendingComponent: SlowPending,
-  errorComponent: ErrorComponent,
 });
 
-const parentRoute = createRoute({ id: "parent", component: ParentLayout });
+const parentRoute = createRoute({ component: ParentLayout, id: "parent" });
 const childRoute = createRoute({
+  component: ChildScreen,
   id: "child",
   parent: parentRoute,
-  component: ChildScreen,
 });
 
 // --- Router ---
 
 const router = createRouter({
-  routes: [homeRoute, detailRoute, settingsRoute, slowRoute, errorRoute, parentRoute, childRoute],
   defaultRoute: "home",
+  routes: [homeRoute, detailRoute, settingsRoute, slowRoute, errorRoute, parentRoute, childRoute],
 });
 
 // --- Launch ---

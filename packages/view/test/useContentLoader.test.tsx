@@ -43,7 +43,7 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
               first = false;
               return Promise.resolve({
                 done: false as const,
-                value: { type: "append" as const, format: "text" as const, data: "hello" },
+                value: { data: "hello", format: "text" as const, type: "append" as const },
               });
             }
             // Long-lived stream: never yields again
@@ -56,7 +56,7 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
         };
       },
     };
-    const provider: ContentProvider = { load: () => iterable, format: "text" };
+    const provider: ContentProvider = { format: "text", load: () => iterable };
 
     let hide!: () => void;
     function Harness() {
@@ -65,7 +65,7 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
       return show ? <Loader provider={provider} /> : <text content="unmounted" />;
     }
 
-    testSetup = await testRender(<Harness />, { width: 60, height: 10 });
+    testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await testSetup.renderOnce();
     await flush(testSetup);
     expect(testSetup.captureCharFrame()).toContain("text:hello");
@@ -82,13 +82,13 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
 
   test("non-Error stream failure is surfaced, not dropped", async () => {
     async function* failing(): AsyncIterable<ContentChunk> {
-      yield { type: "append", format: "text", data: "partial" };
+      yield { data: "partial", format: "text", type: "append" };
       // eslint-disable-next-line no-throw-literal
       throw "stream blew up";
     }
-    const provider: ContentProvider = { load: () => failing(), format: "text" };
+    const provider: ContentProvider = { format: "text", load: () => failing() };
 
-    testSetup = await testRender(<Loader provider={provider} />, { width: 60, height: 10 });
+    testSetup = await testRender(<Loader provider={provider} />, { height: 10, width: 60 });
     await testSetup.renderOnce();
     await flush(testSetup);
     await flush(testSetup);
@@ -104,7 +104,7 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
       load: () => Promise.reject("load blew up"),
     };
 
-    testSetup = await testRender(<Loader provider={provider} />, { width: 60, height: 10 });
+    testSetup = await testRender(<Loader provider={provider} />, { height: 10, width: 60 });
     await testSetup.renderOnce();
     await flush(testSetup);
 
@@ -125,7 +125,7 @@ describe("useContentLoader reload and request identity", () => {
       const value = result.content && "text" in result.content ? result.content.text : "";
       return <text content={value} />;
     }
-    testSetup = await testRender(<Harness />, { width: 60, height: 10 });
+    testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await flush(testSetup);
     expect(testSetup.captureCharFrame()).toContain("sync-1");
     await act(async () => reload());
@@ -145,7 +145,7 @@ describe("useContentLoader reload and request identity", () => {
       const value = result.content && "text" in result.content ? result.content.text : "loading";
       return <text content={value} />;
     }
-    testSetup = await testRender(<Harness />, { width: 60, height: 10 });
+    testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await flush(testSetup);
     await act(async () => reload());
     await flush(testSetup);
@@ -177,7 +177,7 @@ describe("useContentLoader reload and request identity", () => {
                     first = false;
                     return Promise.resolve({
                       done: false as const,
-                      value: { type: "append" as const, format: "text" as const, data: "old" },
+                      value: { data: "old", format: "text" as const, type: "append" as const },
                     });
                   }
                   return new Promise<IteratorResult<ContentChunk>>((resolve) => {
@@ -193,7 +193,7 @@ describe("useContentLoader reload and request identity", () => {
           };
         }
         return (async function* () {
-          yield { type: "append" as const, format: "text" as const, data: "fresh" };
+          yield { data: "fresh", format: "text" as const, type: "append" as const };
         })();
       },
     };
@@ -203,7 +203,7 @@ describe("useContentLoader reload and request identity", () => {
       const value = result.content && "text" in result.content ? result.content.text : "";
       return <text content={`${result.status}:${value}`} />;
     }
-    testSetup = await testRender(<Harness />, { width: 60, height: 10 });
+    testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await flush(testSetup);
     expect(testSetup.captureCharFrame()).toContain("old");
     await act(async () => reload());
@@ -212,7 +212,7 @@ describe("useContentLoader reload and request identity", () => {
     expect(testSetup.captureCharFrame()).toContain("ready:fresh");
     resolveOldNext({
       done: false,
-      value: { type: "append", format: "text", data: "-late" },
+      value: { data: "-late", format: "text", type: "append" },
     });
     await flush(testSetup);
     expect(testSetup.captureCharFrame()).toContain("ready:fresh");

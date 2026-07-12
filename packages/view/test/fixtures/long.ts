@@ -19,11 +19,11 @@ interface ProcessingResult {
 
 function createDataPoint(id: number, name: string, value: number): DataPoint {
   return {
+    category: categorize(value),
     id,
     name,
-    value,
-    category: categorize(value),
     timestamp: new Date(),
+    value,
   };
 }
 
@@ -42,7 +42,7 @@ function categorize(value: number): string {
 
 function processData(points: DataPoint[]): ProcessingResult {
   if (points.length === 0) {
-    return { total: 0, average: 0, min: 0, max: 0, count: 0 };
+    return { average: 0, count: 0, max: 0, min: 0, total: 0 };
   }
 
   let total = 0;
@@ -60,11 +60,11 @@ function processData(points: DataPoint[]): ProcessingResult {
   }
 
   return {
-    total,
     average: total / points.length,
-    min,
-    max,
     count: points.length,
+    max,
+    min,
+    total,
   };
 }
 
@@ -126,11 +126,11 @@ function validateDataPoint(point: DataPoint): boolean {
 
 function mergeResults(a: ProcessingResult, b: ProcessingResult): ProcessingResult {
   return {
-    total: a.total + b.total,
     average: (a.total + b.total) / (a.count + b.count),
-    min: Math.min(a.min, b.min),
-    max: Math.max(a.max, b.max),
     count: a.count + b.count,
+    max: Math.max(a.max, b.max),
+    min: Math.min(a.min, b.min),
+    total: a.total + b.total,
   };
 }
 

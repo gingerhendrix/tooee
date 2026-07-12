@@ -33,12 +33,12 @@ function menuFor(event: DocumentContextMenuEvent<Row>): ContextMenuEntry[] {
 
 function Harness({ rows, gap = false }: { rows: readonly Row[]; gap?: boolean }) {
   const document = useDocumentController<Row>({
-    rows,
     adapter: ADAPTER,
+    contextMenu: menuFor,
     onRowPress: (event) => {
       presses.push(event);
     },
-    contextMenu: menuFor,
+    rows,
   });
   handle = document;
   // Gives the guard tests a real modal overlay to open with `t`.
@@ -75,7 +75,7 @@ async function setup(rows: readonly Row[], options: { gap?: boolean; height?: nu
     <TooeeProvider>
       <Harness rows={rows} gap={options.gap} />
     </TooeeProvider>,
-    { width: 40, height: options.height ?? 12, kittyKeyboard: true },
+    { height: options.height ?? 12, kittyKeyboard: true, width: 40 },
   );
   await session.renderOnce();
   return session;
@@ -189,11 +189,11 @@ describe("variable-height rows", () => {
 
   function TallHarness({ rows }: { rows: readonly TallRow[] }) {
     const document = useDocumentController<TallRow>({
-      rows,
       adapter: TALL_ADAPTER,
       onRowPress: (event) => {
         tallPresses.push(event);
       },
+      rows,
     });
     tallHandle = document;
     return (
@@ -227,7 +227,7 @@ describe("variable-height rows", () => {
       <TooeeProvider>
         <TallHarness rows={rows} />
       </TooeeProvider>,
-      { width: 40, height, kittyKeyboard: true },
+      { height, kittyKeyboard: true, width: 40 },
     );
     await session.renderOnce();
     return session;
@@ -296,7 +296,6 @@ describe("non-selectable rows", () => {
 
   function SectionHarness({ rows }: { rows: readonly Row[] }) {
     const document = useDocumentController<Row>({
-      rows,
       adapter: {
         ...ADAPTER,
         isSelectable: (r) => !r.id.startsWith("h"),
@@ -304,6 +303,7 @@ describe("non-selectable rows", () => {
       onRowPress: (event) => {
         sectionPresses.push(event);
       },
+      rows,
     });
     sectionHandle = document;
     return (
@@ -337,7 +337,7 @@ describe("non-selectable rows", () => {
           ]}
         />
       </TooeeProvider>,
-      { width: 40, height: 12, kittyKeyboard: true },
+      { height: 12, kittyKeyboard: true, width: 40 },
     );
     await session.renderOnce();
     expect(sectionHandle!.activeIndex).toBe(1);
@@ -397,9 +397,9 @@ describe("action-backed context menu", () => {
     const actions = makeActions();
     useActions(actions);
     const document = useDocumentController<Row>({
-      rows,
       adapter: ADAPTER,
       contextMenu: actions,
+      rows,
     });
     handle = document;
     return (
@@ -423,7 +423,7 @@ describe("action-backed context menu", () => {
       <TooeeProvider>
         <ActionsHarness rows={THREE} />
       </TooeeProvider>,
-      { width: 40, height: 12, kittyKeyboard: true },
+      { height: 12, kittyKeyboard: true, width: 40 },
     );
     await session.renderOnce();
     return session;
@@ -459,12 +459,12 @@ describe("action-backed context menu", () => {
       const actions = makeActions();
       useActions(actions);
       const document = useDocumentController<Row>({
-        rows,
         adapter: ADAPTER,
         contextMenu: (event) => {
           seenKey = event.key;
           return actions;
         },
+        rows,
       });
       handle = document;
       return (
@@ -483,7 +483,7 @@ describe("action-backed context menu", () => {
       <TooeeProvider>
         <FunctionActionsHarness rows={THREE} />
       </TooeeProvider>,
-      { width: 40, height: 12, kittyKeyboard: true },
+      { height: 12, kittyKeyboard: true, width: 40 },
     );
     await session.renderOnce();
 

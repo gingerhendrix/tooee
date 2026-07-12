@@ -24,14 +24,14 @@ function deferred<T>() {
     resolve = res;
     reject = rej;
   });
-  return { promise, resolve, reject };
+  return { promise, reject, resolve };
 }
 
 async function setup(node: React.ReactNode) {
   const session = await testRender(<TooeeProvider initialMode="insert">{node}</TooeeProvider>, {
-    width: 80,
     height: 24,
     kittyKeyboard: true,
+    width: 80,
   });
   await session.renderOnce();
   return session;
@@ -264,14 +264,14 @@ describe("shared commands, context, and surfaces", () => {
         onCancel={() => {}}
         commands={[
           {
-            id: "inspect-choose",
-            title: "Inspect chooser",
-            hotkey: "x",
-            modes: ["cursor"],
             handler: (context) => {
               contextItem = context.choose.activeItem?.text ?? "";
               contextFilter = context.choose.filterQuery;
             },
+            hotkey: "x",
+            id: "inspect-choose",
+            modes: ["cursor"],
+            title: "Inspect chooser",
           },
         ]}
       />,
@@ -286,11 +286,11 @@ describe("shared commands, context, and surfaces", () => {
 
   function ChildSurface({ close }: { close: () => void }) {
     useCommand({
-      id: "child:close",
-      title: "Close child",
-      hotkey: "x",
-      modes: ["cursor"],
       handler: close,
+      hotkey: "x",
+      id: "child:close",
+      modes: ["cursor"],
+      title: "Close child",
     });
     return (
       <box position="absolute" left="30%" right="30%" top="40%" bottom="40%" border>
@@ -350,11 +350,11 @@ describe("shared commands, context, and surfaces", () => {
         contentProvider={provider}
         actions={[
           {
-            id: "submit",
-            title: "Submit",
             handler: (context) => {
               actionItem = context.choose.activeItem?.text ?? "";
             },
+            id: "submit",
+            title: "Submit",
           },
         ]}
         onConfirm={() => confirms++}

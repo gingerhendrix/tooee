@@ -24,8 +24,8 @@ const BLOCK_HSCROLL_STEP = 4;
  * each block's Markdown provenance onto the controller's anchors.
  */
 const MARKDOWN_BLOCK_ADAPTER: DocumentRowAdapter<FlatBlock> = {
-  getText: (block) => getFlatBlockText(block),
   getSource: (block) => block.source,
+  getText: (block) => getFlatBlockText(block),
 };
 
 export function MarkdownSubview({
@@ -42,12 +42,12 @@ export function MarkdownSubview({
   const { showLineNumbers } = useContentCommands({ content, textContent });
 
   const document = useDocumentController<FlatBlock>({
-    rows: blocks,
     adapter: MARKDOWN_BLOCK_ADAPTER,
-    multiSelect: true,
-    decorations,
     // The controller projects the screen's actions onto menu entries at open time.
     contextMenu: actions,
+    decorations,
+    multiSelect: true,
+    rows: blocks,
   });
 
   const hScrollableBlocksRef = useRef<Map<number, TextBufferRenderable>>(new Map());
@@ -56,26 +56,26 @@ export function MarkdownSubview({
       ? hScrollableBlocksRef.current.get(document.activeIndex)
       : undefined;
   useCommand({
-    id: "block-scroll-left",
-    title: "Scroll block left",
-    hotkey: "h",
-    modes: ["cursor"],
-    when: () => cursorScrollable() != null,
     handler: () => {
       const target = cursorScrollable();
       if (target) target.scrollX -= BLOCK_HSCROLL_STEP;
     },
+    hotkey: "h",
+    id: "block-scroll-left",
+    modes: ["cursor"],
+    title: "Scroll block left",
+    when: () => cursorScrollable() != null,
   });
   useCommand({
-    id: "block-scroll-right",
-    title: "Scroll block right",
-    hotkey: "l",
-    modes: ["cursor"],
-    when: () => cursorScrollable() != null,
     handler: () => {
       const target = cursorScrollable();
       if (target) target.scrollX += BLOCK_HSCROLL_STEP;
     },
+    hotkey: "l",
+    id: "block-scroll-right",
+    modes: ["cursor"],
+    title: "Scroll block right",
+    when: () => cursorScrollable() != null,
   });
 
   const statusItems = useMemo(

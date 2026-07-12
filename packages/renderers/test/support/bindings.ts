@@ -8,7 +8,7 @@ const NO_DECORATIONS: readonly DecorationLayer[] = [];
 
 /** Paint-only bindings: decoration layers with no ref sharing or mouse handling. */
 export function decorationBindings(decorations: readonly DecorationLayer[]): DocumentBindings {
-  return { ref: { current: null }, decorations, onMouseDown() {} };
+  return { decorations, onMouseDown() {}, ref: { current: null } };
 }
 
 export interface RowMouseCallbacks {
@@ -27,7 +27,6 @@ export function useRowMouseBindings({
   const ref = useRef<RowDocumentRenderable | null>(null);
 
   return {
-    ref,
     decorations: NO_DECORATIONS,
     onMouseDown(event: MouseEvent) {
       const row = ref.current?.getRowAtScreenY(event.y);
@@ -41,5 +40,6 @@ export function useRowMouseBindings({
         onRowContextMenu?.(row, event.x, event.y);
       }
     },
+    ref,
   };
 }

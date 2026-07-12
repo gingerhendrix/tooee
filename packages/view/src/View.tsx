@@ -66,15 +66,15 @@ export function View({ contentProvider, actions, renderers, codeBlockRenderers }
   }
 
   const shared = {
+    actions,
+    clearAllUserMarks,
+    clearMarkNamespace,
     decorations,
     providerMarks,
-    userMarks,
-    setMarkSet,
-    clearMarkNamespace,
-    clearAllUserMarks,
     reload,
+    setMarkSet,
     streaming,
-    actions,
+    userMarks,
   };
 
   if (isCustomContent(content)) {

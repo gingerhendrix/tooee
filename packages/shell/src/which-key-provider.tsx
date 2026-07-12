@@ -44,9 +44,9 @@ export function WhichKeyProvider({ children, leaderOnly }: WhichKeyProviderProps
     }
 
     overlay.open(OVERLAY_ID, ({ payload }) => <WhichKeyOverlay state={payload} />, sequence, {
+      dismissOnEscape: false,
       ownCommands: true,
       role: "passive",
-      dismissOnEscape: false,
     });
     openRef.current = true;
   }, [overlay, sequence, shouldShow]);

@@ -4,10 +4,10 @@ import { useToast } from "./ToastProvider.js";
 import type { ToastLevel } from "./types.js";
 
 const LEVEL_ICONS: Record<ToastLevel, string> = {
+  error: "✗",
   info: "ℹ",
   success: "✓",
   warning: "⚠",
-  error: "✗",
 };
 
 function getLevelColor(theme: ReturnType<typeof useTheme>["theme"], level: ToastLevel): string {

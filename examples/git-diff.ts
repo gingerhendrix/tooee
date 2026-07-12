@@ -41,8 +41,8 @@ const contentProvider: ContentProvider = {
     }
 
     return {
-      format: "code" as const,
       code: text,
+      format: "code" as const,
       language: "diff",
       title: staged ? "Staged Changes" : "Unstaged Changes",
     };

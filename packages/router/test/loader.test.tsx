@@ -12,7 +12,7 @@ function createDeferred<T>() {
     resolve = res;
     reject = rej;
   });
-  return { promise, resolve, reject };
+  return { promise, reject, resolve };
 }
 
 // Screen components
@@ -62,24 +62,24 @@ describe("route loaders", () => {
   test("route with loader: pending then data", async () => {
     const deferred = createDeferred<{ message: string }>();
 
-    const homeRoute = createRoute({ id: "home", component: HomeScreen });
+    const homeRoute = createRoute({ component: HomeScreen, id: "home" });
     const dataRoute = createRoute({
-      id: "data",
       component: DataScreen,
+      id: "data",
       loader: () => deferred.promise,
       pendingComponent: LoadingScreen,
     });
 
     const router = createRouter({
-      routes: [homeRoute, dataRoute],
       defaultRoute: "home",
+      routes: [homeRoute, dataRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -109,18 +109,18 @@ describe("route loaders", () => {
   });
 
   test("route without loader: renders immediately", async () => {
-    const homeRoute = createRoute({ id: "home", component: HomeScreen });
+    const homeRoute = createRoute({ component: HomeScreen, id: "home" });
 
     const router = createRouter({
-      routes: [homeRoute],
       defaultRoute: "home",
+      routes: [homeRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -131,25 +131,25 @@ describe("route loaders", () => {
   test("loader error with errorComponent: shows error", async () => {
     const deferred = createDeferred<unknown>();
 
-    const homeRoute = createRoute({ id: "home", component: HomeScreen });
+    const homeRoute = createRoute({ component: HomeScreen, id: "home" });
     const errorRoute = createRoute({
-      id: "failing",
       component: DataScreen,
+      errorComponent: ErrorScreen,
+      id: "failing",
       loader: () => deferred.promise,
       pendingComponent: LoadingScreen,
-      errorComponent: ErrorScreen,
     });
 
     const router = createRouter({
-      routes: [homeRoute, errorRoute],
       defaultRoute: "home",
+      routes: [homeRoute, errorRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -176,24 +176,24 @@ describe("route loaders", () => {
   test("loader error without errorComponent: renders null", async () => {
     const deferred = createDeferred<unknown>();
 
-    const homeRoute = createRoute({ id: "home", component: HomeScreen });
+    const homeRoute = createRoute({ component: HomeScreen, id: "home" });
     const errorRoute = createRoute({
-      id: "failing",
       component: DataScreen,
+      id: "failing",
       loader: () => deferred.promise,
       pendingComponent: LoadingScreen,
     });
 
     const router = createRouter({
-      routes: [homeRoute, errorRoute],
       defaultRoute: "home",
+      routes: [homeRoute, errorRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -229,18 +229,18 @@ describe("route loaders", () => {
       );
     }
 
-    const noLoaderRoute = createRoute({ id: "noloader", component: NoLoaderScreen });
+    const noLoaderRoute = createRoute({ component: NoLoaderScreen, id: "noloader" });
 
     const router = createRouter({
-      routes: [noLoaderRoute],
       defaultRoute: "noloader",
+      routes: [noLoaderRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -252,10 +252,10 @@ describe("route loaders", () => {
   test("loader runs again on new push after pop", async () => {
     let loadCount = 0;
 
-    const homeRoute = createRoute({ id: "home", component: HomeScreen });
+    const homeRoute = createRoute({ component: HomeScreen, id: "home" });
     const dataRoute = createRoute({
-      id: "data",
       component: DataScreen,
+      id: "data",
       loader: async ({ params: _params }) => {
         loadCount++;
         return { message: `load-${loadCount}` };
@@ -263,15 +263,15 @@ describe("route loaders", () => {
     });
 
     const router = createRouter({
-      routes: [homeRoute, dataRoute],
       defaultRoute: "home",
+      routes: [homeRoute, dataRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -309,22 +309,22 @@ describe("route loaders", () => {
     const deferred = createDeferred<{ message: string }>();
 
     const dataRoute = createRoute({
-      id: "data",
       component: DataScreen,
+      id: "data",
       loader: () => deferred.promise,
       // No pendingComponent
     });
 
     const router = createRouter({
-      routes: [dataRoute],
       defaultRoute: "data",
+      routes: [dataRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -347,10 +347,10 @@ describe("route loaders", () => {
     const deferred2 = createDeferred<{ message: string }>();
     let callCount = 0;
 
-    const homeRoute = createRoute({ id: "home", component: HomeScreen });
+    const homeRoute = createRoute({ component: HomeScreen, id: "home" });
     const dataRoute = createRoute({
-      id: "data",
       component: DataScreen,
+      id: "data",
       loader: ({ params: _params }) => {
         callCount++;
         if (callCount === 1) {
@@ -362,15 +362,15 @@ describe("route loaders", () => {
     });
 
     const router = createRouter({
-      routes: [homeRoute, dataRoute],
       defaultRoute: "home",
+      routes: [homeRoute, dataRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -423,10 +423,10 @@ describe("route loaders", () => {
       );
     }
 
-    const homeRoute = createRoute({ id: "home", component: HomeScreen });
+    const homeRoute = createRoute({ component: HomeScreen, id: "home" });
     const paramRoute = createRoute({
-      id: "param",
       component: ParamScreen,
+      id: "param",
       loader: async ({ params }) => {
         receivedParams = params;
         return { echo: String(params.id) };
@@ -434,15 +434,15 @@ describe("route loaders", () => {
     });
 
     const router = createRouter({
-      routes: [homeRoute, paramRoute],
       defaultRoute: "home",
+      routes: [homeRoute, paramRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 

@@ -1,13 +1,13 @@
 import type { ParsedHotkey, ParsedStep } from "./types.js";
 
 const KEY_ALIASES: Record<string, string> = {
-  esc: "escape",
-  enter: "return",
+  backspace: "backspace",
   cr: "return",
   del: "delete",
-  tab: "tab",
-  backspace: "backspace",
+  enter: "return",
+  esc: "escape",
   plus: "+",
+  tab: "tab",
 };
 
 function normalizeKey(key: string): string {
@@ -51,7 +51,7 @@ function parseStep(step: string): ParsedStep {
     }
   }
 
-  return { key, ctrl, meta, shift, option, super: superKey };
+  return { ctrl, key, meta, option, shift, super: superKey };
 }
 
 /**

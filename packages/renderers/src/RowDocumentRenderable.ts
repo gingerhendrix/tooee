@@ -63,8 +63,8 @@ function cachedColor(hex: string): RGBA {
 
 function normalizePalette(palette: RowDocumentPalette = {}): Required<RowDocumentPalette> {
   return {
-    gutterFg: palette.gutterFg ?? "#6e7681",
     gutterBg: palette.gutterBg ?? "#0d1117",
+    gutterFg: palette.gutterFg ?? "#6e7681",
   };
 }
 
@@ -189,8 +189,8 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     }
     return {
       row,
-      virtualTop: this._rowVirtualStarts[row],
       virtualHeight: this._rowVirtualHeights[row],
+      virtualTop: this._rowVirtualStarts[row],
     };
   }
 
@@ -242,10 +242,10 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     const top = Math.floor(this.scrollTop);
     const bottom = top + this.viewport.height;
     return {
-      virtualTop: top,
-      virtualBottom: bottom,
       firstRow: this.getRowAtVirtualY(top),
       lastRow: this.getRowAtVirtualY(bottom - 1),
+      virtualBottom: bottom,
+      virtualTop: top,
     };
   }
 
@@ -492,11 +492,11 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     }
 
     return computeRowDocumentGutterWidth({
-      showLineNumbers: this._showLineNumbers,
-      rowCount: this._rowCount,
-      lineNumberStart: this._lineNumberStart,
-      signColumnWidth: this._signColumnWidth,
       gutterPaddingRight: this._gutterPaddingRight,
+      lineNumberStart: this._lineNumberStart,
+      rowCount: this._rowCount,
+      showLineNumbers: this._showLineNumbers,
+      signColumnWidth: this._signColumnWidth,
     });
   }
 

@@ -19,17 +19,17 @@ function AskSurface({
   const setMode = useSetMode();
 
   useCommand({
+    handler: () => onSubmit("hello"),
+    hotkey: "Enter",
     id: "ask.submit",
     title: "Submit",
-    hotkey: "Enter",
-    handler: () => onSubmit("hello"),
   });
-  useCommand({ id: "ask.cancel", title: "Cancel", hotkey: "Escape", handler: onCancel });
+  useCommand({ handler: onCancel, hotkey: "Escape", id: "ask.cancel", title: "Cancel" });
   useCommand({
+    handler: () => setMode("insert"),
+    hotkey: "i",
     id: "ask.insert",
     title: "Insert mode",
-    hotkey: "i",
-    handler: () => setMode("insert"),
   });
 
   return (
@@ -42,7 +42,7 @@ function AskSurface({
 
 function PassiveSurface({ onAction }: { onAction: () => void }) {
   // Bound to the same hotkey the root uses to prove passive surfaces never win.
-  useCommand({ id: "passive.quit-like", title: "Passive", hotkey: "q", handler: onAction });
+  useCommand({ handler: onAction, hotkey: "q", id: "passive.quit-like", title: "Passive" });
   return <text content="PASSIVE_OVERLAY" />;
 }
 
@@ -60,9 +60,6 @@ function Harness() {
   useQuitCommand({ onQuit: () => setQuit((n) => n + 1) });
 
   useCommand({
-    id: "open-ask",
-    title: "Open ask",
-    hotkey: "o",
     handler: () => {
       overlay.open(
         "ask",
@@ -82,12 +79,12 @@ function Harness() {
         { ownCommands: true, role: "modal", surfaceMode: "cursor" },
       );
     },
+    hotkey: "o",
+    id: "open-ask",
+    title: "Open ask",
   });
 
   useCommand({
-    id: "open-passive",
-    title: "Open passive",
-    hotkey: "p",
     handler: () => {
       overlay.open(
         "passive",
@@ -96,6 +93,9 @@ function Harness() {
         { ownCommands: true, role: "passive" },
       );
     },
+    hotkey: "p",
+    id: "open-passive",
+    title: "Open passive",
   });
 
   return (
@@ -116,7 +116,7 @@ async function setup() {
     <TooeeProvider>
       <Harness />
     </TooeeProvider>,
-    { width: 80, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 80 },
   );
   await session.renderOnce();
   return session;

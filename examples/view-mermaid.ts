@@ -17,7 +17,6 @@ import type { ContentProvider } from "@tooee/view";
 
 const contentProvider: ContentProvider = {
   load: () => ({
-    title: "Mermaid Diagrams",
     format: "markdown",
     markdown: `# Mermaid diagrams in Tooee
 
@@ -73,6 +72,7 @@ this is not valid mermaid syntax {{{
 
 *Press \`q\` to quit this viewer.*
 `,
+    title: "Mermaid Diagrams",
   }),
 };
 

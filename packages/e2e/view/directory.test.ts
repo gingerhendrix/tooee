@@ -17,11 +17,11 @@ afterEach(() => {
 
 async function launchViewDir(): Promise<Session> {
   const s = await launchTerminal({
-    command: "bun",
     args: ["--conditions=@tooee/source", CLI, "view", TEST_DIR],
     cols: 80,
-    rows: 24,
+    command: "bun",
     cwd: REPO_ROOT,
+    rows: 24,
   });
   await s.waitForText("Format:", { timeout: 15_000 });
   return s;

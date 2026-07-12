@@ -40,16 +40,16 @@ export function createEmptyContent(format: string, title?: string): AnyContent {
       return { format, markdown: "", title };
     }
     case "code": {
-      return { format, code: "", title };
+      return { code: "", format, title };
     }
     case "text": {
       return { format, text: "", title };
     }
     case "table": {
-      return { format, columns: [], rows: [], title };
+      return { columns: [], format, rows: [], title };
     }
     default: {
-      return { format, data: undefined, title } as CustomContent;
+      return { data: undefined, format, title } as CustomContent;
     }
   }
 }
@@ -108,31 +108,15 @@ export function normalizeError(error: unknown): string {
 export function createContentLoaderStore() {
   return createStore<ContentLoaderContext, ContentLoaderEvents>({
     context: {
-      status: "idle",
-      requestId: 0,
-      loadSeq: 0,
       content: null,
       error: null,
+      loadSeq: 0,
       providerMarks: [],
+      requestId: 0,
+      status: "idle",
       title: undefined,
     },
     on: {
-      loadStarted: (ctx, event) => ({
-        ...ctx,
-        status: "loading",
-        requestId: ctx.requestId + 1,
-        error: null,
-        providerMarks: event.marks,
-        title: event.title,
-      }),
-      streamStarted: (ctx, event) =>
-        event.requestId !== ctx.requestId
-          ? ctx
-          : {
-              ...ctx,
-              status: "streaming",
-              content: createEmptyContent(event.format, ctx.title),
-            },
       chunkReceived: (ctx, event) => {
         if (event.requestId !== ctx.requestId) {
           return ctx;
@@ -147,17 +131,33 @@ export function createContentLoaderStore() {
         }
         return { ...ctx, content: applyContentChunk(ctx.content, event.chunk, ctx.title) };
       },
+      loadCancelled: (ctx, event) =>
+        event.requestId !== ctx.requestId ? ctx : { ...ctx, requestId: ctx.requestId + 1 },
+      loadFailed: (ctx, event) =>
+        event.requestId !== ctx.requestId ? ctx : { ...ctx, error: event.error, status: "error" },
+      loadStarted: (ctx, event) => ({
+        ...ctx,
+        error: null,
+        providerMarks: event.marks,
+        requestId: ctx.requestId + 1,
+        status: "loading",
+        title: event.title,
+      }),
       loaded: (ctx, event) =>
         event.requestId !== ctx.requestId
           ? ctx
-          : { ...ctx, status: "ready", content: event.content },
+          : { ...ctx, content: event.content, status: "ready" },
+      reloadRequested: (ctx) => ({ ...ctx, loadSeq: ctx.loadSeq + 1 }),
       streamEnded: (ctx, event) =>
         event.requestId !== ctx.requestId ? ctx : { ...ctx, status: "ready" },
-      loadFailed: (ctx, event) =>
-        event.requestId !== ctx.requestId ? ctx : { ...ctx, status: "error", error: event.error },
-      loadCancelled: (ctx, event) =>
-        event.requestId !== ctx.requestId ? ctx : { ...ctx, requestId: ctx.requestId + 1 },
-      reloadRequested: (ctx) => ({ ...ctx, loadSeq: ctx.loadSeq + 1 }),
+      streamStarted: (ctx, event) =>
+        event.requestId !== ctx.requestId
+          ? ctx
+          : {
+              ...ctx,
+              content: createEmptyContent(event.format, ctx.title),
+              status: "streaming",
+            },
     },
   });
 }

@@ -11,56 +11,56 @@ function WhichKeyE2EApp() {
 
   useQuitCommand();
 
-  useCommandGroup({ id: "stream", title: "Stream", prefix: "space s" });
-  useCommandGroup({ id: "artifact", title: "Artifact", prefix: "space a" });
+  useCommandGroup({ id: "stream", prefix: "space s", title: "Stream" });
+  useCommandGroup({ id: "artifact", prefix: "space a", title: "Artifact" });
 
   const actions = useMemo<ActionDefinition[]>(
     () => [
       {
-        id: "e2e.stream.open-today",
-        title: "Open today stream",
-        hotkey: "space s t",
         category: "Stream",
         group: "Stream",
         handler: () => setLastAction("opened today stream"),
+        hotkey: "space s t",
+        id: "e2e.stream.open-today",
+        title: "Open today stream",
       },
       {
-        id: "e2e.stream.dispatch",
-        title: "Dispatch task",
-        hotkey: "space s d",
         category: "Stream",
         group: "Stream",
         handler: () => setLastAction("dispatched task"),
+        hotkey: "space s d",
+        id: "e2e.stream.dispatch",
+        title: "Dispatch task",
       },
       {
-        id: "e2e.artifact.open",
-        title: "Open artifact",
-        hotkey: "space a o",
         category: "Artifact",
         group: "Artifact",
         handler: () => setLastAction("opened artifact"),
+        hotkey: "space a o",
+        id: "e2e.artifact.open",
+        title: "Open artifact",
       },
       {
-        id: "e2e.refresh",
-        title: "Refresh",
-        hotkey: "space r",
         category: "General",
         group: "General",
         handler: () => setLastAction("refreshed"),
+        hotkey: "space r",
+        id: "e2e.refresh",
+        title: "Refresh",
       },
       {
+        handler: () => setLastAction("hidden maintenance"),
+        hidden: true,
+        hotkey: "space x",
         id: "e2e.hidden",
         title: "Hidden maintenance action",
-        hotkey: "space x",
-        hidden: true,
-        handler: () => setLastAction("hidden maintenance"),
       },
       {
-        id: "e2e.local-go",
-        title: "Local go command",
-        hotkey: "g g",
         category: "Navigation",
         handler: () => setLastAction("local go"),
+        hotkey: "g g",
+        id: "e2e.local-go",
+        title: "Local go command",
       },
     ],
     [],

@@ -78,19 +78,19 @@ function EffectChild() {
 
 // Route definitions
 
-const homeRoute = createRoute({ id: "home", component: HomeScreen });
-const layoutRoute = createRoute({ id: "layout", component: FocusLayout });
+const homeRoute = createRoute({ component: HomeScreen, id: "home" });
+const layoutRoute = createRoute({ component: FocusLayout, id: "layout" });
 const nestedRoute = createRoute({
+  component: FocusChild,
   id: "nested",
   parent: layoutRoute,
-  component: FocusChild,
 });
 
-const effectLayoutRoute = createRoute({ id: "elayout", component: EffectLayout });
+const effectLayoutRoute = createRoute({ component: EffectLayout, id: "elayout" });
 const effectNestedRoute = createRoute({
+  component: EffectChild,
   id: "enested",
   parent: effectLayoutRoute,
-  component: EffectChild,
 });
 
 // Test setup
@@ -108,15 +108,15 @@ beforeEach(() => {
 describe("useScreenFocus", () => {
   test("returns isFocused true for top-of-stack screen", async () => {
     const router = createRouter({
-      routes: [homeRoute],
       defaultRoute: "home",
+      routes: [homeRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -126,15 +126,15 @@ describe("useScreenFocus", () => {
 
   test("nested parent has isFocused false, leaf has isFocused true", async () => {
     const router = createRouter({
-      routes: [homeRoute, layoutRoute, nestedRoute],
       defaultRoute: "home",
+      routes: [homeRoute, layoutRoute, nestedRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -150,15 +150,15 @@ describe("useScreenFocus", () => {
 
   test("focus updates when navigating from leaf to parent-only", async () => {
     const router = createRouter({
-      routes: [layoutRoute, nestedRoute],
       defaultRoute: "layout",
+      routes: [layoutRoute, nestedRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -190,15 +190,15 @@ describe("useScreenFocus", () => {
 describe("useScreenEffect", () => {
   test("effect fires when screen is focused", async () => {
     const router = createRouter({
-      routes: [effectLayoutRoute],
       defaultRoute: "elayout",
+      routes: [effectLayoutRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -207,15 +207,15 @@ describe("useScreenEffect", () => {
 
   test("effect does not fire for unfocused parent", async () => {
     const router = createRouter({
-      routes: [effectLayoutRoute, effectNestedRoute],
       defaultRoute: "enested",
+      routes: [effectLayoutRoute, effectNestedRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -226,15 +226,15 @@ describe("useScreenEffect", () => {
 
   test("cleanup fires when screen loses focus, re-fires on regain", async () => {
     const router = createRouter({
-      routes: [effectLayoutRoute, effectNestedRoute],
       defaultRoute: "elayout",
+      routes: [effectLayoutRoute, effectNestedRoute],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 

@@ -60,8 +60,8 @@ export function useThemePicker(): ThemePickerState {
       OVERLAY_ID,
       ({ close: closeOverlay }: { close: (reason?: OverlayCloseReason) => void }) =>
         createElement(ThemePickerOverlay, {
-          originalTheme: currentTheme,
           close: () => closeOverlay(),
+          originalTheme: currentTheme,
         }),
       null,
       {
@@ -73,13 +73,13 @@ export function useThemePicker(): ThemePickerState {
   }, [overlay, currentTheme]);
 
   return {
-    isOpen,
-    open,
     close,
     confirm,
-    preview,
-    entries,
-    originalTheme: originalThemeRef.current,
     currentTheme,
+    entries,
+    isOpen,
+    open,
+    originalTheme: originalThemeRef.current,
+    preview,
   };
 }

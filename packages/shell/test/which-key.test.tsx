@@ -12,39 +12,39 @@ function WhichKeyHarness() {
   const overlay = useCurrentOverlay();
   const hasOverlay = useHasOverlay();
 
-  useCommandGroup({ id: "stream", title: "Stream", prefix: "space s" });
+  useCommandGroup({ id: "stream", prefix: "space s", title: "Stream" });
 
   useCommand({
-    id: "streams.today",
-    title: "Today stream",
+    handler: () => {},
     hotkey: "space s t",
+    id: "streams.today",
     modes: ["cursor"],
-    handler: () => {},
+    title: "Today stream",
   });
 
   useCommand({
-    id: "streams.edit",
-    title: "Edit stream",
+    handler: () => {},
     hotkey: "space s e",
+    id: "streams.edit",
     modes: ["cursor"],
-    handler: () => {},
+    title: "Edit stream",
   });
 
   useCommand({
-    id: "go.search",
-    title: "Go search",
+    handler: () => {},
     hotkey: "g s",
+    id: "go.search",
     modes: ["cursor"],
-    handler: () => {},
+    title: "Go search",
   });
 
   useCommand({
-    id: "hidden.command",
-    title: "Hidden command",
-    hotkey: "space h",
-    modes: ["cursor"],
-    hidden: true,
     handler: () => {},
+    hidden: true,
+    hotkey: "space h",
+    id: "hidden.command",
+    modes: ["cursor"],
+    title: "Hidden command",
   });
 
   return (
@@ -66,23 +66,23 @@ function ActionMetadataHarness() {
 
   useActions([
     {
-      id: "actions.open",
-      title: "Open artifact",
-      hotkey: "space a o",
-      modes: ["cursor"],
       category: "Artifact",
       group: "Artifact",
-      icon: "file",
-      hidden: false,
       handler: () => {},
+      hidden: false,
+      hotkey: "space a o",
+      icon: "file",
+      id: "actions.open",
+      modes: ["cursor"],
+      title: "Open artifact",
     },
     {
-      id: "actions.edit",
-      title: "Edit artifact",
-      hotkey: "space a e",
-      modes: ["cursor"],
       group: "Artifact",
       handler: () => {},
+      hotkey: "space a e",
+      id: "actions.edit",
+      modes: ["cursor"],
+      title: "Edit artifact",
     },
   ]);
 
@@ -100,9 +100,9 @@ function ActionMetadataHarness() {
 
 async function setup(children = <WhichKeyHarness />) {
   const s = await testRender(<TooeeProvider leader="space">{children}</TooeeProvider>, {
-    width: 80,
     height: 24,
     kittyKeyboard: true,
+    width: 80,
   });
   await s.renderOnce();
   return s;
@@ -177,40 +177,40 @@ describe("which-key", () => {
     const t = step("t");
     const e = step("e");
     const state: CommandSequenceState = {
-      prefix: [space],
       candidates: [
         {
           command: {
+            handler: () => {},
             id: "streams.today",
             title: "Today stream",
-            handler: () => {},
           },
+          group: { id: "stream", prefix: "space s", title: "Stream" },
           hotkey: "space s t",
-          steps: [space, s, t],
-          remainingSteps: [s, t],
           nextStep: s,
-          group: { id: "stream", title: "Stream", prefix: "space s" },
+          remainingSteps: [s, t],
+          steps: [space, s, t],
         },
         {
           command: {
+            handler: () => {},
             id: "streams.edit",
             title: "Edit stream",
-            handler: () => {},
           },
+          group: { id: "stream", prefix: "space s", title: "Stream" },
           hotkey: "space s e",
-          steps: [space, s, e],
-          remainingSteps: [s, e],
           nextStep: s,
-          group: { id: "stream", title: "Stream", prefix: "space s" },
+          remainingSteps: [s, e],
+          steps: [space, s, e],
         },
       ],
+      prefix: [space],
     };
 
     testSetup = await testRender(
       <TooeeProvider leader="space">
         <WhichKeyOverlay state={state} />
       </TooeeProvider>,
-      { width: 80, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 80 },
     );
     await testSetup.renderOnce();
 
@@ -221,5 +221,5 @@ describe("which-key", () => {
 });
 
 function step(key: string): ParsedStep {
-  return { key, ctrl: false, meta: false, option: false, shift: false };
+  return { ctrl: false, key, meta: false, option: false, shift: false };
 }

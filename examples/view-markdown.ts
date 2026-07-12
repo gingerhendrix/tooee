@@ -17,7 +17,6 @@ import type { ContentProvider } from "@tooee/view";
 // Create a content provider with inline markdown
 const contentProvider: ContentProvider = {
   load: () => ({
-    title: "Tooee Example",
     format: "markdown",
     markdown: `# Welcome to Tooee
 
@@ -60,6 +59,7 @@ Check out the other examples in this directory to see the full API surface.
 
 *Press \`q\` to quit this viewer.*
 `,
+    title: "Tooee Example",
   }),
 };
 

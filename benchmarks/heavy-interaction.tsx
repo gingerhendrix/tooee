@@ -50,7 +50,7 @@ printMetric("table_large_row_count", table.rows.length);
 printMetric("table_large_column_count", table.columns.length);
 
 await benchmarkViewContent("table_large", {
-  title: table.title,
   format: table.format,
   load: () => table,
+  title: table.title,
 });

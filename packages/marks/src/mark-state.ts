@@ -14,9 +14,16 @@ function makeMarkState(sets: readonly MarkSet[]): MarkState {
   const namespaces = sortedSets.map((s) => s.namespace);
 
   return {
-    sets: sortedSets,
-    namespaces,
-
+    effectiveStyleAtLine(line: number): MarkStyle | null {
+      const marks = this.marksAtLine(line);
+      if (marks.length === 0) {
+        return null;
+      }
+      return marks[marks.length - 1].style;
+    },
+    getSet(namespace: string): MarkSet | undefined {
+      return sortedSets.find((s) => s.namespace === namespace);
+    },
     marksAtLine(line: number): Mark[] {
       const results: Mark[] = [];
       for (const set of sortedSets) {
@@ -31,18 +38,8 @@ function makeMarkState(sets: readonly MarkSet[]): MarkState {
       results.sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
       return results;
     },
-
-    effectiveStyleAtLine(line: number): MarkStyle | null {
-      const marks = this.marksAtLine(line);
-      if (marks.length === 0) {
-        return null;
-      }
-      return marks[marks.length - 1].style;
-    },
-
-    getSet(namespace: string): MarkSet | undefined {
-      return sortedSets.find((s) => s.namespace === namespace);
-    },
+    namespaces,
+    sets: sortedSets,
   };
 }
 

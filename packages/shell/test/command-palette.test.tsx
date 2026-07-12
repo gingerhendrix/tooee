@@ -14,36 +14,36 @@ function PaletteHarness() {
 
   // Register some test commands
   useCommand({
-    id: "test.visible",
-    title: "Visible Command",
+    handler: () => {},
     hotkey: "t",
+    id: "test.visible",
     modes: ["cursor"],
-    handler: () => {},
+    title: "Visible Command",
   });
 
   useCommand({
-    id: "test.hidden",
-    title: "Hidden Command",
-    hotkey: "h",
-    modes: ["cursor"],
+    handler: () => {},
     hidden: true,
-    handler: () => {},
-  });
-
-  useCommand({
-    id: "test.cursor-only",
-    title: "Cursor Only Command",
-    hotkey: "c",
+    hotkey: "h",
+    id: "test.hidden",
     modes: ["cursor"],
-    handler: () => {},
+    title: "Hidden Command",
   });
 
   useCommand({
-    id: "test.insert-only",
-    title: "Insert Only Command",
-    hotkey: "i",
-    modes: ["insert"],
     handler: () => {},
+    hotkey: "c",
+    id: "test.cursor-only",
+    modes: ["cursor"],
+    title: "Cursor Only Command",
+  });
+
+  useCommand({
+    handler: () => {},
+    hotkey: "i",
+    id: "test.insert-only",
+    modes: ["insert"],
+    title: "Insert Only Command",
   });
 
   return (
@@ -59,7 +59,7 @@ async function setup() {
     <TooeeProvider>
       <PaletteHarness />
     </TooeeProvider>,
-    { width: 80, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 80 },
   );
   await s.renderOnce();
   return s;
@@ -95,10 +95,10 @@ describe("command palette", () => {
   test("a command registered after the provider mounts appears in the palette", async () => {
     function LateRegistrant() {
       useCommand({
-        id: "test.late",
-        title: "Late Arrival Command",
-        modes: ["cursor"],
         handler: () => {},
+        id: "test.late",
+        modes: ["cursor"],
+        title: "Late Arrival Command",
       });
       return null;
     }
@@ -107,11 +107,11 @@ describe("command palette", () => {
       const [showLate, setShowLate] = useState(false);
       const current = useCurrentOverlay();
       useCommand({
-        id: "test.show-late",
-        title: "Show late",
-        hotkey: "l",
-        modes: ["cursor"],
         handler: () => setShowLate(true),
+        hotkey: "l",
+        id: "test.show-late",
+        modes: ["cursor"],
+        title: "Show late",
       });
       return (
         <box flexDirection="column">
@@ -125,7 +125,7 @@ describe("command palette", () => {
       <TooeeProvider>
         <LateHarness />
       </TooeeProvider>,
-      { width: 80, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 80 },
     );
     await testSetup.renderOnce();
 
@@ -148,11 +148,11 @@ function PaletteClickHarness({ onRun }: { onRun: (id: string) => void }) {
   const overlay = useCurrentOverlay();
 
   useCommand({
-    id: "test.clickable",
-    title: "Clickable Command",
-    hotkey: "t",
-    modes: ["cursor"],
     handler: () => onRun("test.clickable"),
+    hotkey: "t",
+    id: "test.clickable",
+    modes: ["cursor"],
+    title: "Clickable Command",
   });
 
   return (
@@ -180,7 +180,7 @@ async function setupClick(onRun: (id: string) => void) {
     <TooeeProvider>
       <PaletteClickHarness onRun={onRun} />
     </TooeeProvider>,
-    { width: 80, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 80 },
   );
   await s.renderOnce();
   return s;

@@ -28,7 +28,7 @@ export interface FlattenMarkdownOptions {
 
 /** Empty synthetic token stamped onto bullet-only rows (nested-list/block/empty items). */
 function syntheticTextToken(): Token {
-  return { type: "text", raw: "", text: "", tokens: [] } as unknown as Token;
+  return { raw: "", text: "", tokens: [], type: "text" } as unknown as Token;
 }
 
 /**
@@ -101,7 +101,7 @@ class MarkdownResolver {
 
     const exact = md.indexOf(raw, this.cursor);
     if (exact !== -1 && exact + raw.length <= bound) {
-      return { start: exact, end: exact + raw.length };
+      return { end: exact + raw.length, start: exact };
     }
 
     if (!raw.includes("\n")) {
@@ -121,7 +121,7 @@ class MarkdownResolver {
       }
       const end = this.matchFlexibleNewlines(raw, start, bound);
       if (end !== -1) {
-        return { start, end };
+        return { end, start };
       }
       from = start + 1;
     }
@@ -232,11 +232,11 @@ function flattenListItem(
 
   const emitBulletMarker = () => {
     out.push({
-      token: syntheticTextToken(),
-      indent,
       bullet,
       checked,
+      indent,
       source: res && itemStart !== null ? res.markerSource(itemStart, itemEnd) : null,
+      token: syntheticTextToken(),
     });
     bulletUsed = true;
   };
@@ -249,11 +249,11 @@ function flattenListItem(
     if (token.type === "text" || token.type === "paragraph") {
       // Inline content — attach the bullet to the first one.
       out.push({
-        token,
-        indent,
         bullet: bulletUsed ? undefined : bullet,
         checked: bulletUsed ? undefined : checked,
+        indent,
         source: res ? res.resolveRaw(token.raw ?? "", itemEnd) : null,
+        token,
       });
       bulletUsed = true;
     } else if (token.type === "list") {
@@ -267,9 +267,9 @@ function flattenListItem(
         emitBulletMarker();
       }
       out.push({
-        token,
         indent: indent + bullet.length,
         source: res ? res.resolveRaw(token.raw ?? "", itemEnd) : null,
+        token,
       });
     }
   }
@@ -294,7 +294,7 @@ function flattenWalk(
     if (token.type === "list") {
       flattenList(token as Tokens.List, indent, out, res, bound);
     } else {
-      out.push({ token, indent, source: res ? res.resolveRaw(token.raw ?? "", bound) : null });
+      out.push({ indent, source: res ? res.resolveRaw(token.raw ?? "", bound) : null, token });
     }
   }
 }

@@ -19,12 +19,12 @@ export function CodeSubview({ content, decorations, actions, ...screen }: CodeSu
   const { showLineNumbers } = useContentCommands({ content, textContent });
 
   const document = useDocumentController<SourceLineRow>({
-    rows: lineRows,
     adapter: sourceLineAdapter,
-    multiSelect: true,
-    decorations,
     // The controller projects the screen's actions onto menu entries at open time.
     contextMenu: actions,
+    decorations,
+    multiSelect: true,
+    rows: lineRows,
   });
 
   const statusItems = useMemo(

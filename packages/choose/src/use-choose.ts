@@ -265,8 +265,8 @@ export function useChoose(options: UseChooseOptions): UseChooseResult {
   useProvideCommandContext(() => ({
     choose: {
       activeItem: getActiveItem(),
-      selectedItems: getSelectedItems(),
       filterQuery: filterQueryRef.current,
+      selectedItems: getSelectedItems(),
     },
     ...(optionsRef.current.onCancel ? { exit: cancel } : {}),
   }));
@@ -279,133 +279,133 @@ export function useChoose(options: UseChooseOptions): UseChooseResult {
   );
 
   useCommand({
-    id: `${commandScope}:escape`,
-    title: "Back / cancel",
-    hotkey: "Escape",
-    modes: ["insert", "cursor"],
-    hidden: true,
-    when: () =>
-      modeRef.current === "insert"
-        ? enabled("mode")
-        : enabled("cancel") && optionsRef.current.onCancel !== undefined,
     handler: () => {
       if (modeRef.current === "insert") setMode("cursor");
       else cancel();
     },
+    hidden: true,
+    hotkey: "Escape",
+    id: `${commandScope}:escape`,
+    modes: ["insert", "cursor"],
+    title: "Back / cancel",
+    when: () =>
+      modeRef.current === "insert"
+        ? enabled("mode")
+        : enabled("cancel") && optionsRef.current.onCancel !== undefined,
   });
   useCommand({
-    id: `${commandScope}:cancel`,
-    title: "Cancel",
-    hotkey: "q",
-    modes: ["cursor"],
-    hidden: true,
-    when: () => enabled("cancel") && optionsRef.current.onCancel !== undefined,
     handler: cancel,
+    hidden: true,
+    hotkey: "q",
+    id: `${commandScope}:cancel`,
+    modes: ["cursor"],
+    title: "Cancel",
+    when: () => enabled("cancel") && optionsRef.current.onCancel !== undefined,
   });
   useCommand({
-    id: `${commandScope}:insert-mode-i`,
-    title: "Insert mode",
+    handler: () => setMode("insert"),
+    hidden: true,
     hotkey: "i",
+    id: `${commandScope}:insert-mode-i`,
     modes: ["cursor"],
-    hidden: true,
-    when: () => enabled("mode"),
-    handler: () => setMode("insert"),
-  });
-  useCommand({
-    id: `${commandScope}:insert-mode-a`,
     title: "Insert mode",
-    hotkey: "a",
-    modes: ["cursor"],
-    hidden: true,
     when: () => enabled("mode"),
+  });
+  useCommand({
     handler: () => setMode("insert"),
+    hidden: true,
+    hotkey: "a",
+    id: `${commandScope}:insert-mode-a`,
+    modes: ["cursor"],
+    title: "Insert mode",
+    when: () => enabled("mode"),
   });
   useCommand({
-    id: `${commandScope}:move-down-vim`,
-    title: "Move down",
+    handler: moveDown,
+    hidden: true,
     hotkey: "j",
+    id: `${commandScope}:move-down-vim`,
     modes: ["cursor"],
-    hidden: true,
+    title: "Move down",
     when: () => enabled("navigation"),
-    handler: moveDown,
   });
   useCommand({
-    id: `${commandScope}:move-up-vim`,
-    title: "Move up",
+    handler: moveUp,
+    hidden: true,
     hotkey: "k",
+    id: `${commandScope}:move-up-vim`,
     modes: ["cursor"],
-    hidden: true,
+    title: "Move up",
     when: () => enabled("navigation"),
-    handler: moveUp,
   });
   useCommand({
-    id: `${commandScope}:confirm`,
-    title: "Confirm",
-    hotkey: "Enter",
-    modes: ["insert", "cursor"],
-    hidden: true,
-    when: () => enabled("submit"),
     handler: submit,
+    hidden: true,
+    hotkey: "Enter",
+    id: `${commandScope}:confirm`,
+    modes: ["insert", "cursor"],
+    title: "Confirm",
+    when: () => enabled("submit"),
   });
   useCommand({
-    id: `${commandScope}:move-up`,
-    title: "Move up",
+    handler: moveUp,
+    hidden: true,
     hotkey: "up",
+    id: `${commandScope}:move-up`,
     modes: ["insert", "cursor"],
-    hidden: true,
-    when: () => enabled("navigation"),
-    handler: moveUp,
-  });
-  useCommand({
-    id: `${commandScope}:move-up-ctrl-p`,
     title: "Move up",
-    hotkey: "ctrl+p",
-    modes: ["insert", "cursor"],
-    hidden: true,
     when: () => enabled("navigation"),
+  });
+  useCommand({
     handler: moveUp,
+    hidden: true,
+    hotkey: "ctrl+p",
+    id: `${commandScope}:move-up-ctrl-p`,
+    modes: ["insert", "cursor"],
+    title: "Move up",
+    when: () => enabled("navigation"),
   });
   useCommand({
-    id: `${commandScope}:move-down`,
-    title: "Move down",
+    handler: moveDown,
+    hidden: true,
     hotkey: "down",
+    id: `${commandScope}:move-down`,
     modes: ["insert", "cursor"],
-    hidden: true,
-    when: () => enabled("navigation"),
-    handler: moveDown,
-  });
-  useCommand({
-    id: `${commandScope}:move-down-ctrl-n`,
     title: "Move down",
-    hotkey: "ctrl+n",
-    modes: ["insert", "cursor"],
-    hidden: true,
     when: () => enabled("navigation"),
-    handler: moveDown,
   });
   useCommand({
-    id: `${commandScope}:toggle-next`,
-    title: "Toggle selection and move down",
-    hotkey: "Tab",
-    modes: ["insert", "cursor"],
+    handler: moveDown,
     hidden: true,
-    when: () => enabled("multi-select") && multiRef.current,
+    hotkey: "ctrl+n",
+    id: `${commandScope}:move-down-ctrl-n`,
+    modes: ["insert", "cursor"],
+    title: "Move down",
+    when: () => enabled("navigation"),
+  });
+  useCommand({
     handler: () => {
       toggleActive();
       moveDown();
     },
+    hidden: true,
+    hotkey: "Tab",
+    id: `${commandScope}:toggle-next`,
+    modes: ["insert", "cursor"],
+    title: "Toggle selection and move down",
+    when: () => enabled("multi-select") && multiRef.current,
   });
   useCommand({
-    id: `${commandScope}:toggle-previous`,
-    title: "Toggle selection and move up",
-    hotkey: "shift+Tab",
-    modes: ["insert", "cursor"],
-    hidden: true,
-    when: () => enabled("multi-select") && multiRef.current,
     handler: () => {
       toggleActive();
       moveUp();
     },
+    hidden: true,
+    hotkey: "shift+Tab",
+    id: `${commandScope}:toggle-previous`,
+    modes: ["insert", "cursor"],
+    title: "Toggle selection and move up",
+    when: () => enabled("multi-select") && multiRef.current,
   });
 
   const surfaceId = useCommandSurfaceId();
@@ -434,46 +434,46 @@ export function useChoose(options: UseChooseOptions): UseChooseResult {
   const controllerRef = useRef<ChooseController | null>(null);
   if (controllerRef.current === null) {
     controllerRef.current = {
-      getFilter: () => filterQueryRef.current,
-      setFilter,
-      clearFilter: () => setFilter(""),
-      moveUp,
-      moveDown,
-      setActiveIndex,
-      getActiveItem,
-      getSelectedItems,
-      toggleActive,
-      submit,
       cancel,
-      reload,
+      clearFilter: () => setFilter(""),
+      getActiveItem,
+      getFilter: () => filterQueryRef.current,
+      getSelectedItems,
       get mode() {
         return modeRef.current;
       },
+      moveDown,
+      moveUp,
+      reload,
+      setActiveIndex,
+      setFilter,
       setMode: setModeExternal,
+      submit,
+      toggleActive,
     };
   }
 
   return {
     controller: controllerRef.current,
     state: {
-      items,
-      matches,
-      filterQuery,
       activeIndex,
       activeItem,
-      selectedOriginalIndices,
-      selectedItems,
-      loading,
       error,
+      filterQuery,
+      items,
+      loading,
+      matches,
       multi,
+      selectedItems,
+      selectedOriginalIndices,
     },
     view: {
+      filterFocused: mode === "insert" && !suspended,
       filterRef,
       mode,
-      suspended,
-      filterFocused: mode === "insert" && !suspended,
       onFilterInput: setFilter,
       onFilterKeyDown,
+      suspended,
     },
   };
 }

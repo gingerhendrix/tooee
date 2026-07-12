@@ -58,10 +58,10 @@ export function Ask({
   };
 
   const { controller, editor } = useAskEditor({
-    multiline,
     defaultValue,
-    placeholder,
+    multiline,
     onSubmit: handleSubmit,
+    placeholder,
     suspended: hasOverlay,
   });
 

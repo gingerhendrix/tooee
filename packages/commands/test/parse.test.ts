@@ -5,11 +5,11 @@ import { matchStep } from "../src/match.js";
 
 function key(name: string, modifiers: Partial<KeyEvent> = {}): KeyEvent {
   return {
-    name,
     ctrl: false,
     meta: false,
-    shift: false,
+    name,
     option: false,
+    shift: false,
     ...modifiers,
   } as KeyEvent;
 }
@@ -40,7 +40,7 @@ describe("parseHotkey super modifier (R-06)", () => {
   test("steps without an explicit super field still match plain keypresses", () => {
     // Back-compat: ParsedStep.super is optional
     expect(
-      matchStep(key("q"), { key: "q", ctrl: false, meta: false, shift: false, option: false }),
+      matchStep(key("q"), { ctrl: false, key: "q", meta: false, option: false, shift: false }),
     ).toBe(true);
   });
 });

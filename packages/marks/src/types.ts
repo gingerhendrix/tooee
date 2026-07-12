@@ -26,13 +26,13 @@ export interface Mark<T = unknown> {
 }
 
 export const MarkPriorities = {
-  SEARCH_MATCH: 100,
-  DIAGNOSTIC: 150,
-  TOGGLED: 200,
-  USER: 250,
-  SELECTION: 300,
   CURRENT_MATCH: 400,
   CURSOR: 500,
+  DIAGNOSTIC: 150,
+  SEARCH_MATCH: 100,
+  SELECTION: 300,
+  TOGGLED: 200,
+  USER: 250,
 } as const;
 
 export type MarkPriority = (typeof MarkPriorities)[keyof typeof MarkPriorities];

@@ -30,7 +30,7 @@ describe("CodeView mouse interaction", () => {
       <ThemeSwitcherProvider>
         <CodeHarness onRowClick={(i) => clicked.push(i)} />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 15 },
+      { height: 15, width: 40 },
     );
     await testSetup.renderOnce();
 
@@ -51,7 +51,7 @@ describe("CodeView mouse interaction", () => {
       <ThemeSwitcherProvider>
         <CodeHarness onRowClick={(i) => clicked.push(i)} />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 15 },
+      { height: 15, width: 40 },
     );
     await testSetup.renderOnce();
 
@@ -69,7 +69,7 @@ describe("CodeView mouse interaction", () => {
       <ThemeSwitcherProvider>
         <CodeHarness onRowContextMenu={(index, x, y) => events.push({ index, x, y })} />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 15 },
+      { height: 15, width: 40 },
     );
     await testSetup.renderOnce();
 
@@ -90,7 +90,7 @@ describe("CodeView mouse interaction", () => {
       <ThemeSwitcherProvider>
         <CodeHarness onRowClick={(i) => clicked.push(i)} />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 15 },
+      { height: 15, width: 40 },
     );
     await testSetup.renderOnce();
 

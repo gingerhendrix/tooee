@@ -52,17 +52,17 @@ export function useProvideDocumentCommandContext<T>(
 ): void {
   useProvideCommandContextKey("document", () => ({
     ...options.extras,
-    kind: options.kind,
-    title: options.title,
-    rowCount: controller.rows.length,
-    cursor: controller.activeIndex,
+    activeAnchor: controller.activeAnchor,
     activeKey: controller.activeKey,
     activeRow: controller.activeRow,
-    selection: controller.navigation.selection,
-    selectedRows: controller.selectedRows,
-    toggledIndices: controller.toggledIndices,
-    activeAnchor: controller.activeAnchor,
-    selectedAnchors: controller.selectedAnchors,
+    cursor: controller.activeIndex,
+    kind: options.kind,
     reload: options.reload,
+    rowCount: controller.rows.length,
+    selectedAnchors: controller.selectedAnchors,
+    selectedRows: controller.selectedRows,
+    selection: controller.navigation.selection,
+    title: options.title,
+    toggledIndices: controller.toggledIndices,
   }));
 }

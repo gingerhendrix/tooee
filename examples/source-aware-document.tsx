@@ -19,14 +19,14 @@ function SourceAwareDocument({ content }: { content: string }) {
   const rows = useMemo(() => sourceLines(content, { sourceId: "release-notes.txt" }), [content]);
 
   const controller = useDocumentController({
-    rows,
     adapter: sourceLineAdapter,
-    search: {},
-    preserveCursorByKey: false,
     onRowPress: ({ index, row }) => {
       const line = row.source.primary.start.line;
       console.error(`pressed rendered row ${index}, source line ${line}`);
     },
+    preserveCursorByKey: false,
+    rows,
+    search: {},
   });
 
   const activeSource = controller.activeAnchor?.source?.primary;

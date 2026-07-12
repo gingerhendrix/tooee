@@ -14,12 +14,12 @@ export async function launchShellFixture(
   resetTestConfig(CONFIG_NAMESPACE);
   const fixturePath = resolve(import.meta.dir, "fixtures", fixture);
   const session = await launchTerminal({
-    command: "bun",
     args: ["--conditions=@tooee/source", fixturePath],
     cols: 80,
-    rows: 24,
+    command: "bun",
     cwd: REPO_ROOT,
     env: { ...process.env, XDG_CONFIG_HOME: TEST_CONFIG_HOME },
+    rows: 24,
   });
   await session.waitForText(readyText, { timeout: 15_000 });
   await Bun.sleep(150);

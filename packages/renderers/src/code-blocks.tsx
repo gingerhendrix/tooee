@@ -82,14 +82,14 @@ export function CodeBlockChrome({
   return (
     <box
       style={{
-        marginTop: 0,
+        backgroundColor: theme.backgroundElement,
+        border: true,
+        borderColor: theme.border,
+        flexDirection: "column",
         marginBottom: 1,
         marginLeft: 1 + indent,
         marginRight: 1,
-        border: true,
-        borderColor: theme.border,
-        backgroundColor: theme.backgroundElement,
-        flexDirection: "column",
+        marginTop: 0,
       }}
     >
       {children}
@@ -227,7 +227,7 @@ function useHScrollableBlock(
     else if (direction === "down") node.scrollX += delta;
   }, []);
 
-  return { register, handleMouseScroll };
+  return { handleMouseScroll, register };
 }
 
 // ---------------------------------------------------------------------------
@@ -260,14 +260,14 @@ export function CodeBlock({
   const { register, handleMouseScroll } = useHScrollableBlock(blockIndex, hScrollableBlocksRef);
 
   const rendererProps: CodeBlockRendererProps = {
-    text: token.text,
-    lang: getFenceType(token.lang),
-    info: token.lang ?? "",
-    theme,
-    syntax,
-    indent,
     blockIndex,
-    hScroll: { register, onMouseScroll: handleMouseScroll },
+    hScroll: { onMouseScroll: handleMouseScroll, register },
+    indent,
+    info: token.lang ?? "",
+    lang: getFenceType(token.lang),
+    syntax,
+    text: token.text,
+    theme,
   };
 
   const custom = rendererProps.lang === "" ? undefined : renderers?.[rendererProps.lang];

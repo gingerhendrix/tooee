@@ -100,14 +100,14 @@ export function ChooseList({
           </>
         );
         const context: ChooseItemRenderContext = {
-          item: match.item,
-          match,
+          defaultContent,
           index,
-          originalIndex: match.originalIndex,
-          positions: match.positions,
           isActive,
           isSelected,
-          defaultContent,
+          item: match.item,
+          match,
+          originalIndex: match.originalIndex,
+          positions: match.positions,
         };
 
         return (

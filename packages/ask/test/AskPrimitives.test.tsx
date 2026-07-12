@@ -15,9 +15,9 @@ afterEach(() => {
 
 async function setup(node: React.ReactNode) {
   const s = await testRender(<TooeeProvider initialMode="insert">{node}</TooeeProvider>, {
-    width: 80,
     height: 24,
     kittyKeyboard: true,
+    width: 80,
   });
   await s.renderOnce();
   return s;
@@ -247,11 +247,11 @@ describe("AskOverlay chrome extension points", () => {
 describe("AskOverlay nested modal surfaces", () => {
   function PickerSurface({ onClose }: { onClose: () => void }) {
     useCommand({
-      id: "picker:close",
-      title: "Close picker",
-      hotkey: "x",
-      modes: ["cursor"],
       handler: onClose,
+      hotkey: "x",
+      id: "picker:close",
+      modes: ["cursor"],
+      title: "Close picker",
     });
     return (
       <box position="absolute" left="30%" right="30%" top="40%" bottom="40%" border>
@@ -272,11 +272,11 @@ describe("AskOverlay nested modal surfaces", () => {
         controllerRef={controllerRef}
         commands={[
           {
-            id: "host:open-picker",
-            title: "Open picker",
-            hotkey: "m",
-            modes: ["cursor"],
             handler: () => setPickerOpen(true),
+            hotkey: "m",
+            id: "host:open-picker",
+            modes: ["cursor"],
+            title: "Open picker",
           },
         ]}
       >

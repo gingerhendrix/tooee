@@ -24,7 +24,7 @@ async function setupAsk(value: string, width = 40, height = 14) {
     <TooeeProvider initialMode="insert">
       <Ask prompt="Q" multiline defaultValue={value} />
     </TooeeProvider>,
-    { width, height, kittyKeyboard: true },
+    { height, kittyKeyboard: true, width },
   );
   await s.renderOnce();
   return s;
@@ -41,7 +41,7 @@ async function setupOverlay(value: string, width = 60, height = 20) {
         onCancel={() => {}}
       />
     </TooeeProvider>,
-    { width, height, kittyKeyboard: true },
+    { height, kittyKeyboard: true, width },
   );
   await s.renderOnce();
   return s;

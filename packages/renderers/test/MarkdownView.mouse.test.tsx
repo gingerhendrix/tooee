@@ -46,7 +46,7 @@ describe("MarkdownView mouse interaction", () => {
       <ThemeSwitcherProvider>
         <MarkdownHarness content={md} onRowClick={(i) => clicked.push(i)} />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 20 },
+      { height: 20, width: 40 },
     );
     await testSetup.renderOnce();
 
@@ -69,7 +69,7 @@ describe("MarkdownView mouse interaction", () => {
       <ThemeSwitcherProvider>
         <MarkdownHarness content={md} onRowClick={(i) => clicked.push(i)} />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 20 },
+      { height: 20, width: 40 },
     );
     await testSetup.renderOnce();
 
@@ -106,7 +106,7 @@ describe("MarkdownView mouse interaction", () => {
           onRowClick={(i) => clicked.push(i)}
         />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 20 },
+      { height: 20, width: 40 },
     );
     await testSetup.renderOnce();
 

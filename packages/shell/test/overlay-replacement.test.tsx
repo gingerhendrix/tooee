@@ -15,7 +15,7 @@ afterEach(() => {
 });
 
 function ChordSurface({ generation, onChord }: { generation: number; onChord: () => void }) {
-  useCommand({ id: "s.chord", title: "Chord", hotkey: "g g", handler: onChord });
+  useCommand({ handler: onChord, hotkey: "g g", id: "s.chord", title: "Chord" });
   return <text content={`SURFACE gen:${generation}`} />;
 }
 
@@ -45,10 +45,10 @@ function Harness({ onChord }: { onChord: () => void }) {
   };
 
   useCommand({
+    handler: () => openSurface(overlay),
+    hotkey: "o",
     id: "open-surface",
     title: "Open surface",
-    hotkey: "o",
-    handler: () => openSurface(overlay),
   });
 
   return (
@@ -74,7 +74,7 @@ describe("F-09: same-id overlay replacement resets a pending chord (shell bridge
         <ControllerCapture />
         <Harness onChord={() => chordFired++} />
       </TooeeProvider>,
-      { width: 80, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 80 },
     );
     await testSetup.renderOnce();
 

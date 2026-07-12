@@ -28,10 +28,10 @@ export function CustomSubview({
 
   // Custom content has no action rows of its own, so no context menu is bound.
   const document = useDocumentController<SourceLineRow>({
-    rows: lineRows,
     adapter: sourceLineAdapter,
-    multiSelect: true,
     decorations,
+    multiSelect: true,
+    rows: lineRows,
   });
 
   const statusItems = useMemo(

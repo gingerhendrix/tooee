@@ -40,7 +40,7 @@ async function setup() {
     <TooeeProvider>
       <ThemePickerHarness />
     </TooeeProvider>,
-    { width: 80, height: 40, kittyKeyboard: true },
+    { height: 40, kittyKeyboard: true, width: 80 },
   );
   await s.renderOnce();
   return s;

@@ -284,8 +284,8 @@ const rows = [
 ];
 
 const columns = headers.map((header, index) => ({
-  key: columnKeys[index],
   header,
+  key: columnKeys[index],
 }));
 
 const tableRows = rows.map((row) => {
@@ -298,10 +298,10 @@ const tableRows = rows.map((row) => {
 
 const contentProvider: ContentProvider = {
   load: (): Content => ({
-    title: "Movie Database",
-    format: "table",
     columns,
+    format: "table",
     rows: tableRows,
+    title: "Movie Database",
   }),
 };
 

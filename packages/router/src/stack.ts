@@ -4,7 +4,7 @@ export function stackReducer(state: RouterState, action: RouterAction): RouterSt
   switch (action.type) {
     case "push": {
       return {
-        stack: [...state.stack, { routeId: action.routeId, params: action.params ?? {} }],
+        stack: [...state.stack, { params: action.params ?? {}, routeId: action.routeId }],
       };
     }
     case "pop": {
@@ -17,13 +17,13 @@ export function stackReducer(state: RouterState, action: RouterAction): RouterSt
       return {
         stack: [
           ...state.stack.slice(0, -1),
-          { routeId: action.routeId, params: action.params ?? {} },
+          { params: action.params ?? {}, routeId: action.routeId },
         ],
       };
     }
     case "reset": {
       return {
-        stack: [{ routeId: action.routeId, params: action.params ?? {} }],
+        stack: [{ params: action.params ?? {}, routeId: action.routeId }],
       };
     }
   }

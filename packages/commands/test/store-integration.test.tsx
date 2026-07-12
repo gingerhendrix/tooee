@@ -45,11 +45,11 @@ describe("F-08: mode changes reset a pending chord", () => {
       // Available in both modes, so a completion after the mode change would
       // fire if the chord buffer survived the transition.
       useCommand({
-        id: "s.chord",
-        title: "Chord",
-        hotkey: "g g",
-        modes: ["cursor", "insert"],
         handler: () => fired++,
+        hotkey: "g g",
+        id: "s.chord",
+        modes: ["cursor", "insert"],
+        title: "Chord",
       });
       return <text content="surface" />;
     }
@@ -63,7 +63,7 @@ describe("F-08: mode changes reset a pending chord", () => {
           </CommandSurfaceProvider>
         </box>
       </CommandProvider>,
-      { width: 60, height: 10, kittyKeyboard: true },
+      { height: 10, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -91,11 +91,11 @@ describe("F-08: mode changes reset a pending chord", () => {
       const setMode = useSetMode();
       rootSetMode = setMode;
       useCommand({
-        id: "root.chord",
-        title: "Chord",
-        hotkey: "g g",
-        modes: ["cursor", "insert"],
         handler: () => fired++,
+        hotkey: "g g",
+        id: "root.chord",
+        modes: ["cursor", "insert"],
+        title: "Chord",
       });
       return <SequenceProbe />;
     }
@@ -104,7 +104,7 @@ describe("F-08: mode changes reset a pending chord", () => {
       <CommandProvider>
         <Harness />
       </CommandProvider>,
-      { width: 60, height: 10, kittyKeyboard: true },
+      { height: 10, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -129,10 +129,10 @@ describe("F-09: surface replacement resets a pending chord", () => {
 
     function SurfaceContent() {
       useCommand({
+        handler: () => fired++,
+        hotkey: "g g",
         id: "s.chord",
         title: "Chord",
-        hotkey: "g g",
-        handler: () => fired++,
       });
       return <text content="surface" />;
     }
@@ -155,7 +155,7 @@ describe("F-09: surface replacement resets a pending chord", () => {
       <CommandProvider>
         <Harness />
       </CommandProvider>,
-      { width: 60, height: 10, kittyKeyboard: true },
+      { height: 10, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -180,7 +180,7 @@ describe("F-09: surface replacement resets a pending chord", () => {
 describe("reactive registry", () => {
   test("useCommandContext().commands updates when a sibling registers post-mount", async () => {
     function LateRegistrant() {
-      useCommand({ id: "late", title: "Late", hotkey: "l", handler: () => {} });
+      useCommand({ handler: () => {}, hotkey: "l", id: "late", title: "Late" });
       return null;
     }
 
@@ -192,10 +192,10 @@ describe("reactive registry", () => {
     function Harness() {
       const [showLate, setShowLate] = useState(false);
       useCommand({
+        handler: () => setShowLate(true),
+        hotkey: "o",
         id: "root.show",
         title: "Show late",
-        hotkey: "o",
-        handler: () => setShowLate(true),
       });
       return (
         <box flexDirection="column">
@@ -209,7 +209,7 @@ describe("reactive registry", () => {
       <CommandProvider>
         <Harness />
       </CommandProvider>,
-      { width: 60, height: 10, kittyKeyboard: true },
+      { height: 10, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -222,7 +222,7 @@ describe("reactive registry", () => {
 
 describe("F-13: surface command metadata", () => {
   function SurfaceContent({ children }: { children?: ReactNode }) {
-    useCommand({ id: "s.one", title: "One", hotkey: "1", handler: () => {} });
+    useCommand({ handler: () => {}, hotkey: "1", id: "s.one", title: "One" });
     return (
       <box flexDirection="column">
         <text content="surface" />
@@ -232,7 +232,7 @@ describe("F-13: surface command metadata", () => {
   }
 
   function ExtraCommand() {
-    useCommand({ id: "s.two", title: "Two", hotkey: "2", handler: () => {} });
+    useCommand({ handler: () => {}, hotkey: "2", id: "s.two", title: "Two" });
     return null;
   }
 
@@ -250,7 +250,7 @@ describe("F-13: surface command metadata", () => {
 
     function Harness() {
       const [showExtra, setShowExtra] = useState(false);
-      useCommand({ id: "root.a", title: "Root A", hotkey: "a", handler: () => {} });
+      useCommand({ handler: () => {}, hotkey: "a", id: "root.a", title: "Root A" });
       return (
         <box flexDirection="column">
           <ActiveProbe />
@@ -263,7 +263,7 @@ describe("F-13: surface command metadata", () => {
     }
 
     function ExtraToggle({ onToggle }: { onToggle: () => void }) {
-      useCommand({ id: "s.more", title: "More", hotkey: "m", handler: onToggle });
+      useCommand({ handler: onToggle, hotkey: "m", id: "s.more", title: "More" });
       return null;
     }
 
@@ -271,7 +271,7 @@ describe("F-13: surface command metadata", () => {
       <CommandProvider>
         <Harness />
       </CommandProvider>,
-      { width: 80, height: 10, kittyKeyboard: true },
+      { height: 10, kittyKeyboard: true, width: 80 },
     );
     await testSetup.renderOnce();
 
@@ -295,10 +295,10 @@ describe("F-13: surface command metadata", () => {
     function Harness() {
       const [showSurface, setShowSurface] = useState(false);
       useCommand({
+        handler: () => setShowSurface(true),
+        hotkey: "o",
         id: "root.open",
         title: "Open",
-        hotkey: "o",
-        handler: () => setShowSurface(true),
       });
       return (
         <box flexDirection="column">
@@ -316,7 +316,7 @@ describe("F-13: surface command metadata", () => {
       <CommandProvider>
         <Harness />
       </CommandProvider>,
-      { width: 80, height: 10, kittyKeyboard: true },
+      { height: 10, kittyKeyboard: true, width: 80 },
     );
     await testSetup.renderOnce();
 

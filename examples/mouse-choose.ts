@@ -22,21 +22,21 @@ import type { ChooseItem } from "@tooee/choose";
 
 const frameworks: ChooseItem[] = [
   {
+    description: "Zig-native terminal renderer",
+    icon: "\u{1F5A5}",
     text: "OpenTUI",
     value: "opentui",
-    icon: "\u{1F5A5}",
-    description: "Zig-native terminal renderer",
   },
   {
+    description: "Declarative UI via the reconciler",
+    icon: "\u{269B}",
     text: "React",
     value: "react",
-    icon: "\u{269B}",
-    description: "Declarative UI via the reconciler",
   },
-  { text: "Solid", value: "solid", icon: "\u{1F9F1}", description: "Fine-grained reactivity" },
-  { text: "Bun", value: "bun", icon: "\u{1F35E}", description: "Fast all-in-one runtime" },
-  { text: "TypeScript", value: "typescript", icon: "\u{1F4D8}", description: "Typed JavaScript" },
-  { text: "Tailwind", value: "tailwind", icon: "\u{1F3A8}", description: "Utility-first styling" },
+  { description: "Fine-grained reactivity", icon: "\u{1F9F1}", text: "Solid", value: "solid" },
+  { description: "Fast all-in-one runtime", icon: "\u{1F35E}", text: "Bun", value: "bun" },
+  { description: "Typed JavaScript", icon: "\u{1F4D8}", text: "TypeScript", value: "typescript" },
+  { description: "Utility-first styling", icon: "\u{1F3A8}", text: "Tailwind", value: "tailwind" },
 ];
 
 async function main() {

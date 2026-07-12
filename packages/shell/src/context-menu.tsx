@@ -26,7 +26,7 @@ export function actionsToContextMenuEntries(
 ): ContextMenuEntry[] {
   return (actions ?? [])
     .filter((action) => !action.hidden && (!context || !action.when || action.when(context)))
-    .map((action) => ({ id: action.id, title: action.title, hotkey: action.hotkey }));
+    .map((action) => ({ hotkey: action.hotkey, id: action.id, title: action.title }));
 }
 
 /**
@@ -45,16 +45,16 @@ export function useContextMenu(): ContextMenuController {
         ({ close }: { close: (reason?: OverlayCloseReason) => void }) =>
           createElement(ContextMenu, {
             entries,
-            x,
-            y,
+            onClose: () => close(),
             onSelect: (id: string) => {
               close();
               onSelect(id);
             },
-            onClose: () => close(),
+            x,
+            y,
           }),
         null,
-        { mode: "insert", dismissOnEscape: true },
+        { dismissOnEscape: true, mode: "insert" },
       );
     },
     [overlay],
@@ -64,5 +64,5 @@ export function useContextMenu(): ContextMenuController {
     overlay.hide(OVERLAY_ID);
   }, [overlay]);
 
-  return { open, close };
+  return { close, open };
 }

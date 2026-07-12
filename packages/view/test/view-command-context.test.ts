@@ -9,7 +9,7 @@ describe("createViewCommandContext", () => {
   test("creates a safe headless custom content context", () => {
     const ctx = createViewCommandContext({});
 
-    expect(ctx.content).toEqual({ format: "custom", data: undefined, title: undefined });
+    expect(ctx.content).toEqual({ data: undefined, format: "custom", title: undefined });
     expect(ctx.format).toBe("custom");
     expect(ctx.title).toBeUndefined();
     expect(ctx.data).toBeUndefined();
@@ -29,22 +29,22 @@ describe("createViewCommandContext", () => {
     const clearAll = () => {};
 
     const ctx = createViewCommandContext({
-      format: "dashboard",
-      title: "Dashboard",
       data: { rowCount: 10 },
-      reload,
+      format: "dashboard",
       marks: {
-        setMarkSet,
-        clearNamespace,
         clearAll,
-        userMarks: [userMark],
+        clearNamespace,
         providerMarks: [providerMark],
+        setMarkSet,
+        userMarks: [userMark],
       },
+      reload,
+      title: "Dashboard",
     });
 
     expect(ctx.content).toEqual({
-      format: "dashboard",
       data: { rowCount: 10 },
+      format: "dashboard",
       title: "Dashboard",
     });
     expect(ctx.format).toBe("dashboard");
@@ -71,7 +71,7 @@ describe("createViewCommandContext", () => {
 
   test("derives format and data from the supplied content", () => {
     const ctx = createViewCommandContext({
-      content: { format: "kanban", data: { columns: [] }, title: "Board" },
+      content: { data: { columns: [] }, format: "kanban", title: "Board" },
     });
 
     expect(ctx.format).toBe("kanban");

@@ -25,21 +25,21 @@ export function CommandPaletteOverlay({
           return cmdModes.includes(launchMode);
         })
         .map((cmd) => ({
+          category: cmd.category,
+          hotkey: cmd.defaultHotkey,
+          icon: cmd.icon,
           id: cmd.id,
           title: cmd.title,
-          hotkey: cmd.defaultHotkey,
-          category: cmd.category,
-          icon: cmd.icon,
         })),
     [commands, launchMode],
   );
 
   return createElement(CommandPalette, {
     commands: entries,
+    onClose: close,
     onSelect: (id: string) => {
       close();
       invoke(id);
     },
-    onClose: close,
   });
 }

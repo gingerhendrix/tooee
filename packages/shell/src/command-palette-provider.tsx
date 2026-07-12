@@ -20,10 +20,10 @@ export function CommandPaletteProvider({ children }: { children: ReactNode }) {
       OVERLAY_ID,
       ({ close }: { close: (reason?: OverlayCloseReason) => void }) =>
         createElement(CommandPaletteOverlay, {
+          close: () => close(),
           commands,
           invoke,
           launchMode: mode,
-          close: () => close(),
         }),
       null,
       { ownCommands: true, role: "modal", surfaceMode: "insert" },
@@ -31,11 +31,11 @@ export function CommandPaletteProvider({ children }: { children: ReactNode }) {
   }, [overlay, mode, commands, invoke]);
 
   useCommand({
-    id: "command-palette",
-    title: "Command Palette",
-    hotkey: ":",
-    modes: ["cursor", "select"],
     handler: open,
+    hotkey: ":",
+    id: "command-palette",
+    modes: ["cursor", "select"],
+    title: "Command Palette",
   });
 
   return <>{children}</>;

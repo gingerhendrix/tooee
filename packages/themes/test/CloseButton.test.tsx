@@ -16,7 +16,7 @@ test("renders the close glyph", async () => {
     <ThemeSwitcherProvider>
       <CloseButton onClose={() => {}} />
     </ThemeSwitcherProvider>,
-    { width: 20, height: 5 },
+    { height: 5, width: 20 },
   );
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("✕");
@@ -30,7 +30,7 @@ test("left-click invokes onClose", async () => {
         <CloseButton onClose={() => closed++} />
       </box>
     </ThemeSwitcherProvider>,
-    { width: 20, height: 5 },
+    { height: 5, width: 20 },
   );
   await testSetup.renderOnce();
 
@@ -50,7 +50,7 @@ test("right-click does not invoke onClose", async () => {
         <CloseButton onClose={() => closed++} />
       </box>
     </ThemeSwitcherProvider>,
-    { width: 20, height: 5 },
+    { height: 5, width: 20 },
   );
   await testSetup.renderOnce();
   await act(async () => {

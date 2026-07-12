@@ -34,8 +34,8 @@ function createMarkdownDocument(opts: {
     const builder = new MarkSetBuilder();
     builder.addLine(opts.activeBlock, {
       background: "#111111",
-      signBefore: "▸",
       foreground: "#ffffff",
+      signBefore: "▸",
     });
     sets.push(builder.build("cursor", MarkPriorities.CURSOR));
   }
@@ -48,7 +48,7 @@ test("renders heading text", async () => {
     <ThemeSwitcherProvider>
       <MarkdownView content="# Hello World" />
     </ThemeSwitcherProvider>,
-    { width: 80, height: 24 },
+    { height: 24, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -61,7 +61,7 @@ test("renders list items", async () => {
     <ThemeSwitcherProvider>
       <MarkdownView content={"- First item\n- Second item\n- Third item"} />
     </ThemeSwitcherProvider>,
-    { width: 80, height: 24 },
+    { height: 24, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -75,7 +75,7 @@ test("renders code blocks", async () => {
     <ThemeSwitcherProvider>
       <MarkdownView content={"```\nconst x = 1\n```"} />
     </ThemeSwitcherProvider>,
-    { width: 80, height: 24 },
+    { height: 24, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -86,10 +86,10 @@ test("converts mermaid ANSI output into styled plain text", () => {
   const result = renderMermaidForTerminal("graph TD\n  A[Agent] --> B[Stream]", {
     mode: "ansi",
     theme: {
-      fg: "#ffffff",
-      border: "#ff0000",
-      line: "#00ff00",
       arrow: "#0000ff",
+      border: "#ff0000",
+      fg: "#ffffff",
+      line: "#00ff00",
     },
   });
 
@@ -119,7 +119,7 @@ test("renders mermaid fences as terminal diagrams", async () => {
     <ThemeSwitcherProvider>
       <MarkdownView content={"```mermaid\ngraph TD\n  A[Agent] --> B[Stream]\n```"} />
     </ThemeSwitcherProvider>,
-    { width: 80, height: 30 },
+    { height: 30, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -159,7 +159,7 @@ test("does not render non-mermaid code fences as diagrams", async () => {
     <ThemeSwitcherProvider>
       <MarkdownView content={"```text\ngraph TD\n  A[Agent] --> B[Stream]\n```"} />
     </ThemeSwitcherProvider>,
-    { width: 80, height: 24 },
+    { height: 24, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -172,7 +172,7 @@ test("falls back to source code for unsupported mermaid fences", async () => {
     <ThemeSwitcherProvider>
       <MarkdownView content={"```mermaid\nnot a diagram ???\n```"} />
     </ThemeSwitcherProvider>,
-    { width: 80, height: 24 },
+    { height: 24, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -188,7 +188,7 @@ test("renders markdown table", async () => {
     <ThemeSwitcherProvider>
       <MarkdownView content={md} />
     </ThemeSwitcherProvider>,
-    { width: 60, height: 20 },
+    { height: 20, width: 60 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -203,10 +203,10 @@ test("selected blocks have gutter highlight", async () => {
     <ThemeSwitcherProvider>
       <MarkdownView
         content={"# Heading\n\nParagraph one\n\nParagraph two\n\nParagraph three"}
-        document={createMarkdownDocument({ selectedBlocks: { start: 1, end: 2 } })}
+        document={createMarkdownDocument({ selectedBlocks: { end: 2, start: 1 } })}
       />
     </ThemeSwitcherProvider>,
-    { width: 80, height: 24 },
+    { height: 24, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -222,7 +222,7 @@ test("active block renders with gutter", async () => {
         document={createMarkdownDocument({ activeBlock: 1 })}
       />
     </ThemeSwitcherProvider>,
-    { width: 80, height: 24 },
+    { height: 24, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -236,10 +236,10 @@ test("selected blocks snapshot", async () => {
     <ThemeSwitcherProvider>
       <MarkdownView
         content={"# Title\n\nFirst paragraph\n\nSecond paragraph\n\nThird paragraph"}
-        document={createMarkdownDocument({ activeBlock: 1, selectedBlocks: { start: 1, end: 2 } })}
+        document={createMarkdownDocument({ activeBlock: 1, selectedBlocks: { end: 2, start: 1 } })}
       />
     </ThemeSwitcherProvider>,
-    { width: 60, height: 20 },
+    { height: 20, width: 60 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -255,7 +255,7 @@ test("snapshot", async () => {
         }
       />
     </ThemeSwitcherProvider>,
-    { width: 60, height: 20 },
+    { height: 20, width: 60 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -275,7 +275,7 @@ describe("code block height", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={`\`\`\`js\n${code}\n\`\`\``} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -297,7 +297,7 @@ describe("code block height", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={`# Code\n\n\`\`\`js\n${code}\n\`\`\``} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 20 },
+      { height: 20, width: 60 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -317,7 +317,7 @@ describe("content positioning after embedded blocks", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -342,7 +342,7 @@ This text follows the table.`;
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -358,7 +358,7 @@ This text follows the table.`;
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 20 },
+      { height: 20, width: 60 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -392,7 +392,7 @@ describe("inline table rendering", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 20 },
+      { height: 20, width: 60 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -412,7 +412,7 @@ describe("inline table rendering", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 50 },
+      { height: 50, width: 60 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -435,7 +435,7 @@ Summary text.`;
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 20 },
+      { height: 20, width: 60 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -467,7 +467,7 @@ Final paragraph.`;
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 30 },
+      { height: 30, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -501,7 +501,7 @@ Done.`;
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 30 },
+      { height: 30, width: 60 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -520,7 +520,7 @@ describe("nested list rendering", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -537,7 +537,7 @@ describe("nested list rendering", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -554,7 +554,7 @@ describe("nested list rendering", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 20 },
+      { height: 20, width: 60 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -573,7 +573,7 @@ describe("code block inside list item", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -588,7 +588,7 @@ describe("code block inside list item", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -606,7 +606,7 @@ describe("table inside list item", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -626,7 +626,7 @@ describe("blockquote inside list item", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -645,7 +645,7 @@ describe("checkbox list items", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -664,7 +664,7 @@ describe("inline formatting preservation", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -679,7 +679,7 @@ describe("inline formatting preservation", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -694,7 +694,7 @@ describe("inline formatting preservation", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -708,7 +708,7 @@ describe("inline formatting preservation", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -725,7 +725,7 @@ describe("horizontal rule inside list item", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -756,7 +756,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 24 },
+      { height: 24, width: 60 },
     );
     await testSetup.renderOnce();
     await testSetup.renderOnce();
@@ -779,7 +779,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={wideMermaid} hScrollableBlocksRef={registry} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 24 },
+      { height: 24, width: 60 },
     );
     await testSetup.renderOnce();
     await testSetup.renderOnce();
@@ -821,7 +821,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
           hScrollableBlocksRef={registry}
         />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 30 },
+      { height: 30, width: 80 },
     );
     await testSetup.renderOnce();
     await testSetup.renderOnce();
@@ -846,7 +846,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={"```mermaid\ngraph TD\n  A[Agent] --> B[Stream]\n```"} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 20 },
+      { height: 20, width: 60 },
     );
     await testSetup.renderOnce();
     await testSetup.renderOnce();
@@ -863,7 +863,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 16 },
+      { height: 16, width: 60 },
     );
     await testSetup.renderOnce();
     await testSetup.renderOnce();
@@ -890,7 +890,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={wideMermaid} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 24 },
+      { height: 24, width: 60 },
     );
     await testSetup.renderOnce();
     await testSetup.renderOnce();
@@ -926,7 +926,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={wideMermaid} hScrollableBlocksRef={registry} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 24 },
+      { height: 24, width: 60 },
     );
     await testSetup.renderOnce();
     await testSetup.renderOnce();
@@ -963,8 +963,8 @@ describe("wide mermaid diagram horizontal scrolling", () => {
     for (let offset = 1; offset <= maxScrollX; offset += 3) {
       diagram.scrollX = offset;
       await testSetup.renderOnce();
-      expect({ offset, colors: spanColors(/►/u) }).toEqual({ offset, colors: arrowBaseline });
-      expect({ offset, colors: spanColors(/[a-z]/u) }).toEqual({ offset, colors: letterBaseline });
+      expect({ colors: spanColors(/►/u), offset }).toEqual({ colors: arrowBaseline, offset });
+      expect({ colors: spanColors(/[a-z]/u), offset }).toEqual({ colors: letterBaseline, offset });
     }
   });
 });
@@ -986,7 +986,7 @@ describe("wide code block horizontal scrolling", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 24 },
+      { height: 24, width: 60 },
     );
     await testSetup.renderOnce();
     await testSetup.renderOnce();
@@ -1006,7 +1006,7 @@ describe("wide code block horizontal scrolling", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={wideCode} hScrollableBlocksRef={registry} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 24 },
+      { height: 24, width: 60 },
     );
     await testSetup.renderOnce();
     await testSetup.renderOnce();
@@ -1046,7 +1046,7 @@ describe("wide code block horizontal scrolling", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} hScrollableBlocksRef={registry} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     await testSetup.renderOnce();
@@ -1070,7 +1070,7 @@ describe("wide code block horizontal scrolling", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={wideCode} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 24 },
+      { height: 24, width: 60 },
     );
     await testSetup.renderOnce();
     await testSetup.renderOnce();
@@ -1105,7 +1105,7 @@ describe("wide code block horizontal scrolling", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 16 },
+      { height: 16, width: 60 },
     );
     await testSetup.renderOnce();
     await testSetup.renderOnce();
@@ -1136,7 +1136,7 @@ describe("wide code block horizontal scrolling", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={wideInvalid} hScrollableBlocksRef={registry} />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 24 },
+      { height: 24, width: 60 },
     );
     await testSetup.renderOnce();
     await testSetup.renderOnce();
@@ -1172,7 +1172,7 @@ describe("scroll isolation", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 20 },
+      { height: 20, width: 80 },
     );
     await testSetup.renderOnce();
 
@@ -1209,7 +1209,7 @@ describe("scroll isolation", () => {
 
 describe("custom code block renderers", () => {
   const graphqlRenderer: CodeBlockRenderer = ({ text, theme, indent }) => (
-    <box style={{ marginLeft: 1 + indent, marginBottom: 1 }}>
+    <box style={{ marginBottom: 1, marginLeft: 1 + indent }}>
       <text content={`GraphQL query (${text.split("\n").length} lines)`} fg={theme.accent} />
     </box>
   );
@@ -1222,7 +1222,7 @@ describe("custom code block renderers", () => {
           codeBlockRenderers={{ graphql: graphqlRenderer }}
         />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -1238,7 +1238,7 @@ describe("custom code block renderers", () => {
           codeBlockRenderers={{ graphql: graphqlRenderer }}
         />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -1256,7 +1256,7 @@ describe("custom code block renderers", () => {
           codeBlockRenderers={{ GRAPHQL: graphqlRenderer }}
         />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -1271,7 +1271,7 @@ describe("custom code block renderers", () => {
           codeBlockRenderers={{ graphql: graphqlRenderer }}
         />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -1291,7 +1291,7 @@ describe("custom code block renderers", () => {
           codeBlockRenderers={{ graphql: infoRenderer }}
         />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     expect(seenInfo).toBe("graphql title=UserQuery");
@@ -1305,7 +1305,7 @@ describe("custom code block renderers", () => {
           codeBlockRenderers={{ graphql: () => null }}
         />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -1323,7 +1323,7 @@ describe("custom code block renderers", () => {
           codeBlockRenderers={{ graphql: throwingRenderer }}
         />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -1338,7 +1338,7 @@ describe("custom code block renderers", () => {
           codeBlockRenderers={{ graphql: graphqlRenderer }}
         />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 30 },
+      { height: 30, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -1359,7 +1359,7 @@ describe("custom code block renderers", () => {
           codeBlockRenderers={{ mermaid: overrideRenderer }}
         />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -1378,7 +1378,7 @@ describe("custom code block renderers", () => {
       <ThemeSwitcherProvider>
         <MarkdownView content={md} codeBlockRenderers={{ graphql: indentRenderer }} />
       </ThemeSwitcherProvider>,
-      { width: 80, height: 24 },
+      { height: 24, width: 80 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -1389,7 +1389,7 @@ describe("custom code block renderers", () => {
   test("custom renderer can opt into horizontal panning via hScroll", async () => {
     const wideLine = `[Start] ${"─".repeat(100)} [Finish line]`;
     const hScrollRenderer: CodeBlockRenderer = ({ text, theme, indent, hScroll }) => (
-      <box style={{ marginLeft: 1 + indent, marginBottom: 1 }}>
+      <box style={{ marginBottom: 1, marginLeft: 1 + indent }}>
         <text
           ref={hScroll.register}
           content={text}
@@ -1408,7 +1408,7 @@ describe("custom code block renderers", () => {
           hScrollableBlocksRef={registry}
         />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 24 },
+      { height: 24, width: 60 },
     );
     await testSetup.renderOnce();
     await testSetup.renderOnce();

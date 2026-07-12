@@ -15,21 +15,21 @@ import type { Mode } from "../src/mode.js";
 
 function key(name: string, modifiers?: Partial<KeyEvent>): KeyEvent {
   return {
-    name,
     ctrl: false,
     meta: false,
-    shift: false,
+    name,
     option: false,
+    shift: false,
     ...modifiers,
   } as KeyEvent;
 }
 
 function fakeCtx(mode: Mode): CommandContext {
   return {
-    mode,
-    setMode: () => {},
     commands: { invoke: () => {}, list: () => [] },
     exit: () => {},
+    mode,
+    setMode: () => {},
   };
 }
 
@@ -41,10 +41,10 @@ function makeStore(options?: {
 }): CommandStore {
   const getMode = options?.rootMode ?? (() => "cursor" as Mode);
   return createCommandStore({
-    leader: options?.leader,
     keymap: options?.keymap,
+    leader: options?.leader,
+    root: { buildCtx: () => fakeCtx(getMode()), getMode },
     sequenceTimeoutMs: options?.sequenceTimeoutMs,
-    root: { getMode, buildCtx: () => fakeCtx(getMode()) },
   });
 }
 
@@ -55,25 +55,25 @@ function makeSurface(
   mode: () => Mode = () => "cursor",
 ): SurfaceRecord {
   return {
-    id,
-    role,
-    depth,
-    order: 0,
-    getMode: mode,
     buildCtx: () => fakeCtx(mode()),
+    depth,
+    getMode: mode,
+    id,
+    order: 0,
+    role,
   };
 }
 
 function command(id: string, hotkey: string, overrides?: Partial<Command>): Command {
-  return { id, title: id, defaultHotkey: hotkey, handler: () => {}, ...overrides };
+  return { defaultHotkey: hotkey, handler: () => {}, id, title: id, ...overrides };
 }
 
 function group(prefix: string, title: string, leader?: string): RegisteredCommandGroup {
   return {
     id: `group-${title}`,
-    title,
     prefix,
     prefixKey: stepsKey(parseHotkey(prefix, leader).steps),
+    title,
   };
 }
 
@@ -148,7 +148,7 @@ describe("command store — registration", () => {
   test("context source registration and unregistration", () => {
     const cs = makeStore();
     const getter = () => ({ mode: "cursor" as Mode });
-    cs.store.trigger.contextSourceRegistered({ id: "src-1", getter });
+    cs.store.trigger.contextSourceRegistered({ getter, id: "src-1" });
     expect(cs.store.getSnapshot().context.contextSources.get("src-1")).toBe(getter);
     cs.store.trigger.contextSourceUnregistered({ id: "src-1" });
     expect(cs.store.getSnapshot().context.contextSources.has("src-1")).toBe(false);
@@ -161,7 +161,7 @@ describe("command store — registration", () => {
     const seen: Mode[] = [];
     let blocked = 0;
     registry.register(command("go", "g", { handler: (ctx) => seen.push(ctx.mode) }));
-    registry.register(command("no", "n", { when: () => false, handler: () => blocked++ }));
+    registry.register(command("no", "n", { handler: () => blocked++, when: () => false }));
 
     registry.invoke("go");
     registry.invoke("no");
@@ -225,8 +225,8 @@ describe("command store — key dispatch", () => {
     let fired = 0;
     let gated = 0;
     const registry = cs.registryFor(cs.rootRecord);
-    registry.register(command("ins", "i", { modes: ["insert"], handler: () => fired++ }));
-    registry.register(command("gated", "g", { when: () => false, handler: () => gated++ }));
+    registry.register(command("ins", "i", { handler: () => fired++, modes: ["insert"] }));
+    registry.register(command("gated", "g", { handler: () => gated++, when: () => false }));
 
     expect(cs.key(key("i")).handled).toBe(false); // wrong mode
     expect(cs.key(key("g")).handled).toBe(false); // when() gate

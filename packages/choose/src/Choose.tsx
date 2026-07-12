@@ -51,8 +51,9 @@ export function Choose({
   const hasModalOverlay = useHasModalOverlay();
 
   const choose = useChoose({
-    source: contentProvider,
+    commands: effectiveCommands,
     multi,
+    onCancel,
     onSubmit: (result) => {
       // Historical standalone behaviour: a command named `submit` wins over
       // the deprecated callback, so existing action-driven CLIs are unchanged.
@@ -66,8 +67,7 @@ export function Choose({
         onCancel?.();
       }
     },
-    onCancel,
-    commands: effectiveCommands,
+    source: contentProvider,
     suspended: hasOverlay,
   });
 

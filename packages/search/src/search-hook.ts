@@ -38,7 +38,7 @@ export function useNavSearchStore(options: {
   const depsRef = useRef<NavSearchDeps>({ isSelectable: options.isSelectable ?? (() => true) });
   depsRef.current.isSelectable = options.isSelectable ?? (() => true);
   const [store] = useState(() =>
-    createNavSearchStore({ keys: options.keys, deps: depsRef.current }),
+    createNavSearchStore({ deps: depsRef.current, keys: options.keys }),
   );
   useEffect(() => {
     const currentKeys = store.getSnapshot().context.rowKeys;
@@ -91,7 +91,7 @@ export function useSearchBindings(
 
   const updateSearchQuery = useCallback(
     (query: string) => {
-      store.trigger.searchChanged({ query, matches: query ? matchRef.current(query) : [] });
+      store.trigger.searchChanged({ matches: query ? matchRef.current(query) : [], query });
     },
     [store],
   );
@@ -108,55 +108,55 @@ export function useSearchBindings(
     depsRef.current = deps;
     const query = selectSearchQuery(store.getSnapshot().context);
     if (query) {
-      store.trigger.searchChanged({ query, matches: matchRef.current(query) });
+      store.trigger.searchChanged({ matches: matchRef.current(query), query });
     }
   }, [deps, store]);
 
   useCommand({
-    id: "cursor-search-start",
-    title: "Search",
-    hotkey: "/",
-    modes: CURSOR_MODES,
     enabled,
     handler: () => {
       store.trigger.searchStarted({ mode });
       setMode("insert");
     },
+    hotkey: "/",
+    id: "cursor-search-start",
+    modes: CURSOR_MODES,
+    title: "Search",
   });
   useCommand({
-    id: "cursor-search-next",
-    title: "Next match",
-    hotkey: "n",
-    modes: CURSOR_MODES,
     enabled,
-    when: () => !selectSearchActive(store.getSnapshot().context),
     handler: () => store.trigger.searchNext({}),
-  });
-  useCommand({
-    id: "cursor-search-prev",
-    title: "Previous match",
-    hotkey: "shift+n",
+    hotkey: "n",
+    id: "cursor-search-next",
     modes: CURSOR_MODES,
-    enabled,
+    title: "Next match",
     when: () => !selectSearchActive(store.getSnapshot().context),
-    handler: () => store.trigger.searchPrevious({}),
   });
   useCommand({
-    id: "search-cancel",
-    title: "Cancel search",
-    hotkey: "escape",
-    modes: ALL_MODES,
     enabled,
-    when: () => selectSearchActive(store.getSnapshot().context),
+    handler: () => store.trigger.searchPrevious({}),
+    hotkey: "shift+n",
+    id: "cursor-search-prev",
+    modes: CURSOR_MODES,
+    title: "Previous match",
+    when: () => !selectSearchActive(store.getSnapshot().context),
+  });
+  useCommand({
+    enabled,
     handler: () => store.trigger.searchCancelled({}),
+    hotkey: "escape",
+    id: "search-cancel",
+    modes: ALL_MODES,
+    title: "Cancel search",
+    when: () => selectSearchActive(store.getSnapshot().context),
   });
 
   return {
-    searchQuery,
-    searchActive,
-    setSearchQuery: updateSearchQuery,
-    matchingLines,
     currentMatchIndex,
+    matchingLines,
+    searchActive,
+    searchQuery,
+    setSearchQuery: updateSearchQuery,
     submitSearch: () => store.trigger.searchSubmitted({}),
   };
 }

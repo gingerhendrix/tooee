@@ -23,10 +23,10 @@ describe("leaderless <leader> hotkeys (R-06)", () => {
     function Harness() {
       const [count, setCount] = useState(0);
       useCommand({
+        handler: () => setCount((n) => n + 1),
+        hotkey: "<leader>n",
         id: "leader.cmd",
         title: "Leader command",
-        hotkey: "<leader>n",
-        handler: () => setCount((n) => n + 1),
       });
       return <text content={`count:${count}`} />;
     }
@@ -36,7 +36,7 @@ describe("leaderless <leader> hotkeys (R-06)", () => {
       <CommandProvider>
         <Harness />
       </CommandProvider>,
-      { width: 60, height: 10, kittyKeyboard: true },
+      { height: 10, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -52,10 +52,10 @@ describe("leaderless <leader> hotkeys (R-06)", () => {
     function Harness() {
       const [count, setCount] = useState(0);
       useCommand({
+        handler: () => setCount((n) => n + 1),
+        hotkey: "<leader>n",
         id: "leader.cmd",
         title: "Leader command",
-        hotkey: "<leader>n",
-        handler: () => setCount((n) => n + 1),
       });
       return <text content={`count:${count}`} />;
     }
@@ -64,7 +64,7 @@ describe("leaderless <leader> hotkeys (R-06)", () => {
       <CommandProvider leader="space">
         <Harness />
       </CommandProvider>,
-      { width: 60, height: 10, kittyKeyboard: true },
+      { height: 10, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 

@@ -40,18 +40,18 @@ export function useCommand(options: UseCommandOptions): void {
     }
 
     const command: Command = {
-      id: options.id,
-      title: options.title,
-      handler: (...args: Parameters<Command["handler"]>) => optionsRef.current.handler(...args),
+      category: options.category,
       defaultHotkey: options.hotkey,
+      group: options.group,
+      handler: (...args: Parameters<Command["handler"]>) => optionsRef.current.handler(...args),
+      hidden: options.hidden,
+      icon: options.icon,
+      id: options.id,
       // Read through the ref: the effect is keyed on modesKey (content), and
       // the ref holds the same-render options when the effect runs.
       modes: optionsRef.current.modes,
-      category: options.category,
-      group: options.group,
-      icon: options.icon,
+      title: options.title,
       when: optionsRef.current.when ? (ctx) => optionsRef.current.when!(ctx) : undefined,
-      hidden: options.hidden,
     };
     return registry.register(command);
   }, [

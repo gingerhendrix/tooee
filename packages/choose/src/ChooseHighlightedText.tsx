@@ -30,13 +30,13 @@ export function ChooseHighlightedText({
     } else if (highlighted === currentHighlighted) {
       current += text[index];
     } else {
-      parts.push({ text: current, highlighted: currentHighlighted });
+      parts.push({ highlighted: currentHighlighted, text: current });
       current = text[index];
       currentHighlighted = highlighted;
     }
   }
   if (current) {
-    parts.push({ text: current, highlighted: currentHighlighted });
+    parts.push({ highlighted: currentHighlighted, text: current });
   }
 
   return parts.map((part, index) => (

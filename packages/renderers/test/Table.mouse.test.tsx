@@ -8,7 +8,7 @@ import { useRowMouseBindings } from "./support/bindings.js";
 import type { RowMouseCallbacks } from "./support/bindings.js";
 
 function cols(headers: string[]) {
-  return headers.map((header, index) => ({ key: `col_${index}`, header }));
+  return headers.map((header, index) => ({ header, key: `col_${index}` }));
 }
 function rows(columns: ReturnType<typeof cols>, values: string[][]) {
   return values.map((row) => {
@@ -52,7 +52,7 @@ describe("Table mouse interaction", () => {
       <ThemeSwitcherProvider>
         <TableHarness onRowClick={(i) => clicked.push(i)} />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 15 },
+      { height: 15, width: 40 },
     );
     await testSetup.renderOnce();
 
@@ -73,7 +73,7 @@ describe("Table mouse interaction", () => {
       <ThemeSwitcherProvider>
         <TableHarness onRowContextMenu={(index, x, y) => events.push({ index, x, y })} />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 15 },
+      { height: 15, width: 40 },
     );
     await testSetup.renderOnce();
 
@@ -94,7 +94,7 @@ describe("Table mouse interaction", () => {
       <ThemeSwitcherProvider>
         <TableHarness onRowClick={() => {}} onRowContextMenu={() => ctx++} />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 15 },
+      { height: 15, width: 40 },
     );
     await testSetup.renderOnce();
     await act(async () => {
@@ -110,7 +110,7 @@ describe("Table mouse interaction", () => {
       <ThemeSwitcherProvider>
         <TableHarness onRowClick={(i) => clicked.push(i)} />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 15 },
+      { height: 15, width: 40 },
     );
     await testSetup.renderOnce();
 

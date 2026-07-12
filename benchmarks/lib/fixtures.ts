@@ -14,19 +14,19 @@ export interface FixtureTier {
 }
 
 export const FIXTURE_TIERS: Record<FixtureTier["name"], FixtureTier> = {
-  moderate: {
-    name: "moderate",
-    markdownSections: 36,
-    codeLines: 650,
-    tableRows: 400,
-    tableColumns: 8,
-  },
   large: {
-    name: "large",
-    markdownSections: 140,
     codeLines: 3500,
-    tableRows: 2500,
+    markdownSections: 140,
+    name: "large",
     tableColumns: 12,
+    tableRows: 2500,
+  },
+  moderate: {
+    codeLines: 650,
+    markdownSections: 36,
+    name: "moderate",
+    tableColumns: 8,
+    tableRows: 400,
   },
 };
 
@@ -95,8 +95,8 @@ export function makeMarkdownFixture(tier: FixtureTier = FIXTURE_TIERS.moderate):
   const markdown = sections.join("\n");
   return {
     format: "markdown",
-    title: `markdown-${tier.name}`,
     markdown,
+    title: `markdown-${tier.name}`,
   };
 }
 
@@ -110,18 +110,18 @@ export function makeCodeFixture(tier: FixtureTier = FIXTURE_TIERS.moderate): Cod
   }
 
   return {
-    format: "code",
-    title: `code-${tier.name}`,
-    language: "ts",
     code: lines.join("\n"),
+    format: "code",
+    language: "ts",
+    title: `code-${tier.name}`,
   };
 }
 
 export function makeTableFixture(tier: FixtureTier = FIXTURE_TIERS.moderate): TableContent {
   const columns: ColumnDef[] = Array.from({ length: tier.tableColumns }, (_, index) => ({
-    key: `col${index}`,
-    header: `Column ${index}`,
     align: index % 3 === 0 ? "right" : "left",
+    header: `Column ${index}`,
+    key: `col${index}`,
   }));
 
   const rows: TableRow[] = Array.from({ length: tier.tableRows }, (_, rowIndex) => {
@@ -136,10 +136,10 @@ export function makeTableFixture(tier: FixtureTier = FIXTURE_TIERS.moderate): Ta
   });
 
   return {
-    format: "table",
-    title: `table-${tier.name}`,
     columns,
+    format: "table",
     rows,
+    title: `table-${tier.name}`,
   };
 }
 

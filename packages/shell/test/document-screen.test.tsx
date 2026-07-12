@@ -24,15 +24,15 @@ let reloads = 0;
 
 const ACTIONS: ActionDefinition[] = [
   {
-    id: "probe",
-    title: "Probe document context",
-    hotkey: "x",
-    modes: ["cursor", "select"],
     handler: (ctx: CommandContext) => {
       captured = ctx.document;
     },
+    hotkey: "x",
+    id: "probe",
+    modes: ["cursor", "select"],
+    title: "Probe document context",
   },
-  { id: "row.open", title: "Open row", handler: () => {} },
+  { handler: () => {}, id: "row.open", title: "Open row" },
 ];
 
 /** Reports the commands registered on the surface DocumentScreen renders into. */
@@ -48,9 +48,9 @@ type ScreenOptions = Partial<
 
 function Harness({ multiSelect = true, ...screen }: ScreenOptions & { multiSelect?: boolean }) {
   const document = useDocumentController<Row>({
-    rows: ROWS,
     adapter: { getKey: (r) => r.id, getText: (r) => r.label },
     multiSelect,
+    rows: ROWS,
   });
 
   return (
@@ -83,7 +83,7 @@ async function setup(props: ScreenOptions & { multiSelect?: boolean } = {}) {
     <TooeeProvider>
       <Harness {...props} />
     </TooeeProvider>,
-    { width: 90, height: 16, kittyKeyboard: true },
+    { height: 16, kittyKeyboard: true, width: 90 },
   );
   await session.renderOnce();
   return session;
@@ -137,10 +137,10 @@ describe("ctx.document", () => {
     await setup({
       actions: ACTIONS,
       context: {
-        kind: "test-doc",
-        title: "Docs",
-        reload: () => reloads++,
         extras: { flavour: "vanilla" },
+        kind: "test-doc",
+        reload: () => reloads++,
+        title: "Docs",
       },
     });
 
@@ -170,7 +170,7 @@ describe("ctx.document", () => {
     await press(session, "j");
     await press(session, "x");
 
-    expect(captured!.selection).toEqual({ start: 0, end: 1 });
+    expect(captured!.selection).toEqual({ end: 1, start: 0 });
     expect(captured!.selectedRows).toEqual([ROWS[0]!, ROWS[1]!]);
     expect(captured!.toggledIndices.size).toBe(0);
   });
@@ -202,7 +202,7 @@ describe("status bar", () => {
       <TooeeProvider>
         <EmptyHarness />
       </TooeeProvider>,
-      { width: 90, height: 16, kittyKeyboard: true },
+      { height: 16, kittyKeyboard: true, width: 90 },
     );
     await session.renderOnce();
     expect(statusLine()).toMatch(/Cursor:\s*-/u);
@@ -211,8 +211,8 @@ describe("status bar", () => {
 
 function EmptyHarness() {
   const document = useDocumentController<Row>({
-    rows: [],
     adapter: { getKey: (r) => r.id, getText: (r) => r.label },
+    rows: [],
   });
   return (
     <DocumentScreen controller={document} titleBar={{ title: "Docs" }}>

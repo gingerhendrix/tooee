@@ -21,7 +21,7 @@ function deferred<T>() {
     resolve = res;
     reject = rej;
   });
-  return { promise, resolve, reject };
+  return { promise, reject, resolve };
 }
 
 async function flush(s: TestSession) {
@@ -40,7 +40,7 @@ describe("Choose async load (R-02)", () => {
       <TooeeProvider initialMode="insert">
         <Choose contentProvider={provider} />
       </TooeeProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
     await flush(testSetup);
@@ -59,7 +59,7 @@ describe("Choose async load (R-02)", () => {
       <TooeeProvider initialMode="insert">
         <Choose contentProvider={provider} />
       </TooeeProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
     await flush(testSetup);
@@ -83,7 +83,7 @@ describe("Choose async load (R-02)", () => {
       <TooeeProvider initialMode="insert">
         <Harness />
       </TooeeProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("Loading...");
@@ -120,7 +120,7 @@ describe("Choose async load (R-02)", () => {
       <TooeeProvider initialMode="insert">
         <Harness />
       </TooeeProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -150,7 +150,7 @@ describe("ChooseOverlay async load (R-02)", () => {
           onCancel={() => {}}
         />
       </TooeeProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
     await flush(testSetup);

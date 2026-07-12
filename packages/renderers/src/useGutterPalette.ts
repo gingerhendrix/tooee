@@ -7,8 +7,8 @@ export function useGutterPalette(): RowDocumentPalette {
 
   return useMemo(
     () => ({
-      gutterFg: theme.textMuted,
       gutterBg: theme.backgroundElement,
+      gutterFg: theme.textMuted,
     }),
     [theme.textMuted, theme.backgroundElement],
   );

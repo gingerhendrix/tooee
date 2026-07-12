@@ -94,14 +94,14 @@ export function buildTheme(name: string, mode: "dark" | "light"): Theme {
     const fallbackJson = themes.get(DEFAULT_THEME_NAME) ?? themes.values().next().value;
     if (fallbackJson) {
       const resolved = resolveTheme(fallbackJson, mode);
-      return { name, mode, colors: resolved, syntax: buildSyntaxStyle(resolved) };
+      return { colors: resolved, mode, name, syntax: buildSyntaxStyle(resolved) };
     }
     // Absolute fallback — hardcoded Tokyo Night colors
     return hardcodedDefaultTheme;
   }
   try {
     const resolved = resolveTheme(json, mode);
-    return { name, mode, colors: resolved, syntax: buildSyntaxStyle(resolved) };
+    return { colors: resolved, mode, name, syntax: buildSyntaxStyle(resolved) };
   } catch {
     return hardcodedDefaultTheme;
   }
@@ -109,60 +109,60 @@ export function buildTheme(name: string, mode: "dark" | "light"): Theme {
 
 const hardcodedDefaultTheme: Theme = (() => {
   const colors: ResolvedTheme = {
-    primary: "#7aa2f7",
-    secondary: "#bb9af7",
     accent: "#7dcfff",
-    error: "#f7768e",
-    warning: "#e0af68",
-    success: "#9ece6a",
-    info: "#7aa2f7",
-    text: "#c0caf5",
-    textMuted: "#565f89",
     background: "#1a1b26",
-    backgroundPanel: "#1e2030",
     backgroundElement: "#222436",
-    cursorLine: "#222436",
-    selection: "#1e2030",
+    backgroundPanel: "#1e2030",
     border: "#565f89",
     borderActive: "#737aa2",
     borderSubtle: "#414868",
+    cursorLine: "#222436",
     diffAdded: "#4fd6be",
-    diffRemoved: "#c53b53",
+    diffAddedBg: "#20303b",
+    diffAddedLineNumberBg: "#1b2b34",
     diffContext: "#828bb8",
-    diffHunkHeader: "#828bb8",
+    diffContextBg: "#1e2030",
     diffHighlightAdded: "#b8db87",
     diffHighlightRemoved: "#e26a75",
-    diffAddedBg: "#20303b",
-    diffRemovedBg: "#37222c",
-    diffContextBg: "#1e2030",
+    diffHunkHeader: "#828bb8",
     diffLineNumber: "#222436",
-    diffAddedLineNumberBg: "#1b2b34",
+    diffRemoved: "#c53b53",
+    diffRemovedBg: "#37222c",
     diffRemovedLineNumberBg: "#2d1f26",
-    markdownText: "#c0caf5",
-    markdownHeading: "#bb9af7",
-    markdownLink: "#7aa2f7",
-    markdownLinkText: "#7dcfff",
-    markdownCode: "#9ece6a",
+    error: "#f7768e",
+    info: "#7aa2f7",
     markdownBlockQuote: "#e0af68",
+    markdownCode: "#9ece6a",
+    markdownCodeBlock: "#c0caf5",
     markdownEmph: "#e0af68",
-    markdownStrong: "#ff966c",
+    markdownHeading: "#bb9af7",
     markdownHorizontalRule: "#565f89",
-    markdownListItem: "#7aa2f7",
-    markdownListEnumeration: "#7dcfff",
     markdownImage: "#7aa2f7",
     markdownImageText: "#7dcfff",
-    markdownCodeBlock: "#c0caf5",
+    markdownLink: "#7aa2f7",
+    markdownLinkText: "#7dcfff",
+    markdownListEnumeration: "#7dcfff",
+    markdownListItem: "#7aa2f7",
+    markdownStrong: "#ff966c",
+    markdownText: "#c0caf5",
+    primary: "#7aa2f7",
+    secondary: "#bb9af7",
+    selection: "#1e2030",
+    success: "#9ece6a",
     syntaxComment: "#565f89",
-    syntaxKeyword: "#bb9af7",
     syntaxFunction: "#7aa2f7",
-    syntaxVariable: "#c0caf5",
-    syntaxString: "#9ece6a",
+    syntaxKeyword: "#bb9af7",
     syntaxNumber: "#ff9e64",
-    syntaxType: "#2ac3de",
     syntaxOperator: "#89ddff",
     syntaxPunctuation: "#a9b1d6",
+    syntaxString: "#9ece6a",
+    syntaxType: "#2ac3de",
+    syntaxVariable: "#c0caf5",
+    text: "#c0caf5",
+    textMuted: "#565f89",
+    warning: "#e0af68",
   };
-  return { name: DEFAULT_THEME_NAME, mode: DEFAULT_MODE, colors, syntax: buildSyntaxStyle(colors) };
+  return { colors, mode: DEFAULT_MODE, name: DEFAULT_THEME_NAME, syntax: buildSyntaxStyle(colors) };
 })();
 
 export const defaultTheme: Theme = hardcodedDefaultTheme;

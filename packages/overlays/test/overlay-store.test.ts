@@ -11,7 +11,7 @@ import type { OverlayClosedEmit, OverlayRecord } from "../src/overlay-store.js";
 import type { OverlayOpenOptions } from "../src/overlay-context.js";
 
 function record(id: string, options: OverlayOpenOptions = {}, prevMode = "cursor"): OverlayRecord {
-  return { id, render: () => null, payload: null, options, prevMode };
+  return { id, options, payload: null, prevMode, render: () => null };
 }
 
 function collectCloses(store: ReturnType<typeof createOverlayStore>): OverlayClosedEmit[] {

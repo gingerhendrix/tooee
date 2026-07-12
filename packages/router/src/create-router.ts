@@ -21,8 +21,8 @@ export function createRouter(options: RouterOptions): RouterInstance {
   let state: RouterState = {
     stack: [
       {
-        routeId: options.defaultRoute,
         params: options.initialParams ?? {},
+        routeId: options.defaultRoute,
       },
     ],
   };
@@ -52,23 +52,26 @@ export function createRouter(options: RouterOptions): RouterInstance {
   }
 
   const instance: RouterInstance = {
-    push(routeId, params) {
-      dispatch({ type: "push", routeId, params });
-    },
-    pop() {
-      dispatch({ type: "pop" });
-    },
-    replace(routeId, params) {
-      dispatch({ type: "replace", routeId, params });
-    },
-    reset(routeId, params) {
-      dispatch({ type: "reset", routeId, params });
-    },
     canGoBack() {
       return state.stack.length > 1;
     },
     get currentRoute(): StackEntry {
       return state.stack[state.stack.length - 1];
+    },
+    getRouteDefinition(routeId) {
+      return routeMap.get(routeId);
+    },
+    pop() {
+      dispatch({ type: "pop" });
+    },
+    push(routeId, params) {
+      dispatch({ params, routeId, type: "push" });
+    },
+    replace(routeId, params) {
+      dispatch({ params, routeId, type: "replace" });
+    },
+    reset(routeId, params) {
+      dispatch({ params, routeId, type: "reset" });
     },
     get stack(): readonly StackEntry[] {
       return state.stack;
@@ -81,9 +84,6 @@ export function createRouter(options: RouterOptions): RouterInstance {
       return () => {
         listeners.delete(listener);
       };
-    },
-    getRouteDefinition(routeId) {
-      return routeMap.get(routeId);
     },
   };
 

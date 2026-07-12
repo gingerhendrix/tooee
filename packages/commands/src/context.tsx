@@ -51,16 +51,16 @@ const CommandSurfaceDepthContext = createContext(0);
  */
 const FALLBACK_COMMAND_STORE = createCommandStore({
   root: {
-    getMode: () => "cursor",
     // Placeholder context: augmented domain fields (overlay, view, ...) are
     // only present where their providers run; dispatch never reaches this.
     buildCtx: () =>
       ({
-        mode: "cursor",
-        setMode: () => {},
         commands: { invoke: () => {}, list: () => [] },
         exit: () => {},
+        mode: "cursor",
+        setMode: () => {},
       }) as unknown as CommandContext,
+    getMode: () => "cursor",
   },
 });
 
@@ -73,8 +73,8 @@ export interface CommandProviderProps {
 }
 
 interface RootAccess {
-  getMode: () => Mode;
   buildCtx: () => CommandContext;
+  getMode: () => Mode;
 }
 
 export function CommandProvider({
@@ -88,28 +88,28 @@ export function CommandProvider({
   // can be routed into it as transitions; the dispatcher below installs the
   // real root accessors before any key can dispatch.
   const rootAccessRef = useRef<RootAccess>({
-    getMode: () => initialMode ?? "cursor",
     // Placeholder until CommandDispatcher installs the real accessors on its
     // first render (before any key can dispatch).
     buildCtx: () =>
       ({
-        mode: initialMode ?? "cursor",
-        setMode: () => {},
         commands: { invoke: () => {}, list: () => [] },
         exit: () => {},
+        mode: initialMode ?? "cursor",
+        setMode: () => {},
       }) as unknown as CommandContext,
+    getMode: () => initialMode ?? "cursor",
   });
 
   const storeRef = useRef<CommandStore | null>(null);
   if (storeRef.current === null) {
     storeRef.current = createCommandStore({
-      leader,
       keymap,
-      sequenceTimeoutMs,
+      leader,
       root: {
-        getMode: () => rootAccessRef.current.getMode(),
         buildCtx: () => rootAccessRef.current.buildCtx(),
+        getMode: () => rootAccessRef.current.getMode(),
       },
+      sequenceTimeoutMs,
     });
   }
   const commandStore = storeRef.current;
@@ -159,13 +159,13 @@ function CommandDispatcher({
   const buildCtx = useCallback((): CommandContext => {
     const registry = commandStore.registryFor(commandStore.rootRecord);
     const ctx: Record<string, any> = {
-      mode: modeRef.current,
-      setMode,
       commands: {
         invoke: (id: string) => registry.invoke(id),
         list: () => Array.from(registry.commands.values()),
       },
       exit: () => {},
+      mode: modeRef.current,
+      setMode,
     };
     for (const getter of commandStore.store.getSnapshot().context.contextSources.values()) {
       Object.assign(ctx, getter());
@@ -180,7 +180,7 @@ function CommandDispatcher({
   // the previous modeRef mirrors; leader/keymap are read per dispatch).
   rootAccess.current.getMode = () => modeRef.current;
   rootAccess.current.buildCtx = () => buildCtxRef.current();
-  commandStore.setConfig({ leader, keymap, sequenceTimeoutMs });
+  commandStore.setConfig({ keymap, leader, sequenceTimeoutMs });
 
   useKeyboard((event) => {
     if (event.defaultPrevented) {
@@ -202,8 +202,8 @@ function CommandDispatcher({
   const ctxValue = useMemo<CommandStoreContextValue>(
     () => ({
       commandStore,
-      surface: commandStore.rootRecord,
       leaderKey: leader,
+      surface: commandStore.rootRecord,
     }),
     [commandStore, leader],
   );
@@ -284,13 +284,13 @@ function CommandSurfaceInner({
   const buildCtx = useCallback((): CommandContext => {
     const registry = commandStore.registryFor(recordRef.current!);
     const ctx: Record<string, any> = {
-      mode: modeRef.current,
-      setMode,
       commands: {
         invoke: (cmdId: string) => registry.invoke(cmdId),
         list: () => Array.from(registry.commands.values()),
       },
       exit: () => {},
+      mode: modeRef.current,
+      setMode,
     };
     for (const getter of commandStore.store.getSnapshot().context.contextSources.values()) {
       Object.assign(ctx, getter());
@@ -309,12 +309,12 @@ function CommandSurfaceInner({
     recordRef.current.depth !== depth
   ) {
     recordRef.current = {
-      id,
-      role,
-      depth,
-      order: 0,
-      getMode: () => modeRef.current,
       buildCtx: () => buildCtxRef.current(),
+      depth,
+      getMode: () => modeRef.current,
+      id,
+      order: 0,
+      role,
     };
   }
   const record = recordRef.current;
@@ -326,8 +326,8 @@ function CommandSurfaceInner({
   const ctxValue = useMemo<CommandStoreContextValue>(
     () => ({
       commandStore,
-      surface: record,
       leaderKey: parent.leaderKey,
+      surface: record,
     }),
     [commandStore, record, parent.leaderKey],
   );
@@ -407,10 +407,10 @@ export function useCommandRegistry(): CommandContextValue {
 
   return useMemo(
     () => ({
-      registry,
-      leaderKey,
       contextSources: contextSources as Map<string, ContextGetter>,
       groups: groups as Map<string, RegisteredCommandGroup>,
+      leaderKey,
+      registry,
     }),
     [registry, leaderKey, contextSources, groups],
   );
@@ -452,9 +452,9 @@ export function useActiveCommandSurface(): ActiveCommandSurface | null {
   return useMemo(() => {
     if (!record) return null;
     return {
+      commands: commandMap ? Array.from(commandMap.values()) : [],
       id: record.id,
       role: record.role as CommandSurfaceRole,
-      commands: commandMap ? Array.from(commandMap.values()) : [],
     };
   }, [record, commandMap]);
 }
@@ -542,8 +542,8 @@ export function useProvideCommandContext(getter: () => Partial<CommandContext>):
   useEffect(() => {
     const id = idRef.current!;
     commandStore.store.trigger.contextSourceRegistered({
-      id,
       getter: () => getterRef.current(),
+      id,
     });
     return () => {
       commandStore.store.trigger.contextSourceUnregistered({ id });

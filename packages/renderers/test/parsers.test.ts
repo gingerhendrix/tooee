@@ -6,8 +6,8 @@ describe("parseCSV", () => {
     const result = parseCSV("name,age,city\nAlice,30,London\nBob,25,Paris");
     expect(result.columns.map((column) => column.header)).toEqual(["name", "age", "city"]);
     expect(result.rows).toEqual([
-      { name: "Alice", age: "30", city: "London" },
-      { name: "Bob", age: "25", city: "Paris" },
+      { age: "30", city: "London", name: "Alice" },
+      { age: "25", city: "Paris", name: "Bob" },
     ]);
   });
 
@@ -16,8 +16,8 @@ describe("parseCSV", () => {
       'name,bio\nAlice,"Likes ""coding"" and tea"\nBob,"Lives in Paris, France"',
     );
     expect(result.columns.map((column) => column.header)).toEqual(["name", "bio"]);
-    expect(result.rows[0]).toEqual({ name: "Alice", bio: 'Likes "coding" and tea' });
-    expect(result.rows[1]).toEqual({ name: "Bob", bio: "Lives in Paris, France" });
+    expect(result.rows[0]).toEqual({ bio: 'Likes "coding" and tea', name: "Alice" });
+    expect(result.rows[1]).toEqual({ bio: "Lives in Paris, France", name: "Bob" });
   });
 
   test("mixed quoted and unquoted", () => {
@@ -40,8 +40,8 @@ describe("parseTSV", () => {
     const result = parseTSV("name\tage\tcity\nAlice\t30\tLondon\nBob\t25\tParis");
     expect(result.columns.map((column) => column.header)).toEqual(["name", "age", "city"]);
     expect(result.rows).toEqual([
-      { name: "Alice", age: "30", city: "London" },
-      { name: "Bob", age: "25", city: "Paris" },
+      { age: "30", city: "London", name: "Alice" },
+      { age: "25", city: "Paris", name: "Bob" },
     ]);
   });
 
@@ -57,8 +57,8 @@ describe("parseJSON", () => {
     const result = parseJSON('[{"name":"Alice","age":30},{"name":"Bob","age":25}]');
     expect(result.columns.map((column) => column.key)).toEqual(["name", "age"]);
     expect(result.rows).toEqual([
-      { name: "Alice", age: 30 },
-      { name: "Bob", age: 25 },
+      { age: 30, name: "Alice" },
+      { age: 25, name: "Bob" },
     ]);
   });
 

@@ -21,76 +21,76 @@ function OverlayHarness() {
   const has = useHasOverlay();
 
   useCommand({
-    id: "test.show-a",
-    title: "Show A",
-    hotkey: "a",
-    modes: ["cursor"],
     handler: () => {
       overlay.show("a", createOverlayA());
     },
+    hotkey: "a",
+    id: "test.show-a",
+    modes: ["cursor"],
+    title: "Show A",
   });
 
   useCommand({
-    id: "test.show-b",
-    title: "Show B",
-    hotkey: "b",
-    modes: ["cursor"],
     handler: () => {
       overlay.show("b", createOverlayB());
     },
+    hotkey: "b",
+    id: "test.show-b",
+    modes: ["cursor"],
+    title: "Show B",
   });
 
   useCommand({
-    id: "test.hide-a",
-    title: "Hide A",
-    hotkey: "x",
-    modes: ["cursor"],
     handler: () => {
       overlay.hide("a");
     },
+    hotkey: "x",
+    id: "test.hide-a",
+    modes: ["cursor"],
+    title: "Hide A",
   });
 
   useCommand({
-    id: "test.hide-b",
-    title: "Hide B",
-    hotkey: "y",
-    modes: ["cursor"],
     handler: () => {
       overlay.hide("b");
     },
+    hotkey: "y",
+    id: "test.hide-b",
+    modes: ["cursor"],
+    title: "Hide B",
   });
 
   useCommand({
-    id: "test.replace-a",
-    title: "Replace A",
-    hotkey: "r",
-    modes: ["cursor"],
     handler: () => {
       overlay.show("a", createReplacedOverlayA());
     },
+    hotkey: "r",
+    id: "test.replace-a",
+    modes: ["cursor"],
+    title: "Replace A",
   });
 
   useCommand({
-    id: "test.show-escape-dismissible",
-    title: "Show Escape Dismissible",
-    hotkey: "e",
-    modes: ["cursor"],
     handler: () => {
       overlay.show("escape", createEscapeDismissibleOverlay(), { mode: "insert" });
     },
+    hotkey: "e",
+    id: "test.show-escape-dismissible",
+    modes: ["cursor"],
+    title: "Show Escape Dismissible",
   });
 
   useCommand({
-    id: "test.show-escape-persistent",
-    title: "Show Escape Persistent",
-    hotkey: "p",
-    modes: ["cursor"],
     handler: () => {
       overlay.show("persistent", createEscapePersistentOverlay(), {
-        mode: "insert",
         dismissOnEscape: false,
+        mode: "insert",
       });
     },
+    hotkey: "p",
+    id: "test.show-escape-persistent",
+    modes: ["cursor"],
+    title: "Show Escape Persistent",
   });
 
   return (
@@ -105,23 +105,23 @@ function AppLayoutOverlayHarness() {
   const overlay = useOverlay();
 
   useCommand({
-    id: "test.show-overlay",
-    title: "Show",
-    hotkey: "s",
-    modes: ["cursor"],
     handler: () => {
       overlay.show("test", createAppLayoutOverlay());
     },
+    hotkey: "s",
+    id: "test.show-overlay",
+    modes: ["cursor"],
+    title: "Show",
   });
 
   useCommand({
-    id: "test.hide-overlay",
-    title: "Hide",
-    hotkey: "h",
-    modes: ["cursor"],
     handler: () => {
       overlay.hide("test");
     },
+    hotkey: "h",
+    id: "test.hide-overlay",
+    modes: ["cursor"],
+    title: "Hide",
   });
 
   return (
@@ -133,9 +133,9 @@ function AppLayoutOverlayHarness() {
 
 async function setup(component: React.ReactNode) {
   const s = await testRender(<TooeeProvider>{component}</TooeeProvider>, {
-    width: 80,
     height: 24,
     kittyKeyboard: true,
+    width: 80,
   });
   await s.renderOnce();
   return s;
@@ -248,16 +248,16 @@ describe("overlay lifecycle correctness (R-04)", () => {
     function ReplaceHarness() {
       const overlay = useOverlay();
       useCommand({
-        id: "test.open",
-        title: "Open",
-        hotkey: "a",
-        modes: ["cursor"],
         handler: () => {
           overlay.open("dup", () => <text content="dup-overlay" />, undefined, {
             mode: null,
             onClose: (reason) => reasons.push(reason),
           });
         },
+        hotkey: "a",
+        id: "test.open",
+        modes: ["cursor"],
+        title: "Open",
       });
       return <text content="replace-harness" />;
     }
@@ -274,44 +274,44 @@ describe("overlay lifecycle correctness (R-04)", () => {
       const overlay = useOverlay();
       const mode = useMode();
       useCommand({
-        id: "test.open-under",
-        title: "Open under",
-        hotkey: "u",
-        modes: ["cursor", "insert", "select"],
         handler: () => {
           overlay.open("under", () => <text content="under-overlay" />, undefined, {
             mode: "insert",
           });
         },
+        hotkey: "u",
+        id: "test.open-under",
+        modes: ["cursor", "insert", "select"],
+        title: "Open under",
       });
       useCommand({
-        id: "test.open-over",
-        title: "Open over",
-        hotkey: "v",
-        modes: ["cursor", "insert", "select"],
         handler: () => {
           overlay.open("over", () => <text content="over-overlay" />, undefined, {
             mode: "select",
           });
         },
+        hotkey: "v",
+        id: "test.open-over",
+        modes: ["cursor", "insert", "select"],
+        title: "Open over",
       });
       useCommand({
-        id: "test.close-under",
-        title: "Close under",
-        hotkey: "w",
-        modes: ["cursor", "insert", "select"],
         handler: () => {
           overlay.hide("under");
         },
+        hotkey: "w",
+        id: "test.close-under",
+        modes: ["cursor", "insert", "select"],
+        title: "Close under",
       });
       useCommand({
-        id: "test.close-over",
-        title: "Close over",
-        hotkey: "x",
-        modes: ["cursor", "insert", "select"],
         handler: () => {
           overlay.hide("over");
         },
+        hotkey: "x",
+        id: "test.close-over",
+        modes: ["cursor", "insert", "select"],
+        title: "Close over",
       });
       return <text content={`hostmode:${mode}`} />;
     }

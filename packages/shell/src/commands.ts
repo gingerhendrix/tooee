@@ -32,19 +32,19 @@ export function useThemeCommands(opts?: UseThemeCommandsOptions): {
     ...picker,
     confirm: (name: string) => {
       picker.confirm(name);
-      toast({ message: `Theme: ${name}`, level: "info", id: "theme-changed" });
+      toast({ id: "theme-changed", level: "info", message: `Theme: ${name}` });
     },
   };
 
   useCommand({
-    id: "cycle-theme",
-    title: "Choose theme",
-    hotkey: "t",
-    when: opts?.when,
     enabled: opts?.enabled,
     handler: () => {
       picker.open();
     },
+    hotkey: "t",
+    id: "cycle-theme",
+    title: "Choose theme",
+    when: opts?.when,
   });
 
   return { name: picker.currentTheme, picker: confirmedPicker };
@@ -54,10 +54,6 @@ export function useQuitCommand(opts?: UseQuitCommandOptions) {
   const renderer = useRenderer();
 
   useCommand({
-    id: "quit",
-    title: "Quit",
-    hotkey: opts?.hotkey ?? "q",
-    when: opts?.when,
     enabled: opts?.enabled,
     handler: () => {
       if (opts?.onQuit) {
@@ -66,24 +62,28 @@ export function useQuitCommand(opts?: UseQuitCommandOptions) {
         renderer.destroy();
       }
     },
+    hotkey: opts?.hotkey ?? "q",
+    id: "quit",
+    title: "Quit",
+    when: opts?.when,
   });
 }
 
 export function useCopyCommand(opts: { getText: () => string | undefined; when?: CommandWhen }) {
   useCommand({
-    id: "copy",
-    title: "Copy to clipboard",
-    hotkey: "y",
-    when: opts.when,
     handler: (ctx) => {
       const text = opts.getText();
       if (text) {
         void copyToClipboard(text);
-        ctx.toast.toast({ message: "Copied to clipboard", level: "success" });
+        ctx.toast.toast({ level: "success", message: "Copied to clipboard" });
       } else {
-        ctx.toast.toast({ message: "Nothing to copy", level: "warning" });
+        ctx.toast.toast({ level: "warning", message: "Nothing to copy" });
       }
     },
+    hotkey: "y",
+    id: "copy",
+    title: "Copy to clipboard",
+    when: opts.when,
   });
 }
 
@@ -92,10 +92,6 @@ export function usePasteCommands(opts: {
   when?: CommandWhen;
 }) {
   useCommand({
-    id: "paste-clipboard",
-    title: "Paste from clipboard",
-    hotkey: "p",
-    when: opts.when,
     handler: (ctx) => {
       const target = opts.getTarget();
       if (!target) {
@@ -105,16 +101,17 @@ export function usePasteCommands(opts: {
         if (text) {
           target.insertText(text);
         } else {
-          ctx.toast.toast({ message: "Clipboard empty", level: "warning" });
+          ctx.toast.toast({ level: "warning", message: "Clipboard empty" });
         }
       });
     },
+    hotkey: "p",
+    id: "paste-clipboard",
+    title: "Paste from clipboard",
+    when: opts.when,
   });
 
   useCommand({
-    id: "paste-primary",
-    title: "Paste from selection",
-    when: opts.when,
     handler: (ctx) => {
       const target = opts.getTarget();
       if (!target) {
@@ -124,10 +121,13 @@ export function usePasteCommands(opts: {
         if (text) {
           target.insertText(text);
         } else {
-          ctx.toast.toast({ message: "Selection empty", level: "warning" });
+          ctx.toast.toast({ level: "warning", message: "Selection empty" });
         }
       });
     },
+    id: "paste-primary",
+    title: "Paste from selection",
+    when: opts.when,
   });
 }
 
@@ -135,13 +135,13 @@ export function useDebugConsoleCommand(opts?: { when?: CommandWhen }) {
   const renderer = useRenderer();
 
   useCommand({
-    id: "toggle-debug-console",
-    title: "Toggle debug console",
-    hotkey: "ctrl+shift+j",
-    when: opts?.when,
     handler: () => {
       renderer.console.toggle();
     },
+    hotkey: "ctrl+shift+j",
+    id: "toggle-debug-console",
+    title: "Toggle debug console",
+    when: opts?.when,
   });
 }
 
@@ -151,18 +151,18 @@ export function useToggleLineNumbersCommand(opts: {
   when?: CommandWhen;
 }) {
   useCommand({
-    id: "toggle-line-numbers",
-    title: "Toggle line numbers",
-    hotkey: "shift+l",
-    when: opts.when,
     handler: (ctx) => {
       opts.onToggle();
       const next = !opts.showLineNumbers;
       ctx.toast.toast({
-        message: `Line numbers: ${next ? "on" : "off"}`,
-        level: "info",
         id: "line-numbers-toggled",
+        level: "info",
+        message: `Line numbers: ${next ? "on" : "off"}`,
       });
     },
+    hotkey: "shift+l",
+    id: "toggle-line-numbers",
+    title: "Toggle line numbers",
+    when: opts.when,
   });
 }

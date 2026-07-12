@@ -42,16 +42,16 @@ export function useActions(actions: ActionDefinition[] | undefined): void {
 
     const unregisters = current.map((action, i) => {
       const command: Command = {
-        id: action.id,
-        title: action.title,
-        defaultHotkey: action.hotkey,
-        modes: action.modes,
-        handler: (ctx) => actionsRef.current?.[i]?.handler(ctx),
-        when: action.when ? (ctx) => actionsRef.current?.[i]?.when?.(ctx) ?? false : undefined,
         category: action.category,
+        defaultHotkey: action.hotkey,
         group: action.group,
-        icon: action.icon,
+        handler: (ctx) => actionsRef.current?.[i]?.handler(ctx),
         hidden: action.hidden,
+        icon: action.icon,
+        id: action.id,
+        modes: action.modes,
+        title: action.title,
+        when: action.when ? (ctx) => actionsRef.current?.[i]?.when?.(ctx) ?? false : undefined,
       };
       return registry.register(command);
     });

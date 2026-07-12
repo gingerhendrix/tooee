@@ -47,12 +47,12 @@ export function AskOverlay({
   children,
 }: AskOverlayProps) {
   const { controller, editor } = useAskEditor({
-    multiline,
-    defaultValue,
-    placeholder,
-    onSubmit,
-    onCancel,
     commandScope: "ask-overlay",
+    defaultValue,
+    multiline,
+    onCancel,
+    onSubmit,
+    placeholder,
   });
 
   useImperativeHandle(controllerRef, () => controller, [controller]);

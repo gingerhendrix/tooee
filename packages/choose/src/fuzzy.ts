@@ -10,7 +10,7 @@ export interface FuzzyMatch {
 
 export function fuzzyFilter(items: ChooseItem[], query: string): FuzzyMatch[] {
   if (!query) {
-    return items.map((item, i) => ({ item, originalIndex: i, score: 0, positions: [] }));
+    return items.map((item, i) => ({ item, originalIndex: i, positions: [], score: 0 }));
   }
 
   const results: FuzzyMatch[] = [];
@@ -19,7 +19,7 @@ export function fuzzyFilter(items: ChooseItem[], query: string): FuzzyMatch[] {
     const item = items[i];
     const match = fuzzyMatchPositions(query, item.text);
     if (match) {
-      results.push({ item, originalIndex: i, score: match.score, positions: match.positions });
+      results.push({ item, originalIndex: i, positions: match.positions, score: match.score });
     }
   }
 

@@ -149,10 +149,10 @@ function buildInitialBookmarks(): MarkSet {
 async function* streamContent(): AsyncIterable<ContentChunk> {
   // First, deliver the code content
   yield {
-    type: "append",
-    format: "code",
     data: SOURCE_CODE,
+    format: "code",
     language: "typescript",
+    type: "append",
   };
 
   // After a short delay, stream in "hot path" analysis marks
@@ -167,8 +167,8 @@ async function* streamContent(): AsyncIterable<ContentChunk> {
     { analysis: "hot path — called on every request" },
   );
   yield {
-    type: "marks",
     set: hotPathBuilder.build("analysis:hotpath", 50), // low priority, just gutter tint
+    type: "marks",
   };
 
   // After another delay, stream in "coverage" marks
@@ -188,8 +188,8 @@ async function* streamContent(): AsyncIterable<ContentChunk> {
   coverageBuilder.addLine(34, { signBefore: "\u2713" }, { covered: true, hits: 150 });
 
   yield {
-    type: "marks",
     set: coverageBuilder.build("analysis:coverage", 75),
+    type: "marks",
   };
 }
 
@@ -197,9 +197,9 @@ async function* streamContent(): AsyncIterable<ContentChunk> {
 
 const contentProvider: ContentProvider = {
   load: () => streamContent(),
-  title: "server.ts — Custom Marks Demo",
   // Static marks applied immediately when content loads
   marks: [buildDiagnosticMarks(), buildInitialBookmarks()],
+  title: "server.ts — Custom Marks Demo",
 };
 
 // === User actions: toggle bookmarks and diagnostics via keybindings ===
@@ -211,7 +211,7 @@ const userDiagnostics = new Set<number>();
 function rebuildUserBookmarks(): MarkSet {
   const builder = new MarkSetBuilder();
   for (const line of userBookmarks) {
-    builder.addLine(line, { signBefore: "\u2605", background: "#1a1a3a" }); // star
+    builder.addLine(line, { background: "#1a1a3a", signBefore: "\u2605" }); // star
   }
   return builder.build("user:bookmarks", MarkPriorities.USER + 10);
 }
@@ -219,17 +219,13 @@ function rebuildUserBookmarks(): MarkSet {
 function rebuildUserDiagnostics(): MarkSet {
   const builder = new MarkSetBuilder();
   for (const line of userDiagnostics) {
-    builder.addLine(line, { signBefore: "!", background: "#4a2800" });
+    builder.addLine(line, { background: "#4a2800", signBefore: "!" });
   }
   return builder.build("user:diagnostics", MarkPriorities.USER + 5);
 }
 
 const actions: ActionDefinition[] = [
   {
-    id: "marks.toggle-bookmark",
-    title: "Toggle bookmark",
-    hotkey: "b",
-    modes: ["cursor"],
     handler: (ctx) => {
       const line = ctx.document?.cursor;
       if (line == null) return;
@@ -241,19 +237,19 @@ const actions: ActionDefinition[] = [
       }
       ctx.view.marks.setMarkSet(rebuildUserBookmarks());
       ctx.toast?.toast({
+        id: "bookmark-toggle",
+        level: "info",
         message: userBookmarks.has(line)
           ? `Bookmark added on line ${line + 1}`
           : `Bookmark removed from line ${line + 1}`,
-        level: "info",
-        id: "bookmark-toggle",
       });
     },
+    hotkey: "b",
+    id: "marks.toggle-bookmark",
+    modes: ["cursor"],
+    title: "Toggle bookmark",
   },
   {
-    id: "marks.add-diagnostic",
-    title: "Add diagnostic on line",
-    hotkey: "d",
-    modes: ["cursor"],
     handler: (ctx) => {
       const line = ctx.document?.cursor;
       if (line == null) return;
@@ -265,50 +261,54 @@ const actions: ActionDefinition[] = [
       }
       ctx.view.marks.setMarkSet(rebuildUserDiagnostics());
       ctx.toast?.toast({
+        id: "diagnostic-toggle",
+        level: "warning",
         message: userDiagnostics.has(line)
           ? `Diagnostic added on line ${line + 1}`
           : `Diagnostic removed from line ${line + 1}`,
-        level: "warning",
-        id: "diagnostic-toggle",
       });
     },
+    hotkey: "d",
+    id: "marks.add-diagnostic",
+    modes: ["cursor"],
+    title: "Add diagnostic on line",
   },
   {
-    id: "marks.clear-diagnostics",
-    title: "Clear all diagnostics",
-    hotkey: "D",
-    modes: ["cursor"],
     handler: (ctx) => {
       userDiagnostics.clear();
       ctx.view.marks.clearNamespace("user:diagnostics");
-      ctx.toast?.toast({ message: "All user diagnostics cleared", level: "info" });
+      ctx.toast?.toast({ level: "info", message: "All user diagnostics cleared" });
     },
+    hotkey: "D",
+    id: "marks.clear-diagnostics",
+    modes: ["cursor"],
+    title: "Clear all diagnostics",
   },
   {
-    id: "marks.clear-bookmarks",
-    title: "Clear all bookmarks",
-    hotkey: "B",
-    modes: ["cursor"],
     handler: (ctx) => {
       userBookmarks.clear();
       ctx.view.marks.clearNamespace("user:bookmarks");
-      ctx.toast?.toast({ message: "All user bookmarks cleared", level: "info" });
+      ctx.toast?.toast({ level: "info", message: "All user bookmarks cleared" });
     },
+    hotkey: "B",
+    id: "marks.clear-bookmarks",
+    modes: ["cursor"],
+    title: "Clear all bookmarks",
   },
   {
-    id: "marks.clear-all",
-    title: "Clear all user marks",
-    hotkey: "x",
-    modes: ["cursor"],
     handler: (ctx) => {
       userBookmarks.clear();
       userDiagnostics.clear();
       ctx.view.marks.clearAll();
-      ctx.toast?.toast({ message: "All user marks cleared", level: "info" });
+      ctx.toast?.toast({ level: "info", message: "All user marks cleared" });
     },
+    hotkey: "x",
+    id: "marks.clear-all",
+    modes: ["cursor"],
+    title: "Clear all user marks",
   },
 ];
 
 // === Launch ===
 
-launch({ contentProvider, actions });
+launch({ actions, contentProvider });

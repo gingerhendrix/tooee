@@ -14,7 +14,7 @@ test("renders label:value pairs", async () => {
     <ThemeSwitcherProvider>
       <StatusBar items={[{ label: "Mode", value: "cursor" }]} />
     </ThemeSwitcherProvider>,
-    { width: 80, height: 24 },
+    { height: 24, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -32,7 +32,7 @@ test("renders multiple items", async () => {
         ]}
       />
     </ThemeSwitcherProvider>,
-    { width: 80, height: 24 },
+    { height: 24, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -47,7 +47,7 @@ test("renders label without value", async () => {
     <ThemeSwitcherProvider>
       <StatusBar items={[{ label: "Ready" }]} />
     </ThemeSwitcherProvider>,
-    { width: 80, height: 24 },
+    { height: 24, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -64,7 +64,7 @@ test("snapshot", async () => {
         ]}
       />
     </ThemeSwitcherProvider>,
-    { width: 60, height: 3 },
+    { height: 3, width: 60 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();

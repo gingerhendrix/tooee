@@ -37,7 +37,7 @@ async function setup() {
     <TooeeProvider>
       <DirectoryView dirPath={TEST_DIR} />
     </TooeeProvider>,
-    { width: 80, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 80 },
   );
   await s.renderOnce();
   // Allow async content load

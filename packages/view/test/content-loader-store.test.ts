@@ -15,16 +15,16 @@ describe("content loader store", () => {
     store.trigger.loadStarted({ marks: [], title: "First" });
     const firstId = store.getSnapshot().context.requestId;
     expect(store.getSnapshot().context.status).toBe("loading");
-    store.trigger.loaded({ requestId: firstId, content: text("old") });
+    store.trigger.loaded({ content: text("old"), requestId: firstId });
     expect(store.getSnapshot().context.status).toBe("ready");
 
     store.trigger.loadStarted({ marks: [], title: "Stream" });
     const streamId = store.getSnapshot().context.requestId;
     expect(selectContent(store.getSnapshot().context)).toEqual(text("old"));
-    store.trigger.streamStarted({ requestId: streamId, format: "text" });
+    store.trigger.streamStarted({ format: "text", requestId: streamId });
     store.trigger.chunkReceived({
+      chunk: { data: "new", format: "text", type: "append" },
       requestId: streamId,
-      chunk: { type: "append", format: "text", data: "new" },
     });
     expect(store.getSnapshot().context.status).toBe("streaming");
     expect(selectContent(store.getSnapshot().context)).toEqual({
@@ -42,15 +42,15 @@ describe("content loader store", () => {
     const staleId = store.getSnapshot().context.requestId;
     store.trigger.loadStarted({ marks: [] });
     const events = [
-      () => store.trigger.streamStarted({ requestId: staleId, format: "text" }),
+      () => store.trigger.streamStarted({ format: "text", requestId: staleId }),
       () =>
         store.trigger.chunkReceived({
+          chunk: { data: "stale", format: "text", type: "append" },
           requestId: staleId,
-          chunk: { type: "append", format: "text", data: "stale" },
         }),
-      () => store.trigger.loaded({ requestId: staleId, content: text("stale") }),
+      () => store.trigger.loaded({ content: text("stale"), requestId: staleId }),
       () => store.trigger.streamEnded({ requestId: staleId }),
-      () => store.trigger.loadFailed({ requestId: staleId, error: "stale" }),
+      () => store.trigger.loadFailed({ error: "stale", requestId: staleId }),
       () => store.trigger.loadCancelled({ requestId: staleId }),
     ];
     for (const trigger of events) {
@@ -80,9 +80,9 @@ describe("content loader store", () => {
     const replacement = new MarkSet("diagnostics", 0, []);
     store.trigger.loadStarted({ marks: [first] });
     const requestId = store.getSnapshot().context.requestId;
-    store.trigger.loaded({ requestId, content: text("kept") });
+    store.trigger.loaded({ content: text("kept"), requestId });
     const content = selectContent(store.getSnapshot().context);
-    store.trigger.chunkReceived({ requestId, chunk: { type: "marks", set: replacement } });
+    store.trigger.chunkReceived({ chunk: { set: replacement, type: "marks" }, requestId });
     expect(selectProviderMarks(store.getSnapshot().context)).toEqual([replacement]);
     expect(selectContent(store.getSnapshot().context)).toBe(content);
   });

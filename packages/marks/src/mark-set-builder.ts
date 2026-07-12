@@ -6,18 +6,18 @@ export class MarkSetBuilder {
 
   addLine(line: number, style: MarkStyle, data?: unknown): this {
     this.#marks.push({
+      data,
       range: { from: { line }, to: { line } },
       style,
-      data,
     });
     return this;
   }
 
   addRange(from: MarkPosition, to: MarkPosition, style: MarkStyle, data?: unknown): this {
     this.#marks.push({
+      data,
       range: { from, to },
       style,
-      data,
     });
     return this;
   }

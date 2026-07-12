@@ -174,8 +174,8 @@ describe("MarkSet", () => {
       ]);
 
       expect([...set.forVisibleRows(3, 4)]).toEqual([
-        { row: 3, background: "#abcdef" },
-        { row: 4, background: "#abcdef" },
+        { background: "#abcdef", row: 3 },
+        { background: "#abcdef", row: 4 },
       ]);
     });
 
@@ -184,19 +184,19 @@ describe("MarkSet", () => {
         {
           range: { from: { line: 1 }, to: { line: 1 } },
           style: {
-            gutterBackground: "#112233",
-            signBefore: "!",
-            signAfter: ">",
             foreground: "#445566",
+            gutterBackground: "#112233",
+            signAfter: ">",
+            signBefore: "!",
           },
         },
       ]);
 
       expect([...set.forVisibleRows(0, 2)]).toEqual([
         {
-          row: 1,
           gutterBackground: "#112233",
-          sign: { text: "!>", fg: "#445566" },
+          row: 1,
+          sign: { fg: "#445566", text: "!>" },
         },
       ]);
     });

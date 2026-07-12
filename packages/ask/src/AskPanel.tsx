@@ -70,7 +70,7 @@ export function AskPanel({
   const mode = useMode();
 
   const defaults = buildAskHints(mode, { multiline });
-  const hintContent = hints ? hints({ mode, defaults }) : defaults.join("  ");
+  const hintContent = hints ? hints({ defaults, mode }) : defaults.join("  ");
 
   return (
     <box

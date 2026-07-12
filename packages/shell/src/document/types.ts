@@ -25,11 +25,11 @@ export type { DocumentBindings, DocumentRowAnchor, DocumentRowSource, SourcePoin
  * a lower priority paints below, a higher one above.
  */
 export const DocumentDecorationPriorities = {
-  SEARCH_MATCH: 100,
-  TOGGLED: 200,
-  SELECTION: 300,
   CURRENT_MATCH: 400,
   CURSOR: 500,
+  SEARCH_MATCH: 100,
+  SELECTION: 300,
+  TOGGLED: 200,
 } as const;
 
 /** Projects a typed row collection onto the identity, text, and selectability a document needs. */

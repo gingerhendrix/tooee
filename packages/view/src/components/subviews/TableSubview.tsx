@@ -42,12 +42,12 @@ export function TableSubview({ content, decorations, actions, ...screen }: Table
     [columns],
   );
   const document = useDocumentController<TableRow>({
-    rows,
     adapter,
-    multiSelect: true,
-    decorations,
     // The controller projects the screen's actions onto menu entries at open time.
     contextMenu: actions,
+    decorations,
+    multiSelect: true,
+    rows,
   });
 
   const statusItems = useMemo(

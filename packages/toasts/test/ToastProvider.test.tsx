@@ -41,7 +41,7 @@ function ToastTrigger({
 }) {
   const { toast } = useToast();
   useEffect(() => {
-    toast({ message, level, id, duration });
+    toast({ duration, id, level, message });
   }, [toast, message, level, id, duration]);
   return null;
 }
@@ -51,7 +51,7 @@ function renderWithProviders(children: React.ReactNode) {
     <ThemeSwitcherProvider>
       <ToastProvider>{children}</ToastProvider>
     </ThemeSwitcherProvider>,
-    { width: 60, height: 24 },
+    { height: 24, width: 60 },
   );
 }
 
@@ -80,7 +80,7 @@ test("dismiss clears the toast", async () => {
 
   // Show a toast
   await act(async () => {
-    toastApi!.toast({ message: "will dismiss", level: "info" });
+    toastApi!.toast({ level: "info", message: "will dismiss" });
   });
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("toast:will dismiss");
@@ -130,7 +130,7 @@ test("same ID replaces existing toast and resets timer", async () => {
 
   // Show first toast
   await act(async () => {
-    toastApi!.toast({ message: "first", level: "info", id: "dedup", duration: 100 });
+    toastApi!.toast({ duration: 100, id: "dedup", level: "info", message: "first" });
   });
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("toast:info:first");
@@ -138,7 +138,7 @@ test("same ID replaces existing toast and resets timer", async () => {
   // After 50ms, send another toast with the same ID
   await act(async () => {
     await new Promise((r) => setTimeout(r, 50));
-    toastApi!.toast({ message: "second", level: "success", id: "dedup", duration: 100 });
+    toastApi!.toast({ duration: 100, id: "dedup", level: "success", message: "second" });
   });
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("toast:success:second");
@@ -164,7 +164,7 @@ test("each level gets correct default duration", async () => {
     const { toast, currentToast } = useToast();
     useEffect(() => {
       for (const l of ["info", "success", "warning", "error"] as ToastLevel[]) {
-        toast({ message: `${l} toast`, level: l });
+        toast({ level: l, message: `${l} toast` });
       }
     }, [toast]);
     return <text content={`duration:${currentToast?.duration ?? "none"}`} />;
@@ -180,7 +180,7 @@ test("level defaults: info=2000, success=1500, warning=3000, error=5000", async 
   function SingleLevelTest({ level }: { level: ToastLevel }) {
     const { toast, currentToast } = useToast();
     useEffect(() => {
-      toast({ message: "test", level });
+      toast({ level, message: "test" });
     }, [toast, level]);
     return <text content={`duration:${currentToast?.duration ?? "none"}`} />;
   }
@@ -224,10 +224,10 @@ test("ToastContainer renders icon and message", async () => {
 
 test("ToastContainer renders correct icon per level", async () => {
   const icons: Record<ToastLevel, string> = {
+    error: "✗",
     info: "ℹ",
     success: "✓",
     warning: "⚠",
-    error: "✗",
   };
 
   for (const [level, icon] of Object.entries(icons) as [ToastLevel, string][]) {

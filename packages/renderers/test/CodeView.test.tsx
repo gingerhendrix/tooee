@@ -14,7 +14,7 @@ test("renders code content", async () => {
     <ThemeSwitcherProvider>
       <CodeView content={"function hello() {\n  return 42\n}"} />
     </ThemeSwitcherProvider>,
-    { width: 80, height: 24 },
+    { height: 24, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -27,7 +27,7 @@ test("shows line numbers by default", async () => {
     <ThemeSwitcherProvider>
       <CodeView content={"line one\nline two\nline three"} />
     </ThemeSwitcherProvider>,
-    { width: 80, height: 24 },
+    { height: 24, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -41,7 +41,7 @@ test("hides line numbers when disabled", async () => {
     <ThemeSwitcherProvider>
       <CodeView content="only content" showLineNumbers={false} />
     </ThemeSwitcherProvider>,
-    { width: 80, height: 24 },
+    { height: 24, width: 80 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -53,7 +53,7 @@ test("snapshot", async () => {
     <ThemeSwitcherProvider>
       <CodeView content={"const x = 1\nconst y = 2"} language="js" />
     </ThemeSwitcherProvider>,
-    { width: 40, height: 8 },
+    { height: 8, width: 40 },
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();

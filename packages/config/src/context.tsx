@@ -5,8 +5,8 @@ import { loadConfig } from "./load.js";
 
 const DEFAULTS: TooeeConfig = {
   theme: {
-    name: "tokyonight",
     mode: "dark",
+    name: "tokyonight",
   },
 };
 

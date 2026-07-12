@@ -27,28 +27,17 @@ function TypedDialogsApp() {
   const [chooseResult, setChooseResult] = useState("pending");
 
   useCommand({
-    id: "open-ask",
-    title: "Open ask dialog",
-    hotkey: "a",
-    modes: ["cursor"],
     handler: () => {
       void ask
         .open({
-          prompt: "Type something",
-          multiline: false,
-          controllerRef,
           commands: [
             {
-              id: "pick-model",
-              title: "Pick model",
-              hotkey: "ctrl+p",
-              modes: ["insert", "cursor"],
               handler: () => {
                 void choose
                   .open({
                     items: MODELS,
-                    toItem: (model) => ({ text: model.label }),
                     prompt: "Pick a model",
+                    toItem: (model) => ({ text: model.label }),
                   })
                   .then((model) => {
                     setChooseResult(model === null ? "<null>" : model.id);
@@ -57,27 +46,38 @@ function TypedDialogsApp() {
                     }
                   });
               },
+              hotkey: "ctrl+p",
+              id: "pick-model",
+              modes: ["insert", "cursor"],
+              title: "Pick model",
             },
           ],
+          controllerRef,
+          multiline: false,
+          prompt: "Type something",
         })
         .then((value) => setAskResult(value === null ? "<null>" : `[${value}]`));
     },
+    hotkey: "a",
+    id: "open-ask",
+    modes: ["cursor"],
+    title: "Open ask dialog",
   });
 
   useCommand({
-    id: "open-choose",
-    title: "Open choose dialog",
-    hotkey: "c",
-    modes: ["cursor"],
     handler: () => {
       void choose
         .open({
           items: MODELS,
-          toItem: (model) => ({ text: model.label }),
           prompt: "Pick a model",
+          toItem: (model) => ({ text: model.label }),
         })
         .then((model) => setChooseResult(model === null ? "<null>" : model.id));
     },
+    hotkey: "c",
+    id: "open-choose",
+    modes: ["cursor"],
+    title: "Open choose dialog",
   });
 
   return (

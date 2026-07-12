@@ -90,19 +90,19 @@ export interface OverlayContextValue {
 // Contexts
 
 const defaultController: OverlayController = {
-  open: (id) => ({ id, close: () => {}, update: () => {} }),
-  update: () => {},
-  show: () => {},
-  hide: () => {},
   closeTop: () => {},
+  hide: () => {},
   isOpen: () => false,
+  open: (id) => ({ close: () => {}, id, update: () => {} }),
+  show: () => {},
   topId: null,
+  update: () => {},
 };
 
 const defaultState: OverlayState = {
   current: null,
-  hasOverlay: false,
   hasModalOverlay: false,
+  hasOverlay: false,
   stack: [],
 };
 
@@ -111,10 +111,10 @@ export const OverlayStateContext = createContext<OverlayState>(defaultState);
 
 // Back-compat: OverlayContext that combines both (for existing provider consumers)
 export const OverlayContext = createContext<OverlayContextValue>({
-  show: () => {},
-  hide: () => {},
   current: null,
   hasOverlay: false,
+  hide: () => {},
+  show: () => {},
 });
 
 // Hooks

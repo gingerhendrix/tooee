@@ -46,7 +46,7 @@ async function setup(opts: { onSelect?: (item: ChooseItem) => void; onCancel?: (
         onCancel={opts.onCancel ?? (() => {})}
       />
     </TooeeProvider>,
-    { width: 60, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 60 },
   );
   await s.renderOnce();
   return s;

@@ -47,14 +47,14 @@ function SurfaceA({
   const mode = useMode();
   const setMode = useSetMode();
 
-  useCommand({ id: "a.action", title: "A action", hotkey: "a", handler: onAction });
-  useCommand({ id: "a.close", title: "Close A", hotkey: "Escape", handler: onClose });
-  useCommand({ id: "a.nested", title: "Open nested", hotkey: "n", handler: onOpenNested });
+  useCommand({ handler: onAction, hotkey: "a", id: "a.action", title: "A action" });
+  useCommand({ handler: onClose, hotkey: "Escape", id: "a.close", title: "Close A" });
+  useCommand({ handler: onOpenNested, hotkey: "n", id: "a.nested", title: "Open nested" });
   useCommand({
+    handler: () => setMode("insert"),
+    hotkey: "m",
     id: "a.insert",
     title: "Insert mode",
-    hotkey: "m",
-    handler: () => setMode("insert"),
   });
 
   return (
@@ -66,8 +66,8 @@ function SurfaceA({
 }
 
 function SurfaceB({ onAction, onClose }: { onAction: () => void; onClose: () => void }) {
-  useCommand({ id: "b.action", title: "B action", hotkey: "b", handler: onAction });
-  useCommand({ id: "b.close", title: "Close B", hotkey: "Escape", handler: onClose });
+  useCommand({ handler: onAction, hotkey: "b", id: "b.action", title: "B action" });
+  useCommand({ handler: onClose, hotkey: "Escape", id: "b.close", title: "Close B" });
   return <text content="surface-b" />;
 }
 
@@ -82,18 +82,18 @@ function Harness({ aRole = "modal" }: { aRole?: CommandSurfaceRole }) {
   const active = useActiveCommandSurface();
 
   useCommand({
+    handler: () => setRootQuit((n) => n + 1),
+    hotkey: "q",
     id: "root.quit",
     title: "Quit",
-    hotkey: "q",
-    handler: () => setRootQuit((n) => n + 1),
   });
   useCommand({
+    handler: () => setRootAction((n) => n + 1),
+    hotkey: "a",
     id: "root.action",
     title: "Root action",
-    hotkey: "a",
-    handler: () => setRootAction((n) => n + 1),
   });
-  useCommand({ id: "root.open", title: "Open A", hotkey: "o", handler: () => setShowA(true) });
+  useCommand({ handler: () => setShowA(true), hotkey: "o", id: "root.open", title: "Open A" });
 
   return (
     <box flexDirection="column">
@@ -130,7 +130,7 @@ async function setup(aRole: CommandSurfaceRole = "modal") {
     <CommandProvider>
       <Harness aRole={aRole} />
     </CommandProvider>,
-    { width: 60, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 60 },
   );
   await session.renderOnce();
   return session;
@@ -230,10 +230,10 @@ describe("command surface arbitration", () => {
       const active = useActiveCommandSurface();
 
       useCommand({
+        handler: () => setShowSurface(true),
+        hotkey: "o",
         id: "root.open",
         title: "Open",
-        hotkey: "o",
-        handler: () => setShowSurface(true),
       });
 
       useKeyboard((key) => {
@@ -265,7 +265,7 @@ describe("command surface arbitration", () => {
     }
 
     function ZCommandSurface({ onAction }: { onAction: () => void }) {
-      useCommand({ id: "modal.z", title: "Z action", hotkey: "z", handler: onAction });
+      useCommand({ handler: onAction, hotkey: "z", id: "modal.z", title: "Z action" });
       return <text content="modal-surface" />;
     }
 
@@ -273,7 +273,7 @@ describe("command surface arbitration", () => {
       <CommandProvider>
         <RawKeyboardHarness />
       </CommandProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 

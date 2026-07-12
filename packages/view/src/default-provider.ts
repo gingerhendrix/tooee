@@ -22,31 +22,31 @@ function detectFormat(filePath: string): { format: ContentFormat; language?: str
   }
 
   const codeExts: Record<string, string> = {
-    ts: "typescript",
-    tsx: "typescript",
-    js: "javascript",
-    jsx: "javascript",
-    py: "python",
-    rs: "rust",
-    go: "go",
-    rb: "ruby",
-    sh: "bash",
     bash: "bash",
-    zsh: "zsh",
-    json: "json",
-    yaml: "yaml",
-    yml: "yaml",
-    toml: "toml",
-    css: "css",
-    html: "html",
-    sql: "sql",
     c: "c",
     cpp: "cpp",
+    css: "css",
+    go: "go",
     h: "c",
     hpp: "cpp",
+    html: "html",
     java: "java",
+    js: "javascript",
+    json: "json",
+    jsx: "javascript",
     kt: "kotlin",
+    py: "python",
+    rb: "ruby",
+    rs: "rust",
+    sh: "bash",
+    sql: "sql",
     swift: "swift",
+    toml: "toml",
+    ts: "typescript",
+    tsx: "typescript",
+    yaml: "yaml",
+    yml: "yaml",
+    zsh: "zsh",
   };
 
   const language = codeExts[ext];
@@ -68,11 +68,11 @@ function contentFromText(
       return { format: "markdown", markdown: text, title };
     }
     case "code": {
-      return { format: "code", code: text, language, title };
+      return { code: text, format: "code", language, title };
     }
     case "table": {
       const parsed = parseAuto(text);
-      return { format: "table", columns: parsed.columns, rows: parsed.rows, title };
+      return { columns: parsed.columns, format: "table", rows: parsed.rows, title };
     }
     case "text":
     default: {

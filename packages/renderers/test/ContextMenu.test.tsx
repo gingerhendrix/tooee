@@ -7,7 +7,7 @@ import { ContextMenu } from "../src/ContextMenu.js";
 import type { ContextMenuEntry } from "../src/ContextMenu.js";
 
 const ENTRIES: ContextMenuEntry[] = [
-  { id: "copy", title: "Copy row", hotkey: "y" },
+  { hotkey: "y", id: "copy", title: "Copy row" },
   { id: "open", title: "Open" },
   { id: "delete", title: "Delete" },
 ];
@@ -35,7 +35,7 @@ describe("ContextMenu", () => {
       <ThemeSwitcherProvider>
         <ContextMenu entries={ENTRIES} x={4} y={2} onSelect={() => {}} onClose={() => {}} />
       </ThemeSwitcherProvider>,
-      { width: 50, height: 20 },
+      { height: 20, width: 50 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -56,7 +56,7 @@ describe("ContextMenu", () => {
           onClose={() => {}}
         />
       </ThemeSwitcherProvider>,
-      { width: 50, height: 20 },
+      { height: 20, width: 50 },
     );
     await testSetup.renderOnce();
     const pos = lineOf(testSetup.captureCharFrame(), "Delete");
@@ -81,7 +81,7 @@ describe("ContextMenu", () => {
           onClose={() => {}}
         />
       </ThemeSwitcherProvider>,
-      { width: 50, height: 20 },
+      { height: 20, width: 50 },
     );
     await testSetup.renderOnce();
 
@@ -102,7 +102,7 @@ describe("ContextMenu", () => {
       <ThemeSwitcherProvider>
         <ContextMenu entries={ENTRIES} x={4} y={2} onSelect={() => {}} onClose={() => closed++} />
       </ThemeSwitcherProvider>,
-      { width: 50, height: 20 },
+      { height: 20, width: 50 },
     );
     await testSetup.renderOnce();
     // Click far from the menu panel (bottom-right corner) → backdrop.
@@ -118,7 +118,7 @@ describe("ContextMenu", () => {
       <ThemeSwitcherProvider>
         <ContextMenu entries={ENTRIES} x={48} y={19} onSelect={() => {}} onClose={() => {}} />
       </ThemeSwitcherProvider>,
-      { width: 50, height: 20 },
+      { height: 20, width: 50 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();

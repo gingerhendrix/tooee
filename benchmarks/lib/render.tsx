@@ -9,7 +9,7 @@ export interface BenchmarkViewport {
   height: number;
 }
 
-export const DEFAULT_VIEWPORT: BenchmarkViewport = { width: 140, height: 36 };
+export const DEFAULT_VIEWPORT: BenchmarkViewport = { height: 36, width: 140 };
 
 export type TestRendererSetup = Awaited<ReturnType<typeof testRender>>;
 

@@ -54,29 +54,29 @@ export function classifyMetric(
 ): Pick<BenchmarkMetricResult, "unit" | "comparable" | "threshold"> {
   if (metric.endsWith("_ms")) {
     return {
-      unit: "ms",
       comparable: true,
       threshold: { maxRegressionRatio: 1.15, minAbsoluteRegression: 5 },
+      unit: "ms",
     };
   }
 
   if (metric.includes("rss") || metric.includes("heap") || metric.endsWith("_bytes")) {
     return {
-      unit: "bytes",
       comparable: metric.includes("rss") || metric.includes("heap"),
       threshold: { maxRegressionRatio: 1.2, minAbsoluteRegression: 8 * 1024 * 1024 },
+      unit: "bytes",
     };
   }
 
   if (metric.startsWith("is_") || metric.endsWith("_available")) {
-    return { unit: "boolean", comparable: false };
+    return { comparable: false, unit: "boolean" };
   }
 
   if (metric.endsWith("_ratio")) {
-    return { unit: "ratio", comparable: false };
+    return { comparable: false, unit: "ratio" };
   }
 
-  return { unit: "count", comparable: false };
+  return { comparable: false, unit: "count" };
 }
 
 export function aggregateMetric(
@@ -88,15 +88,15 @@ export function aggregateMetric(
   const classification = classifyMetric(metric);
 
   return {
-    name: `${source}/${metric}`,
-    source,
-    metric,
-    samples,
+    max: sorted.at(-1) ?? 0,
     median: percentile(sorted, 50),
+    metric,
+    min: sorted[0] ?? 0,
+    name: `${source}/${metric}`,
     p75: percentile(sorted, 75),
     p95: percentile(sorted, 95),
-    min: sorted[0] ?? 0,
-    max: sorted.at(-1) ?? 0,
+    samples,
+    source,
     ...classification,
   };
 }

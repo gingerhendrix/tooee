@@ -69,7 +69,7 @@ async function setupNested() {
     <TooeeProvider>
       <NestedHarness />
     </TooeeProvider>,
-    { width: 80, height: 30, kittyKeyboard: true },
+    { height: 30, kittyKeyboard: true, width: 80 },
   );
   await session.renderOnce();
   return session;
@@ -94,21 +94,14 @@ function NestedHarness() {
   nested.current = {
     open: () =>
       ask.open({
-        prompt: "Ask something",
-        multiline: false,
-        controllerRef,
         commands: [
           {
-            id: "pick-model",
-            title: "Pick model",
-            hotkey: "ctrl+p",
-            modes: ["insert", "cursor"],
             handler: () => {
               void choose
                 .open({
                   items: MODELS,
-                  toItem: (model) => ({ text: model.label, description: model.id }),
                   prompt: "Pick a model",
+                  toItem: (model) => ({ description: model.id, text: model.label }),
                 })
                 .then((model) => {
                   chooseSettlements.push(model === null ? null : model.id);
@@ -117,8 +110,15 @@ function NestedHarness() {
                   }
                 });
             },
+            hotkey: "ctrl+p",
+            id: "pick-model",
+            modes: ["insert", "cursor"],
+            title: "Pick model",
           },
         ],
+        controllerRef,
+        multiline: false,
+        prompt: "Ask something",
       }),
   };
 

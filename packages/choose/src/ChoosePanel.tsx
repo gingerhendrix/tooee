@@ -56,7 +56,7 @@ export function ChoosePanel({
   const { theme } = useTheme();
   const mode = useMode();
   const defaults = buildChooseHints(mode, { multi });
-  const hintContent = hints ? hints({ mode, defaults }) : defaults.join("  ");
+  const hintContent = hints ? hints({ defaults, mode }) : defaults.join("  ");
 
   return (
     <box

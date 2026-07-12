@@ -23,8 +23,8 @@ function readArgValue(args: string[], index: number): string {
 
 function parseArgs(args: string[]): RunOptions {
   const options: RunOptions = {
-    samples: Number(process.env.TOOEE_BENCH_SAMPLES ?? 3),
     includeHeavy: process.env.TOOEE_BENCH_INCLUDE_HEAVY === "1",
+    samples: Number(process.env.TOOEE_BENCH_SAMPLES ?? 3),
     scripts: [],
   };
 
@@ -98,10 +98,10 @@ function parseMetrics(output: string): Map<string, number> {
 
 async function runScript(script: string): Promise<Map<string, number>> {
   const proc = Bun.spawn(["bun", "--conditions=@tooee/source", `benchmarks/${script}`], {
-    stdout: "pipe",
+    env: { ...process.env, CI: process.env.CI ?? "1" },
     stderr: "pipe",
     stdin: "ignore",
-    env: { ...process.env, CI: process.env.CI ?? "1" },
+    stdout: "pipe",
   });
 
   const [stdout, stderr, exitCode] = await Promise.all([
@@ -124,9 +124,9 @@ async function runScript(script: string): Promise<Map<string, number>> {
 
 function gitSha(): string | undefined {
   const proc = Bun.spawnSync(["git", "rev-parse", "HEAD"], {
-    stdout: "pipe",
     stderr: "ignore",
     stdin: "ignore",
+    stdout: "pipe",
   });
   if (proc.exitCode !== 0) return undefined;
   return Buffer.from(proc.stdout).toString("utf-8").trim();
@@ -166,7 +166,7 @@ for (const script of scripts) {
 
     for (const [metric, value] of metrics) {
       const key = `${source}/${metric}`;
-      const entry = samplesByMetric.get(key) ?? { source, metric, samples: [] };
+      const entry = samplesByMetric.get(key) ?? { metric, samples: [], source };
       entry.samples.push(value);
       samplesByMetric.set(key, entry);
     }
@@ -179,19 +179,19 @@ const results = [...samplesByMetric.values()]
 const packageJson = await packageInfo();
 
 const runResult: BenchmarkRunResult = {
-  version: 1,
   generatedAt: new Date().toISOString(),
   gitSha: gitSha(),
   packageName: packageJson.name,
   packageVersion: packageJson.version,
+  results,
   runtime: {
+    arch: os.arch(),
     bunVersion: Bun.version,
     platform: os.platform(),
-    arch: os.arch(),
   },
   samplesPerBenchmark: options.samples,
   scripts,
-  results,
+  version: 1,
 };
 
 console.log("\n## Aggregated benchmark medians");

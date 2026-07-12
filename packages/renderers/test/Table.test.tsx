@@ -6,8 +6,8 @@ import { computeColumnWidths, isNumeric } from "../src/Table.js";
 
 function createColumns(headers: string[]) {
   return headers.map((header, index) => ({
-    key: `col_${index}`,
     header,
+    key: `col_${index}`,
   }));
 }
 
@@ -40,7 +40,7 @@ describe("Table component", () => {
           maxWidth={60}
         />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 20 },
+      { height: 20, width: 60 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -65,7 +65,7 @@ describe("Table component", () => {
           maxWidth={50}
         />
       </ThemeSwitcherProvider>,
-      { width: 50, height: 20 },
+      { height: 20, width: 50 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -84,7 +84,7 @@ describe("Table component", () => {
           maxWidth={35}
         />
       </ThemeSwitcherProvider>,
-      { width: 35, height: 20 },
+      { height: 20, width: 35 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -105,7 +105,7 @@ describe("Table component", () => {
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 10 },
+      { height: 10, width: 40 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -122,7 +122,7 @@ describe("Table component", () => {
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 10 },
+      { height: 10, width: 40 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -147,7 +147,7 @@ describe("Table component", () => {
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 15 },
+      { height: 15, width: 40 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -170,7 +170,7 @@ describe("Table component", () => {
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 15 },
+      { height: 15, width: 40 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -194,7 +194,7 @@ describe("Table component", () => {
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 10 },
+      { height: 10, width: 40 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -216,7 +216,7 @@ describe("Table component", () => {
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,
-      { width: 40, height: 15 },
+      { height: 15, width: 40 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -224,7 +224,7 @@ describe("Table component", () => {
   });
 });
 
-const defaultOptions = { minColumnWidth: 4, maxColumnWidth: 80, sampleSize: 100 };
+const defaultOptions = { maxColumnWidth: 80, minColumnWidth: 4, sampleSize: 100 };
 
 describe("fill mode", () => {
   test("fill mode expands columns to fill available width", () => {
@@ -274,7 +274,7 @@ describe("fill mode", () => {
           columnWidthMode="fill"
         />
       </ThemeSwitcherProvider>,
-      { width: 60, height: 10 },
+      { height: 10, width: 60 },
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();

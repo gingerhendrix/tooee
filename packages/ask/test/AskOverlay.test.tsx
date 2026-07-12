@@ -26,14 +26,14 @@ async function setupAsk(
         defaultValue={opts.defaultValue}
         actions={[
           {
+            handler: (ctx) => opts.onSubmit?.(ctx.ask.value),
             id: "submit",
             title: "Submit",
-            handler: (ctx) => opts.onSubmit?.(ctx.ask.value),
           },
         ]}
       />
     </TooeeProvider>,
-    { width: 80, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 80 },
   );
   await s.renderOnce();
   return s;
@@ -57,7 +57,7 @@ async function setup(
         onCancel={opts.onCancel ?? (() => {})}
       />
     </TooeeProvider>,
-    { width: 80, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 80 },
   );
   await s.renderOnce();
   return s;
@@ -135,8 +135,8 @@ describe("Ask default value cursor", () => {
   test("single-line typing appends after the default value", async () => {
     let submitted = "";
     testSetup = await setupAsk({
-      multiline: false,
       defaultValue: "hello",
+      multiline: false,
       onSubmit: (value) => {
         submitted = value;
       },
@@ -170,8 +170,8 @@ describe("Ask default value cursor", () => {
   test("single-line standalone Ask submits with Enter", async () => {
     let submitted = "";
     testSetup = await setupAsk({
-      multiline: false,
       defaultValue: "hello",
+      multiline: false,
       onSubmit: (value) => {
         submitted = value;
       },
@@ -187,8 +187,8 @@ describe("Ask default value cursor", () => {
   test("multiline cursor starts at the end of the default value", async () => {
     const defaultValue = "hello\nworld";
     testSetup = await setupAsk({
-      multiline: true,
       defaultValue,
+      multiline: true,
     });
 
     const textarea = findEditableWithText(testSetup.renderer.root, defaultValue);
@@ -216,8 +216,8 @@ describe("AskOverlay default value cursor", () => {
   test("multiline cursor starts at the end of the default value", async () => {
     const defaultValue = "hello\nworld";
     testSetup = await setup({
-      multiline: true,
       defaultValue,
+      multiline: true,
     });
 
     const textarea = findEditableWithText(testSetup.renderer.root, defaultValue);
@@ -230,8 +230,8 @@ describe("Ask cursor-mode motions", () => {
   test("keeps the standalone cursor visible in cursor mode without inserting plain text", async () => {
     let submitted = "";
     testSetup = await setupAsk({
-      multiline: false,
       defaultValue: "abcd",
+      multiline: false,
       onSubmit: (value) => {
         submitted = value;
       },
@@ -283,8 +283,8 @@ describe("Ask cursor-mode motions", () => {
   test("h and l move the standalone single-line cursor before returning to insert mode", async () => {
     let submitted = "";
     testSetup = await setupAsk({
-      multiline: false,
       defaultValue: "abcd",
+      multiline: false,
       onSubmit: (value) => {
         submitted = value;
       },
@@ -324,8 +324,8 @@ describe("Ask cursor-mode motions", () => {
   test("i inserts before and a appends after the cursor", async () => {
     let submitted = "";
     testSetup = await setupAsk({
-      multiline: false,
       defaultValue: "abcd",
+      multiline: false,
       onSubmit: (value) => {
         submitted = value;
       },
@@ -346,8 +346,8 @@ describe("Ask cursor-mode motions", () => {
   test("o and O open new multiline ask lines below and above", async () => {
     let submitted = "";
     testSetup = await setupAsk({
-      multiline: true,
       defaultValue: "one\ntwo",
+      multiline: true,
       onSubmit: (value) => {
         submitted = value;
       },
@@ -368,8 +368,8 @@ describe("Ask cursor-mode motions", () => {
   test("o opens a new overlay line below", async () => {
     let submitted = "";
     testSetup = await setup({
-      multiline: true,
       defaultValue: "one\ntwo",
+      multiline: true,
       onSubmit: (value) => {
         submitted = value;
       },
@@ -387,8 +387,8 @@ describe("Ask cursor-mode motions", () => {
   test("b supports standalone word-back motion", async () => {
     let submitted = "";
     testSetup = await setupAsk({
-      multiline: false,
       defaultValue: "one two",
+      multiline: false,
       onSubmit: (value) => {
         submitted = value;
       },
@@ -406,8 +406,8 @@ describe("Ask cursor-mode motions", () => {
   test("gg and G support overlay buffer motions", async () => {
     const defaultValue = "ab\ncd";
     testSetup = await setup({
-      multiline: true,
       defaultValue,
+      multiline: true,
     });
 
     await pressEscape();
@@ -426,8 +426,8 @@ describe("Ask cursor-mode motions", () => {
   test("j and k move the standalone multiline cursor", async () => {
     const defaultValue = "ab\ncd";
     testSetup = await setupAsk({
-      multiline: true,
       defaultValue,
+      multiline: true,
     });
 
     await pressEscape();
@@ -445,8 +445,8 @@ describe("Ask cursor-mode motions", () => {
   test("j and k move the overlay multiline cursor", async () => {
     const defaultValue = "ab\ncd";
     testSetup = await setup({
-      multiline: true,
       defaultValue,
+      multiline: true,
     });
 
     await pressEscape();

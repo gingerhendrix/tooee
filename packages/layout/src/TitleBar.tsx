@@ -10,9 +10,9 @@ export function TitleBar({ title, subtitle }: TitleBarProps) {
   return (
     <box
       style={{
+        backgroundColor: theme.backgroundPanel,
         flexDirection: "row",
         flexShrink: 0,
-        backgroundColor: theme.backgroundPanel,
         padding: 0,
         paddingLeft: 1,
         paddingRight: 1,

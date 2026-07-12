@@ -195,9 +195,9 @@ function FlatBlockRenderer({
             style={{
               fg: theme.markdownText,
               marginBottom: 1,
-              marginTop: 0,
               marginLeft: 1 + indent,
               marginRight: 1,
+              marginTop: 0,
             }}
           />
         );
@@ -275,7 +275,7 @@ function HeadingRenderer({
   };
 
   return (
-    <box style={{ marginTop: 1, marginBottom: 1, marginLeft: indent }}>
+    <box style={{ marginBottom: 1, marginLeft: indent, marginTop: 1 }}>
       <text style={{ fg: headingColors[token.depth] || theme.text }}>
         <span fg={theme.textMuted}>{prefixes[token.depth]}</span>
         <strong>
@@ -319,7 +319,7 @@ function BlockquoteRenderer({
     for (const child of token.tokens) {
       if ("tokens" in child && Array.isArray(child.tokens)) {
         if (inlineTokens.length > 0) {
-          inlineTokens.push({ type: "text", raw: "\n", text: "\n" } as Token);
+          inlineTokens.push({ raw: "\n", text: "\n", type: "text" } as Token);
         }
         inlineTokens.push(...child.tokens);
       } else if ("text" in child && typeof child.text === "string") {
@@ -331,10 +331,10 @@ function BlockquoteRenderer({
   return (
     <box
       style={{
-        marginTop: 0,
         marginBottom: 1,
         marginLeft: 1 + indent,
         marginRight: 1,
+        marginTop: 0,
         paddingLeft: 2,
       }}
     >
@@ -371,7 +371,7 @@ function MarkdownTableRenderer({ token, indent }: { token: Tokens.Table; indent:
   }, [token, theme]);
 
   return (
-    <box style={{ marginLeft: 1 + indent, marginRight: 1, marginBottom: 1 }}>
+    <box style={{ marginBottom: 1, marginLeft: 1 + indent, marginRight: 1 }}>
       <text-table
         content={content}
         wrapMode="word"
@@ -388,7 +388,7 @@ function MarkdownTableRenderer({ token, indent }: { token: Tokens.Table; indent:
 
 function HorizontalRule({ theme, indent }: { theme: ResolvedTheme; indent: number }) {
   return (
-    <box style={{ marginTop: 0, marginBottom: 1, marginLeft: 1 + indent, marginRight: 1 }}>
+    <box style={{ marginBottom: 1, marginLeft: 1 + indent, marginRight: 1, marginTop: 0 }}>
       <text style={{ fg: theme.markdownHorizontalRule }} content={"─".repeat(40)} />
     </box>
   );
@@ -518,9 +518,9 @@ function inlineTokensToChunks(tokens: Token[], theme: ResolvedTheme): TextChunk[
       case "codespan": {
         chunks.push({
           __isChunk: true as const,
-          text: ` ${(token as Tokens.Codespan).text} `,
-          fg: parseColor(theme.markdownCode),
           bg: parseColor(theme.backgroundPanel),
+          fg: parseColor(theme.markdownCode),
+          text: ` ${(token as Tokens.Codespan).text} `,
         });
         break;
       }

@@ -180,6 +180,23 @@ function createBaseStore(initialContext: CommandStoreContext) {
         }
         return { ...ctx, commandsBySurface };
       },
+      contextSourceRegistered: (
+        ctx: CommandStoreContext,
+        event: { id: string; getter: ContextGetter },
+      ): CommandStoreContext => {
+        const contextSources = new Map(ctx.contextSources);
+        contextSources.set(event.id, event.getter);
+        return { ...ctx, contextSources };
+      },
+      contextSourceUnregistered: (
+        ctx: CommandStoreContext,
+        event: { id: string },
+      ): CommandStoreContext => {
+        if (!ctx.contextSources.has(event.id)) return ctx;
+        const contextSources = new Map(ctx.contextSources);
+        contextSources.delete(event.id);
+        return { ...ctx, contextSources };
+      },
       groupRegistered: (
         ctx: CommandStoreContext,
         event: { group: RegisteredCommandGroup },
@@ -198,36 +215,16 @@ function createBaseStore(initialContext: CommandStoreContext) {
         groups.delete(event.group.prefixKey);
         return { ...ctx, groups };
       },
-      contextSourceRegistered: (
+      modeChanged: (ctx: CommandStoreContext, _event: { surfaceId: string }): CommandStoreContext =>
+        // A mode change is a transition, not a post-render repair: any pending
+        // chord is invalidated (F-08 — including surface-local mode changes).
+        ctx.sequence === null ? ctx : { ...ctx, sequence: null },
+      sequencePending: (
         ctx: CommandStoreContext,
-        event: { id: string; getter: ContextGetter },
-      ): CommandStoreContext => {
-        const contextSources = new Map(ctx.contextSources);
-        contextSources.set(event.id, event.getter);
-        return { ...ctx, contextSources };
-      },
-      contextSourceUnregistered: (
-        ctx: CommandStoreContext,
-        event: { id: string },
-      ): CommandStoreContext => {
-        if (!ctx.contextSources.has(event.id)) return ctx;
-        const contextSources = new Map(ctx.contextSources);
-        contextSources.delete(event.id);
-        return { ...ctx, contextSources };
-      },
-      surfacePushed: (
-        ctx: CommandStoreContext,
-        event: { surface: SurfaceRecord },
-      ): CommandStoreContext => {
-        const before = selectActiveModalSurface(ctx);
-        const surfaces = [...ctx.surfaces, event.surface];
-        const after = selectActiveModalSurface({ ...ctx, surfaces });
-        return {
-          ...ctx,
-          surfaces,
-          sequence: sequenceAfterStackChange(before, after, ctx.sequence),
-        };
-      },
+        event: { state: CommandSequenceState },
+      ): CommandStoreContext => ({ ...ctx, sequence: event.state }),
+      sequenceReset: (ctx: CommandStoreContext): CommandStoreContext =>
+        ctx.sequence === null ? ctx : { ...ctx, sequence: null },
       surfacePopped: (
         ctx: CommandStoreContext,
         event: { surface: SurfaceRecord },
@@ -239,20 +236,23 @@ function createBaseStore(initialContext: CommandStoreContext) {
         const after = selectActiveModalSurface({ ...ctx, surfaces });
         return {
           ...ctx,
-          surfaces,
           sequence: sequenceAfterStackChange(before, after, ctx.sequence),
+          surfaces,
         };
       },
-      modeChanged: (ctx: CommandStoreContext, _event: { surfaceId: string }): CommandStoreContext =>
-        // A mode change is a transition, not a post-render repair: any pending
-        // chord is invalidated (F-08 — including surface-local mode changes).
-        ctx.sequence === null ? ctx : { ...ctx, sequence: null },
-      sequencePending: (
+      surfacePushed: (
         ctx: CommandStoreContext,
-        event: { state: CommandSequenceState },
-      ): CommandStoreContext => ({ ...ctx, sequence: event.state }),
-      sequenceReset: (ctx: CommandStoreContext): CommandStoreContext =>
-        ctx.sequence === null ? ctx : { ...ctx, sequence: null },
+        event: { surface: SurfaceRecord },
+      ): CommandStoreContext => {
+        const before = selectActiveModalSurface(ctx);
+        const surfaces = [...ctx.surfaces, event.surface];
+        const after = selectActiveModalSurface({ ...ctx, surfaces });
+        return {
+          ...ctx,
+          sequence: sequenceAfterStackChange(before, after, ctx.sequence),
+          surfaces,
+        };
+      },
     },
   });
 }
@@ -322,25 +322,25 @@ export interface CommandStore {
 
 export function createCommandStore(options: CreateCommandStoreOptions): CommandStore {
   const rootRecord: SurfaceRecord = {
-    id: ROOT_SURFACE_ID,
-    role: "root",
-    depth: 0,
-    order: 0,
-    getMode: options.root.getMode,
     buildCtx: options.root.buildCtx,
+    depth: 0,
+    getMode: options.root.getMode,
+    id: ROOT_SURFACE_ID,
+    order: 0,
+    role: "root",
   };
 
   const store = createBaseStore({
-    surfaces: [rootRecord],
     commandsBySurface: new Map(),
-    groups: new Map(),
     contextSources: new Map(),
+    groups: new Map(),
     sequence: null,
+    surfaces: [rootRecord],
   });
 
   let config: CommandStoreConfig = {
-    leader: options.leader,
     keymap: options.keymap,
+    leader: options.leader,
     sequenceTimeoutMs: options.sequenceTimeoutMs,
   };
 
@@ -450,18 +450,18 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
       if (pending) {
         const firstCandidate = multiStepCandidates[pending.indexes[0]];
         const state: CommandSequenceState = {
-          prefix: firstCandidate.parsed.steps.slice(0, pending.prefixLength),
           candidates: pending.indexes
             .map((idx) => multiStepCandidates[idx])
             .filter(({ command }) => !command.hidden)
             .map(({ command, hotkey, parsed }) => ({
               command,
-              hotkey,
-              steps: parsed.steps,
-              remainingSteps: parsed.steps.slice(pending.prefixLength),
-              nextStep: parsed.steps[pending.prefixLength],
               group: ctx.groups.get(stepsKey(parsed.steps.slice(0, pending.prefixLength + 1))),
+              hotkey,
+              nextStep: parsed.steps[pending.prefixLength],
+              remainingSteps: parsed.steps.slice(pending.prefixLength),
+              steps: parsed.steps,
             })),
+          prefix: firstCandidate.parsed.steps.slice(0, pending.prefixLength),
         };
         store.trigger.sequencePending({ state });
         return { handled: true };
@@ -517,12 +517,6 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
           // are Maps at runtime (readonly-typed). Consumers must not mutate.
           return (current ?? new Map()) as Map<string, Command>;
         },
-        register(command: Command) {
-          store.trigger.commandRegistered({ surfaceId: record.id, command });
-          return () => {
-            store.trigger.commandUnregistered({ surfaceId: record.id, command });
-          };
-        },
         invoke(id: string) {
           const ctx = store.getSnapshot().context;
           const cmd = ctx.commandsBySurface.get(record.id)?.get(id);
@@ -531,6 +525,12 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
           if (!cmd.when || cmd.when(cmdCtx)) {
             cmd.handler(cmdCtx);
           }
+        },
+        register(command: Command) {
+          store.trigger.commandRegistered({ command, surfaceId: record.id });
+          return () => {
+            store.trigger.commandUnregistered({ command, surfaceId: record.id });
+          };
         },
       };
       registries.set(record, registry);
@@ -543,14 +543,14 @@ export function createCommandStore(options: CreateCommandStoreOptions): CommandS
   }
 
   return {
-    store,
-    rootRecord,
-    key,
-    reset,
     dispose,
-    pushSurface,
+    key,
     modeChanged,
+    pushSurface,
     registryFor,
+    reset,
+    rootRecord,
     setConfig,
+    store,
   };
 }

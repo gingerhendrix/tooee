@@ -12,12 +12,12 @@ const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
 async function launchDemo(): Promise<Session> {
   resetTestConfig(CONFIG_NAMESPACE);
   const session = await launchTerminal({
-    command: "bun",
     args: ["--conditions=@tooee/source", DEMO],
     cols: 80,
-    rows: 40,
+    command: "bun",
     cwd: REPO_ROOT,
     env: { ...process.env, XDG_CONFIG_HOME: TEST_CONFIG_HOME },
+    rows: 40,
   });
   // Wait for the app to be ready — status bar shows "Format:"
   await session.waitForText("Format:", { timeout: 15_000 });

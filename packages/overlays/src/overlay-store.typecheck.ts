@@ -27,7 +27,7 @@ export function overlayStoreTypeChecks(): void {
   store.trigger.updated({ id: "x", next: null });
   store.trigger.closed({ id: "x", reason });
   store.trigger.closedTop({ reason });
-  store.send({ type: "closedTop", reason });
+  store.send({ reason, type: "closedTop" });
   store.on("closed", (emitted) => {
     const {
       reason: closeReason,

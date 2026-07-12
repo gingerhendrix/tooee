@@ -50,16 +50,16 @@ export type ChooseOverlayProps = ChooseOverlayBaseProps &
 export function ChooseOverlay(props: ChooseOverlayProps) {
   const multi = props.multi === true;
   const choose = useChoose({
-    source: props.items,
+    commandScope: "choose-overlay",
+    commands: props.commands,
     multi,
+    onCancel: props.onCancel,
     onSubmit: (result) => {
       if (multi) return props.onSubmit(result);
       const [item] = result.items;
       if (item) return props.onSelect(item);
     },
-    onCancel: props.onCancel,
-    commands: props.commands,
-    commandScope: "choose-overlay",
+    source: props.items,
     suspended: props.suspended,
   });
 

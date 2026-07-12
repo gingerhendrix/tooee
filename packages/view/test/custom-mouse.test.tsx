@@ -7,8 +7,8 @@ import { View } from "../src/View.js";
 import type { AnyContent, ContentProvider, ContentRenderer } from "../src/types.js";
 
 const CONTENT: AnyContent = {
-  format: "chart",
   data: {},
+  format: "chart",
   getTextContent: () => "a\nb\nc\nd",
 };
 
@@ -52,7 +52,7 @@ async function setup(renderer: ContentRenderer) {
     <TooeeProvider>
       <View contentProvider={PROVIDER} renderers={{ chart: renderer }} />
     </TooeeProvider>,
-    { width: 80, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 80 },
   );
   await s.renderOnce();
   await act(async () => {

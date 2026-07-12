@@ -30,26 +30,26 @@ const rows = [
 ];
 
 const columns = headers.map((header, index) => ({
-  key: columnKeys[index],
   header,
+  key: columnKeys[index],
 }));
 
 const tableRows = rows.map((row) => {
   const record: Record<(typeof columnKeys)[number], string> = {
-    language: row[0] ?? "",
-    year: row[1] ?? "",
     creator: row[2] ?? "",
+    language: row[0] ?? "",
     paradigm: row[3] ?? "",
+    year: row[1] ?? "",
   };
   return record;
 });
 
 const contentProvider: ContentProvider = {
   load: (): Content => ({
-    title: "Programming Languages",
-    format: "table",
     columns,
+    format: "table",
     rows: tableRows,
+    title: "Programming Languages",
   }),
 };
 

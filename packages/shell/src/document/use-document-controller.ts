@@ -37,11 +37,11 @@ function makeAnchor<T>(
   const row = rows[index];
   if (row === undefined) return null;
   return {
-    row,
     index,
     key: rowKey(adapter, row, index),
-    text: adapter.getText(row, index),
+    row,
     source: adapter.getSource?.(row, index) ?? null,
+    text: adapter.getText(row, index),
   };
 }
 
@@ -142,8 +142,8 @@ export function useDocumentController<T>(
     [rows],
   );
   const navSearchStore = useNavSearchStore({
-    keys: rowKeys,
     isSelectable,
+    keys: rowKeys,
     preserveCursorByKey,
   });
   const navigation = useNavigationBindings(navSearchStore, { multiSelect });
@@ -164,20 +164,20 @@ export function useDocumentController<T>(
 
   // Rows are the searched content: a committed query re-matches when they change.
   const searchState = useSearchBindings(navSearchStore, {
-    match,
-    enabled: searchEnabled,
     deps: [rows],
+    enabled: searchEnabled,
+    match,
   });
   const search = searchEnabled ? searchState : null;
 
   // -- Copy -----------------------------------------------------------------
 
   useCopy({
-    getRowText,
     cursor: navigation.cursor,
+    enabled: copy,
+    getRowText,
     selection: navigation.selection,
     toggledIndices,
-    enabled: copy,
   });
 
   // -- Derived rows ---------------------------------------------------------
@@ -235,12 +235,12 @@ export function useDocumentController<T>(
   const interactionDecorations = useMemo(
     () =>
       buildInteractionDecorations({
-        cursor: navigation.cursor,
-        selection: navigation.selection,
-        toggledIndices,
-        matchingLines: search?.matchingLines ?? EMPTY_MATCHES,
         currentMatchIndex: search?.currentMatchIndex ?? 0,
+        cursor: navigation.cursor,
+        matchingLines: search?.matchingLines ?? EMPTY_MATCHES,
+        selection: navigation.selection,
         theme,
+        toggledIndices,
       }),
     [
       navigation.cursor,
@@ -300,7 +300,7 @@ export function useDocumentController<T>(
     (screenY: number) => {
       const index = ref.current?.getRowAtScreenY(screenY);
       if (index == null || index < 0 || index >= rowsRef.current.length) return null;
-      return { row: rowsRef.current[index]!, index, key: getRowKey(index) };
+      return { index, key: getRowKey(index), row: rowsRef.current[index]! };
     },
     [getRowKey],
   );
@@ -343,7 +343,7 @@ export function useDocumentController<T>(
       // not re-rendered yet); registry `invoke` re-checks `when` with a fresh
       // context when an entry is actually chosen, after selection commits.
       const context = buildCommandContext();
-      const items = typeof menu === "function" ? menu({ ...hit, event, context }) : menu;
+      const items = typeof menu === "function" ? menu({ ...hit, context, event }) : menu;
       const entries = resolveContextMenuEntries(items, context);
       if (entries.length === 0) return;
       openContextMenu(event.x, event.y, entries, (id) => invokeRef.current(id));
@@ -353,24 +353,24 @@ export function useDocumentController<T>(
 
   return useMemo(
     () => ({
-      rows,
-      navigation: { ...navigation, toggledIndices },
-      search,
+      activeAnchor,
       activeIndex,
       activeKey,
       activeRow,
-      selectedRows,
-      activeAnchor,
-      selectedAnchors,
-      toggledIndices,
-      ref,
       decorations,
-      getRow,
-      getRowKey,
       getAnchor,
+      getRow,
       getRowAtScreenY,
-      selectRow,
+      getRowKey,
+      navigation: { ...navigation, toggledIndices },
       onMouseDown,
+      ref,
+      rows,
+      search,
+      selectRow,
+      selectedAnchors,
+      selectedRows,
+      toggledIndices,
     }),
     [
       rows,

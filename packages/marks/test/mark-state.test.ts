@@ -86,9 +86,9 @@ describe("effectiveStyleAtLine", () => {
   test("respects per-mark priority override", () => {
     const lowSet = new MarkSet("low", 100, [
       {
+        priority: 999,
         range: { from: { line: 5 }, to: { line: 5 } },
         style: { background: "override-bg" },
-        priority: 999,
       },
     ]);
     const highSet = buildSet("high", 300, [5]);

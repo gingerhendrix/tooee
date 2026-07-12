@@ -36,27 +36,27 @@ const contentProvider: ContentProvider = {
     const exitCode = await proc.exited;
 
     const columns = [
-      { key: "number", header: "#" },
-      { key: "title", header: "Title" },
-      { key: "author", header: "Author" },
-      { key: "state", header: "State" },
-      { key: "created", header: "Created" },
+      { header: "#", key: "number" },
+      { header: "Title", key: "title" },
+      { header: "Author", key: "author" },
+      { header: "State", key: "state" },
+      { header: "Created", key: "created" },
     ];
 
     if (exitCode !== 0) {
       return {
-        format: "table",
-        title: "Pull Requests",
         columns,
+        format: "table",
         rows: [
           {
-            number: "Error",
-            title: "Failed to fetch PRs. Is `gh` installed and authenticated?",
             author: "",
-            state: "",
             created: "",
+            number: "Error",
+            state: "",
+            title: "Failed to fetch PRs. Is `gh` installed and authenticated?",
           },
         ],
+        title: "Pull Requests",
       };
     }
 
@@ -64,30 +64,30 @@ const contentProvider: ContentProvider = {
 
     if (prs.length === 0) {
       return {
-        format: "table",
-        title: "Pull Requests",
         columns,
+        format: "table",
         rows: [
           {
-            number: "Info",
-            title: "No open pull requests",
             author: "",
-            state: "",
             created: "",
+            number: "Info",
+            state: "",
+            title: "No open pull requests",
           },
         ],
+        title: "Pull Requests",
       };
     }
 
     const rows = prs.map((pr) => ({
-      number: String(pr.number),
-      title: pr.title.length > 60 ? `${pr.title.slice(0, 60)}...` : pr.title,
       author: pr.author.login,
-      state: pr.state,
       created: new Date(pr.createdAt).toLocaleDateString(),
+      number: String(pr.number),
+      state: pr.state,
+      title: pr.title.length > 60 ? `${pr.title.slice(0, 60)}...` : pr.title,
     }));
 
-    return { format: "table", columns, rows, title: "Pull Requests" };
+    return { columns, format: "table", rows, title: "Pull Requests" };
   },
 };
 

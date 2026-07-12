@@ -61,7 +61,7 @@ function describeLayers(layers: readonly DecorationLayer[]): string {
 type HarnessOptions = Omit<UseDocumentControllerOptions<Row>, "adapter" | "rows">;
 
 function Harness({ rows, ...options }: HarnessOptions & { rows: readonly Row[] }) {
-  const document = useDocumentController<Row>({ rows, adapter: ADAPTER, ...options });
+  const document = useDocumentController<Row>({ adapter: ADAPTER, rows, ...options });
   const mode = useMode();
   handle = document;
 
@@ -107,7 +107,7 @@ async function setup(rows: readonly Row[], options: HarnessOptions = {}) {
     <TooeeProvider>
       <Harness rows={rows} {...options} />
     </TooeeProvider>,
-    { width: 70, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 70 },
   );
   await session.renderOnce();
   return session;
@@ -119,7 +119,7 @@ async function setupDynamic(initial: readonly Row[], options: HarnessOptions = {
     <TooeeProvider>
       <DynamicHarness initial={initial} onReady={(s) => (setRows = s)} {...options} />
     </TooeeProvider>,
-    { width: 70, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 70 },
   );
   await session.renderOnce();
   return async (rows: readonly Row[]) => {
@@ -268,7 +268,7 @@ describe("selection", () => {
     await press(session, "v");
     await press(session, "j");
 
-    expect(controller().navigation.selection).toEqual({ start: 0, end: 1 });
+    expect(controller().navigation.selection).toEqual({ end: 1, start: 0 });
     expect(controller().selectedRows.map((r) => r.id)).toEqual(["a", "b"]);
   });
 
@@ -383,10 +383,10 @@ describe("decorations", () => {
 
   test("external layers are appended and keep their own priority", async () => {
     const external: DecorationLayer = {
-      priority: 250,
       *forVisibleRows() {
-        yield { row: 1, background: "#ff0000" };
+        yield { background: "#ff0000", row: 1 };
       },
+      priority: 250,
     };
     await setup(THREE, { decorations: [external] });
     expect(describeLayers(controller().decorations)).toBe(

@@ -27,8 +27,8 @@ export function useContentLoader(contentProvider: ContentProvider) {
 
     if (isAsyncIterable(loaded)) {
       store.trigger.streamStarted({
-        requestId,
         format: contentProvider.format ?? "markdown",
+        requestId,
       });
       const iterator = loaded[Symbol.asyncIterator]();
       (async () => {
@@ -38,11 +38,11 @@ export function useContentLoader(contentProvider: ContentProvider) {
             if (result.done) {
               break;
             }
-            store.trigger.chunkReceived({ requestId, chunk: result.value });
+            store.trigger.chunkReceived({ chunk: result.value, requestId });
           }
           store.trigger.streamEnded({ requestId });
         } catch (error) {
-          store.trigger.loadFailed({ requestId, error: normalizeError(error) });
+          store.trigger.loadFailed({ error: normalizeError(error), requestId });
         }
       })();
       return () => {
@@ -53,14 +53,14 @@ export function useContentLoader(contentProvider: ContentProvider) {
 
     if (loaded instanceof Promise) {
       loaded
-        .then((content) => store.trigger.loaded({ requestId, content }))
+        .then((content) => store.trigger.loaded({ content, requestId }))
         .catch((error: unknown) =>
-          store.trigger.loadFailed({ requestId, error: normalizeError(error) }),
+          store.trigger.loadFailed({ error: normalizeError(error), requestId }),
         );
       return () => store.trigger.loadCancelled({ requestId });
     }
 
-    store.trigger.loaded({ requestId, content: loaded });
+    store.trigger.loaded({ content: loaded, requestId });
   }, [contentProvider, loadSeq, store]);
 
   const content = useSelector(store, (snapshot) => selectContent(snapshot.context));
@@ -70,5 +70,5 @@ export function useContentLoader(contentProvider: ContentProvider) {
   const status = useSelector(store, (snapshot) => selectStatus(snapshot.context));
   const reload = useCallback(() => store.trigger.reloadRequested({}), [store]);
 
-  return { content, streaming, error, providerMarks, status, reload };
+  return { content, error, providerMarks, reload, status, streaming };
 }

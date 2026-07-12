@@ -39,7 +39,7 @@ export function fuzzyMatchPositions(
   if (qi < lowerQuery.length) {
     return null;
   }
-  return { score, positions };
+  return { positions, score };
 }
 
 /**

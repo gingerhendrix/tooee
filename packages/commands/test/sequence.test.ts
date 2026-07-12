@@ -12,8 +12,8 @@ import type { ParsedHotkey } from "../src/types.js";
 const SPACE_THEN_N: ParsedHotkey[] = [
   {
     steps: [
-      { key: "space", ctrl: false, meta: false, shift: false, option: false },
-      { key: "n", ctrl: false, meta: false, shift: false, option: false },
+      { ctrl: false, key: "space", meta: false, option: false, shift: false },
+      { ctrl: false, key: "n", meta: false, option: false, shift: false },
     ],
   },
 ];
@@ -25,8 +25,8 @@ describe("SequenceTracker", () => {
 
     expect(DEFAULT_SEQUENCE_TIMEOUT_MS).toBe(1500);
     expect(tracker.feedWithState(key("space"), SPACE_THEN_N).pending).toEqual({
-      prefixLength: 1,
       indexes: [0],
+      prefixLength: 1,
     });
 
     await sleep(600);
@@ -37,7 +37,7 @@ describe("SequenceTracker", () => {
 
   test("resets pending multi-key combos after the configured timeout", async () => {
     let resets = 0;
-    const tracker = new SequenceTracker({ timeout: 20, onReset: () => resets++ });
+    const tracker = new SequenceTracker({ onReset: () => resets++, timeout: 20 });
 
     expect(tracker.feedWithState(key("space"), SPACE_THEN_N).pending).not.toBeNull();
 
@@ -51,18 +51,18 @@ describe("SequenceTracker", () => {
 describe("pure sequence helpers", () => {
   const G_THEN_G: ParsedHotkey = {
     steps: [
-      { key: "g", ctrl: false, meta: false, shift: false, option: false },
-      { key: "g", ctrl: false, meta: false, shift: false, option: false },
+      { ctrl: false, key: "g", meta: false, option: false, shift: false },
+      { ctrl: false, key: "g", meta: false, option: false, shift: false },
     ],
   };
   const G_THEN_T: ParsedHotkey = {
     steps: [
-      { key: "g", ctrl: false, meta: false, shift: false, option: false },
-      { key: "t", ctrl: false, meta: false, shift: false, option: false },
+      { ctrl: false, key: "g", meta: false, option: false, shift: false },
+      { ctrl: false, key: "t", meta: false, option: false, shift: false },
     ],
   };
   const SINGLE_X: ParsedHotkey = {
-    steps: [{ key: "x", ctrl: false, meta: false, shift: false, option: false }],
+    steps: [{ ctrl: false, key: "x", meta: false, option: false, shift: false }],
   };
 
   describe("matchesBuffer", () => {
@@ -85,8 +85,8 @@ describe("pure sequence helpers", () => {
   describe("findPendingMatch", () => {
     test("reports the longest pending prefix with all candidate indexes", () => {
       expect(findPendingMatch([key("g")], [G_THEN_G, G_THEN_T, SINGLE_X])).toEqual({
-        prefixLength: 1,
         indexes: [0, 1],
+        prefixLength: 1,
       });
     });
 
@@ -117,11 +117,11 @@ describe("pure sequence helpers", () => {
 
 function key(name: string): KeyEvent {
   return {
-    name,
     ctrl: false,
     meta: false,
-    shift: false,
+    name,
     option: false,
+    shift: false,
   } as KeyEvent;
 }
 

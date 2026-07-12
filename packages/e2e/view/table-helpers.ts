@@ -13,12 +13,12 @@ export async function launchTable(fixture: string): Promise<Session> {
   const fixturePath = resolve(VIEW_FIXTURES, fixture);
   resetTestConfig(CONFIG_NAMESPACE);
   const session = await launchTerminal({
-    command: "bun",
     args: ["--conditions=@tooee/source", CLI, "table", fixturePath],
     cols: 80,
-    rows: 24,
+    command: "bun",
     cwd: REPO_ROOT,
     env: { ...process.env, XDG_CONFIG_HOME: TEST_CONFIG_HOME },
+    rows: 24,
   });
   await session.waitForText("Rows:", { timeout: 15_000 });
   return session;

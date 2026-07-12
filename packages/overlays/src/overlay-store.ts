@@ -83,13 +83,33 @@ export function createOverlayStore() {
   return createStore<OverlayStoreContext, OverlayStoreEvents, OverlayStoreEmitted>({
     context: { stack: [] },
     on: {
+      closed: (ctx, event, enqueue) => {
+        const record = ctx.stack.find((entry) => entry.id === event.id);
+        if (!record) return ctx;
+        enqueue.emit.closed({
+          reason: event.reason,
+          record,
+          restoreModeTo: restoreModeDecision(ctx.stack, record),
+        });
+        return { stack: ctx.stack.filter((entry) => entry !== record) };
+      },
+      closedTop: (ctx, event, enqueue) => {
+        if (ctx.stack.length === 0) return ctx;
+        const record = ctx.stack[ctx.stack.length - 1]!;
+        enqueue.emit.closed({
+          reason: event.reason,
+          record,
+          restoreModeTo: restoreModeDecision(ctx.stack, record),
+        });
+        return { stack: ctx.stack.slice(0, -1) };
+      },
       opened: (ctx, event, enqueue) => {
         // Replacing an existing same-id entry closes it: consumers release
         // open-state (e.g. a picker's isOpen) via the contract's "replaced"
         // reason instead of the entry being silently filtered away.
         const displaced = ctx.stack.find((entry) => entry.id === event.record.id);
         if (displaced) {
-          enqueue.emit.closed({ record: displaced, reason: "replaced", restoreModeTo: null });
+          enqueue.emit.closed({ reason: "replaced", record: displaced, restoreModeTo: null });
         }
         const filtered = displaced
           ? ctx.stack.filter((entry) => entry.id !== event.record.id)
@@ -107,26 +127,6 @@ export function createOverlayStore() {
         const stack = [...ctx.stack];
         stack[idx] = { ...record, payload };
         return { stack };
-      },
-      closed: (ctx, event, enqueue) => {
-        const record = ctx.stack.find((entry) => entry.id === event.id);
-        if (!record) return ctx;
-        enqueue.emit.closed({
-          record,
-          reason: event.reason,
-          restoreModeTo: restoreModeDecision(ctx.stack, record),
-        });
-        return { stack: ctx.stack.filter((entry) => entry !== record) };
-      },
-      closedTop: (ctx, event, enqueue) => {
-        if (ctx.stack.length === 0) return ctx;
-        const record = ctx.stack[ctx.stack.length - 1]!;
-        enqueue.emit.closed({
-          record,
-          reason: event.reason,
-          restoreModeTo: restoreModeDecision(ctx.stack, record),
-        });
-        return { stack: ctx.stack.slice(0, -1) };
       },
     },
   });

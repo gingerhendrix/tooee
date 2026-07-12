@@ -14,22 +14,22 @@ function staticProvider(content: AnyContent): ContentProvider {
 }
 
 const TABLE = staticProvider({
-  format: "table",
-  title: "People",
   columns: [
-    { key: "name", header: "Name" },
-    { key: "role", header: "Role" },
+    { header: "Name", key: "name" },
+    { header: "Role", key: "role" },
   ],
+  format: "table",
   rows: [
     { name: "Alice", role: "dev" },
     { name: "Bob", role: "ops" },
     { name: "Carol", role: "dev" },
   ],
+  title: "People",
 });
 
 const CODE = staticProvider({
-  format: "code",
   code: ["alpha", "beta", "gamma", "alpha again"].join("\n"),
+  format: "code",
   language: "text",
 });
 
@@ -39,14 +39,14 @@ let commandIds: string[] = [];
 
 const ACTIONS: ActionDefinition[] = [
   {
-    id: "probe",
-    title: "Probe context",
-    hotkey: "x",
-    modes: ["cursor", "select"],
     handler: (ctx: CommandContext) => {
       documentCtx = ctx.document;
       viewCtx = ctx.view;
     },
+    hotkey: "x",
+    id: "probe",
+    modes: ["cursor", "select"],
+    title: "Probe context",
   },
 ];
 
@@ -75,7 +75,7 @@ async function setup(provider: ContentProvider) {
       <View contentProvider={provider} actions={ACTIONS} />
       <CommandProbe />
     </TooeeProvider>,
-    { width: 80, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 80 },
   );
   await s.renderOnce();
   await act(async () => {

@@ -26,18 +26,18 @@ describe("useActions re-registration key (R-07)", () => {
       const [count, setCount] = useState(0);
       useActions([
         {
-          id: "act",
-          title: "Action",
-          hotkey: "x",
-          modes,
           handler: () => setCount((n) => n + 1),
+          hotkey: "x",
+          id: "act",
+          modes,
+          title: "Action",
         },
       ]);
       useCommand({
+        handler: () => setModes(["insert"]),
+        hotkey: "s",
         id: "swap-modes",
         title: "Swap modes",
-        hotkey: "s",
-        handler: () => setModes(["insert"]),
       });
       return <text content={`count:${count}`} />;
     }
@@ -46,7 +46,7 @@ describe("useActions re-registration key (R-07)", () => {
       <CommandProvider>
         <Harness />
       </CommandProvider>,
-      { width: 60, height: 10, kittyKeyboard: true },
+      { height: 10, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -67,18 +67,18 @@ describe("useActions re-registration key (R-07)", () => {
       const [count, setCount] = useState(0);
       useActions([
         {
+          handler: () => setCount((n) => n + 1),
+          hotkey: "x",
           id: "act",
           title: "Action",
-          hotkey: "x",
-          handler: () => setCount((n) => n + 1),
           when: restricted ? () => false : undefined,
         },
       ]);
       useCommand({
+        handler: () => setRestricted(true),
+        hotkey: "s",
         id: "restrict",
         title: "Restrict",
-        hotkey: "s",
-        handler: () => setRestricted(true),
       });
       return <text content={`count:${count}`} />;
     }
@@ -87,7 +87,7 @@ describe("useActions re-registration key (R-07)", () => {
       <CommandProvider>
         <Harness />
       </CommandProvider>,
-      { width: 60, height: 10, kittyKeyboard: true },
+      { height: 10, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 

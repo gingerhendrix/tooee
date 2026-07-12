@@ -20,7 +20,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // Create a streaming content provider
 const contentProvider: ContentProvider = {
   async *load(): AsyncIterable<ContentChunk> {
-    yield { type: "append", format: "markdown", data: "Processing: " };
+    yield { data: "Processing: ", format: "markdown", type: "append" };
     await sleep(200);
 
     // Stream the response character by character
@@ -28,11 +28,11 @@ const contentProvider: ContentProvider = {
       "This is a mock streaming response demonstrating View's ability to handle async iteration via ContentProvider.load().";
 
     for (const char of response) {
-      yield { type: "append", format: "markdown", data: char };
+      yield { data: char, format: "markdown", type: "append" };
       await sleep(20);
     }
 
-    yield { type: "append", format: "markdown", data: "\n" };
+    yield { data: "\n", format: "markdown", type: "append" };
   },
 };
 

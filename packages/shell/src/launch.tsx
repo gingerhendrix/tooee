@@ -150,13 +150,13 @@ export function mountTooee(
   }
 
   return {
+    ownership: "external",
     renderer,
     root,
-    ownership: "external",
+    unmount,
     get unmounted() {
       return unmounted;
     },
-    unmount,
   };
 }
 
@@ -234,13 +234,6 @@ export async function launchCli(
   renderer.once("destroy", onRendererDestroyed);
 
   const handle: TooeeSessionHandle = {
-    renderer,
-    root: mount.root,
-    ownership: "local",
-    get destroyed() {
-      return destroyed;
-    },
-    unmount: mount.unmount,
     destroy() {
       if (destroyed) {
         return;
@@ -255,6 +248,13 @@ export async function launchCli(
         }
       }
     },
+    get destroyed() {
+      return destroyed;
+    },
+    ownership: "local",
+    renderer,
+    root: mount.root,
+    unmount: mount.unmount,
   };
 
   if (options.terminalHealth ?? true) {
@@ -290,8 +290,8 @@ export async function runCliSession<T>(
     let node: ReactNode;
     try {
       node = render({
-        resolve: (value) => settle(value),
         cancel: () => settle(null),
+        resolve: (value) => settle(value),
       });
     } catch {
       settle(null);

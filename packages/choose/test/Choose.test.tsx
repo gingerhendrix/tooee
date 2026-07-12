@@ -42,7 +42,7 @@ async function setup(
         onCancel={opts.onCancel}
       />
     </TooeeProvider>,
-    { width: 60, height: 24, kittyKeyboard: opts.kittyKeyboard ?? true },
+    { height: 24, kittyKeyboard: opts.kittyKeyboard ?? true, width: 60 },
   );
   await s.renderOnce();
   return s;
@@ -471,7 +471,7 @@ describe("Choose emptyMessage", () => {
           onCancel={opts.onCancel}
         />
       </TooeeProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await s.renderOnce();
     return s;
@@ -485,7 +485,7 @@ describe("Choose emptyMessage", () => {
   });
 
   test("does not show emptyMessage when items exist", async () => {
-    testSetup = await setupEmpty({ items: ITEMS, emptyMessage: "No items available." });
+    testSetup = await setupEmpty({ emptyMessage: "No items available.", items: ITEMS });
     const frame = testSetup.captureCharFrame();
     expect(frame).not.toContain("No items available.");
     expect(frame).toContain("alpha");

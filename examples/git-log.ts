@@ -20,25 +20,25 @@ const contentProvider: ContentProvider = {
     const exitCode = await proc.exited;
 
     const columns = [
-      { key: "hash", header: "Hash" },
-      { key: "message", header: "Message" },
-      { key: "author", header: "Author" },
-      { key: "date", header: "Date" },
+      { header: "Hash", key: "hash" },
+      { header: "Message", key: "message" },
+      { header: "Author", key: "author" },
+      { header: "Date", key: "date" },
     ];
 
     if (exitCode !== 0) {
       return {
-        format: "table",
-        title: "Git Log",
         columns,
+        format: "table",
         rows: [
           {
-            hash: "Error",
-            message: "Not a git repository or git not installed",
             author: "",
             date: "",
+            hash: "Error",
+            message: "Not a git repository or git not installed",
           },
         ],
+        title: "Git Log",
       };
     }
 
@@ -46,17 +46,17 @@ const contentProvider: ContentProvider = {
 
     if (lines.length === 0) {
       return {
-        format: "table",
-        title: "Git Log",
         columns,
+        format: "table",
         rows: [
           {
-            hash: "Info",
-            message: "No commits found",
             author: "",
             date: "",
+            hash: "Info",
+            message: "No commits found",
           },
         ],
+        title: "Git Log",
       };
     }
 
@@ -64,14 +64,14 @@ const contentProvider: ContentProvider = {
       const [hash, subject, author, date] = line.split("\u0000");
       const preview = subject.length > 120 ? `${subject.slice(0, 120)}...` : subject;
       return {
-        hash,
-        message: preview,
         author,
         date,
+        hash,
+        message: preview,
       };
     });
 
-    return { format: "table", columns, rows, title: "Git Log" };
+    return { columns, format: "table", rows, title: "Git Log" };
   },
 };
 

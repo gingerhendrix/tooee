@@ -73,36 +73,36 @@ export function ThemePicker({
   }, [activeIndex, filtered.length, navigateTo]);
 
   useCommand({
-    id: "theme-picker:close",
-    title: "Close theme picker",
-    hotkey: "Escape",
-    modes: ["insert", "cursor"],
-    hidden: true,
     handler: onClose,
+    hidden: true,
+    hotkey: "Escape",
+    id: "theme-picker:close",
+    modes: ["insert", "cursor"],
+    title: "Close theme picker",
   });
   useCommand({
-    id: "theme-picker:select",
-    title: "Select theme",
-    hotkey: "Enter",
-    modes: ["insert", "cursor"],
-    hidden: true,
     handler: handleSelect,
+    hidden: true,
+    hotkey: "Enter",
+    id: "theme-picker:select",
+    modes: ["insert", "cursor"],
+    title: "Select theme",
   });
   useCommand({
-    id: "theme-picker:move-up",
-    title: "Move up",
-    hotkey: "up",
-    modes: ["insert", "cursor"],
-    hidden: true,
     handler: moveUp,
+    hidden: true,
+    hotkey: "up",
+    id: "theme-picker:move-up",
+    modes: ["insert", "cursor"],
+    title: "Move up",
   });
   useCommand({
-    id: "theme-picker:move-down",
-    title: "Move down",
-    hotkey: "down",
-    modes: ["insert", "cursor"],
-    hidden: true,
     handler: moveDown,
+    hidden: true,
+    hotkey: "down",
+    id: "theme-picker:move-down",
+    modes: ["insert", "cursor"],
+    title: "Move down",
   });
 
   return (

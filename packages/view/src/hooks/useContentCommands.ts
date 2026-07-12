@@ -21,8 +21,8 @@ export function useContentCommands({ content, textContent }: UseContentCommandsP
     getText: () => (content ? textContent : undefined),
   });
   useToggleLineNumbersCommand({
-    showLineNumbers,
     onToggle: () => setShowLineNumbers((v) => !v),
+    showLineNumbers,
   });
 
   return { showLineNumbers };

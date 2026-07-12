@@ -78,7 +78,7 @@ export function parseJSON(input: string): { columns: ColumnDef[]; rows: TableRow
   const keys = Array.from(
     new Set(data.flatMap((item: Record<string, unknown>) => Object.keys(item))),
   );
-  const columns: ColumnDef[] = keys.map((key) => ({ key, header: key }));
+  const columns: ColumnDef[] = keys.map((key) => ({ header: key, key }));
   const rows = data.map((item: Record<string, unknown>) => {
     const row: TableRow = {};
     for (const column of columns) {
@@ -134,7 +134,7 @@ export function parseAuto(input: string): ParsedTable {
       break;
     }
   }
-  return { columns, rows, format };
+  return { columns, format, rows };
 }
 
 function splitLines(input: string): string[] {
@@ -151,8 +151,8 @@ function createColumnDefs(rawHeaders: string[]): ColumnDef[] {
     seen.set(base, count + 1);
     const key = count === 0 ? base : `${base}_${count + 1}`;
     return {
-      key,
       header: trimmed || undefined,
+      key,
     };
   });
 }

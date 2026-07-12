@@ -30,8 +30,8 @@ function DetailScreen() {
 
 // Route definitions
 
-const homeRoute = createRoute({ id: "home", component: HomeScreen });
-const detailRoute = createRoute({ id: "detail", component: DetailScreen });
+const homeRoute = createRoute({ component: HomeScreen, id: "home" });
+const detailRoute = createRoute({ component: DetailScreen, id: "detail" });
 
 // Test setup
 
@@ -51,8 +51,8 @@ describe("useActionResultHandler", () => {
     }
 
     const router = createRouter({
-      routes: [homeRoute, detailRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute],
     });
 
     testSetup = await testRender(
@@ -60,7 +60,7 @@ describe("useActionResultHandler", () => {
         <Outlet />
         <HandlerCapture />
       </RouterProvider>,
-      { width: 80, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 80 },
     );
     await testSetup.renderOnce();
 
@@ -68,7 +68,7 @@ describe("useActionResultHandler", () => {
     expect(frame).toContain("screen:home");
 
     await act(async () => {
-      handler({ type: "navigate", route: "detail" });
+      handler({ route: "detail", type: "navigate" });
     });
     await testSetup.renderOnce();
 
@@ -86,8 +86,8 @@ describe("useActionResultHandler", () => {
     }
 
     const router = createRouter({
-      routes: [homeRoute, detailRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute],
     });
 
     testSetup = await testRender(
@@ -95,12 +95,12 @@ describe("useActionResultHandler", () => {
         <Outlet />
         <HandlerCapture />
       </RouterProvider>,
-      { width: 80, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 80 },
     );
     await testSetup.renderOnce();
 
     await act(async () => {
-      handler({ type: "navigate", route: "detail", mode: "replace" });
+      handler({ mode: "replace", route: "detail", type: "navigate" });
     });
     await testSetup.renderOnce();
 
@@ -119,8 +119,8 @@ describe("useActionResultHandler", () => {
     }
 
     const router = createRouter({
-      routes: [homeRoute, detailRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute],
     });
 
     testSetup = await testRender(
@@ -128,12 +128,12 @@ describe("useActionResultHandler", () => {
         <Outlet />
         <HandlerCapture />
       </RouterProvider>,
-      { width: 80, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 80 },
     );
     await testSetup.renderOnce();
 
     await act(async () => {
-      handler({ type: "navigate", route: "detail", params: { id: "1" } });
+      handler({ params: { id: "1" }, route: "detail", type: "navigate" });
     });
     await testSetup.renderOnce();
 
@@ -151,8 +151,8 @@ describe("useActionResultHandler", () => {
     }
 
     const router = createRouter({
-      routes: [homeRoute, detailRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute],
     });
 
     testSetup = await testRender(
@@ -160,7 +160,7 @@ describe("useActionResultHandler", () => {
         <Outlet />
         <HandlerCapture />
       </RouterProvider>,
-      { width: 80, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 80 },
     );
     await testSetup.renderOnce();
 
@@ -197,8 +197,8 @@ describe("useActionResultHandler", () => {
     }
 
     const router = createRouter({
-      routes: [homeRoute, detailRoute],
       defaultRoute: "home",
+      routes: [homeRoute, detailRoute],
     });
 
     testSetup = await testRender(
@@ -206,7 +206,7 @@ describe("useActionResultHandler", () => {
         <Outlet />
         <HandlerCapture />
       </RouterProvider>,
-      { width: 80, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 80 },
     );
     await testSetup.renderOnce();
 

@@ -75,7 +75,7 @@ async function setup() {
     <TooeeProvider>
       <SearchHarness />
     </TooeeProvider>,
-    { width: 60, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 60 },
   );
   await session.renderOnce();
   return session;
@@ -107,7 +107,7 @@ describe("search hook", () => {
       <TooeeProvider>
         <CountingHarness />
       </TooeeProvider>,
-      { width: 40, height: 10, kittyKeyboard: true },
+      { height: 10, kittyKeyboard: true, width: 40 },
     );
     await testSetup.renderOnce();
     await act(async () => searchHandle!.setSearchQuery("a"));
@@ -220,9 +220,9 @@ function GrowingSearchHarness({ deps }: { deps: boolean }) {
   const text = lines.join("\n");
   const nav = useNavigation({ rowCount: lines.length, viewportHeight: 3 });
   const search = useSearch({
+    deps: deps ? [text] : undefined,
     match: (query) => findMatchingLines(text, query),
     onJump: nav.setCursor,
-    deps: deps ? [text] : undefined,
   });
   searchHandle = search;
 
@@ -234,7 +234,7 @@ async function setupGrowing(deps: boolean) {
     <TooeeProvider>
       <GrowingSearchHarness deps={deps} />
     </TooeeProvider>,
-    { width: 60, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 60 },
   );
   await session.renderOnce();
   return session;

@@ -20,10 +20,6 @@ export function useCopy({
   const setMode = useSetMode();
 
   useCommand({
-    id: "select-copy",
-    title: "Copy selection",
-    hotkey: "y",
-    modes: ["select"],
     enabled,
     handler: () => {
       let text = "";
@@ -49,5 +45,9 @@ export function useCopy({
 
       setMode("cursor");
     },
+    hotkey: "y",
+    id: "select-copy",
+    modes: ["select"],
+    title: "Copy selection",
   });
 }

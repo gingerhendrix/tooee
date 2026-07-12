@@ -96,12 +96,12 @@ function Harness() {
 
   handles.current = {
     fruits,
-    rows,
-    unmountOwner: () => setOwnerMounted(false),
     get ownerFruits() {
       return ownerRef.current;
     },
+    rows,
     stackSize: () => stateRef.current.stack.length,
+    unmountOwner: () => setOwnerMounted(false),
   };
 
   return (
@@ -118,7 +118,7 @@ async function setup() {
     <TooeeProvider>
       <Harness />
     </TooeeProvider>,
-    { width: 80, height: 30, kittyKeyboard: true },
+    { height: 30, kittyKeyboard: true, width: 80 },
   );
   await session.renderOnce();
   return session;
@@ -131,7 +131,7 @@ describe("useChooseDialog", () => {
     testSetup = await setup();
     await act(async () => {
       void handles
-        .current!.fruits.open({ items: FRUITS, toItem, prompt: "Pick fruit" })
+        .current!.fruits.open({ items: FRUITS, prompt: "Pick fruit", toItem })
         .then((fruit) => {
           // Compile-time: `fruit` is Fruit | null (no cast needed for .id).
           settlements.push(fruit === null ? null : fruit.id);
@@ -150,7 +150,7 @@ describe("useChooseDialog", () => {
     testSetup = await setup();
     await act(async () => {
       void handles
-        .current!.fruits.open({ items: FRUITS, toItem, prompt: "Pick fruit" })
+        .current!.fruits.open({ items: FRUITS, prompt: "Pick fruit", toItem })
         .then((fruit) => settlements.push(fruit === null ? null : fruit.id));
     });
     await testSetup.renderOnce();
@@ -165,7 +165,7 @@ describe("useChooseDialog", () => {
     testSetup = await setup();
     await act(async () => {
       void handles
-        .current!.fruits.open({ items: FRUITS, toItem, prompt: "Pick fruit" })
+        .current!.fruits.open({ items: FRUITS, prompt: "Pick fruit", toItem })
         .then((fruit) => settlements.push(fruit === null ? null : fruit.name));
     });
     await testSetup.renderOnce();
@@ -180,7 +180,7 @@ describe("useChooseDialog", () => {
     testSetup = await setup();
     await act(async () => {
       void handles
-        .current!.fruits.open({ items: FRUITS, toItem, multi: true, prompt: "Pick fruits" })
+        .current!.fruits.open({ items: FRUITS, multi: true, prompt: "Pick fruits", toItem })
         .then((fruits) => {
           // Compile-time: `fruits` is Fruit[] | null.
           settlements.push(fruits === null ? null : fruits.map((fruit) => fruit.id));
@@ -200,7 +200,7 @@ describe("useChooseDialog", () => {
     testSetup = await setup();
     await act(async () => {
       void handles
-        .current!.fruits.open({ items: FRUITS, toItem, prompt: "Pick fruit" })
+        .current!.fruits.open({ items: FRUITS, prompt: "Pick fruit", toItem })
         .then((fruit) => settlements.push(fruit));
     });
     await testSetup.renderOnce();
@@ -218,8 +218,8 @@ describe("useChooseDialog", () => {
       void handles
         .current!.fruits.open({
           items: () => Promise.resolve(FRUITS),
-          toItem,
           prompt: "Pick fruit",
+          toItem,
         })
         .then((fruit) => settlements.push(fruit === null ? null : fruit.name));
     });
@@ -259,7 +259,7 @@ describe("useChooseDialog", () => {
     ];
     await act(async () => {
       void handles
-        .current!.fruits.open({ items: twins, toItem, prompt: "Pick twin" })
+        .current!.fruits.open({ items: twins, prompt: "Pick twin", toItem })
         .then((fruit) => settlements.push(fruit === null ? null : fruit.id));
     });
     await testSetup.renderOnce();
@@ -275,7 +275,7 @@ describe("useChooseDialog", () => {
     const ownerDialog = handles.current!.ownerFruits!;
     await act(async () => {
       void ownerDialog
-        .open({ items: FRUITS, toItem, prompt: "Owned picker" })
+        .open({ items: FRUITS, prompt: "Owned picker", toItem })
         .then((fruit) => settlements.push(fruit));
     });
     await testSetup.renderOnce();
@@ -291,7 +291,7 @@ describe("useChooseDialog", () => {
 
     await act(async () => {
       void ownerDialog
-        .open({ items: FRUITS, toItem, prompt: "Too late" })
+        .open({ items: FRUITS, prompt: "Too late", toItem })
         .then((fruit) => settlements.push(fruit));
     });
     await testSetup.renderOnce();

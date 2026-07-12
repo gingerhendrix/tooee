@@ -44,14 +44,14 @@ export function ViewScreen<T>({
 }: ViewScreenProps<T>) {
   useProvideViewCommandContext({
     content,
-    reload,
     marks: {
-      setMarkSet,
-      clearNamespace: clearMarkNamespace,
       clearAll: clearAllUserMarks,
-      userMarks,
+      clearNamespace: clearMarkNamespace,
       providerMarks,
+      setMarkSet,
+      userMarks,
     },
+    reload,
   });
 
   const items: StatusBarItem[] = [
@@ -64,12 +64,12 @@ export function ViewScreen<T>({
       controller={controller}
       titleBar={
         content.title
-          ? { title: content.title, subtitle: content.format }
+          ? { subtitle: content.format, title: content.title }
           : { title: content.format }
       }
       statusItems={items}
       actions={actions}
-      context={{ kind: content.format, title: content.title, reload }}
+      context={{ kind: content.format, reload, title: content.title }}
     >
       {children}
     </DocumentScreen>

@@ -6,7 +6,7 @@ import { press, pressTab, pressEscape } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
 
 function CursorHarness({ rowCount }: { rowCount: number }) {
-  const nav = useNavigation({ rowCount, viewportHeight: 10, multiSelect: true });
+  const nav = useNavigation({ multiSelect: true, rowCount, viewportHeight: 10 });
   const mode = useMode();
   const selection = nav.selection;
 
@@ -29,7 +29,7 @@ async function setup(rowCount = 100) {
     <TooeeProvider>
       <CursorHarness rowCount={rowCount} />
     </TooeeProvider>,
-    { width: 60, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 60 },
   );
   await session.renderOnce();
   return session;

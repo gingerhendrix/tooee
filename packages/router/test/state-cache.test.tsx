@@ -39,9 +39,9 @@ function SavingScreen() {
 
 // Route definitions
 
-const routeA = createRoute({ id: "screenA", component: ScreenA });
-const routeB = createRoute({ id: "screenB", component: ScreenB });
-const savingRoute = createRoute({ id: "saving", component: SavingScreen });
+const routeA = createRoute({ component: ScreenA, id: "screenA" });
+const routeB = createRoute({ component: ScreenB, id: "screenB" });
+const savingRoute = createRoute({ component: SavingScreen, id: "saving" });
 
 // Test setup
 
@@ -54,15 +54,15 @@ afterEach(() => {
 describe("useScreenState", () => {
   test("saved state is available after pop", async () => {
     const router = createRouter({
-      routes: [routeA, routeB],
       defaultRoute: "screenA",
+      routes: [routeA, routeB],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -95,15 +95,15 @@ describe("useScreenState", () => {
 
   test("reset clears all saved state", async () => {
     const router = createRouter({
-      routes: [routeA, routeB],
       defaultRoute: "screenA",
+      routes: [routeA, routeB],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -126,15 +126,15 @@ describe("useScreenState", () => {
 
   test("different stack positions have independent cache entries", async () => {
     const router = createRouter({
-      routes: [routeA, routeB],
       defaultRoute: "screenA",
+      routes: [routeA, routeB],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -174,15 +174,15 @@ describe("useScreenState", () => {
 
   test("saveState from hook stores state in cache", async () => {
     const router = createRouter({
-      routes: [savingRoute, routeB],
       defaultRoute: "saving",
+      routes: [savingRoute, routeB],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 
@@ -193,15 +193,15 @@ describe("useScreenState", () => {
 
   test("pop clears cache for the popped entry", async () => {
     const router = createRouter({
-      routes: [routeA, routeB],
       defaultRoute: "screenA",
+      routes: [routeA, routeB],
     });
 
     testSetup = await testRender(
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { width: 60, height: 24, kittyKeyboard: true },
+      { height: 24, kittyKeyboard: true, width: 60 },
     );
     await testSetup.renderOnce();
 

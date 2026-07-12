@@ -146,9 +146,9 @@ function getCopyMethod(): (text: string) => Promise<void> {
     if (process.env.WAYLAND_DISPLAY && Bun.which("wl-copy")) {
       copyMethod = async (text: string) => {
         const proc = Bun.spawn(["wl-copy"], {
+          stderr: "ignore",
           stdin: "pipe",
           stdout: "ignore",
-          stderr: "ignore",
         });
         proc.stdin.write(text);
         proc.stdin.end();
@@ -159,9 +159,9 @@ function getCopyMethod(): (text: string) => Promise<void> {
     if (Bun.which("xclip")) {
       copyMethod = async (text: string) => {
         const proc = Bun.spawn(["xclip", "-selection", "clipboard"], {
+          stderr: "ignore",
           stdin: "pipe",
           stdout: "ignore",
-          stderr: "ignore",
         });
         proc.stdin.write(text);
         proc.stdin.end();
@@ -172,9 +172,9 @@ function getCopyMethod(): (text: string) => Promise<void> {
     if (Bun.which("xsel")) {
       copyMethod = async (text: string) => {
         const proc = Bun.spawn(["xsel", "--clipboard", "--input"], {
+          stderr: "ignore",
           stdin: "pipe",
           stdout: "ignore",
-          stderr: "ignore",
         });
         proc.stdin.write(text);
         proc.stdin.end();
@@ -215,9 +215,9 @@ function getPrimaryCopyMethod(): (text: string) => Promise<void> {
     if (process.env.WAYLAND_DISPLAY && Bun.which("wl-copy")) {
       primaryCopyMethod = async (text: string) => {
         const proc = Bun.spawn(["wl-copy", "--primary"], {
+          stderr: "ignore",
           stdin: "pipe",
           stdout: "ignore",
-          stderr: "ignore",
         });
         proc.stdin.write(text);
         proc.stdin.end();
@@ -228,9 +228,9 @@ function getPrimaryCopyMethod(): (text: string) => Promise<void> {
     if (Bun.which("xclip")) {
       primaryCopyMethod = async (text: string) => {
         const proc = Bun.spawn(["xclip", "-selection", "primary"], {
+          stderr: "ignore",
           stdin: "pipe",
           stdout: "ignore",
-          stderr: "ignore",
         });
         proc.stdin.write(text);
         proc.stdin.end();
@@ -241,9 +241,9 @@ function getPrimaryCopyMethod(): (text: string) => Promise<void> {
     if (Bun.which("xsel")) {
       primaryCopyMethod = async (text: string) => {
         const proc = Bun.spawn(["xsel", "--primary", "--input"], {
+          stderr: "ignore",
           stdin: "pipe",
           stdout: "ignore",
-          stderr: "ignore",
         });
         proc.stdin.write(text);
         proc.stdin.end();

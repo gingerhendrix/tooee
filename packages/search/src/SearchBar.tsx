@@ -29,9 +29,9 @@ export function SearchBar({
   return (
     <box
       style={{
+        backgroundColor: theme.backgroundPanel,
         flexDirection: "row",
         flexShrink: 0,
-        backgroundColor: theme.backgroundPanel,
         paddingLeft: 1,
         paddingRight: 1,
       }}
@@ -46,7 +46,7 @@ export function SearchBar({
         focusedBackgroundColor="transparent"
         textColor={theme.text}
         cursorColor={theme.accent}
-        cursorStyle={{ style: "line", blinking: true }}
+        cursorStyle={{ blinking: true, style: "line" }}
         style={{ flexGrow: 1 }}
       />
       {matchDisplay ? <text content={` ${matchDisplay}`} style={{ fg: theme.textMuted }} /> : null}

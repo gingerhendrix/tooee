@@ -10,23 +10,23 @@ function ToastContextHarness() {
   const { currentToast } = useToast();
 
   useCommand({
-    id: "test.toast-via-ctx",
-    title: "Toast via context",
-    hotkey: "1",
-    modes: ["cursor"],
     handler: (ctx) => {
-      ctx.toast.toast({ message: "from context", level: "success" });
+      ctx.toast.toast({ level: "success", message: "from context" });
     },
+    hotkey: "1",
+    id: "test.toast-via-ctx",
+    modes: ["cursor"],
+    title: "Toast via context",
   });
 
   useCommand({
-    id: "test.dismiss-via-ctx",
-    title: "Dismiss via context",
-    hotkey: "2",
-    modes: ["cursor"],
     handler: (ctx) => {
       ctx.toast.dismiss();
     },
+    hotkey: "2",
+    id: "test.dismiss-via-ctx",
+    modes: ["cursor"],
+    title: "Dismiss via context",
   });
 
   return (
@@ -53,7 +53,7 @@ test("ctx.toast is available in command handlers", async () => {
     <TooeeProvider>
       <ToastContextHarness />
     </TooeeProvider>,
-    { width: 60, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 60 },
   );
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("ctx-toast:none");
@@ -71,7 +71,7 @@ test("ctx.toast.dismiss works from command handler", async () => {
     <TooeeProvider>
       <ToastContextHarness />
     </TooeeProvider>,
-    { width: 60, height: 24, kittyKeyboard: true },
+    { height: 24, kittyKeyboard: true, width: 60 },
   );
   await testSetup.renderOnce();
 

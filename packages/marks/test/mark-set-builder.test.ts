@@ -46,9 +46,9 @@ describe("MarkSetBuilder", () => {
     const set = new MarkSetBuilder()
       .addMark({
         id: "custom",
+        priority: 999,
         range: { from: { line: 10 }, to: { line: 10 } },
         style: { themeColor: "accent" },
-        priority: 999,
       })
       .build("test", 100);
 
