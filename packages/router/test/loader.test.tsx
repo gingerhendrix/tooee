@@ -262,9 +262,9 @@ describe("route loaders", () => {
     const dataRoute = createRoute({
       component: DataScreen,
       id: "data",
-      loader: ({ params: _params }) => {
+      loader: async ({ params: _params }) => {
         loadCount++;
-        return { message: `load-${loadCount}` };
+        return await Promise.resolve({ message: `load-${loadCount}` });
       },
     });
 
@@ -441,9 +441,9 @@ describe("route loaders", () => {
     const paramRoute = createRoute({
       component: ParamScreen,
       id: "param",
-      loader: ({ params }) => {
+      loader: async ({ params }) => {
         receivedParams = params;
-        return { echo: String(params.id) };
+        return await Promise.resolve({ echo: String(params.id) });
       },
     });
 
