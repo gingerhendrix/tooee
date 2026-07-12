@@ -25,6 +25,8 @@ export default defineConfig({
     },
   ],
   rules: {
+    // Tooee does not use React Compiler, so compiler-adoption guidance is not applicable.
+    "react/react-compiler": "off",
     "jsx-a11y/alt-text": "off",
     "jsx-a11y/anchor-ambiguous-text": "off",
     "jsx-a11y/anchor-has-content": "off",
