@@ -146,7 +146,7 @@ class MarkdownResolver {
     const nl = this.markdown.indexOf("\n", itemStart);
     const lineEnd = nl === -1 ? itemEnd : Math.min(nl, itemEnd);
     const firstLine = this.markdown.slice(itemStart, lineEnd);
-    const match = firstLine.match(/^(\s*)(?:[-*+]|\d+[.)])[ \t]*(?:\[[ xX]\])?/);
+    const match = firstLine.match(/^(\s*)(?:[-*+]|\d+[.)])[ \t]*(?:\[[ xX]\])?/u);
     if (!match) return { primary: this.index.span(itemStart, itemStart, false) };
     const markerStart = itemStart + match[1]!.length;
     let spanEnd = itemStart + match[0].length;

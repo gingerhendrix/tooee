@@ -941,8 +941,8 @@ describe("wide mermaid diagram horizontal scrolling", () => {
       return colors;
     };
 
-    const arrowBaseline = spanColors(/►/);
-    const letterBaseline = spanColors(/[a-z]/);
+    const arrowBaseline = spanColors(/►/u);
+    const letterBaseline = spanColors(/[a-z]/u);
     expect(arrowBaseline.size).toBe(1);
     expect(letterBaseline.size).toBe(1);
     expect(arrowBaseline).not.toEqual(letterBaseline);
@@ -953,8 +953,8 @@ describe("wide mermaid diagram horizontal scrolling", () => {
     for (let offset = 1; offset <= maxScrollX; offset += 3) {
       diagram.scrollX = offset;
       await testSetup.renderOnce();
-      expect({ offset, colors: spanColors(/►/) }).toEqual({ offset, colors: arrowBaseline });
-      expect({ offset, colors: spanColors(/[a-z]/) }).toEqual({ offset, colors: letterBaseline });
+      expect({ offset, colors: spanColors(/►/u) }).toEqual({ offset, colors: arrowBaseline });
+      expect({ offset, colors: spanColors(/[a-z]/u) }).toEqual({ offset, colors: letterBaseline });
     }
   });
 });

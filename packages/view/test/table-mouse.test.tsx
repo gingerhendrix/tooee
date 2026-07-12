@@ -83,7 +83,7 @@ describe("Table view mouse integration", () => {
 
   test("host mode is restored to cursor after the context menu closes", async () => {
     testSetup = await setup();
-    expect(testSetup.captureCharFrame()).toMatch(/Mode:\s*cursor/);
+    expect(testSetup.captureCharFrame()).toMatch(/Mode:\s*cursor/u);
 
     const pos = lineOf(testSetup.captureCharFrame(), "Alice");
     await act(async () => {
@@ -94,7 +94,7 @@ describe("Table view mouse integration", () => {
     // The context menu overlay switches the host into insert mode while open.
     let frame = testSetup.captureCharFrame();
     expect(frame).toContain("Copy row");
-    expect(frame).toMatch(/Mode:\s*insert/);
+    expect(frame).toMatch(/Mode:\s*insert/u);
 
     await act(async () => {
       testSetup.mockInput.pressEscape();
@@ -103,7 +103,7 @@ describe("Table view mouse integration", () => {
 
     frame = testSetup.captureCharFrame();
     expect(frame).not.toContain("Copy row");
-    expect(frame).toMatch(/Mode:\s*cursor/);
+    expect(frame).toMatch(/Mode:\s*cursor/u);
   });
 });
 
@@ -134,7 +134,7 @@ describe("Table view mouse guards while a modal overlay is open", () => {
   test("left-click on a margin row does not move the cursor", async () => {
     testSetup = await setup();
     const frame0 = testSetup.captureCharFrame();
-    expect(frame0).toMatch(/Cursor:\s*0/);
+    expect(frame0).toMatch(/Cursor:\s*0/u);
     const pos = lineOf(frame0, "Bob");
     expect(pos.y).toBeGreaterThan(-1);
 
@@ -156,8 +156,8 @@ describe("Table view mouse guards while a modal overlay is open", () => {
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
     expect(frame).not.toContain("Filter themes");
-    expect(frame).toMatch(/Cursor:\s*0/);
-    expect(frame).not.toMatch(/Cursor:\s*1/);
+    expect(frame).toMatch(/Cursor:\s*0/u);
+    expect(frame).not.toMatch(/Cursor:\s*1/u);
   });
 });
 

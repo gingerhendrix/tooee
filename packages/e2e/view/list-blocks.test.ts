@@ -100,6 +100,6 @@ describe("navigation through flat blocks", () => {
     session = await launchView("list-blocks.md");
     const text = await session.text();
     // Status bar should show cursor in mode cursor
-    expect(text).toMatch(/Mode:\s*cursor/);
+    expect(text).toMatch(/Mode:\s*cursor/u);
   }, 20_000);
 });

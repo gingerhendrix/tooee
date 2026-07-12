@@ -61,7 +61,7 @@ describe("Code view mouse selection", () => {
   test("left-click on a source line selects that line", async () => {
     testSetup = await setup(CODE);
     const frame0 = testSetup.captureCharFrame();
-    expect(frame0).toMatch(/Cursor:\s*0/);
+    expect(frame0).toMatch(/Cursor:\s*0/u);
 
     const pos = lineOf(frame0, "line3");
     expect(pos.y).toBeGreaterThan(-1);
@@ -71,7 +71,7 @@ describe("Code view mouse selection", () => {
     });
     await testSetup.renderOnce();
 
-    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*3/);
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*3/u);
   });
 
   test("left-click stands down while a modal overlay is open", async () => {
@@ -97,7 +97,7 @@ describe("Code view mouse selection", () => {
 
     const frame = testSetup.captureCharFrame();
     expect(frame).not.toContain("Filter themes");
-    expect(frame).toMatch(/Cursor:\s*0/);
+    expect(frame).toMatch(/Cursor:\s*0/u);
   });
 
   test("right-click selects a source line and opens the context menu", async () => {
@@ -113,7 +113,7 @@ describe("Code view mouse selection", () => {
     const frame = testSetup.captureCharFrame();
     expect(frame).toContain("Copy row");
     expect(frame).toContain("Open row");
-    expect(frame).toMatch(/Cursor:\s*3/);
+    expect(frame).toMatch(/Cursor:\s*3/u);
   });
 
   test("right-click stands down while a modal overlay is open", async () => {
@@ -141,7 +141,7 @@ describe("Markdown view mouse selection", () => {
   test("left-click on a block selects that block", async () => {
     testSetup = await setup(MD);
     const frame0 = testSetup.captureCharFrame();
-    expect(frame0).toMatch(/Cursor:\s*0/);
+    expect(frame0).toMatch(/Cursor:\s*0/u);
 
     const pos = lineOf(frame0, "Third.");
     expect(pos.y).toBeGreaterThan(-1);
@@ -152,7 +152,7 @@ describe("Markdown view mouse selection", () => {
     await testSetup.renderOnce();
 
     // Blocks: 0 = "First.", 1 = "Second.", 2 = "Third."
-    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/);
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/u);
   });
 
   test("right-click selects a block and opens the context menu", async () => {
@@ -168,6 +168,6 @@ describe("Markdown view mouse selection", () => {
     const frame = testSetup.captureCharFrame();
     expect(frame).toContain("Copy row");
     expect(frame).toContain("Open row");
-    expect(frame).toMatch(/Cursor:\s*1/);
+    expect(frame).toMatch(/Cursor:\s*1/u);
   });
 });

@@ -22,7 +22,7 @@ export async function launchView(fixture: string): Promise<Session> {
   });
   // Wait for the app to be ready — status bar shows "Format:" and "Mode:"
   await session.waitForText("Format:", { timeout: 15_000 });
-  await session.waitForText(/Mode:/, { timeout: 5000 });
+  await session.waitForText(/Mode:/u, { timeout: 5000 });
   // Buffer for key handler registration after render (prevents CI flakes)
   await Bun.sleep(150);
   return session;

@@ -18,7 +18,7 @@ describe("command palette", () => {
     await session.press(":");
     await session.waitForText("Filter commands", { timeout: 5000 });
     const text = await session.text();
-    expect(text).toMatch(/Filter commands/);
+    expect(text).toMatch(/Filter commands/u);
   }, 20_000);
 
   test("Escape closes the palette", async () => {
@@ -26,9 +26,9 @@ describe("command palette", () => {
     await session.press(":");
     await session.waitForText("Filter commands", { timeout: 5000 });
     session.writeRaw(ESCAPE_SEQUENCE);
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     const text = await session.text();
-    expect(text).not.toMatch(/Filter commands/);
+    expect(text).not.toMatch(/Filter commands/u);
   }, 20_000);
 
   test("selecting a command executes it", async () => {

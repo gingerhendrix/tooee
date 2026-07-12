@@ -39,7 +39,7 @@ describe("markdown code block rendering", () => {
 describe("markdown table rendering", () => {
   test("table shows all rows", async () => {
     session = await launchView("mixed-content.md");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     // Header should be visible initially
     const initial = await session.text();
     expect(initial).toContain("Score");
@@ -55,7 +55,7 @@ describe("markdown table rendering", () => {
 
   test("paragraph after table is visible after scrolling", async () => {
     session = await launchView("mixed-content.md");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     // Scroll down past the table to see the paragraph after it
     await session.type("j".repeat(8));
     await session.waitForText("This paragraph appears after the table.", { timeout: 5000 });
@@ -85,7 +85,7 @@ describe("mixed content positioning", () => {
 
   test("after-table content is reachable by scrolling", async () => {
     session = await launchView("mixed-content.md");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     // Navigate down to see content after the table
     await session.type("j".repeat(10));
     await session.waitForText("paragraph appears after the table", { timeout: 5000 });
@@ -117,7 +117,7 @@ describe("mixed content positioning", () => {
 describe("scroll isolation on code blocks", () => {
   test("scrolling over code block moves document not code content", async () => {
     session = await launchView("mixed-content.md");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
 
     // Capture initial state - code block should be visible
     const before = await session.text();
@@ -144,18 +144,18 @@ describe("scroll isolation on code blocks", () => {
 describe("gutter line numbers with mixed content", () => {
   test("line numbers account for code block and table as single blocks", async () => {
     session = await launchView("mixed-content.md");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     const text = await session.text();
     const lines = text.split("\n");
 
     // The heading should be on block 1
     const headingLine = lines.find((l) => l.includes("Mixed Content Test"));
     expect(headingLine).toBeDefined();
-    expect(headingLine).toMatch(/1.*Mixed Content Test/);
+    expect(headingLine).toMatch(/1.*Mixed Content Test/u);
 
     // The intro paragraph should be block 2
     const introLine = lines.find((l) => l.includes("introductory paragraph"));
     expect(introLine).toBeDefined();
-    expect(introLine).toMatch(/2.*introductory paragraph/);
+    expect(introLine).toMatch(/2.*introductory paragraph/u);
   }, 20_000);
 });

@@ -24,7 +24,7 @@ describe("wide mermaid diagram horizontal scrolling e2e", () => {
 
   test("l/h scroll the mermaid block under the cursor horizontally", async () => {
     session = await launchView("wide-mermaid.md");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
 
     // Move cursor from the heading to the mermaid block
     await session.press("j");

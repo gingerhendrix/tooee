@@ -65,7 +65,7 @@ describe("Custom renderer document bindings", () => {
     testSetup = await setup(RENDERER);
 
     const frame0 = testSetup.captureCharFrame();
-    expect(frame0).toMatch(/Cursor:\s*0/);
+    expect(frame0).toMatch(/Cursor:\s*0/u);
     const pos = lineOf(frame0, "CUSTOM-BODY");
     expect(pos.y).toBeGreaterThan(-1);
 
@@ -74,7 +74,7 @@ describe("Custom renderer document bindings", () => {
     });
     await testSetup.renderOnce();
 
-    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/);
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/u);
   });
 
   test("selectRow stands down while a modal overlay is open", async () => {
@@ -99,7 +99,7 @@ describe("Custom renderer document bindings", () => {
 
     const frame = testSetup.captureCharFrame();
     expect(frame).not.toContain("Filter themes");
-    expect(frame).toMatch(/Cursor:\s*0/);
+    expect(frame).toMatch(/Cursor:\s*0/u);
   });
 
   test("a custom renderer reads cursor and rows from the controller", async () => {

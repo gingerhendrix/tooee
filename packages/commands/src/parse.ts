@@ -64,7 +64,7 @@ export function parseHotkey(hotkey: string, leaderKey?: string): ParsedHotkey {
   const trimmed = hotkey.trim();
 
   // Handle leader prefix
-  const leaderMatch = trimmed.match(/^<leader>(.+)$/);
+  const leaderMatch = trimmed.match(/^<leader>(.+)$/u);
   if (leaderMatch) {
     if (!leaderKey) {
       // No leader configured: the hotkey must not spring to life on some
@@ -80,7 +80,7 @@ export function parseHotkey(hotkey: string, leaderKey?: string): ParsedHotkey {
   }
 
   // Space-separated = sequence
-  const parts = trimmed.split(/\s+/);
+  const parts = trimmed.split(/\s+/u);
   const steps = parts.map(parseStep);
   return { steps };
 }

@@ -134,7 +134,7 @@ function getCopyMethod(): (text: string) => Promise<void> {
 
   if (os === "darwin" && Bun.which("osascript")) {
     copyMethod = async (text: string) => {
-      const escaped = text.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+      const escaped = text.replace(/\\/gu, "\\\\").replace(/"/gu, '\\"');
       await $`osascript -e 'set the clipboard to "${escaped}"'`.nothrow().quiet();
     };
     return copyMethod;
@@ -184,7 +184,7 @@ function getCopyMethod(): (text: string) => Promise<void> {
 
   if (os === "win32") {
     copyMethod = async (text: string) => {
-      const escaped = text.replace(/"/g, '""');
+      const escaped = text.replace(/"/gu, '""');
       await $`powershell -command "Set-Clipboard -Value \"${escaped}\""`.nothrow().quiet();
     };
     return copyMethod;

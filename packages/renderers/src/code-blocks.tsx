@@ -16,7 +16,7 @@ import { renderMermaidForTerminal } from "./mermaid.js";
  * content after the language).
  */
 export function getFenceType(info?: string): string {
-  return (info ?? "").trim().split(/\s+/)[0]?.toLowerCase() ?? "";
+  return (info ?? "").trim().split(/\s+/u)[0]?.toLowerCase() ?? "";
 }
 
 /**

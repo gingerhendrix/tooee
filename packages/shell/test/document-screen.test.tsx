@@ -194,7 +194,7 @@ describe("status bar", () => {
     const line = statusLine();
     const [cursor, selected] = orderOf(line, ["Cursor:", "Selected:"]);
     expect(selected).toBeGreaterThan(cursor!);
-    expect(line).toMatch(/Selected:\s*1/);
+    expect(line).toMatch(/Selected:\s*1/u);
   });
 
   test("Cursor renders a dash when there is no active row", async () => {
@@ -205,7 +205,7 @@ describe("status bar", () => {
       { width: 90, height: 16, kittyKeyboard: true },
     );
     await session.renderOnce();
-    expect(statusLine()).toMatch(/Cursor:\s*-/);
+    expect(statusLine()).toMatch(/Cursor:\s*-/u);
   });
 });
 

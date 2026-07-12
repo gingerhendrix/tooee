@@ -140,7 +140,7 @@ describe("updateMarkState", () => {
     const state = createMarkState([buildSet("a", 100, [1])]);
     const wrongSet = buildSet("b", 200, [2]);
 
-    expect(() => updateMarkState(state, "a", wrongSet)).toThrow(/namespace mismatch/i);
+    expect(() => updateMarkState(state, "a", wrongSet)).toThrow(/namespace mismatch/iu);
   });
 });
 

@@ -130,7 +130,7 @@ describe("screen-Y mapping", () => {
     await press(session, "g", { shift: true });
 
     const topLine = session.captureCharFrame().split("\n")[0]!.trim();
-    expect(topLine).toMatch(/^row-\d+$/);
+    expect(topLine).toMatch(/^row-\d+$/u);
     const topIndex = Number(topLine.slice("row-".length));
     expect(topIndex).toBeGreaterThan(0);
 
@@ -274,7 +274,7 @@ describe("variable-height rows", () => {
     await press(session, "g", { shift: true });
 
     const topLine = session.captureCharFrame().split("\n")[0]!.trim();
-    const match = topLine.match(/^row-(\d+):(\d+)$/);
+    const match = topLine.match(/^row-(\d+):(\d+)$/u);
     expect(match).not.toBeNull();
     const topIndex = Number(match![1]);
     expect(topIndex).toBeGreaterThan(0);

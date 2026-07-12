@@ -13,27 +13,27 @@ afterEach(() => {
 describe("marks rendering e2e (table content)", () => {
   test("table content with cursor shows cursor indicator in gutter", async () => {
     session = await launchTable("long.csv");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     const text = await session.text();
-    expect(text).toMatch(/Mode:\s*cursor/);
+    expect(text).toMatch(/Mode:\s*cursor/u);
     // Cursor sign (▸) rendered via marks
     expect(text).toContain("▸");
   }, 20_000);
 
   test("search highlights are visible when searching in table content", async () => {
     session = await launchTable("long.csv");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     // Open search
     for (let attempt = 0; attempt < 3; attempt++) {
       await session.press("/");
       await Bun.sleep(500);
       const check = await session.text();
-      if (!check.match(/Mode:\s*cursor/)) break;
+      if (!check.match(/Mode:\s*cursor/u)) break;
     }
     // Type a search query
     await session.type("a");
     await session.press("enter");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     const text = await session.text();
     // Search match signs (●) rendered via marks
     expect(text).toContain("●");
@@ -41,37 +41,37 @@ describe("marks rendering e2e (table content)", () => {
 
   test("cursor moves correctly via marks in table content", async () => {
     session = await launchTable("long.csv");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
-    await session.waitForText(/Cursor:\s*0/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
+    await session.waitForText(/Cursor:\s*0/u, { timeout: 5000 });
     // Move cursor down
     await session.press("j");
     await Bun.sleep(200);
     const text = await session.text();
-    expect(text).toMatch(/Cursor:\s*1/);
+    expect(text).toMatch(/Cursor:\s*1/u);
   }, 20_000);
 
   test("selection highlighting works in table content", async () => {
     session = await launchTable("long.csv");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     // Enter select mode
     await session.press("v");
-    await session.waitForText(/Mode:\s*select/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*select/u, { timeout: 5000 });
     // Extend selection
     await session.press("j");
     await session.press("j");
     const text = await session.text();
-    expect(text).toMatch(/Mode:\s*select/);
+    expect(text).toMatch(/Mode:\s*select/u);
     // Status bar may truncate spacing — match flexibly
-    expect(text).toMatch(/Selected.*\d+/);
+    expect(text).toMatch(/Selected.*\d+/u);
   }, 20_000);
 
   test("toggle marking works in table content", async () => {
     session = await launchTable("long.csv");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     // Toggle current row with tab
     await session.press("tab");
     await Bun.sleep(200);
     const text = await session.text();
-    expect(text).toMatch(/Selected.*1/);
+    expect(text).toMatch(/Selected.*1/u);
   }, 20_000);
 });

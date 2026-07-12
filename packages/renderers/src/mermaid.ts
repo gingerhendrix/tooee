@@ -24,14 +24,14 @@ export interface MermaidRenderOptions {
   theme?: BeautifulMermaidAsciiTheme;
 }
 
-const SGR_SEQUENCE = new RegExp(String.raw`\u001B\[([0-9;]*)m`, "g");
+const SGR_SEQUENCE = new RegExp(String.raw`\u001B\[([0-9;]*)m`, "gu");
 
 /**
  * Marked may include extra info-string content after the language. Treat only
  * the first word as the fence language, matching common Markdown behavior.
  */
 export function isMermaidFence(lang?: string): boolean {
-  return (lang ?? "").trim().split(/\s+/)[0]?.toLowerCase() === "mermaid";
+  return (lang ?? "").trim().split(/\s+/u)[0]?.toLowerCase() === "mermaid";
 }
 
 function appendStyledChunk(chunks: TextChunk[], text: string, fg?: string) {

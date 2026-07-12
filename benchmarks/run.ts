@@ -84,9 +84,9 @@ Options:
 
 function parseMetrics(output: string): Map<string, number> {
   const metrics = new Map<string, number>();
-  const metricPattern = /^METRIC\s+([A-Za-z0-9_.:-]+)=(-?\d+(?:\.\d+)?)$/;
+  const metricPattern = /^METRIC\s+([A-Za-z0-9_.:-]+)=(-?\d+(?:\.\d+)?)$/u;
 
-  for (const line of output.split(/\r?\n/)) {
+  for (const line of output.split(/\r?\n/u)) {
     const match = metricPattern.exec(line.trim());
     if (match) {
       metrics.set(match[1]!, Number(match[2]!));
@@ -157,7 +157,7 @@ if (options.includeHeavy) scripts.push(...HEAVY_SCRIPTS);
 const samplesByMetric = new Map<string, { source: string; metric: string; samples: number[] }>();
 
 for (const script of scripts) {
-  const source = script.replace(/\.[^.]+$/, "");
+  const source = script.replace(/\.[^.]+$/u, "");
   console.log(`\n## ${source}`);
 
   for (let sample = 1; sample <= options.samples; sample += 1) {

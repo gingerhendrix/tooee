@@ -23,29 +23,29 @@ afterEach(() => {
 describe("document mouse e2e", () => {
   test("left-click on a block moves the cursor to that block", async () => {
     session = await launchView("sample.md");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
-    await session.waitForText(/Cursor:\s*0/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
+    await session.waitForText(/Cursor:\s*0/u, { timeout: 5000 });
 
     // Block indexes in sample.md: 0 heading, 1 paragraph, 2 "Section Two".
     await session.click("Section Two");
-    await session.waitForText(/Cursor:\s*2/, { timeout: 5000 });
+    await session.waitForText(/Cursor:\s*2/u, { timeout: 5000 });
 
     const text = await session.text();
-    expect(text).toMatch(/Cursor:\s*2/);
-    expect(text).toMatch(/Mode:\s*cursor/);
+    expect(text).toMatch(/Cursor:\s*2/u);
+    expect(text).toMatch(/Mode:\s*cursor/u);
   }, 20_000);
 
   test("left-click on a later line of a multi-line block selects that block", async () => {
     session = await launchView("sample.md");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
 
     // Both lines of the fenced code block belong to one block (index 7),
     // which is not the block of the "Code Example" heading above it (index 6).
     await session.click("Code Example");
-    await session.waitForText(/Cursor:\s*6/, { timeout: 5000 });
+    await session.waitForText(/Cursor:\s*6/u, { timeout: 5000 });
 
     await session.click("const x = 42");
-    await session.waitForText(/Cursor:\s*7/, { timeout: 5000 });
+    await session.waitForText(/Cursor:\s*7/u, { timeout: 5000 });
 
     // Clicking the block's second line keeps the same block selected. The
     // cursor value does not change, so settle briefly before asserting the
@@ -53,6 +53,6 @@ describe("document mouse e2e", () => {
     await session.click("console.log");
     await new Promise((resolve) => setTimeout(resolve, 300));
     const text = await session.text();
-    expect(text).toMatch(/Cursor:\s*7/);
+    expect(text).toMatch(/Cursor:\s*7/u);
   }, 20_000);
 });

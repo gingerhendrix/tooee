@@ -42,7 +42,7 @@ const DEFAULT_MAX_COL_WIDTH = 80;
 const DEFAULT_SAMPLE_SIZE = 100;
 
 function isNumeric(value: string): boolean {
-  return /^\s*-?[\d,]+\.?\d*\s*$/.test(value);
+  return /^\s*-?[\d,]+\.?\d*\s*$/u.test(value);
 }
 
 interface ColumnWidthOptions {

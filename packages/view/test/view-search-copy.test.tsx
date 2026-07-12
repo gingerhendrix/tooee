@@ -82,32 +82,32 @@ async function typeQuery(query: string) {
 describe("search over migrated subviews", () => {
   test("a code View jumps the cursor to the first real match, n cycles", async () => {
     testSetup = await setup(staticProvider(CODE));
-    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*0/);
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*0/u);
 
     await typeQuery("gamma");
-    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/);
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/u);
 
     await typeQuery("alpha");
-    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*0/);
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*0/u);
     await press("n");
-    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*3/);
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*3/u);
   });
 
   test("a table View searches across every column", async () => {
     testSetup = await setup(staticProvider(TABLE));
 
     await typeQuery("ops");
-    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*1/);
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*1/u);
 
     await typeQuery("carol");
-    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/);
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/u);
   });
 
   test("a markdown View searches block source", async () => {
     testSetup = await setup(staticProvider(MARKDOWN));
 
     await typeQuery("Third");
-    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/);
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/u);
   });
 });
 

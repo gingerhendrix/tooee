@@ -32,6 +32,6 @@ describe("content rendering", () => {
   test("status bar shows line count", async () => {
     session = await launchView("sample.md");
     const text = await session.text();
-    expect(text).toMatch(/Lines:\s*\d+/);
+    expect(text).toMatch(/Lines:\s*\d+/u);
   }, 20_000);
 });

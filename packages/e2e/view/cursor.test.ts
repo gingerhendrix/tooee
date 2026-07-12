@@ -13,38 +13,38 @@ afterEach(() => {
 describe("cursor and selection e2e", () => {
   test("starts in cursor mode", async () => {
     session = await launchView("long.md");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     const text = await session.text();
-    expect(text).toMatch(/Mode:\s*cursor/);
+    expect(text).toMatch(/Mode:\s*cursor/u);
   }, 20_000);
 
   test("j/k move cursor immediately", async () => {
     session = await launchView("long.md");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     await session.press("j");
     await session.press("k");
     const text = await session.text();
-    expect(text).toMatch(/Mode:\s*cursor/);
+    expect(text).toMatch(/Mode:\s*cursor/u);
   }, 20_000);
 
   test("v enters select mode from cursor", async () => {
     session = await launchView("long.md");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     await session.press("v");
-    await session.waitForText(/Mode:\s*select/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*select/u, { timeout: 5000 });
     const text = await session.text();
-    expect(text).toMatch(/Mode:\s*select/);
+    expect(text).toMatch(/Mode:\s*select/u);
   }, 20_000);
 
   test("Escape exits select mode but leaves cursor active", async () => {
     session = await launchView("long.md");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     await session.press("v");
-    await session.waitForText(/Mode:\s*select/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*select/u, { timeout: 5000 });
     // Send kitty-encoded Escape (raw \x1b is ambiguous)
     await session.writeRaw("\u001B[27u");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 8000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 8000 });
     await session.writeRaw("\u001B[27u");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 8000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 8000 });
   }, 30_000);
 });

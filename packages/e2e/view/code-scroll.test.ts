@@ -24,7 +24,7 @@ describe("wide code block horizontal scrolling e2e", () => {
 
   test("l/h scroll the code block under the cursor horizontally", async () => {
     session = await launchView("wide-code.md");
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
 
     // Move cursor from the heading to the code block
     await session.press("j");

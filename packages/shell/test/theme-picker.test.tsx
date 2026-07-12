@@ -65,7 +65,7 @@ describe("theme picker", () => {
   test("Escape closes picker and reverts theme", async () => {
     testSetup = await setup();
     const initialFrame = testSetup.captureCharFrame();
-    const initialTheme = initialFrame.match(/active:(\S+)/)?.[1];
+    const initialTheme = initialFrame.match(/active:(\S+)/u)?.[1];
 
     await press(testSetup, "t");
     expect(testSetup.captureCharFrame()).toContain("open:true");
@@ -73,7 +73,7 @@ describe("theme picker", () => {
     // Navigate down to preview a different theme
     await pressArrow(testSetup, "down");
     const afterNav = testSetup.captureCharFrame();
-    const previewedTheme = afterNav.match(/active:(\S+)/)?.[1];
+    const previewedTheme = afterNav.match(/active:(\S+)/u)?.[1];
     // Theme should have changed during preview
     expect(previewedTheme).not.toBe(initialTheme);
 
@@ -95,7 +95,7 @@ describe("theme picker", () => {
 
     // Get the previewed theme before confirming
     const previewFrame = testSetup.captureCharFrame();
-    const previewedTheme = previewFrame.match(/active:(\S+)/)?.[1];
+    const previewedTheme = previewFrame.match(/active:(\S+)/u)?.[1];
 
     // Confirm
     await pressEnter(testSetup);
@@ -114,12 +114,12 @@ describe("theme picker", () => {
     // Should show at least the first theme in the list
     expect(openFrame).toContain("aura");
     // Should show filter count
-    expect(openFrame).toMatch(/\d+/);
+    expect(openFrame).toMatch(/\d+/u);
   });
 
   test("left-click on a theme row applies that theme and closes the picker", async () => {
     testSetup = await setup();
-    const initialTheme = testSetup.captureCharFrame().match(/active:(\S+)/)?.[1];
+    const initialTheme = testSetup.captureCharFrame().match(/active:(\S+)/u)?.[1];
     const target = initialTheme === "dracula" ? "cobalt2" : "dracula";
 
     await press(testSetup, "t");

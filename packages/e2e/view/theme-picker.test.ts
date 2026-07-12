@@ -11,7 +11,7 @@ afterEach(() => {
 });
 
 function extractTheme(text: string): string {
-  const match = text.match(/Theme:\s*(\S+)/);
+  const match = text.match(/Theme:\s*(\S+)/u);
   return match ? match[1] : "";
 }
 
@@ -21,7 +21,7 @@ describe("theme picker", () => {
     await session.press("t");
     await session.waitForText("aura", { timeout: 5000 });
     const text = await session.text();
-    expect(text).toMatch(/aura/);
+    expect(text).toMatch(/aura/u);
   }, 20_000);
 
   test("can confirm a theme with Enter", async () => {

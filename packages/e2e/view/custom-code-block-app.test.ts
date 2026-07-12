@@ -61,7 +61,7 @@ describe("custom code block app e2e", () => {
   test("h/l pan the timeline via the hScroll opt-in", async () => {
     session = await launchDemo();
     await session.press("c"); // enter cursor mode
-    await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     await session.press("G"); // cursor to the last block (the timeline)
     await session.waitForText("edge-cache", { timeout: 5000 });
 

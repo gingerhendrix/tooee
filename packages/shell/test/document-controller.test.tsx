@@ -403,7 +403,7 @@ describe("scroll follow", () => {
     await press(session, "g", { shift: true });
     const frame = session.captureCharFrame();
     expect(frame).toContain("row-39");
-    expect(frame).not.toMatch(/^row-0\s*$/m);
+    expect(frame).not.toMatch(/^row-0\s*$/mu);
   });
 
   test("a first-frame cursor below the fold scrolls once geometry exists", async () => {
@@ -415,6 +415,6 @@ describe("scroll follow", () => {
     expect(active()).toBe("r30/30");
     const frame = session.captureCharFrame();
     expect(frame).toContain("row-30");
-    expect(frame).not.toMatch(/^row-0\s*$/m);
+    expect(frame).not.toMatch(/^row-0\s*$/mu);
   });
 });
