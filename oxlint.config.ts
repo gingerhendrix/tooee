@@ -49,7 +49,6 @@ export default defineConfig({
     "typescript/ban-types": "off",
     "typescript/consistent-return": "off",
     "typescript/consistent-type-definitions": "off",
-    "typescript/dot-notation": "off",
     "typescript/no-base-to-string": "off",
     "typescript/no-deprecated": "off",
     "typescript/no-empty-object-type": "off",

@@ -227,10 +227,10 @@ export const resolveTheme = function resolveTheme(
     result[key] = val === undefined ? (FALLBACKS[key] ?? "#808080") : resolveColor(val);
   }
   // Dynamic fallbacks that reference other resolved keys
-  if (json.theme["cursorLine"] === undefined) {
+  if (json.theme.cursorLine === undefined) {
     result.cursorLine = result.backgroundElement;
   }
-  if (json.theme["selection"] === undefined) {
+  if (json.theme.selection === undefined) {
     result.selection = result.backgroundPanel;
   }
   // Deferred(lint-sweep): replace with a typed exhaustive key map for compile-time completeness
