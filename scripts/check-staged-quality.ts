@@ -68,6 +68,7 @@ const mapContentLine = (
     .map(normalizedLine);
   const content = headLines[oldLine - 1];
   if (!content) return null;
+  if (indexLines[oldLine - 1] === content) return oldLine;
   const occurrence = headLines.slice(0, oldLine).filter((line) => line === content).length;
   const candidates = indexLines.flatMap((line, index) => (line === content ? [index + 1] : []));
   return candidates[occurrence - 1] ?? null;
