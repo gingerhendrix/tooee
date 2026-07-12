@@ -1,9 +1,9 @@
-import type { DecorationLayer, RowDecoration } from "@tooee/renderers"
-import type { ResolvedTheme } from "@tooee/themes"
-import { DocumentDecorationPriorities } from "./types.js"
+import type { DecorationLayer, RowDecoration } from "@tooee/renderers";
+import type { ResolvedTheme } from "@tooee/themes";
+import { DocumentDecorationPriorities } from "./types.js";
 
-const SEARCH_SIGN = "●"
-const CURSOR_SIGN = "▸"
+const SEARCH_SIGN = "●";
+const CURSOR_SIGN = "▸";
 
 /** A decoration layer backed by an explicit row → decoration map. */
 function rowLayer(
@@ -14,11 +14,11 @@ function rowLayer(
     priority,
     *forVisibleRows(from: number, to: number): Generator<RowDecoration> {
       for (let row = from; row <= to; row++) {
-        const decoration = rows.get(row)
-        if (decoration) yield { row, ...decoration }
+        const decoration = rows.get(row);
+        if (decoration) yield { row, ...decoration };
       }
     },
-  }
+  };
 }
 
 function singleRowLayer(
@@ -26,16 +26,16 @@ function singleRowLayer(
   row: number,
   decoration: Omit<RowDecoration, "row">,
 ): DecorationLayer {
-  return rowLayer(priority, new Map([[row, decoration]]))
+  return rowLayer(priority, new Map([[row, decoration]]));
 }
 
 export interface InteractionDecorationInput {
-  cursor: number | null
-  selection: { start: number; end: number } | null
-  toggledIndices: ReadonlySet<number>
-  matchingLines: readonly number[]
-  currentMatchIndex: number
-  theme: ResolvedTheme
+  cursor: number | null;
+  selection: { start: number; end: number } | null;
+  toggledIndices: ReadonlySet<number>;
+  matchingLines: readonly number[];
+  currentMatchIndex: number;
+  theme: ResolvedTheme;
 }
 
 /**
@@ -51,43 +51,43 @@ export function buildInteractionDecorations({
   currentMatchIndex,
   theme,
 }: InteractionDecorationInput): DecorationLayer[] {
-  const layers: DecorationLayer[] = []
+  const layers: DecorationLayer[] = [];
 
   if (matchingLines.length > 0) {
-    const rows = new Map<number, Omit<RowDecoration, "row">>()
+    const rows = new Map<number, Omit<RowDecoration, "row">>();
     for (const row of matchingLines) {
       rows.set(row, {
         background: theme.warning,
         sign: { text: SEARCH_SIGN, fg: theme.warning },
-      })
+      });
     }
-    layers.push(rowLayer(DocumentDecorationPriorities.SEARCH_MATCH, rows))
+    layers.push(rowLayer(DocumentDecorationPriorities.SEARCH_MATCH, rows));
   }
 
   if (toggledIndices.size > 0) {
-    const rows = new Map<number, Omit<RowDecoration, "row">>()
+    const rows = new Map<number, Omit<RowDecoration, "row">>();
     for (const row of toggledIndices) {
-      rows.set(row, { background: theme.backgroundPanel })
+      rows.set(row, { background: theme.backgroundPanel });
     }
-    layers.push(rowLayer(DocumentDecorationPriorities.TOGGLED, rows))
+    layers.push(rowLayer(DocumentDecorationPriorities.TOGGLED, rows));
   }
 
   if (selection) {
-    const rows = new Map<number, Omit<RowDecoration, "row">>()
+    const rows = new Map<number, Omit<RowDecoration, "row">>();
     for (let row = selection.start; row <= selection.end; row++) {
-      rows.set(row, { background: theme.selection })
+      rows.set(row, { background: theme.selection });
     }
-    layers.push(rowLayer(DocumentDecorationPriorities.SELECTION, rows))
+    layers.push(rowLayer(DocumentDecorationPriorities.SELECTION, rows));
   }
 
-  const currentMatch = matchingLines[currentMatchIndex]
+  const currentMatch = matchingLines[currentMatchIndex];
   if (currentMatch != null) {
     layers.push(
       singleRowLayer(DocumentDecorationPriorities.CURRENT_MATCH, currentMatch, {
         background: theme.primary,
         sign: { text: SEARCH_SIGN, fg: theme.primary },
       }),
-    )
+    );
   }
 
   if (cursor !== null) {
@@ -96,8 +96,8 @@ export function buildInteractionDecorations({
         background: theme.cursorLine,
         sign: { text: CURSOR_SIGN, fg: theme.primary },
       }),
-    )
+    );
   }
 
-  return layers
+  return layers;
 }

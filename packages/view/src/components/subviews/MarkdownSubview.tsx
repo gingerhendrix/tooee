@@ -1,26 +1,26 @@
-import { useMemo, useRef } from "react"
-import type { TextBufferRenderable } from "@opentui/core"
+import { useMemo, useRef } from "react";
+import type { TextBufferRenderable } from "@opentui/core";
 import {
   MarkdownView,
   flattenMarkdown,
   getFlatBlockText,
   type CodeBlockRenderer,
   type FlatBlock,
-} from "@tooee/renderers"
-import { useCommand } from "@tooee/commands"
-import { useDocumentController, type DocumentRowAdapter } from "@tooee/shell"
-import type { MarkdownContent } from "../../types.js"
-import { useContentCommands } from "../../hooks/useContentCommands.js"
-import { ViewScreen } from "../ViewScreen.js"
-import type { SubviewProps } from "./types.js"
+} from "@tooee/renderers";
+import { useCommand } from "@tooee/commands";
+import { useDocumentController, type DocumentRowAdapter } from "@tooee/shell";
+import type { MarkdownContent } from "../../types.js";
+import { useContentCommands } from "../../hooks/useContentCommands.js";
+import { ViewScreen } from "../ViewScreen.js";
+import type { SubviewProps } from "./types.js";
 
 interface MarkdownSubviewProps extends SubviewProps {
-  content: MarkdownContent
-  codeBlockRenderers?: Record<string, CodeBlockRenderer>
+  content: MarkdownContent;
+  codeBlockRenderers?: Record<string, CodeBlockRenderer>;
 }
 
 /** Columns moved per h/l press when scrolling a wide block horizontally. */
-const BLOCK_HSCROLL_STEP = 4
+const BLOCK_HSCROLL_STEP = 4;
 
 /**
  * Blocks are the row unit. `getFlatBlockText` keeps search/copy in step with the
@@ -30,7 +30,7 @@ const BLOCK_HSCROLL_STEP = 4
 const MARKDOWN_BLOCK_ADAPTER: DocumentRowAdapter<FlatBlock> = {
   getText: (block) => getFlatBlockText(block),
   getSource: (block) => block.source,
-}
+};
 
 export function MarkdownSubview({
   content,
@@ -39,11 +39,11 @@ export function MarkdownSubview({
   actions,
   ...screen
 }: MarkdownSubviewProps) {
-  const textContent = content.markdown
-  const lineCount = useMemo(() => textContent.split("\n").length, [textContent])
-  const blocks = useMemo(() => flattenMarkdown(content.markdown), [content.markdown])
+  const textContent = content.markdown;
+  const lineCount = useMemo(() => textContent.split("\n").length, [textContent]);
+  const blocks = useMemo(() => flattenMarkdown(content.markdown), [content.markdown]);
 
-  const { showLineNumbers } = useContentCommands({ content, textContent })
+  const { showLineNumbers } = useContentCommands({ content, textContent });
 
   const document = useDocumentController<FlatBlock>({
     rows: blocks,
@@ -52,13 +52,13 @@ export function MarkdownSubview({
     decorations,
     // The controller projects the screen's actions onto menu entries at open time.
     contextMenu: actions,
-  })
+  });
 
-  const hScrollableBlocksRef = useRef<Map<number, TextBufferRenderable>>(new Map())
+  const hScrollableBlocksRef = useRef<Map<number, TextBufferRenderable>>(new Map());
   const cursorScrollable = () =>
     document.activeIndex !== null
       ? hScrollableBlocksRef.current.get(document.activeIndex)
-      : undefined
+      : undefined;
   useCommand({
     id: "block-scroll-left",
     title: "Scroll block left",
@@ -66,10 +66,10 @@ export function MarkdownSubview({
     modes: ["cursor"],
     when: () => cursorScrollable() != null,
     handler: () => {
-      const target = cursorScrollable()
-      if (target) target.scrollX -= BLOCK_HSCROLL_STEP
+      const target = cursorScrollable();
+      if (target) target.scrollX -= BLOCK_HSCROLL_STEP;
     },
-  })
+  });
   useCommand({
     id: "block-scroll-right",
     title: "Scroll block right",
@@ -77,10 +77,10 @@ export function MarkdownSubview({
     modes: ["cursor"],
     when: () => cursorScrollable() != null,
     handler: () => {
-      const target = cursorScrollable()
-      if (target) target.scrollX += BLOCK_HSCROLL_STEP
+      const target = cursorScrollable();
+      if (target) target.scrollX += BLOCK_HSCROLL_STEP;
     },
-  })
+  });
 
   const statusItems = useMemo(
     () => [
@@ -88,7 +88,7 @@ export function MarkdownSubview({
       { label: "Lines:", value: String(lineCount) },
     ],
     [content.format, lineCount],
-  )
+  );
 
   return (
     <ViewScreen
@@ -107,5 +107,5 @@ export function MarkdownSubview({
         codeBlockRenderers={codeBlockRenderers}
       />
     </ViewScreen>
-  )
+  );
 }

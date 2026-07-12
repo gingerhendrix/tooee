@@ -1,21 +1,21 @@
-import { useMemo } from "react"
-import { CodeView, sourceLines, sourceLineAdapter, type SourceLineRow } from "@tooee/renderers"
-import { useDocumentController } from "@tooee/shell"
-import type { CodeContent, TextContent } from "../../types.js"
-import { useContentCommands } from "../../hooks/useContentCommands.js"
-import { ViewScreen } from "../ViewScreen.js"
-import type { SubviewProps } from "./types.js"
+import { useMemo } from "react";
+import { CodeView, sourceLines, sourceLineAdapter, type SourceLineRow } from "@tooee/renderers";
+import { useDocumentController } from "@tooee/shell";
+import type { CodeContent, TextContent } from "../../types.js";
+import { useContentCommands } from "../../hooks/useContentCommands.js";
+import { ViewScreen } from "../ViewScreen.js";
+import type { SubviewProps } from "./types.js";
 
 interface CodeSubviewProps extends SubviewProps {
-  content: CodeContent | TextContent
+  content: CodeContent | TextContent;
 }
 
 export function CodeSubview({ content, decorations, actions, ...screen }: CodeSubviewProps) {
-  const textContent = content.format === "code" ? content.code : content.text
+  const textContent = content.format === "code" ? content.code : content.text;
   // One navigation row per physical source line; row index is the source line.
-  const lineRows = useMemo(() => sourceLines(textContent), [textContent])
+  const lineRows = useMemo(() => sourceLines(textContent), [textContent]);
 
-  const { showLineNumbers } = useContentCommands({ content, textContent })
+  const { showLineNumbers } = useContentCommands({ content, textContent });
 
   const document = useDocumentController<SourceLineRow>({
     rows: lineRows,
@@ -24,7 +24,7 @@ export function CodeSubview({ content, decorations, actions, ...screen }: CodeSu
     decorations,
     // The controller projects the screen's actions onto menu entries at open time.
     contextMenu: actions,
-  })
+  });
 
   const statusItems = useMemo(
     () => [
@@ -32,7 +32,7 @@ export function CodeSubview({ content, decorations, actions, ...screen }: CodeSu
       { label: "Lines:", value: String(lineRows.length) },
     ],
     [content.format, lineRows.length],
-  )
+  );
 
   return (
     <ViewScreen
@@ -49,5 +49,5 @@ export function CodeSubview({ content, decorations, actions, ...screen }: CodeSu
         document={document}
       />
     </ViewScreen>
-  )
+  );
 }

@@ -9,14 +9,14 @@
  * Controls: j/k scroll, h/l columns, q quit
  */
 
-import { launch, type ContentProvider, type Content } from "@tooee/view"
+import { launch, type ContentProvider, type Content } from "@tooee/view";
 
 interface PR {
-  number: number
-  title: string
-  author: { login: string }
-  state: string
-  createdAt: string
+  number: number;
+  title: string;
+  author: { login: string };
+  state: string;
+  createdAt: string;
 }
 
 const contentProvider: ContentProvider = {
@@ -29,10 +29,10 @@ const contentProvider: ContentProvider = {
       "number,title,author,state,createdAt",
       "--limit",
       "50",
-    ])
+    ]);
 
-    const text = await new Response(proc.stdout).text()
-    const exitCode = await proc.exited
+    const text = await new Response(proc.stdout).text();
+    const exitCode = await proc.exited;
 
     const columns = [
       { key: "number", header: "#" },
@@ -40,7 +40,7 @@ const contentProvider: ContentProvider = {
       { key: "author", header: "Author" },
       { key: "state", header: "State" },
       { key: "created", header: "Created" },
-    ]
+    ];
 
     if (exitCode !== 0) {
       return {
@@ -56,10 +56,10 @@ const contentProvider: ContentProvider = {
             created: "",
           },
         ],
-      }
+      };
     }
 
-    const prs: PR[] = JSON.parse(text || "[]")
+    const prs: PR[] = JSON.parse(text || "[]");
 
     if (prs.length === 0) {
       return {
@@ -75,7 +75,7 @@ const contentProvider: ContentProvider = {
             created: "",
           },
         ],
-      }
+      };
     }
 
     const rows = prs.map((pr) => ({
@@ -84,10 +84,10 @@ const contentProvider: ContentProvider = {
       author: pr.author.login,
       state: pr.state,
       created: new Date(pr.createdAt).toLocaleDateString(),
-    }))
+    }));
 
-    return { format: "table", columns, rows, title: "Pull Requests" }
+    return { format: "table", columns, rows, title: "Pull Requests" };
   },
-}
+};
 
-launch({ contentProvider })
+launch({ contentProvider });

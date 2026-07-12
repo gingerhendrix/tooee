@@ -1,28 +1,28 @@
 export interface MarkPosition {
-  line: number
+  line: number;
 }
 
 export interface MarkRange {
-  from: MarkPosition
-  to: MarkPosition
+  from: MarkPosition;
+  to: MarkPosition;
 }
 
 export interface MarkStyle {
-  background?: string
-  gutterBackground?: string
-  foreground?: string
-  signBefore?: string
-  signAfter?: string
-  themeColor?: string
-  className?: string
+  background?: string;
+  gutterBackground?: string;
+  foreground?: string;
+  signBefore?: string;
+  signAfter?: string;
+  themeColor?: string;
+  className?: string;
 }
 
 export interface Mark<T = unknown> {
-  id?: string
-  range: MarkRange
-  style: MarkStyle
-  data?: T
-  priority?: number
+  id?: string;
+  range: MarkRange;
+  style: MarkStyle;
+  data?: T;
+  priority?: number;
 }
 
 export const MarkPriorities = {
@@ -33,6 +33,6 @@ export const MarkPriorities = {
   SELECTION: 300,
   CURRENT_MATCH: 400,
   CURSOR: 500,
-} as const
+} as const;
 
-export type MarkPriority = (typeof MarkPriorities)[keyof typeof MarkPriorities]
+export type MarkPriority = (typeof MarkPriorities)[keyof typeof MarkPriorities];

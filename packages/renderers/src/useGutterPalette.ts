@@ -1,9 +1,9 @@
-import { useMemo } from "react"
-import { useTheme } from "@tooee/themes"
-import type { RowDocumentPalette } from "./RowDocumentRenderable.js"
+import { useMemo } from "react";
+import { useTheme } from "@tooee/themes";
+import type { RowDocumentPalette } from "./RowDocumentRenderable.js";
 
 export function useGutterPalette(): RowDocumentPalette {
-  const { theme } = useTheme()
+  const { theme } = useTheme();
 
   return useMemo(
     () => ({
@@ -11,5 +11,5 @@ export function useGutterPalette(): RowDocumentPalette {
       gutterBg: theme.backgroundElement,
     }),
     [theme.textMuted, theme.backgroundElement],
-  )
+  );
 }

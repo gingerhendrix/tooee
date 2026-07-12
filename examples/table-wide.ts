@@ -11,7 +11,7 @@
  * Controls: j/k scroll rows, h/l scroll columns, q quit, t/T cycle themes
  */
 
-import { launch, type ContentProvider, type Content } from "@tooee/view"
+import { launch, type ContentProvider, type Content } from "@tooee/view";
 
 const headers = [
   "Title",
@@ -24,7 +24,7 @@ const headers = [
   "Box Office",
   "Country",
   "Language",
-]
+];
 
 const columnKeys = [
   "title",
@@ -37,7 +37,7 @@ const columnKeys = [
   "boxOffice",
   "country",
   "language",
-]
+];
 
 const rows = [
   [
@@ -280,20 +280,20 @@ const rows = [
     "USA",
     "English",
   ],
-]
+];
 
 const columns = headers.map((header, index) => ({
   key: columnKeys[index],
   header,
-}))
+}));
 
 const tableRows = rows.map((row) => {
-  const record: Record<string, string> = {}
+  const record: Record<string, string> = {};
   columnKeys.forEach((key, index) => {
-    record[key] = row[index] ?? ""
-  })
-  return record
-})
+    record[key] = row[index] ?? "";
+  });
+  return record;
+});
 
 const contentProvider: ContentProvider = {
   load: (): Content => ({
@@ -302,6 +302,6 @@ const contentProvider: ContentProvider = {
     columns,
     rows: tableRows,
   }),
-}
+};
 
-launch({ contentProvider })
+launch({ contentProvider });

@@ -1,32 +1,32 @@
-import { type SyntaxStyle } from "@opentui/core"
-import { readFileSync, readdirSync, existsSync } from "fs"
-import { join, basename, dirname } from "path"
-import { type ThemeJSON, type ResolvedTheme, resolveTheme } from "./types.js"
-import { buildSyntaxStyle } from "./syntax-rules.js"
+import { type SyntaxStyle } from "@opentui/core";
+import { readFileSync, readdirSync, existsSync } from "fs";
+import { join, basename, dirname } from "path";
+import { type ThemeJSON, type ResolvedTheme, resolveTheme } from "./types.js";
+import { buildSyntaxStyle } from "./syntax-rules.js";
 
 // ---------------------------------------------------------------------------
 // Theme loading
 // ---------------------------------------------------------------------------
 
 export interface Theme {
-  name: string
-  mode: "dark" | "light"
-  colors: ResolvedTheme
-  syntax: SyntaxStyle
+  name: string;
+  mode: "dark" | "light";
+  colors: ResolvedTheme;
+  syntax: SyntaxStyle;
 }
 
 /** Cache of loaded theme JSONs by name */
-const themeJsonCache = new Map<string, ThemeJSON>()
+const themeJsonCache = new Map<string, ThemeJSON>();
 
 function loadJsonThemesFromDir(dir: string, target: Map<string, ThemeJSON>) {
   try {
-    if (!existsSync(dir)) return
+    if (!existsSync(dir)) return;
     for (const file of readdirSync(dir)) {
-      if (!file.endsWith(".json")) continue
-      const name = basename(file, ".json")
+      if (!file.endsWith(".json")) continue;
+      const name = basename(file, ".json");
       try {
-        const content = readFileSync(join(dir, file), "utf-8")
-        target.set(name, JSON.parse(content) as ThemeJSON)
+        const content = readFileSync(join(dir, file), "utf-8");
+        target.set(name, JSON.parse(content) as ThemeJSON);
       } catch {
         // skip invalid files
       }
@@ -38,63 +38,63 @@ function loadJsonThemesFromDir(dir: string, target: Map<string, ThemeJSON>) {
 
 /** Load all bundled themes from packages/themes/themes/ */
 function loadBundledThemes(): Map<string, ThemeJSON> {
-  if (themeJsonCache.size > 0) return themeJsonCache
+  if (themeJsonCache.size > 0) return themeJsonCache;
 
   // Bundled themes
-  const bundledDir = join(dirname(new URL(import.meta.url).pathname), "..", "themes")
-  loadJsonThemesFromDir(bundledDir, themeJsonCache)
+  const bundledDir = join(dirname(new URL(import.meta.url).pathname), "..", "themes");
+  loadJsonThemesFromDir(bundledDir, themeJsonCache);
 
   // XDG config: ~/.config/tooee/themes/
-  const xdgConfig = process.env.XDG_CONFIG_HOME ?? join(process.env.HOME ?? "", ".config")
-  loadJsonThemesFromDir(join(xdgConfig, "tooee", "themes"), themeJsonCache)
+  const xdgConfig = process.env.XDG_CONFIG_HOME ?? join(process.env.HOME ?? "", ".config");
+  loadJsonThemesFromDir(join(xdgConfig, "tooee", "themes"), themeJsonCache);
 
   // Project-local: search upward for .tooee/themes/
-  let dir = process.cwd()
-  const seen = new Set<string>()
+  let dir = process.cwd();
+  const seen = new Set<string>();
   while (dir && !seen.has(dir)) {
-    seen.add(dir)
-    loadJsonThemesFromDir(join(dir, ".tooee", "themes"), themeJsonCache)
-    const parent = dirname(dir)
-    if (parent === dir) break
-    dir = parent
+    seen.add(dir);
+    loadJsonThemesFromDir(join(dir, ".tooee", "themes"), themeJsonCache);
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
   }
 
-  return themeJsonCache
+  return themeJsonCache;
 }
 
 export function loadThemes(): Map<string, ThemeJSON> {
-  return loadBundledThemes()
+  return loadBundledThemes();
 }
 
 export function getThemeNames(): string[] {
-  return Array.from(loadThemes().keys()).sort()
+  return Array.from(loadThemes().keys()).sort();
 }
 
 // ---------------------------------------------------------------------------
 // Default theme
 // ---------------------------------------------------------------------------
 
-export const DEFAULT_THEME_NAME = "tokyonight"
-export const DEFAULT_MODE: "dark" | "light" = "dark"
+export const DEFAULT_THEME_NAME = "tokyonight";
+export const DEFAULT_MODE: "dark" | "light" = "dark";
 
 export function buildTheme(name: string, mode: "dark" | "light"): Theme {
-  const themes = loadThemes()
-  const json = themes.get(name)
+  const themes = loadThemes();
+  const json = themes.get(name);
   if (!json) {
     // Fall back to tokyonight, then first available, then hardcoded
-    const fallbackJson = themes.get(DEFAULT_THEME_NAME) ?? themes.values().next().value
+    const fallbackJson = themes.get(DEFAULT_THEME_NAME) ?? themes.values().next().value;
     if (fallbackJson) {
-      const resolved = resolveTheme(fallbackJson, mode)
-      return { name, mode, colors: resolved, syntax: buildSyntaxStyle(resolved) }
+      const resolved = resolveTheme(fallbackJson, mode);
+      return { name, mode, colors: resolved, syntax: buildSyntaxStyle(resolved) };
     }
     // Absolute fallback — hardcoded Tokyo Night colors
-    return hardcodedDefaultTheme
+    return hardcodedDefaultTheme;
   }
   try {
-    const resolved = resolveTheme(json, mode)
-    return { name, mode, colors: resolved, syntax: buildSyntaxStyle(resolved) }
+    const resolved = resolveTheme(json, mode);
+    return { name, mode, colors: resolved, syntax: buildSyntaxStyle(resolved) };
   } catch {
-    return hardcodedDefaultTheme
+    return hardcodedDefaultTheme;
   }
 }
 
@@ -152,8 +152,8 @@ const hardcodedDefaultTheme: Theme = (() => {
     syntaxType: "#2ac3de",
     syntaxOperator: "#89ddff",
     syntaxPunctuation: "#a9b1d6",
-  }
-  return { name: DEFAULT_THEME_NAME, mode: DEFAULT_MODE, colors, syntax: buildSyntaxStyle(colors) }
-})()
+  };
+  return { name: DEFAULT_THEME_NAME, mode: DEFAULT_MODE, colors, syntax: buildSyntaxStyle(colors) };
+})();
 
-export const defaultTheme: Theme = hardcodedDefaultTheme
+export const defaultTheme: Theme = hardcodedDefaultTheme;

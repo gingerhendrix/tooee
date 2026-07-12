@@ -1,20 +1,20 @@
-import { useState, useMemo, useCallback } from "react"
-import { useCommand } from "@tooee/commands"
-import { fuzzyMatch } from "@tooee/fuzzy"
-import { useTheme } from "./context.js"
-import { CloseButton } from "./CloseButton.js"
+import { useState, useMemo, useCallback } from "react";
+import { useCommand } from "@tooee/commands";
+import { fuzzyMatch } from "@tooee/fuzzy";
+import { useTheme } from "./context.js";
+import { CloseButton } from "./CloseButton.js";
 
 export interface ThemePickerEntry {
-  id: string
-  title: string
+  id: string;
+  title: string;
 }
 
 interface ThemePickerProps {
-  entries: ThemePickerEntry[]
-  currentTheme: string
-  onSelect: (name: string) => void
-  onClose: () => void
-  onNavigate: (name: string) => void
+  entries: ThemePickerEntry[];
+  currentTheme: string;
+  onSelect: (name: string) => void;
+  onClose: () => void;
+  onNavigate: (name: string) => void;
 }
 
 export function ThemePicker({
@@ -24,49 +24,49 @@ export function ThemePicker({
   onClose,
   onNavigate,
 }: ThemePickerProps) {
-  const { theme } = useTheme()
-  const [filter, setFilter] = useState("")
+  const { theme } = useTheme();
+  const [filter, setFilter] = useState("");
   const [activeIndex, setActiveIndex] = useState(() => {
-    const idx = entries.findIndex((e) => e.id === currentTheme)
-    return idx >= 0 ? idx : 0
-  })
+    const idx = entries.findIndex((e) => e.id === currentTheme);
+    return idx >= 0 ? idx : 0;
+  });
 
   const filtered = useMemo(() => {
-    if (!filter) return entries
-    const results: { entry: ThemePickerEntry; score: number }[] = []
+    if (!filter) return entries;
+    const results: { entry: ThemePickerEntry; score: number }[] = [];
     for (const entry of entries) {
-      const score = fuzzyMatch(filter, entry.title)
-      if (score !== null) results.push({ entry, score })
+      const score = fuzzyMatch(filter, entry.title);
+      if (score !== null) results.push({ entry, score });
     }
-    results.sort((a, b) => b.score - a.score)
-    return results.map((r) => r.entry)
-  }, [entries, filter])
+    results.sort((a, b) => b.score - a.score);
+    return results.map((r) => r.entry);
+  }, [entries, filter]);
 
   const handleSelect = useCallback(() => {
-    const item = filtered[activeIndex]
+    const item = filtered[activeIndex];
     if (item) {
-      onSelect(item.id)
+      onSelect(item.id);
     }
-  }, [filtered, activeIndex, onSelect])
+  }, [filtered, activeIndex, onSelect]);
 
   const navigateTo = useCallback(
     (index: number) => {
-      setActiveIndex(index)
-      const item = filtered[index]
+      setActiveIndex(index);
+      const item = filtered[index];
       if (item) {
-        onNavigate(item.id)
+        onNavigate(item.id);
       }
     },
     [filtered, onNavigate],
-  )
+  );
 
   const moveUp = useCallback(() => {
-    navigateTo(Math.max(0, activeIndex - 1))
-  }, [activeIndex, navigateTo])
+    navigateTo(Math.max(0, activeIndex - 1));
+  }, [activeIndex, navigateTo]);
 
   const moveDown = useCallback(() => {
-    navigateTo(Math.min(filtered.length - 1, activeIndex + 1))
-  }, [activeIndex, filtered.length, navigateTo])
+    navigateTo(Math.min(filtered.length - 1, activeIndex + 1));
+  }, [activeIndex, filtered.length, navigateTo]);
 
   useCommand({
     id: "theme-picker:close",
@@ -75,7 +75,7 @@ export function ThemePicker({
     modes: ["insert", "cursor"],
     hidden: true,
     handler: onClose,
-  })
+  });
   useCommand({
     id: "theme-picker:select",
     title: "Select theme",
@@ -83,7 +83,7 @@ export function ThemePicker({
     modes: ["insert", "cursor"],
     hidden: true,
     handler: handleSelect,
-  })
+  });
   useCommand({
     id: "theme-picker:move-up",
     title: "Move up",
@@ -91,7 +91,7 @@ export function ThemePicker({
     modes: ["insert", "cursor"],
     hidden: true,
     handler: moveUp,
-  })
+  });
   useCommand({
     id: "theme-picker:move-down",
     title: "Move down",
@@ -99,7 +99,7 @@ export function ThemePicker({
     modes: ["insert", "cursor"],
     hidden: true,
     handler: moveDown,
-  })
+  });
 
   return (
     <box
@@ -121,19 +121,19 @@ export function ThemePicker({
           placeholder="Filter themes..."
           onSubmit={handleSelect}
           onInput={(value: string) => {
-            setFilter(value)
-            setActiveIndex(0)
+            setFilter(value);
+            setActiveIndex(0);
             // Preview first match
             if (!value) {
-              if (entries.length > 0) onNavigate(entries[0]!.id)
+              if (entries.length > 0) onNavigate(entries[0]!.id);
             } else {
-              const results: { entry: ThemePickerEntry; score: number }[] = []
+              const results: { entry: ThemePickerEntry; score: number }[] = [];
               for (const entry of entries) {
-                const score = fuzzyMatch(value, entry.title)
-                if (score !== null) results.push({ entry, score })
+                const score = fuzzyMatch(value, entry.title);
+                if (score !== null) results.push({ entry, score });
               }
-              results.sort((a, b) => b.score - a.score)
-              if (results.length > 0) onNavigate(results[0]!.entry.id)
+              results.sort((a, b) => b.score - a.score);
+              if (results.length > 0) onNavigate(results[0]!.entry.id);
             }
           }}
           backgroundColor="transparent"
@@ -162,10 +162,10 @@ export function ThemePicker({
             backgroundColor={i === activeIndex ? theme.backgroundElement : undefined}
             onMouseDown={(event) => {
               // Left-click applies the theme — same code path as Enter.
-              if (event.button !== 0) return
-              event.preventDefault()
-              event.stopPropagation()
-              onSelect(entry.id)
+              if (event.button !== 0) return;
+              event.preventDefault();
+              event.stopPropagation();
+              onSelect(entry.id);
             }}
           >
             <text content={entry.title} fg={theme.text} style={{ flexGrow: 1 }} />
@@ -173,5 +173,5 @@ export function ThemePicker({
         ))}
       </scrollbox>
     </box>
-  )
+  );
 }

@@ -1,1 +1,1 @@
-export { fuzzyMatch, fuzzyMatchPositions } from "./fuzzy.js"
+export { fuzzyMatch, fuzzyMatchPositions } from "./fuzzy.js";

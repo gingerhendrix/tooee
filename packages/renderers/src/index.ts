@@ -1,38 +1,38 @@
-export { MarkdownView } from "./MarkdownView.js"
-export { flattenMarkdown, flattenTokens, getFlatBlockText } from "./markdown-blocks.js"
-export type { FlatBlock, FlattenMarkdownOptions } from "./markdown-blocks.js"
-export { sourceLines, sourceLineAdapter } from "./source.js"
+export { MarkdownView } from "./MarkdownView.js";
+export { flattenMarkdown, flattenTokens, getFlatBlockText } from "./markdown-blocks.js";
+export type { FlatBlock, FlattenMarkdownOptions } from "./markdown-blocks.js";
+export { sourceLines, sourceLineAdapter } from "./source.js";
 export type {
   DocumentRowAnchor,
   DocumentRowSource,
   SourceLineRow,
   SourcePoint,
   SourceSpan,
-} from "./source.js"
+} from "./source.js";
 export {
   CodeBlockChrome,
   defaultCodeBlockRenderer,
   mermaidCodeBlockRenderer,
   DEFAULT_CODE_BLOCK_RENDERERS,
   getFenceType,
-} from "./code-blocks.js"
-export type { CodeBlockRenderer, CodeBlockRendererProps, CodeBlockHScroll } from "./code-blocks.js"
-export { CodeView } from "./CodeView.js"
-export { Table, computeColumnWidths, isNumeric, sampleRows } from "./Table.js"
-export type { TableProps, ColumnWidthOptions } from "./Table.js"
-export type { ColumnDef, TableRow } from "./table-types.js"
-export { CommandPalette } from "./CommandPalette.js"
-export type { CommandPaletteEntry } from "./CommandPalette.js"
-export { ContextMenu } from "./ContextMenu.js"
-export type { ContextMenuEntry } from "./ContextMenu.js"
-export { parseCSV, parseTSV, parseJSON, parseAuto, detectFormat } from "./parsers.js"
-export type { Format, ParsedTable } from "./parsers.js"
-export { RowDocumentRenderable } from "./RowDocumentRenderable.js"
+} from "./code-blocks.js";
+export type { CodeBlockRenderer, CodeBlockRendererProps, CodeBlockHScroll } from "./code-blocks.js";
+export { CodeView } from "./CodeView.js";
+export { Table, computeColumnWidths, isNumeric, sampleRows } from "./Table.js";
+export type { TableProps, ColumnWidthOptions } from "./Table.js";
+export type { ColumnDef, TableRow } from "./table-types.js";
+export { CommandPalette } from "./CommandPalette.js";
+export type { CommandPaletteEntry } from "./CommandPalette.js";
+export { ContextMenu } from "./ContextMenu.js";
+export type { ContextMenuEntry } from "./ContextMenu.js";
+export { parseCSV, parseTSV, parseJSON, parseAuto, detectFormat } from "./parsers.js";
+export type { Format, ParsedTable } from "./parsers.js";
+export { RowDocumentRenderable } from "./RowDocumentRenderable.js";
 export {
   DEFAULT_SIGN_COLUMN_WIDTH,
   computeRowDocumentGutterWidth,
-} from "./RowDocumentRenderable.js"
-export type { RowDocumentOptions, RowDocumentPalette } from "./RowDocumentRenderable.js"
-export type { DecorationLayer, RowDecoration } from "./DecorationLayer.js"
-export type { DocumentBindings } from "./DocumentBindings.js"
-export { useGutterPalette } from "./useGutterPalette.js"
+} from "./RowDocumentRenderable.js";
+export type { RowDocumentOptions, RowDocumentPalette } from "./RowDocumentRenderable.js";
+export type { DecorationLayer, RowDecoration } from "./DecorationLayer.js";
+export type { DocumentBindings } from "./DocumentBindings.js";
+export { useGutterPalette } from "./useGutterPalette.js";

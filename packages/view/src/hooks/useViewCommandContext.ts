@@ -1,6 +1,6 @@
-import { useProvideCommandContextKey } from "@tooee/commands"
-import type { MarkSet } from "@tooee/marks"
-import type { AnyContent } from "../types.js"
+import { useProvideCommandContextKey } from "@tooee/commands";
+import type { MarkSet } from "@tooee/marks";
+import type { AnyContent } from "../types.js";
 
 /**
  * The `view` field contributed to the command context (see augmentation below).
@@ -10,43 +10,43 @@ import type { AnyContent } from "../types.js"
  * which `DocumentScreen` provides alongside this.
  */
 export interface ViewCommandContext {
-  content: AnyContent
-  format: string
-  title?: string
-  data?: unknown
+  content: AnyContent;
+  format: string;
+  title?: string;
+  data?: unknown;
   /** Reload the content from its provider. */
-  reload: () => void
+  reload: () => void;
   marks: {
-    setMarkSet: (set: MarkSet) => void
-    clearNamespace: (namespace: string) => void
-    clearAll: () => void
-    userMarks: MarkSet[]
-    providerMarks: MarkSet[]
-  }
+    setMarkSet: (set: MarkSet) => void;
+    clearNamespace: (namespace: string) => void;
+    clearAll: () => void;
+    userMarks: MarkSet[];
+    providerMarks: MarkSet[];
+  };
 }
 
 declare module "@tooee/commands" {
   interface CommandContext {
-    view: ViewCommandContext
+    view: ViewCommandContext;
   }
 }
 
-const noop = () => {}
+const noop = () => {};
 
 export interface CreateViewCommandContextOptions {
   /**
    * Content represented by this command context. Custom/headless surfaces may
    * omit it; the builder will synthesize a minimal custom content object.
    */
-  content?: AnyContent
-  format?: string
-  title?: string
-  data?: unknown
-  reload?: () => void
-  marks?: Partial<ViewCommandContext["marks"]>
+  content?: AnyContent;
+  format?: string;
+  title?: string;
+  data?: unknown;
+  reload?: () => void;
+  marks?: Partial<ViewCommandContext["marks"]>;
 }
 
-export type ProvideViewCommandContextOptions = CreateViewCommandContextOptions
+export type ProvideViewCommandContextOptions = CreateViewCommandContextOptions;
 
 export function createViewCommandContext({
   content,
@@ -56,14 +56,14 @@ export function createViewCommandContext({
   reload,
   marks,
 }: CreateViewCommandContextOptions): ViewCommandContext {
-  const resolvedFormat = format ?? content?.format ?? "custom"
+  const resolvedFormat = format ?? content?.format ?? "custom";
   const resolvedContent: AnyContent =
     content ??
     ({
       format: resolvedFormat,
       data,
       title,
-    } satisfies AnyContent)
+    } satisfies AnyContent);
 
   return {
     content: resolvedContent,
@@ -78,7 +78,7 @@ export function createViewCommandContext({
       userMarks: marks?.userMarks ?? [],
       providerMarks: marks?.providerMarks ?? [],
     },
-  }
+  };
 }
 
 export function useProvideViewCommandContext(
@@ -86,5 +86,5 @@ export function useProvideViewCommandContext(
 ) {
   useProvideCommandContextKey("view", () =>
     createViewCommandContext(typeof options === "function" ? options() : options),
-  )
+  );
 }

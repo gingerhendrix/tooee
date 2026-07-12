@@ -1,7 +1,7 @@
-import { testRender } from "../../../test/support/test-render.ts"
-import { test, expect, afterEach, describe } from "bun:test"
-import { act, useState, type ReactNode } from "react"
-import { useKeyboard } from "@opentui/react"
+import { testRender } from "../../../test/support/test-render.ts";
+import { test, expect, afterEach, describe } from "bun:test";
+import { act, useState, type ReactNode } from "react";
+import { useKeyboard } from "@opentui/react";
 import {
   CommandProvider,
   CommandSurfaceProvider,
@@ -9,10 +9,10 @@ import {
   useCommand,
   useMode,
   useSetMode,
-} from "../src/index.js"
-import type { CommandSurfaceRole } from "../src/index.js"
+} from "../src/index.js";
+import type { CommandSurfaceRole } from "../src/index.js";
 
-type TestSession = Awaited<ReturnType<typeof testRender>>
+type TestSession = Awaited<ReturnType<typeof testRender>>;
 
 async function press(
   session: TestSession,
@@ -20,16 +20,16 @@ async function press(
   modifiers?: { ctrl?: boolean; shift?: boolean },
 ) {
   await act(async () => {
-    session.mockInput.pressKey(key, modifiers)
-  })
-  await session.renderOnce()
+    session.mockInput.pressKey(key, modifiers);
+  });
+  await session.renderOnce();
 }
 
 async function pressEscape(session: TestSession) {
   await act(async () => {
-    session.mockInput.pressEscape()
-  })
-  await session.renderOnce()
+    session.mockInput.pressEscape();
+  });
+  await session.renderOnce();
 }
 
 function SurfaceA({
@@ -38,61 +38,61 @@ function SurfaceA({
   onClose,
   onOpenNested,
 }: {
-  children?: ReactNode
-  onAction: () => void
-  onClose: () => void
-  onOpenNested: () => void
+  children?: ReactNode;
+  onAction: () => void;
+  onClose: () => void;
+  onOpenNested: () => void;
 }) {
-  const mode = useMode()
-  const setMode = useSetMode()
+  const mode = useMode();
+  const setMode = useSetMode();
 
-  useCommand({ id: "a.action", title: "A action", hotkey: "a", handler: onAction })
-  useCommand({ id: "a.close", title: "Close A", hotkey: "Escape", handler: onClose })
-  useCommand({ id: "a.nested", title: "Open nested", hotkey: "n", handler: onOpenNested })
+  useCommand({ id: "a.action", title: "A action", hotkey: "a", handler: onAction });
+  useCommand({ id: "a.close", title: "Close A", hotkey: "Escape", handler: onClose });
+  useCommand({ id: "a.nested", title: "Open nested", hotkey: "n", handler: onOpenNested });
   useCommand({
     id: "a.insert",
     title: "Insert mode",
     hotkey: "m",
     handler: () => setMode("insert"),
-  })
+  });
 
   return (
     <box flexDirection="column">
       <text content={`amode:${mode}`} />
       {children}
     </box>
-  )
+  );
 }
 
 function SurfaceB({ onAction, onClose }: { onAction: () => void; onClose: () => void }) {
-  useCommand({ id: "b.action", title: "B action", hotkey: "b", handler: onAction })
-  useCommand({ id: "b.close", title: "Close B", hotkey: "Escape", handler: onClose })
-  return <text content="surface-b" />
+  useCommand({ id: "b.action", title: "B action", hotkey: "b", handler: onAction });
+  useCommand({ id: "b.close", title: "Close B", hotkey: "Escape", handler: onClose });
+  return <text content="surface-b" />;
 }
 
 function Harness({ aRole = "modal" }: { aRole?: CommandSurfaceRole }) {
-  const [showA, setShowA] = useState(false)
-  const [showB, setShowB] = useState(false)
-  const [rootQuit, setRootQuit] = useState(0)
-  const [rootAction, setRootAction] = useState(0)
-  const [aAction, setAAction] = useState(0)
-  const [bAction, setBAction] = useState(0)
-  const rootMode = useMode()
-  const active = useActiveCommandSurface()
+  const [showA, setShowA] = useState(false);
+  const [showB, setShowB] = useState(false);
+  const [rootQuit, setRootQuit] = useState(0);
+  const [rootAction, setRootAction] = useState(0);
+  const [aAction, setAAction] = useState(0);
+  const [bAction, setBAction] = useState(0);
+  const rootMode = useMode();
+  const active = useActiveCommandSurface();
 
   useCommand({
     id: "root.quit",
     title: "Quit",
     hotkey: "q",
     handler: () => setRootQuit((n) => n + 1),
-  })
+  });
   useCommand({
     id: "root.action",
     title: "Root action",
     hotkey: "a",
     handler: () => setRootAction((n) => n + 1),
-  })
-  useCommand({ id: "root.open", title: "Open A", hotkey: "o", handler: () => setShowA(true) })
+  });
+  useCommand({ id: "root.open", title: "Open A", hotkey: "o", handler: () => setShowA(true) });
 
   return (
     <box flexDirection="column">
@@ -121,7 +121,7 @@ function Harness({ aRole = "modal" }: { aRole?: CommandSurfaceRole }) {
         </CommandSurfaceProvider>
       )}
     </box>
-  )
+  );
 }
 
 async function setup(aRole: CommandSurfaceRole = "modal") {
@@ -130,88 +130,88 @@ async function setup(aRole: CommandSurfaceRole = "modal") {
       <Harness aRole={aRole} />
     </CommandProvider>,
     { width: 60, height: 24, kittyKeyboard: true },
-  )
-  await session.renderOnce()
-  return session
+  );
+  await session.renderOnce();
+  return session;
 }
 
-let testSetup: TestSession
+let testSetup: TestSession;
 
 afterEach(() => {
-  testSetup?.renderer.destroy()
-})
+  testSetup?.renderer.destroy();
+});
 
 describe("command surface arbitration", () => {
   test("root commands run when no surface is active", async () => {
-    testSetup = await setup()
-    expect(testSetup.captureCharFrame()).toContain("active:root")
-    await press(testSetup, "a")
-    await press(testSetup, "q")
-    const frame = testSetup.captureCharFrame()
-    expect(frame).toContain("rootAction:1")
-    expect(frame).toContain("rootQuit:1")
-  })
+    testSetup = await setup();
+    expect(testSetup.captureCharFrame()).toContain("active:root");
+    await press(testSetup, "a");
+    await press(testSetup, "q");
+    const frame = testSetup.captureCharFrame();
+    expect(frame).toContain("rootAction:1");
+    expect(frame).toContain("rootQuit:1");
+  });
 
   test("a modal surface becomes the active surface", async () => {
-    testSetup = await setup()
-    await press(testSetup, "o") // open surface A
-    expect(testSetup.captureCharFrame()).toContain("active:surfaceA")
-  })
+    testSetup = await setup();
+    await press(testSetup, "o"); // open surface A
+    expect(testSetup.captureCharFrame()).toContain("active:surfaceA");
+  });
 
   test("modal surface shadows parent command sharing the same hotkey", async () => {
-    testSetup = await setup()
-    await press(testSetup, "o")
-    await press(testSetup, "a") // 'a' is bound on both root and surface A
-    const frame = testSetup.captureCharFrame()
-    expect(frame).toContain("aAction:1")
-    expect(frame).toContain("rootAction:0") // parent did not fire
-  })
+    testSetup = await setup();
+    await press(testSetup, "o");
+    await press(testSetup, "a"); // 'a' is bound on both root and surface A
+    const frame = testSetup.captureCharFrame();
+    expect(frame).toContain("aAction:1");
+    expect(frame).toContain("rootAction:0"); // parent did not fire
+  });
 
   test("unhandled keys do not bubble to parent while a modal surface is active", async () => {
-    testSetup = await setup()
-    await press(testSetup, "o")
-    await press(testSetup, "q") // 'q' (root quit) is not handled by surface A
-    const frame = testSetup.captureCharFrame()
-    expect(frame).toContain("rootQuit:0") // parent quit suspended
-  })
+    testSetup = await setup();
+    await press(testSetup, "o");
+    await press(testSetup, "q"); // 'q' (root quit) is not handled by surface A
+    const frame = testSetup.captureCharFrame();
+    expect(frame).toContain("rootQuit:0"); // parent quit suspended
+  });
 
   test("nested modal surface shadows its parent surface", async () => {
-    testSetup = await setup()
-    await press(testSetup, "o") // open A
-    await press(testSetup, "n") // open nested B
-    expect(testSetup.captureCharFrame()).toContain("active:surfaceB")
+    testSetup = await setup();
+    await press(testSetup, "o"); // open A
+    await press(testSetup, "n"); // open nested B
+    expect(testSetup.captureCharFrame()).toContain("active:surfaceB");
 
-    await press(testSetup, "a") // bound on A, not on B -> swallowed
-    await press(testSetup, "b") // bound on B
-    let frame = testSetup.captureCharFrame()
-    expect(frame).toContain("bAction:1")
-    expect(frame).toContain("aAction:0") // parent surface shadowed
+    await press(testSetup, "a"); // bound on A, not on B -> swallowed
+    await press(testSetup, "b"); // bound on B
+    let frame = testSetup.captureCharFrame();
+    expect(frame).toContain("bAction:1");
+    expect(frame).toContain("aAction:0"); // parent surface shadowed
 
-    await pressEscape(testSetup) // closes B only
-    frame = testSetup.captureCharFrame()
-    expect(frame).toContain("active:surfaceA")
+    await pressEscape(testSetup); // closes B only
+    frame = testSetup.captureCharFrame();
+    expect(frame).toContain("active:surfaceA");
 
-    await press(testSetup, "a") // A is active again
-    expect(testSetup.captureCharFrame()).toContain("aAction:1")
-  })
+    await press(testSetup, "a"); // A is active again
+    expect(testSetup.captureCharFrame()).toContain("aAction:1");
+  });
 
   test("local surface mode does not leak into the root mode", async () => {
-    testSetup = await setup()
-    await press(testSetup, "o")
-    await press(testSetup, "m") // surface A: setMode("insert")
-    const frame = testSetup.captureCharFrame()
-    expect(frame).toContain("amode:insert")
-    expect(frame).toContain("rootmode:cursor") // root mode untouched
-  })
+    testSetup = await setup();
+    await press(testSetup, "o");
+    await press(testSetup, "m"); // surface A: setMode("insert")
+    const frame = testSetup.captureCharFrame();
+    expect(frame).toContain("amode:insert");
+    expect(frame).toContain("rootmode:cursor"); // root mode untouched
+  });
 
   test("closing a surface restores parent command dispatch", async () => {
-    testSetup = await setup()
-    await press(testSetup, "o")
-    await pressEscape(testSetup) // a.close
-    expect(testSetup.captureCharFrame()).toContain("active:root")
-    await press(testSetup, "q") // root quit works again
-    expect(testSetup.captureCharFrame()).toContain("rootQuit:1")
-  })
+    testSetup = await setup();
+    await press(testSetup, "o");
+    await pressEscape(testSetup); // a.close
+    expect(testSetup.captureCharFrame()).toContain("active:root");
+    await press(testSetup, "q"); // root quit works again
+    expect(testSetup.captureCharFrame()).toContain("rootQuit:1");
+  });
 
   test("raw useKeyboard consumers bypass surface arbitration and must guard themselves", async () => {
     // Raw useKeyboard handlers subscribe before the command dispatcher (child
@@ -222,26 +222,26 @@ describe("command surface arbitration", () => {
     // unguarded handler still fires while a modal surface owns input; the
     // guarded handler does not.
     function RawKeyboardHarness() {
-      const [showSurface, setShowSurface] = useState(false)
-      const [unguarded, setUnguarded] = useState(0)
-      const [guarded, setGuarded] = useState(0)
-      const [surfaceAction, setSurfaceAction] = useState(0)
-      const active = useActiveCommandSurface()
+      const [showSurface, setShowSurface] = useState(false);
+      const [unguarded, setUnguarded] = useState(0);
+      const [guarded, setGuarded] = useState(0);
+      const [surfaceAction, setSurfaceAction] = useState(0);
+      const active = useActiveCommandSurface();
 
       useCommand({
         id: "root.open",
         title: "Open",
         hotkey: "o",
         handler: () => setShowSurface(true),
-      })
+      });
 
       useKeyboard((key) => {
-        if (key.name === "z") setUnguarded((n) => n + 1)
-      })
+        if (key.name === "z") setUnguarded((n) => n + 1);
+      });
       useKeyboard((key) => {
-        if (active) return
-        if (key.name === "z") setGuarded((n) => n + 1)
-      })
+        if (active) return;
+        if (key.name === "z") setGuarded((n) => n + 1);
+      });
 
       return (
         <box flexDirection="column">
@@ -254,12 +254,12 @@ describe("command surface arbitration", () => {
             </CommandSurfaceProvider>
           )}
         </box>
-      )
+      );
     }
 
     function ZCommandSurface({ onAction }: { onAction: () => void }) {
-      useCommand({ id: "modal.z", title: "Z action", hotkey: "z", handler: onAction })
-      return <text content="modal-surface" />
+      useCommand({ id: "modal.z", title: "Z action", hotkey: "z", handler: onAction });
+      return <text content="modal-surface" />;
     }
 
     testSetup = await testRender(
@@ -267,34 +267,34 @@ describe("command surface arbitration", () => {
         <RawKeyboardHarness />
       </CommandProvider>,
       { width: 60, height: 24, kittyKeyboard: true },
-    )
-    await testSetup.renderOnce()
+    );
+    await testSetup.renderOnce();
 
     // No surface active: both raw handlers fire.
-    await press(testSetup, "z")
-    let frame = testSetup.captureCharFrame()
-    expect(frame).toContain("unguarded:1")
-    expect(frame).toContain("guarded:1")
+    await press(testSetup, "z");
+    let frame = testSetup.captureCharFrame();
+    expect(frame).toContain("unguarded:1");
+    expect(frame).toContain("guarded:1");
 
     // Open the modal surface; command dispatch is arbitrated to it, but the
     // unguarded raw handler still double-handles the key.
-    await press(testSetup, "o")
-    await press(testSetup, "z")
-    frame = testSetup.captureCharFrame()
-    expect(frame).toContain("surfaceAction:1") // surface handled it
-    expect(frame).toContain("unguarded:2") // hazard: raw handler fired too
-    expect(frame).toContain("guarded:1") // guarded handler stood down
-  })
+    await press(testSetup, "o");
+    await press(testSetup, "z");
+    frame = testSetup.captureCharFrame();
+    expect(frame).toContain("surfaceAction:1"); // surface handled it
+    expect(frame).toContain("unguarded:2"); // hazard: raw handler fired too
+    expect(frame).toContain("guarded:1"); // guarded handler stood down
+  });
 
   test("a passive surface never becomes the keyboard owner", async () => {
-    testSetup = await setup("passive")
-    await press(testSetup, "o") // mount passive surface A
-    expect(testSetup.captureCharFrame()).toContain("active:root") // still root
-    await press(testSetup, "a") // routes to root, not the passive surface
-    await press(testSetup, "q")
-    const frame = testSetup.captureCharFrame()
-    expect(frame).toContain("rootAction:1")
-    expect(frame).toContain("rootQuit:1")
-    expect(frame).toContain("aAction:0") // passive surface command never fired
-  })
-})
+    testSetup = await setup("passive");
+    await press(testSetup, "o"); // mount passive surface A
+    expect(testSetup.captureCharFrame()).toContain("active:root"); // still root
+    await press(testSetup, "a"); // routes to root, not the passive surface
+    await press(testSetup, "q");
+    const frame = testSetup.captureCharFrame();
+    expect(frame).toContain("rootAction:1");
+    expect(frame).toContain("rootQuit:1");
+    expect(frame).toContain("aAction:0"); // passive surface command never fired
+  });
+});

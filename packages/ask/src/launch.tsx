@@ -1,12 +1,12 @@
-import { launchCli } from "@tooee/shell"
-import type { ActionDefinition } from "@tooee/commands"
-import { Ask } from "./Ask.js"
-import type { AskOptions } from "./types.js"
+import { launchCli } from "@tooee/shell";
+import type { ActionDefinition } from "@tooee/commands";
+import { Ask } from "./Ask.js";
+import type { AskOptions } from "./types.js";
 
 export interface AskLaunchOptions extends AskOptions {
-  actions?: ActionDefinition[]
+  actions?: ActionDefinition[];
   /** Called with the submitted text. Default: write to stdout and exit. */
-  onSubmit?: (value: string) => void
+  onSubmit?: (value: string) => void;
 }
 
 export async function launch(options: AskLaunchOptions): Promise<void> {
@@ -21,5 +21,5 @@ export async function launch(options: AskLaunchOptions): Promise<void> {
       onSubmit={options.onSubmit}
     />,
     { exitOnCtrlC: false, provider: { initialMode: "insert" } },
-  )
+  );
 }

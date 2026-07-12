@@ -12,7 +12,7 @@
  * Controls: j/k navigate, Enter select, / filter, Escape cancel
  */
 
-import { launch, createStaticProvider, type ChooseItem } from "@tooee/choose"
+import { launch, createStaticProvider, type ChooseItem } from "@tooee/choose";
 
 // Define items with icons and descriptions
 const colors: ChooseItem[] = [
@@ -46,7 +46,7 @@ const colors: ChooseItem[] = [
     icon: "\u{1F7E3}", // Purple circle emoji
     description: "Royal and creative",
   },
-]
+];
 
 async function main() {
   // Launch returns the selected item(s) or null if cancelled
@@ -59,15 +59,15 @@ async function main() {
       // Enable multi-select (uncomment to allow multiple selections)
       // multi: true,
     },
-  })
+  });
 
   if (result === null) {
-    console.log("Selection cancelled")
+    console.log("Selection cancelled");
   } else {
     // result.items contains the selected ChooseItem(s)
-    const selected = result.items[0]
-    console.log(`You chose: ${selected.text} (${selected.value})`)
+    const selected = result.items[0];
+    console.log(`You chose: ${selected.text} (${selected.value})`);
   }
 }
 
-main()
+main();

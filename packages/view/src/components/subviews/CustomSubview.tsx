@@ -1,14 +1,14 @@
-import { useMemo } from "react"
-import { CodeView, sourceLines, sourceLineAdapter, type SourceLineRow } from "@tooee/renderers"
-import { useDocumentController } from "@tooee/shell"
-import { getTextContent, type CustomContent, type ContentRenderer } from "../../types.js"
-import { useContentCommands } from "../../hooks/useContentCommands.js"
-import { ViewScreen } from "../ViewScreen.js"
-import type { SubviewProps } from "./types.js"
+import { useMemo } from "react";
+import { CodeView, sourceLines, sourceLineAdapter, type SourceLineRow } from "@tooee/renderers";
+import { useDocumentController } from "@tooee/shell";
+import { getTextContent, type CustomContent, type ContentRenderer } from "../../types.js";
+import { useContentCommands } from "../../hooks/useContentCommands.js";
+import { ViewScreen } from "../ViewScreen.js";
+import type { SubviewProps } from "./types.js";
 
 interface CustomSubviewProps extends SubviewProps {
-  content: CustomContent
-  renderers?: Record<string, ContentRenderer>
+  content: CustomContent;
+  renderers?: Record<string, ContentRenderer>;
 }
 
 export function CustomSubview({
@@ -18,11 +18,11 @@ export function CustomSubview({
   renderers,
   ...screen
 }: CustomSubviewProps) {
-  const textContent = useMemo(() => getTextContent(content), [content])
+  const textContent = useMemo(() => getTextContent(content), [content]);
   // Fallback rows are source lines; row index is the source line.
-  const lineRows = useMemo(() => sourceLines(textContent), [textContent])
+  const lineRows = useMemo(() => sourceLines(textContent), [textContent]);
 
-  useContentCommands({ content, textContent })
+  useContentCommands({ content, textContent });
 
   // Custom content has no action rows of its own, so no context menu is bound.
   const document = useDocumentController<SourceLineRow>({
@@ -30,7 +30,7 @@ export function CustomSubview({
     adapter: sourceLineAdapter,
     multiSelect: true,
     decorations,
-  })
+  });
 
   const statusItems = useMemo(
     () => [
@@ -38,9 +38,9 @@ export function CustomSubview({
       { label: "Lines:", value: String(lineRows.length) },
     ],
     [content.format, lineRows.length],
-  )
+  );
 
-  const customRenderer = renderers?.[content.format]
+  const customRenderer = renderers?.[content.format];
 
   return (
     <ViewScreen
@@ -56,5 +56,5 @@ export function CustomSubview({
         <CodeView content={textContent} showLineNumbers={false} document={document} />
       )}
     </ViewScreen>
-  )
+  );
 }

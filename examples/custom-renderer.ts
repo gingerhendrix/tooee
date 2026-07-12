@@ -12,32 +12,32 @@
  * Controls: j/k scroll, c enter cursor mode, q quit, t theme picker
  */
 
-import { createElement } from "react"
+import { createElement } from "react";
 import {
   launch,
   type ContentProvider,
   type CustomContent,
   type ContentRendererProps,
-} from "@tooee/view"
-import { useTheme } from "@tooee/themes"
-import type { ReactNode } from "react"
+} from "@tooee/view";
+import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
 
 // === Custom data types ===
 
 interface KanbanCard {
-  id: string
-  title: string
-  assignee?: string
-  priority: "low" | "medium" | "high" | "critical"
+  id: string;
+  title: string;
+  assignee?: string;
+  priority: "low" | "medium" | "high" | "critical";
 }
 
 interface KanbanColumn {
-  name: string
-  cards: KanbanCard[]
+  name: string;
+  cards: KanbanCard[];
 }
 
 interface KanbanData {
-  columns: KanbanColumn[]
+  columns: KanbanColumn[];
 }
 
 // === Sample data ===
@@ -74,7 +74,7 @@ const kanbanData: KanbanData = {
       ],
     },
   ],
-}
+};
 
 // === Custom renderer ===
 
@@ -83,108 +83,108 @@ const PRIORITY_INDICATORS: Record<string, string> = {
   high: " !! ",
   medium: "  ! ",
   low: "    ",
-}
+};
 
-const COLUMN_WIDTH = 36
-const CARD_INNER_WIDTH = COLUMN_WIDTH - 4 // borders + padding
+const COLUMN_WIDTH = 36;
+const CARD_INNER_WIDTH = COLUMN_WIDTH - 4; // borders + padding
 
 function truncateText(text: string, maxLen: number): string {
-  if (text.length <= maxLen) return text
-  return text.slice(0, maxLen - 1) + "\u2026"
+  if (text.length <= maxLen) return text;
+  return text.slice(0, maxLen - 1) + "\u2026";
 }
 
 function padRight(text: string, width: number): string {
-  if (text.length >= width) return text.slice(0, width)
-  return text + " ".repeat(width - text.length)
+  if (text.length >= width) return text.slice(0, width);
+  return text + " ".repeat(width - text.length);
 }
 
 function h(tag: string, props: Record<string, unknown>, ...children: ReactNode[]): ReactNode {
-  return createElement(tag, props, ...children)
+  return createElement(tag, props, ...children);
 }
 
 function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
-  const { theme } = useTheme()
-  const data = (content as CustomContent<KanbanData>).data
+  const { theme } = useTheme();
+  const data = (content as CustomContent<KanbanData>).data;
 
-  const maxCards = Math.max(...data.columns.map((col) => col.cards.length))
+  const maxCards = Math.max(...data.columns.map((col) => col.cards.length));
 
   // Build the board as lines
-  const lines: { text: string; fg?: string }[] = []
+  const lines: { text: string; fg?: string }[] = [];
 
   // Header row
   const headerLine = data.columns
     .map((col) => {
-      const label = ` ${col.name} (${col.cards.length}) `
-      return padRight(label, COLUMN_WIDTH)
+      const label = ` ${col.name} (${col.cards.length}) `;
+      return padRight(label, COLUMN_WIDTH);
     })
-    .join("  ")
-  lines.push({ text: headerLine, fg: theme.primary })
+    .join("  ");
+  lines.push({ text: headerLine, fg: theme.primary });
 
   // Separator
-  const sepLine = data.columns.map(() => "\u2500".repeat(COLUMN_WIDTH)).join("  ")
-  lines.push({ text: sepLine, fg: theme.border })
+  const sepLine = data.columns.map(() => "\u2500".repeat(COLUMN_WIDTH)).join("  ");
+  lines.push({ text: sepLine, fg: theme.border });
 
   // Card rows
   for (let cardIdx = 0; cardIdx < maxCards; cardIdx++) {
     // Top border of card
     const topLine = data.columns
       .map((col) => {
-        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH)
-        return "\u250C" + "\u2500".repeat(COLUMN_WIDTH - 2) + "\u2510"
+        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH);
+        return "\u250C" + "\u2500".repeat(COLUMN_WIDTH - 2) + "\u2510";
       })
-      .join("  ")
-    lines.push({ text: topLine, fg: theme.border })
+      .join("  ");
+    lines.push({ text: topLine, fg: theme.border });
 
     // Card ID + priority line
     const idLine = data.columns
       .map((col) => {
-        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH)
-        const card = col.cards[cardIdx]
-        const priority = PRIORITY_INDICATORS[card.priority] ?? "    "
-        const inner = padRight(` ${card.id} ${priority}`, CARD_INNER_WIDTH)
-        return "\u2502" + inner + "\u2502"
+        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH);
+        const card = col.cards[cardIdx];
+        const priority = PRIORITY_INDICATORS[card.priority] ?? "    ";
+        const inner = padRight(` ${card.id} ${priority}`, CARD_INNER_WIDTH);
+        return "\u2502" + inner + "\u2502";
       })
-      .join("  ")
-    lines.push({ text: idLine })
+      .join("  ");
+    lines.push({ text: idLine });
 
     // Card title line
     const titleLine = data.columns
       .map((col) => {
-        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH)
-        const card = col.cards[cardIdx]
+        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH);
+        const card = col.cards[cardIdx];
         const inner = padRight(
           ` ${truncateText(card.title, CARD_INNER_WIDTH - 2)} `,
           CARD_INNER_WIDTH,
-        )
-        return "\u2502" + inner + "\u2502"
+        );
+        return "\u2502" + inner + "\u2502";
       })
-      .join("  ")
-    lines.push({ text: titleLine })
+      .join("  ");
+    lines.push({ text: titleLine });
 
     // Assignee line
     const assigneeLine = data.columns
       .map((col) => {
-        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH)
-        const card = col.cards[cardIdx]
-        const assignee = card.assignee ? `@${card.assignee}` : "(unassigned)"
-        const inner = padRight(` ${assignee} `, CARD_INNER_WIDTH)
-        return "\u2502" + inner + "\u2502"
+        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH);
+        const card = col.cards[cardIdx];
+        const assignee = card.assignee ? `@${card.assignee}` : "(unassigned)";
+        const inner = padRight(` ${assignee} `, CARD_INNER_WIDTH);
+        return "\u2502" + inner + "\u2502";
       })
-      .join("  ")
-    lines.push({ text: assigneeLine, fg: theme.textMuted })
+      .join("  ");
+    lines.push({ text: assigneeLine, fg: theme.textMuted });
 
     // Bottom border of card
     const bottomLine = data.columns
       .map((col) => {
-        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH)
-        return "\u2514" + "\u2500".repeat(COLUMN_WIDTH - 2) + "\u2518"
+        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH);
+        return "\u2514" + "\u2500".repeat(COLUMN_WIDTH - 2) + "\u2518";
       })
-      .join("  ")
-    lines.push({ text: bottomLine, fg: theme.border })
+      .join("  ");
+    lines.push({ text: bottomLine, fg: theme.border });
 
     // Spacing between cards
     if (cardIdx < maxCards - 1) {
-      lines.push({ text: "" })
+      lines.push({ text: "" });
     }
   }
 
@@ -192,7 +192,7 @@ function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
     "box",
     { style: { flexDirection: "column", marginLeft: 1, marginTop: 1 } },
     ...lines.map((line, i) => h("text", { key: i, content: line.text, fg: line.fg ?? theme.text })),
-  )
+  );
 }
 
 // === Content provider ===
@@ -206,19 +206,19 @@ const contentProvider: ContentProvider = {
       // Provide text representation for search and copy
       return kanbanData.columns
         .map((col) => {
-          const header = `== ${col.name} (${col.cards.length}) ==`
+          const header = `== ${col.name} (${col.cards.length}) ==`;
           const cards = col.cards
             .map(
               (card) =>
                 `  ${card.id}: ${card.title} [${card.priority}]${card.assignee ? ` @${card.assignee}` : ""}`,
             )
-            .join("\n")
-          return `${header}\n${cards}`
+            .join("\n");
+          return `${header}\n${cards}`;
         })
-        .join("\n\n")
+        .join("\n\n");
     },
   }),
-}
+};
 
 // === Launch ===
 
@@ -227,4 +227,4 @@ launch({
   renderers: {
     kanban: KanbanRenderer,
   },
-})
+});

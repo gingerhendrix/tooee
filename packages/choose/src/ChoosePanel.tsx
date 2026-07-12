@@ -1,6 +1,6 @@
-import type { ReactNode } from "react"
-import { useMode, type Mode } from "@tooee/commands"
-import { CloseButton, useTheme } from "@tooee/themes"
+import type { ReactNode } from "react";
+import { useMode, type Mode } from "@tooee/commands";
+import { CloseButton, useTheme } from "@tooee/themes";
 
 export function buildChooseHints(
   mode: Mode,
@@ -15,29 +15,29 @@ export function buildChooseHints(
           ...(options.multi ? ["Tab toggle"] : []),
           "Esc/q cancel",
           "Enter confirm",
-        ]
-  return options.extra ? [...base, ...options.extra] : base
+        ];
+  return options.extra ? [...base, ...options.extra] : base;
 }
 
-export type ChoosePanelInsetValue = number | "auto" | `${number}%`
+export type ChoosePanelInsetValue = number | "auto" | `${number}%`;
 
 export interface ChoosePanelInset {
-  left?: ChoosePanelInsetValue
-  right?: ChoosePanelInsetValue
-  top?: ChoosePanelInsetValue
-  bottom?: ChoosePanelInsetValue
+  left?: ChoosePanelInsetValue;
+  right?: ChoosePanelInsetValue;
+  top?: ChoosePanelInsetValue;
+  bottom?: ChoosePanelInsetValue;
 }
 
 export interface ChoosePanelProps {
-  title?: ReactNode
-  filter: ReactNode
-  children: ReactNode
-  multi?: boolean
-  hints?: (context: { mode: Mode; defaults: string[] }) => ReactNode
-  statusRight?: ReactNode
-  footer?: ReactNode
-  onClose?: () => void
-  inset?: ChoosePanelInset
+  title?: ReactNode;
+  filter: ReactNode;
+  children: ReactNode;
+  multi?: boolean;
+  hints?: (context: { mode: Mode; defaults: string[] }) => ReactNode;
+  statusRight?: ReactNode;
+  footer?: ReactNode;
+  onClose?: () => void;
+  inset?: ChoosePanelInset;
 }
 
 /** Bordered chooser chrome with filter, content, hint/status, and footer slots. */
@@ -52,10 +52,10 @@ export function ChoosePanel({
   onClose,
   inset,
 }: ChoosePanelProps) {
-  const { theme } = useTheme()
-  const mode = useMode()
-  const defaults = buildChooseHints(mode, { multi })
-  const hintContent = hints ? hints({ mode, defaults }) : defaults.join("  ")
+  const { theme } = useTheme();
+  const mode = useMode();
+  const defaults = buildChooseHints(mode, { multi });
+  const hintContent = hints ? hints({ mode, defaults }) : defaults.join("  ");
 
   return (
     <box
@@ -119,5 +119,5 @@ export function ChoosePanel({
           ))}
       </box>
     </box>
-  )
+  );
 }

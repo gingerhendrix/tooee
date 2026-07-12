@@ -16,14 +16,14 @@
  * Controls: j/k scroll, c enter cursor mode, q quit, t theme picker
  */
 
-import { createElement } from "react"
+import { createElement } from "react";
 import {
   launch,
   CodeBlockChrome,
   type ContentProvider,
   type CodeBlockRendererProps,
-} from "@tooee/view"
-import type { ReactNode } from "react"
+} from "@tooee/view";
+import type { ReactNode } from "react";
 
 // === Markdown content with a custom fence type ===
 
@@ -59,14 +59,14 @@ Built-in mermaid rendering still works via the same registry:
 graph LR
   A[Markdown] --> B[Registry] --> C[Custom Block]
 \`\`\`
-`
+`;
 
 // === Custom renderer ===
 
-const BAR_WIDTH = 30
+const BAR_WIDTH = 30;
 
 function h(tag: string, props: Record<string, unknown>, ...children: ReactNode[]): ReactNode {
-  return createElement(tag, props, ...children)
+  return createElement(tag, props, ...children);
 }
 
 /**
@@ -79,32 +79,32 @@ function ChartRenderer({ text, theme, indent }: CodeBlockRendererProps): ReactNo
     .map((line) => line.trim())
     .filter((line) => line.length > 0)
     .map((line) => {
-      const [label, raw] = line.split(",")
-      return { label: (label ?? "").trim(), value: Number((raw ?? "").trim()) }
-    })
+      const [label, raw] = line.split(",");
+      return { label: (label ?? "").trim(), value: Number((raw ?? "").trim()) };
+    });
 
   if (rows.length === 0 || rows.some((row) => row.label === "" || !Number.isFinite(row.value))) {
-    return null // fall back to the default code block
+    return null; // fall back to the default code block
   }
 
-  const max = Math.max(...rows.map((row) => row.value))
-  const labelWidth = Math.max(...rows.map((row) => row.label.length))
+  const max = Math.max(...rows.map((row) => row.value));
+  const labelWidth = Math.max(...rows.map((row) => row.label.length));
 
   return createElement(
     CodeBlockChrome,
     { theme, indent },
     ...rows.map((row, i) => {
-      const barLength = max > 0 ? Math.max(1, Math.round((row.value / max) * BAR_WIDTH)) : 0
-      const label = row.label.padEnd(labelWidth)
+      const barLength = max > 0 ? Math.max(1, Math.round((row.value / max) * BAR_WIDTH)) : 0;
+      const label = row.label.padEnd(labelWidth);
       return h(
         "text",
         { key: i, style: { height: 1 } },
         h("span", { fg: theme.textMuted }, `${label} `),
         h("span", { fg: theme.accent }, "█".repeat(barLength)),
         h("span", { fg: theme.text }, ` ${row.value}`),
-      )
+      );
     }),
-  )
+  );
 }
 
 // === Content provider ===
@@ -115,7 +115,7 @@ const contentProvider: ContentProvider = {
     markdown,
     title: "Custom Code Blocks",
   }),
-}
+};
 
 // === Launch ===
 
@@ -124,4 +124,4 @@ launch({
   codeBlockRenderers: {
     chart: ChartRenderer,
   },
-})
+});

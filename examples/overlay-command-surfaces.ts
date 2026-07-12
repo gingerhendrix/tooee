@@ -39,28 +39,28 @@
  *   Escape   closes the passive overlay
  */
 
-import { createElement, useMemo, useState, type ComponentType, type ReactNode } from "react"
-import { useCommand, useActiveCommandSurface, useMode, useSetMode } from "@tooee/commands"
-import { useOverlay, type OverlayRenderArgs } from "@tooee/overlays"
-import { AppLayout } from "@tooee/layout"
-import { launchCli, useQuitCommand } from "@tooee/shell"
-import { useTheme } from "@tooee/themes"
+import { createElement, useMemo, useState, type ComponentType, type ReactNode } from "react";
+import { useCommand, useActiveCommandSurface, useMode, useSetMode } from "@tooee/commands";
+import { useOverlay, type OverlayRenderArgs } from "@tooee/overlays";
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
 
 function h(
   tag: string | ComponentType<any>,
   props: Record<string, unknown>,
   ...children: ReactNode[]
 ): ReactNode {
-  return createElement(tag, props, ...children)
+  return createElement(tag, props, ...children);
 }
 
-const MODELS = ["claude-opus", "claude-sonnet", "gpt-4o", "local-llama"]
+const MODELS = ["claude-opus", "claude-sonnet", "gpt-4o", "local-llama"];
 
 /** Callbacks the overlays use to write results back into the root app state. */
 interface DemoActions {
-  onSubmit: (text: string) => void
-  onSelectModel: (model: string) => void
-  onPassiveShadow: () => void
+  onSubmit: (text: string) => void;
+  onSelectModel: (model: string) => void;
+  onPassiveShadow: () => void;
 }
 
 // -- Nested modal overlay: a model picker ------------------------------------
@@ -69,28 +69,28 @@ function ModelPickerBody({
   close,
   onSelectModel,
 }: {
-  close: () => void
-  onSelectModel: (model: string) => void
+  close: () => void;
+  onSelectModel: (model: string) => void;
 }): ReactNode {
-  const { theme } = useTheme()
-  const [index, setIndex] = useState(0)
+  const { theme } = useTheme();
+  const [index, setIndex] = useState(0);
 
-  const move = (delta: number) => setIndex((i) => (i + delta + MODELS.length) % MODELS.length)
+  const move = (delta: number) => setIndex((i) => (i + delta + MODELS.length) % MODELS.length);
 
-  useCommand({ id: "picker.up", title: "Up", hotkey: "k", handler: () => move(-1) })
-  useCommand({ id: "picker.up-arrow", title: "Up", hotkey: "up", handler: () => move(-1) })
-  useCommand({ id: "picker.down", title: "Down", hotkey: "j", handler: () => move(1) })
-  useCommand({ id: "picker.down-arrow", title: "Down", hotkey: "down", handler: () => move(1) })
+  useCommand({ id: "picker.up", title: "Up", hotkey: "k", handler: () => move(-1) });
+  useCommand({ id: "picker.up-arrow", title: "Up", hotkey: "up", handler: () => move(-1) });
+  useCommand({ id: "picker.down", title: "Down", hotkey: "j", handler: () => move(1) });
+  useCommand({ id: "picker.down-arrow", title: "Down", hotkey: "down", handler: () => move(1) });
   useCommand({
     id: "picker.select",
     title: "Select model",
     hotkey: "Enter",
     handler: () => {
-      onSelectModel(MODELS[index]!)
-      close()
+      onSelectModel(MODELS[index]!);
+      close();
     },
-  })
-  useCommand({ id: "picker.cancel", title: "Cancel", hotkey: "Escape", handler: () => close() })
+  });
+  useCommand({ id: "picker.cancel", title: "Cancel", hotkey: "Escape", handler: () => close() });
 
   // A nested modal panel. It is offset down/right from the Ask overlay so the
   // stacking is visible, and it paints a SOLID background so it cleanly occludes
@@ -131,7 +131,7 @@ function ModelPickerBody({
         fg: theme.textMuted,
       }),
     ),
-  )
+  );
 }
 
 // -- Modal overlay: an Ask-style prompt --------------------------------------
@@ -140,14 +140,14 @@ function AskOverlayBody({
   close,
   actions,
 }: {
-  close: () => void
-  actions: DemoActions
+  close: () => void;
+  actions: DemoActions;
 }): ReactNode {
-  const { theme } = useTheme()
-  const overlay = useOverlay()
+  const { theme } = useTheme();
+  const overlay = useOverlay();
   // Mode here is LOCAL to this command surface — not the root app's mode.
-  const mode = useMode()
-  const setMode = useSetMode()
+  const mode = useMode();
+  const setMode = useSetMode();
 
   useCommand({
     id: "ask.insert",
@@ -155,14 +155,14 @@ function AskOverlayBody({
     hotkey: "i",
     modes: ["cursor"],
     handler: () => setMode("insert"),
-  })
+  });
   useCommand({
     id: "ask.normal",
     title: "Normal mode",
     hotkey: "Escape",
     modes: ["insert"],
     handler: () => setMode("cursor"),
-  })
+  });
   useCommand({
     id: "ask.open-model-picker",
     title: "Choose model",
@@ -175,26 +175,26 @@ function AskOverlayBody({
           h(ModelPickerBody, { close: closePicker, onSelectModel: actions.onSelectModel }),
         null,
         { ownCommands: true, role: "modal", surfaceMode: "cursor" },
-      )
+      );
     },
-  })
+  });
   useCommand({
     id: "ask.submit",
     title: "Submit",
     hotkey: "Enter",
     modes: ["cursor", "insert"],
     handler: () => {
-      actions.onSubmit(`question answered in ${mode} mode`)
-      close()
+      actions.onSubmit(`question answered in ${mode} mode`);
+      close();
     },
-  })
+  });
   useCommand({
     id: "ask.cancel",
     title: "Cancel",
     hotkey: "Escape",
     modes: ["cursor"],
     handler: () => close(),
-  })
+  });
 
   // A centered modal panel with a SOLID background. Because it paints
   // theme.backgroundPanel across its whole area, it occludes the root state
@@ -236,13 +236,13 @@ function AskOverlayBody({
         fg: theme.textMuted,
       }),
     ),
-  )
+  );
 }
 
 // -- Passive overlay: a help panel that never owns input ---------------------
 
 function PassiveHelpBody({ actions }: { actions: DemoActions }): ReactNode {
-  const { theme } = useTheme()
+  const { theme } = useTheme();
 
   // Bound to the SAME key as the root counter. Because this is a passive
   // surface it must never win arbitration — pressing `r` hits the root command.
@@ -251,7 +251,7 @@ function PassiveHelpBody({ actions }: { actions: DemoActions }): ReactNode {
     title: "Passive shadow",
     hotkey: "r",
     handler: () => actions.onPassiveShadow(),
-  })
+  });
 
   // A passive panel pinned to the BOTTOM of the screen with a solid background.
   // It deliberately leaves the root state panel (top-left) visible, so pressing
@@ -288,23 +288,23 @@ function PassiveHelpBody({ actions }: { actions: DemoActions }): ReactNode {
       }),
       h("text", { content: "Press Escape to close this passive overlay.", fg: theme.text }),
     ),
-  )
+  );
 }
 
 // -- Root app ----------------------------------------------------------------
 
 export function OverlayCommandSurfacesDemo(): ReactNode {
-  const { theme } = useTheme()
-  const overlay = useOverlay()
-  const rootMode = useMode()
-  const active = useActiveCommandSurface()
+  const { theme } = useTheme();
+  const overlay = useOverlay();
+  const rootMode = useMode();
+  const active = useActiveCommandSurface();
 
-  const [rootCount, setRootCount] = useState(0)
-  const [lastSubmit, setLastSubmit] = useState("none")
-  const [selectedModel, setSelectedModel] = useState("none")
-  const [passiveFired, setPassiveFired] = useState(0)
+  const [rootCount, setRootCount] = useState(0);
+  const [lastSubmit, setLastSubmit] = useState("none");
+  const [selectedModel, setSelectedModel] = useState("none");
+  const [passiveFired, setPassiveFired] = useState(0);
 
-  useQuitCommand()
+  useQuitCommand();
 
   const actions = useMemo<DemoActions>(
     () => ({
@@ -313,14 +313,14 @@ export function OverlayCommandSurfacesDemo(): ReactNode {
       onPassiveShadow: () => setPassiveFired((n) => n + 1),
     }),
     [],
-  )
+  );
 
   useCommand({
     id: "root.increment",
     title: "Increment root counter",
     hotkey: "r",
     handler: () => setRootCount((n) => n + 1),
-  })
+  });
 
   useCommand({
     id: "root.open-ask",
@@ -332,9 +332,9 @@ export function OverlayCommandSurfacesDemo(): ReactNode {
         ({ close }: OverlayRenderArgs<null>) => h(AskOverlayBody, { close, actions }),
         null,
         { ownCommands: true, role: "modal", surfaceMode: "cursor" },
-      )
+      );
     },
-  })
+  });
 
   useCommand({
     id: "root.open-passive",
@@ -344,9 +344,9 @@ export function OverlayCommandSurfacesDemo(): ReactNode {
       overlay.open("passive-help", () => h(PassiveHelpBody, { actions }), null, {
         ownCommands: true,
         role: "passive",
-      })
+      });
     },
-  })
+  });
 
   const stateLines = [
     `active surface : ${active ? active.id : "root"}`,
@@ -355,13 +355,13 @@ export function OverlayCommandSurfacesDemo(): ReactNode {
     `last submit    : ${lastSubmit}`,
     `selected model : ${selectedModel}`,
     `passive fired  : ${passiveFired}  (should stay 0)`,
-  ]
+  ];
 
   const help = [
     "Overlay-owned command surfaces demo.",
     "",
     "r increment root counter · o open Ask modal · p open passive help · q quit",
-  ]
+  ];
 
   const content = h(
     "box",
@@ -386,7 +386,7 @@ export function OverlayCommandSurfacesDemo(): ReactNode {
       ),
     ),
     overlay.topId ? null : h("text", { content: "" }),
-  )
+  );
 
   return h(
     AppLayout,
@@ -400,9 +400,9 @@ export function OverlayCommandSurfacesDemo(): ReactNode {
       },
     },
     content,
-  )
+  );
 }
 
 if (import.meta.main) {
-  await launchCli(createElement(OverlayCommandSurfacesDemo))
+  await launchCli(createElement(OverlayCommandSurfacesDemo));
 }

@@ -1,52 +1,52 @@
-import { useState, useMemo, useCallback } from "react"
-import { useCommand } from "@tooee/commands"
-import { useTheme, CloseButton } from "@tooee/themes"
-import { fuzzyMatch } from "@tooee/fuzzy"
+import { useState, useMemo, useCallback } from "react";
+import { useCommand } from "@tooee/commands";
+import { useTheme, CloseButton } from "@tooee/themes";
+import { fuzzyMatch } from "@tooee/fuzzy";
 
 export interface CommandPaletteEntry {
-  id: string
-  title: string
-  hotkey?: string
-  category?: string
-  icon?: string
+  id: string;
+  title: string;
+  hotkey?: string;
+  category?: string;
+  icon?: string;
 }
 
 interface CommandPaletteProps {
-  commands: CommandPaletteEntry[]
-  onSelect: (commandId: string) => void
-  onClose: () => void
+  commands: CommandPaletteEntry[];
+  onSelect: (commandId: string) => void;
+  onClose: () => void;
 }
 
 export function CommandPalette({ commands, onSelect, onClose }: CommandPaletteProps) {
-  const { theme } = useTheme()
-  const [filter, setFilter] = useState("")
-  const [activeIndex, setActiveIndex] = useState(0)
+  const { theme } = useTheme();
+  const [filter, setFilter] = useState("");
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const filtered = useMemo(() => {
-    if (!filter) return commands
-    const results: { entry: CommandPaletteEntry; score: number }[] = []
+    if (!filter) return commands;
+    const results: { entry: CommandPaletteEntry; score: number }[] = [];
     for (const entry of commands) {
-      const score = fuzzyMatch(filter, entry.title)
-      if (score !== null) results.push({ entry, score })
+      const score = fuzzyMatch(filter, entry.title);
+      if (score !== null) results.push({ entry, score });
     }
-    results.sort((a, b) => b.score - a.score)
-    return results.map((r) => r.entry)
-  }, [commands, filter])
+    results.sort((a, b) => b.score - a.score);
+    return results.map((r) => r.entry);
+  }, [commands, filter]);
 
   const handleSelect = useCallback(() => {
-    const item = filtered[activeIndex]
+    const item = filtered[activeIndex];
     if (item) {
-      onSelect(item.id)
+      onSelect(item.id);
     }
-  }, [filtered, activeIndex, onSelect])
+  }, [filtered, activeIndex, onSelect]);
 
   const moveUp = useCallback(() => {
-    setActiveIndex((i) => Math.max(0, i - 1))
-  }, [])
+    setActiveIndex((i) => Math.max(0, i - 1));
+  }, []);
 
   const moveDown = useCallback(() => {
-    setActiveIndex((i) => Math.min(filtered.length - 1, i + 1))
-  }, [filtered.length])
+    setActiveIndex((i) => Math.min(filtered.length - 1, i + 1));
+  }, [filtered.length]);
 
   useCommand({
     id: "command-palette:close",
@@ -55,7 +55,7 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
     modes: ["insert", "cursor"],
     hidden: true,
     handler: onClose,
-  })
+  });
   useCommand({
     id: "command-palette:select",
     title: "Run selected command",
@@ -63,7 +63,7 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
     modes: ["insert", "cursor"],
     hidden: true,
     handler: handleSelect,
-  })
+  });
   useCommand({
     id: "command-palette:move-up",
     title: "Move up",
@@ -71,7 +71,7 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
     modes: ["insert", "cursor"],
     hidden: true,
     handler: moveUp,
-  })
+  });
   useCommand({
     id: "command-palette:move-down",
     title: "Move down",
@@ -79,7 +79,7 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
     modes: ["insert", "cursor"],
     hidden: true,
     handler: moveDown,
-  })
+  });
 
   return (
     <box
@@ -101,8 +101,8 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
           placeholder="Filter commands..."
           onSubmit={handleSelect}
           onInput={(value: string) => {
-            setFilter(value)
-            setActiveIndex(0)
+            setFilter(value);
+            setActiveIndex(0);
           }}
           backgroundColor="transparent"
           focusedBackgroundColor="transparent"
@@ -130,10 +130,10 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
             backgroundColor={i === activeIndex ? theme.backgroundElement : undefined}
             onMouseDown={(event) => {
               // Left-click runs the entry — same code path as Enter.
-              if (event.button !== 0) return
-              event.preventDefault()
-              event.stopPropagation()
-              onSelect(entry.id)
+              if (event.button !== 0) return;
+              event.preventDefault();
+              event.stopPropagation();
+              onSelect(entry.id);
             }}
           >
             <text content={entry.title} fg={theme.text} style={{ flexGrow: 1 }} />
@@ -143,5 +143,5 @@ export function CommandPalette({ commands, onSelect, onClose }: CommandPalettePr
         ))}
       </scrollbox>
     </box>
-  )
+  );
 }

@@ -1,12 +1,12 @@
-import { useTheme } from "@tooee/themes"
+import { useTheme } from "@tooee/themes";
 
 export interface SearchBarProps {
-  query: string
-  onQueryChange: (query: string) => void
-  onSubmit: () => void
-  onCancel: () => void
-  matchCount?: number
-  currentMatch?: number
+  query: string;
+  onQueryChange: (query: string) => void;
+  onSubmit: () => void;
+  onCancel: () => void;
+  matchCount?: number;
+  currentMatch?: number;
 }
 
 export function SearchBar({
@@ -17,14 +17,14 @@ export function SearchBar({
   matchCount,
   currentMatch,
 }: SearchBarProps) {
-  const { theme } = useTheme()
+  const { theme } = useTheme();
 
   const matchDisplay =
     matchCount !== undefined && matchCount > 0
       ? `${(currentMatch ?? 0) + 1}/${matchCount}`
       : matchCount === 0 && query.length > 0
         ? "No matches"
-        : ""
+        : "";
 
   return (
     <box
@@ -51,5 +51,5 @@ export function SearchBar({
       />
       {matchDisplay ? <text content={` ${matchDisplay}`} style={{ fg: theme.textMuted }} /> : null}
     </box>
-  )
+  );
 }

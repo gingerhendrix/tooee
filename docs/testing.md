@@ -39,21 +39,21 @@ Use OpenTUI's headless test renderer via `@opentui/react/test-utils`. These are 
 ### Pattern
 
 ```tsx
-import { testRender } from "@opentui/react/test-utils"
-import { test, expect, afterEach } from "bun:test"
+import { testRender } from "@opentui/react/test-utils";
+import { test, expect, afterEach } from "bun:test";
 
-let testSetup: Awaited<ReturnType<typeof testRender>>
+let testSetup: Awaited<ReturnType<typeof testRender>>;
 
 afterEach(() => {
-  testSetup?.renderer.destroy()
-})
+  testSetup?.renderer.destroy();
+});
 
 test("renders content", async () => {
-  testSetup = await testRender(<MyComponent />, { width: 80, height: 24 })
-  await testSetup.renderOnce()
-  const frame = testSetup.captureCharFrame()
-  expect(frame).toContain("expected text")
-})
+  testSetup = await testRender(<MyComponent />, { width: 80, height: 24 });
+  await testSetup.renderOnce();
+  const frame = testSetup.captureCharFrame();
+  expect(frame).toContain("expected text");
+});
 ```
 
 ### Key simulation
@@ -68,8 +68,8 @@ testSetup.renderer.keyInput.emit("keypress", {
   option: false,
   eventType: "press",
   repeated: false,
-})
-await testSetup.renderOnce()
+});
+await testSetup.renderOnce();
 ```
 
 Key input must be wrapped in React's `act()` to flush state updates through the command system.
@@ -119,35 +119,35 @@ Test fixtures live in `packages/view/test/fixtures/`:
 ### Pattern
 
 ```typescript
-import { describe, test, expect, afterEach } from "bun:test"
-import { type Session } from "tuistory"
-import { launchView } from "./helpers.ts"
+import { describe, test, expect, afterEach } from "bun:test";
+import { type Session } from "tuistory";
+import { launchView } from "./helpers.ts";
 
-let session: Session
+let session: Session;
 
 afterEach(() => {
   try {
-    session?.close()
+    session?.close();
   } catch {}
-})
+});
 
 test("renders markdown heading", async () => {
-  session = await launchView("sample.md")
-  const text = await session.text()
-  expect(text).toContain("Hello World")
-}, 20000)
+  session = await launchView("sample.md");
+  const text = await session.text();
+  expect(text).toContain("Hello World");
+}, 20000);
 ```
 
 ### tuistory API
 
 ```typescript
-await session.press("j") // single key
-await session.press(["ctrl", "d"]) // chord
-await session.type("search query") // type string
-await session.waitForText("pattern") // wait for text
-await session.waitForText(/regex/) // regex match
-const text = await session.text() // get terminal text
-session.close() // cleanup
+await session.press("j"); // single key
+await session.press(["ctrl", "d"]); // chord
+await session.type("search query"); // type string
+await session.waitForText("pattern"); // wait for text
+await session.waitForText(/regex/); // regex match
+const text = await session.text(); // get terminal text
+session.close(); // cleanup
 ```
 
 ### Timeouts
@@ -195,7 +195,7 @@ testSetup.renderer.keyInput.emit("keypress", {
   option: false,
   eventType: "press",
   repeated: false,
-})
+});
 ```
 
 ### E2E tests: Escape is unreliable
@@ -206,7 +206,7 @@ tuistory sends raw `\x1b` for `session.press("escape")`, but OpenTUI enables the
 
 ```typescript
 // Instead of: await session.press("escape")
-await session.writeRaw("\x1b[27u")
+await session.writeRaw("\x1b[27u");
 ```
 
 **Affected e2e scenarios** (skip or use workaround):

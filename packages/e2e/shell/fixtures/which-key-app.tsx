@@ -1,17 +1,17 @@
 #!/usr/bin/env bun
 
-import { useMemo, useState } from "react"
-import { useActions, useCommandGroup, type ActionDefinition } from "@tooee/commands"
-import { AppLayout } from "@tooee/layout"
-import { launchCli, useQuitCommand } from "@tooee/shell"
+import { useMemo, useState } from "react";
+import { useActions, useCommandGroup, type ActionDefinition } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useQuitCommand } from "@tooee/shell";
 
 function WhichKeyE2EApp() {
-  const [lastAction, setLastAction] = useState("none")
+  const [lastAction, setLastAction] = useState("none");
 
-  useQuitCommand()
+  useQuitCommand();
 
-  useCommandGroup({ id: "stream", title: "Stream", prefix: "space s" })
-  useCommandGroup({ id: "artifact", title: "Artifact", prefix: "space a" })
+  useCommandGroup({ id: "stream", title: "Stream", prefix: "space s" });
+  useCommandGroup({ id: "artifact", title: "Artifact", prefix: "space a" });
 
   const actions = useMemo<ActionDefinition[]>(
     () => [
@@ -63,9 +63,9 @@ function WhichKeyE2EApp() {
       },
     ],
     [],
-  )
+  );
 
-  useActions(actions)
+  useActions(actions);
 
   return (
     <AppLayout statusBar={{ items: [{ label: "Mode:", value: "cursor" }] }}>
@@ -74,7 +74,7 @@ function WhichKeyE2EApp() {
         <text content={`last:${lastAction}`} />
       </box>
     </AppLayout>
-  )
+  );
 }
 
-await launchCli(<WhichKeyE2EApp />, { leader: "space" })
+await launchCli(<WhichKeyE2EApp />, { leader: "space" });

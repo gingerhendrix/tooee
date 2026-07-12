@@ -1,7 +1,7 @@
-import { readdirSync, statSync } from "fs"
-import { join } from "path"
-import type { ContentProvider } from "./types.js"
-import { createFileProvider } from "./default-provider.js"
+import { readdirSync, statSync } from "fs";
+import { join } from "path";
+import type { ContentProvider } from "./types.js";
+import { createFileProvider } from "./default-provider.js";
 
 const SUPPORTED_EXTENSIONS = new Set([
   "md",
@@ -33,35 +33,35 @@ const SUPPORTED_EXTENSIONS = new Set([
   "kt",
   "swift",
   "sql",
-])
+]);
 
 export interface DirectoryEntry {
-  name: string
-  path: string
+  name: string;
+  path: string;
 }
 
 export function listDirectoryFiles(dirPath: string): DirectoryEntry[] {
-  const entries = readdirSync(dirPath)
-  const files: DirectoryEntry[] = []
+  const entries = readdirSync(dirPath);
+  const files: DirectoryEntry[] = [];
 
   for (const entry of entries) {
-    if (entry.startsWith(".")) continue
-    const fullPath = join(dirPath, entry)
+    if (entry.startsWith(".")) continue;
+    const fullPath = join(dirPath, entry);
     try {
-      const stat = statSync(fullPath)
-      if (!stat.isFile()) continue
+      const stat = statSync(fullPath);
+      if (!stat.isFile()) continue;
     } catch {
-      continue
+      continue;
     }
-    const ext = entry.split(".").pop()?.toLowerCase()
-    if (!ext || !SUPPORTED_EXTENSIONS.has(ext)) continue
-    files.push({ name: entry, path: fullPath })
+    const ext = entry.split(".").pop()?.toLowerCase();
+    if (!ext || !SUPPORTED_EXTENSIONS.has(ext)) continue;
+    files.push({ name: entry, path: fullPath });
   }
 
-  files.sort((a, b) => a.name.localeCompare(b.name))
-  return files
+  files.sort((a, b) => a.name.localeCompare(b.name));
+  return files;
 }
 
 export function createDirectoryFileProvider(filePath: string): ContentProvider {
-  return createFileProvider(filePath)
+  return createFileProvider(filePath);
 }

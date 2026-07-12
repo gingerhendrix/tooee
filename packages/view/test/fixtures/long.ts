@@ -2,19 +2,19 @@
 // Generated as a test fixture
 
 interface DataPoint {
-  id: number
-  name: string
-  value: number
-  category: string
-  timestamp: Date
+  id: number;
+  name: string;
+  value: number;
+  category: string;
+  timestamp: Date;
 }
 
 interface ProcessingResult {
-  total: number
-  average: number
-  min: number
-  max: number
-  count: number
+  total: number;
+  average: number;
+  min: number;
+  max: number;
+  count: number;
 }
 
 function createDataPoint(id: number, name: string, value: number): DataPoint {
@@ -24,29 +24,29 @@ function createDataPoint(id: number, name: string, value: number): DataPoint {
     value,
     category: categorize(value),
     timestamp: new Date(),
-  }
+  };
 }
 
 function categorize(value: number): string {
-  if (value < 10) return "low"
-  if (value < 50) return "medium"
-  if (value < 90) return "high"
-  return "critical"
+  if (value < 10) return "low";
+  if (value < 50) return "medium";
+  if (value < 90) return "high";
+  return "critical";
 }
 
 function processData(points: DataPoint[]): ProcessingResult {
   if (points.length === 0) {
-    return { total: 0, average: 0, min: 0, max: 0, count: 0 }
+    return { total: 0, average: 0, min: 0, max: 0, count: 0 };
   }
 
-  let total = 0
-  let min = Infinity
-  let max = -Infinity
+  let total = 0;
+  let min = Infinity;
+  let max = -Infinity;
 
   for (const point of points) {
-    total += point.value
-    if (point.value < min) min = point.value
-    if (point.value > max) max = point.value
+    total += point.value;
+    if (point.value < min) min = point.value;
+    if (point.value > max) max = point.value;
   }
 
   return {
@@ -55,36 +55,36 @@ function processData(points: DataPoint[]): ProcessingResult {
     min,
     max,
     count: points.length,
-  }
+  };
 }
 
 function filterByCategory(points: DataPoint[], category: string): DataPoint[] {
-  return points.filter((p) => p.category === category)
+  return points.filter((p) => p.category === category);
 }
 
 function sortByValue(points: DataPoint[], ascending = true): DataPoint[] {
-  return [...points].sort((a, b) => (ascending ? a.value - b.value : b.value - a.value))
+  return [...points].sort((a, b) => (ascending ? a.value - b.value : b.value - a.value));
 }
 
 function groupByCategory(points: DataPoint[]): Map<string, DataPoint[]> {
-  const groups = new Map<string, DataPoint[]>()
+  const groups = new Map<string, DataPoint[]>();
   for (const point of points) {
-    const group = groups.get(point.category) ?? []
-    group.push(point)
-    groups.set(point.category, group)
+    const group = groups.get(point.category) ?? [];
+    group.push(point);
+    groups.set(point.category, group);
   }
-  return groups
+  return groups;
 }
 
 function generateSampleData(count: number): DataPoint[] {
-  const names = ["alpha", "beta", "gamma", "delta", "epsilon"]
-  const results: DataPoint[] = []
+  const names = ["alpha", "beta", "gamma", "delta", "epsilon"];
+  const results: DataPoint[] = [];
   for (let i = 0; i < count; i++) {
-    const name = names[i % names.length] ?? "unknown"
-    const value = Math.floor(Math.random() * 100)
-    results.push(createDataPoint(i, name, value))
+    const name = names[i % names.length] ?? "unknown";
+    const value = Math.floor(Math.random() * 100);
+    results.push(createDataPoint(i, name, value));
   }
-  return results
+  return results;
 }
 
 function formatResult(result: ProcessingResult): string {
@@ -94,16 +94,16 @@ function formatResult(result: ProcessingResult): string {
     `Min: ${result.min}`,
     `Max: ${result.max}`,
     `Count: ${result.count}`,
-  ]
-  return lines.join("\n")
+  ];
+  return lines.join("\n");
 }
 
 function validateDataPoint(point: DataPoint): boolean {
-  if (point.id < 0) return false
-  if (point.name.length === 0) return false
-  if (point.value < 0 || point.value > 100) return false
-  if (!["low", "medium", "high", "critical"].includes(point.category)) return false
-  return true
+  if (point.id < 0) return false;
+  if (point.name.length === 0) return false;
+  if (point.value < 0 || point.value > 100) return false;
+  if (!["low", "medium", "high", "critical"].includes(point.category)) return false;
+  return true;
 }
 
 function mergeResults(a: ProcessingResult, b: ProcessingResult): ProcessingResult {
@@ -113,7 +113,7 @@ function mergeResults(a: ProcessingResult, b: ProcessingResult): ProcessingResul
     min: Math.min(a.min, b.min),
     max: Math.max(a.max, b.max),
     count: a.count + b.count,
-  }
+  };
 }
 
 export {
@@ -126,6 +126,6 @@ export {
   formatResult,
   validateDataPoint,
   mergeResults,
-}
+};
 
-export type { DataPoint, ProcessingResult }
+export type { DataPoint, ProcessingResult };

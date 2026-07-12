@@ -1,13 +1,13 @@
-import { testRender } from "../../../test/support/test-render.ts"
-import { test, expect, afterEach } from "bun:test"
-import { ThemeSwitcherProvider } from "@tooee/themes"
-import { TitleBar } from "../src/TitleBar.js"
+import { testRender } from "../../../test/support/test-render.ts";
+import { test, expect, afterEach } from "bun:test";
+import { ThemeSwitcherProvider } from "@tooee/themes";
+import { TitleBar } from "../src/TitleBar.js";
 
-let testSetup: Awaited<ReturnType<typeof testRender>>
+let testSetup: Awaited<ReturnType<typeof testRender>>;
 
 afterEach(() => {
-  testSetup?.renderer.destroy()
-})
+  testSetup?.renderer.destroy();
+});
 
 test("renders title text", async () => {
   testSetup = await testRender(
@@ -15,11 +15,11 @@ test("renders title text", async () => {
       <TitleBar title="My Title" />
     </ThemeSwitcherProvider>,
     { width: 80, height: 24 },
-  )
-  await testSetup.renderOnce()
-  const frame = testSetup.captureCharFrame()
-  expect(frame).toContain("My Title")
-})
+  );
+  await testSetup.renderOnce();
+  const frame = testSetup.captureCharFrame();
+  expect(frame).toContain("My Title");
+});
 
 test("renders subtitle when provided", async () => {
   testSetup = await testRender(
@@ -27,12 +27,12 @@ test("renders subtitle when provided", async () => {
       <TitleBar title="My Title" subtitle="A subtitle" />
     </ThemeSwitcherProvider>,
     { width: 80, height: 24 },
-  )
-  await testSetup.renderOnce()
-  const frame = testSetup.captureCharFrame()
-  expect(frame).toContain("My Title")
-  expect(frame).toContain("A subtitle")
-})
+  );
+  await testSetup.renderOnce();
+  const frame = testSetup.captureCharFrame();
+  expect(frame).toContain("My Title");
+  expect(frame).toContain("A subtitle");
+});
 
 test("does not render subtitle when not provided", async () => {
   testSetup = await testRender(
@@ -40,12 +40,12 @@ test("does not render subtitle when not provided", async () => {
       <TitleBar title="Only Title" />
     </ThemeSwitcherProvider>,
     { width: 80, height: 24 },
-  )
-  await testSetup.renderOnce()
-  const frame = testSetup.captureCharFrame()
-  expect(frame).toContain("Only Title")
-  expect(frame).not.toContain("—")
-})
+  );
+  await testSetup.renderOnce();
+  const frame = testSetup.captureCharFrame();
+  expect(frame).toContain("Only Title");
+  expect(frame).not.toContain("—");
+});
 
 test("snapshot", async () => {
   testSetup = await testRender(
@@ -53,8 +53,8 @@ test("snapshot", async () => {
       <TitleBar title="Snapshot Title" subtitle="Sub" />
     </ThemeSwitcherProvider>,
     { width: 60, height: 3 },
-  )
-  await testSetup.renderOnce()
-  const frame = testSetup.captureCharFrame()
-  expect(frame).toMatchSnapshot()
-})
+  );
+  await testSetup.renderOnce();
+  const frame = testSetup.captureCharFrame();
+  expect(frame).toMatchSnapshot();
+});

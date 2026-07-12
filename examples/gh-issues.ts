@@ -9,15 +9,15 @@
  * Controls: j/k navigate, / filter, Enter select, q quit
  */
 
-import { launch as launchChoose, type ChooseItem } from "@tooee/choose"
-import { launch as launchView, type ContentProvider } from "@tooee/view"
+import { launch as launchChoose, type ChooseItem } from "@tooee/choose";
+import { launch as launchView, type ContentProvider } from "@tooee/view";
 
 interface Issue {
-  number: number
-  title: string
-  author: { login: string }
-  state: string
-  labels: { name: string }[]
+  number: number;
+  title: string;
+  author: { login: string };
+  state: string;
+  labels: { name: string }[];
 }
 
 const issueProvider = {
@@ -30,19 +30,19 @@ const issueProvider = {
       "number,title,author,state,labels",
       "--limit",
       "50",
-    ])
+    ]);
 
-    const text = await new Response(proc.stdout).text()
-    const exitCode = await proc.exited
+    const text = await new Response(proc.stdout).text();
+    const exitCode = await proc.exited;
 
     if (exitCode !== 0) {
-      return [{ text: "Failed to fetch issues. Is `gh` installed?", value: "" }]
+      return [{ text: "Failed to fetch issues. Is `gh` installed?", value: "" }];
     }
 
-    const issues: Issue[] = JSON.parse(text || "[]")
+    const issues: Issue[] = JSON.parse(text || "[]");
 
     if (issues.length === 0) {
-      return [{ text: "No open issues", value: "" }]
+      return [{ text: "No open issues", value: "" }];
     }
 
     return issues.map((issue) => ({
@@ -50,36 +50,36 @@ const issueProvider = {
       value: String(issue.number),
       icon: issue.state === "OPEN" ? "\u{1F7E2}" : "\u{1F534}",
       description: issue.labels.map((l) => l.name).join(", ") || undefined,
-    }))
+    }));
   },
-}
+};
 
 async function viewIssue(issueNumber: string) {
   const contentProvider: ContentProvider = {
     async load() {
-      const proc = Bun.spawn(["gh", "issue", "view", issueNumber])
-      const text = await new Response(proc.stdout).text()
+      const proc = Bun.spawn(["gh", "issue", "view", issueNumber]);
+      const text = await new Response(proc.stdout).text();
 
       return {
         format: "markdown" as const,
         markdown: text,
         title: `Issue #${issueNumber}`,
-      }
+      };
     },
-  }
+  };
 
-  await launchView({ contentProvider })
+  await launchView({ contentProvider });
 }
 
 async function main() {
   const result = await launchChoose({
     contentProvider: issueProvider,
     options: { prompt: "Select an issue to view" },
-  })
+  });
 
   if (result && result.items[0].value) {
-    await viewIssue(result.items[0].value)
+    await viewIssue(result.items[0].value);
   }
 }
 
-main()
+main();

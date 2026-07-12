@@ -11,6 +11,6 @@ This is a test document.
 ## Code Example
 
 ```typescript
-const x = 42
-console.log(x)
+const x = 42;
+console.log(x);
 ```

@@ -18,25 +18,25 @@
  *   q            — quit
  */
 
-import { createElement, useMemo, useState, type ComponentType, type ReactNode } from "react"
-import { useActions, useCommandGroup, type ActionDefinition } from "@tooee/commands"
-import { AppLayout } from "@tooee/layout"
-import { launchCli, useQuitCommand } from "@tooee/shell"
-import { useTheme } from "@tooee/themes"
+import { createElement, useMemo, useState, type ComponentType, type ReactNode } from "react";
+import { useActions, useCommandGroup, type ActionDefinition } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
 
 function h(
   tag: string | ComponentType<any>,
   props: Record<string, unknown>,
   ...children: ReactNode[]
 ): ReactNode {
-  return createElement(tag, props, ...children)
+  return createElement(tag, props, ...children);
 }
 
 function WhichKeyGroupsDemo(): ReactNode {
-  const { theme } = useTheme()
-  const [lastAction, setLastAction] = useState("Press space to open the which-key overlay")
+  const { theme } = useTheme();
+  const [lastAction, setLastAction] = useState("Press space to open the which-key overlay");
 
-  useQuitCommand()
+  useQuitCommand();
 
   useCommandGroup({
     id: "stream",
@@ -44,28 +44,28 @@ function WhichKeyGroupsDemo(): ReactNode {
     prefix: "space s",
     description: "Open, create, and dispatch stream work",
     icon: "S",
-  })
+  });
   useCommandGroup({
     id: "artifact",
     title: "Artifact",
     prefix: "space a",
     description: "Open and edit stream artifacts",
     icon: "A",
-  })
+  });
   useCommandGroup({
     id: "capture",
     title: "Capture",
     prefix: "space c",
     description: "Capture notes and tasks",
     icon: "C",
-  })
+  });
   useCommandGroup({
     id: "go",
     title: "Go",
     prefix: "space g",
     description: "Navigate to common views",
     icon: "G",
-  })
+  });
 
   const actions = useMemo<ActionDefinition[]>(
     () => [
@@ -77,8 +77,8 @@ function WhichKeyGroupsDemo(): ReactNode {
         group: "Stream",
         icon: "T",
         handler: (ctx) => {
-          setLastAction("Opened today's stream")
-          ctx.toast.toast({ message: "Opened today's stream", level: "success" })
+          setLastAction("Opened today's stream");
+          ctx.toast.toast({ message: "Opened today's stream", level: "success" });
         },
       },
       {
@@ -89,8 +89,8 @@ function WhichKeyGroupsDemo(): ReactNode {
         group: "Stream",
         icon: "N",
         handler: (ctx) => {
-          setLastAction("Created a new stream")
-          ctx.toast.toast({ message: "Created a new stream", level: "success" })
+          setLastAction("Created a new stream");
+          ctx.toast.toast({ message: "Created a new stream", level: "success" });
         },
       },
       {
@@ -101,8 +101,8 @@ function WhichKeyGroupsDemo(): ReactNode {
         group: "Stream",
         icon: "D",
         handler: (ctx) => {
-          setLastAction("Dispatched a task to the current stream")
-          ctx.toast.toast({ message: "Dispatched task", level: "info" })
+          setLastAction("Dispatched a task to the current stream");
+          ctx.toast.toast({ message: "Dispatched task", level: "info" });
         },
       },
       {
@@ -113,8 +113,8 @@ function WhichKeyGroupsDemo(): ReactNode {
         group: "Artifact",
         icon: "O",
         handler: (ctx) => {
-          setLastAction("Opened the selected artifact")
-          ctx.toast.toast({ message: "Opened artifact", level: "success" })
+          setLastAction("Opened the selected artifact");
+          ctx.toast.toast({ message: "Opened artifact", level: "success" });
         },
       },
       {
@@ -125,8 +125,8 @@ function WhichKeyGroupsDemo(): ReactNode {
         group: "Artifact",
         icon: "E",
         handler: (ctx) => {
-          setLastAction("Editing the selected artifact")
-          ctx.toast.toast({ message: "Editing artifact", level: "info" })
+          setLastAction("Editing the selected artifact");
+          ctx.toast.toast({ message: "Editing artifact", level: "info" });
         },
       },
       {
@@ -137,8 +137,8 @@ function WhichKeyGroupsDemo(): ReactNode {
         group: "Artifact",
         icon: "P",
         handler: (ctx) => {
-          setLastAction("Revealed the artifact path")
-          ctx.toast.toast({ message: "Artifact path copied", level: "success" })
+          setLastAction("Revealed the artifact path");
+          ctx.toast.toast({ message: "Artifact path copied", level: "success" });
         },
       },
       {
@@ -149,8 +149,8 @@ function WhichKeyGroupsDemo(): ReactNode {
         group: "Capture",
         icon: "I",
         handler: (ctx) => {
-          setLastAction("Captured an idea")
-          ctx.toast.toast({ message: "Captured idea", level: "success" })
+          setLastAction("Captured an idea");
+          ctx.toast.toast({ message: "Captured idea", level: "success" });
         },
       },
       {
@@ -161,8 +161,8 @@ function WhichKeyGroupsDemo(): ReactNode {
         group: "Capture",
         icon: "T",
         handler: (ctx) => {
-          setLastAction("Captured a task")
-          ctx.toast.toast({ message: "Captured task", level: "success" })
+          setLastAction("Captured a task");
+          ctx.toast.toast({ message: "Captured task", level: "success" });
         },
       },
       {
@@ -173,8 +173,8 @@ function WhichKeyGroupsDemo(): ReactNode {
         group: "Go",
         icon: "D",
         handler: (ctx) => {
-          setLastAction("Navigated to the dashboard")
-          ctx.toast.toast({ message: "Dashboard", level: "info" })
+          setLastAction("Navigated to the dashboard");
+          ctx.toast.toast({ message: "Dashboard", level: "info" });
         },
       },
       {
@@ -185,8 +185,8 @@ function WhichKeyGroupsDemo(): ReactNode {
         group: "Go",
         icon: "A",
         handler: (ctx) => {
-          setLastAction("Navigated to agents")
-          ctx.toast.toast({ message: "Agents", level: "info" })
+          setLastAction("Navigated to agents");
+          ctx.toast.toast({ message: "Agents", level: "info" });
         },
       },
       {
@@ -197,8 +197,8 @@ function WhichKeyGroupsDemo(): ReactNode {
         group: "General",
         icon: "R",
         handler: (ctx) => {
-          setLastAction("Refreshed the demo state")
-          ctx.toast.toast({ message: "Refreshed", level: "info" })
+          setLastAction("Refreshed the demo state");
+          ctx.toast.toast({ message: "Refreshed", level: "info" });
         },
       },
       {
@@ -207,14 +207,14 @@ function WhichKeyGroupsDemo(): ReactNode {
         hotkey: "space x",
         hidden: true,
         handler: () => {
-          setLastAction("Ran hidden maintenance action")
+          setLastAction("Ran hidden maintenance action");
         },
       },
     ],
     [],
-  )
+  );
 
-  useActions(actions)
+  useActions(actions);
 
   const lines = [
     "# Which-key groups demo",
@@ -236,7 +236,7 @@ function WhichKeyGroupsDemo(): ReactNode {
     "",
     "The hidden space x action is registered but should not appear in which-key.",
     "Press q to quit.",
-  ]
+  ];
 
   const content = h(
     "box",
@@ -252,7 +252,7 @@ function WhichKeyGroupsDemo(): ReactNode {
         fg: line.startsWith("#") ? theme.primary : theme.text,
       }),
     ),
-  )
+  );
 
   return h(
     AppLayout,
@@ -261,7 +261,7 @@ function WhichKeyGroupsDemo(): ReactNode {
       statusBar: { items: [{ label: "Mode:", value: "cursor" }] },
     },
     content,
-  )
+  );
 }
 
-await launchCli(createElement(WhichKeyGroupsDemo), { leader: "space" })
+await launchCli(createElement(WhichKeyGroupsDemo), { leader: "space" });

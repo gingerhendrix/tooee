@@ -1,13 +1,13 @@
-import { useTheme } from "@tooee/themes"
-import type { DocumentBindings } from "./DocumentBindings.js"
-import { DEFAULT_SIGN_COLUMN_WIDTH } from "./RowDocumentRenderable.js"
-import { useGutterPalette } from "./useGutterPalette.js"
-import "./row-document.js"
+import { useTheme } from "@tooee/themes";
+import type { DocumentBindings } from "./DocumentBindings.js";
+import { DEFAULT_SIGN_COLUMN_WIDTH } from "./RowDocumentRenderable.js";
+import { useGutterPalette } from "./useGutterPalette.js";
+import "./row-document.js";
 
 interface CodeViewProps {
-  content: string
-  language?: string
-  showLineNumbers?: boolean
+  content: string;
+  language?: string;
+  showLineNumbers?: boolean;
   /**
    * Binds the row document to a document controller: its ref, the decoration
    * layers to paint, and the mouse handler. Rows are source lines. Omit it to
@@ -18,12 +18,12 @@ interface CodeViewProps {
    * row-document, where the controller resolves screen-Y to a row (gutter
    * clicks included).
    */
-  document?: DocumentBindings
+  document?: DocumentBindings;
 }
 
 export function CodeView({ content, language, showLineNumbers = true, document }: CodeViewProps) {
-  const { syntax } = useTheme()
-  const palette = useGutterPalette()
+  const { syntax } = useTheme();
+  const palette = useGutterPalette();
 
   return (
     <row-document
@@ -37,5 +37,5 @@ export function CodeView({ content, language, showLineNumbers = true, document }
     >
       <code content={content} filetype={language} syntaxStyle={syntax} />
     </row-document>
-  )
+  );
 }

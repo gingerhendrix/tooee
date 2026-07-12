@@ -1,32 +1,32 @@
-import { useEffect, useRef, type ReactNode } from "react"
-import type { ScrollBoxRenderable } from "@opentui/core"
-import { useTheme } from "@tooee/themes"
-import { ChooseHighlightedText } from "./ChooseHighlightedText.js"
-import type { FuzzyMatch } from "./fuzzy.js"
-import type { ChooseItem } from "./types.js"
-import type { UseChooseResult } from "./use-choose.js"
+import { useEffect, useRef, type ReactNode } from "react";
+import type { ScrollBoxRenderable } from "@opentui/core";
+import { useTheme } from "@tooee/themes";
+import { ChooseHighlightedText } from "./ChooseHighlightedText.js";
+import type { FuzzyMatch } from "./fuzzy.js";
+import type { ChooseItem } from "./types.js";
+import type { UseChooseResult } from "./use-choose.js";
 
 export interface ChooseItemRenderContext {
-  item: ChooseItem
-  match: FuzzyMatch
-  index: number
-  originalIndex: number
-  positions: number[]
-  isActive: boolean
-  isSelected: boolean
-  defaultContent: ReactNode
+  item: ChooseItem;
+  match: FuzzyMatch;
+  index: number;
+  originalIndex: number;
+  positions: number[];
+  isActive: boolean;
+  isSelected: boolean;
+  defaultContent: ReactNode;
 }
 
 export interface ChooseListProps {
-  choose: UseChooseResult
+  choose: UseChooseResult;
   /** Fullscreen defaults to activate; picker overlays default to submit. */
-  rowClick?: "activate" | "submit" | "none"
-  renderItem?: (context: ChooseItemRenderContext) => ReactNode
-  loadingContent?: ReactNode
-  errorContent?: (error: string) => ReactNode
-  emptyContent?: ReactNode
+  rowClick?: "activate" | "submit" | "none";
+  renderItem?: (context: ChooseItemRenderContext) => ReactNode;
+  loadingContent?: ReactNode;
+  errorContent?: (error: string) => ReactNode;
+  emptyContent?: ReactNode;
   /** Mouse guard for visible rows covered by another surface. */
-  suspended?: boolean
+  suspended?: boolean;
 }
 
 function ThemedLine({ content, color }: { content: ReactNode; color: string }) {
@@ -34,11 +34,11 @@ function ThemedLine({ content, color }: { content: ReactNode; color: string }) {
     <box height={1} style={{ paddingLeft: 2 }}>
       {typeof content === "string" ? <text content={content} fg={color} /> : content}
     </box>
-  )
+  );
 }
 
 function defaultErrorContent(error: string): ReactNode {
-  return `Error: ${error}`
+  return `Error: ${error}`;
 }
 
 /** Scrollable chooser rows plus loading/error/empty presentation. */
@@ -51,16 +51,16 @@ export function ChooseList({
   emptyContent,
   suspended,
 }: ChooseListProps) {
-  const { theme } = useTheme()
-  const scrollRef = useRef<ScrollBoxRenderable>(null)
-  const { state, controller } = choose
-  const interactionSuspended = choose.view.suspended || (suspended ?? false)
+  const { theme } = useTheme();
+  const scrollRef = useRef<ScrollBoxRenderable>(null);
+  const { state, controller } = choose;
+  const interactionSuspended = choose.view.suspended || (suspended ?? false);
 
   useEffect(() => {
     if (scrollRef.current && state.matches.length > 0) {
-      scrollRef.current.scrollTop = Math.max(0, state.activeIndex - 5)
+      scrollRef.current.scrollTop = Math.max(0, state.activeIndex - 5);
     }
-  }, [state.activeIndex, state.matches.length])
+  }, [state.activeIndex, state.matches.length]);
 
   return (
     <scrollbox ref={scrollRef} flexDirection="column" style={{ flexGrow: 1 }} focused={false}>
@@ -75,8 +75,8 @@ export function ChooseList({
       )}
 
       {state.matches.map((match, index) => {
-        const isActive = index === state.activeIndex
-        const isSelected = state.selectedOriginalIndices.has(match.originalIndex)
+        const isActive = index === state.activeIndex;
+        const isSelected = state.selectedOriginalIndices.has(match.originalIndex);
         const defaultContent = (
           <>
             {state.multi && (
@@ -97,7 +97,7 @@ export function ChooseList({
               <text content={`  ${match.item.description}`} fg={theme.textMuted} />
             )}
           </>
-        )
+        );
         const context: ChooseItemRenderContext = {
           item: match.item,
           match,
@@ -107,7 +107,7 @@ export function ChooseList({
           isActive,
           isSelected,
           defaultContent,
-        }
+        };
 
         return (
           <box
@@ -117,21 +117,21 @@ export function ChooseList({
             backgroundColor={isActive ? theme.backgroundElement : undefined}
             style={{ paddingLeft: 1 }}
             onMouseDown={(event) => {
-              if (interactionSuspended || event.button !== 0 || rowClick === "none") return
+              if (interactionSuspended || event.button !== 0 || rowClick === "none") return;
               if (rowClick === "submit") {
-                event.preventDefault()
-                event.stopPropagation()
-                controller.setActiveIndex(index)
-                controller.submit()
+                event.preventDefault();
+                event.stopPropagation();
+                controller.setActiveIndex(index);
+                controller.submit();
               } else {
-                controller.setActiveIndex(index)
+                controller.setActiveIndex(index);
               }
             }}
           >
             {renderItem ? renderItem(context) : defaultContent}
           </box>
-        )
+        );
       })}
     </scrollbox>
-  )
+  );
 }

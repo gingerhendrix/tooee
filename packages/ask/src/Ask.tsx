@@ -1,22 +1,22 @@
-import { useRenderer } from "@opentui/react"
-import { AppLayout } from "@tooee/layout"
-import { useHasOverlay } from "@tooee/overlays"
-import { useTheme } from "@tooee/themes"
-import { useThemeCommands, useQuitCommand, usePasteCommands } from "@tooee/shell"
-import { useActions, useProvideCommandContext, useCommandContext } from "@tooee/commands"
-import type { ActionDefinition } from "@tooee/commands"
-import type { AskOptions } from "./types.js"
-import { AskEditor } from "./AskEditor.js"
-import { useAskEditor } from "./use-ask-editor.js"
+import { useRenderer } from "@opentui/react";
+import { AppLayout } from "@tooee/layout";
+import { useHasOverlay } from "@tooee/overlays";
+import { useTheme } from "@tooee/themes";
+import { useThemeCommands, useQuitCommand, usePasteCommands } from "@tooee/shell";
+import { useActions, useProvideCommandContext, useCommandContext } from "@tooee/commands";
+import type { ActionDefinition } from "@tooee/commands";
+import type { AskOptions } from "./types.js";
+import { AskEditor } from "./AskEditor.js";
+import { useAskEditor } from "./use-ask-editor.js";
 
 export interface AskProps extends AskOptions {
-  actions?: ActionDefinition[]
+  actions?: ActionDefinition[];
   /**
    * Called with the submitted text. Defaults to writing the value to stdout
    * and destroying the renderer (the standalone `ask` CLI behaviour). A
    * `submit` action takes precedence over both.
    */
-  onSubmit?: (value: string) => void
+  onSubmit?: (value: string) => void;
 }
 
 export function Ask({
@@ -28,34 +28,34 @@ export function Ask({
   actions,
   onSubmit,
 }: AskProps) {
-  const renderer = useRenderer()
-  const { invoke } = useCommandContext()
+  const renderer = useRenderer();
+  const { invoke } = useCommandContext();
 
-  const { theme } = useTheme()
-  const { name: themeName } = useThemeCommands()
+  const { theme } = useTheme();
+  const { name: themeName } = useThemeCommands();
   useQuitCommand({
     onQuit: () => {
-      renderer.destroy()
-      process.exit(0)
+      renderer.destroy();
+      process.exit(0);
     },
-  })
+  });
 
   // Legacy overlays don't push a command surface; keep blurring the editor
   // under them via the shell's overlay state.
-  const hasOverlay = useHasOverlay()
+  const hasOverlay = useHasOverlay();
 
   const handleSubmit = (text: string) => {
     if (actions?.some((a) => a.id === "submit")) {
-      invoke("submit")
-      return
+      invoke("submit");
+      return;
     }
     if (onSubmit) {
-      onSubmit(text)
-      return
+      onSubmit(text);
+      return;
     }
-    process.stdout.write(text + "\n")
-    renderer.destroy()
-  }
+    process.stdout.write(text + "\n");
+    renderer.destroy();
+  };
 
   const { controller, editor } = useAskEditor({
     multiline,
@@ -63,23 +63,23 @@ export function Ask({
     placeholder,
     onSubmit: handleSubmit,
     suspended: hasOverlay,
-  })
+  });
 
   useProvideCommandContext(() => ({
     exit: () => renderer.destroy(),
-  }))
+  }));
 
-  useActions(actions)
+  useActions(actions);
 
   // Paste commands (available via command palette)
-  usePasteCommands({ getTarget: () => controller })
+  usePasteCommands({ getTarget: () => controller });
 
-  const mode = editor.mode
-  const submitHint = multiline ? "Shift+Enter submit" : "Enter submit"
+  const mode = editor.mode;
+  const submitHint = multiline ? "Shift+Enter submit" : "Enter submit";
   const hintParts =
     mode === "insert"
       ? [submitHint, "Esc commands"]
-      : ["i insert", "q quit", ": palette", submitHint]
+      : ["i insert", "q quit", ": palette", submitHint];
 
   return (
     <AppLayout
@@ -110,5 +110,5 @@ export function Ask({
         </box>
       </box>
     </AppLayout>
-  )
+  );
 }

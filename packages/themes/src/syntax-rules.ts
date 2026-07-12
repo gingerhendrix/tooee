@@ -1,5 +1,5 @@
-import { RGBA, SyntaxStyle } from "@opentui/core"
-import type { ResolvedTheme } from "./types.js"
+import { RGBA, SyntaxStyle } from "@opentui/core";
+import type { ResolvedTheme } from "./types.js";
 
 // ---------------------------------------------------------------------------
 // SyntaxStyle builder
@@ -202,9 +202,9 @@ function getSyntaxRules(resolved: ResolvedTheme) {
     { scope: ["warning"], style: { foreground: RGBA.fromHex(resolved.warning), bold: true } },
     { scope: ["info"], style: { foreground: RGBA.fromHex(resolved.info) } },
     { scope: ["debug"], style: { foreground: RGBA.fromHex(resolved.textMuted) } },
-  ]
+  ];
 }
 
 export function buildSyntaxStyle(resolved: ResolvedTheme): SyntaxStyle {
-  return SyntaxStyle.fromTheme(getSyntaxRules(resolved))
+  return SyntaxStyle.fromTheme(getSyntaxRules(resolved));
 }

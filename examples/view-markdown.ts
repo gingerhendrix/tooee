@@ -11,7 +11,7 @@
  * Controls: j/k scroll, q quit, t/T cycle themes
  */
 
-import { launch, type ContentProvider } from "@tooee/view"
+import { launch, type ContentProvider } from "@tooee/view";
 
 // Create a content provider with inline markdown
 const contentProvider: ContentProvider = {
@@ -60,7 +60,7 @@ Check out the other examples in this directory to see the full API surface.
 *Press \`q\` to quit this viewer.*
 `,
   }),
-}
+};
 
 // Launch the viewer with our content provider
-launch({ contentProvider })
+launch({ contentProvider });

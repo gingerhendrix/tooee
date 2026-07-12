@@ -17,7 +17,7 @@
  *   Escape           cancel
  */
 
-import { launch, createStaticProvider, type ChooseItem } from "@tooee/choose"
+import { launch, createStaticProvider, type ChooseItem } from "@tooee/choose";
 
 const frameworks: ChooseItem[] = [
   {
@@ -36,20 +36,20 @@ const frameworks: ChooseItem[] = [
   { text: "Bun", value: "bun", icon: "\u{1F35E}", description: "Fast all-in-one runtime" },
   { text: "TypeScript", value: "typescript", icon: "\u{1F4D8}", description: "Typed JavaScript" },
   { text: "Tailwind", value: "tailwind", icon: "\u{1F3A8}", description: "Utility-first styling" },
-]
+];
 
 async function main() {
   const result = await launch({
     contentProvider: createStaticProvider(frameworks),
     options: { prompt: "Left-click a row, then press Enter" },
-  })
+  });
 
   if (result === null) {
-    console.log("Selection cancelled")
+    console.log("Selection cancelled");
   } else {
-    const selected = result.items[0]
-    console.log(`You chose: ${selected.text} (${selected.value})`)
+    const selected = result.items[0];
+    console.log(`You chose: ${selected.text} (${selected.value})`);
   }
 }
 
-main()
+main();

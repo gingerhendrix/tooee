@@ -1,107 +1,107 @@
-import { afterEach, beforeEach, describe, expect, test } from "bun:test"
-import { act } from "react"
-import { useRef, useState } from "react"
-import { TooeeProvider } from "@tooee/shell"
-import { useCurrentOverlay, useOverlayState } from "@tooee/overlays"
-import { testRender } from "../../../test/support/test-render.ts"
-import type { ChooseItem } from "../src/types.js"
-import { useChooseDialog, type ChooseDialogHandle } from "../src/use-choose-dialog.js"
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { act } from "react";
+import { useRef, useState } from "react";
+import { TooeeProvider } from "@tooee/shell";
+import { useCurrentOverlay, useOverlayState } from "@tooee/overlays";
+import { testRender } from "../../../test/support/test-render.ts";
+import type { ChooseItem } from "../src/types.js";
+import { useChooseDialog, type ChooseDialogHandle } from "../src/use-choose-dialog.js";
 
 interface Fruit {
-  id: number
-  name: string
+  id: number;
+  name: string;
 }
 
 const FRUITS: Fruit[] = [
   { id: 1, name: "apple" },
   { id: 2, name: "banana" },
   { id: 3, name: "cherry" },
-]
+];
 
-type TestSession = Awaited<ReturnType<typeof testRender>>
+type TestSession = Awaited<ReturnType<typeof testRender>>;
 
-let testSetup: TestSession
+let testSetup: TestSession;
 
 afterEach(() => {
-  testSetup?.renderer.destroy()
-})
+  testSetup?.renderer.destroy();
+});
 
 async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
   await act(async () => {
-    testSetup.mockInput.pressKey(key, modifiers)
-  })
-  await testSetup.renderOnce()
+    testSetup.mockInput.pressKey(key, modifiers);
+  });
+  await testSetup.renderOnce();
 }
 
 async function pressEscape() {
   await act(async () => {
-    testSetup.mockInput.pressEscape()
-  })
-  await testSetup.renderOnce()
+    testSetup.mockInput.pressEscape();
+  });
+  await testSetup.renderOnce();
 }
 
 async function pressEnter() {
   await act(async () => {
-    testSetup.mockInput.pressEnter()
-  })
-  await testSetup.renderOnce()
+    testSetup.mockInput.pressEnter();
+  });
+  await testSetup.renderOnce();
 }
 
 async function pressTab() {
   await act(async () => {
-    testSetup.mockInput.pressTab()
-  })
-  await testSetup.renderOnce()
+    testSetup.mockInput.pressTab();
+  });
+  await testSetup.renderOnce();
 }
 
 async function typeText(text: string) {
   await act(async () => {
-    await testSetup.mockInput.typeText(text)
-  })
-  await testSetup.renderOnce()
+    await testSetup.mockInput.typeText(text);
+  });
+  await testSetup.renderOnce();
 }
 
 interface HarnessHandles {
-  fruits: ChooseDialogHandle<Fruit>
-  rows: ChooseDialogHandle<ChooseItem>
-  unmountOwner: () => void
-  ownerFruits: ChooseDialogHandle<Fruit> | null
-  stackSize: () => number
+  fruits: ChooseDialogHandle<Fruit>;
+  rows: ChooseDialogHandle<ChooseItem>;
+  unmountOwner: () => void;
+  ownerFruits: ChooseDialogHandle<Fruit> | null;
+  stackSize: () => number;
 }
 
-const handles: { current: HarnessHandles | null } = { current: null }
-let settlements: unknown[] = []
+const handles: { current: HarnessHandles | null } = { current: null };
+let settlements: unknown[] = [];
 
 beforeEach(() => {
-  handles.current = null
-  settlements = []
-})
+  handles.current = null;
+  settlements = [];
+});
 
 function DialogOwner({ openRef }: { openRef: { current: ChooseDialogHandle<Fruit> | null } }) {
-  const dialog = useChooseDialog<Fruit>()
-  openRef.current = dialog
-  return null
+  const dialog = useChooseDialog<Fruit>();
+  openRef.current = dialog;
+  return null;
 }
 
 function Harness() {
-  const overlayState = useOverlayState()
-  const current = useCurrentOverlay()
-  const fruits = useChooseDialog<Fruit>()
-  const rows = useChooseDialog<ChooseItem>()
-  const [ownerMounted, setOwnerMounted] = useState(true)
-  const ownerRef = useRef<ChooseDialogHandle<Fruit> | null>(null)
-  const stateRef = useRef(overlayState)
-  stateRef.current = overlayState
+  const overlayState = useOverlayState();
+  const current = useCurrentOverlay();
+  const fruits = useChooseDialog<Fruit>();
+  const rows = useChooseDialog<ChooseItem>();
+  const [ownerMounted, setOwnerMounted] = useState(true);
+  const ownerRef = useRef<ChooseDialogHandle<Fruit> | null>(null);
+  const stateRef = useRef(overlayState);
+  stateRef.current = overlayState;
 
   handles.current = {
     fruits,
     rows,
     unmountOwner: () => setOwnerMounted(false),
     get ownerFruits() {
-      return ownerRef.current
+      return ownerRef.current;
     },
     stackSize: () => stateRef.current.stack.length,
-  }
+  };
 
   return (
     <box flexDirection="column">
@@ -109,7 +109,7 @@ function Harness() {
       {ownerMounted && <DialogOwner openRef={ownerRef} />}
       {current}
     </box>
-  )
+  );
 }
 
 async function setup() {
@@ -118,101 +118,101 @@ async function setup() {
       <Harness />
     </TooeeProvider>,
     { width: 80, height: 30, kittyKeyboard: true },
-  )
-  await session.renderOnce()
-  return session
+  );
+  await session.renderOnce();
+  return session;
 }
 
-const toItem = (fruit: Fruit): ChooseItem => ({ text: fruit.name })
+const toItem = (fruit: Fruit): ChooseItem => ({ text: fruit.name });
 
 describe("useChooseDialog", () => {
   test("single select resolves the typed item without casts", async () => {
-    testSetup = await setup()
+    testSetup = await setup();
     await act(async () => {
       void handles
         .current!.fruits.open({ items: FRUITS, toItem, prompt: "Pick fruit" })
         .then((fruit) => {
           // Compile-time: `fruit` is Fruit | null (no cast needed for .id).
-          settlements.push(fruit === null ? null : fruit.id)
-        })
-    })
-    await testSetup.renderOnce()
-    expect(testSetup.captureCharFrame()).toContain("Pick fruit")
+          settlements.push(fruit === null ? null : fruit.id);
+        });
+    });
+    await testSetup.renderOnce();
+    expect(testSetup.captureCharFrame()).toContain("Pick fruit");
 
-    await pressEnter() // confirm the first (active) item
+    await pressEnter(); // confirm the first (active) item
 
-    expect(settlements).toEqual([1])
-    expect(handles.current!.stackSize()).toBe(0)
-  })
+    expect(settlements).toEqual([1]);
+    expect(handles.current!.stackSize()).toBe(0);
+  });
 
   test("navigation + Enter resolves the highlighted typed item", async () => {
-    testSetup = await setup()
+    testSetup = await setup();
     await act(async () => {
       void handles
         .current!.fruits.open({ items: FRUITS, toItem, prompt: "Pick fruit" })
-        .then((fruit) => settlements.push(fruit === null ? null : fruit.id))
-    })
-    await testSetup.renderOnce()
+        .then((fruit) => settlements.push(fruit === null ? null : fruit.id));
+    });
+    await testSetup.renderOnce();
 
-    await press("n", { ctrl: true }) // move down to banana
-    await pressEnter()
+    await press("n", { ctrl: true }); // move down to banana
+    await pressEnter();
 
-    expect(settlements).toEqual([2])
-  })
+    expect(settlements).toEqual([2]);
+  });
 
   test("filtering resolves the matching typed item", async () => {
-    testSetup = await setup()
+    testSetup = await setup();
     await act(async () => {
       void handles
         .current!.fruits.open({ items: FRUITS, toItem, prompt: "Pick fruit" })
-        .then((fruit) => settlements.push(fruit === null ? null : fruit.name))
-    })
-    await testSetup.renderOnce()
+        .then((fruit) => settlements.push(fruit === null ? null : fruit.name));
+    });
+    await testSetup.renderOnce();
 
-    await typeText("cher")
-    await pressEnter()
+    await typeText("cher");
+    await pressEnter();
 
-    expect(settlements).toEqual(["cherry"])
-  })
+    expect(settlements).toEqual(["cherry"]);
+  });
 
   test("multi select resolves the toggled typed items", async () => {
-    testSetup = await setup()
+    testSetup = await setup();
     await act(async () => {
       void handles
         .current!.fruits.open({ items: FRUITS, toItem, multi: true, prompt: "Pick fruits" })
         .then((fruits) => {
           // Compile-time: `fruits` is Fruit[] | null.
-          settlements.push(fruits === null ? null : fruits.map((fruit) => fruit.id))
-        })
-    })
-    await testSetup.renderOnce()
+          settlements.push(fruits === null ? null : fruits.map((fruit) => fruit.id));
+        });
+    });
+    await testSetup.renderOnce();
 
-    await pressTab() // toggle apple, move to banana
-    await pressTab() // toggle banana, move to cherry
-    await pressEnter()
+    await pressTab(); // toggle apple, move to banana
+    await pressTab(); // toggle banana, move to cherry
+    await pressEnter();
 
-    expect(settlements).toEqual([[1, 2]])
-    expect(handles.current!.stackSize()).toBe(0)
-  })
+    expect(settlements).toEqual([[1, 2]]);
+    expect(handles.current!.stackSize()).toBe(0);
+  });
 
   test("cancel resolves null exactly once", async () => {
-    testSetup = await setup()
+    testSetup = await setup();
     await act(async () => {
       void handles
         .current!.fruits.open({ items: FRUITS, toItem, prompt: "Pick fruit" })
-        .then((fruit) => settlements.push(fruit))
-    })
-    await testSetup.renderOnce()
+        .then((fruit) => settlements.push(fruit));
+    });
+    await testSetup.renderOnce();
 
-    await pressEscape() // insert -> cursor
-    await pressEscape() // cursor -> cancel
+    await pressEscape(); // insert -> cursor
+    await pressEscape(); // cursor -> cancel
 
-    expect(settlements).toEqual([null])
-    expect(handles.current!.stackSize()).toBe(0)
-  })
+    expect(settlements).toEqual([null]);
+    expect(handles.current!.stackSize()).toBe(0);
+  });
 
   test("async item loaders resolve typed items", async () => {
-    testSetup = await setup()
+    testSetup = await setup();
     await act(async () => {
       void handles
         .current!.fruits.open({
@@ -220,81 +220,81 @@ describe("useChooseDialog", () => {
           toItem,
           prompt: "Pick fruit",
         })
-        .then((fruit) => settlements.push(fruit === null ? null : fruit.name))
-    })
-    await testSetup.renderOnce()
-    await testSetup.renderOnce() // flush the async load
+        .then((fruit) => settlements.push(fruit === null ? null : fruit.name));
+    });
+    await testSetup.renderOnce();
+    await testSetup.renderOnce(); // flush the async load
 
-    await typeText("ban")
-    await pressEnter()
+    await typeText("ban");
+    await pressEnter();
 
-    expect(settlements).toEqual(["banana"])
-  })
+    expect(settlements).toEqual(["banana"]);
+  });
 
   test("ChooseItem items work without toItem and resolve the original object", async () => {
-    testSetup = await setup()
-    const rows: ChooseItem[] = [{ text: "one" }, { text: "two" }]
+    testSetup = await setup();
+    const rows: ChooseItem[] = [{ text: "one" }, { text: "two" }];
     await act(async () => {
       void handles.current!.rows.open({ items: rows, prompt: "Pick row" }).then((row) => {
-        settlements.push(row)
-      })
-    })
-    await testSetup.renderOnce()
+        settlements.push(row);
+      });
+    });
+    await testSetup.renderOnce();
 
-    await press("n", { ctrl: true })
-    await pressEnter()
+    await press("n", { ctrl: true });
+    await pressEnter();
 
     // Identity: the resolved value is the caller's original object, not the
     // internally mapped display row.
-    expect(settlements.length).toBe(1)
-    expect(settlements[0]).toBe(rows[1])
-  })
+    expect(settlements.length).toBe(1);
+    expect(settlements[0]).toBe(rows[1]);
+  });
 
   test("duplicate display texts still resolve distinct typed items", async () => {
-    testSetup = await setup()
+    testSetup = await setup();
     const twins: Fruit[] = [
       { id: 10, name: "same" },
       { id: 20, name: "same" },
-    ]
+    ];
     await act(async () => {
       void handles
         .current!.fruits.open({ items: twins, toItem, prompt: "Pick twin" })
-        .then((fruit) => settlements.push(fruit === null ? null : fruit.id))
-    })
-    await testSetup.renderOnce()
+        .then((fruit) => settlements.push(fruit === null ? null : fruit.id));
+    });
+    await testSetup.renderOnce();
 
-    await press("n", { ctrl: true }) // highlight the second identical row
-    await pressEnter()
+    await press("n", { ctrl: true }); // highlight the second identical row
+    await pressEnter();
 
-    expect(settlements).toEqual([20])
-  })
+    expect(settlements).toEqual([20]);
+  });
 
   test("unmounting the owner settles null and later opens resolve null", async () => {
-    testSetup = await setup()
-    const ownerDialog = handles.current!.ownerFruits!
+    testSetup = await setup();
+    const ownerDialog = handles.current!.ownerFruits!;
     await act(async () => {
       void ownerDialog
         .open({ items: FRUITS, toItem, prompt: "Owned picker" })
-        .then((fruit) => settlements.push(fruit))
-    })
-    await testSetup.renderOnce()
-    expect(testSetup.captureCharFrame()).toContain("Owned picker")
+        .then((fruit) => settlements.push(fruit));
+    });
+    await testSetup.renderOnce();
+    expect(testSetup.captureCharFrame()).toContain("Owned picker");
 
     await act(async () => {
-      handles.current!.unmountOwner()
-    })
-    await testSetup.renderOnce()
+      handles.current!.unmountOwner();
+    });
+    await testSetup.renderOnce();
 
-    expect(settlements).toEqual([null])
-    expect(handles.current!.stackSize()).toBe(0)
+    expect(settlements).toEqual([null]);
+    expect(handles.current!.stackSize()).toBe(0);
 
     await act(async () => {
       void ownerDialog
         .open({ items: FRUITS, toItem, prompt: "Too late" })
-        .then((fruit) => settlements.push(fruit))
-    })
-    await testSetup.renderOnce()
-    expect(settlements).toEqual([null, null])
-    expect(handles.current!.stackSize()).toBe(0)
-  })
-})
+        .then((fruit) => settlements.push(fruit));
+    });
+    await testSetup.renderOnce();
+    expect(settlements).toEqual([null, null]);
+    expect(handles.current!.stackSize()).toBe(0);
+  });
+});

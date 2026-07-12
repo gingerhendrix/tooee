@@ -9,17 +9,17 @@
  * multi-select resolves `T[] | null` — and `toItem` may only be omitted when
  * `T` is itself a `ChooseItem`.
  */
-import type { ChooseItem } from "./types.js"
-import type { ChooseDialogHandle } from "./use-choose-dialog.js"
+import type { ChooseItem } from "./types.js";
+import type { ChooseDialogHandle } from "./use-choose-dialog.js";
 
 interface Model {
-  id: string
-  label: string
+  id: string;
+  label: string;
 }
 
-declare const modelDialog: ChooseDialogHandle<Model>
-declare const rowDialog: ChooseDialogHandle<ChooseItem>
-declare function expectType<T>(value: T): void
+declare const modelDialog: ChooseDialogHandle<Model>;
+declare const rowDialog: ChooseDialogHandle<ChooseItem>;
+declare function expectType<T>(value: T): void;
 
 // Never called; exists only to be typechecked.
 export async function chooseDialogTypeChecks(): Promise<void> {
@@ -27,9 +27,9 @@ export async function chooseDialogTypeChecks(): Promise<void> {
   const single = await modelDialog.open({
     items: [{ id: "a", label: "A" }],
     toItem: (model) => ({ text: model.label }),
-  })
+  });
   if (single !== null) {
-    expectType<string>(single.id)
+    expectType<string>(single.id);
   }
 
   // --- Multi select resolves T[] | null, cast-free ---------------------------
@@ -37,23 +37,23 @@ export async function chooseDialogTypeChecks(): Promise<void> {
     items: [{ id: "a", label: "A" }],
     multi: true,
     toItem: (model) => ({ text: model.label }),
-  })
+  });
   if (multi !== null) {
-    expectType<string[]>(multi.map((model) => model.id))
+    expectType<string[]>(multi.map((model) => model.id));
   }
 
   // --- toItem may be omitted only when T is a ChooseItem ---------------------
-  const row = await rowDialog.open({ items: [{ text: "one" }] })
+  const row = await rowDialog.open({ items: [{ text: "one" }] });
   if (row !== null) {
-    expectType<string>(row.text)
+    expectType<string>(row.text);
   }
 
   // @ts-expect-error toItem is required when T is not a ChooseItem
-  await modelDialog.open({ items: [{ id: "a", label: "A" }] })
+  await modelDialog.open({ items: [{ id: "a", label: "A" }] });
 
   // @ts-expect-error toItem must return a ChooseItem
-  await modelDialog.open({ items: [{ id: "a", label: "A" }], toItem: (model) => model })
+  await modelDialog.open({ items: [{ id: "a", label: "A" }], toItem: (model) => model });
 
   // @ts-expect-error items must be T, not ChooseItem
-  await modelDialog.open({ items: [{ text: "raw" }], toItem: (model) => ({ text: model.label }) })
+  await modelDialog.open({ items: [{ text: "raw" }], toItem: (model) => ({ text: model.label }) });
 }

@@ -1,28 +1,28 @@
-import { useImperativeHandle, type Ref } from "react"
-import { AppLayout } from "@tooee/layout"
-import { useHasOverlay, useHasModalOverlay } from "@tooee/overlays"
-import { useTheme } from "@tooee/themes"
-import { useThemeCommands, useQuitCommand } from "@tooee/shell"
-import { useCommandContext, type ActionDefinition } from "@tooee/commands"
-import { ChooseFilter } from "./ChooseFilter.js"
-import { ChooseList, type ChooseListProps } from "./ChooseList.js"
-import { buildChooseHints } from "./ChoosePanel.js"
-import type { ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.js"
-import { useChoose, type ChooseController } from "./use-choose.js"
+import { useImperativeHandle, type Ref } from "react";
+import { AppLayout } from "@tooee/layout";
+import { useHasOverlay, useHasModalOverlay } from "@tooee/overlays";
+import { useTheme } from "@tooee/themes";
+import { useThemeCommands, useQuitCommand } from "@tooee/shell";
+import { useCommandContext, type ActionDefinition } from "@tooee/commands";
+import { ChooseFilter } from "./ChooseFilter.js";
+import { ChooseList, type ChooseListProps } from "./ChooseList.js";
+import { buildChooseHints } from "./ChoosePanel.js";
+import type { ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.js";
+import { useChoose, type ChooseController } from "./use-choose.js";
 
 export interface ChooseProps {
-  contentProvider: ChooseContentProvider
-  options?: ChooseOptions
+  contentProvider: ChooseContentProvider;
+  options?: ChooseOptions;
   /** Legacy name retained for source compatibility. */
-  actions?: ActionDefinition[]
+  actions?: ActionDefinition[];
   /** Additive alias used by new chooser compositions. */
-  commands?: ActionDefinition[]
-  controllerRef?: Ref<ChooseController>
-  renderItem?: ChooseListProps["renderItem"]
+  commands?: ActionDefinition[];
+  controllerRef?: Ref<ChooseController>;
+  renderItem?: ChooseListProps["renderItem"];
   /** @deprecated Prefer commands with an id such as `submit`. */
-  onConfirm?: (result: ChooseResult) => void
+  onConfirm?: (result: ChooseResult) => void;
   /** @deprecated Prefer commands or launch lifecycle handling. */
-  onCancel?: () => void
+  onCancel?: () => void;
 }
 
 export function Choose({
@@ -35,16 +35,16 @@ export function Choose({
   onConfirm,
   onCancel,
 }: ChooseProps) {
-  const { theme } = useTheme()
-  const { invoke } = useCommandContext()
-  const effectiveCommands = commands ?? actions
-  const multi = options?.multi ?? false
+  const { theme } = useTheme();
+  const { invoke } = useCommandContext();
+  const effectiveCommands = commands ?? actions;
+  const multi = options?.multi ?? false;
 
-  const { name: themeName } = useThemeCommands()
-  useQuitCommand({ onQuit: () => onCancel?.() })
+  const { name: themeName } = useThemeCommands();
+  useQuitCommand({ onQuit: () => onCancel?.() });
 
-  const hasOverlay = useHasOverlay()
-  const hasModalOverlay = useHasModalOverlay()
+  const hasOverlay = useHasOverlay();
+  const hasModalOverlay = useHasModalOverlay();
 
   const choose = useChoose({
     source: contentProvider,
@@ -53,25 +53,25 @@ export function Choose({
       // Historical standalone behaviour: a command named `submit` wins over
       // the deprecated callback, so existing action-driven CLIs are unchanged.
       if (effectiveCommands?.some((action) => action.id === "submit")) {
-        invoke("submit")
-        return
+        invoke("submit");
+        return;
       }
-      if (multi || result.items.length > 0) onConfirm?.(result)
-      else onCancel?.()
+      if (multi || result.items.length > 0) onConfirm?.(result);
+      else onCancel?.();
     },
     onCancel,
     commands: effectiveCommands,
     suspended: hasOverlay,
-  })
+  });
 
-  useImperativeHandle(controllerRef, () => choose.controller, [choose.controller])
+  useImperativeHandle(controllerRef, () => choose.controller, [choose.controller]);
 
   if (choose.state.loading) {
     return (
       <box>
         <text content="Loading..." fg={theme.textMuted} />
       </box>
-    )
+    );
   }
 
   if (choose.state.error) {
@@ -79,10 +79,10 @@ export function Choose({
       <box>
         <text content={`Error: ${choose.state.error}`} fg={theme.error} />
       </box>
-    )
+    );
   }
 
-  const hints = buildChooseHints(choose.view.mode, { multi })
+  const hints = buildChooseHints(choose.view.mode, { multi });
 
   return (
     <AppLayout
@@ -122,5 +122,5 @@ export function Choose({
         />
       </box>
     </AppLayout>
-  )
+  );
 }

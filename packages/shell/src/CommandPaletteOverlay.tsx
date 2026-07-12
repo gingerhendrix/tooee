@@ -1,9 +1,9 @@
-import { createElement, useMemo } from "react"
-import type { ReactNode } from "react"
-import type { Command, Mode } from "@tooee/commands"
-import { CommandPalette } from "@tooee/renderers"
+import { createElement, useMemo } from "react";
+import type { ReactNode } from "react";
+import type { Command, Mode } from "@tooee/commands";
+import { CommandPalette } from "@tooee/renderers";
 
-const DEFAULT_MODES: Mode[] = ["cursor"]
+const DEFAULT_MODES: Mode[] = ["cursor"];
 
 export function CommandPaletteOverlay({
   commands,
@@ -11,18 +11,18 @@ export function CommandPaletteOverlay({
   launchMode,
   close,
 }: {
-  commands: Command[]
-  invoke: (id: string) => void
-  launchMode: Mode
-  close: () => void
+  commands: Command[];
+  invoke: (id: string) => void;
+  launchMode: Mode;
+  close: () => void;
 }): ReactNode {
   const entries = useMemo(
     () =>
       commands
         .filter((cmd) => !cmd.hidden)
         .filter((cmd) => {
-          const cmdModes = cmd.modes ?? DEFAULT_MODES
-          return cmdModes.includes(launchMode)
+          const cmdModes = cmd.modes ?? DEFAULT_MODES;
+          return cmdModes.includes(launchMode);
         })
         .map((cmd) => ({
           id: cmd.id,
@@ -32,14 +32,14 @@ export function CommandPaletteOverlay({
           icon: cmd.icon,
         })),
     [commands, launchMode],
-  )
+  );
 
   return createElement(CommandPalette, {
     commands: entries,
     onSelect: (id: string) => {
-      close()
-      invoke(id)
+      close();
+      invoke(id);
     },
     onClose: close,
-  })
+  });
 }

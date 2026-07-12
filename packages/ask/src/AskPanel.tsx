@@ -1,7 +1,7 @@
-import type { ReactNode } from "react"
-import type { MouseEvent } from "@opentui/core"
-import { useTheme, CloseButton } from "@tooee/themes"
-import { useMode, type Mode } from "@tooee/commands"
+import type { ReactNode } from "react";
+import type { MouseEvent } from "@opentui/core";
+import { useTheme, CloseButton } from "@tooee/themes";
+import { useMode, type Mode } from "@tooee/commands";
 
 /**
  * Default hint-bar entries for the current mode. Composites append their own
@@ -11,41 +11,42 @@ export function buildAskHints(
   mode: Mode,
   opts: { multiline?: boolean; extra?: string[] } = {},
 ): string[] {
-  const submitHint = opts.multiline ? "Shift+Enter submit" : "Enter submit"
-  const base = mode === "insert" ? [submitHint, "Esc commands"] : ["i insert", "q quit", submitHint]
-  return opts.extra ? [...base, ...opts.extra] : base
+  const submitHint = opts.multiline ? "Shift+Enter submit" : "Enter submit";
+  const base =
+    mode === "insert" ? [submitHint, "Esc commands"] : ["i insert", "q quit", submitHint];
+  return opts.extra ? [...base, ...opts.extra] : base;
 }
 
-export type AskPanelInsetValue = number | "auto" | `${number}%`
+export type AskPanelInsetValue = number | "auto" | `${number}%`;
 
 export interface AskPanelInset {
-  left?: AskPanelInsetValue
-  right?: AskPanelInsetValue
-  top?: AskPanelInsetValue
-  bottom?: AskPanelInsetValue
+  left?: AskPanelInsetValue;
+  right?: AskPanelInsetValue;
+  top?: AskPanelInsetValue;
+  bottom?: AskPanelInsetValue;
 }
 
 export interface AskPanelProps {
   /** Title bar content (string renders themed; CloseButton shown with onClose). */
-  title?: ReactNode
+  title?: ReactNode;
   /** Prompt line above the editor area. */
-  prompt?: ReactNode
+  prompt?: ReactNode;
   /** Editor area. */
-  children: ReactNode
+  children: ReactNode;
   /** Used for the default submit hint ("Enter" vs "Shift+Enter"). */
-  multiline?: boolean
+  multiline?: boolean;
   /** Hint bar. Default renders the standard hints for the current mode. */
-  hints?: (ctx: { mode: Mode; defaults: string[] }) => ReactNode
+  hints?: (ctx: { mode: Mode; defaults: string[] }) => ReactNode;
   /** Right-aligned status area in the hint bar (e.g. a dictation indicator). */
-  statusRight?: ReactNode
+  statusRight?: ReactNode;
   /** Extra row below the editor, above the hint bar. */
-  footer?: ReactNode
+  footer?: ReactNode;
   /** Shows the title-bar CloseButton. */
-  onClose?: () => void
+  onClose?: () => void;
   /** Overlay geometry when absolutely positioned (default 20% on all sides). */
-  inset?: AskPanelInset
+  inset?: AskPanelInset;
   /** Mouse handler for the whole panel (e.g. middle-click paste). */
-  onMouseDown?: (event: MouseEvent) => void
+  onMouseDown?: (event: MouseEvent) => void;
 }
 
 /**
@@ -64,11 +65,11 @@ export function AskPanel({
   inset,
   onMouseDown,
 }: AskPanelProps) {
-  const { theme } = useTheme()
-  const mode = useMode()
+  const { theme } = useTheme();
+  const mode = useMode();
 
-  const defaults = buildAskHints(mode, { multiline })
-  const hintContent = hints ? hints({ mode, defaults }) : defaults.join("  ")
+  const defaults = buildAskHints(mode, { multiline });
+  const hintContent = hints ? hints({ mode, defaults }) : defaults.join("  ");
 
   return (
     <box
@@ -148,5 +149,5 @@ export function AskPanel({
           ))}
       </box>
     </box>
-  )
+  );
 }

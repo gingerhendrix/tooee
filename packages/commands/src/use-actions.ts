@@ -1,25 +1,25 @@
-import { useEffect, useMemo, useRef } from "react"
-import { useSurfaceRegistry } from "./context.js"
-import type { Command, CommandHandler, CommandWhen } from "./types.js"
-import type { Mode } from "./mode.js"
+import { useEffect, useMemo, useRef } from "react";
+import { useSurfaceRegistry } from "./context.js";
+import type { Command, CommandHandler, CommandWhen } from "./types.js";
+import type { Mode } from "./mode.js";
 
 export interface ActionDefinition {
-  id: string
-  title: string
-  hotkey?: string
-  modes?: Mode[]
-  handler: CommandHandler
-  when?: CommandWhen
-  category?: string
-  group?: string
-  icon?: string
-  hidden?: boolean
+  id: string;
+  title: string;
+  hotkey?: string;
+  modes?: Mode[];
+  handler: CommandHandler;
+  when?: CommandWhen;
+  category?: string;
+  group?: string;
+  icon?: string;
+  hidden?: boolean;
 }
 
 export function useActions(actions: ActionDefinition[] | undefined): void {
-  const registry = useSurfaceRegistry()
-  const actionsRef = useRef(actions)
-  actionsRef.current = actions
+  const registry = useSurfaceRegistry();
+  const actionsRef = useRef(actions);
+  actionsRef.current = actions;
 
   const key = useMemo(
     () =>
@@ -32,11 +32,11 @@ export function useActions(actions: ActionDefinition[] | undefined): void {
         )
         .join(",") ?? "",
     [actions],
-  )
+  );
 
   useEffect(() => {
-    const current = actionsRef.current
-    if (!current || current.length === 0) return
+    const current = actionsRef.current;
+    if (!current || current.length === 0) return;
 
     const unregisters = current.map((action, i) => {
       const command: Command = {
@@ -50,14 +50,14 @@ export function useActions(actions: ActionDefinition[] | undefined): void {
         group: action.group,
         icon: action.icon,
         hidden: action.hidden,
-      }
-      return registry.register(command)
-    })
+      };
+      return registry.register(command);
+    });
 
     return () => {
       for (const unregister of unregisters) {
-        unregister()
+        unregister();
       }
-    }
-  }, [key, registry])
+    };
+  }, [key, registry]);
 }

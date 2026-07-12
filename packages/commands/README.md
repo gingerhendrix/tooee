@@ -13,11 +13,11 @@ for one keyed slice so the value is checked against the augmented key:
 ```tsx
 declare module "@tooee/commands" {
   interface CommandContext {
-    myApp: { selectedId: string | null }
+    myApp: { selectedId: string | null };
   }
 }
 
-useProvideCommandContextKey("myApp", () => ({ selectedId }))
+useProvideCommandContextKey("myApp", () => ({ selectedId }));
 ```
 
 Key ownership is by convention: Tooee packages use short built-in keys such as
@@ -32,12 +32,12 @@ stand down while an overlay is open, or be ported to `useCommand` registrations
 so the dispatcher arbitrates them:
 
 ```tsx
-const hasOverlay = useHasOverlay() // from @tooee/overlays
+const hasOverlay = useHasOverlay(); // from @tooee/overlays
 
 useKeyboard((key) => {
-  if (hasOverlay) return
+  if (hasOverlay) return;
   // ...
-})
+});
 ```
 
 Why `key.preventDefault()` is **not** sufficient:

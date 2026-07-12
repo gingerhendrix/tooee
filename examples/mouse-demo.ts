@@ -32,14 +32,14 @@
  *     q                quit
  */
 
-import { launch, type ContentProvider, type Content } from "@tooee/view"
-import type { ActionDefinition, CommandContext } from "@tooee/commands"
+import { launch, type ContentProvider, type Content } from "@tooee/view";
+import type { ActionDefinition, CommandContext } from "@tooee/commands";
 
 interface FileRow {
-  name: string
-  kind: string
-  size: string
-  modified: string
+  name: string;
+  kind: string;
+  size: string;
+  modified: string;
 }
 
 const files: FileRow[] = [
@@ -53,14 +53,14 @@ const files: FileRow[] = [
   { name: "docs/testing.md", kind: "doc", size: "6.7 KB", modified: "yesterday" },
   { name: "examples/mouse-demo.ts", kind: "source", size: "3.0 KB", modified: "just now" },
   { name: "LICENSE", kind: "doc", size: "1.0 KB", modified: "30 days ago" },
-]
+];
 
 const columns = [
   { key: "name", header: "Name" },
   { key: "kind", header: "Kind" },
   { key: "size", header: "Size" },
   { key: "modified", header: "Modified" },
-]
+];
 
 const contentProvider: ContentProvider = {
   load: (): Content => ({
@@ -69,13 +69,13 @@ const contentProvider: ContentProvider = {
     columns,
     rows: files as unknown as Record<string, string>[],
   }),
-}
+};
 
 /** Name of the row currently under the cursor, or a fallback. */
 function activeName(ctx: CommandContext): string {
-  const row = ctx.document?.activeRow as Record<string, unknown> | undefined
-  const name = row?.name
-  return typeof name === "string" ? name : "(no row)"
+  const row = ctx.document?.activeRow as Record<string, unknown> | undefined;
+  const name = row?.name;
+  return typeof name === "string" ? name : "(no row)";
 }
 
 // These actions populate the right-click context menu. They are also reachable
@@ -88,7 +88,7 @@ const actions: ActionDefinition[] = [
     icon: "\u{1F4C2}", // open folder
     modes: ["cursor"],
     handler: (ctx) => {
-      ctx.toast.toast({ message: `Open ${activeName(ctx)}`, level: "info" })
+      ctx.toast.toast({ message: `Open ${activeName(ctx)}`, level: "info" });
     },
   },
   {
@@ -98,7 +98,7 @@ const actions: ActionDefinition[] = [
     icon: "\u{1F4CB}", // clipboard
     modes: ["cursor"],
     handler: (ctx) => {
-      ctx.toast.toast({ message: `Copied "${activeName(ctx)}"`, level: "success" })
+      ctx.toast.toast({ message: `Copied "${activeName(ctx)}"`, level: "success" });
     },
   },
   {
@@ -108,7 +108,7 @@ const actions: ActionDefinition[] = [
     icon: "\u{2713}", // check
     modes: ["cursor"],
     handler: (ctx) => {
-      ctx.toast.toast({ message: `Marked ${activeName(ctx)} done`, level: "success" })
+      ctx.toast.toast({ message: `Marked ${activeName(ctx)} done`, level: "success" });
     },
   },
   {
@@ -117,9 +117,9 @@ const actions: ActionDefinition[] = [
     icon: "\u{1F5D1}", // wastebasket
     modes: ["cursor"],
     handler: (ctx) => {
-      ctx.toast.toast({ message: `Delete ${activeName(ctx)} (demo only)`, level: "warning" })
+      ctx.toast.toast({ message: `Delete ${activeName(ctx)} (demo only)`, level: "warning" });
     },
   },
-]
+];
 
-launch({ contentProvider, actions })
+launch({ contentProvider, actions });

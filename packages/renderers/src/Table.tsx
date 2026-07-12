@@ -1,66 +1,66 @@
-import { useTerminalDimensions } from "@opentui/react"
-import { useTheme } from "@tooee/themes"
-import { useMemo, useRef } from "react"
-import type { DocumentBindings } from "./DocumentBindings.js"
-import type { ColumnDef, TableRow } from "./table-types.js"
+import { useTerminalDimensions } from "@opentui/react";
+import { useTheme } from "@tooee/themes";
+import { useMemo, useRef } from "react";
+import type { DocumentBindings } from "./DocumentBindings.js";
+import type { ColumnDef, TableRow } from "./table-types.js";
 import {
   DEFAULT_SIGN_COLUMN_WIDTH,
   computeRowDocumentGutterWidth,
   type RowDocumentRenderable,
-} from "./RowDocumentRenderable.js"
-import { useGutterPalette } from "./useGutterPalette.js"
-import "./row-document.js"
+} from "./RowDocumentRenderable.js";
+import { useGutterPalette } from "./useGutterPalette.js";
+import "./row-document.js";
 
 export interface TableProps {
-  columns: ColumnDef[]
-  rows: TableRow[]
+  columns: ColumnDef[];
+  rows: TableRow[];
   /** Maximum width for the table. If not provided, uses terminal width. */
-  maxWidth?: number
+  maxWidth?: number;
   /** Minimum width for any column (default: 4) */
-  minColumnWidth?: number
+  minColumnWidth?: number;
   /** Maximum width for any column (default: 50) */
-  maxColumnWidth?: number
+  maxColumnWidth?: number;
   /** Number of rows to sample for width calculation (default: 100) */
-  sampleSize?: number
+  sampleSize?: number;
   /** Show line numbers in the gutter (default: true) */
-  showLineNumbers?: boolean
+  showLineNumbers?: boolean;
   /**
    * Binds the data rows to a document controller: its ref, the decoration
    * layers to paint, and the mouse handler. Rows are data-row indices; the
    * fixed header sits outside the row document. Omit it to render a static,
    * non-interactive table.
    */
-  document?: DocumentBindings
+  document?: DocumentBindings;
   /** Column width mode: "content" sizes to content (default), "fill" expands to fill available width */
-  columnWidthMode?: "content" | "fill"
+  columnWidthMode?: "content" | "fill";
 }
 
-const PADDING = 1
-const MARGIN = 1 // horizontal margin on each side of the table
-const DEFAULT_MIN_COL_WIDTH = 4
-const DEFAULT_MAX_COL_WIDTH = 80
-const DEFAULT_SAMPLE_SIZE = 100
+const PADDING = 1;
+const MARGIN = 1; // horizontal margin on each side of the table
+const DEFAULT_MIN_COL_WIDTH = 4;
+const DEFAULT_MAX_COL_WIDTH = 80;
+const DEFAULT_SAMPLE_SIZE = 100;
 
 function isNumeric(value: string): boolean {
-  return /^\s*-?[\d,]+\.?\d*\s*$/.test(value)
+  return /^\s*-?[\d,]+\.?\d*\s*$/.test(value);
 }
 
 interface ColumnWidthOptions {
-  minColumnWidth: number
-  maxColumnWidth: number
-  sampleSize: number
-  columnWidthMode?: "content" | "fill"
+  minColumnWidth: number;
+  maxColumnWidth: number;
+  sampleSize: number;
+  columnWidthMode?: "content" | "fill";
 }
 
 function sampleRows(rows: string[][], sampleSize: number): string[][] {
-  if (rows.length <= sampleSize) return rows
+  if (rows.length <= sampleSize) return rows;
   // Sample evenly distributed rows for representative widths
-  const step = rows.length / sampleSize
-  const sampled: string[][] = []
+  const step = rows.length / sampleSize;
+  const sampled: string[][] = [];
   for (let i = 0; i < sampleSize; i++) {
-    sampled.push(rows[Math.floor(i * step)])
+    sampled.push(rows[Math.floor(i * step)]);
   }
-  return sampled
+  return sampled;
 }
 
 function computeColumnWidths(
@@ -69,79 +69,79 @@ function computeColumnWidths(
   maxWidth: number,
   options: ColumnWidthOptions,
 ): number[] {
-  const { minColumnWidth, maxColumnWidth, sampleSize } = options
-  const colCount = headers.length
+  const { minColumnWidth, maxColumnWidth, sampleSize } = options;
+  const colCount = headers.length;
 
   // Sample rows for performance on large tables
-  const sampledRows = sampleRows(rows, sampleSize)
+  const sampledRows = sampleRows(rows, sampleSize);
 
   // Calculate natural width for each column (header + content + padding)
   // Use Bun.stringWidth for correct display width with CJK/emoji
   const naturalWidths = headers.map((header, col) => {
-    const headerLen = Bun.stringWidth(header)
+    const headerLen = Bun.stringWidth(header);
     const maxRowLen = sampledRows.reduce(
       (max, row) => Math.max(max, Bun.stringWidth(row[col] ?? "")),
       0,
-    )
-    const contentWidth = Math.max(headerLen, maxRowLen)
+    );
+    const contentWidth = Math.max(headerLen, maxRowLen);
     // Apply min/max constraints before adding padding
-    const constrainedWidth = Math.min(maxColumnWidth, Math.max(minColumnWidth, contentWidth))
-    return constrainedWidth + PADDING * 2
-  })
+    const constrainedWidth = Math.min(maxColumnWidth, Math.max(minColumnWidth, contentWidth));
+    return constrainedWidth + PADDING * 2;
+  });
 
   // No border overhead -- flexbox rows don't have border characters
-  const totalNatural = naturalWidths.reduce((a, b) => a + b, 0)
+  const totalNatural = naturalWidths.reduce((a, b) => a + b, 0);
 
   // If everything fits, use natural widths (or distribute extra space in fill mode)
   if (totalNatural <= maxWidth) {
     if (options.columnWidthMode === "fill" && totalNatural < maxWidth) {
-      const extra = maxWidth - totalNatural
-      const perCol = Math.floor(extra / colCount)
-      const remainder = extra - perCol * colCount
-      return naturalWidths.map((w, i) => w + perCol + (i < remainder ? 1 : 0))
+      const extra = maxWidth - totalNatural;
+      const perCol = Math.floor(extra / colCount);
+      const remainder = extra - perCol * colCount;
+      return naturalWidths.map((w, i) => w + perCol + (i < remainder ? 1 : 0));
     }
-    return naturalWidths
+    return naturalWidths;
   }
 
-  const available = maxWidth
-  const minColWidthWithPadding = minColumnWidth + PADDING * 2
+  const available = maxWidth;
+  const minColWidthWithPadding = minColumnWidth + PADDING * 2;
 
   // Extreme case: not even minimum widths fit
   if (maxWidth <= colCount * minColWidthWithPadding) {
     return naturalWidths.map(() =>
       Math.max(minColWidthWithPadding, Math.floor(available / colCount)),
-    )
+    );
   }
 
   // Give compact columns their natural width, distribute rest proportionally
-  const compact: boolean[] = naturalWidths.map((w) => w <= 20)
-  const compactTotal = naturalWidths.reduce((sum, w, i) => sum + (compact[i] ? w : 0), 0)
-  const remaining = available - compactTotal
-  const longTotal = naturalWidths.reduce((sum, w, i) => sum + (compact[i] ? 0 : w), 0)
+  const compact: boolean[] = naturalWidths.map((w) => w <= 20);
+  const compactTotal = naturalWidths.reduce((sum, w, i) => sum + (compact[i] ? w : 0), 0);
+  const remaining = available - compactTotal;
+  const longTotal = naturalWidths.reduce((sum, w, i) => sum + (compact[i] ? 0 : w), 0);
 
   if (longTotal === 0 || remaining <= 0) {
     // All compact or no space left -- distribute evenly
-    const total = naturalWidths.reduce((a, b) => a + b, 0)
+    const total = naturalWidths.reduce((a, b) => a + b, 0);
     return naturalWidths.map((w) =>
       Math.max(minColWidthWithPadding, Math.floor((w / total) * available)),
-    )
+    );
   }
 
   return naturalWidths.map((w, i) => {
-    if (compact[i]) return w
-    return Math.max(minColWidthWithPadding, Math.floor((w / longTotal) * remaining))
-  })
+    if (compact[i]) return w;
+    return Math.max(minColWidthWithPadding, Math.floor((w / longTotal) * remaining));
+  });
 }
 
 function formatCellValue(value: unknown): string {
-  if (value == null) return ""
-  if (typeof value === "string") return value
-  if (typeof value === "number" || typeof value === "boolean") return String(value)
-  if (value instanceof Date) return value.toISOString()
+  if (value == null) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (value instanceof Date) return value.toISOString();
   try {
-    return JSON.stringify(value)
+    return JSON.stringify(value);
   } catch {
-    return String(value)
+    return String(value);
   }
 }
 
@@ -156,11 +156,11 @@ export function Table({
   document,
   columnWidthMode = "content",
 }: TableProps) {
-  const { theme } = useTheme()
-  const palette = useGutterPalette()
-  const { width: terminalWidth } = useTerminalDimensions()
-  const internalDocRef = useRef<RowDocumentRenderable | null>(null)
-  const rowDocumentRef = document?.ref ?? internalDocRef
+  const { theme } = useTheme();
+  const palette = useGutterPalette();
+  const { width: terminalWidth } = useTerminalDimensions();
+  const internalDocRef = useRef<RowDocumentRenderable | null>(null);
+  const rowDocumentRef = document?.ref ?? internalDocRef;
 
   // Compute available content width: start with total space, subtract margins and gutter
   const gutterWidth = useMemo(
@@ -171,14 +171,14 @@ export function Table({
         signColumnWidth: DEFAULT_SIGN_COLUMN_WIDTH,
       }),
     [showLineNumbers, rows.length],
-  )
-  const effectiveMaxWidth = Math.max(0, (maxWidth ?? terminalWidth) - MARGIN * 2 - gutterWidth)
+  );
+  const effectiveMaxWidth = Math.max(0, (maxWidth ?? terminalWidth) - MARGIN * 2 - gutterWidth);
 
-  const headers = useMemo(() => columns.map((column) => column.header ?? column.key), [columns])
+  const headers = useMemo(() => columns.map((column) => column.header ?? column.key), [columns]);
   const normalizedRows = useMemo(
     () => rows.map((row) => columns.map((column) => formatCellValue(row[column.key]))),
     [columns, rows],
-  )
+  );
 
   const colWidths = useMemo(
     () =>
@@ -197,32 +197,32 @@ export function Table({
       sampleSize,
       columnWidthMode,
     ],
-  )
+  );
 
   // Detect right-aligned columns: explicit align prop or auto-detect numeric
   const alignments = useMemo(
     () =>
       columns.map((column, colIdx) => {
-        if (column.align === "right") return true
-        if (column.align === "left") return false
-        const sampleValues = normalizedRows.slice(0, 10).map((row) => row[colIdx] ?? "")
-        const numericCount = sampleValues.filter(isNumeric).length
-        return numericCount > sampleValues.length / 2
+        if (column.align === "right") return true;
+        if (column.align === "left") return false;
+        const sampleValues = normalizedRows.slice(0, 10).map((row) => row[colIdx] ?? "");
+        const numericCount = sampleValues.filter(isNumeric).length;
+        return numericCount > sampleValues.length / 2;
       }),
     [columns, normalizedRows],
-  )
+  );
 
   const rowElements = useMemo(
     () =>
       normalizedRows.map((row, i) => (
         <box key={i} style={{ flexDirection: "row" }}>
           {row.map((cell, j) => {
-            const contentWidth = colWidths[j] - PADDING * 2
-            const cellWidth = Bun.stringWidth(cell)
+            const contentWidth = colWidths[j] - PADDING * 2;
+            const cellWidth = Bun.stringWidth(cell);
             const displayCell =
               alignments[j] && cellWidth <= contentWidth
                 ? " ".repeat(contentWidth - cellWidth) + cell
-                : cell
+                : cell;
             return (
               <text
                 key={j}
@@ -235,12 +235,12 @@ export function Table({
                 }}
                 fg={theme.text}
               />
-            )
+            );
           })}
         </box>
       )),
     [normalizedRows, colWidths, alignments, theme.text],
-  )
+  );
 
   return (
     <box
@@ -292,9 +292,9 @@ export function Table({
         {rowElements}
       </row-document>
     </box>
-  )
+  );
 }
 
 // Exported for testing and MarkdownView
-export { computeColumnWidths, isNumeric, sampleRows }
-export type { ColumnWidthOptions }
+export { computeColumnWidths, isNumeric, sampleRows };
+export type { ColumnWidthOptions };

@@ -1,13 +1,13 @@
-import type { ReactNode } from "react"
-import { CloseButton, useTheme } from "@tooee/themes"
-import type { UseChooseResult } from "./use-choose.js"
+import type { ReactNode } from "react";
+import { CloseButton, useTheme } from "@tooee/themes";
+import type { UseChooseResult } from "./use-choose.js";
 
 export interface ChooseFilterProps {
-  choose: UseChooseResult
-  prompt?: ReactNode
-  placeholder?: string
-  right?: ReactNode
-  onClose?: () => void
+  choose: UseChooseResult;
+  prompt?: ReactNode;
+  placeholder?: string;
+  right?: ReactNode;
+  onClose?: () => void;
 }
 
 /** Controlled filter row shared by fullscreen and overlay chooser assemblies. */
@@ -18,8 +18,8 @@ export function ChooseFilter({
   right,
   onClose,
 }: ChooseFilterProps) {
-  const { theme } = useTheme()
-  const { state, view } = choose
+  const { theme } = useTheme();
+  const { state, view } = choose;
 
   return (
     <box flexDirection="row" height={1} style={{ paddingLeft: 1, paddingRight: 1 }}>
@@ -41,5 +41,5 @@ export function ChooseFilter({
       {right}
       {onClose && <CloseButton onClose={onClose} />}
     </box>
-  )
+  );
 }

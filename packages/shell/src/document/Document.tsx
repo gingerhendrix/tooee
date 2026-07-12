@@ -1,18 +1,18 @@
-import type { ReactNode } from "react"
-import type { ExtendedComponentProps } from "@opentui/react"
-import type { RowDocumentRenderable } from "@tooee/renderers"
-import "@tooee/renderers/row-document"
-import type { DocumentController } from "./types.js"
+import type { ReactNode } from "react";
+import type { ExtendedComponentProps } from "@opentui/react";
+import type { RowDocumentRenderable } from "@tooee/renderers";
+import "@tooee/renderers/row-document";
+import type { DocumentController } from "./types.js";
 
-export type RowDocumentProps = ExtendedComponentProps<typeof RowDocumentRenderable>
+export type RowDocumentProps = ExtendedComponentProps<typeof RowDocumentRenderable>;
 
 export interface DocumentProps<T> extends Omit<
   RowDocumentProps,
   "ref" | "decorations" | "onMouseDown" | "children"
 > {
-  controller: DocumentController<T>
+  controller: DocumentController<T>;
   /** Must render exactly one host element per row; it becomes the row's geometry. */
-  renderRow: (row: T, index: number) => ReactNode
+  renderRow: (row: T, index: number) => ReactNode;
 }
 
 /**
@@ -32,5 +32,5 @@ export function Document<T>({ controller, renderRow, ...rowDocumentProps }: Docu
         <box key={controller.getRowKey(index)}>{renderRow(row, index)}</box>
       ))}
     </row-document>
-  )
+  );
 }

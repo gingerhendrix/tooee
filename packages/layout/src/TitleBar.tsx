@@ -1,12 +1,12 @@
-import { useTheme } from "@tooee/themes"
+import { useTheme } from "@tooee/themes";
 
 interface TitleBarProps {
-  title: string
-  subtitle?: string
+  title: string;
+  subtitle?: string;
 }
 
 export function TitleBar({ title, subtitle }: TitleBarProps) {
-  const { theme } = useTheme()
+  const { theme } = useTheme();
   return (
     <box
       style={{
@@ -21,5 +21,5 @@ export function TitleBar({ title, subtitle }: TitleBarProps) {
       <text content={title} style={{ fg: theme.primary }} />
       {subtitle && <text content={` — ${subtitle}`} style={{ fg: theme.textMuted }} />}
     </box>
-  )
+  );
 }

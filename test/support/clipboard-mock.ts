@@ -6,17 +6,17 @@
  * share this sink. Registering mocks inside individual files is order-dependent:
  * `@tooee/shell` may already have captured the production clipboard binding.
  */
-export const copied: string[] = []
+export const copied: string[] = [];
 
 export function clipboardStub() {
   return {
     copyToClipboard: (text: string) => {
-      copied.push(text)
-      return Promise.resolve()
+      copied.push(text);
+      return Promise.resolve();
     },
     copyToPrimary: () => Promise.resolve(),
     readClipboard: () => Promise.resolve(undefined),
     readClipboardText: () => Promise.resolve(""),
     readPrimaryText: () => Promise.resolve(""),
-  }
+  };
 }

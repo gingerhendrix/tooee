@@ -1,11 +1,11 @@
-import { useState } from "react"
-import { useCopyCommand, useToggleLineNumbersCommand } from "@tooee/shell"
-import { useConfig } from "@tooee/config"
-import type { AnyContent } from "../types.js"
+import { useState } from "react";
+import { useCopyCommand, useToggleLineNumbersCommand } from "@tooee/shell";
+import { useConfig } from "@tooee/config";
+import type { AnyContent } from "../types.js";
 
 interface UseContentCommandsParams {
-  content: AnyContent | null
-  textContent: string
+  content: AnyContent | null;
+  textContent: string;
 }
 
 /**
@@ -14,16 +14,16 @@ interface UseContentCommandsParams {
  * every row-level command belong to the document controller and its screen.
  */
 export function useContentCommands({ content, textContent }: UseContentCommandsParams) {
-  const config = useConfig()
-  const [showLineNumbers, setShowLineNumbers] = useState(config.view?.gutter ?? true)
+  const config = useConfig();
+  const [showLineNumbers, setShowLineNumbers] = useState(config.view?.gutter ?? true);
 
   useCopyCommand({
     getText: () => (content ? textContent : undefined),
-  })
+  });
   useToggleLineNumbersCommand({
     showLineNumbers,
     onToggle: () => setShowLineNumbers((v) => !v),
-  })
+  });
 
-  return { showLineNumbers }
+  return { showLineNumbers };
 }

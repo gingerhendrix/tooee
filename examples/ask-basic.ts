@@ -12,7 +12,7 @@
  * Controls: Type input, Enter to submit, Escape to cancel
  */
 
-import { launch } from "@tooee/ask"
+import { launch } from "@tooee/ask";
 
 // Launch the ask prompt with configuration
 launch({
@@ -32,8 +32,8 @@ launch({
       id: "submit",
       title: "Submit",
       handler: (ctx) => {
-        ctx.exit()
+        ctx.exit();
       },
     },
   ],
-})
+});

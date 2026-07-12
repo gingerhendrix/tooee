@@ -20,8 +20,8 @@
  *   t — theme picker
  */
 
-import { launch, type ContentProvider } from "@tooee/view"
-import type { ActionDefinition } from "@tooee/commands"
+import { launch, type ContentProvider } from "@tooee/view";
+import type { ActionDefinition } from "@tooee/commands";
 
 const contentProvider: ContentProvider = {
   load: () => ({
@@ -44,9 +44,9 @@ Press the following keys to trigger toasts:
   y  →  Copy (demonstrates toast on copy)
 `,
   }),
-}
+};
 
-let dedupCounter = 0
+let dedupCounter = 0;
 
 const actions: ActionDefinition[] = [
   {
@@ -55,7 +55,7 @@ const actions: ActionDefinition[] = [
     hotkey: "1",
     modes: ["cursor"],
     handler: (ctx) => {
-      ctx.toast.toast({ message: "This is an info message", level: "info" })
+      ctx.toast.toast({ message: "This is an info message", level: "info" });
     },
   },
   {
@@ -64,7 +64,7 @@ const actions: ActionDefinition[] = [
     hotkey: "2",
     modes: ["cursor"],
     handler: (ctx) => {
-      ctx.toast.toast({ message: "Operation completed successfully", level: "success" })
+      ctx.toast.toast({ message: "Operation completed successfully", level: "success" });
     },
   },
   {
@@ -73,7 +73,7 @@ const actions: ActionDefinition[] = [
     hotkey: "3",
     modes: ["cursor"],
     handler: (ctx) => {
-      ctx.toast.toast({ message: "Watch out! Something needs attention", level: "warning" })
+      ctx.toast.toast({ message: "Watch out! Something needs attention", level: "warning" });
     },
   },
   {
@@ -82,7 +82,7 @@ const actions: ActionDefinition[] = [
     hotkey: "4",
     modes: ["cursor"],
     handler: (ctx) => {
-      ctx.toast.toast({ message: "Something went wrong!", level: "error" })
+      ctx.toast.toast({ message: "Something went wrong!", level: "error" });
     },
   },
   {
@@ -91,12 +91,12 @@ const actions: ActionDefinition[] = [
     hotkey: "5",
     modes: ["cursor"],
     handler: (ctx) => {
-      dedupCounter++
+      dedupCounter++;
       ctx.toast.toast({
         message: `Pressed ${dedupCounter} time${dedupCounter === 1 ? "" : "s"}`,
         level: "info",
         id: "dedup-counter",
-      })
+      });
     },
   },
   {
@@ -109,9 +109,9 @@ const actions: ActionDefinition[] = [
         message: "This toast lasts 10 seconds",
         level: "info",
         duration: 10000,
-      })
+      });
     },
   },
-]
+];
 
-launch({ contentProvider, actions })
+launch({ contentProvider, actions });

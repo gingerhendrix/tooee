@@ -1,16 +1,16 @@
-import { useTheme } from "@tooee/themes"
+import { useTheme } from "@tooee/themes";
 
 interface StatusBarProps {
-  items: StatusBarItem[]
+  items: StatusBarItem[];
 }
 
 export interface StatusBarItem {
-  label: string
-  value?: string
+  label: string;
+  value?: string;
 }
 
 export function StatusBar({ items }: StatusBarProps) {
-  const { theme } = useTheme()
+  const { theme } = useTheme();
   return (
     <box
       style={{
@@ -29,5 +29,5 @@ export function StatusBar({ items }: StatusBarProps) {
         </box>
       ))}
     </box>
-  )
+  );
 }

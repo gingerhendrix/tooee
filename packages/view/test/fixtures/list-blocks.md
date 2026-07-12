@@ -12,8 +12,8 @@
 - Verification step:
 
   ```js
-  const result = await test()
-  console.log(result)
+  const result = await test();
+  console.log(result);
   ```
 
 - Final step

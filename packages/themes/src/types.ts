@@ -2,15 +2,15 @@
 // Theme JSON format (OpenCode-compatible)
 // ---------------------------------------------------------------------------
 
-type HexColor = `#${string}`
-type RefName = string
-type Variant = { dark: HexColor | RefName; light: HexColor | RefName }
-type ColorValue = HexColor | RefName | Variant
+type HexColor = `#${string}`;
+type RefName = string;
+type Variant = { dark: HexColor | RefName; light: HexColor | RefName };
+type ColorValue = HexColor | RefName | Variant;
 
 export interface ThemeJSON {
-  $schema?: string
-  defs?: Record<string, HexColor | RefName>
-  theme: Record<string, ColorValue>
+  $schema?: string;
+  defs?: Record<string, HexColor | RefName>;
+  theme: Record<string, ColorValue>;
 }
 
 // ---------------------------------------------------------------------------
@@ -19,62 +19,62 @@ export interface ThemeJSON {
 
 export interface ResolvedTheme {
   // UI
-  primary: string
-  secondary: string
-  accent: string
-  error: string
-  warning: string
-  success: string
-  info: string
-  text: string
-  textMuted: string
-  background: string
-  backgroundPanel: string
-  backgroundElement: string
-  border: string
-  borderActive: string
-  borderSubtle: string
+  primary: string;
+  secondary: string;
+  accent: string;
+  error: string;
+  warning: string;
+  success: string;
+  info: string;
+  text: string;
+  textMuted: string;
+  background: string;
+  backgroundPanel: string;
+  backgroundElement: string;
+  border: string;
+  borderActive: string;
+  borderSubtle: string;
   // Diff
-  diffAdded: string
-  diffRemoved: string
-  diffContext: string
-  diffHunkHeader: string
-  diffHighlightAdded: string
-  diffHighlightRemoved: string
-  diffAddedBg: string
-  diffRemovedBg: string
-  diffContextBg: string
-  diffLineNumber: string
-  diffAddedLineNumberBg: string
-  diffRemovedLineNumberBg: string
+  diffAdded: string;
+  diffRemoved: string;
+  diffContext: string;
+  diffHunkHeader: string;
+  diffHighlightAdded: string;
+  diffHighlightRemoved: string;
+  diffAddedBg: string;
+  diffRemovedBg: string;
+  diffContextBg: string;
+  diffLineNumber: string;
+  diffAddedLineNumberBg: string;
+  diffRemovedLineNumberBg: string;
   // Markdown
-  markdownText: string
-  markdownHeading: string
-  markdownLink: string
-  markdownLinkText: string
-  markdownCode: string
-  markdownBlockQuote: string
-  markdownEmph: string
-  markdownStrong: string
-  markdownHorizontalRule: string
-  markdownListItem: string
-  markdownListEnumeration: string
-  markdownImage: string
-  markdownImageText: string
-  markdownCodeBlock: string
+  markdownText: string;
+  markdownHeading: string;
+  markdownLink: string;
+  markdownLinkText: string;
+  markdownCode: string;
+  markdownBlockQuote: string;
+  markdownEmph: string;
+  markdownStrong: string;
+  markdownHorizontalRule: string;
+  markdownListItem: string;
+  markdownListEnumeration: string;
+  markdownImage: string;
+  markdownImageText: string;
+  markdownCodeBlock: string;
   // Cursor/Selection
-  cursorLine: string
-  selection: string
+  cursorLine: string;
+  selection: string;
   // Syntax
-  syntaxComment: string
-  syntaxKeyword: string
-  syntaxFunction: string
-  syntaxVariable: string
-  syntaxString: string
-  syntaxNumber: string
-  syntaxType: string
-  syntaxOperator: string
-  syntaxPunctuation: string
+  syntaxComment: string;
+  syntaxKeyword: string;
+  syntaxFunction: string;
+  syntaxVariable: string;
+  syntaxString: string;
+  syntaxNumber: string;
+  syntaxType: string;
+  syntaxOperator: string;
+  syntaxPunctuation: string;
 }
 
 // All keys of ResolvedTheme for iteration
@@ -131,7 +131,7 @@ export const RESOLVED_KEYS: (keyof ResolvedTheme)[] = [
   "syntaxType",
   "syntaxOperator",
   "syntaxPunctuation",
-]
+];
 
 // Fallbacks used when a theme key is missing
 export const FALLBACKS: Record<string, string> = {
@@ -187,35 +187,35 @@ export const FALLBACKS: Record<string, string> = {
   syntaxType: "#808080",
   syntaxOperator: "#808080",
   syntaxPunctuation: "#808080",
-}
+};
 
 // ---------------------------------------------------------------------------
 // Resolution
 // ---------------------------------------------------------------------------
 
 export function resolveTheme(json: ThemeJSON, mode: "dark" | "light"): ResolvedTheme {
-  const defs = json.defs ?? {}
+  const defs = json.defs ?? {};
 
   function resolveColor(c: ColorValue, seen: Set<string> = new Set()): string {
     if (typeof c === "string") {
-      if (c === "transparent" || c === "none") return "#00000000"
-      if (c.startsWith("#")) return c
-      if (seen.has(c)) return "#808080" // reference cycle — fall back like an unknown ref
-      if (defs[c] != null) return resolveColor(defs[c] as ColorValue, new Set(seen).add(c))
+      if (c === "transparent" || c === "none") return "#00000000";
+      if (c.startsWith("#")) return c;
+      if (seen.has(c)) return "#808080"; // reference cycle — fall back like an unknown ref
+      if (defs[c] != null) return resolveColor(defs[c] as ColorValue, new Set(seen).add(c));
       if (json.theme[c] !== undefined)
-        return resolveColor(json.theme[c] as ColorValue, new Set(seen).add(c))
-      return "#808080"
+        return resolveColor(json.theme[c] as ColorValue, new Set(seen).add(c));
+      return "#808080";
     }
-    return resolveColor(c[mode], seen)
+    return resolveColor(c[mode], seen);
   }
 
-  const result = {} as Record<string, string>
+  const result = {} as Record<string, string>;
   for (const key of RESOLVED_KEYS) {
-    const val = json.theme[key]
-    result[key] = val !== undefined ? resolveColor(val) : (FALLBACKS[key] ?? "#808080")
+    const val = json.theme[key];
+    result[key] = val !== undefined ? resolveColor(val) : (FALLBACKS[key] ?? "#808080");
   }
   // Dynamic fallbacks that reference other resolved keys
-  if (json.theme["cursorLine"] === undefined) result.cursorLine = result.backgroundElement
-  if (json.theme["selection"] === undefined) result.selection = result.backgroundPanel
-  return result as unknown as ResolvedTheme
+  if (json.theme["cursorLine"] === undefined) result.cursorLine = result.backgroundElement;
+  if (json.theme["selection"] === undefined) result.selection = result.backgroundPanel;
+  return result as unknown as ResolvedTheme;
 }

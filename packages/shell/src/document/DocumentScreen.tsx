@@ -1,22 +1,22 @@
-import type { ReactNode } from "react"
-import { useActions, useMode } from "@tooee/commands"
-import type { ActionDefinition } from "@tooee/commands"
-import { AppLayout, type AppLayoutProps, type StatusBarItem } from "@tooee/layout"
-import { useQuitCommand, useThemeCommands, type UseQuitCommandOptions } from "../commands.js"
-import { useProvideDocumentCommandContext } from "./command-context.js"
-import type { ProvideDocumentCommandContextOptions } from "./command-context.js"
-import type { DocumentController } from "./types.js"
+import type { ReactNode } from "react";
+import { useActions, useMode } from "@tooee/commands";
+import type { ActionDefinition } from "@tooee/commands";
+import { AppLayout, type AppLayoutProps, type StatusBarItem } from "@tooee/layout";
+import { useQuitCommand, useThemeCommands, type UseQuitCommandOptions } from "../commands.js";
+import { useProvideDocumentCommandContext } from "./command-context.js";
+import type { ProvideDocumentCommandContextOptions } from "./command-context.js";
+import type { DocumentController } from "./types.js";
 
 export interface DocumentScreenProps<T> {
-  controller: DocumentController<T>
-  titleBar?: AppLayoutProps["titleBar"]
+  controller: DocumentController<T>;
+  titleBar?: AppLayoutProps["titleBar"];
   /** Domain status, rendered between Theme and Mode. */
-  statusItems?: readonly StatusBarItem[]
-  actions?: ActionDefinition[]
-  quit?: boolean | UseQuitCommandOptions
-  themeCommands?: boolean
-  context?: ProvideDocumentCommandContextOptions
-  children: ReactNode
+  statusItems?: readonly StatusBarItem[];
+  actions?: ActionDefinition[];
+  quit?: boolean | UseQuitCommandOptions;
+  themeCommands?: boolean;
+  context?: ProvideDocumentCommandContextOptions;
+  children: ReactNode;
 }
 
 /**
@@ -34,20 +34,20 @@ export function DocumentScreen<T>({
   context,
   children,
 }: DocumentScreenProps<T>) {
-  const mode = useMode()
+  const mode = useMode();
 
-  const { name: themeName } = useThemeCommands({ enabled: themeCommands })
-  useQuitCommand(typeof quit === "boolean" ? { enabled: quit } : quit)
-  useActions(actions)
-  useProvideDocumentCommandContext(controller, context)
+  const { name: themeName } = useThemeCommands({ enabled: themeCommands });
+  useQuitCommand(typeof quit === "boolean" ? { enabled: quit } : quit);
+  useActions(actions);
+  useProvideDocumentCommandContext(controller, context);
 
-  const { search, navigation, toggledIndices } = controller
+  const { search, navigation, toggledIndices } = controller;
   const selectionCount =
     toggledIndices.size > 0
       ? toggledIndices.size
       : navigation.selection
         ? navigation.selection.end - navigation.selection.start + 1
-        : 0
+        : 0;
 
   const items: StatusBarItem[] = [
     { label: "Theme:", value: themeName },
@@ -59,11 +59,11 @@ export function DocumentScreen<T>({
     },
     ...(selectionCount > 0 ? [{ label: "Selected:", value: String(selectionCount) }] : []),
     ...(search?.searchActive ? [{ label: "Search:", value: search.searchQuery }] : []),
-  ]
+  ];
 
   return (
     <AppLayout titleBar={titleBar} statusBar={{ items }} searchBar={search ?? undefined}>
       {children}
     </AppLayout>
-  )
+  );
 }

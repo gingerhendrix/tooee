@@ -1,10 +1,10 @@
-import type { CursorStyleOptions } from "@opentui/core"
-import { useTheme } from "@tooee/themes"
-import { EditorScrollbar } from "./EditorScrollbar.js"
-import type { AskEditorViewModel } from "./use-ask-editor.js"
+import type { CursorStyleOptions } from "@opentui/core";
+import { useTheme } from "@tooee/themes";
+import { EditorScrollbar } from "./EditorScrollbar.js";
+import type { AskEditorViewModel } from "./use-ask-editor.js";
 
 export interface AskEditorProps {
-  editor: AskEditorViewModel
+  editor: AskEditorViewModel;
 }
 
 /**
@@ -12,13 +12,13 @@ export interface AskEditorProps {
  * behaviour lives in the view-model from `useAskEditor`.
  */
 export function AskEditor({ editor }: AskEditorProps) {
-  const { theme } = useTheme()
+  const { theme } = useTheme();
 
   const cursorStyle: CursorStyleOptions =
     editor.mode === "cursor"
       ? { style: "block", blinking: false }
-      : { style: "line", blinking: true }
-  const cursorColor = editor.mode === "cursor" ? theme.accent : theme.primary
+      : { style: "line", blinking: true };
+  const cursorColor = editor.mode === "cursor" ? theme.accent : theme.primary;
 
   if (editor.multiline) {
     return (
@@ -46,7 +46,7 @@ export function AskEditor({ editor }: AskEditorProps) {
           color={theme.textMuted}
         />
       </box>
-    )
+    );
   }
 
   return (
@@ -65,5 +65,5 @@ export function AskEditor({ editor }: AskEditorProps) {
       onKeyDown={editor.onEditorKeyDown}
       onPaste={editor.onEditorPaste}
     />
-  )
+  );
 }
