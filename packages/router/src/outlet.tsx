@@ -52,7 +52,7 @@ function RouteRenderer({
           setLoading(false);
         }
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         if (!cancelled) {
           setError(err instanceof Error ? err : new Error(String(err)));
           setLoading(false);
