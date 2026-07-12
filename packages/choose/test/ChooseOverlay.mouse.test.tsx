@@ -58,7 +58,11 @@ const setup = async function setup(opts: {
 describe("ChooseOverlay mouse", () => {
   test("left-click on a row selects that item (same path as Enter)", async () => {
     const selected: ChooseItem[] = [];
-    testSetup = await setup({ onSelect: (item) => selected.push(item) });
+    testSetup = await setup({
+      onSelect: (item) => {
+        selected.push(item);
+      },
+    });
 
     const frame = testSetup.captureCharFrame();
     const pos = lineOf(frame, "beta");
@@ -74,7 +78,11 @@ describe("ChooseOverlay mouse", () => {
 
   test("right-click on a row does not select", async () => {
     const selected: ChooseItem[] = [];
-    testSetup = await setup({ onSelect: (item) => selected.push(item) });
+    testSetup = await setup({
+      onSelect: (item) => {
+        selected.push(item);
+      },
+    });
 
     const frame = testSetup.captureCharFrame();
     const pos = lineOf(frame, "gamma");

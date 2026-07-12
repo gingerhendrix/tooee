@@ -197,7 +197,9 @@ const setupClick = async function setupClick(onRun: (id: string) => void) {
 describe("command palette mouse", () => {
   test("left-click on a palette row runs the command and closes the palette", async () => {
     const ran: string[] = [];
-    testSetup = await setupClick((id) => ran.push(id));
+    testSetup = await setupClick((id) => {
+      ran.push(id);
+    });
 
     await press(testSetup, ":");
     const frame = testSetup.captureCharFrame();
@@ -217,7 +219,9 @@ describe("command palette mouse", () => {
 
   test("right-click on a palette row does nothing", async () => {
     const ran: string[] = [];
-    testSetup = await setupClick((id) => ran.push(id));
+    testSetup = await setupClick((id) => {
+      ran.push(id);
+    });
 
     await press(testSetup, ":");
     const frame = testSetup.captureCharFrame();

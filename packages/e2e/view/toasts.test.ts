@@ -69,7 +69,9 @@ describe("toasts e2e", () => {
     await session.waitForText("Operation completed successfully", { timeout: 5000 });
 
     // Wait for auto-dismiss (success = 1500ms, add buffer)
-    await new Promise((r) => setTimeout(r, 2500));
+    await new Promise((r) => {
+      setTimeout(r, 2500);
+    });
     const text = await session.text();
     expect(text).not.toContain("Operation completed successfully");
   }, 20_000);

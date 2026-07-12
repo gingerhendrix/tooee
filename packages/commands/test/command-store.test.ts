@@ -86,7 +86,9 @@ const group = function group(
 };
 
 const sleep = async function sleep(ms: number): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, ms));
+  await new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 };
 
 describe("command store — registration", () => {
@@ -168,7 +170,13 @@ describe("command store — registration", () => {
     const registry = cs.registryFor(surface);
     const seen: Mode[] = [];
     let blocked = 0;
-    registry.register(command("go", "g", { handler: (ctx) => seen.push(ctx.mode) }));
+    registry.register(
+      command("go", "g", {
+        handler: (ctx) => {
+          seen.push(ctx.mode);
+        },
+      }),
+    );
     registry.register(
       command("no", "n", {
         handler: () => {

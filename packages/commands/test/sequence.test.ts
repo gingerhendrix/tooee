@@ -135,5 +135,7 @@ const key = function key(name: string): KeyEvent {
 };
 
 const sleep = async function sleep(ms: number): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, ms));
+  await new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 };

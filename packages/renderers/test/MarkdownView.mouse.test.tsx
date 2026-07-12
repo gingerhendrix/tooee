@@ -44,7 +44,12 @@ describe("MarkdownView mouse interaction", () => {
     const clicked: number[] = [];
     testSetup = await testRender(
       <ThemeSwitcherProvider>
-        <MarkdownHarness content={md} onRowClick={(i) => clicked.push(i)} />
+        <MarkdownHarness
+          content={md}
+          onRowClick={(i) => {
+            clicked.push(i);
+          }}
+        />
       </ThemeSwitcherProvider>,
       { height: 20, width: 40 },
     );
@@ -67,7 +72,12 @@ describe("MarkdownView mouse interaction", () => {
     const clicked: number[] = [];
     testSetup = await testRender(
       <ThemeSwitcherProvider>
-        <MarkdownHarness content={md} onRowClick={(i) => clicked.push(i)} />
+        <MarkdownHarness
+          content={md}
+          onRowClick={(i) => {
+            clicked.push(i);
+          }}
+        />
       </ThemeSwitcherProvider>,
       { height: 20, width: 40 },
     );
@@ -103,7 +113,9 @@ describe("MarkdownView mouse interaction", () => {
         <MarkdownHarness
           content={md}
           codeBlockRenderers={{ chart: chartRenderer }}
-          onRowClick={(i) => clicked.push(i)}
+          onRowClick={(i) => {
+            clicked.push(i);
+          }}
         />
       </ThemeSwitcherProvider>,
       { height: 20, width: 40 },

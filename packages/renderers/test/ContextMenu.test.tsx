@@ -52,7 +52,9 @@ describe("ContextMenu", () => {
           entries={ENTRIES}
           x={4}
           y={2}
-          onSelect={(id) => selected.push(id)}
+          onSelect={(id) => {
+            selected.push(id);
+          }}
           onClose={() => {}}
         />
       </ThemeSwitcherProvider>,
@@ -77,7 +79,9 @@ describe("ContextMenu", () => {
           entries={ENTRIES}
           x={4}
           y={2}
-          onSelect={(id) => selected.push(id)}
+          onSelect={(id) => {
+            selected.push(id);
+          }}
           onClose={() => {}}
         />
       </ThemeSwitcherProvider>,

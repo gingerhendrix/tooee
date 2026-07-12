@@ -28,7 +28,11 @@ describe("CodeView mouse interaction", () => {
     const clicked: number[] = [];
     testSetup = await testRender(
       <ThemeSwitcherProvider>
-        <CodeHarness onRowClick={(i) => clicked.push(i)} />
+        <CodeHarness
+          onRowClick={(i) => {
+            clicked.push(i);
+          }}
+        />
       </ThemeSwitcherProvider>,
       { height: 15, width: 40 },
     );
@@ -49,7 +53,11 @@ describe("CodeView mouse interaction", () => {
     const clicked: number[] = [];
     testSetup = await testRender(
       <ThemeSwitcherProvider>
-        <CodeHarness onRowClick={(i) => clicked.push(i)} />
+        <CodeHarness
+          onRowClick={(i) => {
+            clicked.push(i);
+          }}
+        />
       </ThemeSwitcherProvider>,
       { height: 15, width: 40 },
     );
@@ -67,7 +75,11 @@ describe("CodeView mouse interaction", () => {
     const events: { index: number; x: number; y: number }[] = [];
     testSetup = await testRender(
       <ThemeSwitcherProvider>
-        <CodeHarness onRowContextMenu={(index, x, y) => events.push({ index, x, y })} />
+        <CodeHarness
+          onRowContextMenu={(index, x, y) => {
+            events.push({ index, x, y });
+          }}
+        />
       </ThemeSwitcherProvider>,
       { height: 15, width: 40 },
     );
@@ -88,7 +100,11 @@ describe("CodeView mouse interaction", () => {
     const clicked: number[] = [];
     testSetup = await testRender(
       <ThemeSwitcherProvider>
-        <CodeHarness onRowClick={(i) => clicked.push(i)} />
+        <CodeHarness
+          onRowClick={(i) => {
+            clicked.push(i);
+          }}
+        />
       </ThemeSwitcherProvider>,
       { height: 15, width: 40 },
     );

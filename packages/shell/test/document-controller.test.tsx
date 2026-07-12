@@ -123,7 +123,13 @@ const setupDynamic = async function setupDynamic(
   let setRows!: (rows: readonly Row[]) => void;
   session = await testRender(
     <TooeeProvider>
-      <DynamicHarness initial={initial} onReady={(s) => (setRows = s)} {...options} />
+      <DynamicHarness
+        initial={initial}
+        onReady={(s) => {
+          setRows = s;
+        }}
+        {...options}
+      />
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 70 },
   );

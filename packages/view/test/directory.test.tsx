@@ -42,7 +42,9 @@ const setup = async function setup() {
   await s.renderOnce();
   // Allow async content load
   await act(async () => {
-    await new Promise((r) => setTimeout(r, 100));
+    await new Promise((r) => {
+      setTimeout(r, 100);
+    });
   });
   await s.renderOnce();
   return s;
@@ -59,7 +61,9 @@ const press = async function press(
   });
   // Allow async content load after file switch
   await act(async () => {
-    await new Promise((r) => setTimeout(r, 100));
+    await new Promise((r) => {
+      setTimeout(r, 100);
+    });
   });
   await s.renderOnce();
 };

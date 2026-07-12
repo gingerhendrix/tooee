@@ -324,7 +324,9 @@ export const useAskEditor = function useAskEditor(
 
   useCommand({
     handler: () => {
-      motion((target) => target.moveCursorLeft());
+      motion((target) => {
+        target.moveCursorLeft();
+      });
     },
     hidden: true,
     hotkey: "h",
@@ -335,7 +337,9 @@ export const useAskEditor = function useAskEditor(
   });
   useCommand({
     handler: () => {
-      motion((target) => target.moveCursorLeft());
+      motion((target) => {
+        target.moveCursorLeft();
+      });
     },
     hidden: true,
     hotkey: "left",
@@ -346,7 +350,9 @@ export const useAskEditor = function useAskEditor(
   });
   useCommand({
     handler: () => {
-      motion((target) => target.moveCursorRight());
+      motion((target) => {
+        target.moveCursorRight();
+      });
     },
     hidden: true,
     hotkey: "l",
@@ -357,7 +363,9 @@ export const useAskEditor = function useAskEditor(
   });
   useCommand({
     handler: () => {
-      motion((target) => target.moveCursorRight());
+      motion((target) => {
+        target.moveCursorRight();
+      });
     },
     hidden: true,
     hotkey: "right",
@@ -368,7 +376,9 @@ export const useAskEditor = function useAskEditor(
   });
   useCommand({
     handler: () => {
-      motion((target) => target.moveCursorDown());
+      motion((target) => {
+        target.moveCursorDown();
+      });
     },
     hidden: true,
     hotkey: "j",
@@ -379,7 +389,9 @@ export const useAskEditor = function useAskEditor(
   });
   useCommand({
     handler: () => {
-      motion((target) => target.moveCursorDown());
+      motion((target) => {
+        target.moveCursorDown();
+      });
     },
     hidden: true,
     hotkey: "down",
@@ -390,7 +402,9 @@ export const useAskEditor = function useAskEditor(
   });
   useCommand({
     handler: () => {
-      motion((target) => target.moveCursorUp());
+      motion((target) => {
+        target.moveCursorUp();
+      });
     },
     hidden: true,
     hotkey: "k",
@@ -401,7 +415,9 @@ export const useAskEditor = function useAskEditor(
   });
   useCommand({
     handler: () => {
-      motion((target) => target.moveCursorUp());
+      motion((target) => {
+        target.moveCursorUp();
+      });
     },
     hidden: true,
     hotkey: "up",
@@ -412,7 +428,9 @@ export const useAskEditor = function useAskEditor(
   });
   useCommand({
     handler: () => {
-      motion((target) => target.gotoLineHome());
+      motion((target) => {
+        target.gotoLineHome();
+      });
     },
     hidden: true,
     hotkey: "0",
@@ -423,7 +441,9 @@ export const useAskEditor = function useAskEditor(
   });
   useCommand({
     handler: () => {
-      motion((target) => target.gotoLineHome());
+      motion((target) => {
+        target.gotoLineHome();
+      });
     },
     hidden: true,
     hotkey: "home",
@@ -434,7 +454,9 @@ export const useAskEditor = function useAskEditor(
   });
   useCommand({
     handler: () => {
-      motion((target) => target.gotoLineEnd());
+      motion((target) => {
+        target.gotoLineEnd();
+      });
     },
     hidden: true,
     hotkey: "shift+4",
@@ -445,7 +467,9 @@ export const useAskEditor = function useAskEditor(
   });
   useCommand({
     handler: () => {
-      motion((target) => target.gotoLineEnd());
+      motion((target) => {
+        target.gotoLineEnd();
+      });
     },
     hidden: true,
     hotkey: "end",
@@ -456,7 +480,9 @@ export const useAskEditor = function useAskEditor(
   });
   useCommand({
     handler: () => {
-      motion((target) => target.moveWordForward());
+      motion((target) => {
+        target.moveWordForward();
+      });
     },
     hidden: true,
     hotkey: "w",
@@ -467,7 +493,9 @@ export const useAskEditor = function useAskEditor(
   });
   useCommand({
     handler: () => {
-      motion((target) => target.moveWordBackward());
+      motion((target) => {
+        target.moveWordBackward();
+      });
     },
     hidden: true,
     hotkey: "b",
@@ -478,7 +506,9 @@ export const useAskEditor = function useAskEditor(
   });
   useCommand({
     handler: () => {
-      motion((target) => target.gotoBufferHome());
+      motion((target) => {
+        target.gotoBufferHome();
+      });
     },
     hidden: true,
     hotkey: "g g",
@@ -489,7 +519,9 @@ export const useAskEditor = function useAskEditor(
   });
   useCommand({
     handler: () => {
-      motion((target) => target.gotoBufferEnd());
+      motion((target) => {
+        target.gotoBufferEnd();
+      });
     },
     hidden: true,
     hotkey: "shift+g",

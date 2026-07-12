@@ -39,7 +39,9 @@ describe("theme picker", () => {
       if (after && after !== initial && !text.includes("aura")) {
         break;
       }
-      await new Promise((resolve) => setTimeout(resolve, 250));
+      await new Promise((resolve) => {
+        setTimeout(resolve, 250);
+      });
     }
     expect(after).not.toBe(initial);
   }, 20_000);

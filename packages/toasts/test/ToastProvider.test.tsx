@@ -107,7 +107,9 @@ test("auto-dismisses after duration", async () => {
 
   // Wait for auto-dismiss inside act() so the timer callback is properly batched
   await act(async () => {
-    await new Promise((r) => setTimeout(r, 150));
+    await new Promise((r) => {
+      setTimeout(r, 150);
+    });
   });
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("toast:none");
@@ -140,7 +142,9 @@ test("same ID replaces existing toast and resets timer", async () => {
 
   // After 50ms, send another toast with the same ID
   await act(async () => {
-    await new Promise((r) => setTimeout(r, 50));
+    await new Promise((r) => {
+      setTimeout(r, 50);
+    });
     toastApi!.toast({ duration: 100, id: "dedup", level: "success", message: "second" });
   });
   await testSetup.renderOnce();
@@ -149,14 +153,18 @@ test("same ID replaces existing toast and resets timer", async () => {
   // Original timer would have fired at ~100ms, but replacement resets to 100ms more
   // At 130ms total, the replacement's timer hasn't fired yet
   await act(async () => {
-    await new Promise((r) => setTimeout(r, 50));
+    await new Promise((r) => {
+      setTimeout(r, 50);
+    });
   });
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("toast:success:second");
 
   // Wait for replacement's timer to fire
   await act(async () => {
-    await new Promise((r) => setTimeout(r, 100));
+    await new Promise((r) => {
+      setTimeout(r, 100);
+    });
   });
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("toast:none");

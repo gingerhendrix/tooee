@@ -311,7 +311,9 @@ const slowRoute = createRoute({
   component: SlowScreen,
   id: "slow",
   loader: async () => {
-    await new Promise((r) => setTimeout(r, loaderDelay));
+    await new Promise((r) => {
+      setTimeout(r, loaderDelay);
+    });
     return { message: "loaded" };
   },
   pendingComponent: SlowPending,

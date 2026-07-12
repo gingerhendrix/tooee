@@ -51,7 +51,9 @@ describe("document mouse e2e", () => {
     // cursor value does not change, so settle briefly before asserting the
     // click did not resolve to a neighboring block.
     await session.click("console.log");
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await new Promise((resolve) => {
+      setTimeout(resolve, 300);
+    });
     const text = await session.text();
     expect(text).toMatch(/Cursor:\s*7/u);
   }, 20_000);

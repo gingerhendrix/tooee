@@ -148,7 +148,10 @@ describe("useContentLoader reload and request identity", () => {
     const resolvers: Array<(value: { format: "text"; text: string }) => void> = [];
     let reload!: () => void;
     const provider: ContentProvider = {
-      load: async () => await new Promise((resolve) => resolvers.push(resolve)),
+      load: async () =>
+        await new Promise((resolve) => {
+          resolvers.push(resolve);
+        }),
     };
     const Harness = function Harness(): React.ReactNode {
       const result = useContentLoader(provider);

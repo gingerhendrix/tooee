@@ -84,7 +84,9 @@ describe("search", () => {
   test("submit commits without re-matching and restores the prior mode", () => {
     const store = createNavSearchStore({ keys: [0, 1] });
     const restored: string[] = [];
-    store.on("restoreMode", ({ mode }) => restored.push(mode));
+    store.on("restoreMode", ({ mode }) => {
+      restored.push(mode);
+    });
     store.trigger.searchStarted({ mode: "select" });
     store.trigger.searchChanged({ matches: [1], query: "one" });
     store.trigger.searchSubmitted({});
@@ -96,7 +98,9 @@ describe("search", () => {
   test("cancel clears search and restores the prior mode", () => {
     const store = createNavSearchStore({ keys: [0] });
     const restored: string[] = [];
-    store.on("restoreMode", ({ mode }) => restored.push(mode));
+    store.on("restoreMode", ({ mode }) => {
+      restored.push(mode);
+    });
     store.trigger.searchStarted({ mode: "cursor" });
     store.trigger.searchChanged({ matches: [0], query: "x" });
     store.trigger.searchCancelled({});

@@ -30,7 +30,9 @@ const setup = async function setup() {
   );
   await s.renderOnce();
   await act(async () => {
-    await new Promise((r) => setTimeout(r, 100));
+    await new Promise((r) => {
+      setTimeout(r, 100);
+    });
   });
   await s.renderOnce();
   return s;

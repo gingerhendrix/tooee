@@ -253,7 +253,9 @@ describe("overlay lifecycle correctness (R-04)", () => {
         handler: () => {
           overlay.open("dup", (): React.ReactNode => <text content="dup-overlay" />, undefined, {
             mode: null,
-            onClose: (reason) => reasons.push(reason),
+            onClose: (reason) => {
+              reasons.push(reason);
+            },
           });
         },
         hotkey: "a",

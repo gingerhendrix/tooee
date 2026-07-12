@@ -22,7 +22,9 @@ const collectCloses = function collectCloses(
   store: ReturnType<typeof createOverlayStore>,
 ): OverlayClosedEmit[] {
   const closes: OverlayClosedEmit[] = [];
-  store.on("closed", (emit) => closes.push(emit));
+  store.on("closed", (emit) => {
+    closes.push(emit);
+  });
   return closes;
 };
 

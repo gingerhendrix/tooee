@@ -50,7 +50,11 @@ describe("Table mouse interaction", () => {
     const clicked: number[] = [];
     testSetup = await testRender(
       <ThemeSwitcherProvider>
-        <TableHarness onRowClick={(i) => clicked.push(i)} />
+        <TableHarness
+          onRowClick={(i) => {
+            clicked.push(i);
+          }}
+        />
       </ThemeSwitcherProvider>,
       { height: 15, width: 40 },
     );
@@ -71,7 +75,11 @@ describe("Table mouse interaction", () => {
     const events: { index: number; x: number; y: number }[] = [];
     testSetup = await testRender(
       <ThemeSwitcherProvider>
-        <TableHarness onRowContextMenu={(index, x, y) => events.push({ index, x, y })} />
+        <TableHarness
+          onRowContextMenu={(index, x, y) => {
+            events.push({ index, x, y });
+          }}
+        />
       </ThemeSwitcherProvider>,
       { height: 15, width: 40 },
     );
@@ -113,7 +121,11 @@ describe("Table mouse interaction", () => {
     const clicked: number[] = [];
     testSetup = await testRender(
       <ThemeSwitcherProvider>
-        <TableHarness onRowClick={(i) => clicked.push(i)} />
+        <TableHarness
+          onRowClick={(i) => {
+            clicked.push(i);
+          }}
+        />
       </ThemeSwitcherProvider>,
       { height: 15, width: 40 },
     );
