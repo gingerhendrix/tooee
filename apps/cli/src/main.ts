@@ -36,10 +36,11 @@ function parseViewArgs(rawArgs: string[]): ViewArgs {
   let renderer: ContentFormat | undefined;
   let filePath: string | undefined;
 
-  for (let i = 0; i < rawArgs.length; i++) {
+  for (let i = 0; i < rawArgs.length; i += 1) {
     const arg = rawArgs[i];
     if (arg === "--renderer" || arg === "-r") {
-      renderer = parseRenderer(rawArgs[++i]);
+      i += 1;
+      renderer = parseRenderer(rawArgs[i]);
       continue;
     }
     if (arg.startsWith("--renderer=")) {

@@ -64,10 +64,12 @@ function contentFromText(
   language?: string,
 ): Content {
   switch (format) {
-    case "markdown":
+    case "markdown": {
       return { format: "markdown", markdown: text, title };
-    case "code":
+    }
+    case "code": {
       return { format: "code", code: text, language, title };
+    }
     case "table": {
       const parsed = parseAuto(text);
       return { format: "table", columns: parsed.columns, rows: parsed.rows, title };

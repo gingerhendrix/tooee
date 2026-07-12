@@ -82,14 +82,17 @@ export function View({ contentProvider, actions, renderers, codeBlockRenderers }
   }
 
   switch (content.format) {
-    case "markdown":
+    case "markdown": {
       return (
         <MarkdownSubview content={content} codeBlockRenderers={codeBlockRenderers} {...shared} />
       );
+    }
     case "code":
-    case "text":
+    case "text": {
       return <CodeSubview content={content} {...shared} />;
-    case "table":
+    }
+    case "table": {
       return <TableSubview content={content} {...shared} />;
+    }
   }
 }

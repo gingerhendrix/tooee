@@ -61,9 +61,10 @@ export function applyContentChunk(
   title?: string,
 ): AnyContent {
   switch (chunk.type) {
-    case "replace":
+    case "replace": {
       return chunk.content;
-    case "append":
+    }
+    case "append": {
       if (chunk.format === "markdown") {
         const target = ensureContentFormat(current, "markdown", title);
         return { ...target, markdown: target.markdown + chunk.data };
@@ -80,10 +81,13 @@ export function applyContentChunk(
         const target = ensureContentFormat(current, "text", title);
         return { ...target, text: target.text + chunk.data };
       }
-    case "patch":
+    }
+    case "patch": {
       return chunk.apply(current);
-    default:
+    }
+    default: {
       return current ?? createEmptyContent("markdown", title);
+    }
   }
 }
 

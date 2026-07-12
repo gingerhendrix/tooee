@@ -132,12 +132,15 @@ export function getTextContent(content: AnyContent): string {
   }
 
   switch (content.format) {
-    case "markdown":
+    case "markdown": {
       return content.markdown;
-    case "code":
+    }
+    case "code": {
       return content.code;
-    case "text":
+    }
+    case "text": {
       return content.text;
+    }
     case "table": {
       const headers = content.columns.map((column) => column.header ?? column.key);
       const rowLines = content.rows.map((row) =>
