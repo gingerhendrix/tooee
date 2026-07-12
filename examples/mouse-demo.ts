@@ -67,15 +67,18 @@ const contentProvider: ContentProvider = {
   load: (): Content => ({
     columns,
     format: "table",
-    rows: files as unknown as Record<string, string>[],
+    rows: files.map((file) => ({ ...file })),
     title: "Mouse Demo — left-click to select, right-click for actions",
   }),
 };
 
 /** Name of the row currently under the cursor, or a fallback. */
 const activeName = function activeName(ctx: CommandContext): string {
-  const row = ctx.document?.activeRow as Record<string, unknown> | undefined;
-  const name = row?.name;
+  const activeRow = ctx.document?.activeRow;
+  if (activeRow === null || typeof activeRow !== "object") {
+    return "(no row)";
+  }
+  const name = "name" in activeRow ? activeRow.name : undefined;
   return typeof name === "string" ? name : "(no row)";
 };
 

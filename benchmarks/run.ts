@@ -23,6 +23,18 @@ const readArgValue = function readArgValue(args: string[], index: number): strin
   return value;
 };
 
+const printHelp = function printHelp(): void {
+  console.log(`Usage: bun run bench -- [options]
+
+Options:
+  --samples N        Repeat each benchmark script N times (default: 3)
+  --out PATH         Write aggregated JSON to PATH
+  --script FILE      Run one script under benchmarks/; repeatable
+  --include-heavy    Include opt-in large fixture benchmarks
+  -h, --help         Show this help
+`);
+};
+
 const parseArgs = function parseArgs(args: string[]): RunOptions {
   const options: RunOptions = {
     includeHeavy: process.env.TOOEE_BENCH_INCLUDE_HEAVY === "1",
@@ -72,18 +84,6 @@ const parseArgs = function parseArgs(args: string[]): RunOptions {
   return options;
 };
 
-const printHelp = function printHelp(): void {
-  console.log(`Usage: bun run bench -- [options]
-
-Options:
-  --samples N        Repeat each benchmark script N times (default: 3)
-  --out PATH         Write aggregated JSON to PATH
-  --script FILE      Run one script under benchmarks/; repeatable
-  --include-heavy    Include opt-in large fixture benchmarks
-  -h, --help         Show this help
-`);
-};
-
 const parseMetrics = function parseMetrics(output: string): Map<string, number> {
   const metrics = new Map<string, number>();
   const metricPattern = /^METRIC\s+([A-Za-z0-9_.:-]+)=(-?\d+(?:\.\d+)?)$/u;
@@ -91,7 +91,12 @@ const parseMetrics = function parseMetrics(output: string): Map<string, number> 
   for (const line of output.split(/\r?\n/u)) {
     const match = metricPattern.exec(line.trim());
     if (match) {
-      metrics.set(match[1]!, Number(match[2]!));
+      const metric = match[1];
+      const value = match[2];
+      if (metric === undefined || value === undefined) {
+        throw new Error(`Invalid metric line: ${line}`);
+      }
+      metrics.set(metric, Number(value));
     }
   }
 
@@ -138,6 +143,8 @@ const gitSha = function gitSha(): string | undefined {
 
 const packageInfo = async function packageInfo(): Promise<{ name?: string; version?: string }> {
   try {
+    // Deferred(lint-sweep): add schema-based validation for package metadata JSON
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- package metadata validation is deferred
     const packageJson = JSON.parse(await Bun.file("package.json").text()) as {
       name?: string;
       version?: string;
@@ -172,6 +179,8 @@ for (const script of scripts) {
 
   for (let sample = 1; sample <= options.samples; sample += 1) {
     console.log(`\n# sample ${sample}/${options.samples}`);
+    // Deferred(lint-sweep): preserve ordered benchmark execution and output aggregation
+    // oxlint-disable-next-line no-await-in-loop -- samples must run sequentially
     const metrics = await runScript(script);
 
     for (const [metric, value] of metrics) {

@@ -24,12 +24,13 @@ const parseRenderer = function parseRenderer(value: string | undefined): Content
     console.error("Missing value for --renderer");
     process.exit(1);
   }
-  if (!RENDERERS.includes(value as ContentFormat)) {
+  const renderer = RENDERERS.find((candidate) => candidate === value);
+  if (renderer === undefined) {
     console.error(`Unknown renderer: ${value}`);
     console.error(`Expected one of: ${RENDERERS.join(", ")}`);
     process.exit(1);
   }
-  return value as ContentFormat;
+  return renderer;
 };
 
 const parseViewArgs = function parseViewArgs(rawArgs: string[]): ViewArgs {

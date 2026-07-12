@@ -62,20 +62,38 @@ const parseArgs = function parseArgs(args: string[]): CompareOptions {
     throw new Error("Expected exactly two JSON result paths");
   }
 
+  const [baselinePath, candidatePath] = positional;
+  if (baselinePath === undefined || candidatePath === undefined) {
+    throw new Error("Expected exactly two JSON result paths");
+  }
+
   return {
-    baselinePath: positional[0]!,
-    candidatePath: positional[1]!,
+    baselinePath,
+    candidatePath,
     failOnRegression,
     onlyComparable,
   };
 };
 
 const readRun = function readRun(path: string): BenchmarkRunResult {
+  // Deferred(lint-sweep): add schema-based validation for benchmark result JSON
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- benchmark JSON is validated below until schema validation is added
   const parsed = JSON.parse(readFileSync(path, "utf-8")) as BenchmarkRunResult;
   if (parsed.version !== 1 || !Array.isArray(parsed.results)) {
     throw new Error(`${path} is not a supported Tooee benchmark result file`);
   }
   return parsed;
+};
+
+const formatBytes = function formatBytes(value: number): string {
+  const units = ["B", "KiB", "MiB", "GiB"];
+  let next = value;
+  let unit = 0;
+  while (Math.abs(next) >= 1024 && unit < units.length - 1) {
+    next /= 1024;
+    unit += 1;
+  }
+  return `${next >= 100 ? next.toFixed(1) : next.toFixed(2)} ${units[unit]}`;
 };
 
 const formatValue = function formatValue(value: number, unit: BenchmarkUnit): string {
@@ -92,17 +110,6 @@ const formatValue = function formatValue(value: number, unit: BenchmarkUnit): st
     return value === 0 ? "false" : "true";
   }
   return Number.isInteger(value) ? value.toLocaleString() : value.toFixed(2);
-};
-
-const formatBytes = function formatBytes(value: number): string {
-  const units = ["B", "KiB", "MiB", "GiB"];
-  let next = value;
-  let unit = 0;
-  while (Math.abs(next) >= 1024 && unit < units.length - 1) {
-    next /= 1024;
-    unit += 1;
-  }
-  return `${next >= 100 ? next.toFixed(1) : next.toFixed(2)} ${units[unit]}`;
 };
 
 const formatDelta = function formatDelta(value: number, unit: BenchmarkUnit): string {

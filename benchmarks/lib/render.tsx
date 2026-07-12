@@ -18,6 +18,8 @@ export const renderPass = async function renderPass(
   passes = 1,
 ): Promise<void> {
   for (let pass = 0; pass < passes; pass += 1) {
+    // Deferred(lint-sweep): preserve ordered render transitions; these passes intentionally run sequentially
+    // oxlint-disable-next-line no-await-in-loop -- each render pass must complete before the next
     await act(async () => {
       await setup.renderOnce();
       await Bun.sleep(0);
@@ -73,6 +75,8 @@ export const measureKeyPressLatencies = async function measureKeyPressLatencies(
 
   for (let press = 0; press < presses; press += 1) {
     const start = performance.now();
+    // Deferred(lint-sweep): preserve ordered input/render transitions for latency measurements
+    // oxlint-disable-next-line no-await-in-loop -- each key press is measured after its render
     await act(async () => {
       setup.mockInput.pressKey(key, modifiers);
       await setup.renderOnce();

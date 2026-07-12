@@ -115,7 +115,11 @@ const ModelPickerBody = function ModelPickerBody({
   });
   useCommand({
     handler: () => {
-      onSelectModel(MODELS[index]!);
+      const model = MODELS[index];
+      if (model === undefined) {
+        throw new Error(`Model index out of range: ${index}`);
+      }
+      onSelectModel(model);
       close();
     },
     hotkey: "Enter",

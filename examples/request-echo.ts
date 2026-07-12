@@ -32,6 +32,8 @@ const contentProvider: ContentProvider = {
 
     for (const char of response) {
       yield { data: char, format: "markdown", type: "append" };
+      // Deferred(lint-sweep): preserve character-by-character streaming order
+      // oxlint-disable-next-line no-await-in-loop -- each delay follows the yielded character
       await sleep(20);
     }
 
