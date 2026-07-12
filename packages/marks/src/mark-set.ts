@@ -24,7 +24,7 @@ export class MarkSet {
       .map(deepFreezeMark);
     this.#marks = sorted;
     const maxEnd: number[] = [];
-    for (let i = 0; i < sorted.length; i++) {
+    for (let i = 0; i < sorted.length; i += 1) {
       const end = sorted[i].range.to.line;
       maxEnd[i] = i === 0 ? end : Math.max(maxEnd[i - 1], end);
     }
@@ -48,7 +48,7 @@ export class MarkSet {
         hi = mid;
       }
     }
-    for (let i = lo - 1; i >= 0; i--) {
+    for (let i = lo - 1; i >= 0; i -= 1) {
       // If the max end line among marks[0..i] is before the target,
       // no mark at or before index i can reach the target line.
       if (this.#maxEnd[i] < line) {
@@ -60,7 +60,7 @@ export class MarkSet {
       }
     }
     // Marks starting at this line
-    for (let i = lo; i < this.#marks.length; i++) {
+    for (let i = lo; i < this.#marks.length; i += 1) {
       const mark = this.#marks[i];
       if (mark.range.from.line > line) {
         break;
@@ -98,7 +98,7 @@ export class MarkSet {
     for (const mark of marks) {
       const startLine = Math.max(from, mark.range.from.line);
       const endLine = Math.min(to, mark.range.to.line);
-      for (let line = startLine; line <= endLine; line++) {
+      for (let line = startLine; line <= endLine; line += 1) {
         const decoration: {
           row: number;
           background?: string;

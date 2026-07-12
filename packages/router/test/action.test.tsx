@@ -224,7 +224,7 @@ describe("useActionResultHandler", () => {
     // Should have captured at least 3 renders
     expect(handlerRefs.length).toBeGreaterThanOrEqual(3);
     // All handler references should be the same function
-    for (let i = 1; i < handlerRefs.length; i++) {
+    for (let i = 1; i < handlerRefs.length; i += 1) {
       expect(handlerRefs[i]).toBe(handlerRefs[0]);
     }
   });

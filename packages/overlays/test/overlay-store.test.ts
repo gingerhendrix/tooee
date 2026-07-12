@@ -80,7 +80,8 @@ describe("overlay store — same-id replacement", () => {
   test("replacement emits closed{replaced} for the displaced record and never restores mode", () => {
     const store = createOverlayStore();
     const closes = collectCloses(store);
-    const first = record("picker", {}, "cursor"); // legacy entry that would normally restore
+    // Legacy entry that would normally restore.
+    const first = record("picker", {}, "cursor");
     const second = record("picker");
 
     store.trigger.opened({ record: first });
