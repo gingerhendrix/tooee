@@ -85,7 +85,6 @@ export default defineConfig({
     "unicorn/no-negated-condition": "off",
     "unicorn/no-nested-ternary": "off",
     "unicorn/no-useless-switch-case": "off",
-    "unicorn/no-useless-undefined": "off",
     "unicorn/prefer-at": "off",
     "unicorn/prefer-code-point": "off",
     "unicorn/prefer-export-from": "off",

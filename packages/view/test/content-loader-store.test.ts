@@ -102,6 +102,6 @@ describe("content loader store", () => {
     expect(normalizeError(new Error("boom"))).toBe("boom");
     expect(normalizeError("string failure")).toBe("string failure");
     expect(normalizeError(42)).toBe("42");
-    expect(normalizeError(undefined)).toBe("undefined");
+    expect(normalizeError()).toBe("undefined");
   });
 });
