@@ -27,13 +27,14 @@ export function RouterProvider({
   const initialParamsRef = useRef(initialParams);
   const routerRef = useRef(router);
 
+  // Only run the initial-route reconciliation on mount.
   useEffect(() => {
     const mountInitialRoute = initialRouteRef.current;
     const mountRouter = routerRef.current;
     if (mountInitialRoute && mountRouter.currentRoute.routeId !== mountInitialRoute) {
       mountRouter.reset(mountInitialRoute, initialParamsRef.current);
     }
-  }, []); // only on mount
+  }, []);
 
   const stack = useSyncExternalStore(router.subscribe, () => router.stack);
 
