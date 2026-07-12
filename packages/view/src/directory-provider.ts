@@ -45,16 +45,22 @@ export const listDirectoryFiles = function listDirectoryFiles(dirPath: string): 
   const files: DirectoryEntry[] = [];
 
   for (const entry of entries) {
-    if (entry.startsWith(".")) continue;
+    if (entry.startsWith(".")) {
+      continue;
+    }
     const fullPath = join(dirPath, entry);
     try {
       const stat = statSync(fullPath);
-      if (!stat.isFile()) continue;
+      if (!stat.isFile()) {
+        continue;
+      }
     } catch {
       continue;
     }
     const ext = entry.split(".").pop()?.toLowerCase();
-    if (!ext || !SUPPORTED_EXTENSIONS.has(ext)) continue;
+    if (!ext || !SUPPORTED_EXTENSIONS.has(ext)) {
+      continue;
+    }
     files.push({ name: entry, path: fullPath });
   }
 

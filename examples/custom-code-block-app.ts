@@ -118,7 +118,9 @@ const ProgressRenderer = function ProgressRenderer({
   const invalid = rows.some(
     (row) => row.label === "" || !Number.isFinite(row.value) || row.value < 0 || row.value > 100,
   );
-  if (rows.length === 0 || invalid) return null;
+  if (rows.length === 0 || invalid) {
+    return null;
+  }
 
   const labelWidth = Math.max(...rows.map((row) => row.label.length));
 
@@ -158,7 +160,9 @@ const CalloutRenderer = function CalloutRenderer({
   // ```callout warning — the kind is the second word of the info string
   const kind = info.trim().split(/\s+/u)[1]?.toLowerCase() ?? "info";
   const style = CALLOUT_STYLES[kind];
-  if (!style || text.trim() === "") return null;
+  if (!style || text.trim() === "") {
+    return null;
+  }
 
   const color = style.color(theme);
   const lines = text.trimEnd().split("\n");
@@ -225,7 +229,9 @@ const TimelineRenderer = function TimelineRenderer({
       row.duration <= 0 ||
       row.start + row.duration > TIMELINE_HOURS,
   );
-  if (rows.length === 0 || invalid) return null;
+  if (rows.length === 0 || invalid) {
+    return null;
+  }
 
   const labelWidth = Math.max(...rows.map((row) => row.label.length));
   const axisWidth = TIMELINE_HOURS * TIMELINE_HOUR_COLS;

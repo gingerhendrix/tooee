@@ -40,7 +40,9 @@ const RouteRenderer = function RouteRenderer({
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!routeDef.loader) return;
+    if (!routeDef.loader) {
+      return;
+    }
     let cancelled = false;
     setLoading(true);
     setError(null);
@@ -86,10 +88,14 @@ export const Outlet = function Outlet(): ReactNode {
   const depth = useContext(OutletDepthContext);
 
   const topEntry = stack[stack.length - 1];
-  if (!topEntry) return null;
+  if (!topEntry) {
+    return null;
+  }
 
   const routeDef = router.getRouteDefinition(topEntry.routeId);
-  if (!routeDef) return null;
+  if (!routeDef) {
+    return null;
+  }
 
   const chain = getRouteChain(
     { get: (id: string) => router.getRouteDefinition(id) },
@@ -97,7 +103,9 @@ export const Outlet = function Outlet(): ReactNode {
   );
 
   const routeAtDepth = chain[depth];
-  if (!routeAtDepth) return null;
+  if (!routeAtDepth) {
+    return null;
+  }
 
   const isTopOfStack = depth === chain.length - 1;
 

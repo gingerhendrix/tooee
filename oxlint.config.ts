@@ -23,7 +23,6 @@ export default defineConfig({
     // All other Ultracite rules remain enabled, so any newly failing rule blocks the gate.
     "accessor-pairs": "off",
     complexity: "off",
-    curly: "off",
     "default-case": "off",
     eqeqeq: "off",
     "func-names": "off",

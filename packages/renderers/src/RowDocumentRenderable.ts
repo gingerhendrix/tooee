@@ -199,11 +199,15 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   getRowAtVirtualY(y: number): number {
     const clamped = Math.max(0, Math.min(y, this._virtualRowToRow.length - 1));
     const row = this._virtualRowToRow[clamped];
-    if (row != null && row >= 0) return row;
+    if (row != null && row >= 0) {
+      return row;
+    }
     // Gap row — search backward for nearest valid row
     for (let i = clamped - 1; i >= 0; i -= 1) {
       const r = this._virtualRowToRow[i];
-      if (r != null && r >= 0) return r;
+      if (r != null && r >= 0) {
+        return r;
+      }
     }
     return 0;
   }
@@ -532,9 +536,15 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
     for (const layer of this._layers) {
       for (const deco of layer.forVisibleRows(firstRow, lastRow)) {
-        if (deco.background) rowBgs.set(deco.row, deco.background);
-        if (deco.gutterBackground) rowGutterBgs.set(deco.row, deco.gutterBackground);
-        if (deco.sign) rowSigns.set(deco.row, deco.sign);
+        if (deco.background) {
+          rowBgs.set(deco.row, deco.background);
+        }
+        if (deco.gutterBackground) {
+          rowGutterBgs.set(deco.row, deco.gutterBackground);
+        }
+        if (deco.sign) {
+          rowSigns.set(deco.row, deco.sign);
+        }
       }
     }
 
@@ -545,9 +555,13 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
       }
 
       const row = this._virtualRowToRow[vRow];
-      if (row < 0) continue;
+      if (row < 0) {
+        continue;
+      }
       const bg = rowBgs.get(row);
-      if (!bg) continue;
+      if (!bg) {
+        continue;
+      }
       buffer.fillRect(vpX, vpY + screenY, vpWidth, 1, cachedColor(bg));
     }
 
@@ -587,7 +601,9 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
       }
 
       const row = this._virtualRowToRow[vRow];
-      if (row < 0) continue;
+      if (row < 0) {
+        continue;
+      }
       const isFirstLine = this._virtualRowWraps[vRow] === 0;
 
       if (!isFirstLine) {

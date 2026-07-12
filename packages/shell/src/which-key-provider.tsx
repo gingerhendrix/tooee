@@ -62,7 +62,9 @@ export const WhichKeyProvider = function WhichKeyProvider({
   useLayoutEffect(
     () => () => {
       const currentOverlay = overlayRef.current;
-      if (openRef.current || currentOverlay.isOpen(OVERLAY_ID)) currentOverlay.hide(OVERLAY_ID);
+      if (openRef.current || currentOverlay.isOpen(OVERLAY_ID)) {
+        currentOverlay.hide(OVERLAY_ID);
+      }
     },
     [],
   );
@@ -116,7 +118,9 @@ const summarizeCandidates = function summarizeCandidates(
     const key = formatStep(candidate.nextStep);
     const label = candidate.group?.title ?? fallbackCandidateLabel(candidate);
     const values = byKey.get(key) ?? [];
-    if (!values.includes(label)) values.push(label);
+    if (!values.includes(label)) {
+      values.push(label);
+    }
     byKey.set(key, values);
   }
 
@@ -128,20 +132,34 @@ const summarizeCandidates = function summarizeCandidates(
 const fallbackCandidateLabel = function fallbackCandidateLabel(
   candidate: CommandSequenceState["candidates"][number],
 ): string {
-  if (candidate.remainingSteps.length === 1) return candidate.command.title;
+  if (candidate.remainingSteps.length === 1) {
+    return candidate.command.title;
+  }
 
-  if (candidate.command.group) return candidate.command.group;
-  if (candidate.command.category) return candidate.command.category;
+  if (candidate.command.group) {
+    return candidate.command.group;
+  }
+  if (candidate.command.category) {
+    return candidate.command.category;
+  }
 
   return `${formatStep(candidate.remainingSteps[1]!)}… ${candidate.command.title}`;
 };
 
 const formatStep = function formatStep(step: ParsedStep): string {
   const modifiers = [];
-  if (step.ctrl) modifiers.push("ctrl");
-  if (step.meta) modifiers.push("meta");
-  if (step.option) modifiers.push("option");
-  if (step.shift) modifiers.push("shift");
+  if (step.ctrl) {
+    modifiers.push("ctrl");
+  }
+  if (step.meta) {
+    modifiers.push("meta");
+  }
+  if (step.option) {
+    modifiers.push("option");
+  }
+  if (step.shift) {
+    modifiers.push("shift");
+  }
   modifiers.push(step.key);
   return modifiers.join("+");
 };

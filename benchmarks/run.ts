@@ -17,7 +17,9 @@ interface RunOptions {
 
 const readArgValue = function readArgValue(args: string[], index: number): string {
   const value = args[index + 1];
-  if (!value) throw new Error(`Missing value for ${args[index]}`);
+  if (!value) {
+    throw new Error(`Missing value for ${args[index]}`);
+  }
   return value;
 };
 
@@ -128,7 +130,9 @@ const gitSha = function gitSha(): string | undefined {
     stdin: "ignore",
     stdout: "pipe",
   });
-  if (proc.exitCode !== 0) return undefined;
+  if (proc.exitCode !== 0) {
+    return undefined;
+  }
   return Buffer.from(proc.stdout).toString("utf-8").trim();
 };
 
@@ -145,14 +149,20 @@ const packageInfo = async function packageInfo(): Promise<{ name?: string; versi
 };
 
 const formatValue = function formatValue(value: number, unit: string): string {
-  if (unit === "bytes") return `${Math.round(value).toLocaleString()} bytes`;
-  if (unit === "ms") return `${value >= 100 ? value.toFixed(1) : value.toFixed(2)}ms`;
+  if (unit === "bytes") {
+    return `${Math.round(value).toLocaleString()} bytes`;
+  }
+  if (unit === "ms") {
+    return `${value >= 100 ? value.toFixed(1) : value.toFixed(2)}ms`;
+  }
   return value.toFixed(2);
 };
 
 const options = parseArgs(Bun.argv.slice(2));
 const scripts = options.scripts.length > 0 ? [...options.scripts] : [...DEFAULT_SCRIPTS];
-if (options.includeHeavy) scripts.push(...HEAVY_SCRIPTS);
+if (options.includeHeavy) {
+  scripts.push(...HEAVY_SCRIPTS);
+}
 
 const samplesByMetric = new Map<string, { source: string; metric: string; samples: number[] }>();
 

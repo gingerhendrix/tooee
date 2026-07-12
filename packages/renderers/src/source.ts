@@ -62,7 +62,9 @@ const CARRIAGE_RETURN_CODE = 13;
 const buildLineStarts = function buildLineStarts(text: string): number[] {
   const starts = [0];
   for (let i = 0; i < text.length; i += 1) {
-    if (text.charCodeAt(i) === LINE_FEED_CODE) starts.push(i + 1);
+    if (text.charCodeAt(i) === LINE_FEED_CODE) {
+      starts.push(i + 1);
+    }
   }
   return starts;
 };
@@ -89,8 +91,11 @@ export class SourceIndex {
     let hi = starts.length - 1;
     while (lo < hi) {
       const mid = (lo + hi + 1) >> 1;
-      if (starts[mid]! <= offset) lo = mid;
-      else hi = mid - 1;
+      if (starts[mid]! <= offset) {
+        lo = mid;
+      } else {
+        hi = mid - 1;
+      }
     }
     return lo;
   }
@@ -107,7 +112,9 @@ export class SourceIndex {
     let end = nextStart;
     if (end > starts[line]! && this.text.charCodeAt(end - 1) === LINE_FEED_CODE) {
       end -= 1;
-      if (end > starts[line]! && this.text.charCodeAt(end - 1) === CARRIAGE_RETURN_CODE) end--;
+      if (end > starts[line]! && this.text.charCodeAt(end - 1) === CARRIAGE_RETURN_CODE) {
+        end--;
+      }
     }
     return end;
   }
@@ -123,7 +130,9 @@ export class SourceIndex {
     if (trimTrailingNewlines) {
       while (end > rawStart && this.text.charCodeAt(end - 1) === 10) {
         end -= 1;
-        if (end > rawStart && this.text.charCodeAt(end - 1) === 13) end--;
+        if (end > rawStart && this.text.charCodeAt(end - 1) === 13) {
+          end--;
+        }
       }
     }
     if (end < rawStart) {

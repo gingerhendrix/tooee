@@ -58,7 +58,9 @@ export const MarkdownSubview = function MarkdownSubview({
   useCommand({
     handler: () => {
       const target = cursorScrollable();
-      if (target) target.scrollX -= BLOCK_HSCROLL_STEP;
+      if (target) {
+        target.scrollX -= BLOCK_HSCROLL_STEP;
+      }
     },
     hotkey: "h",
     id: "block-scroll-left",
@@ -69,7 +71,9 @@ export const MarkdownSubview = function MarkdownSubview({
   useCommand({
     handler: () => {
       const target = cursorScrollable();
-      if (target) target.scrollX += BLOCK_HSCROLL_STEP;
+      if (target) {
+        target.scrollX += BLOCK_HSCROLL_STEP;
+      }
     },
     hotkey: "l",
     id: "block-scroll-right",

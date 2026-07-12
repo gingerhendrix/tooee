@@ -35,12 +35,18 @@ export const matchesBuffer = function matchesBuffer(
   hotkey: ParsedHotkey,
 ): boolean {
   const { steps } = hotkey;
-  if (steps.length === 0) return false;
-  if (buffer.length < steps.length) return false;
+  if (steps.length === 0) {
+    return false;
+  }
+  if (buffer.length < steps.length) {
+    return false;
+  }
 
   const start = buffer.length - steps.length;
   for (let i = 0; i < steps.length; i += 1) {
-    if (!matchStep(buffer[start + i]!, steps[i]!)) return false;
+    if (!matchStep(buffer[start + i]!, steps[i]!)) {
+      return false;
+    }
   }
   return true;
 };
@@ -65,7 +71,9 @@ export const findPendingMatch = function findPendingMatch(
 
     for (let hotkeyIndex = 0; hotkeyIndex < hotkeys.length; hotkeyIndex += 1) {
       const hotkey = hotkeys[hotkeyIndex];
-      if (hotkey.steps.length <= prefixLength) continue;
+      if (hotkey.steps.length <= prefixLength) {
+        continue;
+      }
 
       let matches = true;
       for (let i = 0; i < prefixLength; i += 1) {
@@ -75,10 +83,14 @@ export const findPendingMatch = function findPendingMatch(
         }
       }
 
-      if (matches) indexes.push(hotkeyIndex);
+      if (matches) {
+        indexes.push(hotkeyIndex);
+      }
     }
 
-    if (indexes.length > 0) return { indexes, prefixLength };
+    if (indexes.length > 0) {
+      return { indexes, prefixLength };
+    }
   }
 
   return null;

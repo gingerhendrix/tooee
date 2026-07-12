@@ -147,14 +147,20 @@ export const useAskEditor = function useAskEditor(
   const focused = (mode === "insert" || mode === "cursor") && !suspended;
 
   const preventCursorModeEditorInput = useCallback((event: KeyEvent | PasteEvent) => {
-    if (modeRef.current === "cursor") event.preventDefault();
+    if (modeRef.current === "cursor") {
+      event.preventDefault();
+    }
   }, []);
 
   useEffect(() => {
-    if (didPositionInitialCursorRef.current || !defaultValue) return;
+    if (didPositionInitialCursorRef.current || !defaultValue) {
+      return;
+    }
 
     const target = multiline ? textareaRef.current : inputRef.current;
-    if (!target) return;
+    if (!target) {
+      return;
+    }
 
     target.cursorOffset = target.plainText.length;
     didPositionInitialCursorRef.current = true;
@@ -207,14 +213,18 @@ export const useAskEditor = function useAskEditor(
   }, [getTarget, setMode]);
 
   const openLineAbove = useCallback(() => {
-    if (!multilineRef.current) return;
+    if (!multilineRef.current) {
+      return;
+    }
     vimMotionStateRef.current.pendingG = false;
     openLineAtCursor(textareaRef.current, "above");
     setMode("insert");
   }, [setMode]);
 
   const openLineBelow = useCallback(() => {
-    if (!multilineRef.current) return;
+    if (!multilineRef.current) {
+      return;
+    }
     vimMotionStateRef.current.pendingG = false;
     openLineAtCursor(textareaRef.current, "below");
     setMode("insert");
@@ -303,7 +313,9 @@ export const useAskEditor = function useAskEditor(
   const motion = useCallback(
     (run: (target: TextareaRenderable | InputRenderable) => void) => {
       const target = getTarget();
-      if (target) run(target);
+      if (target) {
+        run(target);
+      }
       vimMotionStateRef.current.pendingG = false;
       bumpScroll();
     },
@@ -493,7 +505,9 @@ export const useAskEditor = function useAskEditor(
       if (event.button === 1) {
         event.preventDefault();
         void readPrimaryText().then((text) => {
-          if (!text) return;
+          if (!text) {
+            return;
+          }
           getTarget()?.insertText(text);
         });
       }
@@ -506,7 +520,9 @@ export const useAskEditor = function useAskEditor(
       const cursorToEnd = opts?.cursorToEnd ?? true;
       if (multilineRef.current) {
         const target = textareaRef.current;
-        if (!target) return;
+        if (!target) {
+          return;
+        }
         const prevOffset = target.cursorOffset;
         target.replaceText(text);
         target.cursorOffset = cursorToEnd
@@ -540,7 +556,9 @@ export const useAskEditor = function useAskEditor(
 
   const setCursorToEnd = useCallback(() => {
     const target = getTarget();
-    if (!target) return;
+    if (!target) {
+      return;
+    }
     target.cursorOffset = target.plainText.length;
     bumpScroll();
   }, [getTarget, bumpScroll]);

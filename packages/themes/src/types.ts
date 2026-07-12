@@ -201,12 +201,21 @@ export const resolveTheme = function resolveTheme(
 
   const resolveColor = function resolveColor(c: ColorValue, seen = new Set<string>()): string {
     if (typeof c === "string") {
-      if (c === "transparent" || c === "none") return "#00000000";
-      if (c.startsWith("#")) return c;
-      if (seen.has(c)) return "#808080";
-      if (defs[c] != null) return resolveColor(defs[c] as ColorValue, new Set(seen).add(c));
-      if (json.theme[c] !== undefined)
+      if (c === "transparent" || c === "none") {
+        return "#00000000";
+      }
+      if (c.startsWith("#")) {
+        return c;
+      }
+      if (seen.has(c)) {
+        return "#808080";
+      }
+      if (defs[c] != null) {
+        return resolveColor(defs[c] as ColorValue, new Set(seen).add(c));
+      }
+      if (json.theme[c] !== undefined) {
         return resolveColor(json.theme[c] as ColorValue, new Set(seen).add(c));
+      }
       return "#808080";
     }
     return resolveColor(c[mode], seen);
@@ -218,7 +227,11 @@ export const resolveTheme = function resolveTheme(
     result[key] = val === undefined ? (FALLBACKS[key] ?? "#808080") : resolveColor(val);
   }
   // Dynamic fallbacks that reference other resolved keys
-  if (json.theme["cursorLine"] === undefined) result.cursorLine = result.backgroundElement;
-  if (json.theme["selection"] === undefined) result.selection = result.backgroundPanel;
+  if (json.theme["cursorLine"] === undefined) {
+    result.cursorLine = result.backgroundElement;
+  }
+  if (json.theme["selection"] === undefined) {
+    result.selection = result.backgroundPanel;
+  }
   return result as unknown as ResolvedTheme;
 };

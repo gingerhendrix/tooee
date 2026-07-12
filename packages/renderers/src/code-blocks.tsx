@@ -217,19 +217,29 @@ const useHScrollableBlock = function useHScrollableBlock(
     (node: TextBufferRenderable | null) => {
       nodeRef.current = node;
       const map = hScrollableBlocksRef?.current;
-      if (!map) return;
-      if (node) map.set(blockIndex, node);
-      else map.delete(blockIndex);
+      if (!map) {
+        return;
+      }
+      if (node) {
+        map.set(blockIndex, node);
+      } else {
+        map.delete(blockIndex);
+      }
     },
     [hScrollableBlocksRef, blockIndex],
   );
 
   const handleMouseScroll = useCallback((event: MouseEvent) => {
     const node = nodeRef.current;
-    if (!node || !event.scroll || !event.modifiers.shift) return;
+    if (!node || !event.scroll || !event.modifiers.shift) {
+      return;
+    }
     const { direction, delta } = event.scroll;
-    if (direction === "up") node.scrollX -= delta;
-    else if (direction === "down") node.scrollX += delta;
+    if (direction === "up") {
+      node.scrollX -= delta;
+    } else if (direction === "down") {
+      node.scrollX += delta;
+    }
   }, []);
 
   return { handleMouseScroll, register };

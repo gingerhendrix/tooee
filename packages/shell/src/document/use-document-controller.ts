@@ -39,7 +39,9 @@ const makeAnchor = function makeAnchor<T>(
   index: number,
 ): DocumentRowAnchor<T> | null {
   const row = rows[index];
-  if (row === undefined) return null;
+  if (row === undefined) {
+    return null;
+  }
   return {
     index,
     key: rowKey(adapter, row, index),
@@ -135,7 +137,9 @@ export const useDocumentController = function useDocumentController<T>(
     () =>
       (index: number): boolean => {
         const row = rows[index];
-        if (row === undefined) return false;
+        if (row === undefined) {
+          return false;
+        }
         return adapterRef.current.isSelectable?.(row, index) ?? true;
       },
     [rows],
@@ -162,7 +166,9 @@ export const useDocumentController = function useDocumentController<T>(
   const match = useCallback((query: string): number[] => {
     const currentRows = rowsRef.current;
     const custom = matchRef.current;
-    if (custom) return [...custom(query, currentRows)];
+    if (custom) {
+      return [...custom(query, currentRows)];
+    }
     return defaultMatch(query, currentRows, (row, index) => adapterRef.current.getText(row, index));
   }, []);
 
@@ -225,11 +231,15 @@ export const useDocumentController = function useDocumentController<T>(
   );
 
   const selectedAnchors = useMemo<readonly DocumentRowAnchor<T>[]>(() => {
-    if (selectedIndices.length === 0) return EMPTY_ANCHORS;
+    if (selectedIndices.length === 0) {
+      return EMPTY_ANCHORS;
+    }
     const anchors: DocumentRowAnchor<T>[] = [];
     for (const index of selectedIndices) {
       const anchor = makeAnchor(rows, adapter, index);
-      if (anchor) anchors.push(anchor);
+      if (anchor) {
+        anchors.push(anchor);
+      }
     }
     return anchors;
   }, [selectedIndices, rows, adapter]);
@@ -269,7 +279,9 @@ export const useDocumentController = function useDocumentController<T>(
   const { cursor } = navigation;
   useEffect(() => {
     const document = ref.current;
-    if (!document || cursor === null) return;
+    if (!document || cursor === null) {
+      return;
+    }
 
     if (document.getRowMetrics(cursor)) {
       document.scrollToRow(cursor, "nearest");
@@ -303,7 +315,9 @@ export const useDocumentController = function useDocumentController<T>(
   const getRowAtScreenY = useCallback(
     (screenY: number) => {
       const index = ref.current?.getRowAtScreenY(screenY);
-      if (index == null || index < 0 || index >= rowsRef.current.length) return null;
+      if (index == null || index < 0 || index >= rowsRef.current.length) {
+        return null;
+      }
       return { index, key: getRowKey(index), row: rowsRef.current[index]! };
     },
     [getRowKey],
@@ -314,8 +328,12 @@ export const useDocumentController = function useDocumentController<T>(
   // hit-grid, bypassing command-surface arbitration.
   const selectRow = useCallback(
     (index: number) => {
-      if (hasModalOverlayRef.current) return;
-      if (index < 0 || index >= rowsRef.current.length) return;
+      if (hasModalOverlayRef.current) {
+        return;
+      }
+      if (index < 0 || index >= rowsRef.current.length) {
+        return;
+      }
       setCursor(index);
     },
     [setCursor],
@@ -324,10 +342,14 @@ export const useDocumentController = function useDocumentController<T>(
   const openContextMenu = contextMenuController.open;
   const onMouseDown = useCallback(
     (event: MouseEvent) => {
-      if (hasModalOverlayRef.current) return;
+      if (hasModalOverlayRef.current) {
+        return;
+      }
 
       const hit = getRowAtScreenY(event.y);
-      if (!hit) return;
+      if (!hit) {
+        return;
+      }
 
       if (event.button === 0) {
         selectRow(hit.index);
@@ -335,9 +357,13 @@ export const useDocumentController = function useDocumentController<T>(
         return;
       }
 
-      if (event.button !== 2) return;
+      if (event.button !== 2) {
+        return;
+      }
       const menu = contextMenuOptionsRef.current;
-      if (!menu) return;
+      if (!menu) {
+        return;
+      }
 
       event.preventDefault();
       selectRow(hit.index);
@@ -349,7 +375,9 @@ export const useDocumentController = function useDocumentController<T>(
       const context = buildCommandContext();
       const items = typeof menu === "function" ? menu({ ...hit, context, event }) : menu;
       const entries = resolveContextMenuEntries(items, context);
-      if (entries.length === 0) return;
+      if (entries.length === 0) {
+        return;
+      }
       openContextMenu(event.x, event.y, entries, (id) => {
         invokeRef.current(id);
       });

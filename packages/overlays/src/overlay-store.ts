@@ -52,7 +52,9 @@ const restoreModeDecision = function restoreModeDecision(
   stack: readonly OverlayRecord[],
   record: OverlayRecord,
 ): string | null {
-  if (record.options.ownCommands || record.options.restoreMode === false) return null;
+  if (record.options.ownCommands || record.options.restoreMode === false) {
+    return null;
+  }
   const topLegacy = stack.findLast((entry) => !entry.options.ownCommands);
   return topLegacy === record ? record.prevMode : null;
 };
@@ -85,7 +87,9 @@ export const createOverlayStore = function createOverlayStore() {
     on: {
       closed: (ctx, event, enqueue) => {
         const record = ctx.stack.find((entry) => entry.id === event.id);
-        if (!record) return ctx;
+        if (!record) {
+          return ctx;
+        }
         enqueue.emit.closed({
           reason: event.reason,
           record,
@@ -94,7 +98,9 @@ export const createOverlayStore = function createOverlayStore() {
         return { stack: ctx.stack.filter((entry) => entry !== record) };
       },
       closedTop: (ctx, event, enqueue) => {
-        if (ctx.stack.length === 0) return ctx;
+        if (ctx.stack.length === 0) {
+          return ctx;
+        }
         const record = ctx.stack[ctx.stack.length - 1]!;
         enqueue.emit.closed({
           reason: event.reason,
@@ -118,7 +124,9 @@ export const createOverlayStore = function createOverlayStore() {
       },
       updated: (ctx, event) => {
         const idx = ctx.stack.findIndex((entry) => entry.id === event.id);
-        if (idx === -1) return ctx;
+        if (idx === -1) {
+          return ctx;
+        }
         const record = ctx.stack[idx]!;
         const payload =
           typeof event.next === "function"

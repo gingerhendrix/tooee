@@ -55,9 +55,13 @@ export const ChooseOverlay = function ChooseOverlay(props: ChooseOverlayProps): 
     multi,
     onCancel: props.onCancel,
     onSubmit: (result): void | Promise<void> => {
-      if (multi) return props.onSubmit(result);
+      if (multi) {
+        return props.onSubmit(result);
+      }
       const [item] = result.items;
-      if (item) return props.onSelect(item);
+      if (item) {
+        return props.onSelect(item);
+      }
     },
     source: props.items,
     suspended: props.suspended,

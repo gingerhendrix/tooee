@@ -23,7 +23,9 @@ describe("search e2e", () => {
       await session.press("/");
       await Bun.sleep(500);
       const check = await session.text();
-      if (!check.match(/Mode:\s*cursor/u)) break;
+      if (!check.match(/Mode:\s*cursor/u)) {
+        break;
+      }
     }
     const text = await session.text();
     // The search bar replaces the status bar so Mode: cursor is gone
@@ -38,7 +40,9 @@ describe("search e2e", () => {
       await session.press("/");
       await Bun.sleep(500);
       const check = await session.text();
-      if (!check.match(/Mode:\s*cursor/u)) break;
+      if (!check.match(/Mode:\s*cursor/u)) {
+        break;
+      }
     }
     // Type a search query
     await session.type("Section");
@@ -60,7 +64,9 @@ describe("search e2e", () => {
       await session.press("/");
       await Bun.sleep(500);
       const check = await session.text();
-      if (!check.match(/Mode:\s*cursor/u)) break;
+      if (!check.match(/Mode:\s*cursor/u)) {
+        break;
+      }
     }
     await session.type("Section");
     // Send kitty-encoded Escape (raw \x1b is ambiguous)

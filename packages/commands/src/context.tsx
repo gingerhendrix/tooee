@@ -465,7 +465,9 @@ export const useActiveCommandSurface =
     });
 
     return useMemo(() => {
-      if (!record) return null;
+      if (!record) {
+        return null;
+      }
       return {
         commands: commandMap ? Array.from(commandMap.values()) : [],
         id: record.id,

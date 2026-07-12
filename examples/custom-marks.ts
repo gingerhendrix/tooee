@@ -228,7 +228,9 @@ const actions: ActionDefinition[] = [
   {
     handler: (ctx) => {
       const line = ctx.document?.cursor;
-      if (line == null) return;
+      if (line == null) {
+        return;
+      }
 
       if (userBookmarks.has(line)) {
         userBookmarks.delete(line);
@@ -252,7 +254,9 @@ const actions: ActionDefinition[] = [
   {
     handler: (ctx) => {
       const line = ctx.document?.cursor;
-      if (line == null) return;
+      if (line == null) {
+        return;
+      }
 
       if (userDiagnostics.has(line)) {
         userDiagnostics.delete(line);

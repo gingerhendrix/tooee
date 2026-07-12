@@ -113,7 +113,9 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
   const matches = useMemo(() => fuzzyFilter(items, filterQuery), [items, filterQuery]);
   const activeItem = matches[activeIndex]?.item;
   const selectedItems = useMemo(() => {
-    if (!multi) return activeItem ? [activeItem] : [];
+    if (!multi) {
+      return activeItem ? [activeItem] : [];
+    }
     const selected = Array.from(selectedOriginalIndices).flatMap((index) => {
       const item = items[index];
       return item ? [item] : [];
@@ -175,7 +177,9 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     try {
       result = loadChooseSource(source);
     } catch (loadError) {
-      if (requestId !== requestIdRef.current) return;
+      if (requestId !== requestIdRef.current) {
+        return;
+      }
       replaceItems([]);
       setError(chooseSourceError(loadError));
       setLoading(false);
@@ -186,13 +190,17 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
       setLoading(true);
       void result.then(
         (loaded) => {
-          if (!active || requestId !== requestIdRef.current) return;
+          if (!active || requestId !== requestIdRef.current) {
+            return;
+          }
           replaceItems(loaded);
           setError(null);
           setLoading(false);
         },
         (loadError: unknown) => {
-          if (!active || requestId !== requestIdRef.current) return;
+          if (!active || requestId !== requestIdRef.current) {
+            return;
+          }
           replaceItems([]);
           setError(chooseSourceError(loadError));
           setLoading(false);
@@ -239,7 +247,9 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
 
   const getSelectedItems = useCallback((): ChooseItem[] => {
     const active = getActiveItem();
-    if (!multiRef.current) return active ? [active] : [];
+    if (!multiRef.current) {
+      return active ? [active] : [];
+    }
     const selected = Array.from(selectedRef.current).flatMap((index) => {
       const item = itemsRef.current[index];
       return item ? [item] : [];
@@ -248,12 +258,19 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
   }, [getActiveItem]);
 
   const toggleActive = useCallback(() => {
-    if (!multiRef.current) return;
+    if (!multiRef.current) {
+      return;
+    }
     const originalIndex = matchesRef.current[activeIndexRef.current]?.originalIndex;
-    if (originalIndex === undefined) return;
+    if (originalIndex === undefined) {
+      return;
+    }
     const next = new Set(selectedRef.current);
-    if (next.has(originalIndex)) next.delete(originalIndex);
-    else next.add(originalIndex);
+    if (next.has(originalIndex)) {
+      next.delete(originalIndex);
+    } else {
+      next.add(originalIndex);
+    }
     selectedRef.current = next;
     setSelectedOriginalIndices(next);
   }, []);
@@ -291,8 +308,11 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
 
   useCommand({
     handler: () => {
-      if (modeRef.current === "insert") setMode("cursor");
-      else cancel();
+      if (modeRef.current === "insert") {
+        setMode("cursor");
+      } else {
+        cancel();
+      }
     },
     hidden: true,
     hotkey: "Escape",
@@ -440,8 +460,11 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
       }
       event.preventDefault();
       toggleActive();
-      if (event.shift) moveUp();
-      else moveDown();
+      if (event.shift) {
+        moveUp();
+      } else {
+        moveDown();
+      }
     },
     [enabled, moveDown, moveUp, toggleActive],
   );

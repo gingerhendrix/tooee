@@ -327,8 +327,12 @@ describe("Choose visual alignment", () => {
     let alphaLine = -1;
     let betaLine = -1;
     for (let i = 0; i < lines.length; i++) {
-      if (lines[i].includes("alpha")) alphaLine = i;
-      if (lines[i].includes("beta")) betaLine = i;
+      if (lines[i].includes("alpha")) {
+        alphaLine = i;
+      }
+      if (lines[i].includes("beta")) {
+        betaLine = i;
+      }
     }
 
     expect(alphaLine).toBeGreaterThan(-1);
@@ -396,7 +400,9 @@ describe("Choose mouse interaction", () => {
     const lines = frame.split("\n");
     for (let y = 0; y < lines.length; y++) {
       const x = lines[y].indexOf(text);
-      if (x >= 0) return { x, y };
+      if (x >= 0) {
+        return { x, y };
+      }
     }
     return { x: -1, y: -1 };
   };

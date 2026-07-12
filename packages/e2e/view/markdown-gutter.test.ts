@@ -91,7 +91,9 @@ describe("markdown gutter e2e", () => {
         await session.press("/");
         await Bun.sleep(500);
         const check = await session.text();
-        if (!check.match(/Mode:\s*cursor/u)) break;
+        if (!check.match(/Mode:\s*cursor/u)) {
+          break;
+        }
       }
       // Type a query that matches all sections (visible in viewport)
       await session.type("Section");
@@ -111,7 +113,9 @@ describe("markdown gutter e2e", () => {
         await session.press("/");
         await Bun.sleep(500);
         const check = await session.text();
-        if (!check.match(/Mode:\s*cursor/u)) break;
+        if (!check.match(/Mode:\s*cursor/u)) {
+          break;
+        }
       }
       await session.type("Section");
       // Wait for match count to appear in search bar (N/M format)

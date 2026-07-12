@@ -72,7 +72,9 @@ export const selectActiveModalSurface = function selectActiveModalSurface(
 ): SurfaceRecord | null {
   let best: SurfaceRecord | null = null;
   for (const record of ctx.surfaces) {
-    if (record.role !== "modal") continue;
+    if (record.role !== "modal") {
+      continue;
+    }
     if (
       best === null ||
       record.depth > best.depth ||
@@ -120,11 +122,21 @@ export const selectGroups = function selectGroups(
 
 export const formatStepKey = function formatStepKey(step: ParsedStep): string {
   const modifiers = [];
-  if (step.ctrl) modifiers.push("ctrl");
-  if (step.meta) modifiers.push("meta");
-  if (step.option) modifiers.push("option");
-  if (step.shift) modifiers.push("shift");
-  if (step.super) modifiers.push("super");
+  if (step.ctrl) {
+    modifiers.push("ctrl");
+  }
+  if (step.meta) {
+    modifiers.push("meta");
+  }
+  if (step.option) {
+    modifiers.push("option");
+  }
+  if (step.shift) {
+    modifiers.push("shift");
+  }
+  if (step.super) {
+    modifiers.push("super");
+  }
   modifiers.push(step.key);
   return modifiers.join("+");
 };
@@ -173,7 +185,9 @@ const createBaseStore = function createBaseStore(initialContext: CommandStoreCon
         // writer, and the first registrant's unmount must not delete the
         // second's live command.
         const existing = ctx.commandsBySurface.get(event.surfaceId);
-        if (!existing || existing.get(event.command.id) !== event.command) return ctx;
+        if (!existing || existing.get(event.command.id) !== event.command) {
+          return ctx;
+        }
         const commands = new Map(existing);
         commands.delete(event.command.id);
         const commandsBySurface = new Map(ctx.commandsBySurface);
@@ -196,7 +210,9 @@ const createBaseStore = function createBaseStore(initialContext: CommandStoreCon
         ctx: CommandStoreContext,
         event: { id: string },
       ): CommandStoreContext => {
-        if (!ctx.contextSources.has(event.id)) return ctx;
+        if (!ctx.contextSources.has(event.id)) {
+          return ctx;
+        }
         const contextSources = new Map(ctx.contextSources);
         contextSources.delete(event.id);
         return { ...ctx, contextSources };
@@ -214,7 +230,9 @@ const createBaseStore = function createBaseStore(initialContext: CommandStoreCon
         event: { group: RegisteredCommandGroup },
       ): CommandStoreContext => {
         // Identity-guarded, as for commands.
-        if (ctx.groups.get(event.group.prefixKey) !== event.group) return ctx;
+        if (ctx.groups.get(event.group.prefixKey) !== event.group) {
+          return ctx;
+        }
         const groups = new Map(ctx.groups);
         groups.delete(event.group.prefixKey);
         return { ...ctx, groups };
@@ -235,7 +253,9 @@ const createBaseStore = function createBaseStore(initialContext: CommandStoreCon
       ): CommandStoreContext => {
         // Identity-based removal: only the exact pushed record is removed.
         const surfaces = ctx.surfaces.filter((record) => record !== event.surface);
-        if (surfaces.length === ctx.surfaces.length) return ctx;
+        if (surfaces.length === ctx.surfaces.length) {
+          return ctx;
+        }
         const before = selectActiveModalSurface(ctx);
         const after = selectActiveModalSurface({ ...ctx, surfaces });
         return {
@@ -409,17 +429,25 @@ export const createCommandStore = function createCommandStore(
     if (commands) {
       for (const command of commands.values()) {
         const commandModes = command.modes ?? DEFAULT_MODES;
-        if (!commandModes.includes(currentMode)) continue;
-        if (command.when && !command.when(cmdCtx)) continue;
+        if (!commandModes.includes(currentMode)) {
+          continue;
+        }
+        if (command.when && !command.when(cmdCtx)) {
+          continue;
+        }
 
         const hotkey = config.keymap?.[command.id] ?? command.defaultHotkey;
-        if (!hotkey) continue;
+        if (!hotkey) {
+          continue;
+        }
 
         const parsed = getParsedHotkey(hotkey);
 
         // Unmatchable hotkeys (e.g. <leader> with no configured leader) register
         // nothing rather than matching everything.
-        if (parsed.steps.length === 0) continue;
+        if (parsed.steps.length === 0) {
+          continue;
+        }
 
         if (parsed.steps.length === 1) {
           singleStepCandidates.push({ command, parsed });
@@ -498,13 +526,17 @@ export const createCommandStore = function createCommandStore(
     const after = selectActiveModalSurface(store.getSnapshot().context);
     // Keep the wrapper buffer consistent with the transition's sequence-clear
     // rule: clear exactly when keyboard ownership changed.
-    if (before !== after) clearBufferAndTimer();
+    if (before !== after) {
+      clearBufferAndTimer();
+    }
 
     return () => {
       const beforePop = selectActiveModalSurface(store.getSnapshot().context);
       store.trigger.surfacePopped({ surface });
       const afterPop = selectActiveModalSurface(store.getSnapshot().context);
-      if (beforePop !== afterPop) clearBufferAndTimer();
+      if (beforePop !== afterPop) {
+        clearBufferAndTimer();
+      }
     };
   };
 
@@ -526,7 +558,9 @@ export const createCommandStore = function createCommandStore(
         invoke(id: string) {
           const ctx = store.getSnapshot().context;
           const cmd = ctx.commandsBySurface.get(record.id)?.get(id);
-          if (!cmd) return;
+          if (!cmd) {
+            return;
+          }
           const cmdCtx = record.buildCtx();
           if (!cmd.when || cmd.when(cmdCtx)) {
             cmd.handler(cmdCtx);
