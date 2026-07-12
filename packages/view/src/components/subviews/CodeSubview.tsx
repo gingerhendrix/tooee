@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { CodeView, sourceLines, sourceLineAdapter, type SourceLineRow } from "@tooee/renderers";
+import { CodeView, sourceLines, sourceLineAdapter } from "@tooee/renderers";
+import type { SourceLineRow } from "@tooee/renderers";
 import { useDocumentController } from "@tooee/shell";
 import type { CodeContent, TextContent } from "../../types.js";
 import { useContentCommands } from "../../hooks/useContentCommands.js";

@@ -1,7 +1,8 @@
 import { useCallback, useMemo } from "react";
 import { useTerminalDimensions } from "@opentui/react";
 import { useSelector } from "@xstate/store-react";
-import { useCommand, useMode, useSetMode, type Mode } from "@tooee/commands";
+import { useCommand, useMode, useSetMode } from "@tooee/commands";
+import type { Mode } from "@tooee/commands";
 import {
   deriveSelection,
   selectCursor,
@@ -9,8 +10,8 @@ import {
   selectSelectionAnchor,
   selectToggledKeys,
   useNavSearchStore,
-  type NavSearchStore,
 } from "@tooee/search";
+import type { NavSearchStore } from "@tooee/search";
 
 const CURSOR_MODES: Mode[] = ["cursor"];
 const SELECT_MODES: Mode[] = ["select"];

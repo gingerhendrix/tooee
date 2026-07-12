@@ -2,7 +2,8 @@ import { useCallback, createElement } from "react";
 import { useOverlay } from "@tooee/overlays";
 import type { OverlayCloseReason } from "@tooee/overlays";
 import type { ActionDefinition, CommandContext } from "@tooee/commands";
-import { ContextMenu, type ContextMenuEntry } from "@tooee/renderers";
+import { ContextMenu } from "@tooee/renderers";
+import type { ContextMenuEntry } from "@tooee/renderers";
 
 const OVERLAY_ID = "context-menu";
 

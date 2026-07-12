@@ -2,7 +2,8 @@ import type { ReactNode } from "react";
 import type { ActionDefinition } from "@tooee/commands";
 import type { StatusBarItem } from "@tooee/layout";
 import type { MarkSet } from "@tooee/marks";
-import { DocumentScreen, type DocumentController } from "@tooee/shell";
+import { DocumentScreen } from "@tooee/shell";
+import type { DocumentController } from "@tooee/shell";
 import { useProvideViewCommandContext } from "../hooks/useViewCommandContext.js";
 import type { AnyContent } from "../types.js";
 

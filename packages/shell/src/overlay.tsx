@@ -7,14 +7,16 @@ import {
   createOverlayStore,
   selectStack,
   selectTop,
-  type OverlayId,
-  type OverlayCloseReason,
-  type OverlayOpenOptions,
-  type OverlayRenderer,
-  type OverlayHandle,
-  type OverlayController,
-  type OverlayRecord,
-  type OverlayStore,
+} from "@tooee/overlays";
+import type {
+  OverlayId,
+  OverlayCloseReason,
+  OverlayOpenOptions,
+  OverlayRenderer,
+  OverlayHandle,
+  OverlayController,
+  OverlayRecord,
+  OverlayStore,
 } from "@tooee/overlays";
 import {
   useMode,

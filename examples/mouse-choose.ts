@@ -17,7 +17,8 @@
  *   Escape           cancel
  */
 
-import { launch, createStaticProvider, type ChooseItem } from "@tooee/choose";
+import { launch, createStaticProvider } from "@tooee/choose";
+import type { ChooseItem } from "@tooee/choose";
 
 const frameworks: ChooseItem[] = [
   {

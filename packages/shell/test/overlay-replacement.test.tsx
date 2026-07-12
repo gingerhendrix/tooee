@@ -5,7 +5,8 @@ import { TooeeProvider } from "@tooee/shell";
 import { useCommand, useCommandSequenceState } from "@tooee/commands";
 import { useOverlay, useCurrentOverlay } from "@tooee/overlays";
 import type { OverlayController } from "@tooee/overlays";
-import { press, type TestSession } from "./support/test-helpers.ts";
+import { press } from "./support/test-helpers.ts";
+import type { TestSession } from "./support/test-helpers.ts";
 
 let testSetup: TestSession;
 

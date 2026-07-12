@@ -7,9 +7,8 @@ import {
   selectSequence,
   selectSurfaceCommands,
   stepsKey,
-  type CommandStore,
-  type SurfaceRecord,
 } from "../src/command-store.js";
+import type { CommandStore, SurfaceRecord } from "../src/command-store.js";
 import { parseHotkey } from "../src/parse.js";
 import type { Command, CommandContext, RegisteredCommandGroup } from "../src/types.js";
 import type { Mode } from "../src/mode.js";

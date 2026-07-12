@@ -9,8 +9,10 @@
  * Controls: j/k navigate, / filter, Enter select, q quit
  */
 
-import { launch as launchChoose, type ChooseItem } from "@tooee/choose";
-import { launch as launchView, type ContentProvider } from "@tooee/view";
+import { launch as launchChoose } from "@tooee/choose";
+import type { ChooseItem } from "@tooee/choose";
+import { launch as launchView } from "@tooee/view";
+import type { ContentProvider } from "@tooee/view";
 
 interface Issue {
   number: number;

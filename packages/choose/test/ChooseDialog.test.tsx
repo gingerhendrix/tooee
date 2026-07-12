@@ -5,7 +5,8 @@ import { TooeeProvider } from "@tooee/shell";
 import { useCurrentOverlay, useOverlayState } from "@tooee/overlays";
 import { testRender } from "../../../test/support/test-render.ts";
 import type { ChooseItem } from "../src/types.js";
-import { useChooseDialog, type ChooseDialogHandle } from "../src/use-choose-dialog.js";
+import { useChooseDialog } from "../src/use-choose-dialog.js";
+import type { ChooseDialogHandle } from "../src/use-choose-dialog.js";
 
 interface Fruit {
   id: number;

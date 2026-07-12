@@ -2,7 +2,8 @@
 import os from "node:os";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { aggregateMetric, type BenchmarkRunResult } from "./lib/benchmark-result.ts";
+import { aggregateMetric } from "./lib/benchmark-result.ts";
+import type { BenchmarkRunResult } from "./lib/benchmark-result.ts";
 
 const DEFAULT_SCRIPTS = ["render-first-frame.tsx", "interaction-latency.tsx"];
 const HEAVY_SCRIPTS = ["heavy-render.tsx", "heavy-interaction.tsx"];

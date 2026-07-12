@@ -1,6 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, describe } from "bun:test";
-import { act, useState, type ReactNode } from "react";
+import { act, useState } from "react";
+import type { ReactNode } from "react";
 import { useKeyboard } from "@opentui/react";
 import {
   CommandProvider,

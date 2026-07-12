@@ -2,12 +2,11 @@ import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, beforeEach, describe } from "bun:test";
 import { act } from "react";
 import { copied } from "../../../test/support/clipboard-mock.ts";
+import type { AnyContent, ContentProvider } from "../src/types.js";
 
 const { TooeeProvider } = await import("@tooee/shell");
 const { MarkSetBuilder, MarkPriorities } = await import("@tooee/marks");
 const { View } = await import("../src/View.js");
-type AnyContent = import("../src/types.js").AnyContent;
-type ContentProvider = import("../src/types.js").ContentProvider;
 
 function staticProvider(content: AnyContent, marks?: ContentProvider["marks"]): ContentProvider {
   return { format: content.format, load: () => content, marks };

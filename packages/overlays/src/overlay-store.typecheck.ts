@@ -12,7 +12,8 @@
  * widened (e.g. an index signature was added); fix the maps, not this file.
  */
 import type { OverlayCloseReason } from "./overlay-context.js";
-import { createOverlayStore, type OverlayRecord } from "./overlay-store.js";
+import { createOverlayStore } from "./overlay-store.js";
+import type { OverlayRecord } from "./overlay-store.js";
 
 declare const record: OverlayRecord;
 declare const reason: OverlayCloseReason;

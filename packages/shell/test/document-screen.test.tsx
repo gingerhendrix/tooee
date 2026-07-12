@@ -1,15 +1,11 @@
 import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, beforeEach, describe } from "bun:test";
-import { useCommandContext, type ActionDefinition, type CommandContext } from "@tooee/commands";
-import {
-  Document,
-  DocumentScreen,
-  TooeeProvider,
-  useDocumentController,
-  type DocumentCommandContext,
-  type DocumentScreenProps,
-} from "@tooee/shell";
-import { press, pressTab, type TestSession } from "./support/test-helpers.ts";
+import { useCommandContext } from "@tooee/commands";
+import type { ActionDefinition, CommandContext } from "@tooee/commands";
+import { Document, DocumentScreen, TooeeProvider, useDocumentController } from "@tooee/shell";
+import type { DocumentCommandContext, DocumentScreenProps } from "@tooee/shell";
+import { press, pressTab } from "./support/test-helpers.ts";
+import type { TestSession } from "./support/test-helpers.ts";
 
 interface Row {
   id: string;

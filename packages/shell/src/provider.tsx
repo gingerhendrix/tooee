@@ -1,8 +1,11 @@
 import type { ReactNode } from "react";
-import { ConfigProvider, useConfig, type TooeeConfig } from "@tooee/config";
+import { ConfigProvider, useConfig } from "@tooee/config";
+import type { TooeeConfig } from "@tooee/config";
 import { ThemeSwitcherProvider } from "@tooee/themes";
-import { CommandProvider, useProvideCommandContext, type Mode } from "@tooee/commands";
-import { ToastProvider, useToast, type ToastController } from "@tooee/toasts";
+import { CommandProvider, useProvideCommandContext } from "@tooee/commands";
+import type { Mode } from "@tooee/commands";
+import { ToastProvider, useToast } from "@tooee/toasts";
+import type { ToastController } from "@tooee/toasts";
 import { OverlayProvider } from "./overlay.js";
 import { CommandPaletteProvider } from "./command-palette-provider.js";
 import { WhichKeyProvider } from "./which-key-provider.js";

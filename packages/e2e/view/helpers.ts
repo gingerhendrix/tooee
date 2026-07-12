@@ -1,4 +1,5 @@
-import { launchTerminal, type Session } from "tuistory";
+import { launchTerminal } from "tuistory";
+import type { Session } from "tuistory";
 import { resolve } from "path";
 import { ensureTestConfigHome, resetTestConfig } from "../support/test-config.js";
 

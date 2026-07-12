@@ -1,15 +1,16 @@
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
-import { type SyntaxStyle } from "@opentui/core";
+import { createContext, useContext, useState, useCallback, useMemo } from "react";
+import type { ReactNode } from "react";
+import type { SyntaxStyle } from "@opentui/core";
 import { writeGlobalConfig } from "@tooee/config";
 import type { ResolvedTheme } from "./types.js";
 import {
-  type Theme,
   buildTheme,
   getThemeNames,
   defaultTheme,
   DEFAULT_THEME_NAME,
   DEFAULT_MODE,
 } from "./loader.js";
+import type { Theme } from "./loader.js";
 
 // ---------------------------------------------------------------------------
 // Context

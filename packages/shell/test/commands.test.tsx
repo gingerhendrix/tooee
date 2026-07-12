@@ -4,7 +4,7 @@ import { act } from "react";
 import { TooeeProvider, useThemeCommands, useQuitCommand } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
 import { useMode } from "@tooee/commands";
-import { type TestSession } from "./support/test-helpers.ts";
+import type { TestSession } from "./support/test-helpers.ts";
 
 function ThemeHarness() {
   const { picker } = useThemeCommands();

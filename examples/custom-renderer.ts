@@ -13,12 +13,8 @@
  */
 
 import { createElement } from "react";
-import {
-  launch,
-  type ContentProvider,
-  type CustomContent,
-  type ContentRendererProps,
-} from "@tooee/view";
+import { launch } from "@tooee/view";
+import type { ContentProvider, CustomContent, ContentRendererProps } from "@tooee/view";
 import { useTheme } from "@tooee/themes";
 import type { ReactNode } from "react";
 

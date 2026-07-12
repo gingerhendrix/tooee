@@ -1,14 +1,10 @@
 import { useMemo, useRef } from "react";
 import type { TextBufferRenderable } from "@opentui/core";
-import {
-  MarkdownView,
-  flattenMarkdown,
-  getFlatBlockText,
-  type CodeBlockRenderer,
-  type FlatBlock,
-} from "@tooee/renderers";
+import { MarkdownView, flattenMarkdown, getFlatBlockText } from "@tooee/renderers";
+import type { CodeBlockRenderer, FlatBlock } from "@tooee/renderers";
 import { useCommand } from "@tooee/commands";
-import { useDocumentController, type DocumentRowAdapter } from "@tooee/shell";
+import { useDocumentController } from "@tooee/shell";
+import type { DocumentRowAdapter } from "@tooee/shell";
 import type { MarkdownContent } from "../../types.js";
 import { useContentCommands } from "../../hooks/useContentCommands.js";
 import { ViewScreen } from "../ViewScreen.js";

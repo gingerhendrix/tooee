@@ -1,4 +1,5 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef } from "react";
+import type { ReactNode } from "react";
 import type { ScrollBoxRenderable } from "@opentui/core";
 import { useTheme } from "@tooee/themes";
 import { ChooseHighlightedText } from "./ChooseHighlightedText.js";

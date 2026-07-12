@@ -11,7 +11,8 @@
  * Controls: q quit, t/T cycle themes
  */
 
-import { launch, type ContentProvider, type ContentChunk } from "@tooee/view";
+import { launch } from "@tooee/view";
+import type { ContentProvider, ContentChunk } from "@tooee/view";
 
 // Helper to create a delay
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

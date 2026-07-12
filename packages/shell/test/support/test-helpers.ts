@@ -1,4 +1,4 @@
-import { testRender } from "../../../../test/support/test-render.ts";
+import type { testRender } from "../../../../test/support/test-render.ts";
 import { act } from "react";
 
 export type TestSession = Awaited<ReturnType<typeof testRender>>;

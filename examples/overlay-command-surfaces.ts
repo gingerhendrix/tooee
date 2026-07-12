@@ -39,9 +39,11 @@
  *   Escape   closes the passive overlay
  */
 
-import { createElement, useMemo, useState, type ComponentType, type ReactNode } from "react";
+import { createElement, useMemo, useState } from "react";
+import type { ComponentType, ReactNode } from "react";
 import { useCommand, useActiveCommandSurface, useMode, useSetMode } from "@tooee/commands";
-import { useOverlay, type OverlayRenderArgs } from "@tooee/overlays";
+import { useOverlay } from "@tooee/overlays";
+import type { OverlayRenderArgs } from "@tooee/overlays";
 import { AppLayout } from "@tooee/layout";
 import { launchCli, useQuitCommand } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";

@@ -1,16 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "@xstate/store-react";
-import { useCommand, useMode, useSetMode, type Mode } from "@tooee/commands";
+import { useCommand, useMode, useSetMode } from "@tooee/commands";
+import type { Mode } from "@tooee/commands";
 import {
   createNavSearchStore,
   selectCurrentMatchIndex,
   selectMatches,
   selectSearchActive,
   selectSearchQuery,
-  type NavSearchDeps,
-  type NavSearchStore,
-  type RowKey,
 } from "./nav-search-store.js";
+import type { NavSearchDeps, NavSearchStore, RowKey } from "./nav-search-store.js";
 
 export interface UseSearchOptions {
   match: (query: string) => number[];

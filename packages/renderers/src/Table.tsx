@@ -6,8 +6,8 @@ import type { ColumnDef, TableRow } from "./table-types.js";
 import {
   DEFAULT_SIGN_COLUMN_WIDTH,
   computeRowDocumentGutterWidth,
-  type RowDocumentRenderable,
 } from "./RowDocumentRenderable.js";
+import type { RowDocumentRenderable } from "./RowDocumentRenderable.js";
 import { useGutterPalette } from "./useGutterPalette.js";
 import "./row-document.js";
 

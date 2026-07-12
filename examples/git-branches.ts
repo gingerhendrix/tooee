@@ -8,7 +8,8 @@
  * Controls: j/k navigate, / filter, Enter checkout, q quit
  */
 
-import { launch, type ChooseItem } from "@tooee/choose";
+import { launch } from "@tooee/choose";
+import type { ChooseItem } from "@tooee/choose";
 
 const branchProvider = {
   async load(): Promise<ChooseItem[]> {

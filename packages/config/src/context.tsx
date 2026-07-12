@@ -1,4 +1,5 @@
-import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { createContext, useContext, useMemo } from "react";
+import type { ReactNode } from "react";
 import type { TooeeConfig } from "./types.js";
 import { loadConfig } from "./load.js";
 

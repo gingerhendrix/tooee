@@ -20,7 +20,8 @@
  *   t — theme picker
  */
 
-import { launch, type ContentProvider } from "@tooee/view";
+import { launch } from "@tooee/view";
+import type { ContentProvider } from "@tooee/view";
 import type { ActionDefinition } from "@tooee/commands";
 
 const contentProvider: ContentProvider = {

@@ -3,7 +3,8 @@ import { test, expect, afterEach } from "bun:test";
 import { useEffect } from "react";
 import { act } from "react";
 import { ThemeSwitcherProvider } from "@tooee/themes";
-import { ToastProvider, useToast, ToastContainer, type ToastLevel } from "@tooee/toasts";
+import { ToastProvider, useToast, ToastContainer } from "@tooee/toasts";
+import type { ToastLevel } from "@tooee/toasts";
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 

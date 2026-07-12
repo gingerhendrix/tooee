@@ -1,7 +1,9 @@
 import { useState, useMemo } from "react";
 import { useCommand } from "@tooee/commands";
+import type { ActionDefinition } from "@tooee/commands";
 import { View } from "./View.js";
-import { listDirectoryFiles, type DirectoryEntry } from "./directory-provider.js";
+import { listDirectoryFiles } from "./directory-provider.js";
+import type { DirectoryEntry } from "./directory-provider.js";
 import type { AnyContent, ContentProvider } from "./types.js";
 import { createFileProvider } from "./default-provider.js";
 
@@ -25,7 +27,7 @@ function createDirectoryFileProvider(
 
 interface DirectoryViewProps {
   dirPath: string;
-  actions?: import("@tooee/commands").ActionDefinition[];
+  actions?: ActionDefinition[];
 }
 
 export function DirectoryView({ dirPath, actions }: DirectoryViewProps) {

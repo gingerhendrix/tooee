@@ -1,5 +1,5 @@
 import { describe, test, expect, afterEach } from "bun:test";
-import { type Session } from "tuistory";
+import type { Session } from "tuistory";
 import { launchView } from "./helpers.js";
 
 let session: Session;

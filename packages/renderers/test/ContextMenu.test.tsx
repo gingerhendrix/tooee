@@ -3,7 +3,8 @@ import { test, expect, describe, afterEach } from "bun:test";
 import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
 import { ThemeSwitcherProvider } from "@tooee/themes";
-import { ContextMenu, type ContextMenuEntry } from "../src/ContextMenu.js";
+import { ContextMenu } from "../src/ContextMenu.js";
+import type { ContextMenuEntry } from "../src/ContextMenu.js";
 
 const ENTRIES: ContextMenuEntry[] = [
   { id: "copy", title: "Copy row", hotkey: "y" },

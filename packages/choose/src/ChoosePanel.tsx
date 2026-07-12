@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { useMode, type Mode } from "@tooee/commands";
+import { useMode } from "@tooee/commands";
+import type { Mode } from "@tooee/commands";
 import { CloseButton, useTheme } from "@tooee/themes";
 
 export function buildChooseHints(

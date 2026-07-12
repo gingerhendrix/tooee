@@ -9,7 +9,8 @@
  * Controls: j/k navigate, / filter, Enter select, q quit
  */
 
-import { launch, type ChooseItem } from "@tooee/choose";
+import { launch } from "@tooee/choose";
+import type { ChooseItem } from "@tooee/choose";
 
 async function commandExists(cmd: string): Promise<boolean> {
   const proc = Bun.spawn(["which", cmd], { stdout: "pipe", stderr: "pipe" });

@@ -1,8 +1,10 @@
 import { useRenderer } from "@opentui/react";
 import { copyToClipboard, readClipboardText, readPrimaryText } from "@tooee/clipboard";
-import { useCommand, type CommandWhen } from "@tooee/commands";
+import { useCommand } from "@tooee/commands";
+import type { CommandWhen } from "@tooee/commands";
 import { useToast } from "@tooee/toasts";
-import { useThemePicker, type ThemePickerState } from "./theme-picker.js";
+import { useThemePicker } from "./theme-picker.js";
+import type { ThemePickerState } from "./theme-picker.js";
 
 export interface UseThemeCommandsOptions {
   when?: CommandWhen;

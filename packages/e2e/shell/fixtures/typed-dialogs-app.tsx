@@ -2,7 +2,8 @@ import { useRef, useState } from "react";
 import { launchCli, useQuitCommand } from "@tooee/shell";
 import { useCommand } from "@tooee/commands";
 import { useCurrentOverlay } from "@tooee/overlays";
-import { useAskDialog, type AskEditorController } from "@tooee/ask";
+import { useAskDialog } from "@tooee/ask";
+import type { AskEditorController } from "@tooee/ask";
 import { useChooseDialog } from "@tooee/choose";
 
 interface Model {

@@ -1,12 +1,5 @@
-import {
-  createContext,
-  useContext,
-  useRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useRef, useCallback, useEffect, useMemo } from "react";
+import type { ReactNode } from "react";
 import { useKeyboard } from "@opentui/react";
 import { useSelector } from "@xstate/store-react";
 import type {
@@ -29,10 +22,8 @@ import {
   selectSequence,
   selectSurfaceCommandMap,
   stepsKey,
-  type CommandStore,
-  type ContextGetter,
-  type SurfaceRecord,
 } from "./command-store.js";
+import type { CommandStore, ContextGetter, SurfaceRecord } from "./command-store.js";
 
 interface CommandContextValue {
   registry: CommandRegistry;

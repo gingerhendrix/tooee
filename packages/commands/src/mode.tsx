@@ -1,12 +1,5 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useMemo,
-  useRef,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useState, useCallback, useMemo, useRef } from "react";
+import type { ReactNode } from "react";
 
 export type Mode = "cursor" | "insert" | "select";
 

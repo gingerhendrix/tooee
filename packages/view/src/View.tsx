@@ -3,7 +3,8 @@ import { useTheme } from "@tooee/themes";
 import type { ActionDefinition } from "@tooee/commands";
 import type { MarkSet } from "@tooee/marks";
 import type { CodeBlockRenderer } from "@tooee/renderers";
-import { isCustomContent, type ContentProvider, type ContentRenderer } from "./types.js";
+import { isCustomContent } from "./types.js";
+import type { ContentProvider, ContentRenderer } from "./types.js";
 import { useContentLoader } from "./hooks/useContentLoader.js";
 import {
   MarkdownSubview,

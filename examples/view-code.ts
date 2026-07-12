@@ -11,7 +11,8 @@
  * Controls: j/k scroll, q quit, t/T cycle themes
  */
 
-import { launch, type ContentProvider } from "@tooee/view";
+import { launch } from "@tooee/view";
+import type { ContentProvider } from "@tooee/view";
 
 // Create a content provider with inline TypeScript code
 const contentProvider: ContentProvider = {

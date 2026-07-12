@@ -12,7 +12,8 @@
  * Controls: j/k navigate, Enter select, / filter, Escape cancel
  */
 
-import { launch, createStaticProvider, type ChooseItem } from "@tooee/choose";
+import { launch, createStaticProvider } from "@tooee/choose";
+import type { ChooseItem } from "@tooee/choose";
 
 // Define items with icons and descriptions
 const colors: ChooseItem[] = [

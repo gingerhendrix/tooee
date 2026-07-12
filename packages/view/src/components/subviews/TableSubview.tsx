@@ -1,7 +1,9 @@
 import { useMemo } from "react";
-import { Table, type TableRow } from "@tooee/renderers";
+import { Table } from "@tooee/renderers";
+import type { TableRow } from "@tooee/renderers";
 import { useDocumentController } from "@tooee/shell";
-import { getTextContent, type TableContent } from "../../types.js";
+import { getTextContent } from "../../types.js";
+import type { TableContent } from "../../types.js";
 import { useContentCommands } from "../../hooks/useContentCommands.js";
 import { ViewScreen } from "../ViewScreen.js";
 import type { SubviewProps } from "./types.js";

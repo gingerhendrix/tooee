@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 import { TooeeProvider } from "@tooee/shell";
-import { View, type ContentProvider } from "@tooee/view";
+import { View } from "@tooee/view";
+import type { ContentProvider } from "@tooee/view";
 import { FIXTURE_TIERS, makeTableFixture } from "./lib/fixtures.ts";
 import {
   destroyRenderer,

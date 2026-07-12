@@ -9,7 +9,8 @@
  * Controls: j/k scroll, h/l columns, q quit
  */
 
-import { launch, type ContentProvider, type Content } from "@tooee/view";
+import { launch } from "@tooee/view";
+import type { ContentProvider, Content } from "@tooee/view";
 
 interface PR {
   number: number;

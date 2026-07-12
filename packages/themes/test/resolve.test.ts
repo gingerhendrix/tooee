@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { resolveTheme, type ThemeJSON } from "@tooee/themes";
+import { resolveTheme } from "@tooee/themes";
+import type { ThemeJSON } from "@tooee/themes";
 
 describe("resolveTheme", () => {
   test("returns the cycle fallback for theme keys that reference each other", () => {

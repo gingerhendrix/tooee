@@ -1,6 +1,8 @@
-import { type Token, type Tokens } from "marked";
-import { useMemo, type ReactNode, type RefObject } from "react";
-import { useTheme, type ResolvedTheme } from "@tooee/themes";
+import type { Token, Tokens } from "marked";
+import { useMemo } from "react";
+import type { ReactNode, RefObject } from "react";
+import { useTheme } from "@tooee/themes";
+import type { ResolvedTheme } from "@tooee/themes";
 import {
   bold as boldChunk,
   italic as italicChunk,
@@ -17,8 +19,10 @@ import type {
 import type { DocumentBindings } from "./DocumentBindings.js";
 import { DEFAULT_SIGN_COLUMN_WIDTH } from "./RowDocumentRenderable.js";
 import { useGutterPalette } from "./useGutterPalette.js";
-import { CodeBlock, DEFAULT_CODE_BLOCK_RENDERERS, type CodeBlockRenderer } from "./code-blocks.js";
-import { flattenMarkdown, type FlatBlock } from "./markdown-blocks.js";
+import { CodeBlock, DEFAULT_CODE_BLOCK_RENDERERS } from "./code-blocks.js";
+import type { CodeBlockRenderer } from "./code-blocks.js";
+import { flattenMarkdown } from "./markdown-blocks.js";
+import type { FlatBlock } from "./markdown-blocks.js";
 import "./row-document.js";
 import "./text-table.js";
 

@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import type { MouseEvent } from "@opentui/core";
 import { useTheme, CloseButton } from "@tooee/themes";
-import { useMode, type Mode } from "@tooee/commands";
+import { useMode } from "@tooee/commands";
+import type { Mode } from "@tooee/commands";
 
 /**
  * Default hint-bar entries for the current mode. Composites append their own

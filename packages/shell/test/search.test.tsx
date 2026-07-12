@@ -2,9 +2,11 @@ import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, describe } from "bun:test";
 import { act, useState } from "react";
 import { TooeeProvider, useNavigation } from "@tooee/shell";
-import { findMatchingLines, useSearch, type SearchState } from "@tooee/search";
+import { findMatchingLines, useSearch } from "@tooee/search";
+import type { SearchState } from "@tooee/search";
 import { useMode } from "@tooee/commands";
-import { press, pressEscape, type TestSession } from "./support/test-helpers.ts";
+import { press, pressEscape } from "./support/test-helpers.ts";
+import type { TestSession } from "./support/test-helpers.ts";
 
 describe("findMatchingLines", () => {
   test("empty query returns empty array", () => {

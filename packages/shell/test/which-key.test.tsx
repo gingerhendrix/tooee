@@ -4,7 +4,8 @@ import { TooeeProvider, WhichKeyOverlay } from "@tooee/shell";
 import { useActions, useCommand, useCommandGroup, useCommandSequenceState } from "@tooee/commands";
 import type { CommandSequenceState, ParsedStep } from "@tooee/commands";
 import { useCurrentOverlay, useHasOverlay } from "@tooee/overlays";
-import { press, type TestSession } from "./support/test-helpers.ts";
+import { press } from "./support/test-helpers.ts";
+import type { TestSession } from "./support/test-helpers.ts";
 
 function WhichKeyHarness() {
   const sequence = useCommandSequenceState();

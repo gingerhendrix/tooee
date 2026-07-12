@@ -18,8 +18,10 @@
  *   q            — quit
  */
 
-import { createElement, useMemo, useState, type ComponentType, type ReactNode } from "react";
-import { useActions, useCommandGroup, type ActionDefinition } from "@tooee/commands";
+import { createElement, useMemo, useState } from "react";
+import type { ComponentType, ReactNode } from "react";
+import { useActions, useCommandGroup } from "@tooee/commands";
+import type { ActionDefinition } from "@tooee/commands";
 import { AppLayout } from "@tooee/layout";
 import { launchCli, useQuitCommand } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";

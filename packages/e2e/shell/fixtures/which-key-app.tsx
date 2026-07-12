@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 
 import { useMemo, useState } from "react";
-import { useActions, useCommandGroup, type ActionDefinition } from "@tooee/commands";
+import { useActions, useCommandGroup } from "@tooee/commands";
+import type { ActionDefinition } from "@tooee/commands";
 import { AppLayout } from "@tooee/layout";
 import { launchCli, useQuitCommand } from "@tooee/shell";
 

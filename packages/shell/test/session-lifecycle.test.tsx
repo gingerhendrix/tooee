@@ -2,14 +2,8 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { PassThrough } from "node:stream";
 import { createTestRenderer } from "@opentui/core/testing";
 import type { CliRendererConfig } from "@opentui/core";
-import {
-  guardTerminalHealth,
-  launchCli,
-  mountTooee,
-  runCliSession,
-  type CliSessionController,
-  type TooeeSessionHandle,
-} from "../src/launch.js";
+import { guardTerminalHealth, launchCli, mountTooee, runCliSession } from "../src/launch.js";
+import type { CliSessionController, TooeeSessionHandle } from "../src/launch.js";
 
 let testRenderer: Awaited<ReturnType<typeof createTestRenderer>> | undefined;
 let sessionHandle: TooeeSessionHandle | undefined;

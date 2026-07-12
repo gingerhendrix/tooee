@@ -4,8 +4,10 @@ import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
 import { ThemeSwitcherProvider } from "@tooee/themes";
 import { MarkdownView } from "../src/MarkdownView.js";
-import { CodeBlockChrome, type CodeBlockRenderer } from "../src/code-blocks.js";
-import { useRowMouseBindings, type RowMouseCallbacks } from "./support/bindings.js";
+import { CodeBlockChrome } from "../src/code-blocks.js";
+import type { CodeBlockRenderer } from "../src/code-blocks.js";
+import { useRowMouseBindings } from "./support/bindings.js";
+import type { RowMouseCallbacks } from "./support/bindings.js";
 
 const CONTENT_X = 8;
 

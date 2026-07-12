@@ -5,7 +5,8 @@ import { TooeeProvider, useQuitCommand } from "@tooee/shell";
 import { useCommand, useMode, useSetMode, useActiveCommandSurface } from "@tooee/commands";
 import { useOverlay, useCurrentOverlay } from "@tooee/overlays";
 import type { OverlayCloseReason } from "@tooee/overlays";
-import { press, pressEnter, pressEscape, type TestSession } from "./support/test-helpers.ts";
+import { press, pressEnter, pressEscape } from "./support/test-helpers.ts";
+import type { TestSession } from "./support/test-helpers.ts";
 
 function AskSurface({
   onSubmit,

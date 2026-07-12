@@ -12,7 +12,8 @@
  *           shift+wheel also pans, q quit, t/T cycle themes
  */
 
-import { launch, type ContentProvider } from "@tooee/view";
+import { launch } from "@tooee/view";
+import type { ContentProvider } from "@tooee/view";
 
 const contentProvider: ContentProvider = {
   load: () => ({

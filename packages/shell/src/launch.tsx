@@ -1,9 +1,12 @@
 import * as fs from "node:fs";
 import * as tty from "node:tty";
 import type { ReactNode } from "react";
-import { createCliRenderer, type CliRenderer, type CliRendererConfig } from "@opentui/core";
-import { createRoot, type Root } from "@opentui/react";
-import { TooeeProvider, type TooeeProviderProps } from "./provider.js";
+import { createCliRenderer } from "@opentui/core";
+import type { CliRenderer, CliRendererConfig } from "@opentui/core";
+import { createRoot } from "@opentui/react";
+import type { Root } from "@opentui/react";
+import { TooeeProvider } from "./provider.js";
+import type { TooeeProviderProps } from "./provider.js";
 
 export type TooeeProviderOptions = Omit<TooeeProviderProps, "children">;
 

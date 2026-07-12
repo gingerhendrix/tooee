@@ -1,5 +1,7 @@
-import { marked, type Token, type Tokens } from "marked";
-import { SourceIndex, type DocumentRowSource } from "./source.js";
+import { marked } from "marked";
+import type { Token, Tokens } from "marked";
+import { SourceIndex } from "./source.js";
+import type { DocumentRowSource } from "./source.js";
 
 // ---------------------------------------------------------------------------
 // Flat block model

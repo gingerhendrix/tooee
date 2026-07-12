@@ -1,5 +1,6 @@
 import { renderMermaidASCII } from "beautiful-mermaid";
-import { parseColor, StyledText, type TextChunk } from "@opentui/core";
+import { parseColor, StyledText } from "@opentui/core";
+import type { TextChunk } from "@opentui/core";
 
 type BeautifulMermaidAsciiTheme = {
   fg?: string;

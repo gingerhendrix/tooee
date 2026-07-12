@@ -1,14 +1,18 @@
-import { useImperativeHandle, type Ref } from "react";
+import { useImperativeHandle } from "react";
+import type { Ref } from "react";
 import { AppLayout } from "@tooee/layout";
 import { useHasOverlay, useHasModalOverlay } from "@tooee/overlays";
 import { useTheme } from "@tooee/themes";
 import { useThemeCommands, useQuitCommand } from "@tooee/shell";
-import { useCommandContext, type ActionDefinition } from "@tooee/commands";
+import { useCommandContext } from "@tooee/commands";
+import type { ActionDefinition } from "@tooee/commands";
 import { ChooseFilter } from "./ChooseFilter.js";
-import { ChooseList, type ChooseListProps } from "./ChooseList.js";
+import { ChooseList } from "./ChooseList.js";
+import type { ChooseListProps } from "./ChooseList.js";
 import { buildChooseHints } from "./ChoosePanel.js";
 import type { ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.js";
-import { useChoose, type ChooseController } from "./use-choose.js";
+import { useChoose } from "./use-choose.js";
+import type { ChooseController } from "./use-choose.js";
 
 export interface ChooseProps {
   contentProvider: ChooseContentProvider;

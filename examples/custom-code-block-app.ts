@@ -24,12 +24,8 @@
  */
 
 import { createElement } from "react";
-import {
-  launch,
-  CodeBlockChrome,
-  type ContentProvider,
-  type CodeBlockRendererProps,
-} from "@tooee/view";
+import { launch, CodeBlockChrome } from "@tooee/view";
+import type { ContentProvider, CodeBlockRendererProps } from "@tooee/view";
 import type { ReactNode } from "react";
 
 type Theme = CodeBlockRendererProps["theme"];

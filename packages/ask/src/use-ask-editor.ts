@@ -14,9 +14,10 @@ import {
   useMode,
   useProvideCommandContext,
   useSetMode,
-  type Mode,
 } from "@tooee/commands";
-import { appendAtCursor, openLineAtCursor, type VimMotionState } from "./vim-motions.js";
+import type { Mode } from "@tooee/commands";
+import { appendAtCursor, openLineAtCursor } from "./vim-motions.js";
+import type { VimMotionState } from "./vim-motions.js";
 
 declare module "@tooee/commands" {
   interface CommandContext {

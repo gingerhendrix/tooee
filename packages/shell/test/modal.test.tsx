@@ -4,7 +4,8 @@ import { act } from "react";
 import { TooeeProvider, useNavigation } from "@tooee/shell";
 import { useSearch } from "@tooee/search";
 import { useMode } from "@tooee/commands";
-import { press, type TestSession } from "./support/test-helpers.ts";
+import { press } from "./support/test-helpers.ts";
+import type { TestSession } from "./support/test-helpers.ts";
 
 function ModalHarness({
   rowCount,

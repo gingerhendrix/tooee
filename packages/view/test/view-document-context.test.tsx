@@ -1,8 +1,10 @@
 import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, beforeEach, describe } from "bun:test";
 import { act } from "react";
-import { useCommandContext, type ActionDefinition, type CommandContext } from "@tooee/commands";
-import { TooeeProvider, type DocumentCommandContext } from "@tooee/shell";
+import { useCommandContext } from "@tooee/commands";
+import type { ActionDefinition, CommandContext } from "@tooee/commands";
+import { TooeeProvider } from "@tooee/shell";
+import type { DocumentCommandContext } from "@tooee/shell";
 import { View } from "../src/View.js";
 import type { ViewCommandContext } from "../src/hooks/useViewCommandContext.js";
 import type { AnyContent, ContentProvider } from "../src/types.js";

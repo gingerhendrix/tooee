@@ -4,7 +4,8 @@ import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
 import { ThemeSwitcherProvider } from "@tooee/themes";
 import { CodeView } from "../src/CodeView.js";
-import { useRowMouseBindings, type RowMouseCallbacks } from "./support/bindings.js";
+import { useRowMouseBindings } from "./support/bindings.js";
+import type { RowMouseCallbacks } from "./support/bindings.js";
 
 // The code view is a single `<code>` provider inside a row-document with no
 // header chrome, so the first line renders at viewport y=0. Gutter is line

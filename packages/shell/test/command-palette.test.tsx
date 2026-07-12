@@ -5,7 +5,8 @@ import { MouseButtons } from "@opentui/core/testing";
 import { TooeeProvider } from "@tooee/shell";
 import { useCommand, useMode } from "@tooee/commands";
 import { useCurrentOverlay, useHasOverlay } from "@tooee/overlays";
-import { press, pressEscape, type TestSession } from "./support/test-helpers.ts";
+import { press, pressEscape } from "./support/test-helpers.ts";
+import type { TestSession } from "./support/test-helpers.ts";
 
 function PaletteHarness() {
   const mode = useMode();

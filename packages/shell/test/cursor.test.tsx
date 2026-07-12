@@ -2,7 +2,8 @@ import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, describe } from "bun:test";
 import { TooeeProvider, useNavigation } from "@tooee/shell";
 import { useMode } from "@tooee/commands";
-import { press, pressTab, pressEscape, type TestSession } from "./support/test-helpers.ts";
+import { press, pressTab, pressEscape } from "./support/test-helpers.ts";
+import type { TestSession } from "./support/test-helpers.ts";
 
 function CursorHarness({ rowCount }: { rowCount: number }) {
   const nav = useNavigation({ rowCount, viewportHeight: 10, multiSelect: true });

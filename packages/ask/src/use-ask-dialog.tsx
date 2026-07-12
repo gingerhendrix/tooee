@@ -1,6 +1,8 @@
-import { useEffect, useRef, type ReactNode, type Ref } from "react";
+import { useEffect, useRef } from "react";
+import type { ReactNode, Ref } from "react";
 import type { ActionDefinition } from "@tooee/commands";
-import { useOverlay, type OverlayHandle } from "@tooee/overlays";
+import { useOverlay } from "@tooee/overlays";
+import type { OverlayHandle } from "@tooee/overlays";
 import { AskOverlay } from "./AskOverlay.js";
 import type { AskPanelProps } from "./AskPanel.js";
 import type { AskEditorController } from "./use-ask-editor.js";

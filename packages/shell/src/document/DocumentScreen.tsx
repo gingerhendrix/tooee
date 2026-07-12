@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 import { useActions, useMode } from "@tooee/commands";
 import type { ActionDefinition } from "@tooee/commands";
-import { AppLayout, type AppLayoutProps, type StatusBarItem } from "@tooee/layout";
-import { useQuitCommand, useThemeCommands, type UseQuitCommandOptions } from "../commands.js";
+import { AppLayout } from "@tooee/layout";
+import type { AppLayoutProps, StatusBarItem } from "@tooee/layout";
+import { useQuitCommand, useThemeCommands } from "../commands.js";
+import type { UseQuitCommandOptions } from "../commands.js";
 import { useProvideDocumentCommandContext } from "./command-context.js";
 import type { ProvideDocumentCommandContextOptions } from "./command-context.js";
 import type { DocumentController } from "./types.js";

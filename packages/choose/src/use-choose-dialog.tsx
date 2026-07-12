@@ -1,6 +1,8 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef } from "react";
+import type { ReactNode } from "react";
 import type { ActionDefinition } from "@tooee/commands";
-import { useOverlay, type OverlayHandle } from "@tooee/overlays";
+import { useOverlay } from "@tooee/overlays";
+import type { OverlayHandle } from "@tooee/overlays";
 import { ChooseOverlay } from "./ChooseOverlay.js";
 import type { ChooseListProps } from "./ChooseList.js";
 import type { ChoosePanelProps } from "./ChoosePanel.js";

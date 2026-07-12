@@ -4,7 +4,7 @@ import { act } from "react";
 import { TooeeProvider } from "@tooee/shell";
 import { useCommand } from "@tooee/commands";
 import { useToast } from "@tooee/toasts";
-import { type TestSession } from "./support/test-helpers.ts";
+import type { TestSession } from "./support/test-helpers.ts";
 
 function ToastContextHarness() {
   const { currentToast } = useToast();

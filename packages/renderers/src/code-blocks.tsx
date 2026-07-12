@@ -1,4 +1,5 @@
-import { useCallback, useRef, type ReactNode, type RefObject } from "react";
+import { useCallback, useRef } from "react";
+import type { ReactNode, RefObject } from "react";
 import type { ResolvedTheme } from "@tooee/themes";
 import type { MouseEvent, SyntaxStyle, TextBufferRenderable } from "@opentui/core";
 import type { Tokens } from "marked";

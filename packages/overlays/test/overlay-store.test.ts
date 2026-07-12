@@ -6,9 +6,8 @@ import {
   selectStack,
   selectStackIds,
   selectTop,
-  type OverlayClosedEmit,
-  type OverlayRecord,
 } from "../src/overlay-store.js";
+import type { OverlayClosedEmit, OverlayRecord } from "../src/overlay-store.js";
 import type { OverlayOpenOptions } from "../src/overlay-context.js";
 
 function record(id: string, options: OverlayOpenOptions = {}, prevMode = "cursor"): OverlayRecord {

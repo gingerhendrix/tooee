@@ -1,4 +1,5 @@
-import { createTestRenderer, type TestRendererOptions } from "@opentui/core/testing";
+import { createTestRenderer } from "@opentui/core/testing";
+import type { TestRendererOptions } from "@opentui/core/testing";
 import { act } from "react";
 import { createRoot } from "@opentui/react";
 

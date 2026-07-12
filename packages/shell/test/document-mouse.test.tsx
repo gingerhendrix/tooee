@@ -2,19 +2,14 @@ import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, describe, beforeEach } from "bun:test";
 import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
-import { useActions, type ActionDefinition } from "@tooee/commands";
+import { useActions } from "@tooee/commands";
+import type { ActionDefinition } from "@tooee/commands";
 import { AppLayout } from "@tooee/layout";
 import type { ContextMenuEntry } from "@tooee/renderers";
-import {
-  Document,
-  TooeeProvider,
-  useDocumentController,
-  useThemeCommands,
-  type DocumentContextMenuEvent,
-  type DocumentController,
-  type DocumentRowEvent,
-} from "@tooee/shell";
-import { press, pressEnter, type TestSession } from "./support/test-helpers.ts";
+import { Document, TooeeProvider, useDocumentController, useThemeCommands } from "@tooee/shell";
+import type { DocumentContextMenuEvent, DocumentController, DocumentRowEvent } from "@tooee/shell";
+import { press, pressEnter } from "./support/test-helpers.ts";
+import type { TestSession } from "./support/test-helpers.ts";
 
 interface Row {
   id: string;

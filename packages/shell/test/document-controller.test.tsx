@@ -8,11 +8,14 @@ import {
   DocumentDecorationPriorities,
   TooeeProvider,
   useDocumentController,
-  type DocumentController,
-  type DocumentSearchOptions,
-  type UseDocumentControllerOptions,
 } from "@tooee/shell";
-import { press, pressTab, pressEscape, type TestSession } from "./support/test-helpers.ts";
+import type {
+  DocumentController,
+  DocumentSearchOptions,
+  UseDocumentControllerOptions,
+} from "@tooee/shell";
+import { press, pressTab, pressEscape } from "./support/test-helpers.ts";
+import type { TestSession } from "./support/test-helpers.ts";
 
 interface Row {
   id: string;

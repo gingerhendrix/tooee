@@ -4,7 +4,8 @@ import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
 import { ThemeSwitcherProvider } from "@tooee/themes";
 import { Table } from "../src/Table.js";
-import { useRowMouseBindings, type RowMouseCallbacks } from "./support/bindings.js";
+import { useRowMouseBindings } from "./support/bindings.js";
+import type { RowMouseCallbacks } from "./support/bindings.js";
 
 function cols(headers: string[]) {
   return headers.map((header, index) => ({ key: `col_${index}`, header }));

@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
-import { View, type ContentProvider } from "@tooee/view";
+import { View } from "@tooee/view";
+import type { ContentProvider } from "@tooee/view";
 import { TooeeProvider } from "@tooee/shell";
 import {
   FIXTURE_TIERS,

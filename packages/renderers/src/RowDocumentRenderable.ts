@@ -1,11 +1,10 @@
-import {
-  type RenderContext,
-  type LineInfoProvider,
-  ScrollBoxRenderable,
-  type ScrollBoxOptions,
-  RGBA,
+import { ScrollBoxRenderable, RGBA } from "@opentui/core";
+import type {
+  RenderContext,
+  LineInfoProvider,
+  ScrollBoxOptions,
+  OptimizedBuffer,
 } from "@opentui/core";
-import type { OptimizedBuffer } from "@opentui/core";
 import type { DecorationLayer, RowDecoration } from "./DecorationLayer.js";
 
 // ---------------------------------------------------------------------------

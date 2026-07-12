@@ -8,10 +8,10 @@ import {
   useMode,
   useProvideCommandContext,
   useSetMode,
-  type ActionDefinition,
-  type Mode,
 } from "@tooee/commands";
-import { fuzzyFilter, type FuzzyMatch } from "./fuzzy.js";
+import type { ActionDefinition, Mode } from "@tooee/commands";
+import { fuzzyFilter } from "./fuzzy.js";
+import type { FuzzyMatch } from "./fuzzy.js";
 import { chooseSourceError, loadChooseSource } from "./source.js";
 import type { ChooseItem, ChooseResult, ChooseSource } from "./types.js";
 

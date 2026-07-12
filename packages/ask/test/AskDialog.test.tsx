@@ -3,14 +3,11 @@ import { act } from "react";
 import { useRef, useState } from "react";
 import { TooeeProvider } from "@tooee/shell";
 import { useCommand } from "@tooee/commands";
-import {
-  useCurrentOverlay,
-  useOverlay,
-  useOverlayState,
-  type OverlayController,
-} from "@tooee/overlays";
+import { useCurrentOverlay, useOverlay, useOverlayState } from "@tooee/overlays";
+import type { OverlayController } from "@tooee/overlays";
 import { testRender } from "../../../test/support/test-render.ts";
-import { useAskDialog, type AskDialogHandle } from "../src/use-ask-dialog.js";
+import { useAskDialog } from "../src/use-ask-dialog.js";
+import type { AskDialogHandle } from "../src/use-ask-dialog.js";
 
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 

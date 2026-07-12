@@ -9,7 +9,8 @@
  * Controls: j/k scroll, q quit, t/T themes
  */
 
-import { launch, type ContentProvider } from "@tooee/view";
+import { launch } from "@tooee/view";
+import type { ContentProvider } from "@tooee/view";
 
 const staged = process.argv.includes("--staged");
 

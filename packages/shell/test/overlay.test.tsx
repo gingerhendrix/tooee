@@ -5,7 +5,8 @@ import { useOverlay, useCurrentOverlay, useHasOverlay } from "@tooee/overlays";
 import type { OverlayCloseReason } from "@tooee/overlays";
 import { AppLayout } from "@tooee/layout";
 import { useCommand, useMode } from "@tooee/commands";
-import { press, pressEscape, type TestSession } from "./support/test-helpers.ts";
+import { press, pressEscape } from "./support/test-helpers.ts";
+import type { TestSession } from "./support/test-helpers.ts";
 
 const createOverlayA = () => <text content="overlay-a" />;
 const createOverlayB = () => <text content="overlay-b" />;
