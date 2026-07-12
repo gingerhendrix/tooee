@@ -36,13 +36,13 @@ function formatCellValue(value: unknown): string {
   }
 }
 
-function timeIterations(callback: () => number): { medianMs: number; lastCount: number } {
+function timeIterations(operation: () => number): { medianMs: number; lastCount: number } {
   const samples: number[] = [];
   let lastCount = 0;
 
   for (let index = 0; index < iterations; index += 1) {
     const started = performance.now();
-    lastCount = callback();
+    lastCount = operation();
     samples.push(performance.now() - started);
   }
 
