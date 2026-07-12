@@ -15,7 +15,8 @@ const branchProvider = {
   async load(): Promise<ChooseItem[]> {
     // Get current branch
     const currentProc = Bun.spawn(["git", "branch", "--show-current"]);
-    const currentBranch = (await new Response(currentProc.stdout).text()).trim();
+    const currentBranchText = await new Response(currentProc.stdout).text();
+    const currentBranch = currentBranchText.trim();
 
     // Get all local branches
     const proc = Bun.spawn(["git", "branch", "--format=%(refname:short)"]);
