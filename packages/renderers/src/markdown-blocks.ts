@@ -146,13 +146,11 @@ class MarkdownResolver {
           return -1;
         }
         n += 1;
+      } else if (h < length && md.charCodeAt(h) === code) {
+        h += 1;
+        n += 1;
       } else {
-        if (h < length && md.charCodeAt(h) === code) {
-          h += 1;
-          n += 1;
-        } else {
-          return -1;
-        }
+        return -1;
       }
     }
     return h <= bound ? h : -1;
