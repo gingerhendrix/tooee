@@ -20,7 +20,7 @@ async function launchDemo(): Promise<Session> {
     env: { ...process.env, XDG_CONFIG_HOME: TEST_CONFIG_HOME },
   });
   // Wait for the app to be ready — status bar shows "Format:"
-  await session.waitForText("Format:", { timeout: 15000 });
+  await session.waitForText("Format:", { timeout: 15_000 });
   return session;
 }
 
@@ -40,7 +40,7 @@ describe("custom code block renderers e2e", () => {
     expect(text).toContain("Deploys");
     expect(text).toContain("█");
     expect(text).not.toContain("Deploys,12");
-  }, 20000);
+  }, 20_000);
 
   test("case-insensitive match with info-string options renders custom chart", async () => {
     session = await launchDemo();
@@ -48,13 +48,13 @@ describe("custom code block renderers e2e", () => {
     // ```Chart title=Weekly matches the "chart" registration
     expect(text).toContain("Reviews");
     expect(text).not.toContain("Reviews,9");
-  }, 20000);
+  }, 20_000);
 
   test("unregistered fence falls back to the default code block", async () => {
     session = await launchDemo();
     const text = await session.text();
     expect(text).toContain('"renderer": "default"');
-  }, 20000);
+  }, 20_000);
 
   test("built-in mermaid renders via the registry", async () => {
     session = await launchDemo();
@@ -64,5 +64,5 @@ describe("custom code block renderers e2e", () => {
     expect(text).toContain("Markdown");
     expect(text).toContain("Custom Block");
     expect(text).not.toContain("graph LR");
-  }, 20000);
+  }, 20_000);
 });

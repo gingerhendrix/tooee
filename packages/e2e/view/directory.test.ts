@@ -23,7 +23,7 @@ async function launchViewDir(): Promise<Session> {
     rows: 24,
     cwd: REPO_ROOT,
   });
-  await s.waitForText("Format:", { timeout: 15000 });
+  await s.waitForText("Format:", { timeout: 15_000 });
   return s;
 }
 
@@ -33,7 +33,7 @@ describe("directory mode e2e", () => {
     const text = await session.text();
     expect(text).toContain("alpha.md");
     expect(text).toContain("1/3");
-  }, 20000);
+  }, 20_000);
 
   test("l switches to next file", async () => {
     session = await launchViewDir();
@@ -42,7 +42,7 @@ describe("directory mode e2e", () => {
     const text = await session.text();
     expect(text).toContain("beta.ts");
     expect(text).toContain("2/3");
-  }, 20000);
+  }, 20_000);
 
   test("h goes back to previous file", async () => {
     session = await launchViewDir();
@@ -53,7 +53,7 @@ describe("directory mode e2e", () => {
     const text = await session.text();
     expect(text).toContain("alpha.md");
     expect(text).toContain("1/3");
-  }, 20000);
+  }, 20_000);
 
   test("shows file count in title", async () => {
     session = await launchViewDir();
@@ -63,5 +63,5 @@ describe("directory mode e2e", () => {
     await session.waitForText("3/3", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("gamma.txt");
-  }, 20000);
+  }, 20_000);
 });

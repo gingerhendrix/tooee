@@ -29,7 +29,7 @@ describe("state caching", () => {
     // Counter should be preserved
     const text = await session.text();
     expect(text).toContain("Counter:3");
-  }, 20000);
+  }, 20_000);
 
   test("reset clears cached state", async () => {
     session = await launchRouter();
@@ -47,5 +47,5 @@ describe("state caching", () => {
     // Counter should be back to 0
     const text = await session.text();
     expect(text).toContain("Counter:0");
-  }, 20000);
+  }, 20_000);
 });

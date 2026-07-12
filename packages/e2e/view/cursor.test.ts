@@ -16,7 +16,7 @@ describe("cursor and selection e2e", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
     const text = await session.text();
     expect(text).toMatch(/Mode:\s*cursor/);
-  }, 20000);
+  }, 20_000);
 
   test("j/k move cursor immediately", async () => {
     session = await launchView("long.md");
@@ -25,7 +25,7 @@ describe("cursor and selection e2e", () => {
     await session.press("k");
     const text = await session.text();
     expect(text).toMatch(/Mode:\s*cursor/);
-  }, 20000);
+  }, 20_000);
 
   test("v enters select mode from cursor", async () => {
     session = await launchView("long.md");
@@ -34,7 +34,7 @@ describe("cursor and selection e2e", () => {
     await session.waitForText(/Mode:\s*select/, { timeout: 5000 });
     const text = await session.text();
     expect(text).toMatch(/Mode:\s*select/);
-  }, 20000);
+  }, 20_000);
 
   test("Escape exits select mode but leaves cursor active", async () => {
     session = await launchView("long.md");
@@ -46,5 +46,5 @@ describe("cursor and selection e2e", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 8000 });
     await session.writeRaw("\x1b[27u");
     await session.waitForText(/Mode:\s*cursor/, { timeout: 8000 });
-  }, 30000);
+  }, 30_000);
 });

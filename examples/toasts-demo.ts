@@ -109,7 +109,7 @@ const actions: ActionDefinition[] = [
       ctx.toast.toast({
         message: "This toast lasts 10 seconds",
         level: "info",
-        duration: 10000,
+        duration: 10_000,
       });
     },
   },

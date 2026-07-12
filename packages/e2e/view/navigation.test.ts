@@ -23,7 +23,7 @@ describe("navigation", () => {
     await session.press("j");
     const text = await session.text();
     expect(extractCursor(text)).toBe(1);
-  }, 20000);
+  }, 20_000);
 
   test("k moves cursor up after moving down", async () => {
     session = await launchView("long.md");
@@ -32,7 +32,7 @@ describe("navigation", () => {
     await session.press("k");
     const text = await session.text();
     expect(extractCursor(text)).toBe(0);
-  }, 20000);
+  }, 20_000);
 
   test("gg moves cursor to top", async () => {
     session = await launchView("long.md");
@@ -44,7 +44,7 @@ describe("navigation", () => {
     await session.type("gg");
     await session.waitForText(/section 2\./i, { timeout: 5000 });
     expect(await session.text()).toMatch(/section 2\./i);
-  }, 20000);
+  }, 20_000);
 
   test("G jumps to bottom", async () => {
     session = await launchView("long.md");
@@ -53,7 +53,7 @@ describe("navigation", () => {
     await session.waitForText("Section 70", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("Section 70");
-  }, 20000);
+  }, 20_000);
 
   test("ctrl+d moves cursor half page down", async () => {
     session = await launchView("long.md");
@@ -63,7 +63,7 @@ describe("navigation", () => {
     const text = await session.text();
     // Just verify the command works without error
     expect(text).toContain("Mode: cursor");
-  }, 20000);
+  }, 20_000);
 
   test("ctrl+u moves cursor half page up", async () => {
     session = await launchView("long.md");
@@ -75,5 +75,5 @@ describe("navigation", () => {
     await session.press(["ctrl", "u"]);
     const text = await session.text();
     expect(text).toContain("Mode: cursor");
-  }, 20000);
+  }, 20_000);
 });

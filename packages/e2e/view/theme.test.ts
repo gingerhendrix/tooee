@@ -24,13 +24,13 @@ describe("theme switching", () => {
     await session.waitForText("aura", { timeout: 5000 });
     const text = await session.text();
     expect(text).toMatch(/aura/);
-  }, 20000);
+  }, 20_000);
 
   test("picking a theme changes the active theme", async () => {
     session = await launchView("sample.md");
     const initial = extractTheme(await session.text());
     await session.press("t");
-    await session.waitForText("aura", { timeout: 10000 });
+    await session.waitForText("aura", { timeout: 10_000 });
     await session.press("down");
     await session.press("enter");
     // Wait for theme picker to close and a different previewed theme to apply.
@@ -42,5 +42,5 @@ describe("theme switching", () => {
       await new Promise((resolve) => setTimeout(resolve, 250));
     }
     expect(after).not.toBe(initial);
-  }, 20000);
+  }, 20_000);
 });

@@ -19,7 +19,7 @@ describe("code blocks inside list items", () => {
     // Code block should have border
     expect(text).toContain("\u250c"); // top-left corner
     expect(text).toContain("\u2514"); // bottom-left corner
-  }, 20000);
+  }, 20_000);
 
   test("multiple code blocks in list items all render", async () => {
     session = await launchView("list-blocks.md");
@@ -28,7 +28,7 @@ describe("code blocks inside list items", () => {
     const text = await session.text();
     expect(text).toContain("Verification step");
     expect(text).toContain("const result");
-  }, 20000);
+  }, 20_000);
 
   test("list item after code block is visible", async () => {
     session = await launchView("list-blocks.md");
@@ -36,7 +36,7 @@ describe("code blocks inside list items", () => {
     await session.waitForText("Final step", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("Final step");
-  }, 20000);
+  }, 20_000);
 });
 
 describe("tables inside list items", () => {
@@ -50,7 +50,7 @@ describe("tables inside list items", () => {
     expect(text).toContain("42ms");
     expect(text).toContain("Throughput");
     expect(text).toContain("1000rps");
-  }, 20000);
+  }, 20_000);
 
   test("list item after table is visible", async () => {
     session = await launchView("list-blocks.md");
@@ -58,7 +58,7 @@ describe("tables inside list items", () => {
     await session.waitForText("Analysis complete", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("Analysis complete");
-  }, 20000);
+  }, 20_000);
 });
 
 describe("checkbox list items", () => {
@@ -72,7 +72,7 @@ describe("checkbox list items", () => {
     expect(text).toContain("[ ]");
     expect(text).toContain("Install dependencies");
     expect(text).toContain("Deploy to production");
-  }, 20000);
+  }, 20_000);
 });
 
 describe("blockquotes inside list items", () => {
@@ -84,22 +84,22 @@ describe("blockquotes inside list items", () => {
     const text = await session.text();
     expect(text).toContain("Important note");
     expect(text).toContain("validate input");
-  }, 20000);
+  }, 20_000);
 });
 
 describe("navigation through flat blocks", () => {
   test("G jumps to final paragraph after all list content", async () => {
     session = await launchView("list-blocks.md");
     await session.press(["shift", "g"]);
-    await session.waitForText("Final paragraph", { timeout: 10000 });
+    await session.waitForText("Final paragraph", { timeout: 10_000 });
     const text = await session.text();
     expect(text).toContain("Final paragraph after all list content.");
-  }, 20000);
+  }, 20_000);
 
   test("block count matches flattened structure", async () => {
     session = await launchView("list-blocks.md");
     const text = await session.text();
     // Status bar should show cursor in mode cursor
     expect(text).toMatch(/Mode:\s*cursor/);
-  }, 20000);
+  }, 20_000);
 });

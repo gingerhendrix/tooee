@@ -19,13 +19,13 @@ describe("markdown code block rendering", () => {
     expect(text).toContain('print(f"Hello, {name}!")');
     expect(text).toContain("return True");
     expect(text).toContain("greet");
-  }, 20000);
+  }, 20_000);
 
   test("paragraph after code block is visible", async () => {
     session = await launchView("mixed-content.md");
     const text = await session.text();
     expect(text).toContain("This paragraph appears after the code block.");
-  }, 20000);
+  }, 20_000);
 
   test("code block has proper borders", async () => {
     session = await launchView("mixed-content.md");
@@ -33,7 +33,7 @@ describe("markdown code block rendering", () => {
     // Top and bottom box-drawing borders should be present
     expect(text).toContain("\u250c"); // top-left corner
     expect(text).toContain("\u2514"); // bottom-left corner
-  }, 20000);
+  }, 20_000);
 });
 
 describe("markdown table rendering", () => {
@@ -51,7 +51,7 @@ describe("markdown table rendering", () => {
     const text = await session.text();
     expect(text).toContain("Bob");
     expect(text).toContain("Carol");
-  }, 20000);
+  }, 20_000);
 
   test("paragraph after table is visible after scrolling", async () => {
     session = await launchView("mixed-content.md");
@@ -61,7 +61,7 @@ describe("markdown table rendering", () => {
     await session.waitForText("This paragraph appears after the table.", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("This paragraph appears after the table.");
-  }, 20000);
+  }, 20_000);
 });
 
 describe("mixed content positioning", () => {
@@ -81,7 +81,7 @@ describe("mixed content positioning", () => {
     expect(codeStartLine).toBeGreaterThan(headingLine);
     expect(afterCodeLine).toBeGreaterThan(codeStartLine);
     expect(tableLine).toBeGreaterThan(afterCodeLine);
-  }, 20000);
+  }, 20_000);
 
   test("after-table content is reachable by scrolling", async () => {
     session = await launchView("mixed-content.md");
@@ -91,7 +91,7 @@ describe("mixed content positioning", () => {
     await session.waitForText("paragraph appears after the table", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("paragraph appears after the table");
-  }, 20000);
+  }, 20_000);
 
   test("second code block also renders correctly", async () => {
     session = await launchView("mixed-content.md");
@@ -102,7 +102,7 @@ describe("mixed content positioning", () => {
     expect(text).toContain("simple line one");
     expect(text).toContain("simple line two");
     expect(text).toContain("simple line three");
-  }, 20000);
+  }, 20_000);
 
   test("final paragraph is reachable", async () => {
     session = await launchView("mixed-content.md");
@@ -111,7 +111,7 @@ describe("mixed content positioning", () => {
     await session.waitForText("Final paragraph", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("Final paragraph at the end of the document.");
-  }, 20000);
+  }, 20_000);
 });
 
 describe("scroll isolation on code blocks", () => {
@@ -138,7 +138,7 @@ describe("scroll isolation on code blocks", () => {
     }
     // If the code block scrolled out of view entirely, that's correct -
     // the document scrolled as expected
-  }, 20000);
+  }, 20_000);
 });
 
 describe("gutter line numbers with mixed content", () => {
@@ -157,5 +157,5 @@ describe("gutter line numbers with mixed content", () => {
     const introLine = lines.find((l) => l.includes("introductory paragraph"));
     expect(introLine).toBeDefined();
     expect(introLine).toMatch(/2.*introductory paragraph/);
-  }, 20000);
+  }, 20_000);
 });

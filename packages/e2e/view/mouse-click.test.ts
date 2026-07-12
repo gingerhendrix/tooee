@@ -33,7 +33,7 @@ describe("document mouse e2e", () => {
     const text = await session.text();
     expect(text).toMatch(/Cursor:\s*2/);
     expect(text).toMatch(/Mode:\s*cursor/);
-  }, 20000);
+  }, 20_000);
 
   test("left-click on a later line of a multi-line block selects that block", async () => {
     session = await launchView("sample.md");
@@ -54,5 +54,5 @@ describe("document mouse e2e", () => {
     await new Promise((resolve) => setTimeout(resolve, 300));
     const text = await session.text();
     expect(text).toMatch(/Cursor:\s*7/);
-  }, 20000);
+  }, 20_000);
 });

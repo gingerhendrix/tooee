@@ -20,7 +20,7 @@ async function launchDemo(): Promise<Session> {
     env: { ...process.env, XDG_CONFIG_HOME: TEST_CONFIG_HOME },
   });
   // Wait for the app to be ready — status bar shows "Format:"
-  await session.waitForText("Format:", { timeout: 15000 });
+  await session.waitForText("Format:", { timeout: 15_000 });
   return session;
 }
 
@@ -43,7 +43,7 @@ describe("custom code block app e2e", () => {
     // Callout renders its kind (from the fence info string) and body
     expect(text).toContain("WARNING");
     expect(text).toContain("Rollback window");
-  }, 20000);
+  }, 20_000);
 
   test("wide timeline clips instead of wrapping", async () => {
     session = await launchDemo();
@@ -56,7 +56,7 @@ describe("custom code block app e2e", () => {
     expect(text).not.toContain("24:00");
     // Raw fence body is not shown
     expect(text).not.toContain("checkout,0,3");
-  }, 20000);
+  }, 20_000);
 
   test("h/l pan the timeline via the hScroll opt-in", async () => {
     session = await launchDemo();
@@ -78,5 +78,5 @@ describe("custom code block app e2e", () => {
     await session.waitForText("0:00", { timeout: 8000 });
     const restored = await session.text();
     expect(restored).not.toContain("24:00");
-  }, 30000);
+  }, 30_000);
 });

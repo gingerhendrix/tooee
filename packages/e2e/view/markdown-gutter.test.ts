@@ -21,7 +21,7 @@ describe("markdown gutter e2e", () => {
       expect(text).toContain("3");
       // Content should also render
       expect(text).toContain("Hello World");
-    }, 20000);
+    }, 20_000);
 
     test("line numbers correspond to block count", async () => {
       session = await launchView("sample.md");
@@ -31,7 +31,7 @@ describe("markdown gutter e2e", () => {
       expect(text).toContain("Hello World");
       expect(text).toContain("Section Two");
       expect(text).toContain("Code Example");
-    }, 20000);
+    }, 20_000);
 
     test("line numbers align with content rows", async () => {
       session = await launchView("sample.md");
@@ -50,7 +50,7 @@ describe("markdown gutter e2e", () => {
       expect(paragraphLine).toMatch(/2.*This is a test document/);
       expect(sectionTwoLine).toBeDefined();
       expect(sectionTwoLine).toMatch(/3.*Section Two/);
-    }, 20000);
+    }, 20_000);
   });
 
   describe("cursor", () => {
@@ -62,7 +62,7 @@ describe("markdown gutter e2e", () => {
       expect(text).toContain("\u25b8");
       expect(text).toContain("Mode: cursor");
       expect(text).toContain("Cursor: 0");
-    }, 20000);
+    }, 20_000);
 
     test("cursor moves with j/k", async () => {
       session = await launchView("long.md");
@@ -79,7 +79,7 @@ describe("markdown gutter e2e", () => {
       expect(text).toMatch(/Mode:\s*cursor/);
       expect(text).toContain("\u25b8");
       expect(text).toMatch(/Cursor:\s*3/);
-    }, 20000);
+    }, 20_000);
   });
 
   describe("search", () => {
@@ -101,7 +101,7 @@ describe("markdown gutter e2e", () => {
       const text = await session.text();
       // Search match indicator should appear in the gutter
       expect(text).toContain("\u25cf");
-    }, 20000);
+    }, 20_000);
 
     test("search match count shows in search bar", async () => {
       session = await launchView("long.md");
@@ -115,10 +115,10 @@ describe("markdown gutter e2e", () => {
       }
       await session.type("Section");
       // Wait for match count to appear in search bar (N/M format)
-      await session.waitForText(/\d+\/\d+/, { timeout: 10000 });
+      await session.waitForText(/\d+\/\d+/, { timeout: 10_000 });
       const text = await session.text();
       expect(text).toMatch(/\d+\/\d+/);
-    }, 20000);
+    }, 20_000);
   });
 
   describe("selection", () => {
@@ -132,7 +132,7 @@ describe("markdown gutter e2e", () => {
       await session.press("j");
       const text = await session.text();
       expect(text).toMatch(/Mode:\s*select/);
-    }, 20000);
+    }, 20_000);
   });
 
   describe("code files", () => {
@@ -140,7 +140,7 @@ describe("markdown gutter e2e", () => {
       session = await launchView("sample.ts");
       const text = await session.text();
       expect(text).toContain("Format: code");
-    }, 20000);
+    }, 20_000);
   });
 
   describe("edge cases", () => {
@@ -149,6 +149,6 @@ describe("markdown gutter e2e", () => {
       const text = await session.text();
       expect(text).toContain("Title");
       expect(text).toContain("Format:");
-    }, 20000);
+    }, 20_000);
   });
 });

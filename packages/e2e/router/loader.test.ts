@@ -17,16 +17,16 @@ describe("loaders", () => {
     await session.waitForText("Loading...", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("Loading...");
-  }, 20000);
+  }, 20_000);
 
   test("shows loaded content after resolve", async () => {
     session = await launchRouter(["--loader-delay=200"]);
     await session.press("3");
-    await session.waitForText("Screen:slow:loaded", { timeout: 10000 });
+    await session.waitForText("Screen:slow:loaded", { timeout: 10_000 });
     const text = await session.text();
     expect(text).toContain("Screen:slow:loaded");
     expect(text).toContain("Route:slow");
-  }, 20000);
+  }, 20_000);
 
   test("shows error component on failure", async () => {
     session = await launchRouter();
@@ -34,5 +34,5 @@ describe("loaders", () => {
     await session.waitForText("Error:", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("Error:route-failed");
-  }, 20000);
+  }, 20_000);
 });

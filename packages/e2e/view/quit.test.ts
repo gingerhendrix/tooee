@@ -27,5 +27,5 @@ describe("quit", () => {
     } catch {
       // Expected — session closed
     }
-  }, 20000);
+  }, 20_000);
 });

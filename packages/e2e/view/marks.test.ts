@@ -18,7 +18,7 @@ describe("marks rendering e2e (code content)", () => {
     const text = await session.text();
     expect(text).toMatch(/Mode:\s*cursor/);
     expect(text).toContain("▸");
-  }, 20000);
+  }, 20_000);
 
   test("search highlights are visible when searching in code content", async () => {
     session = await launchView("long.ts");
@@ -43,7 +43,7 @@ describe("marks rendering e2e (code content)", () => {
     expect(text).toMatch(/Mode:\s*cursor/);
     // Search match signs (●) should be visible on non-cursor match lines
     expect(text).toContain("●");
-  }, 20000);
+  }, 20_000);
 
   test("selection highlighting works in code content", async () => {
     session = await launchView("long.ts");
@@ -59,7 +59,7 @@ describe("marks rendering e2e (code content)", () => {
     expect(text).toMatch(/Mode:\s*select/);
     // Selection should show "Selected:" count in status bar
     expect(text).toMatch(/Selected:\s*\d+/);
-  }, 20000);
+  }, 20_000);
 
   test("cursor moves correctly via marks in code content", async () => {
     session = await launchView("long.ts");
@@ -71,5 +71,5 @@ describe("marks rendering e2e (code content)", () => {
     const text = await session.text();
     // Cursor should have moved from 0
     expect(text).toMatch(/Cursor:\s*1/);
-  }, 20000);
+  }, 20_000);
 });

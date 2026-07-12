@@ -22,7 +22,7 @@ describe("nested list rendering", () => {
     expect(text).toContain("Sub-item D");
     expect(text).toContain("Sub-item E");
     expect(text).toContain("Third item");
-  }, 20000);
+  }, 20_000);
 
   test("ordered list with nested unordered sub-items", async () => {
     session = await launchView("nested-lists.md");
@@ -35,26 +35,26 @@ describe("nested list rendering", () => {
     expect(text).toContain("Detail beta");
     expect(text).toContain("Step two");
     expect(text).toContain("Detail gamma");
-  }, 20000);
+  }, 20_000);
 
   test("deeply nested lists render all levels", async () => {
     session = await launchView("nested-lists.md");
     // Jump to bottom to ensure deep nesting section is visible
     await session.press(["shift", "g"]);
-    await session.waitForText("Level three item", { timeout: 10000 });
+    await session.waitForText("Level three item", { timeout: 10_000 });
     const text = await session.text();
     expect(text).toContain("Level one");
     expect(text).toContain("Level two");
     expect(text).toContain("Level three item");
     expect(text).toContain("Back to level two");
-  }, 20000);
+  }, 20_000);
 
   test("paragraph after nested lists is visible", async () => {
     session = await launchView("nested-lists.md");
     // Jump to end (G = shift+g)
     await session.press(["shift", "g"]);
-    await session.waitForText("Paragraph after nested lists", { timeout: 10000 });
+    await session.waitForText("Paragraph after nested lists", { timeout: 10_000 });
     const text = await session.text();
     expect(text).toContain("Paragraph after nested lists.");
-  }, 20000);
+  }, 20_000);
 });

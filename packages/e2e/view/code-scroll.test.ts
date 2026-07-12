@@ -20,7 +20,7 @@ describe("wide code block horizontal scrolling e2e", () => {
     expect(text).not.toContain("Zeta terminal");
     // Block keeps its height, so following content is visible
     expect(text).toContain("After the code.");
-  }, 20000);
+  }, 20_000);
 
   test("l/h scroll the code block under the cursor horizontally", async () => {
     session = await launchView("wide-code.md");
@@ -46,5 +46,5 @@ describe("wide code block horizontal scrolling e2e", () => {
     const restored = await session.text();
     expect(restored).toContain("Alpha station");
     expect(restored).not.toContain("Zeta terminal");
-  }, 30000);
+  }, 30_000);
 });

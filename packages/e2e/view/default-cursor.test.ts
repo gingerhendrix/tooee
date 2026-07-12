@@ -16,7 +16,7 @@ describe("default cursor behavior", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
     const text = await session.text();
     expect(text).toMatch(/Mode:\s*cursor/);
-  }, 20000);
+  }, 20_000);
 
   test("j/k move cursor from startup", async () => {
     session = await launchView("long.md");
@@ -28,7 +28,7 @@ describe("default cursor behavior", () => {
     const text = await session.text();
     expect(text).toMatch(/Cursor:\s*1/);
     expect(text).toMatch(/Mode:\s*cursor/);
-  }, 20000);
+  }, 20_000);
 
   test("v enters select mode from cursor", async () => {
     session = await launchView("long.md");
@@ -37,5 +37,5 @@ describe("default cursor behavior", () => {
     await session.waitForText(/Mode:\s*select/, { timeout: 5000 });
     const text = await session.text();
     expect(text).toMatch(/Mode:\s*select/);
-  }, 20000);
+  }, 20_000);
 });

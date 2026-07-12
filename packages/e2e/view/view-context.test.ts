@@ -18,14 +18,14 @@ describe("view command context and multiselect e2e", () => {
     expect(text).toContain("Cols:");
     expect(text).toMatch(/Rows:\s*3/);
     expect(text).toMatch(/Cols:\s*3/);
-  }, 20000);
+  }, 20_000);
 
   test("table starts in cursor mode", async () => {
     session = await launchTable("data.csv");
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
     const text = await session.text();
     expect(text).toMatch(/Mode:\s*cursor/);
-  }, 20000);
+  }, 20_000);
 
   test("tab toggles selection in cursor mode on table", async () => {
     session = await launchTable("data.csv");
@@ -33,7 +33,7 @@ describe("view command context and multiselect e2e", () => {
     await session.press("tab");
     const text = await session.text();
     expect(text).toMatch(/Mode:\s*cursor/);
-  }, 20000);
+  }, 20_000);
 
   test("j/k navigate cursor in table", async () => {
     session = await launchTable("data.csv");
@@ -43,7 +43,7 @@ describe("view command context and multiselect e2e", () => {
     await session.press("k");
     const text = await session.text();
     expect(text).toMatch(/Mode:\s*cursor/);
-  }, 20000);
+  }, 20_000);
 
   test("numeric columns are right-aligned", async () => {
     session = await launchTable("data.csv");
@@ -54,7 +54,7 @@ describe("view command context and multiselect e2e", () => {
     expect(text).toContain("30");
     expect(text).toContain("25");
     expect(text).toContain("35");
-  }, 20000);
+  }, 20_000);
 
   test("table content shows in status bar", async () => {
     session = await launchTable("data.csv");
@@ -63,5 +63,5 @@ describe("view command context and multiselect e2e", () => {
     expect(text).toContain("Alice");
     expect(text).toContain("Bob");
     expect(text).toContain("Charlie");
-  }, 20000);
+  }, 20_000);
 });

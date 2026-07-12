@@ -20,7 +20,7 @@ async function launchDemo(): Promise<Session> {
     env: { ...process.env, XDG_CONFIG_HOME: TEST_CONFIG_HOME },
   });
   // Wait for the app to be ready — status bar shows "Format:"
-  await session.waitForText("Format:", { timeout: 15000 });
+  await session.waitForText("Format:", { timeout: 15_000 });
   return session;
 }
 
@@ -39,7 +39,7 @@ describe("toasts e2e", () => {
     await session.waitForText("This is an info message", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("This is an info message");
-  }, 20000);
+  }, 20_000);
 
   test("pressing 4 shows error toast", async () => {
     session = await launchDemo();
@@ -47,7 +47,7 @@ describe("toasts e2e", () => {
     await session.waitForText("Something went wrong!", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("Something went wrong!");
-  }, 20000);
+  }, 20_000);
 
   test("error toast replaces info toast", async () => {
     session = await launchDemo();
@@ -60,7 +60,7 @@ describe("toasts e2e", () => {
     expect(text).toContain("Something went wrong!");
     // Info toast should be replaced
     expect(text).not.toContain("This is an info message");
-  }, 20000);
+  }, 20_000);
 
   test("toast auto-dismisses after duration", async () => {
     session = await launchDemo();
@@ -72,7 +72,7 @@ describe("toasts e2e", () => {
     await new Promise((r) => setTimeout(r, 2500));
     const text = await session.text();
     expect(text).not.toContain("Operation completed successfully");
-  }, 20000);
+  }, 20_000);
 
   test("dedup updates toast in place", async () => {
     session = await launchDemo();
@@ -84,5 +84,5 @@ describe("toasts e2e", () => {
     const text = await session.text();
     expect(text).toContain("Pressed 2 times");
     expect(text).not.toContain("Pressed 1 time");
-  }, 20000);
+  }, 20_000);
 });

@@ -28,7 +28,7 @@ describe("search e2e", () => {
     const text = await session.text();
     // The search bar replaces the status bar so Mode: cursor is gone
     expect(text).not.toMatch(/Mode:\s*cursor/);
-  }, 20000);
+  }, 20_000);
 
   test("type query and submit search, then n navigates", async () => {
     session = await launchView("long.md");
@@ -50,7 +50,7 @@ describe("search e2e", () => {
     const afterText = await session.text();
     // Should still be in cursor mode
     expect(afterText).toMatch(/Mode:\s*cursor/);
-  }, 20000);
+  }, 20_000);
 
   test("Escape cancels search", async () => {
     session = await launchView("long.md");
@@ -68,5 +68,5 @@ describe("search e2e", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
     const text = await session.text();
     expect(text).toMatch(/Mode:\s*cursor/);
-  }, 20000);
+  }, 20_000);
 });

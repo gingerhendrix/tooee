@@ -32,7 +32,7 @@ describe("markdown scrolling", () => {
     // After scrolling down, early sections should no longer be visible
     const after = await session.text();
     expect(after).not.toMatch(/section 2\./i);
-  }, 20000);
+  }, 20_000);
 
   test("gg returns to top", async () => {
     session = await launchView("long.md");
@@ -46,7 +46,7 @@ describe("markdown scrolling", () => {
     await session.type("gg");
     await session.waitForText(/section 2\./i, { timeout: 5000 });
     expect(await session.text()).toMatch(/section 2\./i);
-  }, 20000);
+  }, 20_000);
 
   test("G scrolls to end", async () => {
     session = await launchView("long.md");
@@ -58,7 +58,7 @@ describe("markdown scrolling", () => {
     const text = await session.text();
     expect(text).toContain("Section 70");
     expect(text).not.toMatch(/section 2\./i);
-  }, 20000);
+  }, 20_000);
 });
 
 describe("code scrolling", () => {
@@ -71,7 +71,7 @@ describe("code scrolling", () => {
 
     const cursor = extractCursor(await session.text());
     expect(cursor).toBeGreaterThan(0);
-  }, 20000);
+  }, 20_000);
 
   test("gg returns cursor to 0", async () => {
     session = await launchView("long.ts");
@@ -85,7 +85,7 @@ describe("code scrolling", () => {
     await session.type("gg");
     await session.waitForText(/Cursor:\s*0/, { timeout: 5000 });
     expect(extractCursor(await session.text())).toBe(0);
-  }, 20000);
+  }, 20_000);
 
   test("G moves cursor to end", async () => {
     session = await launchView("long.ts");
@@ -96,7 +96,7 @@ describe("code scrolling", () => {
 
     const cursor = extractCursor(await session.text());
     expect(cursor).toBeGreaterThan(0);
-  }, 20000);
+  }, 20_000);
 });
 
 describe("table scrolling", () => {
@@ -114,7 +114,7 @@ describe("table scrolling", () => {
     // After scrolling, early rows should be gone
     const after = await session.text();
     expect(after).not.toMatch(/Employee 1\b/);
-  }, 20000);
+  }, 20_000);
 
   test("gg returns to top", async () => {
     session = await launchTable("long.csv");
@@ -128,7 +128,7 @@ describe("table scrolling", () => {
     await session.type("gg");
     await session.waitForText(/Employee 1\b/, { timeout: 5000 });
     expect(await session.text()).toMatch(/Employee 1\b/);
-  }, 20000);
+  }, 20_000);
 
   test("gg preserves table header visibility", async () => {
     session = await launchTable("long.csv");
@@ -151,7 +151,7 @@ describe("table scrolling", () => {
     const after = await session.text();
     expect(after).toContain("name");
     expect(after).toContain("email");
-  }, 20000);
+  }, 20_000);
 
   test("G scrolls to end", async () => {
     session = await launchTable("long.csv");
@@ -166,5 +166,5 @@ describe("table scrolling", () => {
     // and early rows should have scrolled out of view
     expect(text).not.toMatch(/Employee 1\b/);
     expect(text).toMatch(/Cursor:\s*59/);
-  }, 20000);
+  }, 20_000);
 });

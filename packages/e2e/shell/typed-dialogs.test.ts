@@ -26,7 +26,7 @@ test("ask dialog open -> type -> submit resolves the value", async () => {
   await session.press("enter");
 
   await session.waitForText("ask-result: [hi there]", { timeout: 5000 });
-}, 20000);
+}, 20_000);
 
 test("ask dialog cancel resolves null", async () => {
   session = await launch();
@@ -38,7 +38,7 @@ test("ask dialog cancel resolves null", async () => {
   await session.press("q"); // cancel
 
   await session.waitForText("ask-result: <null>", { timeout: 5000 });
-}, 20000);
+}, 20_000);
 
 test("choose dialog open -> filter -> select resolves the typed item", async () => {
   session = await launch();
@@ -49,7 +49,7 @@ test("choose dialog open -> filter -> select resolves the typed item", async () 
   await session.press("enter");
 
   await session.waitForText("choose-result: medium", { timeout: 5000 });
-}, 20000);
+}, 20_000);
 
 test("nested choose over ask suspends the editor and restores it", async () => {
   session = await launch();
@@ -68,4 +68,4 @@ test("nested choose over ask suspends the editor and restores it", async () => {
   await session.press("enter");
 
   await session.waitForText("ask-result: [use large!]", { timeout: 5000 });
-}, 20000);
+}, 20_000);

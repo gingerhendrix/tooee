@@ -20,6 +20,6 @@ export async function launchTable(fixture: string): Promise<Session> {
     cwd: REPO_ROOT,
     env: { ...process.env, XDG_CONFIG_HOME: TEST_CONFIG_HOME },
   });
-  await session.waitForText("Rows:", { timeout: 15000 });
+  await session.waitForText("Rows:", { timeout: 15_000 });
   return session;
 }

@@ -21,7 +21,7 @@ describe("table text wrapping", () => {
     // All data visible
     expect(text).toContain("Alice");
     expect(text).toContain("Charlie");
-  }, 20000);
+  }, 20_000);
 });
 
 describe("table search", () => {
@@ -35,7 +35,7 @@ describe("table search", () => {
     await session.waitForText(/\d+\/\d+/, { timeout: 5000 });
     const text = await session.text();
     expect(text).toMatch(/\d+\/\d+/);
-  }, 20000);
+  }, 20_000);
 
   test("search navigates with n", async () => {
     session = await launchTable("long.csv");
@@ -50,7 +50,7 @@ describe("table search", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
     const text = await session.text();
     expect(text).toMatch(/Mode:\s*cursor/);
-  }, 20000);
+  }, 20_000);
 });
 
 describe("table selection mode", () => {
@@ -61,7 +61,7 @@ describe("table selection mode", () => {
     await session.waitForText(/Mode:\s*select/, { timeout: 5000 });
     const text = await session.text();
     expect(text).toMatch(/Mode:\s*select/);
-  }, 20000);
+  }, 20_000);
 
   test("selection extends with j", async () => {
     session = await launchTable("data.csv");
@@ -73,7 +73,7 @@ describe("table selection mode", () => {
     const text = await session.text();
     expect(text).toMatch(/Mode:\s*select/);
     expect(text).toMatch(/Selected\s*:?\s*2/);
-  }, 20000);
+  }, 20_000);
 });
 
 describe("table sticky header", () => {
@@ -90,7 +90,7 @@ describe("table sticky header", () => {
     const text = await session.text();
     // Header should STILL be visible at the top (sticky)
     expect(text).toContain("name");
-  }, 20000);
+  }, 20_000);
 });
 
 describe("markdown inline table", () => {
@@ -109,7 +109,7 @@ describe("markdown inline table", () => {
     await session.waitForText("Carol", { timeout: 5000 });
     const scrolled = await session.text();
     expect(scrolled).toContain("Carol");
-  }, 20000);
+  }, 20_000);
 
   test("content after markdown table is positioned correctly", async () => {
     session = await launchView("mixed-content.md");
@@ -119,5 +119,5 @@ describe("markdown inline table", () => {
     await session.waitForText("This paragraph appears after the table.", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("This paragraph appears after the table.");
-  }, 20000);
+  }, 20_000);
 });

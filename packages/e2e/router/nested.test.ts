@@ -18,7 +18,7 @@ describe("nested routes", () => {
     const text = await session.text();
     expect(text).toContain("Layout:parent");
     expect(text).toContain("Child:content");
-  }, 20000);
+  }, 20_000);
 
   test("back from nested returns to previous", async () => {
     session = await launchRouter();
@@ -29,5 +29,5 @@ describe("nested routes", () => {
     const text = await session.text();
     expect(text).toContain("Screen:home");
     expect(text).not.toContain("Child:content");
-  }, 20000);
+  }, 20_000);
 });

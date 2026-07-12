@@ -29,7 +29,7 @@ describe("which-key overlay", () => {
     expect(overlayFrame).toContain("a → Artifact");
     expect(overlayFrame).toContain("r → Refresh");
     expect(overlayFrame).not.toContain("Hidden maintenance action");
-  }, 20000);
+  }, 20_000);
 
   test("group key drills the overlay down to child actions", async () => {
     session = await launchShellFixture("which-key-app.tsx");
@@ -40,7 +40,7 @@ describe("which-key overlay", () => {
     expect(overlayFrame).toContain("t → Open today stream");
     expect(overlayFrame).toContain("d → Dispatch task");
     expect(overlayFrame).not.toContain("a → Artifact");
-  }, 20000);
+  }, 20_000);
 
   test("completed leader sequence dispatches the command and hides which-key", async () => {
     session = await launchShellFixture("which-key-app.tsx");
@@ -51,7 +51,7 @@ describe("which-key overlay", () => {
 
     expect(text).toContain("last:dispatched task");
     expect(text).not.toContain("which-key:");
-  }, 20000);
+  }, 20_000);
 
   test("non-leader sequences still dispatch without showing which-key", async () => {
     session = await launchShellFixture("which-key-app.tsx");
@@ -60,5 +60,5 @@ describe("which-key overlay", () => {
     expect(frames.join("\n--- frame ---\n")).not.toContain("which-key:");
 
     await session.waitForText("last:local go", { timeout: 5000 });
-  }, 20000);
+  }, 20_000);
 });

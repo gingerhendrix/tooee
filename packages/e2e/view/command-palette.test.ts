@@ -19,7 +19,7 @@ describe("command palette", () => {
     await session.waitForText("Filter commands", { timeout: 5000 });
     const text = await session.text();
     expect(text).toMatch(/Filter commands/);
-  }, 20000);
+  }, 20_000);
 
   test("Escape closes the palette", async () => {
     session = await launchView("sample.md");
@@ -29,7 +29,7 @@ describe("command palette", () => {
     await session.waitForText(/Mode:\s*cursor/, { timeout: 5000 });
     const text = await session.text();
     expect(text).not.toMatch(/Filter commands/);
-  }, 20000);
+  }, 20_000);
 
   test("selecting a command executes it", async () => {
     // Use long.md so there's enough content to actually scroll
@@ -41,5 +41,5 @@ describe("command palette", () => {
     await session.waitForText("Section 70", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("Section 70");
-  }, 20000);
+  }, 20_000);
 });

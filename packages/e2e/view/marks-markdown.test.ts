@@ -18,7 +18,7 @@ describe("marks rendering e2e (markdown content)", () => {
     expect(text).toMatch(/Mode:\s*cursor/);
     // Cursor sign (▸) rendered via marks
     expect(text).toContain("▸");
-  }, 20000);
+  }, 20_000);
 
   test("search highlights are visible when searching in markdown content", async () => {
     session = await launchView("long.md");
@@ -37,7 +37,7 @@ describe("marks rendering e2e (markdown content)", () => {
     const text = await session.text();
     // Search match signs (●) rendered via marks
     expect(text).toContain("●");
-  }, 20000);
+  }, 20_000);
 
   test("cursor moves correctly via marks in markdown content", async () => {
     session = await launchView("long.md");
@@ -48,7 +48,7 @@ describe("marks rendering e2e (markdown content)", () => {
     await Bun.sleep(200);
     const text = await session.text();
     expect(text).toMatch(/Cursor:\s*1/);
-  }, 20000);
+  }, 20_000);
 
   test("selection highlighting works in markdown content", async () => {
     session = await launchView("long.md");
@@ -63,7 +63,7 @@ describe("marks rendering e2e (markdown content)", () => {
     expect(text).toMatch(/Mode:\s*select/);
     // Status bar may truncate spacing — match flexibly
     expect(text).toMatch(/Selected.*\d+/);
-  }, 20000);
+  }, 20_000);
 
   test("toggle marking works in markdown content", async () => {
     session = await launchView("long.md");
@@ -73,5 +73,5 @@ describe("marks rendering e2e (markdown content)", () => {
     await Bun.sleep(200);
     const text = await session.text();
     expect(text).toMatch(/Selected.*1/);
-  }, 20000);
+  }, 20_000);
 });

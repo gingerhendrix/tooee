@@ -15,7 +15,7 @@ describe("screen focus", () => {
     session = await launchRouter();
     const text = await session.text();
     expect(text).toContain("Focus:true");
-  }, 20000);
+  }, 20_000);
 
   test("pushed screen gets focus", async () => {
     session = await launchRouter();
@@ -23,7 +23,7 @@ describe("screen focus", () => {
     await session.waitForText("Screen:detail:42", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("Focus:true");
-  }, 20000);
+  }, 20_000);
 
   test("previous screen is not rendered after push", async () => {
     session = await launchRouter();
@@ -33,5 +33,5 @@ describe("screen focus", () => {
     // Home screen content should not be visible (only top of stack renders)
     expect(text).not.toContain("Screen:home");
     expect(text).toContain("Screen:detail:42");
-  }, 20000);
+  }, 20_000);
 });

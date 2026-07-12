@@ -17,4 +17,4 @@ test("owned session restores the real PTY and removes health listeners", async (
 
   const text = await session.text();
   expect(text).toContain("session cleanup complete raw=false end=0 close=0");
-}, 20000);
+}, 20_000);

@@ -20,7 +20,7 @@ describe("wide mermaid diagram horizontal scrolling e2e", () => {
     expect(text).not.toContain("Zeta terminal");
     // Block keeps its height, so following content is visible
     expect(text).toContain("After the diagram.");
-  }, 20000);
+  }, 20_000);
 
   test("l/h scroll the mermaid block under the cursor horizontally", async () => {
     session = await launchView("wide-mermaid.md");
@@ -46,5 +46,5 @@ describe("wide mermaid diagram horizontal scrolling e2e", () => {
     const restored = await session.text();
     expect(restored).toContain("Alpha station");
     expect(restored).not.toContain("Zeta terminal");
-  }, 30000);
+  }, 30_000);
 });

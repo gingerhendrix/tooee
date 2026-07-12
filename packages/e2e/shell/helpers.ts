@@ -21,7 +21,7 @@ export async function launchShellFixture(
     cwd: REPO_ROOT,
     env: { ...process.env, XDG_CONFIG_HOME: TEST_CONFIG_HOME },
   });
-  await session.waitForText(readyText, { timeout: 15000 });
+  await session.waitForText(readyText, { timeout: 15_000 });
   await Bun.sleep(150);
   return session;
 }

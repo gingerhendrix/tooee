@@ -21,7 +21,7 @@ describe("command scoping", () => {
     await session.waitForText("Screen:home", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("Screen:home");
-  }, 20000);
+  }, 20_000);
 
   test("backspace does nothing at root", async () => {
     session = await launchRouter();
@@ -33,7 +33,7 @@ describe("command scoping", () => {
     const textAfter = await session.text();
     expect(textAfter).toContain("Screen:home");
     expect(textAfter).toContain("Route:home");
-  }, 20000);
+  }, 20_000);
 
   test("route-specific commands only active on that route", async () => {
     session = await launchRouter();
@@ -47,5 +47,5 @@ describe("command scoping", () => {
     // Should still be on detail, not showing any counter
     expect(text).toContain("Screen:detail:42");
     expect(text).not.toContain("Counter:");
-  }, 20000);
+  }, 20_000);
 });
