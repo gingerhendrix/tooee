@@ -44,13 +44,15 @@ const setup = async function setup(
     kittyKeyboard?: boolean;
   } = {},
 ) {
+  const handleConfirm = opts.onConfirm;
+  const handleCancel = opts.onCancel;
   const s = await testRender(
     <TooeeProvider initialMode="insert">
       <Choose
         contentProvider={makeProvider()}
         options={{ multi: opts.multi, prompt: opts.prompt }}
-        onConfirm={opts.onConfirm}
-        onCancel={opts.onCancel}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
       />
     </TooeeProvider>,
     { height: 24, kittyKeyboard: opts.kittyKeyboard ?? true, width: 60 },
@@ -490,12 +492,13 @@ describe("Choose emptyMessage", () => {
       onCancel?: () => void;
     } = {},
   ) {
+    const handleCancel = opts.onCancel;
     const s = await testRender(
       <TooeeProvider initialMode="insert">
         <Choose
           contentProvider={makeProvider(opts.items ?? [])}
           options={{ emptyMessage: opts.emptyMessage }}
-          onCancel={opts.onCancel}
+          onCancel={handleCancel}
         />
       </TooeeProvider>,
       { height: 24, kittyKeyboard: true, width: 60 },

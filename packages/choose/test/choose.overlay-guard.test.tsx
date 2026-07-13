@@ -37,13 +37,15 @@ afterEach(() => {
 const setup = async function setup(
   opts: { onConfirm?: (r: any) => void; onCancel?: () => void } = {},
 ) {
+  const handleConfirm = opts.onConfirm;
+  const handleCancel = opts.onCancel;
   const s = await testRender(
     <TooeeProvider initialMode="insert">
       <Choose
         contentProvider={makeProvider()}
         options={{ prompt: "pick" }}
-        onConfirm={opts.onConfirm}
-        onCancel={opts.onCancel}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
       />
     </TooeeProvider>,
     { height: 30, kittyKeyboard: true, width: 80 },

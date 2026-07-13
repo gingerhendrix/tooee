@@ -80,7 +80,8 @@ export const ChooseList = function ChooseList({
       {!state.loading &&
         (state.error?.length ?? 0) === 0 &&
         state.matches.length === 0 &&
-        emptyContent != null && <ThemedLine content={emptyContent} color={theme.textMuted} />}
+        emptyContent !== null &&
+        emptyContent !== undefined && <ThemedLine content={emptyContent} color={theme.textMuted} />}
 
       {state.matches.map((match, index): ReactNode => {
         const isActive = index === state.activeIndex;

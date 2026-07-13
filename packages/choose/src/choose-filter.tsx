@@ -20,6 +20,8 @@ export const ChooseFilter = function ChooseFilter({
 }: ChooseFilterProps): ReactNode {
   const { theme } = useTheme();
   const { state, view } = choose;
+  const handleFilterInput = view.onFilterInput;
+  const handleFilterKeyDown = view.onFilterKeyDown;
 
   return (
     <box flexDirection="row" height={1} style={{ paddingLeft: 1, paddingRight: 1 }}>
@@ -29,8 +31,8 @@ export const ChooseFilter = function ChooseFilter({
         focused={view.filterFocused}
         value={state.filterQuery}
         placeholder={placeholder}
-        onInput={view.onFilterInput}
-        onKeyDown={view.onFilterKeyDown}
+        onInput={handleFilterInput}
+        onKeyDown={handleFilterKeyDown}
         backgroundColor="transparent"
         textColor={theme.text}
         placeholderColor={theme.textMuted}

@@ -59,13 +59,7 @@ afterEach(() => {
 });
 
 const deferred = function deferred<T>() {
-  let resolve!: (value: T) => void;
-  let reject!: (error: unknown) => void;
-  const promise = new Promise<T>((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-  return { promise, reject, resolve };
+  return Promise.withResolvers<T>();
 };
 
 const setup = async function setup(node: React.ReactNode) {
@@ -231,7 +225,10 @@ describe("ChooseController and normalized sources", () => {
     let replace!: () => void;
 
     const Host = function Host(): React.ReactNode {
-      const [source, setSource] = useState<ChooseSource>(() => async () => await slow.promise);
+      const [source, setSource] = useState<ChooseSource>(() => async () => {
+        const items = await slow.promise;
+        return items;
+      });
       replace = () => {
         setSource([{ text: "fresh" }]);
       };

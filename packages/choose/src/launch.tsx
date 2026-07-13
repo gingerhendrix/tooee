@@ -12,7 +12,7 @@ export interface ChooseLaunchOptions {
 export const launch = async function launch(
   opts: ChooseLaunchOptions,
 ): Promise<ChooseResult | null> {
-  return await runCliSession<ChooseResult>(
+  const result = await runCliSession<ChooseResult>(
     ({ resolve, cancel }): React.ReactNode => (
       <Choose
         contentProvider={opts.contentProvider}
@@ -28,4 +28,5 @@ export const launch = async function launch(
       stdinPolicy: "tty-if-piped",
     },
   );
+  return result;
 };

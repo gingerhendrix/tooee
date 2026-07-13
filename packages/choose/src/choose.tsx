@@ -90,16 +90,16 @@ export const Choose = function Choose({
   }
 
   const hints = buildChooseHints(choose.view.mode, { multi });
+  let titleBar: { title: string } | undefined;
+  if (options?.title !== undefined && options.title !== "") {
+    titleBar = { title: options.title };
+  } else if (options?.prompt !== undefined && options.prompt !== "") {
+    titleBar = { title: options.prompt };
+  }
 
   return (
     <AppLayout
-      titleBar={
-        options?.title !== undefined && options.title !== ""
-          ? { title: options.title }
-          : options?.prompt !== undefined && options.prompt !== ""
-            ? { title: options.prompt }
-            : undefined
-      }
+      titleBar={titleBar}
       statusBar={{
         items: [
           {

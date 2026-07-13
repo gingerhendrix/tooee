@@ -100,7 +100,7 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
 
   const [items, setItems] = useState<ChooseItem[]>(initialItems);
   const [filterQuery, setFilterQuery] = useState(initialFilter);
-  const [activeIndex, setActiveIndexState] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [selectedOriginalIndices, setSelectedOriginalIndices] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(!Array.isArray(source));
   const [error, setError] = useState<string | null>(null);
@@ -120,7 +120,10 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
       const item = items[index];
       return item === undefined ? [] : [item];
     });
-    return selected.length > 0 ? selected : activeItem === undefined ? [] : [activeItem];
+    if (selected.length > 0) {
+      return selected;
+    }
+    return activeItem === undefined ? [] : [activeItem];
   }, [multi, activeItem, selectedOriginalIndices, items]);
 
   const mode = useMode();
@@ -151,7 +154,7 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     activeIndexRef.current = 0;
     selectedRef.current = new Set();
     setItems(nextItems);
-    setActiveIndexState(0);
+    setActiveIndex(0);
     setSelectedOriginalIndices(selectedRef.current);
   }, []);
 
@@ -159,6 +162,9 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     requestIdRef.current += 1;
     const requestId = requestIdRef.current;
     let active = true;
+    const deactivate = () => {
+      active = false;
+    };
     let result: ChooseItem[] | Promise<ChooseItem[]>;
 
     // Direct arrays seed state during the first render. Avoid a redundant
@@ -170,7 +176,7 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     ) {
       didHandleInitialSourceRef.current = true;
       setLoading(false);
-      return;
+      return deactivate;
     }
     didHandleInitialSourceRef.current = true;
 
@@ -179,41 +185,40 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
       result = loadChooseSource(source);
     } catch (loadError) {
       if (requestId !== requestIdRef.current) {
-        return;
+        return deactivate;
       }
       replaceItems([]);
       setError(chooseSourceError(loadError));
       setLoading(false);
-      return;
+      return deactivate;
     }
 
     if (result instanceof Promise) {
       setLoading(true);
-      void result.then(
-        (loaded) => {
+      void (async () => {
+        try {
+          const loaded = await result;
           if (!active || requestId !== requestIdRef.current) {
             return;
           }
           replaceItems(loaded);
           setError(null);
           setLoading(false);
-        },
-        (loadError: unknown) => {
+        } catch (loadError) {
           if (!active || requestId !== requestIdRef.current) {
             return;
           }
           replaceItems([]);
           setError(chooseSourceError(loadError));
           setLoading(false);
-        },
-      );
-      return () => {
-        active = false;
-      };
+        }
+      })();
+      return deactivate;
     }
 
     replaceItems(result);
     setLoading(false);
+    return deactivate;
   }, [source, reloadRevision, replaceItems]);
 
   const setFilter = useCallback((query: string) => {
@@ -227,22 +232,22 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     matchesRef.current = fuzzyFilter(itemsRef.current, query);
     activeIndexRef.current = 0;
     setFilterQuery(query);
-    setActiveIndexState(0);
+    setActiveIndex(0);
   }, []);
 
-  const setActiveIndex = useCallback((index: number) => {
+  const updateActiveIndex = useCallback((index: number) => {
     const lastIndex = Math.max(0, matchesRef.current.length - 1);
     const next = Math.min(lastIndex, Math.max(0, index));
     activeIndexRef.current = next;
-    setActiveIndexState(next);
+    setActiveIndex(next);
   }, []);
 
   const moveUp = useCallback(() => {
-    setActiveIndex(activeIndexRef.current - 1);
-  }, [setActiveIndex]);
+    updateActiveIndex(activeIndexRef.current - 1);
+  }, [updateActiveIndex]);
   const moveDown = useCallback(() => {
-    setActiveIndex(activeIndexRef.current + 1);
-  }, [setActiveIndex]);
+    updateActiveIndex(activeIndexRef.current + 1);
+  }, [updateActiveIndex]);
 
   const getActiveItem = useCallback(() => matchesRef.current[activeIndexRef.current]?.item, []);
 
@@ -255,7 +260,10 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
       const item = itemsRef.current[index];
       return item === undefined ? [] : [item];
     });
-    return selected.length > 0 ? selected : active === undefined ? [] : [active];
+    if (selected.length > 0) {
+      return selected;
+    }
+    return active === undefined ? [] : [active];
   }, [getActiveItem]);
 
   const toggleActive = useCallback(() => {
@@ -471,28 +479,26 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
   );
 
   const controllerRef = useRef<ChooseController | null>(null);
-  if (controllerRef.current === null) {
-    controllerRef.current = {
-      cancel,
-      clearFilter: () => {
-        setFilter("");
-      },
-      getActiveItem,
-      getFilter: () => filterQueryRef.current,
-      getSelectedItems,
-      get mode() {
-        return modeRef.current;
-      },
-      moveDown,
-      moveUp,
-      reload,
-      setActiveIndex,
-      setFilter,
-      setMode: setModeExternal,
-      submit,
-      toggleActive,
-    };
-  }
+  controllerRef.current ??= {
+    cancel,
+    clearFilter: () => {
+      setFilter("");
+    },
+    getActiveItem,
+    getFilter: () => filterQueryRef.current,
+    getSelectedItems,
+    get mode() {
+      return modeRef.current;
+    },
+    moveDown,
+    moveUp,
+    reload,
+    setActiveIndex: updateActiveIndex,
+    setFilter,
+    setMode: setModeExternal,
+    submit,
+    toggleActive,
+  };
 
   return {
     controller: controllerRef.current,

@@ -108,122 +108,127 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
   if (handleRef.current === null) {
     const open = async (
       options: ChooseDialogOptionsBase<T> & { toItem?: (item: T) => ChooseItem },
-    ): Promise<T | T[] | null> =>
-      await new Promise<T | T[] | null>((resolvePromise) => {
-        if (unmountedRef.current) {
-          resolvePromise(null);
+    ): Promise<T | T[] | null> => {
+      const { promise, resolve } = Promise.withResolvers<T | T[] | null>();
+      if (unmountedRef.current) {
+        resolve(null);
+        return null;
+      }
+
+      chooseDialogSequence += 1;
+      const id = `choose-dialog-${chooseDialogSequence}`;
+      let settled = false;
+      const settle = (value: T | T[] | null) => {
+        if (settled) {
           return;
         }
+        settled = true;
+        openHandlesRef.current.delete(id);
+        resolve(value);
+      };
 
-        chooseDialogSequence += 1;
-        const id = `choose-dialog-${chooseDialogSequence}`;
-        let settled = false;
-        const settle = (value: T | T[] | null) => {
-          if (settled) {
-            return;
-          }
-          settled = true;
-          openHandlesRef.current.delete(id);
-          resolvePromise(value);
-        };
+      // Displayed rows map back to typed items by identity: every mapped
+      // row is a fresh object (spread copy), so duplicates in `items` and
+      // `toItem` results that share references stay unambiguous.
+      // Safe default: `toItem` may only be omitted when T is a ChooseItem
+      // (enforced by ChooseDialogToItem).
+      // Deferred(lint-sweep): replace the conditional generic API boundary with schema-safe overload implementation typing.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- default mapper is enforced by ChooseDialogToItem's public type
+      const toItem = options.toItem ?? ((item: T) => item as unknown as ChooseItem);
+      const rowToValue = new Map<ChooseItem, T>();
+      const mapValues = (values: readonly T[]): ChooseItem[] => {
+        rowToValue.clear();
+        return values.map((value) => {
+          const row = { ...toItem(value) };
+          rowToValue.set(row, value);
+          return row;
+        });
+      };
 
-        // Displayed rows map back to typed items by identity: every mapped
-        // row is a fresh object (spread copy), so duplicates in `items` and
-        // `toItem` results that share references stay unambiguous.
-        // Safe default: `toItem` may only be omitted when T is a ChooseItem
-        // (enforced by ChooseDialogToItem).
-        // Deferred(lint-sweep): replace the conditional generic API boundary with schema-safe overload implementation typing.
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- default mapper is enforced by ChooseDialogToItem's public type
-        const toItem = options.toItem ?? ((item: T) => item as unknown as ChooseItem);
-        const rowToValue = new Map<ChooseItem, T>();
-        const mapValues = (values: readonly T[]): ChooseItem[] => {
-          rowToValue.clear();
-          return values.map((value) => {
-            const row = { ...toItem(value) };
-            rowToValue.set(row, value);
-            return row;
-          });
-        };
+      // Created once per open() so the source identity is stable across
+      // overlay re-renders (a fresh source each render would reload forever).
+      const { items } = options;
+      const source: ChooseSource = Array.isArray(items)
+        ? mapValues(items as readonly T[])
+        : (): ChooseItem[] | Promise<ChooseItem[]> => {
+            // Deferred(lint-sweep): replace the conditional generic API boundary with schema-safe overload implementation typing.
+            // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- implementation narrows the public source union after the branch
+            const loaded = (items as () => readonly T[] | Promise<readonly T[]>)();
+            if (loaded instanceof Promise) {
+              return (async () => mapValues(await loaded))();
+            }
+            return mapValues(loaded);
+          };
 
-        // Created once per open() so the source identity is stable across
-        // overlay re-renders (a fresh source each render would reload forever).
-        const { items } = options;
-        const source: ChooseSource = Array.isArray(items)
-          ? mapValues(items as readonly T[])
-          : (): ChooseItem[] | Promise<ChooseItem[]> => {
-              // Deferred(lint-sweep): replace the conditional generic API boundary with schema-safe overload implementation typing.
-              // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- implementation narrows the public source union after the branch
-              const loaded = (items as () => readonly T[] | Promise<readonly T[]>)();
-              return loaded instanceof Promise ? loaded.then(mapValues) : mapValues(loaded);
-            };
+      const multi = options.multi === true;
+      const shared = {
+        commands: options.commands,
+        emptyMessage: options.emptyMessage,
+        footer: options.footer,
+        hints: options.hints,
+        inset: options.inset,
+        items: source,
+        placeholder: options.placeholder,
+        prompt: options.prompt,
+        renderItem: options.renderItem,
+        statusRight: options.statusRight,
+      };
 
-        const multi = options.multi === true;
-        const shared = {
-          commands: options.commands,
-          emptyMessage: options.emptyMessage,
-          footer: options.footer,
-          hints: options.hints,
-          inset: options.inset,
-          items: source,
-          placeholder: options.placeholder,
-          prompt: options.prompt,
-          renderItem: options.renderItem,
-          statusRight: options.statusRight,
-        };
-
-        const handle = overlayRef.current.open(
-          id,
-          (): ReactNode =>
-            multi ? (
-              <ChooseOverlay
-                {...shared}
-                multi
-                onSubmit={(result) => {
-                  if (settled) {
-                    return;
-                  }
-                  const values = result.items.flatMap((row) => {
-                    const value = rowToValue.get(row);
-                    return value === undefined ? [] : [value];
-                  });
-                  settle(values);
-                  handle.close("close");
-                }}
-                onCancel={() => {
-                  handle.close("escape");
-                }}
-              />
-            ) : (
-              <ChooseOverlay
-                {...shared}
-                onSelect={(row) => {
-                  if (settled) {
-                    return;
-                  }
+      const handle = overlayRef.current.open(
+        id,
+        (): ReactNode =>
+          multi ? (
+            <ChooseOverlay
+              {...shared}
+              multi
+              onSubmit={(result) => {
+                if (settled) {
+                  return;
+                }
+                const values = result.items.flatMap((row) => {
                   const value = rowToValue.get(row);
-                  settle(value === undefined ? null : value);
-                  handle.close("close");
-                }}
-                onCancel={() => {
-                  handle.close("escape");
-                }}
-              />
-            ),
-          undefined,
-          {
-            // Single settlement funnel: every close path (cancel, escape,
-            // replacement, unmount, external closeTop) lands here. Select and
-            // submit settle first, making this a no-op.
-            onClose: () => {
-              settle(null);
-            },
-            ownCommands: true,
-            role: "modal",
-            surfaceMode: "insert",
+                  return value === undefined ? [] : [value];
+                });
+                settle(values);
+                handle.close("close");
+              }}
+              onCancel={() => {
+                handle.close("escape");
+              }}
+            />
+          ) : (
+            <ChooseOverlay
+              {...shared}
+              onSelect={(row) => {
+                if (settled) {
+                  return;
+                }
+                const value = rowToValue.get(row);
+                settle(value ?? null);
+                handle.close("close");
+              }}
+              onCancel={() => {
+                handle.close("escape");
+              }}
+            />
+          ),
+        undefined,
+        {
+          // Single settlement funnel: every close path (cancel, escape,
+          // replacement, unmount, external closeTop) lands here. Select and
+          // submit settle first, making this a no-op.
+          onClose: () => {
+            settle(null);
           },
-        );
-        openHandlesRef.current.set(id, handle);
-      });
+          ownCommands: true,
+          role: "modal",
+          surfaceMode: "insert",
+        },
+      );
+      openHandlesRef.current.set(id, handle);
+      const result = await promise;
+      return result;
+    };
 
     // Deferred(lint-sweep): replace the conditional generic API boundary with schema-safe overload implementation typing.
     // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- implementation preserves the public overloaded handle contract

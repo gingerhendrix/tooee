@@ -15,13 +15,7 @@ afterEach(() => {
 });
 
 const deferred = function deferred<T>() {
-  let resolve!: (value: T) => void;
-  let reject!: (err: unknown) => void;
-  const promise = new Promise<T>((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-  return { promise, reject, resolve };
+  return Promise.withResolvers<T>();
 };
 
 const flush = async function flush(s: TestSession) {
@@ -34,7 +28,10 @@ const flush = async function flush(s: TestSession) {
 describe("Choose async load (R-02)", () => {
   test("load rejection shows an error instead of eternal Loading", async () => {
     const provider: ChooseContentProvider = {
-      load: async () => await Promise.reject(new Error("boom")),
+      load: async () => {
+        const items = await Promise.reject<ChooseItem[]>(new Error("boom"));
+        return items;
+      },
     };
     testSetup = await testRender(
       <TooeeProvider initialMode="insert">
@@ -71,7 +68,12 @@ describe("Choose async load (R-02)", () => {
 
   test("stale results from a replaced provider are ignored", async () => {
     const slow = deferred<ChooseItem[]>();
-    const slowProvider: ChooseContentProvider = { load: async () => await slow.promise };
+    const slowProvider: ChooseContentProvider = {
+      load: async () => {
+        const items = await slow.promise;
+        return items;
+      },
+    };
     const fastProvider: ChooseContentProvider = { load: () => [{ text: "fresh-item" }] };
 
     let swap!: () => void;
@@ -111,7 +113,12 @@ describe("Choose async load (R-02)", () => {
 
   test("stale rejection from a replaced provider is ignored", async () => {
     const slow = deferred<ChooseItem[]>();
-    const slowProvider: ChooseContentProvider = { load: async () => await slow.promise };
+    const slowProvider: ChooseContentProvider = {
+      load: async () => {
+        const items = await slow.promise;
+        return items;
+      },
+    };
     const fastProvider: ChooseContentProvider = { load: () => [{ text: "fresh-item" }] };
 
     let swap!: () => void;
@@ -153,7 +160,10 @@ describe("ChooseOverlay async load (R-02)", () => {
     testSetup = await testRender(
       <TooeeProvider initialMode="insert">
         <ChooseOverlay
-          items={async () => await Promise.reject(new Error("overlay boom"))}
+          items={async () => {
+            const items = await Promise.reject<ChooseItem[]>(new Error("overlay boom"));
+            return items;
+          }}
           onSelect={() => {}}
           onCancel={() => {}}
         />
