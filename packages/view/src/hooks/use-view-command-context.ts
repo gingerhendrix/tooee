@@ -31,7 +31,9 @@ declare module "@tooee/commands" {
   }
 }
 
-const noop = () => {};
+const noop = () => {
+  // Optional command-context operations default to intentional no-ops.
+};
 
 export interface CreateViewCommandContextOptions {
   /**

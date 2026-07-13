@@ -52,9 +52,9 @@ export const MarkdownSubview = function MarkdownSubview({
 
   const hScrollableBlocksRef = useRef<Map<number, TextBufferRenderable>>(new Map());
   const cursorScrollable = () =>
-    document.activeIndex !== null
-      ? hScrollableBlocksRef.current.get(document.activeIndex)
-      : undefined;
+    document.activeIndex === null
+      ? undefined
+      : hScrollableBlocksRef.current.get(document.activeIndex);
   useCommand({
     handler: () => {
       const target = cursorScrollable();
@@ -66,7 +66,7 @@ export const MarkdownSubview = function MarkdownSubview({
     id: "block-scroll-left",
     modes: ["cursor"],
     title: "Scroll block left",
-    when: () => cursorScrollable() != null,
+    when: () => cursorScrollable() !== undefined,
   });
   useCommand({
     handler: () => {
@@ -79,7 +79,7 @@ export const MarkdownSubview = function MarkdownSubview({
     id: "block-scroll-right",
     modes: ["cursor"],
     title: "Scroll block right",
-    when: () => cursorScrollable() != null,
+    when: () => cursorScrollable() !== undefined,
   });
 
   const statusItems = useMemo(

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useSelector } from "@xstate/store-react";
 import type { ContentProvider } from "../types.js";
 import {
@@ -14,7 +14,7 @@ import {
 } from "../content-loader-store.js";
 
 export const useContentLoader = function useContentLoader(contentProvider: ContentProvider) {
-  const [store] = useState(createContentLoaderStore);
+  const store = useMemo(createContentLoaderStore, []);
   const loadSeq = useSelector(store, (snapshot) => selectLoadSeq(snapshot.context));
 
   useEffect(() => {
@@ -24,6 +24,9 @@ export const useContentLoader = function useContentLoader(contentProvider: Conte
     });
     const requestId = store.getSnapshot().context.requestId;
     const loaded = contentProvider.load();
+    let cleanup: () => void = () => {
+      // Synchronous providers have no pending work to cancel.
+    };
 
     if (isAsyncIterable(loaded)) {
       store.trigger.streamStarted({
@@ -47,26 +50,33 @@ export const useContentLoader = function useContentLoader(contentProvider: Conte
           store.trigger.loadFailed({ error: normalizeError(error), requestId });
         }
       })();
-      return () => {
+      cleanup = () => {
         store.trigger.loadCancelled({ requestId });
-        Promise.resolve(iterator.return?.()).catch(() => {});
+        void (async () => {
+          try {
+            await iterator.return?.();
+          } catch {
+            // Iterator cleanup is best-effort during effect disposal.
+          }
+        })();
       };
-    }
-
-    if (loaded instanceof Promise) {
-      loaded
-        .then((content) => {
+    } else if (loaded instanceof Promise) {
+      void (async () => {
+        try {
+          const content = await loaded;
           store.trigger.loaded({ content, requestId });
-        })
-        .catch((error: unknown) => {
+        } catch (error) {
           store.trigger.loadFailed({ error: normalizeError(error), requestId });
-        });
-      return () => {
+        }
+      })();
+      cleanup = () => {
         store.trigger.loadCancelled({ requestId });
       };
+    } else {
+      store.trigger.loaded({ content: loaded, requestId });
     }
 
-    store.trigger.loaded({ content: loaded, requestId });
+    return cleanup;
   }, [contentProvider, loadSeq, store]);
 
   const content = useSelector(store, (snapshot) => selectContent(snapshot.context));

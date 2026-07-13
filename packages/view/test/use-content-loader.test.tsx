@@ -49,16 +49,17 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
       [Symbol.asyncIterator]() {
         let first = true;
         return {
-          next: async () => {
+          next: async (): Promise<IteratorResult<ContentChunk>> => {
+            await Promise.resolve();
             if (first) {
               first = false;
-              return await {
+              return {
                 done: false as const,
                 value: { data: "hello", format: "text" as const, type: "append" as const },
               };
             }
             // Long-lived stream: never yields again
-            return await new Promise<IteratorResult<ContentChunk>>(() => {});
+            return Promise.withResolvers<IteratorResult<ContentChunk>>().promise;
           },
           return: () => {
             returned = true;
@@ -154,10 +155,12 @@ describe("useContentLoader reload and request identity", () => {
     const resolvers: ((value: { format: "text"; text: string }) => void)[] = [];
     let reload!: () => void;
     const provider: ContentProvider = {
-      load: async () =>
-        await new Promise((resolve) => {
-          resolvers.push(resolve);
-        }),
+      load: async (): Promise<{ format: "text"; text: string }> => {
+        const { promise, resolve } = Promise.withResolvers<{ format: "text"; text: string }>();
+        resolvers.push(resolve);
+        await Promise.resolve();
+        return promise;
+      },
     };
     const Harness = function Harness(): React.ReactNode {
       const result = useContentLoader(provider);
@@ -195,17 +198,19 @@ describe("useContentLoader reload and request identity", () => {
           return {
             [Symbol.asyncIterator]() {
               return {
-                async next() {
+                async next(): Promise<IteratorResult<ContentChunk>> {
+                  await Promise.resolve();
                   if (first) {
                     first = false;
-                    return await {
+                    return {
                       done: false as const,
                       value: { data: "old", format: "text" as const, type: "append" as const },
                     };
                   }
-                  return await new Promise<IteratorResult<ContentChunk>>((resolve) => {
-                    resolveOldNext = resolve;
-                  });
+                  const { promise, resolve } =
+                    Promise.withResolvers<IteratorResult<ContentChunk>>();
+                  resolveOldNext = resolve;
+                  return promise;
                 },
                 return() {
                   oldReturned = true;

@@ -144,9 +144,9 @@ export const createContentLoaderStore = function createContentLoaderStore() {
         return { ...ctx, content: applyContentChunk(ctx.content, event.chunk, ctx.title) };
       },
       loadCancelled: (ctx, event) =>
-        event.requestId !== ctx.requestId ? ctx : { ...ctx, requestId: ctx.requestId + 1 },
+        event.requestId === ctx.requestId ? { ...ctx, requestId: ctx.requestId + 1 } : ctx,
       loadFailed: (ctx, event) =>
-        event.requestId !== ctx.requestId ? ctx : { ...ctx, error: event.error, status: "error" },
+        event.requestId === ctx.requestId ? { ...ctx, error: event.error, status: "error" } : ctx,
       loadStarted: (ctx, event) => ({
         ...ctx,
         error: null,
@@ -156,20 +156,20 @@ export const createContentLoaderStore = function createContentLoaderStore() {
         title: event.title,
       }),
       loaded: (ctx, event) =>
-        event.requestId !== ctx.requestId
-          ? ctx
-          : { ...ctx, content: event.content, status: "ready" },
+        event.requestId === ctx.requestId
+          ? { ...ctx, content: event.content, status: "ready" }
+          : ctx,
       reloadRequested: (ctx) => ({ ...ctx, loadSeq: ctx.loadSeq + 1 }),
       streamEnded: (ctx, event) =>
-        event.requestId !== ctx.requestId ? ctx : { ...ctx, status: "ready" },
+        event.requestId === ctx.requestId ? { ...ctx, status: "ready" } : ctx,
       streamStarted: (ctx, event) =>
-        event.requestId !== ctx.requestId
-          ? ctx
-          : {
+        event.requestId === ctx.requestId
+          ? {
               ...ctx,
               content: createEmptyContent(event.format, ctx.title),
               status: "streaming",
-            },
+            }
+          : ctx,
     },
   });
 };
