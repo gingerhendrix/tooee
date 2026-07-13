@@ -22,10 +22,27 @@ const stringifyRowCell = function stringifyRowCell(value: unknown): string {
   if (typeof value === "number" || typeof value === "boolean") {
     return String(value);
   }
+  if (typeof value === "string") {
+    return value;
+  }
+  if (
+    typeof value === "number" ||
+    typeof value === "bigint" ||
+    typeof value === "boolean" ||
+    typeof value === "symbol"
+  ) {
+    return value.toString();
+  }
+  if (value === null || value === undefined) {
+    return String(value);
+  }
+  if (typeof value === "function") {
+    return Function.prototype.toString.call(value);
+  }
   try {
     return JSON.stringify(value);
   } catch {
-    return Object.prototype.toString.call(value);
+    return Array.isArray(value) ? value.join(",") : Object.prototype.toString.call(value);
   }
 };
 

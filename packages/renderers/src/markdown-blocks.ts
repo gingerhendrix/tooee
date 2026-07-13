@@ -339,7 +339,7 @@ export const flattenMarkdown = function flattenMarkdown(
  * The unmapped low-level form: flatten already-lexed tokens with no source
  * provenance (every block's `source` is `null`).
  *
- * Prefer `flattenMarkdown(source)` for source-backed rows. Tokens
+ * @deprecated Prefer `flattenMarkdown(source)` for source-backed rows. Tokens
  * carry no positions and the original source is unavailable here, so offsets
  * cannot be reconstructed.
  */
