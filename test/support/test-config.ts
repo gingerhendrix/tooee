@@ -1,15 +1,15 @@
 import { mkdirSync, rmSync } from "node:fs";
-import { join, resolve } from "node:path";
+import path from "node:path";
 
-const REPO_ROOT = resolve(import.meta.dir, "../..");
-const BASE_DIR = join(REPO_ROOT, ".tmp", "test-config");
+const REPO_ROOT = path.resolve(import.meta.dir, "../..");
+const BASE_DIR = path.join(REPO_ROOT, ".tmp", "test-config");
 
 const resolveHome = function resolveHome(namespace: string): string {
-  return join(BASE_DIR, namespace);
+  return path.join(BASE_DIR, namespace);
 };
 
 const resolveTooeeDir = function resolveTooeeDir(namespace: string): string {
-  return join(resolveHome(namespace), "tooee");
+  return path.join(resolveHome(namespace), "tooee");
 };
 
 export const ensureTestConfigHome = function ensureTestConfigHome(namespace: string): string {

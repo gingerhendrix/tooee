@@ -4,9 +4,7 @@ import { act } from "react";
 import { createRoot } from "@opentui/react";
 
 const setIsReactActEnvironment = function setIsReactActEnvironment(isReactActEnvironment: boolean) {
-  // Deferred(lint-sweep): replace the global React test flag with a typed test-runtime API
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the test renderer requires this undocumented global
-  (globalThis as any).IS_REACT_ACT_ENVIRONMENT = isReactActEnvironment;
+  globalThis.IS_REACT_ACT_ENVIRONMENT = isReactActEnvironment;
 };
 
 export const testRender = async function testRender(

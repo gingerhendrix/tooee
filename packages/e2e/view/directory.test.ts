@@ -1,11 +1,11 @@
 import { describe, test, expect, afterEach } from "bun:test";
 import { launchTerminal } from "tuistory";
 import type { Session } from "tuistory";
-import { resolve } from "node:path";
+import path from "node:path";
 
-const REPO_ROOT = resolve(import.meta.dir, "../../..");
-const CLI = resolve(REPO_ROOT, "apps/cli/src/main.ts");
-const TEST_DIR = resolve(REPO_ROOT, "packages/view/test/fixtures/test-dir");
+const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
+const CLI = path.resolve(REPO_ROOT, "apps/cli/src/main.ts");
+const TEST_DIR = path.resolve(REPO_ROOT, "packages/view/test/fixtures/test-dir");
 
 let session: Session;
 

@@ -14,7 +14,7 @@ afterEach(() => {
 
 const extractCursor = function extractCursor(text: string): number {
   const match = /Cursor:\s*(?<cursor>\d+)/u.exec(text);
-  return match?.groups ? Number.parseInt(match.groups.cursor, 10) : -1;
+  return match?.groups ? Math.trunc(Number(match.groups.cursor)) : -1;
 };
 
 describe("navigation", () => {
