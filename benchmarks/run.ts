@@ -86,13 +86,13 @@ const parseArgs = function parseArgs(args: string[]): RunOptions {
 
 const parseMetrics = function parseMetrics(output: string): Map<string, number> {
   const metrics = new Map<string, number>();
-  const metricPattern = /^METRIC\s+([A-Za-z0-9_.:-]+)=(-?\d+(?:\.\d+)?)$/u;
+  const metricPattern = /^METRIC\s+(?<metric>[A-Za-z0-9_.:-]+)=(?<value>-?\d+(?:\.\d+)?)$/u;
 
   for (const line of output.split(/\r?\n/u)) {
     const match = metricPattern.exec(line.trim());
     if (match) {
-      const metric = match[1];
-      const value = match[2];
+      const metric = match.groups?.metric;
+      const value = match.groups?.value;
       if (metric === undefined || value === undefined) {
         throw new Error(`Invalid metric line: ${line}`);
       }

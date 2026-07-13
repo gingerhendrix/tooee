@@ -14,17 +14,11 @@
 import { launch } from "@tooee/view";
 import type { ContentProvider, ContentChunk } from "@tooee/view";
 
-// Helper to create a delay
-const sleep = async (ms: number) =>
-  await new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-
 // Create a streaming content provider
 const contentProvider: ContentProvider = {
   async *load(): AsyncIterable<ContentChunk> {
     yield { data: "Processing: ", format: "markdown", type: "append" };
-    await sleep(200);
+    await Bun.sleep(200);
 
     // Stream the response character by character
     const response =
@@ -34,7 +28,7 @@ const contentProvider: ContentProvider = {
       yield { data: char, format: "markdown", type: "append" };
       // Deferred(lint-sweep): preserve character-by-character streaming order
       // oxlint-disable-next-line no-await-in-loop -- each delay follows the yielded character
-      await sleep(20);
+      await Bun.sleep(20);
     }
 
     yield { data: "\n", format: "markdown", type: "append" };

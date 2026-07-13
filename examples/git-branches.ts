@@ -36,10 +36,16 @@ const branchProvider = {
     return branches.map((branch) => {
       const isCurrent = branch === currentBranch;
       const isMain = branch === "main" || branch === "master";
+      let icon = "\u{25CB}";
+      if (isCurrent) {
+        icon = "\u{2713}";
+      } else if (isMain) {
+        icon = "\u{25CF}";
+      }
 
       return {
         description: isCurrent ? "current" : undefined,
-        icon: isCurrent ? "\u{2713}" : isMain ? "\u{25CF}" : "\u{25CB}",
+        icon,
         text: branch,
         value: branch,
       };

@@ -156,9 +156,7 @@ const streamContent = async function* streamContent(): AsyncIterable<ContentChun
   };
 
   // After a short delay, stream in "hot path" analysis marks
-  await new Promise((resolve) => {
-    setTimeout(resolve, 1500);
-  });
+  await Bun.sleep(1500);
 
   const hotPathBuilder = new MarkSetBuilder();
   // Highlight the hot path range (handleRequest body, lines 17-39)
@@ -174,9 +172,7 @@ const streamContent = async function* streamContent(): AsyncIterable<ContentChun
   };
 
   // After another delay, stream in "coverage" marks
-  await new Promise((resolve) => {
-    setTimeout(resolve, 1500);
-  });
+  await Bun.sleep(1500);
 
   const coverageBuilder = new MarkSetBuilder();
   // Mark uncovered lines (the TODO block)
@@ -232,7 +228,7 @@ const actions: ActionDefinition[] = [
   {
     handler: (ctx) => {
       const line = ctx.document?.cursor;
-      if (line == null) {
+      if (line === null || line === undefined) {
         return;
       }
 
@@ -258,7 +254,7 @@ const actions: ActionDefinition[] = [
   {
     handler: (ctx) => {
       const line = ctx.document?.cursor;
-      if (line == null) {
+      if (line === null || line === undefined) {
         return;
       }
 

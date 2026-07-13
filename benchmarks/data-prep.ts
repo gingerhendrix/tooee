@@ -17,7 +17,7 @@ const median = function median(values: number[]): number {
 };
 
 const formatCellValue = function formatCellValue(value: unknown): string {
-  if (value == null) {
+  if (value === null || value === undefined) {
     return "";
   }
   if (typeof value === "string") {

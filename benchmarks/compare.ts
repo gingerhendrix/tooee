@@ -136,12 +136,10 @@ const compareRuns = function compareRuns(
     }
 
     const delta = candidateMetric.median - baselineMetric.median;
-    const ratio =
-      baselineMetric.median === 0
-        ? candidateMetric.median === 0
-          ? 1
-          : Infinity
-        : candidateMetric.median / baselineMetric.median;
+    let ratio = candidateMetric.median / baselineMetric.median;
+    if (baselineMetric.median === 0) {
+      ratio = candidateMetric.median === 0 ? 1 : Infinity;
+    }
     const percent = baselineMetric.median === 0 ? 0 : (ratio - 1) * 100;
     const threshold = baselineMetric.threshold;
     const thresholdExceeded = Boolean(
@@ -187,11 +185,12 @@ const printComparisons = function printComparisons(comparisons: MetricComparison
   console.log("\n| Metric | Baseline | Candidate | Delta | Change | Status |");
   console.log("|---|---:|---:|---:|---:|---|");
   for (const comparison of comparisons) {
-    const status = comparison.thresholdExceeded
-      ? "REGRESSION"
-      : comparison.delta < 0
-        ? "better"
-        : "ok";
+    let status = "ok";
+    if (comparison.thresholdExceeded) {
+      status = "REGRESSION";
+    } else if (comparison.delta < 0) {
+      status = "better";
+    }
     console.log(
       `| ${comparison.name} | ${formatValue(comparison.baseline.median, comparison.unit)} | ${formatValue(comparison.candidate.median, comparison.unit)} | ${formatDelta(comparison.delta, comparison.unit)} | ${comparison.percent >= 0 ? "+" : ""}${comparison.percent.toFixed(1)}% | ${status} |`,
     );
