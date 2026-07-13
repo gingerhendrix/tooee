@@ -50,16 +50,13 @@ const setup = async function setup(
 ) {
   const handleConfirm = opts.onConfirm;
   const handleCancel = opts.onCancel;
-  const callbacks: {
-    onCancel?: () => void;
-    onConfirm?: (result: ChooseResult) => void;
-  } = { onCancel: handleCancel, onConfirm: handleConfirm };
   const s = await testRender(
     <TooeeProvider initialMode="insert">
       <Choose
         contentProvider={makeProvider()}
         options={{ multi: opts.multi, prompt: opts.prompt }}
-        {...callbacks}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
       />
     </TooeeProvider>,
     { height: 24, kittyKeyboard: opts.kittyKeyboard ?? true, width: 60 },
@@ -500,13 +497,12 @@ describe("Choose emptyMessage", () => {
     } = {},
   ) {
     const handleCancel = opts.onCancel;
-    const callbacks: { onCancel?: () => void } = { onCancel: handleCancel };
     const s = await testRender(
       <TooeeProvider initialMode="insert">
         <Choose
           contentProvider={makeProvider(opts.items ?? [])}
           options={{ emptyMessage: opts.emptyMessage }}
-          {...callbacks}
+          onCancel={handleCancel}
         />
       </TooeeProvider>,
       { height: 24, kittyKeyboard: true, width: 60 },

@@ -38,7 +38,7 @@ const NestedHost = function NestedHost({
       onCancel={() => {}}
     >
       {open && (
-        <CommandSurfaceProvider {...{ role: "modal" }} id="choose-test.child" initialMode="cursor">
+        <CommandSurfaceProvider id="choose-test.child" role="modal" initialMode="cursor">
           <ChildSurface
             close={() => {
               setOpen(false);
@@ -379,11 +379,6 @@ describe("shared commands, context, and surfaces", () => {
     const provider: ChooseContentProvider = { load: () => [{ text: "alpha" }] };
     let actionItem = "";
     let confirms = 0;
-    const callbacks: { onConfirm: () => void } = {
-      onConfirm: () => {
-        confirms += 1;
-      },
-    };
     testSetup = await setup(
       <Choose
         contentProvider={provider}
@@ -396,7 +391,9 @@ describe("shared commands, context, and surfaces", () => {
             title: "Submit",
           },
         ]}
-        {...callbacks}
+        onConfirm={() => {
+          confirms += 1;
+        }}
       />,
     );
 

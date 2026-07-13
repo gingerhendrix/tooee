@@ -29,23 +29,16 @@ export interface ChooseProps {
   onCancel?: () => void;
 }
 
-interface ChooseRuntimeProps extends Omit<ChooseProps, "onCancel" | "onConfirm"> {
-  onConfirm?: (result: ChooseResult) => void;
-  onCancel?: () => void;
-}
-
-export const Choose = function Choose(props: ChooseProps): React.ReactNode {
-  const runtimeProps: ChooseRuntimeProps = props;
-  const {
-    contentProvider,
-    options,
-    actions,
-    commands,
-    controllerRef,
-    renderItem,
-    onConfirm,
-    onCancel,
-  } = runtimeProps;
+export const Choose = function Choose({
+  contentProvider,
+  options,
+  actions,
+  commands,
+  controllerRef,
+  renderItem,
+  onConfirm,
+  onCancel,
+}: ChooseProps): React.ReactNode {
   const { theme } = useTheme();
   const { invoke } = useCommandContext();
   const effectiveCommands = commands ?? actions;

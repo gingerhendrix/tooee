@@ -43,13 +43,14 @@ const setup = async function setup(
 ) {
   const handleConfirm = opts.onConfirm;
   const handleCancel = opts.onCancel;
-  const callbacks: {
-    onCancel?: () => void;
-    onConfirm?: (result: ChooseResult) => void;
-  } = { onCancel: handleCancel, onConfirm: handleConfirm };
   const s = await testRender(
     <TooeeProvider initialMode="insert">
-      <Choose contentProvider={makeProvider()} options={{ prompt: "pick" }} {...callbacks} />
+      <Choose
+        contentProvider={makeProvider()}
+        options={{ prompt: "pick" }}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </TooeeProvider>,
     { height: 30, kittyKeyboard: true, width: 80 },
   );
