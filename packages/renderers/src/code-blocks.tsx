@@ -113,6 +113,7 @@ export const defaultCodeBlockRenderer: CodeBlockRenderer = ({
   indent,
   hScroll,
 }): ReactNode => {
+  const { register, onMouseScroll: handleMouseScroll } = hScroll;
   const lineCount = text.split("\n").length;
   // Code lines never wrap (wrapMode "none") — wide code blocks and ASCII
   // diagrams pan horizontally via the renderable's own viewport (`scrollX`)
@@ -121,12 +122,12 @@ export const defaultCodeBlockRenderer: CodeBlockRenderer = ({
   return (
     <CodeBlockChrome theme={theme} indent={indent}>
       <code
-        ref={hScroll.register}
+        ref={register}
         content={text}
         filetype={info}
         syntaxStyle={syntax}
         wrapMode="none"
-        onMouseScroll={hScroll.onMouseScroll}
+        onMouseScroll={handleMouseScroll}
         style={{ height: lineCount }}
       />
     </CodeBlockChrome>
@@ -149,6 +150,7 @@ export const mermaidCodeBlockRenderer: CodeBlockRenderer = ({
   indent,
   hScroll,
 }): ReactNode => {
+  const { register, onMouseScroll: handleMouseScroll } = hScroll;
   const mermaidTheme = {
     accent: theme.accent,
     arrow: theme.accent,
@@ -176,10 +178,10 @@ export const mermaidCodeBlockRenderer: CodeBlockRenderer = ({
   return (
     <CodeBlockChrome theme={theme} indent={indent}>
       <text
-        ref={hScroll.register}
+        ref={register}
         content={result.content}
         wrapMode="none"
-        onMouseScroll={hScroll.onMouseScroll}
+        onMouseScroll={handleMouseScroll}
         style={{ fg: theme.markdownText, height: lineCount }}
       />
     </CodeBlockChrome>

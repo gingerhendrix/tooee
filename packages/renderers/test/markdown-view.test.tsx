@@ -22,17 +22,20 @@ const overrideRenderer: CodeBlockRenderer = ({ theme }): React.ReactNode => (
   <text content="custom mermaid override" fg={theme.accent} />
 );
 
-const hScrollRenderer: CodeBlockRenderer = ({ text, theme, indent, hScroll }): React.ReactNode => (
-  <box style={{ marginBottom: 1, marginLeft: 1 + indent }}>
-    <text
-      ref={hScroll.register}
-      content={text}
-      wrapMode="none"
-      onMouseScroll={hScroll.onMouseScroll}
-      style={{ fg: theme.markdownText, height: 1 }}
-    />
-  </box>
-);
+const hScrollRenderer: CodeBlockRenderer = ({ text, theme, indent, hScroll }): React.ReactNode => {
+  const { register, onMouseScroll: handleMouseScroll } = hScroll;
+  return (
+    <box style={{ marginBottom: 1, marginLeft: 1 + indent }}>
+      <text
+        ref={register}
+        content={text}
+        wrapMode="none"
+        onMouseScroll={handleMouseScroll}
+        style={{ fg: theme.markdownText, height: 1 }}
+      />
+    </box>
+  );
+};
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
@@ -56,7 +59,7 @@ const createMarkdownDocument = function createMarkdownDocument(opts: {
     sets.push(builder.build("selection", MarkPriorities.SELECTION));
   }
 
-  if (opts.activeBlock != null) {
+  if (opts.activeBlock !== undefined) {
     const builder = new MarkSetBuilder();
     builder.addLine(opts.activeBlock, {
       background: "#111111",
@@ -127,7 +130,7 @@ test("converts mermaid ANSI output into styled plain text", () => {
   expect(result.text).toContain("Agent");
   expect(result.text).toContain("Stream");
   expect(result.text).not.toContain("\u001B[");
-  expect(result.content.chunks.some((chunk) => chunk.fg != null)).toBe(true);
+  expect(result.content.chunks.some((chunk) => chunk.fg !== undefined)).toBe(true);
 });
 
 test("parses truecolor SGR ANSI into StyledText chunks", () => {
@@ -135,9 +138,9 @@ test("parses truecolor SGR ANSI into StyledText chunks", () => {
 
   expect(parsed.text).toBe("plain red text");
   expect(parsed.content.chunks.map((chunk) => chunk.text).join("")).toBe("plain red text");
-  expect(parsed.content.chunks.some((chunk) => chunk.text === "red" && chunk.fg != null)).toBe(
-    true,
-  );
+  expect(
+    parsed.content.chunks.some((chunk) => chunk.text === "red" && chunk.fg !== undefined),
+  ).toBe(true);
 });
 
 test("renders mermaid fences as terminal diagrams", async () => {

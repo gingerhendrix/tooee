@@ -25,7 +25,7 @@ export interface MermaidRenderOptions {
 }
 
 // oxlint-disable-next-line no-control-regex -- ANSI SGR sequences start with the ESC control character
-const SGR_SEQUENCE = /\u001B\[([0-9;]*)m/gu;
+const SGR_SEQUENCE = /\u001B\[(?<params>[0-9;]*)m/gu;
 
 /**
  * Marked may include extra info-string content after the language. Treat only
@@ -112,7 +112,7 @@ export const ansiToStyledText = function ansiToStyledText(input: string): {
     appendStyledChunk(chunks, literal, currentFg);
     plainText += literal;
 
-    currentFg = updateAnsiForeground(sgrParams(match[1] ?? ""), currentFg);
+    currentFg = updateAnsiForeground(sgrParams(match.groups?.params ?? ""), currentFg);
     cursor = index + match[0].length;
   }
 

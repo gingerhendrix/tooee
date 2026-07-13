@@ -21,7 +21,7 @@ import { DEFAULT_SIGN_COLUMN_WIDTH } from "./row-document-renderable.js";
 import { useGutterPalette } from "./use-gutter-palette.js";
 import { CodeBlock, DEFAULT_CODE_BLOCK_RENDERERS } from "./code-blocks.js";
 import type { CodeBlockRenderer } from "./code-blocks.js";
-import { flattenMarkdown } from "./markdown-blocks.js";
+import { checkboxMarker, flattenMarkdown } from "./markdown-blocks.js";
 import type { FlatBlock } from "./markdown-blocks.js";
 import "./row-document.js";
 import "./text-table.js";
@@ -245,7 +245,7 @@ const ListLineRenderer = function ListLineRenderer({
   theme: ResolvedTheme;
 }): ReactNode {
   const { token, indent, bullet, checked } = block;
-  const checkboxPrefix = checked !== undefined ? (checked ? "[x] " : "[ ] ") : "";
+  const checkboxPrefix = checkboxMarker(checked);
 
   // Get inline tokens from the text/paragraph token
   const inlineTokens: Token[] =
@@ -254,6 +254,14 @@ const ListLineRenderer = function ListLineRenderer({
   const hasText = "text" in token && typeof token.text === "string" && token.text.length > 0;
   const hasContent = inlineTokens.length > 0 || hasText;
 
+  let content: ReactNode = null;
+  if (inlineTokens.length > 0) {
+    // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
+    content = <InlineTokens tokens={inlineTokens} theme={theme} />;
+  } else if (hasText) {
+    content = "text" in token ? token.text : "";
+  }
+
   return (
     <box style={{ marginLeft: 1 + indent, marginRight: 1 }}>
       <text style={{ fg: theme.markdownText }}>
@@ -261,17 +269,7 @@ const ListLineRenderer = function ListLineRenderer({
         {checkboxPrefix !== "" && (
           <span fg={checked === true ? theme.accent : theme.textMuted}>{checkboxPrefix}</span>
         )}
-        {hasContent &&
-          (inlineTokens.length > 0 ? (
-            /* oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization */
-            <InlineTokens tokens={inlineTokens} theme={theme} />
-          ) : hasText ? (
-            "text" in token ? (
-              token.text
-            ) : (
-              ""
-            )
-          ) : null)}
+        {hasContent && content}
       </text>
     </box>
   );

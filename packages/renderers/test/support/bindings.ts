@@ -10,7 +10,13 @@ const NO_DECORATIONS: readonly DecorationLayer[] = [];
 export const decorationBindings = function decorationBindings(
   decorations: readonly DecorationLayer[],
 ): DocumentBindings {
-  return { decorations, onMouseDown() {}, ref: { current: null } };
+  return {
+    decorations,
+    onMouseDown() {
+      // Paint-only: these bindings deliberately ignore mouse input.
+    },
+    ref: { current: null },
+  };
 };
 
 export interface RowMouseCallbacks {
@@ -32,7 +38,7 @@ export const useRowMouseBindings = function useRowMouseBindings({
     decorations: NO_DECORATIONS,
     onMouseDown(event: MouseEvent) {
       const row = ref.current?.getRowAtScreenY(event.y);
-      if (row == null) {
+      if (row === null || row === undefined) {
         return;
       }
       if (event.button === 0) {

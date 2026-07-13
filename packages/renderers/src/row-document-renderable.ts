@@ -220,13 +220,13 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   getRowAtVirtualY(y: number): number {
     const clamped = Math.max(0, Math.min(y, this._virtualRowToRow.length - 1));
     const row = this._virtualRowToRow[clamped];
-    if (row != null && row >= 0) {
+    if (row >= 0) {
       return row;
     }
     // Gap row — search backward for nearest valid row
     for (let i = clamped - 1; i >= 0; i -= 1) {
       const r = this._virtualRowToRow[i];
-      if (r != null && r >= 0) {
+      if (r >= 0) {
         return r;
       }
     }

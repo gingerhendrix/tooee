@@ -5,6 +5,9 @@ import type { DocumentRowSource } from "./source.js";
 
 const LINE_FEED_CODE = 10;
 
+/** Leading indent, bullet/ordinal marker, and optional checkbox on a list item's first line. */
+const LIST_MARKER = /^(?<indent>\s*)(?:[-*+]|\d+[.)])[ \t]*(?:\[[ xX]\])?/u;
+
 // ---------------------------------------------------------------------------
 // Flat block model
 // ---------------------------------------------------------------------------
@@ -34,6 +37,17 @@ const syntheticTextToken = function syntheticTextToken(): Token {
 };
 
 /**
+ * Task-list marker for a bullet row. Rows that are not checkbox items have no
+ * marker. Not re-exported from the package index — internal to the renderers.
+ */
+export const checkboxMarker = function checkboxMarker(checked: boolean | undefined): string {
+  if (checked === undefined) {
+    return "";
+  }
+  return checked ? "[x] " : "[ ] ";
+};
+
+/**
  * The visible/searchable text for a block. Non-synthetic blocks use the token's
  * `raw`; synthetic bullet rows (empty raw) fall back to the visible
  * bullet/checkbox text, then to the resolved source text. This keeps default
@@ -45,8 +59,7 @@ export const getFlatBlockText = function getFlatBlockText(block: FlatBlock): str
     return raw;
   }
   if (block.bullet !== undefined) {
-    const checkbox = block.checked !== undefined ? (block.checked ? "[x] " : "[ ] ") : "";
-    return block.bullet + checkbox;
+    return block.bullet + checkboxMarker(block.checked);
   }
   return block.source?.primary.text ?? "";
 };
@@ -161,11 +174,11 @@ class MarkdownResolver {
     const nl = this.markdown.indexOf("\n", itemStart);
     const lineEnd = nl === -1 ? itemEnd : Math.min(nl, itemEnd);
     const firstLine = this.markdown.slice(itemStart, lineEnd);
-    const match = firstLine.match(/^(\s*)(?:[-*+]|\d+[.)])[ \t]*(?:\[[ xX]\])?/u);
+    const match = LIST_MARKER.exec(firstLine);
     if (!match) {
       return { primary: this.index.span(itemStart, itemStart, false) };
     }
-    const markerStart = itemStart + match[1].length;
+    const markerStart = itemStart + (match.groups?.indent ?? "").length;
     let spanEnd = itemStart + match[0].length;
     while (spanEnd > markerStart) {
       const code = this.markdown.charCodeAt(spanEnd - 1);

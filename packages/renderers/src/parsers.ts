@@ -114,7 +114,9 @@ export const detectFormat = function detectFormat(input: string): Format {
       if (Array.isArray(parsed)) {
         return "json";
       }
-    } catch {}
+    } catch {
+      // Not valid JSON — fall through to the delimiter sniffing below.
+    }
   }
   const firstLine = input.split("\n")[0] ?? "";
   if (firstLine.includes("\t")) {
