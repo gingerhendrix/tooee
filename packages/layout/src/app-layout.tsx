@@ -28,6 +28,17 @@ export interface AppLayoutProps {
   children: ReactNode;
 }
 
+const hasRenderableOverlay = function hasRenderableOverlay(overlay: ReactNode): boolean {
+  return (
+    overlay !== null &&
+    overlay !== undefined &&
+    overlay !== false &&
+    overlay !== "" &&
+    overlay !== 0 &&
+    overlay !== 0n
+  );
+};
+
 export const AppLayout = function AppLayout({
   titleBar,
   statusBar,
@@ -39,11 +50,18 @@ export const AppLayout = function AppLayout({
 }: AppLayoutProps): ReactNode {
   const { theme } = useTheme();
   const contextOverlay = useCurrentOverlay();
+  const compatibilitySurfaceProps: {
+    id: string;
+    initialMode: "insert";
+    role: "modal";
+  } = {
+    id: "app-layout.overlay",
+    initialMode: "insert",
+    role: "modal",
+  };
   const compatibilityOverlay =
     overlay === null || overlay === undefined ? null : (
-      <CommandSurfaceProvider id="app-layout.overlay" role="modal" initialMode="insert">
-        {overlay}
-      </CommandSurfaceProvider>
+      <CommandSurfaceProvider {...compatibilitySurfaceProps}>{overlay}</CommandSurfaceProvider>
     );
   const handleSearchQueryChange = (query: string): void => {
     searchBar?.setSearchQuery(query);
@@ -68,18 +86,7 @@ export const AppLayout = function AppLayout({
         ) : (
           <box style={{ flexGrow: 1, overflow: "hidden" }}>{children}</box>
         )}
-        {((contextOverlay !== null &&
-          contextOverlay !== undefined &&
-          contextOverlay !== false &&
-          contextOverlay !== "" &&
-          contextOverlay !== 0 &&
-          contextOverlay !== 0n) ||
-          (compatibilityOverlay !== null &&
-            compatibilityOverlay !== undefined &&
-            compatibilityOverlay !== false &&
-            compatibilityOverlay !== "" &&
-            compatibilityOverlay !== 0 &&
-            compatibilityOverlay !== 0n)) && (
+        {(hasRenderableOverlay(contextOverlay) || hasRenderableOverlay(compatibilityOverlay)) && (
           <box position="absolute" left={0} top={0} width="100%" height="100%">
             {contextOverlay}
             {compatibilityOverlay}

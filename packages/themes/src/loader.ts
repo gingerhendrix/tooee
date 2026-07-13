@@ -1,6 +1,6 @@
 import type { SyntaxStyle } from "@opentui/core";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
-import { join, basename, dirname } from "node:path";
+import path from "node:path";
 import { resolveTheme } from "./types.js";
 import type { ThemeJSON, ResolvedTheme } from "./types.js";
 import { buildSyntaxStyle } from "./syntax-rules.js";
@@ -31,9 +31,9 @@ const loadJsonThemesFromDir = function loadJsonThemesFromDir(
       if (!file.endsWith(".json")) {
         continue;
       }
-      const name = basename(file, ".json");
+      const name = path.basename(file, ".json");
       try {
-        const content = readFileSync(join(dir, file), "utf-8");
+        const content = readFileSync(path.join(dir, file), "utf-8");
         // Deferred(lint-sweep): replace with schema-based validation of untrusted JSON
         // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- untrusted external JSON, validated in a later sweep
         target.set(name, JSON.parse(content) as ThemeJSON);
@@ -53,20 +53,20 @@ const loadBundledThemes = function loadBundledThemes(): Map<string, ThemeJSON> {
   }
 
   // Bundled themes
-  const bundledDir = join(dirname(new URL(import.meta.url).pathname), "..", "themes");
+  const bundledDir = path.join(path.dirname(new URL(import.meta.url).pathname), "..", "themes");
   loadJsonThemesFromDir(bundledDir, themeJsonCache);
 
   // XDG config: ~/.config/tooee/themes/
-  const xdgConfig = process.env.XDG_CONFIG_HOME ?? join(process.env.HOME ?? "", ".config");
-  loadJsonThemesFromDir(join(xdgConfig, "tooee", "themes"), themeJsonCache);
+  const xdgConfig = process.env.XDG_CONFIG_HOME ?? path.join(process.env.HOME ?? "", ".config");
+  loadJsonThemesFromDir(path.join(xdgConfig, "tooee", "themes"), themeJsonCache);
 
   // Project-local: search upward for .tooee/themes/
   let dir = process.cwd();
   const seen = new Set<string>();
   while (dir && !seen.has(dir)) {
     seen.add(dir);
-    loadJsonThemesFromDir(join(dir, ".tooee", "themes"), themeJsonCache);
-    const parent = dirname(dir);
+    loadJsonThemesFromDir(path.join(dir, ".tooee", "themes"), themeJsonCache);
+    const parent = path.dirname(dir);
     if (parent === dir) {
       break;
     }

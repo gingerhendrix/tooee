@@ -56,7 +56,11 @@ export const createRouter = function createRouter(options: RouterOptions): Route
       return state.stack.length > 1;
     },
     get currentRoute(): StackEntry {
-      return state.stack[state.stack.length - 1];
+      const currentRoute = state.stack.at(-1);
+      if (currentRoute === undefined) {
+        throw new Error("Router stack is empty");
+      }
+      return currentRoute;
     },
     getRouteDefinition(routeId) {
       return routeMap.get(routeId);

@@ -1,5 +1,5 @@
 export class StateCache {
-  private cache = new Map<string, unknown>();
+  private readonly cache = new Map<string, unknown>();
 
   save(key: string, state: unknown): void {
     this.cache.set(key, state);

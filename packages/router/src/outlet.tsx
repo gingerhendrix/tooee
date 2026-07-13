@@ -40,7 +40,7 @@ const RouteRenderer = function RouteRenderer({
   const [loaderError, setLoaderError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const loader = routeDef.loader;
+    const { loader } = routeDef;
     let cancelled = false;
     if (loader !== undefined) {
       setLoading(true);
@@ -87,7 +87,7 @@ export const Outlet = function Outlet(): ReactNode {
   const stack = useRouterStack();
   const depth = useContext(OutletDepthContext);
 
-  const topEntry = stack[stack.length - 1];
+  const topEntry = stack.at(-1);
   if (topEntry === undefined) {
     return null;
   }

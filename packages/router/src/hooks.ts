@@ -33,7 +33,7 @@ export const useNavigate = function useNavigate() {
 
 export const useParams = function useParams<T = Record<string, unknown>>(): T {
   const stack = useRouterStack();
-  const entry = stack[stack.length - 1];
+  const entry = stack.at(-1);
   // Deferred(lint-sweep): typed routes/keys redesign (separate stream)
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- caller-selected T over unknown storage
   return (entry?.params ?? {}) as T;
@@ -45,7 +45,11 @@ export const useRouteData = function useRouteData<T = unknown>(): T | undefined 
 
 export const useCurrentRoute = function useCurrentRoute(): StackEntry {
   const stack = useRouterStack();
-  return stack[stack.length - 1];
+  const currentRoute = stack.at(-1);
+  if (currentRoute === undefined) {
+    throw new Error("Router stack is empty");
+  }
+  return currentRoute;
 };
 
 export const useCanGoBack = function useCanGoBack(): boolean {

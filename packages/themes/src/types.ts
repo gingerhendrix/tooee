@@ -2,14 +2,15 @@
 // Theme JSON format (OpenCode-compatible)
 // ---------------------------------------------------------------------------
 
-type HexColor = `#${string}`;
-type RefName = string;
-type Variant = { dark: HexColor | RefName; light: HexColor | RefName };
-type ColorValue = HexColor | RefName | Variant;
+interface Variant {
+  dark: string;
+  light: string;
+}
+type ColorValue = string | Variant;
 
 export interface ThemeJSON {
   $schema?: string;
-  defs?: Record<string, HexColor | RefName>;
+  defs?: Record<string, string>;
   theme: Record<string, ColorValue>;
 }
 
