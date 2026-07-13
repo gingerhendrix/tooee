@@ -27,38 +27,32 @@ const TypedDialogsApp = function TypedDialogsApp(): React.ReactNode {
   const [chooseResult, setChooseResult] = useState("pending");
 
   useCommand({
-    handler: () => {
-      void ask
-        .open({
-          commands: [
-            {
-              handler: () => {
-                void choose
-                  .open({
-                    items: MODELS,
-                    prompt: "Pick a model",
-                    toItem: (model) => ({ text: model.label }),
-                  })
-                  .then((model) => {
-                    setChooseResult(model === null ? "<null>" : model.id);
-                    if (model !== null) {
-                      controllerRef.current?.insertText(model.id);
-                    }
-                  });
-              },
-              hotkey: "ctrl+p",
-              id: "pick-model",
-              modes: ["insert", "cursor"],
-              title: "Pick model",
+    handler: async () => {
+      const value = await ask.open({
+        commands: [
+          {
+            handler: async () => {
+              const selectedModel = await choose.open({
+                items: MODELS,
+                prompt: "Pick a model",
+                toItem: (item) => ({ text: item.label }),
+              });
+              setChooseResult(selectedModel === null ? "<null>" : selectedModel.id);
+              if (selectedModel !== null) {
+                controllerRef.current?.insertText(selectedModel.id);
+              }
             },
-          ],
-          controllerRef,
-          multiline: false,
-          prompt: "Type something",
-        })
-        .then((value) => {
-          setAskResult(value === null ? "<null>" : `[${value}]`);
-        });
+            hotkey: "ctrl+p",
+            id: "pick-model",
+            modes: ["insert", "cursor"],
+            title: "Pick model",
+          },
+        ],
+        controllerRef,
+        multiline: false,
+        prompt: "Type something",
+      });
+      setAskResult(value === null ? "<null>" : `[${value}]`);
     },
     hotkey: "a",
     id: "open-ask",
@@ -67,16 +61,13 @@ const TypedDialogsApp = function TypedDialogsApp(): React.ReactNode {
   });
 
   useCommand({
-    handler: () => {
-      void choose
-        .open({
-          items: MODELS,
-          prompt: "Pick a model",
-          toItem: (model) => ({ text: model.label }),
-        })
-        .then((model) => {
-          setChooseResult(model === null ? "<null>" : model.id);
-        });
+    handler: async () => {
+      const selectedModel = await choose.open({
+        items: MODELS,
+        prompt: "Pick a model",
+        toItem: (item) => ({ text: item.label }),
+      });
+      setChooseResult(selectedModel === null ? "<null>" : selectedModel.id);
     },
     hotkey: "c",
     id: "open-choose",

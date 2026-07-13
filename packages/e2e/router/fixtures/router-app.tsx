@@ -311,9 +311,7 @@ const slowRoute = createRoute({
   component: SlowScreen,
   id: "slow",
   loader: async () => {
-    await new Promise((r) => {
-      setTimeout(r, loaderDelay);
-    });
+    await Bun.sleep(loaderDelay);
     return { message: "loaded" };
   },
   pendingComponent: SlowPending,
@@ -323,7 +321,9 @@ const errorRoute = createRoute({
   component: ErrorRouteScreen,
   errorComponent: ErrorComponent,
   id: "error-route",
-  loader: async () => await Promise.reject(new Error("route-failed")),
+  loader: async () => {
+    await Promise.reject(new Error("route-failed"));
+  },
   pendingComponent: SlowPending,
 });
 

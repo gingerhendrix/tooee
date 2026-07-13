@@ -7,7 +7,9 @@ let session: Session;
 afterEach(() => {
   try {
     session?.close();
-  } catch {}
+  } catch {
+    // The session may already be closed by the application.
+  }
 });
 
 describe("command scoping", () => {
@@ -29,9 +31,7 @@ describe("command scoping", () => {
     expect(textBefore).toContain("Screen:home");
     // Backspace at root should be a no-op
     await session.press("backspace");
-    await new Promise((r) => {
-      setTimeout(r, 500);
-    });
+    await Bun.sleep(500);
     const textAfter = await session.text();
     expect(textAfter).toContain("Screen:home");
     expect(textAfter).toContain("Route:home");
@@ -44,9 +44,7 @@ describe("command scoping", () => {
     await session.waitForText("Screen:detail:42", { timeout: 5000 });
     // Press + (home's increment command) — should not work on detail
     await session.press("+");
-    await new Promise((r) => {
-      setTimeout(r, 500);
-    });
+    await Bun.sleep(500);
     const text = await session.text();
     // Should still be on detail, not showing any counter
     expect(text).toContain("Screen:detail:42");

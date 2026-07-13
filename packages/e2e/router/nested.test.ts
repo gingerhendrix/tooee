@@ -7,7 +7,9 @@ let session: Session;
 afterEach(() => {
   try {
     session?.close();
-  } catch {}
+  } catch {
+    // The session may already be closed by the application.
+  }
 });
 
 describe("nested routes", () => {
