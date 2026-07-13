@@ -1,12 +1,12 @@
 import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, describe } from "bun:test";
 import { act } from "react";
-import { resolve } from "node:path";
+import path from "node:path";
 import { TooeeProvider } from "@tooee/shell";
 import { DirectoryView } from "../src/directory-view.js";
 import { listDirectoryFiles } from "../src/directory-provider.js";
 
-const TEST_DIR = resolve(import.meta.dir, "fixtures/test-dir");
+const TEST_DIR = path.resolve(import.meta.dir, "fixtures/test-dir");
 
 // --- Unit tests for listDirectoryFiles ---
 
@@ -19,7 +19,7 @@ describe("listDirectoryFiles", () => {
   test("returns correct paths", () => {
     const files = listDirectoryFiles(TEST_DIR);
     for (const f of files) {
-      expect(f.path).toBe(resolve(TEST_DIR, f.name));
+      expect(f.path).toBe(path.resolve(TEST_DIR, f.name));
     }
   });
 });

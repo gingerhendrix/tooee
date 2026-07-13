@@ -14,7 +14,7 @@ export interface ContentLoaderContext {
   title: string | undefined;
 }
 
-export type ContentLoaderEvents = {
+interface ContentLoaderEventPayloads {
   loadStarted: { marks: MarkSet[]; title?: string };
   streamStarted: { requestId: number; format: string };
   chunkReceived: { requestId: number; chunk: ContentChunk };
@@ -22,7 +22,11 @@ export type ContentLoaderEvents = {
   streamEnded: { requestId: number };
   loadFailed: { requestId: number; error: string };
   loadCancelled: { requestId: number };
-  reloadRequested: {};
+  reloadRequested: Record<PropertyKey, never>;
+}
+
+export type ContentLoaderEvents = {
+  [Event in keyof ContentLoaderEventPayloads]: ContentLoaderEventPayloads[Event];
 };
 
 export const isAsyncIterable = function isAsyncIterable(

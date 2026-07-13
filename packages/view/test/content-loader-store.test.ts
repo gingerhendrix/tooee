@@ -74,9 +74,7 @@ describe("content loader store", () => {
   test("reload is an event and cancellation invalidates the request", () => {
     const store = createContentLoaderStore();
     store.trigger.loadStarted({ marks: [] });
-    const requestId = store.getSnapshot().context.requestId;
-    const content = store.getSnapshot().context.content;
-    const marks = store.getSnapshot().context.providerMarks;
+    const { content, providerMarks: marks, requestId } = store.getSnapshot().context;
     store.trigger.reloadRequested({});
     expect(store.getSnapshot().context.loadSeq).toBe(1);
     expect(store.getSnapshot().context.content).toBe(content);
@@ -90,7 +88,7 @@ describe("content loader store", () => {
     const first = new MarkSet("diagnostics", 0, []);
     const replacement = new MarkSet("diagnostics", 0, []);
     store.trigger.loadStarted({ marks: [first] });
-    const requestId = store.getSnapshot().context.requestId;
+    const { requestId } = store.getSnapshot().context;
     store.trigger.loaded({ content: text("kept"), requestId });
     const content = selectContent(store.getSnapshot().context);
     store.trigger.chunkReceived({ chunk: { set: replacement, type: "marks" }, requestId });

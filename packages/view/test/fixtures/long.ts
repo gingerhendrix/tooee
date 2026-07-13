@@ -80,7 +80,7 @@ const filterByCategory = function filterByCategory(
 };
 
 const sortByValue = function sortByValue(points: DataPoint[], ascending = true): DataPoint[] {
-  return [...points].sort((a, b) => (ascending ? a.value - b.value : b.value - a.value));
+  return points.toSorted((a, b) => (ascending ? a.value - b.value : b.value - a.value));
 };
 
 const groupByCategory = function groupByCategory(points: DataPoint[]): Map<string, DataPoint[]> {

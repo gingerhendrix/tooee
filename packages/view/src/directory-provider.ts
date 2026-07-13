@@ -1,5 +1,5 @@
 import { readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
+import path from "node:path";
 import type { ContentProvider } from "./types.js";
 import { createFileProvider } from "./default-provider.js";
 
@@ -48,7 +48,7 @@ export const listDirectoryFiles = function listDirectoryFiles(dirPath: string): 
     if (entry.startsWith(".")) {
       continue;
     }
-    const fullPath = join(dirPath, entry);
+    const fullPath = path.join(dirPath, entry);
     try {
       const stat = statSync(fullPath);
       if (!stat.isFile()) {

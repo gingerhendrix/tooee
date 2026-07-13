@@ -136,7 +136,7 @@ describe("useContentLoader reload and request identity", () => {
     };
     const Harness = function Harness(): React.ReactNode {
       const result = useContentLoader(provider);
-      reload = result.reload;
+      ({ reload } = result);
       const value = result.content && "text" in result.content ? result.content.text : "";
       return <text content={value} />;
     };
@@ -164,7 +164,7 @@ describe("useContentLoader reload and request identity", () => {
     };
     const Harness = function Harness(): React.ReactNode {
       const result = useContentLoader(provider);
-      reload = result.reload;
+      ({ reload } = result);
       const value = result.content && "text" in result.content ? result.content.text : "loading";
       return <text content={value} />;
     };
@@ -225,7 +225,7 @@ describe("useContentLoader reload and request identity", () => {
     };
     const Harness = function Harness(): React.ReactNode {
       const result = useContentLoader(provider);
-      reload = result.reload;
+      ({ reload } = result);
       const value = result.content && "text" in result.content ? result.content.text : "";
       return <text content={`${result.status}:${value}`} />;
     };

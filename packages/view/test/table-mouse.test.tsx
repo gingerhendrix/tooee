@@ -1,14 +1,14 @@
 import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, describe } from "bun:test";
 import { act } from "react";
-import { resolve } from "node:path";
+import path from "node:path";
 import { MouseButtons } from "@opentui/core/testing";
 import { TooeeProvider } from "@tooee/shell";
 import type { ActionDefinition } from "@tooee/commands";
 import { View } from "../src/view.js";
 import { createTableFileProvider } from "../src/default-provider.js";
 
-const CSV = resolve(import.meta.dir, "fixtures/data.csv");
+const CSV = path.resolve(import.meta.dir, "fixtures/data.csv");
 
 const ACTIONS: ActionDefinition[] = [
   { handler: () => {}, hotkey: "y", id: "row.copy", modes: ["cursor"], title: "Copy row" },
@@ -40,7 +40,7 @@ const lineOf = function lineOf(frame: string, text: string): { x: number; y: num
   const lines = frame.split("\n");
   for (let y = 0; y < lines.length; y += 1) {
     const x = lines[y].indexOf(text);
-    if (x >= 0) {
+    if (x !== -1) {
       return { x, y };
     }
   }

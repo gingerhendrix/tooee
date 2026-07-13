@@ -25,7 +25,7 @@ const stringifyRowCell = function stringifyRowCell(value: unknown): string {
   try {
     return JSON.stringify(value);
   } catch {
-    return String(value);
+    return Object.prototype.toString.call(value);
   }
 };
 

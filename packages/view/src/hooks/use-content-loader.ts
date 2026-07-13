@@ -22,7 +22,7 @@ export const useContentLoader = function useContentLoader(contentProvider: Conte
       marks: contentProvider.marks ?? [],
       title: contentProvider.title,
     });
-    const requestId = store.getSnapshot().context.requestId;
+    const { requestId } = store.getSnapshot().context;
     const loaded = contentProvider.load();
     let cleanup: () => void = () => {
       // Synchronous providers have no pending work to cancel.

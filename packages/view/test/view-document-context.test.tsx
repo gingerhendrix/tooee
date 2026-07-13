@@ -122,7 +122,7 @@ describe("ctx.document from a View screen", () => {
     const document = expectDefined(documentCtx);
     expect(document.cursor).toBe(1);
     expect(document.activeRow).toEqual({ name: "Bob", role: "ops" });
-    expect(Array.from(document.toggledIndices)).toEqual([1]);
+    expect([...document.toggledIndices]).toEqual([1]);
     expect(document.selectedRows).toEqual([{ name: "Bob", role: "ops" }]);
   });
 
@@ -136,7 +136,7 @@ describe("ctx.document from a View screen", () => {
     expect(document.rowCount).toBe(4);
     expect(document.cursor).toBe(1);
     // Code rows are now source-backed SourceLineRow objects, not bare strings.
-    const activeRow = document.activeRow;
+    const { activeRow } = document;
     if (typeof activeRow !== "object" || activeRow === null || !("text" in activeRow)) {
       throw new Error("Expected code document row to contain text");
     }
