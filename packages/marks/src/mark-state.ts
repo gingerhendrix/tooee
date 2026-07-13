@@ -19,7 +19,7 @@ const makeMarkState = function makeMarkState(sets: readonly MarkSet[]): MarkStat
       if (marks.length === 0) {
         return null;
       }
-      return marks[marks.length - 1].style;
+      return marks.at(-1)?.style ?? null;
     },
     getSet(namespace: string): MarkSet | undefined {
       return sortedSets.find((s) => s.namespace === namespace);

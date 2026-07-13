@@ -116,8 +116,8 @@ export const pruneBuffer = function pruneBuffer(
 export class SequenceTracker {
   private buffer: KeyEvent[] = [];
   private timer: ReturnType<typeof setTimeout> | null = null;
-  private timeout: number;
-  private onReset?: () => void;
+  private readonly timeout: number;
+  private readonly onReset?: () => void;
 
   constructor(options?: SequenceTrackerOptions) {
     this.timeout = options?.timeout ?? DEFAULT_SEQUENCE_TIMEOUT_MS;

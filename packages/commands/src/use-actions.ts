@@ -35,7 +35,7 @@ export const useActions = function useActions(actions: ActionDefinition[] | unde
   );
 
   useEffect(() => {
-    const current = actionsRef.current;
+    const { current } = actionsRef;
     if (!current || current.length === 0) {
       return () => void 0;
     }

@@ -54,7 +54,7 @@ export const useCommand = function useCommand(options: UseCommandOptions): void 
       title: options.title,
       when: optionsRef.current.when
         ? (ctx) => {
-            const when = optionsRef.current.when;
+            const { when } = optionsRef.current;
             if (!when) {
               return false;
             }

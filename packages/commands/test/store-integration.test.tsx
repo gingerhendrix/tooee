@@ -67,7 +67,7 @@ const ActiveProbe = function ActiveProbe(): ReactNode {
   const ids = active
     ? active.commands
         .map((c) => c.id)
-        .sort()
+        .toSorted()
         .join(",")
     : "none";
   return <text content={`active-commands:[${ids}]`} />;
@@ -102,7 +102,7 @@ const SurfaceCommandsProbe = function SurfaceCommandsProbe(): ReactNode {
   const commands = useSurfaceCommands();
   const ids = commands
     .map((c) => c.id)
-    .sort()
+    .toSorted()
     .join(",");
   return <text content={`surface-commands:[${ids}]`} />;
 };

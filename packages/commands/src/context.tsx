@@ -172,7 +172,7 @@ const CommandDispatcher = function CommandDispatcher({
         invoke: (id: string) => {
           registry.invoke(id);
         },
-        list: () => Array.from(registry.commands.values()),
+        list: () => [...registry.commands.values()],
       },
       exit: () => void 0,
       mode: modeRef.current,
@@ -312,7 +312,7 @@ const CommandSurfaceInner = function CommandSurfaceInner({
         invoke: (cmdId: string) => {
           registry.invoke(cmdId);
         },
-        list: () => Array.from(registry.commands.values()),
+        list: () => [...registry.commands.values()],
       },
       exit: () => void 0,
       mode: modeRef.current,
@@ -388,7 +388,7 @@ export const useCommandContext = function useCommandContext(): {
 
   return useMemo(
     () => ({
-      commands: commandMap ? Array.from(commandMap.values()) : [],
+      commands: commandMap ? [...commandMap.values()] : [],
       invoke: registry.invoke,
     }),
     [commandMap, registry],
@@ -478,7 +478,7 @@ export const useCommandSurfaceId = function useCommandSurfaceId(): string {
 export const useActiveCommandSurface =
   function useActiveCommandSurface(): ActiveCommandSurface | null {
     const ctx = useContext(CommandContext);
-    const store = (ctx?.commandStore ?? FALLBACK_COMMAND_STORE).store;
+    const { store } = ctx?.commandStore ?? FALLBACK_COMMAND_STORE;
 
     const record = useSelector(store, (s) => selectActiveModalSurface(s.context));
     const commandMap = useSelector(store, (s) => {
@@ -491,7 +491,7 @@ export const useActiveCommandSurface =
         return null;
       }
       return {
-        commands: commandMap ? Array.from(commandMap.values()) : [],
+        commands: commandMap ? [...commandMap.values()] : [],
         id: record.id,
         // Deferred(lint-sweep): model selector records with the public surface-role type.
         // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- selector record is trusted store data
@@ -508,14 +508,14 @@ export const useSurfaceCommands = function useSurfaceCommands(
   surfaceId?: string,
 ): readonly Command[] {
   const ctx = useContext(CommandContext);
-  const store = (ctx?.commandStore ?? FALLBACK_COMMAND_STORE).store;
+  const { store } = ctx?.commandStore ?? FALLBACK_COMMAND_STORE;
 
   const commandMap = useSelector(store, (s) => {
     const id = surfaceId ?? selectActiveModalSurface(s.context)?.id ?? ROOT_SURFACE_ID;
     return selectSurfaceCommandMap(s.context, id);
   });
 
-  return useMemo(() => (commandMap ? Array.from(commandMap.values()) : []), [commandMap]);
+  return useMemo(() => (commandMap ? [...commandMap.values()] : []), [commandMap]);
 };
 
 /**
