@@ -11,9 +11,7 @@ import type { ParsedHotkey } from "../src/types.js";
 import { keyEvent as key } from "./support/key-event.ts";
 
 const sleep = async function sleep(ms: number): Promise<void> {
-  await new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
+  await Bun.sleep(ms);
 };
 
 const SPACE_THEN_N: ParsedHotkey[] = [

@@ -56,7 +56,10 @@ export const OverlayProvider = function OverlayProvider({
   // is invisible to mount-driven surface registration, so the pending chord
   // must be cleared here). Subscribed at store creation — before any child
   // effect can open an overlay.
-  const bridgeRef = useRef<OverlayBridge>({ resetSequence: () => {}, setMode: () => {} });
+  const bridgeRef = useRef<OverlayBridge>({
+    resetSequence: () => void 0,
+    setMode: () => void 0,
+  });
   const storeRef = useRef<OverlayStore | null>(null);
   if (storeRef.current === null) {
     storeRef.current = createOverlayStore();
@@ -95,8 +98,13 @@ export const OverlayProvider = function OverlayProvider({
       const prevMode = modeRef.current;
       // Owned command surfaces carry their own local mode and never touch the
       // host's global mode.
-      const overlayMode =
-        options.ownCommands === true ? null : options.mode === undefined ? "insert" : options.mode;
+      let overlayMode = options.mode;
+      if (overlayMode === undefined) {
+        overlayMode = "insert";
+      }
+      if (options.ownCommands === true) {
+        overlayMode = null;
+      }
 
       const record: OverlayRecord<TPayload> = { id, options, payload, prevMode, render };
       // Deferred(lint-sweep): preserve the store's generic payload type across its closed event API.
@@ -221,7 +229,7 @@ export const OverlayProvider = function OverlayProvider({
           // its children bind to a local registry/mode, and modal surfaces
           // suspend parent command dispatch while topmost. Passive surfaces stay
           // mounted for visuals/help without becoming the keyboard owner.
-          if (entry.options.ownCommands === true && node != null) {
+          if (entry.options.ownCommands === true && node !== null && node !== undefined) {
             node = (
               <CommandSurfaceProvider
                 id={entry.id}

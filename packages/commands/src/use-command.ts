@@ -36,7 +36,7 @@ export const useCommand = function useCommand(options: UseCommandOptions): void 
 
   useEffect(() => {
     if (options.enabled === false) {
-      return;
+      return () => void 0;
     }
 
     const command: Command = {

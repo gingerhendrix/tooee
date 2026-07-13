@@ -61,7 +61,7 @@ const SearchHarness = function SearchHarness(): React.ReactNode {
   return (
     <box flexDirection="column">
       <text content={`mode:${mode}`} />
-      <text content={`cursor:${nav.cursor !== null ? nav.cursor : "null"}`} />
+      <text content={`cursor:${nav.cursor ?? "null"}`} />
       <text content={`search:${search.searchActive}`} />
       <text content={`matches:${search.matchingLines.join(",")}`} />
       <text content={`matchIdx:${search.currentMatchIndex}`} />

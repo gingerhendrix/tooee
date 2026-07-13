@@ -91,13 +91,17 @@ export interface OverlayContextValue {
 // Contexts
 
 const defaultController: OverlayController = {
-  closeTop: () => {},
-  hide: () => {},
+  closeTop: () => void 0,
+  hide: () => void 0,
   isOpen: () => false,
-  open: (id) => ({ close: () => {}, id, update: () => {} }),
-  show: () => {},
+  open: (id) => ({
+    close: () => void 0,
+    id,
+    update: () => void 0,
+  }),
+  show: () => void 0,
   topId: null,
-  update: () => {},
+  update: () => void 0,
 };
 
 const defaultState: OverlayState = {
@@ -114,8 +118,8 @@ export const OverlayStateContext = createContext<OverlayState>(defaultState);
 export const OverlayContext = createContext<OverlayContextValue>({
   current: null,
   hasOverlay: false,
-  hide: () => {},
-  show: () => {},
+  hide: () => void 0,
+  show: () => void 0,
 });
 
 // Hooks

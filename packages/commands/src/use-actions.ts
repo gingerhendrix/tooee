@@ -37,7 +37,7 @@ export const useActions = function useActions(actions: ActionDefinition[] | unde
   useEffect(() => {
     const current = actionsRef.current;
     if (!current || current.length === 0) {
-      return;
+      return () => void 0;
     }
 
     const unregisters = current.map((action, i) => {

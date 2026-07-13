@@ -78,9 +78,7 @@ const group = function group(
 };
 
 const sleep = async function sleep(ms: number): Promise<void> {
-  await new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
+  await Bun.sleep(ms);
 };
 
 describe("command store — registration", () => {

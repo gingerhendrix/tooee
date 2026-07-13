@@ -198,7 +198,7 @@ export const useDocumentController = function useDocumentController<T>(
   const activeIndex =
     navigation.cursor !== null && navigation.cursor < rows.length ? navigation.cursor : null;
   const activeRow = activeIndex === null ? undefined : rows[activeIndex];
-  const activeKey = activeIndex !== null ? rowKey(adapter, activeRow, activeIndex) : null;
+  const activeKey = activeIndex === null ? null : rowKey(adapter, activeRow, activeIndex);
 
   const selectedIndices = useMemo<readonly number[]>(() => {
     if (toggledIndices.size > 0) {
@@ -288,12 +288,12 @@ export const useDocumentController = function useDocumentController<T>(
   useEffect(() => {
     const document = ref.current;
     if (!document || cursor === null) {
-      return;
+      return () => void 0;
     }
 
     if (document.getRowMetrics(cursor)) {
       document.scrollToRow(cursor, "nearest");
-      return;
+      return () => void 0;
     }
 
     // Geometry is computed during render, so the first cursor effect after a
@@ -323,7 +323,7 @@ export const useDocumentController = function useDocumentController<T>(
   const getRowAtScreenY = useCallback(
     (screenY: number) => {
       const index = ref.current?.getRowAtScreenY(screenY);
-      if (index == null || index < 0 || index >= rowsRef.current.length) {
+      if (index === null || index === undefined || index < 0 || index >= rowsRef.current.length) {
         return null;
       }
       const row = rowsRef.current[index];

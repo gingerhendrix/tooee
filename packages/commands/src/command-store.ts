@@ -344,6 +344,14 @@ export interface CommandStore {
   setConfig: (config: CommandStoreConfig) => void;
 }
 
+const reportCommandFailure = async function reportCommandFailure(result: Promise<void>) {
+  try {
+    await result;
+  } catch (error: unknown) {
+    console.error("Command handler failed", error);
+  }
+};
+
 export const createCommandStore = function createCommandStore(
   options: CreateCommandStoreOptions,
 ): CommandStore {
@@ -575,9 +583,10 @@ export const createCommandStore = function createCommandStore(
           }
           const cmdCtx = record.buildCtx();
           if (!cmd.when || cmd.when(cmdCtx)) {
-            void Promise.resolve(cmd.handler(cmdCtx)).catch((error: unknown) => {
-              console.error("Command handler failed", error);
-            });
+            const result = cmd.handler(cmdCtx);
+            if (result) {
+              void reportCommandFailure(result);
+            }
           }
         },
         register(command: Command) {

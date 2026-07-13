@@ -55,10 +55,13 @@ const CommandSurfaceDepthContext = createContext(0);
  */
 const placeholderCommandContext = function placeholderCommandContext(mode: Mode): CommandContext {
   const placeholder = {
-    commands: { invoke: () => {}, list: () => [] },
-    exit: () => {},
+    commands: {
+      invoke: () => void 0,
+      list: () => [],
+    },
+    exit: () => void 0,
     mode,
-    setMode: () => {},
+    setMode: () => void 0,
   };
   // oxlint-disable-next-line typescript/no-unnecessary-type-assertion, typescript/no-unsafe-type-assertion -- placeholder omits module-augmented fields contributed by other packages
   return placeholder as unknown as CommandContext;
@@ -106,17 +109,15 @@ export const CommandProvider = function CommandProvider({
   });
 
   const storeRef = useRef<CommandStore | null>(null);
-  if (storeRef.current === null) {
-    storeRef.current = createCommandStore({
-      keymap,
-      leader,
-      root: {
-        buildCtx: () => rootAccessRef.current.buildCtx(),
-        getMode: () => rootAccessRef.current.getMode(),
-      },
-      sequenceTimeoutMs,
-    });
-  }
+  storeRef.current ??= createCommandStore({
+    keymap,
+    leader,
+    root: {
+      buildCtx: () => rootAccessRef.current.buildCtx(),
+      getMode: () => rootAccessRef.current.getMode(),
+    },
+    sequenceTimeoutMs,
+  });
   const commandStore = storeRef.current;
 
   // Root mode changes are transitions: reset any pending chord synchronously
@@ -173,7 +174,7 @@ const CommandDispatcher = function CommandDispatcher({
         },
         list: () => Array.from(registry.commands.values()),
       },
-      exit: () => {},
+      exit: () => void 0,
       mode: modeRef.current,
       setMode,
     };
@@ -313,7 +314,7 @@ const CommandSurfaceInner = function CommandSurfaceInner({
         },
         list: () => Array.from(registry.commands.values()),
       },
-      exit: () => {},
+      exit: () => void 0,
       mode: modeRef.current,
       setMode,
     };

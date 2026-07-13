@@ -297,9 +297,9 @@ describe("variable-height rows", () => {
     await press(session, "g", { shift: true });
 
     const topLine = expectDefined(session.captureCharFrame().split("\n")[0]).trim();
-    const match = topLine.match(/^row-(\d+):(\d+)$/u);
+    const match = /^row-(?<index>\d+):(?<line>\d+)$/u.exec(topLine);
     expect(match).not.toBeNull();
-    const topIndex = Number(expectDefined(match)[1]);
+    const topIndex = Number(expectDefined(match).groups?.index);
     expect(topIndex).toBeGreaterThan(0);
 
     await click(1, 0);

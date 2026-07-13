@@ -65,7 +65,7 @@ describe("theme picker", () => {
   test("Escape closes picker and reverts theme", async () => {
     testSetup = await setup();
     const initialFrame = testSetup.captureCharFrame();
-    const initialTheme = initialFrame.match(/active:(\S+)/u)?.[1];
+    const initialTheme = /active:(?<theme>\S+)/u.exec(initialFrame)?.groups?.theme;
 
     await press(testSetup, "t");
     expect(testSetup.captureCharFrame()).toContain("open:true");
@@ -73,7 +73,7 @@ describe("theme picker", () => {
     // Navigate down to preview a different theme
     await pressArrow(testSetup, "down");
     const afterNav = testSetup.captureCharFrame();
-    const previewedTheme = afterNav.match(/active:(\S+)/u)?.[1];
+    const previewedTheme = /active:(?<theme>\S+)/u.exec(afterNav)?.groups?.theme;
     // Theme should have changed during preview
     expect(previewedTheme).not.toBe(initialTheme);
 
@@ -95,7 +95,7 @@ describe("theme picker", () => {
 
     // Get the previewed theme before confirming
     const previewFrame = testSetup.captureCharFrame();
-    const previewedTheme = previewFrame.match(/active:(\S+)/u)?.[1];
+    const previewedTheme = /active:(?<theme>\S+)/u.exec(previewFrame)?.groups?.theme;
 
     // Confirm
     await pressEnter(testSetup);
@@ -119,7 +119,7 @@ describe("theme picker", () => {
 
   test("left-click on a theme row applies that theme and closes the picker", async () => {
     testSetup = await setup();
-    const initialTheme = testSetup.captureCharFrame().match(/active:(\S+)/u)?.[1];
+    const initialTheme = /active:(?<theme>\S+)/u.exec(testSetup.captureCharFrame())?.groups?.theme;
     const target = initialTheme === "dracula" ? "cobalt2" : "dracula";
 
     await press(testSetup, "t");

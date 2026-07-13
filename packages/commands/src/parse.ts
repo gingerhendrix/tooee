@@ -66,7 +66,7 @@ export const parseHotkey = function parseHotkey(hotkey: string, leaderKey?: stri
   const trimmed = hotkey.trim();
 
   // Handle leader prefix
-  const leaderMatch = trimmed.match(/^<leader>(.+)$/u);
+  const leaderMatch = /^<leader>(?<followingKey>.+)$/u.exec(trimmed);
   if (leaderMatch) {
     if (leaderKey === undefined || leaderKey === "") {
       // No leader configured: the hotkey must not spring to life on some
@@ -77,7 +77,7 @@ export const parseHotkey = function parseHotkey(hotkey: string, leaderKey?: stri
       return { steps: [] };
     }
     const leaderStep = parseStep(leaderKey);
-    const followStep = parseStep(leaderMatch[1]);
+    const followStep = parseStep(leaderMatch.groups?.followingKey ?? "");
     return { steps: [leaderStep, followStep] };
   }
 

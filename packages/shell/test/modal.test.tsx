@@ -24,7 +24,7 @@ const ModalHarness = function ModalHarness({
   return (
     <box flexDirection="column">
       <text content={`mode:${mode}`} />
-      <text content={`cursor:${nav.cursor !== null ? nav.cursor : "null"}`} />
+      <text content={`cursor:${nav.cursor ?? "null"}`} />
       <text content={`search:${search.searchActive}`} />
     </box>
   );

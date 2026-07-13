@@ -25,12 +25,14 @@ export const Document = function Document<T>({
   renderRow,
   ...rowDocumentProps
 }: DocumentProps<T>): ReactNode {
+  const handleMouseDown = controller.onMouseDown;
+
   return (
     <row-document
       {...rowDocumentProps}
       ref={controller.ref}
       decorations={controller.decorations}
-      onMouseDown={controller.onMouseDown}
+      onMouseDown={handleMouseDown}
     >
       {controller.rows.map(
         (row, index): ReactNode => (

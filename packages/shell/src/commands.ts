@@ -95,18 +95,17 @@ export const usePasteCommands = function usePasteCommands(opts: {
   when?: CommandWhen;
 }) {
   useCommand({
-    handler: (ctx) => {
+    handler: async (ctx) => {
       const target = opts.getTarget();
       if (!target) {
         return;
       }
-      void readClipboardText().then((text) => {
-        if (text !== undefined && text !== "") {
-          target.insertText(text);
-        } else {
-          ctx.toast.toast({ level: "warning", message: "Clipboard empty" });
-        }
-      });
+      const text = await readClipboardText();
+      if (text !== undefined && text !== "") {
+        target.insertText(text);
+      } else {
+        ctx.toast.toast({ level: "warning", message: "Clipboard empty" });
+      }
     },
     hotkey: "p",
     id: "paste-clipboard",
@@ -115,18 +114,17 @@ export const usePasteCommands = function usePasteCommands(opts: {
   });
 
   useCommand({
-    handler: (ctx) => {
+    handler: async (ctx) => {
       const target = opts.getTarget();
       if (!target) {
         return;
       }
-      void readPrimaryText().then((text) => {
-        if (text !== undefined && text !== "") {
-          target.insertText(text);
-        } else {
-          ctx.toast.toast({ level: "warning", message: "Selection empty" });
-        }
-      });
+      const text = await readPrimaryText();
+      if (text !== undefined && text !== "") {
+        target.insertText(text);
+      } else {
+        ctx.toast.toast({ level: "warning", message: "Selection empty" });
+      }
     },
     id: "paste-primary",
     title: "Paste from selection",

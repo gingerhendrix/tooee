@@ -49,7 +49,7 @@ export const overlayStoreTypeChecks = function overlayStoreTypeChecks(): void {
   // @ts-expect-error unknown send event type
   store.send({ type: "bogusEvent" });
   // @ts-expect-error unknown emitted event name
-  store.on("bogusEmit", () => {});
+  store.on("bogusEmit", () => void 0);
 
   // --- Wrong payloads must NOT compile --------------------------------------
   // @ts-expect-error reason must be an OverlayCloseReason

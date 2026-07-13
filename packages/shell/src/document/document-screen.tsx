@@ -44,12 +44,10 @@ export const DocumentScreen = function DocumentScreen<T>({
   useProvideDocumentCommandContext(controller, context);
 
   const { search, navigation, toggledIndices } = controller;
-  const selectionCount =
-    toggledIndices.size > 0
-      ? toggledIndices.size
-      : navigation.selection
-        ? navigation.selection.end - navigation.selection.start + 1
-        : 0;
+  let selectionCount = toggledIndices.size;
+  if (selectionCount === 0 && navigation.selection) {
+    selectionCount = navigation.selection.end - navigation.selection.start + 1;
+  }
 
   const items: StatusBarItem[] = [
     { label: "Theme:", value: themeName },

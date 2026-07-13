@@ -26,20 +26,23 @@ export const ModeProvider = function ModeProvider({
   initialMode = "cursor",
   onModeChange,
 }: ModeProviderProps): ReactNode {
-  const [mode, setModeState] = useState<Mode>(initialMode);
+  const [mode, setMode] = useState<Mode>(initialMode);
   const modeRef = useRef(mode);
   const onModeChangeRef = useRef(onModeChange);
   onModeChangeRef.current = onModeChange;
 
-  const setMode = useCallback((m: Mode) => {
-    if (m !== modeRef.current) {
-      modeRef.current = m;
-      onModeChangeRef.current?.(m);
+  const changeMode = useCallback((nextMode: Mode) => {
+    if (nextMode !== modeRef.current) {
+      modeRef.current = nextMode;
+      onModeChangeRef.current?.(nextMode);
     }
-    setModeState(m);
+    setMode(nextMode);
   }, []);
 
-  const value = useMemo<ModeContextValue>(() => ({ mode, setMode }), [mode, setMode]);
+  const value = useMemo<ModeContextValue>(
+    () => ({ mode, setMode: changeMode }),
+    [mode, changeMode],
+  );
 
   return <ModeContext.Provider value={value}>{children}</ModeContext.Provider>;
 };

@@ -190,7 +190,7 @@ const openTtyInput = function openTtyInput(policy: CliStdinPolicy): tty.ReadStre
   }
 };
 
-const noop = () => {};
+const noop: () => void = () => void 0;
 
 /** Create, mount, and return a locally owned Tooee renderer session. */
 export const launchCli = async function launchCli(
@@ -279,53 +279,52 @@ export const runCliSession = async function runCliSession<T>(
   render: CliSessionRender<T>,
   options: LaunchCliOptions = {},
 ): Promise<T | null> {
-  return await new Promise<T | null>((resolve) => {
-    let settled = false;
-    let handle: TooeeSessionHandle | undefined;
+  const { promise, resolve } = Promise.withResolvers<T | null>();
+  let settled = false;
+  let handle: TooeeSessionHandle | undefined;
 
-    const settle = (result: T | null) => {
-      if (settled) {
-        return;
-      }
-      settled = true;
-      try {
-        handle?.destroy();
-      } finally {
-        resolve(result);
-      }
-    };
-
-    let node: ReactNode;
-    try {
-      node = render({
-        cancel: () => {
-          settle(null);
-        },
-        resolve: (value) => {
-          settle(value);
-        },
-      });
-    } catch {
-      settle(null);
-      return;
-    }
-
+  const settle = (result: T | null) => {
     if (settled) {
       return;
     }
+    settled = true;
+    try {
+      handle?.destroy();
+    } finally {
+      resolve(result);
+    }
+  };
 
-    launchCli(node, options)
-      .then((sessionHandle) => {
-        handle = sessionHandle;
-        handle.renderer.once("destroy", () => {
-          settle(null);
-        });
-        if (settled) {
-          handle.destroy();
-        }
-      })
-      .catch(() => {
+  let node: ReactNode;
+  try {
+    node = render({
+      cancel: () => {
         settle(null);
-      });
-  });
+      },
+      resolve: (value) => {
+        settle(value);
+      },
+    });
+  } catch {
+    settle(null);
+    return promise;
+  }
+
+  if (settled) {
+    return promise;
+  }
+
+  try {
+    handle = await launchCli(node, options);
+    handle.renderer.once("destroy", () => {
+      settle(null);
+    });
+    if (settled) {
+      handle.destroy();
+    }
+  } catch {
+    settle(null);
+  }
+
+  return promise;
 };
