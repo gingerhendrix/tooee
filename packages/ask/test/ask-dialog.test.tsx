@@ -151,7 +151,10 @@ describe("useAskDialog settlement", () => {
   test("submit resolves the typed value, closes the overlay, and settles once", async () => {
     testSetup = await setup();
     await openDialog(
-      async (o) => await expectDefined(handles.current).dialog.open(o),
+      async (o) => {
+        const result = await expectDefined(handles.current).dialog.open(o);
+        return result;
+      },
       "Question?",
       "ask",
     );
@@ -168,7 +171,10 @@ describe("useAskDialog settlement", () => {
   test("cancel via q in cursor mode resolves null exactly once", async () => {
     testSetup = await setup();
     await openDialog(
-      async (o) => await expectDefined(handles.current).dialog.open(o),
+      async (o) => {
+        const result = await expectDefined(handles.current).dialog.open(o);
+        return result;
+      },
       "Question?",
       "ask",
     );
@@ -183,7 +189,10 @@ describe("useAskDialog settlement", () => {
   test("host commands are suspended while the dialog is open and resume after", async () => {
     testSetup = await setup();
     await openDialog(
-      async (o) => await expectDefined(handles.current).dialog.open(o),
+      async (o) => {
+        const result = await expectDefined(handles.current).dialog.open(o);
+        return result;
+      },
       "Question?",
       "ask",
     );
@@ -201,7 +210,10 @@ describe("useAskDialog settlement", () => {
   test("same-id replacement settles the displaced dialog null exactly once", async () => {
     testSetup = await setup();
     await openDialog(
-      async (o) => await expectDefined(handles.current).dialog.open(o),
+      async (o) => {
+        const result = await expectDefined(handles.current).dialog.open(o);
+        return result;
+      },
       "Question?",
       "ask",
     );
@@ -238,7 +250,10 @@ describe("useAskDialog settlement", () => {
   test("unmounting the owning component settles null and removes the overlay record", async () => {
     testSetup = await setup();
     await openDialog(
-      async (o) => await expectDefined(expectDefined(handles.current).ownerDialog).open(o),
+      async (o) => {
+        const result = await expectDefined(expectDefined(handles.current).ownerDialog).open(o);
+        return result;
+      },
       "Owned?",
       "owned",
     );

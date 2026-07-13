@@ -83,8 +83,8 @@ const NestedHarness = function NestedHarness(): React.ReactNode {
   const controllerRef = useRef<AskEditorController | null>(null);
 
   nested.current = {
-    open: async () =>
-      await ask.open({
+    open: async () => {
+      const result = await ask.open({
         commands: [
           {
             handler: () => {
@@ -110,7 +110,9 @@ const NestedHarness = function NestedHarness(): React.ReactNode {
         controllerRef,
         multiline: false,
         prompt: "Ask something",
-      }),
+      });
+      return result;
+    },
   };
 
   return (

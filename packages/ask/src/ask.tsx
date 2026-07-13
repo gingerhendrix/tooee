@@ -64,6 +64,7 @@ export const Ask = function Ask({
     placeholder,
     suspended: hasOverlay,
   });
+  const handleMouseDown = editor.onMouseDown;
 
   useProvideCommandContext(() => ({
     exit: () => {
@@ -100,7 +101,7 @@ export const Ask = function Ask({
         alignItems="center"
         justifyContent="center"
         style={{ flexGrow: 1 }}
-        onMouseDown={editor.onMouseDown}
+        onMouseDown={handleMouseDown}
       >
         <box flexDirection="column" width="100%" maxWidth={80} style={{ flexGrow: 1, padding: 1 }}>
           {(prompt?.length ?? 0) > 0 && (

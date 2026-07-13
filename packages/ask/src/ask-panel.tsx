@@ -85,7 +85,7 @@ export const AskPanel = function AskPanel({
       borderColor={theme.borderActive}
       onMouseDown={onMouseDown}
     >
-      {title != null && (
+      {title !== null && title !== undefined && (
         <box
           flexDirection="row"
           height={1}
@@ -104,7 +104,7 @@ export const AskPanel = function AskPanel({
         </box>
       )}
 
-      {prompt != null && (
+      {prompt !== null && prompt !== undefined && (
         <box paddingLeft={1} paddingRight={1}>
           {typeof prompt === "string" ? (
             <text fg={theme.text}>
@@ -121,7 +121,7 @@ export const AskPanel = function AskPanel({
         {children}
       </box>
 
-      {footer != null && (
+      {footer !== null && footer !== undefined && (
         <box paddingLeft={1} paddingRight={1}>
           {footer}
         </box>
@@ -142,7 +142,8 @@ export const AskPanel = function AskPanel({
             hintContent
           )}
         </box>
-        {statusRight != null &&
+        {statusRight !== null &&
+          statusRight !== undefined &&
           (typeof statusRight === "string" ? (
             <text content={statusRight} fg={theme.textMuted} />
           ) : (

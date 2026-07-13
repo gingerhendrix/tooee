@@ -13,6 +13,13 @@ export interface AskEditorProps {
  */
 export const AskEditor = function AskEditor({ editor }: AskEditorProps): React.ReactNode {
   const { theme } = useTheme();
+  const handleContentChange = editor.bumpScroll;
+  const handleCursorChange = editor.bumpScroll;
+  const handleInput = editor.onInput;
+  const handleKeyDown = editor.onEditorKeyDown;
+  const handleMouseScroll = editor.bumpScroll;
+  const handlePaste = editor.onEditorPaste;
+  const handleSubmit = editor.submit;
 
   const cursorStyle: CursorStyleOptions =
     editor.mode === "cursor"
@@ -22,7 +29,7 @@ export const AskEditor = function AskEditor({ editor }: AskEditorProps): React.R
 
   if (editor.multiline) {
     return (
-      <box flexDirection="row" style={{ flexGrow: 1 }} onMouseScroll={editor.bumpScroll}>
+      <box flexDirection="row" style={{ flexGrow: 1 }} onMouseScroll={handleMouseScroll}>
         <textarea
           ref={editor.textareaRef}
           focused={editor.focused}
@@ -33,11 +40,11 @@ export const AskEditor = function AskEditor({ editor }: AskEditorProps): React.R
           cursorColor={cursorColor}
           cursorStyle={cursorStyle}
           backgroundColor="transparent"
-          onSubmit={editor.submit}
-          onKeyDown={editor.onEditorKeyDown}
-          onPaste={editor.onEditorPaste}
-          onCursorChange={editor.bumpScroll}
-          onContentChange={editor.bumpScroll}
+          onSubmit={handleSubmit}
+          onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
+          onCursorChange={handleCursorChange}
+          onContentChange={handleContentChange}
           style={{ flexGrow: 1 }}
         />
         <EditorScrollbar
@@ -54,16 +61,16 @@ export const AskEditor = function AskEditor({ editor }: AskEditorProps): React.R
       ref={editor.inputRef}
       focused={editor.focused}
       value={editor.value}
-      onInput={editor.onInput}
-      onSubmit={editor.submit}
+      onInput={handleInput}
+      onSubmit={handleSubmit}
       placeholder={editor.placeholder}
       textColor={theme.text}
       placeholderColor={theme.textMuted}
       cursorColor={cursorColor}
       cursorStyle={cursorStyle}
       backgroundColor="transparent"
-      onKeyDown={editor.onEditorKeyDown}
-      onPaste={editor.onEditorPaste}
+      onKeyDown={handleKeyDown}
+      onPaste={handlePaste}
     />
   );
 };

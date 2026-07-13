@@ -536,12 +536,13 @@ export const useAskEditor = function useAskEditor(
     (event: MouseEvent) => {
       if (event.button === 1) {
         event.preventDefault();
-        void readPrimaryText().then((text) => {
+        void (async () => {
+          const text = await readPrimaryText();
           if (text === undefined || text === "") {
             return;
           }
           getTarget()?.insertText(text);
-        });
+        })();
       }
     },
     [getTarget],
@@ -606,19 +607,17 @@ export const useAskEditor = function useAskEditor(
   // Stable identity so composites can capture it in refs/effects; `mode` reads
   // live through the getter.
   const controllerRef = useRef<AskEditorController | null>(null);
-  if (controllerRef.current === null) {
-    controllerRef.current = {
-      getText,
-      insertText,
-      get mode() {
-        return modeRef.current;
-      },
-      setCursorToEnd,
-      setMode: setModeExternal,
-      setText,
-      submit,
-    };
-  }
+  controllerRef.current ??= {
+    getText,
+    insertText,
+    get mode() {
+      return modeRef.current;
+    },
+    setCursorToEnd,
+    setMode: setModeExternal,
+    setText,
+    submit,
+  };
 
   return {
     controller: controllerRef.current,

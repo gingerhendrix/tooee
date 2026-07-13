@@ -57,6 +57,7 @@ export const AskOverlay = function AskOverlay({
 
   useImperativeHandle(controllerRef, () => controller, [controller]);
   useActions(commands);
+  const handleMouseDown = editor.onMouseDown;
 
   return (
     <>
@@ -69,7 +70,7 @@ export const AskOverlay = function AskOverlay({
         footer={footer}
         onClose={onCancel}
         inset={inset}
-        onMouseDown={editor.onMouseDown}
+        onMouseDown={handleMouseDown}
       >
         <AskEditor editor={editor} />
       </AskPanel>

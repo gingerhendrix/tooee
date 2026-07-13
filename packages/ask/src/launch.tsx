@@ -10,6 +10,7 @@ export interface AskLaunchOptions extends AskOptions {
 }
 
 export const launch = async function launch(options: AskLaunchOptions): Promise<void> {
+  const handleSubmit = options.onSubmit;
   await launchCli(
     <Ask
       title={options.title}
@@ -18,7 +19,7 @@ export const launch = async function launch(options: AskLaunchOptions): Promise<
       defaultValue={options.defaultValue}
       multiline={options.multiline}
       actions={options.actions}
-      onSubmit={options.onSubmit}
+      onSubmit={handleSubmit}
     />,
     { exitOnCtrlC: false, provider: { initialMode: "insert" } },
   );
