@@ -59,7 +59,7 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
               };
             }
             // Long-lived stream: never yields again
-            return Promise.withResolvers<IteratorResult<ContentChunk>>().promise;
+            return await Promise.withResolvers<IteratorResult<ContentChunk>>().promise;
           },
           return: () => {
             returned = true;
@@ -159,7 +159,7 @@ describe("useContentLoader reload and request identity", () => {
         const { promise, resolve } = Promise.withResolvers<{ format: "text"; text: string }>();
         resolvers.push(resolve);
         await Promise.resolve();
-        return promise;
+        return await promise;
       },
     };
     const Harness = function Harness(): React.ReactNode {
@@ -210,7 +210,7 @@ describe("useContentLoader reload and request identity", () => {
                   const { promise, resolve } =
                     Promise.withResolvers<IteratorResult<ContentChunk>>();
                   resolveOldNext = resolve;
-                  return promise;
+                  return await promise;
                 },
                 return() {
                   oldReturned = true;

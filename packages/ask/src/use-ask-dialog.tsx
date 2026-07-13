@@ -91,7 +91,7 @@ export const useAskDialog = function useAskDialog(): AskDialogHandle {
       const { promise, resolve } = Promise.withResolvers<string | null>();
       if (unmountedRef.current) {
         resolve(null);
-        return promise;
+        return await promise;
       }
 
       askDialogSequence += 1;

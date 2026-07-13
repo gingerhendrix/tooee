@@ -307,11 +307,11 @@ export const runCliSession = async function runCliSession<T>(
     });
   } catch {
     settle(null);
-    return promise;
+    return await promise;
   }
 
   if (settled) {
-    return promise;
+    return await promise;
   }
 
   try {
@@ -326,5 +326,5 @@ export const runCliSession = async function runCliSession<T>(
     settle(null);
   }
 
-  return promise;
+  return await promise;
 };

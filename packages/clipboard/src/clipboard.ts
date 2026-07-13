@@ -131,7 +131,7 @@ export const readPrimaryText = async function readPrimaryText(): Promise<string 
   }
 
   // macOS/Windows don't have PRIMARY selection — fall back to clipboard
-  return readClipboardText();
+  return await readClipboardText();
 };
 
 let copyMethod: ((text: string) => Promise<void>) | null = null;
