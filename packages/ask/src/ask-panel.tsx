@@ -50,6 +50,17 @@ export interface AskPanelProps {
   onMouseDown?: (event: MouseEvent) => void;
 }
 
+const hasContent = function hasContent(content: ReactNode): boolean {
+  return content !== null && content !== undefined;
+};
+
+const renderStatus = function renderStatus(status: ReactNode, textMuted: string): ReactNode {
+  if (!hasContent(status)) {
+    return null;
+  }
+  return typeof status === "string" ? <text content={status} fg={textMuted} /> : status;
+};
+
 /**
  * Shared bordered panel chrome for ask surfaces: title bar, optional prompt
  * line, editor area, optional footer, and a hint bar with slots.
@@ -142,13 +153,7 @@ export const AskPanel = function AskPanel({
             hintContent
           )}
         </box>
-        {statusRight !== null &&
-          statusRight !== undefined &&
-          (typeof statusRight === "string" ? (
-            <text content={statusRight} fg={theme.textMuted} />
-          ) : (
-            statusRight
-          ))}
+        {renderStatus(statusRight, theme.textMuted)}
       </box>
     </box>
   );

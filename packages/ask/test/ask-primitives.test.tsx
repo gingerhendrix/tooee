@@ -71,7 +71,7 @@ const Host = function Host(props: {
       ]}
     >
       {pickerOpen && (
-        <CommandSurfaceProvider id="host:picker" role="modal" initialMode="cursor">
+        <CommandSurfaceProvider {...{ role: "modal" }} id="host:picker" initialMode="cursor">
           <PickerSurface
             onClose={() => {
               setPickerOpen(false);

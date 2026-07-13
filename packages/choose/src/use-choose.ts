@@ -116,7 +116,7 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     if (!multi) {
       return activeItem === undefined ? [] : [activeItem];
     }
-    const selected = Array.from(selectedOriginalIndices).flatMap((index) => {
+    const selected = [...selectedOriginalIndices].flatMap((index) => {
       const item = items[index];
       return item === undefined ? [] : [item];
     });
@@ -256,7 +256,7 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     if (!multiRef.current) {
       return active === undefined ? [] : [active];
     }
-    const selected = Array.from(selectedRef.current).flatMap((index) => {
+    const selected = [...selectedRef.current].flatMap((index) => {
       const item = itemsRef.current[index];
       return item === undefined ? [] : [item];
     });

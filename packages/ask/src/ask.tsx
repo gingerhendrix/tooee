@@ -77,7 +77,7 @@ export const Ask = function Ask({
   // Paste commands (available via command palette)
   usePasteCommands({ getTarget: () => controller });
 
-  const mode = editor.mode;
+  const { mode } = editor;
   const submitHint = multiline ? "Shift+Enter submit" : "Enter submit";
   const hintParts =
     mode === "insert"

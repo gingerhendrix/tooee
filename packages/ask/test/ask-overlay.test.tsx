@@ -110,6 +110,10 @@ const cursorIsVisible = function cursorIsVisible(): boolean {
   return cursorState().visible;
 };
 
+const hasChildren = function hasChildren(node: object): node is { getChildren: () => unknown[] } {
+  return "getChildren" in node && typeof node.getChildren === "function";
+};
+
 const findEditableWithText = function findEditableWithText(
   node: unknown,
   text: string,
@@ -128,7 +132,7 @@ const findEditableWithText = function findEditableWithText(
     return { cursorOffset: node.cursorOffset };
   }
 
-  if ("getChildren" in node && typeof node.getChildren === "function") {
+  if (hasChildren(node)) {
     for (const child of node.getChildren()) {
       const match = findEditableWithText(child, text);
       if (match) {

@@ -68,6 +68,71 @@ const isPlainKey = function isPlainKey(key: KeyEvent, name: string): boolean {
   );
 };
 
+const handleBasicMotion = function handleBasicMotion(
+  key: KeyEvent,
+  target: EditableMotionTarget,
+): boolean {
+  const motions: readonly {
+    matches: boolean;
+    move: () => void;
+  }[] = [
+    {
+      matches: isPlainKey(key, "h") || key.name === "left",
+      move: () => {
+        target.moveCursorLeft();
+      },
+    },
+    {
+      matches: isPlainKey(key, "l") || key.name === "right",
+      move: () => {
+        target.moveCursorRight();
+      },
+    },
+    {
+      matches: isPlainKey(key, "j") || key.name === "down",
+      move: () => {
+        target.moveCursorDown();
+      },
+    },
+    {
+      matches: isPlainKey(key, "k") || key.name === "up",
+      move: () => {
+        target.moveCursorUp();
+      },
+    },
+    {
+      matches: isPlainKey(key, "0") || key.name === "home",
+      move: () => {
+        target.gotoLineHome();
+      },
+    },
+    {
+      matches: isPlainKey(key, "$") || key.name === "end",
+      move: () => {
+        target.gotoLineEnd();
+      },
+    },
+    {
+      matches: isPlainKey(key, "w"),
+      move: () => {
+        target.moveWordForward();
+      },
+    },
+    {
+      matches: isPlainKey(key, "b"),
+      move: () => {
+        target.moveWordBackward();
+      },
+    },
+  ];
+  const motion = motions.find(({ matches }) => matches);
+  if (!motion) {
+    return false;
+  }
+  motion.move();
+  return consume(key);
+};
+
 export const handleEditBufferVimMotion = function handleEditBufferVimMotion(
   key: KeyEvent,
   target: EditableMotionTarget | null | undefined,
@@ -86,37 +151,8 @@ export const handleEditBufferVimMotion = function handleEditBufferVimMotion(
     }
   }
 
-  if (isPlainKey(key, "h") || key.name === "left") {
-    target.moveCursorLeft();
-    return consume(key);
-  }
-  if (isPlainKey(key, "l") || key.name === "right") {
-    target.moveCursorRight();
-    return consume(key);
-  }
-  if (isPlainKey(key, "j") || key.name === "down") {
-    target.moveCursorDown();
-    return consume(key);
-  }
-  if (isPlainKey(key, "k") || key.name === "up") {
-    target.moveCursorUp();
-    return consume(key);
-  }
-  if (isPlainKey(key, "0") || key.name === "home") {
-    target.gotoLineHome();
-    return consume(key);
-  }
-  if (isPlainKey(key, "$") || key.name === "end") {
-    target.gotoLineEnd();
-    return consume(key);
-  }
-  if (isPlainKey(key, "w")) {
-    target.moveWordForward();
-    return consume(key);
-  }
-  if (isPlainKey(key, "b")) {
-    target.moveWordBackward();
-    return consume(key);
+  if (handleBasicMotion(key, target)) {
+    return true;
   }
   if ((key.name === "g" && key.shift) || key.raw === "G") {
     target.gotoBufferEnd();

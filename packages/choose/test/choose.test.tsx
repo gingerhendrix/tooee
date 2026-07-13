@@ -4,13 +4,13 @@ import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
 import { TooeeProvider } from "@tooee/shell";
 import { Choose } from "../src/choose.js";
-import type { ChooseContentProvider } from "../src/types.js";
+import type { ChooseContentProvider, ChooseResult } from "../src/types.js";
 
 const lineOf = function lineOf(frame: string, text: string): { x: number; y: number } {
   const lines = frame.split("\n");
   for (let y = 0; y < lines.length; y += 1) {
     const x = lines[y].indexOf(text);
-    if (x >= 0) {
+    if (x !== -1) {
       return { x, y };
     }
   }
@@ -29,6 +29,10 @@ const makeProvider = function makeProvider(items = ITEMS): ChooseContentProvider
   return { load: () => items };
 };
 
+const confirmedItems = function confirmedItems(result: ChooseResult | null) {
+  return result?.items ?? [];
+};
+
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
 afterEach(() => {
@@ -39,20 +43,23 @@ const setup = async function setup(
   opts: {
     multi?: boolean;
     prompt?: string;
-    onConfirm?: (r: any) => void;
+    onConfirm?: (result: ChooseResult) => void;
     onCancel?: () => void;
     kittyKeyboard?: boolean;
   } = {},
 ) {
   const handleConfirm = opts.onConfirm;
   const handleCancel = opts.onCancel;
+  const callbacks: {
+    onCancel?: () => void;
+    onConfirm?: (result: ChooseResult) => void;
+  } = { onCancel: handleCancel, onConfirm: handleConfirm };
   const s = await testRender(
     <TooeeProvider initialMode="insert">
       <Choose
         contentProvider={makeProvider()}
         options={{ multi: opts.multi, prompt: opts.prompt }}
-        onConfirm={handleConfirm}
-        onCancel={handleCancel}
+        {...callbacks}
       />
     </TooeeProvider>,
     { height: 24, kittyKeyboard: opts.kittyKeyboard ?? true, width: 60 },
@@ -105,7 +112,7 @@ describe("Choose rendering", () => {
 
 describe("Choose arrow key navigation (kitty keyboard)", () => {
   test("down arrow moves selection down", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       onConfirm: (r) => {
         confirmed = r;
@@ -121,11 +128,11 @@ describe("Choose arrow key navigation (kitty keyboard)", () => {
     await testSetup.renderOnce();
 
     expect(confirmed).not.toBeNull();
-    expect(confirmed.items[0].text).toBe("beta");
+    expect(confirmedItems(confirmed)[0]?.text).toBe("beta");
   });
 
   test("up arrow moves selection up", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       onConfirm: (r) => {
         confirmed = r;
@@ -143,11 +150,11 @@ describe("Choose arrow key navigation (kitty keyboard)", () => {
     await testSetup.renderOnce();
 
     expect(confirmed).not.toBeNull();
-    expect(confirmed.items[0].text).toBe("beta");
+    expect(confirmedItems(confirmed)[0]?.text).toBe("beta");
   });
 
   test("up arrow at top stays on first item", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       onConfirm: (r) => {
         confirmed = r;
@@ -163,11 +170,11 @@ describe("Choose arrow key navigation (kitty keyboard)", () => {
     await testSetup.renderOnce();
 
     expect(confirmed).not.toBeNull();
-    expect(confirmed.items[0].text).toBe("alpha");
+    expect(confirmedItems(confirmed)[0]?.text).toBe("alpha");
   });
 
   test("ctrl+n moves down", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       onConfirm: (r) => {
         confirmed = r;
@@ -183,11 +190,11 @@ describe("Choose arrow key navigation (kitty keyboard)", () => {
     await testSetup.renderOnce();
 
     expect(confirmed).not.toBeNull();
-    expect(confirmed.items[0].text).toBe("beta");
+    expect(confirmedItems(confirmed)[0]?.text).toBe("beta");
   });
 
   test("ctrl+p moves up", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       onConfirm: (r) => {
         confirmed = r;
@@ -205,13 +212,13 @@ describe("Choose arrow key navigation (kitty keyboard)", () => {
     await testSetup.renderOnce();
 
     expect(confirmed).not.toBeNull();
-    expect(confirmed.items[0].text).toBe("beta");
+    expect(confirmedItems(confirmed)[0]?.text).toBe("beta");
   });
 });
 
 describe("Choose arrow key navigation (non-kitty keyboard)", () => {
   test("down arrow moves selection down (non-kitty)", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       kittyKeyboard: false,
       onConfirm: (r) => {
@@ -228,11 +235,11 @@ describe("Choose arrow key navigation (non-kitty keyboard)", () => {
     await testSetup.renderOnce();
 
     expect(confirmed).not.toBeNull();
-    expect(confirmed.items[0].text).toBe("beta");
+    expect(confirmedItems(confirmed)[0]?.text).toBe("beta");
   });
 
   test("up arrow moves selection up (non-kitty)", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       kittyKeyboard: false,
       onConfirm: (r) => {
@@ -251,13 +258,13 @@ describe("Choose arrow key navigation (non-kitty keyboard)", () => {
     await testSetup.renderOnce();
 
     expect(confirmed).not.toBeNull();
-    expect(confirmed.items[0].text).toBe("beta");
+    expect(confirmedItems(confirmed)[0]?.text).toBe("beta");
   });
 });
 
 describe("Choose confirm returns correct item", () => {
   test("enter on first item returns first item", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       onConfirm: (r) => {
         confirmed = r;
@@ -271,12 +278,12 @@ describe("Choose confirm returns correct item", () => {
     await testSetup.renderOnce();
 
     expect(confirmed).not.toBeNull();
-    expect(confirmed.items).toHaveLength(1);
-    expect(confirmed.items[0].text).toBe("alpha");
+    expect(confirmedItems(confirmed)).toHaveLength(1);
+    expect(confirmedItems(confirmed)[0]?.text).toBe("alpha");
   });
 
   test("enter after navigating to third item returns third item", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       onConfirm: (r) => {
         confirmed = r;
@@ -293,13 +300,13 @@ describe("Choose confirm returns correct item", () => {
     await testSetup.renderOnce();
 
     expect(confirmed).not.toBeNull();
-    expect(confirmed.items[0].text).toBe("gamma");
+    expect(confirmedItems(confirmed)[0]?.text).toBe("gamma");
   });
 });
 
 describe("Choose cursor mode navigation", () => {
   test("j/k work in cursor mode", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       onConfirm: (r) => {
         confirmed = r;
@@ -325,7 +332,7 @@ describe("Choose cursor mode navigation", () => {
     await testSetup.renderOnce();
 
     expect(confirmed).not.toBeNull();
-    expect(confirmed.items[0].text).toBe("gamma");
+    expect(confirmedItems(confirmed)[0]?.text).toBe("gamma");
   });
 });
 
@@ -361,7 +368,7 @@ describe("Choose visual alignment", () => {
   });
 
   test("navigating to last item and confirming returns correct item", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       onConfirm: (r) => {
         confirmed = r;
@@ -381,11 +388,11 @@ describe("Choose visual alignment", () => {
     await testSetup.renderOnce();
 
     expect(confirmed).not.toBeNull();
-    expect(confirmed.items[0].text).toBe("epsilon");
+    expect(confirmedItems(confirmed)[0]?.text).toBe("epsilon");
   });
 
   test("navigating past last item stays on last item", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       onConfirm: (r) => {
         confirmed = r;
@@ -406,13 +413,13 @@ describe("Choose visual alignment", () => {
     await testSetup.renderOnce();
 
     expect(confirmed).not.toBeNull();
-    expect(confirmed.items[0].text).toBe("epsilon");
+    expect(confirmedItems(confirmed)[0]?.text).toBe("epsilon");
   });
 });
 
 describe("Choose mouse interaction", () => {
   test("left-click on a row selects it (Enter then confirms that row)", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       onConfirm: (r) => {
         confirmed = r;
@@ -434,11 +441,11 @@ describe("Choose mouse interaction", () => {
     await testSetup.renderOnce();
 
     expect(confirmed).not.toBeNull();
-    expect(confirmed.items[0].text).toBe("gamma");
+    expect(confirmedItems(confirmed)[0]?.text).toBe("gamma");
   });
 
   test("left-click on a row is ignored while a modal overlay is open", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       onConfirm: (r) => {
         confirmed = r;
@@ -480,7 +487,7 @@ describe("Choose mouse interaction", () => {
     await testSetup.renderOnce();
 
     expect(confirmed).not.toBeNull();
-    expect(confirmed.items[0].text).toBe("alpha");
+    expect(confirmedItems(confirmed)[0]?.text).toBe("alpha");
   });
 });
 
@@ -493,12 +500,13 @@ describe("Choose emptyMessage", () => {
     } = {},
   ) {
     const handleCancel = opts.onCancel;
+    const callbacks: { onCancel?: () => void } = { onCancel: handleCancel };
     const s = await testRender(
       <TooeeProvider initialMode="insert">
         <Choose
           contentProvider={makeProvider(opts.items ?? [])}
           options={{ emptyMessage: opts.emptyMessage }}
-          onCancel={handleCancel}
+          {...callbacks}
         />
       </TooeeProvider>,
       { height: 24, kittyKeyboard: true, width: 60 },

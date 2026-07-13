@@ -197,7 +197,7 @@ export const useAskEditor = function useAskEditor(
   );
 
   const resolveSubmitKey = useCallback((): AskSubmitKey => {
-    const current = optionsRef.current;
+    const { current } = optionsRef;
     return current.submitKey ?? (current.multiline === true ? "shift+enter" : "enter");
   }, []);
 

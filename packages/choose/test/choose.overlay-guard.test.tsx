@@ -4,7 +4,7 @@ import { act } from "react";
 import { TooeeProvider } from "@tooee/shell";
 import { ensureTestConfigHome, resetTestConfig } from "../../../test/support/test-config.js";
 import { Choose } from "../src/choose.js";
-import type { ChooseContentProvider } from "../src/types.js";
+import type { ChooseContentProvider, ChooseResult } from "../src/types.js";
 
 const CONFIG_NAMESPACE = "choose-overlay-guard";
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
@@ -26,6 +26,10 @@ const makeProvider = function makeProvider(): ChooseContentProvider {
   return { load: () => ITEMS };
 };
 
+const confirmedItems = function confirmedItems(result: ChooseResult | null) {
+  return result?.items ?? [];
+};
+
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
 let testSetup: TestSession;
@@ -35,18 +39,17 @@ afterEach(() => {
 });
 
 const setup = async function setup(
-  opts: { onConfirm?: (r: any) => void; onCancel?: () => void } = {},
+  opts: { onConfirm?: (result: ChooseResult) => void; onCancel?: () => void } = {},
 ) {
   const handleConfirm = opts.onConfirm;
   const handleCancel = opts.onCancel;
+  const callbacks: {
+    onCancel?: () => void;
+    onConfirm?: (result: ChooseResult) => void;
+  } = { onCancel: handleCancel, onConfirm: handleConfirm };
   const s = await testRender(
     <TooeeProvider initialMode="insert">
-      <Choose
-        contentProvider={makeProvider()}
-        options={{ prompt: "pick" }}
-        onConfirm={handleConfirm}
-        onCancel={handleCancel}
-      />
+      <Choose contentProvider={makeProvider()} options={{ prompt: "pick" }} {...callbacks} />
     </TooeeProvider>,
     { height: 30, kittyKeyboard: true, width: 80 },
   );
@@ -110,7 +113,7 @@ describe("Choose raw keyboard handler with theme picker open (R-01)", () => {
   });
 
   test("Enter selects a theme without submitting the choose selection", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       onConfirm: (r) => {
         confirmed = r;
@@ -124,7 +127,7 @@ describe("Choose raw keyboard handler with theme picker open (R-01)", () => {
   });
 
   test("arrows do not move the hidden choose list", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       onConfirm: (r) => {
         confirmed = r;
@@ -140,11 +143,11 @@ describe("Choose raw keyboard handler with theme picker open (R-01)", () => {
     // Confirm in cursor mode: the active item must still be the first one.
     await pressEnter(testSetup);
     expect(confirmed).not.toBeNull();
-    expect(confirmed.items[0].text).toBe("alpha");
+    expect(confirmedItems(confirmed)[0]?.text).toBe("alpha");
   });
 
   test("ctrl+n/ctrl+p do not move the hidden choose list", async () => {
-    let confirmed: any = null;
+    let confirmed: ChooseResult | null = null;
     testSetup = await setup({
       onConfirm: (r) => {
         confirmed = r;
@@ -158,6 +161,6 @@ describe("Choose raw keyboard handler with theme picker open (R-01)", () => {
 
     await pressEnter(testSetup);
     expect(confirmed).not.toBeNull();
-    expect(confirmed.items[0].text).toBe("alpha");
+    expect(confirmedItems(confirmed)[0]?.text).toBe("alpha");
   });
 });
