@@ -141,7 +141,7 @@ const compareRuns = function compareRuns(
       ratio = candidateMetric.median === 0 ? 1 : Infinity;
     }
     const percent = baselineMetric.median === 0 ? 0 : (ratio - 1) * 100;
-    const threshold = baselineMetric.threshold;
+    const { threshold } = baselineMetric;
     const thresholdExceeded = Boolean(
       baselineMetric.comparable &&
       threshold &&
@@ -161,7 +161,7 @@ const compareRuns = function compareRuns(
     });
   }
 
-  return comparisons.sort((left, right) => {
+  return comparisons.toSorted((left, right) => {
     if (left.thresholdExceeded !== right.thresholdExceeded) {
       return left.thresholdExceeded ? -1 : 1;
     }

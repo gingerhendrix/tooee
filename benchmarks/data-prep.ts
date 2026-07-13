@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 import { marked } from "marked";
-import { computeColumnWidths, flattenTokens } from "@tooee/renderers";
+import { computeColumnWidths, flattenMarkdown } from "@tooee/renderers";
 import { FIXTURE_TIERS, makeMarkdownFixture, makeTableFixture } from "./lib/fixtures.ts";
 import { printMetric, printTimedMetric } from "./lib/benchmark-result.ts";
 
@@ -12,7 +12,7 @@ if (!Number.isFinite(iterations) || iterations < 1) {
 }
 
 const median = function median(values: number[]): number {
-  const sorted = [...values].sort((left, right) => left - right);
+  const sorted = values.toSorted((left, right) => left - right);
   return sorted[Math.floor(sorted.length / 2)] ?? 0;
 };
 
@@ -26,13 +26,16 @@ const formatCellValue = function formatCellValue(value: unknown): string {
   if (typeof value === "number" || typeof value === "boolean") {
     return String(value);
   }
+  if (typeof value === "bigint" || typeof value === "symbol" || typeof value === "function") {
+    return String(value);
+  }
   if (value instanceof Date) {
     return value.toISOString();
   }
   try {
-    return JSON.stringify(value);
+    return JSON.stringify(value) ?? "";
   } catch {
-    return String(value);
+    return Object.prototype.toString.call(value);
   }
 };
 
@@ -65,7 +68,7 @@ for (const tier of [FIXTURE_TIERS.moderate, FIXTURE_TIERS.large]) {
   printTimedMetric(`markdown_${tier.name}_lex_median`, lex.medianMs);
   printMetric(`markdown_${tier.name}_token_count`, lex.lastCount);
 
-  const flatten = timeIterations(() => flattenTokens(marked.lexer(markdown.markdown)).length);
+  const flatten = timeIterations(() => flattenMarkdown(markdown.markdown).length);
   printTimedMetric(`markdown_${tier.name}_lex_flatten_median`, flatten.medianMs);
   printMetric(`markdown_${tier.name}_flat_block_count`, flatten.lastCount);
 

@@ -80,17 +80,18 @@ export const makeMarkdownFixture = function makeMarkdownFixture(
     );
 
     if (section % 4 === 0) {
-      sections.push("```ts");
-      sections.push(`export function section${section}(input: number) {`);
-      sections.push(`  return input + ${section}`);
-      sections.push("}");
-      sections.push("```");
-      sections.push("");
+      sections.push(
+        "```ts",
+        `export function section${section}(input: number) {`,
+        `  return input + ${section}`,
+        "}",
+        "```",
+        "",
+      );
     }
 
     if (section % 6 === 0) {
-      sections.push(markdownTable(section));
-      sections.push("");
+      sections.push(markdownTable(section), "");
     }
   }
 

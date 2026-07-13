@@ -66,7 +66,7 @@ const main = async function main() {
     console.log("Selection cancelled");
   } else {
     // result.items contains the selected ChooseItem(s)
-    const selected = result.items[0];
+    const [selected] = result.items;
     console.log(`You chose: ${selected.text} (${selected.value})`);
   }
 };

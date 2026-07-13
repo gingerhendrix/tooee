@@ -48,7 +48,7 @@ const main = async function main() {
   if (result === null) {
     console.log("Selection cancelled");
   } else {
-    const selected = result.items[0];
+    const [selected] = result.items;
     console.log(`You chose: ${selected.text} (${selected.value})`);
   }
 };

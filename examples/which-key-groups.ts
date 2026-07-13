@@ -26,9 +26,9 @@ import { AppLayout } from "@tooee/layout";
 import { launchCli, useQuitCommand } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
 
-const h = function h(
-  tag: string | ComponentType<any>,
-  props: Record<string, unknown>,
+const h = function h<Props extends object>(
+  tag: string | ComponentType<Props>,
+  props: Props,
   ...children: ReactNode[]
 ): ReactNode {
   return createElement(tag, props, ...children);
@@ -260,6 +260,7 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
   return h(
     AppLayout,
     {
+      children: content,
       statusBar: { items: [{ label: "Mode:", value: "cursor" }] },
       titleBar: { title: "Which-key Groups Demo" },
     },

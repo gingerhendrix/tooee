@@ -41,7 +41,7 @@ export const percentile = function percentile(values: number[], percentileValue:
     return 0;
   }
 
-  const sorted = [...values].sort((left, right) => left - right);
+  const sorted = values.toSorted((left, right) => left - right);
   const index = Math.min(
     sorted.length - 1,
     Math.max(0, Math.ceil((percentileValue / 100) * sorted.length) - 1),
@@ -84,7 +84,7 @@ export const aggregateMetric = function aggregateMetric(
   metric: string,
   samples: number[],
 ): BenchmarkMetricResult {
-  const sorted = [...samples].sort((left, right) => left - right);
+  const sorted = samples.toSorted((left, right) => left - right);
   const classification = classifyMetric(metric);
 
   return {

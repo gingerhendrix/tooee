@@ -20,6 +20,26 @@ interface PR {
   createdAt: string;
 }
 
+const isPR = function isPR(value: unknown): value is PR {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "number" in value &&
+    typeof value.number === "number" &&
+    "title" in value &&
+    typeof value.title === "string" &&
+    "author" in value &&
+    typeof value.author === "object" &&
+    value.author !== null &&
+    "login" in value.author &&
+    typeof value.author.login === "string" &&
+    "state" in value &&
+    typeof value.state === "string" &&
+    "createdAt" in value &&
+    typeof value.createdAt === "string"
+  );
+};
+
 const contentProvider: ContentProvider = {
   async load(): Promise<Content> {
     const proc = Bun.spawn([
@@ -60,7 +80,11 @@ const contentProvider: ContentProvider = {
       };
     }
 
-    const prs: PR[] = JSON.parse(text || "[]");
+    const parsed: unknown = JSON.parse(text || "[]");
+    if (!Array.isArray(parsed) || !parsed.every(isPR)) {
+      throw new Error("GitHub returned invalid pull request data");
+    }
+    const prs = parsed;
 
     if (prs.length === 0) {
       return {

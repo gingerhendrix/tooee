@@ -110,7 +110,7 @@ const KanbanRenderer = function KanbanRenderer({ content }: ContentRendererProps
   const { theme } = useTheme();
   // Deferred(lint-sweep): add schema-based validation for custom renderer content
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- custom format payload validation is deferred
-  const data = (content as CustomContent<KanbanData>).data;
+  const { data } = content as CustomContent<KanbanData>;
 
   const maxCards = Math.max(...data.columns.map((col) => col.cards.length));
 

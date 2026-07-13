@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import os from "node:os";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import path from "node:path";
 import { aggregateMetric } from "./lib/benchmark-result.ts";
 import type { BenchmarkRunResult } from "./lib/benchmark-result.ts";
 
@@ -194,7 +194,7 @@ for (const script of scripts) {
 
 const results = [...samplesByMetric.values()]
   .map(({ source, metric, samples }) => aggregateMetric(source, metric, samples))
-  .sort((left, right) => left.name.localeCompare(right.name));
+  .toSorted((left, right) => left.name.localeCompare(right.name));
 const packageJson = await packageInfo();
 
 const runResult: BenchmarkRunResult = {
@@ -221,8 +221,8 @@ for (const result of results) {
 }
 
 if ((options.out?.length ?? 0) > 0) {
-  const outPath = resolve(options.out);
-  mkdirSync(dirname(outPath), { recursive: true });
+  const outPath = path.resolve(options.out);
+  mkdirSync(path.dirname(outPath), { recursive: true });
   writeFileSync(outPath, `${JSON.stringify(runResult, null, 2)}\n`);
   console.log(`\nWrote ${outPath}`);
 }

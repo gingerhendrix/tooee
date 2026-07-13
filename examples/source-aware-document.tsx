@@ -25,7 +25,7 @@ const SourceAwareDocument = function SourceAwareDocument({
   const controller = useDocumentController({
     adapter: sourceLineAdapter,
     onRowPress: ({ index, row }) => {
-      const line = row.source.primary.start.line;
+      const { line } = row.source.primary.start;
       console.error(`pressed rendered row ${index}, source line ${line}`);
     },
     preserveCursorByKey: false,
