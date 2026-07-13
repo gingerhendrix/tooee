@@ -4,11 +4,9 @@ import type { ActionDefinition, CommandContext } from "@tooee/commands";
 import type {
   ContextMenuEntry,
   DecorationLayer,
-  DocumentBindings,
-  DocumentRowAnchor,
-  DocumentRowSource,
-  SourcePoint,
-  SourceSpan,
+  DocumentBindings as RendererDocumentBindings,
+  DocumentRowAnchor as RendererDocumentRowAnchor,
+  DocumentRowSource as RendererDocumentRowSource,
 } from "@tooee/renderers";
 import type { SearchState } from "@tooee/search";
 import type { NavigationState } from "../navigation.js";
@@ -17,7 +15,13 @@ import type { NavigationState } from "../navigation.js";
  * Re-exported so controller consumers need not reach into `@tooee/renderers`.
  * The source-coordinate types travel with the document row model.
  */
-export type { DocumentBindings, DocumentRowAnchor, DocumentRowSource, SourcePoint, SourceSpan };
+export type {
+  DocumentBindings,
+  DocumentRowAnchor,
+  DocumentRowSource,
+  SourcePoint,
+  SourceSpan,
+} from "@tooee/renderers";
 
 /**
  * Priorities of the interaction decoration layers the controller generates.
@@ -48,7 +52,7 @@ export interface DocumentRowAdapter<T> {
    * (headers, separators, cards) may return `null`; the controller then exposes
    * an anchor with `source: null` that still carries the row's key and text.
    */
-  getSource?: (row: T, index: number) => DocumentRowSource | null;
+  getSource?: (row: T, index: number) => RendererDocumentRowSource | null;
 }
 
 export interface DocumentRowEvent<T> {
@@ -109,7 +113,7 @@ export interface UseDocumentControllerOptions<T> {
     | ((event: DocumentContextMenuEvent<T>) => DocumentContextMenuItems);
 }
 
-export interface DocumentController<T> extends DocumentBindings {
+export interface DocumentController<T> extends RendererDocumentBindings {
   readonly rows: readonly T[];
   readonly navigation: NavigationState;
   readonly search: SearchState | null;
@@ -123,8 +127,8 @@ export interface DocumentController<T> extends DocumentBindings {
    * The active/selected rows as typed source anchors. Derived on demand from the
    * current `rows` and adapter — there is no parallel source-map array to drift.
    */
-  readonly activeAnchor: DocumentRowAnchor<T> | null;
-  readonly selectedAnchors: readonly DocumentRowAnchor<T>[];
+  readonly activeAnchor: RendererDocumentRowAnchor<T> | null;
+  readonly selectedAnchors: readonly RendererDocumentRowAnchor<T>[];
 
   /** Toggled rows projected onto the current row order. */
   readonly toggledIndices: ReadonlySet<number>;
@@ -137,7 +141,7 @@ export interface DocumentController<T> extends DocumentBindings {
    * Returns `null` only when `index` is out of range; a valid generated row
    * still returns an anchor with `source: null`.
    */
-  getAnchor: (index: number) => DocumentRowAnchor<T> | null;
+  getAnchor: (index: number) => RendererDocumentRowAnchor<T> | null;
   getRowAtScreenY: (screenY: number) => { row: T; index: number; key: Key } | null;
 
   /**

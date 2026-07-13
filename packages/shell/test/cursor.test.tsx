@@ -8,18 +8,14 @@ import type { TestSession } from "./support/test-helpers.ts";
 const CursorHarness = function CursorHarness({ rowCount }: { rowCount: number }): React.ReactNode {
   const nav = useNavigation({ multiSelect: true, rowCount, viewportHeight: 10 });
   const mode = useMode();
-  const selection = nav.selection;
+  const { selection } = nav;
 
   return (
     <box flexDirection="column">
       <text content={`mode:${mode}`} />
       <text content={`cursor:${nav.cursor ?? "null"}`} />
       <text content={`selection:${selection ? `${selection.start}-${selection.end}` : "null"}`} />
-      <text
-        content={`toggled:${Array.from(nav.toggledIndices)
-          .sort((a, b) => a - b)
-          .join(",")}`}
-      />
+      <text content={`toggled:${[...nav.toggledIndices].toSorted((a, b) => a - b).join(",")}`} />
     </box>
   );
 };

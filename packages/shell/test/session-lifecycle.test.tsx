@@ -48,7 +48,7 @@ const remoteRendererOptions = function remoteRendererOptions(
 describe("mountTooee", () => {
   test("unmounts idempotently without destroying an external renderer", async () => {
     testRenderer = await createTestRenderer({ height: 10, width: 40 });
-    const renderer = testRenderer.renderer;
+    const { renderer } = testRenderer;
     const originalDestroy = renderer.destroy.bind(renderer);
     let destroyCalls = 0;
     renderer.destroy = () => {
@@ -69,7 +69,7 @@ describe("mountTooee", () => {
 
   test("does not install terminal-health listeners", async () => {
     testRenderer = await createTestRenderer({ height: 10, width: 40 });
-    const stdin = testRenderer.renderer.stdin;
+    const { stdin } = testRenderer.renderer;
     const beforeEnd = stdin.listenerCount("end");
     const beforeClose = stdin.listenerCount("close");
 
@@ -158,8 +158,8 @@ describe("local sessions", () => {
 
 test("guardTerminalHealth owns and removes only its listeners", async () => {
   testRenderer = await createTestRenderer({ height: 10, width: 40 });
-  const renderer = testRenderer.renderer;
-  const stdin = renderer.stdin;
+  const { renderer } = testRenderer;
+  const { stdin } = renderer;
   const beforeEnd = stdin.listenerCount("end");
   const beforeClose = stdin.listenerCount("close");
 

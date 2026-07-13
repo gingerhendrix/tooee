@@ -51,9 +51,7 @@ const describeLayers = function describeLayers(layers: readonly DecorationLayer[
   return layers
     .map(
       (layer) =>
-        `${layer.priority}@${Array.from(layer.forVisibleRows(0, 99))
-          .map((d) => d.row)
-          .join("+")}`,
+        `${layer.priority}@${[...layer.forVisibleRows(0, 99)].map((d) => d.row).join("+")}`,
     )
     .join(" ");
 };
@@ -249,7 +247,7 @@ describe("stable keys across reorder", () => {
     expect(controller().selectedRows.map((r) => r.id)).toEqual(["a"]);
 
     await setRows([row("c"), row("b"), row("a")]);
-    expect(Array.from(controller().toggledIndices)).toEqual([2]);
+    expect([...controller().toggledIndices]).toEqual([2]);
     expect(controller().selectedRows.map((r) => r.id)).toEqual(["a"]);
   });
 });
@@ -264,7 +262,7 @@ describe("selection", () => {
     await press(session, "k");
     await pressTab(session);
 
-    expect(Array.from(controller().toggledIndices)).toEqual([0, 2]);
+    expect([...controller().toggledIndices]).toEqual([0, 2]);
     expect(controller().selectedRows.map((r) => r.id)).toEqual(["a", "c"]);
   });
 
@@ -274,7 +272,7 @@ describe("selection", () => {
     await press(session, "j");
     await pressTab(session, { shift: true });
 
-    expect(Array.from(controller().toggledIndices)).toEqual([2]);
+    expect([...controller().toggledIndices]).toEqual([2]);
     expect(active()).toBe("b/1");
   });
 

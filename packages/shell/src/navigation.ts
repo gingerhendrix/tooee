@@ -175,13 +175,13 @@ export const useNavigationBindings = function useNavigationBindings(
     title: "Cancel selection",
   });
 
-  const context = store.getSnapshot().context;
+  const { context } = store.getSnapshot();
   const toggledIndices = new Set<number>();
-  rowKeys.forEach((key, index) => {
+  for (const [index, key] of rowKeys.entries()) {
     if (toggledKeys.has(key)) {
       toggledIndices.add(index);
     }
-  });
+  }
   const selection =
     mode === "select" && anchor !== null && cursor !== null
       ? deriveSelection({ ...context, cursor, selectionAnchor: anchor }, mode)

@@ -140,7 +140,7 @@ describe("theme picker", () => {
     let pos = { x: -1, y: -1 };
     for (let y = 4; y < lines.length; y += 1) {
       const x = lines[y].indexOf(target);
-      if (x >= 0) {
+      if (x !== -1) {
         pos = { x, y };
         break;
       }

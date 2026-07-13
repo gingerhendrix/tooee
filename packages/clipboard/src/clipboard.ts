@@ -7,6 +7,24 @@ export interface ClipboardContent {
   mime: string;
 }
 
+const readLinuxClipboardText = async function readLinuxClipboardText(): Promise<
+  string | undefined
+> {
+  if ((process.env.WAYLAND_DISPLAY?.length ?? 0) > 0 && (Bun.which("wl-paste")?.length ?? 0) > 0) {
+    const result = await $`wl-paste`.nothrow().quiet().text();
+    return result || undefined;
+  }
+  if ((Bun.which("xclip")?.length ?? 0) > 0) {
+    const result = await $`xclip -selection clipboard -o`.nothrow().quiet().text();
+    return result || undefined;
+  }
+  if ((Bun.which("xsel")?.length ?? 0) > 0) {
+    const result = await $`xsel --clipboard --output`.nothrow().quiet().text();
+    return result || undefined;
+  }
+  return undefined;
+};
+
 export const readClipboardText = async function readClipboardText(): Promise<string | undefined> {
   const os = platform();
 
@@ -16,21 +34,7 @@ export const readClipboardText = async function readClipboardText(): Promise<str
   }
 
   if (os === "linux") {
-    if (
-      (process.env.WAYLAND_DISPLAY?.length ?? 0) > 0 &&
-      (Bun.which("wl-paste")?.length ?? 0) > 0
-    ) {
-      const result = await $`wl-paste`.nothrow().quiet().text();
-      return result || undefined;
-    }
-    if ((Bun.which("xclip")?.length ?? 0) > 0) {
-      const result = await $`xclip -selection clipboard -o`.nothrow().quiet().text();
-      return result || undefined;
-    }
-    if ((Bun.which("xsel")?.length ?? 0) > 0) {
-      const result = await $`xsel --clipboard --output`.nothrow().quiet().text();
-      return result || undefined;
-    }
+    return await readLinuxClipboardText();
   }
 
   if (os === "win32") {
@@ -41,63 +45,80 @@ export const readClipboardText = async function readClipboardText(): Promise<str
   return undefined;
 };
 
+const readMacClipboardImage = async function readMacClipboardImage(): Promise<
+  ClipboardContent | undefined
+> {
+  const tmpfile = path.join(tmpdir(), "tooee-clipboard.png");
+  try {
+    await $`osascript -e 'set imageData to the clipboard as "PNGf"' -e 'set fileRef to open for access POSIX file "${tmpfile}" with write permission' -e 'set eof fileRef to 0' -e 'write imageData to fileRef' -e 'close access fileRef'`
+      .nothrow()
+      .quiet();
+    const buffer = await Bun.file(tmpfile).arrayBuffer();
+    if (buffer.byteLength > 0) {
+      return { data: Buffer.from(buffer).toString("base64"), mime: "image/png" };
+    }
+  } catch {
+    // Image read failed, try text below
+  } finally {
+    await $`rm -f "${tmpfile}"`.nothrow().quiet();
+  }
+  return undefined;
+};
+
+const readWindowsClipboardImage = async function readWindowsClipboardImage(): Promise<
+  ClipboardContent | undefined
+> {
+  const script =
+    "Add-Type -AssemblyName System.Windows.Forms; $img = [System.Windows.Forms.Clipboard]::GetImage(); if ($img) { $ms = New-Object System.IO.MemoryStream; $img.Save($ms, [System.Drawing.Imaging.ImageFormat]::Png); [System.Convert]::ToBase64String($ms.ToArray()) }";
+  const base64 = await $`powershell.exe -command "${script}"`.nothrow().text();
+  if (base64) {
+    const imageBuffer = Buffer.from(base64.trim(), "base64");
+    if (imageBuffer.length > 0) {
+      return { data: imageBuffer.toString("base64"), mime: "image/png" };
+    }
+  }
+  return undefined;
+};
+
+const readLinuxClipboardImage = async function readLinuxClipboardImage(): Promise<
+  ClipboardContent | undefined
+> {
+  if ((process.env.WAYLAND_DISPLAY?.length ?? 0) > 0 && (Bun.which("wl-paste")?.length ?? 0) > 0) {
+    const wayland = await $`wl-paste -t image/png`.nothrow().arrayBuffer();
+    if (wayland.byteLength > 0) {
+      return { data: Buffer.from(wayland).toString("base64"), mime: "image/png" };
+    }
+  }
+  if ((Bun.which("xclip")?.length ?? 0) > 0) {
+    const x11 = await $`xclip -selection clipboard -t image/png -o`.nothrow().arrayBuffer();
+    if (x11.byteLength > 0) {
+      return { data: Buffer.from(x11).toString("base64"), mime: "image/png" };
+    }
+  }
+  return undefined;
+};
+
 export const readClipboard = async function readClipboard(): Promise<ClipboardContent | undefined> {
   const os = platform();
 
   if (os === "darwin") {
-    const tmpfile = path.join(tmpdir(), "tooee-clipboard.png");
-    try {
-      await $`osascript -e 'set imageData to the clipboard as "PNGf"' -e 'set fileRef to open for access POSIX file "${tmpfile}" with write permission' -e 'set eof fileRef to 0' -e 'write imageData to fileRef' -e 'close access fileRef'`
-        .nothrow()
-        .quiet();
-      const file = Bun.file(tmpfile);
-      const buffer = await file.arrayBuffer();
-      if (buffer.byteLength > 0) {
-        return {
-          data: Buffer.from(buffer).toString("base64"),
-          mime: "image/png",
-        };
-      }
-    } catch {
-      // Image read failed, try text below
-    } finally {
-      await $`rm -f "${tmpfile}"`.nothrow().quiet();
+    const image = await readMacClipboardImage();
+    if (image) {
+      return image;
     }
   }
 
   if (os === "win32" || release().includes("WSL")) {
-    const script =
-      "Add-Type -AssemblyName System.Windows.Forms; $img = [System.Windows.Forms.Clipboard]::GetImage(); if ($img) { $ms = New-Object System.IO.MemoryStream; $img.Save($ms, [System.Drawing.Imaging.ImageFormat]::Png); [System.Convert]::ToBase64String($ms.ToArray()) }";
-    const base64 = await $`powershell.exe -command "${script}"`.nothrow().text();
-    if (base64) {
-      const imageBuffer = Buffer.from(base64.trim(), "base64");
-      if (imageBuffer.length > 0) {
-        return { data: imageBuffer.toString("base64"), mime: "image/png" };
-      }
+    const image = await readWindowsClipboardImage();
+    if (image) {
+      return image;
     }
   }
 
   if (os === "linux") {
-    if (
-      (process.env.WAYLAND_DISPLAY?.length ?? 0) > 0 &&
-      (Bun.which("wl-paste")?.length ?? 0) > 0
-    ) {
-      const wayland = await $`wl-paste -t image/png`.nothrow().arrayBuffer();
-      if (wayland.byteLength > 0) {
-        return {
-          data: Buffer.from(wayland).toString("base64"),
-          mime: "image/png",
-        };
-      }
-    }
-    if ((Bun.which("xclip")?.length ?? 0) > 0) {
-      const x11 = await $`xclip -selection clipboard -t image/png -o`.nothrow().arrayBuffer();
-      if (x11.byteLength > 0) {
-        return {
-          data: Buffer.from(x11).toString("base64"),
-          mime: "image/png",
-        };
-      }
+    const image = await readLinuxClipboardImage();
+    if (image) {
+      return image;
     }
   }
 

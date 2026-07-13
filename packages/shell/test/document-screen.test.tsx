@@ -168,7 +168,7 @@ describe("ctx.document", () => {
     expect(expectDefined(captured).activeKey).toBe("b");
     expect(expectDefined(captured).activeRow).toEqual(expectDefined(ROWS[1]));
     expect(expectDefined(captured).selectedRows).toEqual([expectDefined(ROWS[1])]);
-    expect(Array.from(expectDefined(captured).toggledIndices)).toEqual([1]);
+    expect([...expectDefined(captured).toggledIndices]).toEqual([1]);
     expect(expectDefined(captured).selection).toBeNull();
     expect(expectDefined(captured).flavour).toBe("vanilla");
 
@@ -198,7 +198,7 @@ describe("status bar", () => {
     const line = statusLine();
     const positions = orderOf(line, ["Theme:", "Rows:", "Mode:", "Cursor:"]);
     expect(positions.every((position) => position >= 0)).toBe(true);
-    expect(positions).toEqual([...positions].sort((a, b) => a - b));
+    expect(positions).toEqual(positions.toSorted((a, b) => a - b));
   });
 
   test("the selection count follows Cursor and only appears when non-empty", async () => {

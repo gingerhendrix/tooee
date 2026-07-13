@@ -153,7 +153,7 @@ const summarizeCandidates = function summarizeCandidates(
     byKey.set(key, values);
   }
 
-  return Array.from(byKey.entries())
+  return [...byKey.entries()]
     .map(([key, titles]) => ({ key, title: titles.join(" / ") }))
     .toSorted((a, b) => a.key.localeCompare(b.key));
 };
@@ -172,7 +172,7 @@ const fallbackCandidateLabel = function fallbackCandidateLabel(
     return candidate.command.category;
   }
 
-  const step = candidate.remainingSteps[1];
+  const [, step] = candidate.remainingSteps;
   return step === undefined
     ? candidate.command.title
     : `${formatStep(step)}… ${candidate.command.title}`;
