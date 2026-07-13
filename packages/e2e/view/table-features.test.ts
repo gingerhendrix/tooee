@@ -8,7 +8,9 @@ let session: Session;
 afterEach(() => {
   try {
     session?.close();
-  } catch {}
+  } catch {
+    // The session may already have exited or closed.
+  }
 });
 
 describe("table text wrapping", () => {
@@ -88,7 +90,7 @@ describe("table sticky header", () => {
       // oxlint-disable-next-line no-await-in-loop -- Preserve sequential terminal input.
       await session.press("j");
     }
-    await session.waitForText(/Cursor:\s*(1\d|2\d)/u, { timeout: 5000 });
+    await session.waitForText(/Cursor:\s*(?:1\d|2\d)/u, { timeout: 5000 });
     const text = await session.text();
     // Header should STILL be visible at the top (sticky)
     expect(text).toContain("name");

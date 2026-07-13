@@ -29,7 +29,9 @@ let session: Session;
 afterEach(() => {
   try {
     session?.close();
-  } catch {}
+  } catch {
+    // The session may already have exited or closed.
+  }
 });
 
 describe("custom code block app e2e", () => {

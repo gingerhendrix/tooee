@@ -8,12 +8,14 @@ let session: Session;
 afterEach(() => {
   try {
     session?.close();
-  } catch {}
+  } catch {
+    // The session may already have exited or closed.
+  }
 });
 
 const extractCursor = function extractCursor(text: string): number {
-  const match = text.match(/Cursor:\s*(\d+)/u);
-  return match ? Number.parseInt(match[1], 10) : -1;
+  const match = /Cursor:\s*(?<cursor>\d+)/u.exec(text);
+  return match?.groups ? Number.parseInt(match.groups.cursor, 10) : -1;
 };
 
 describe("markdown scrolling", () => {

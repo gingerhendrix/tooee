@@ -7,7 +7,9 @@ let session: Session;
 afterEach(() => {
   try {
     session?.close();
-  } catch {}
+  } catch {
+    // The session may already have exited or closed.
+  }
 });
 
 describe("marks rendering e2e (code content)", () => {
@@ -34,7 +36,7 @@ describe("marks rendering e2e (code content)", () => {
       // Deferred(lint-sweep): Inspect each frame before deciding whether another retry is needed.
       // oxlint-disable-next-line no-await-in-loop -- Preserve ordered polling.
       const check = await session.text();
-      if (!check.match(/Mode:\s*cursor/u)) {
+      if (!/Mode:\s*cursor/u.test(check)) {
         break;
       }
     }

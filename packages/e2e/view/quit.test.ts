@@ -7,7 +7,9 @@ let session: Session;
 afterEach(() => {
   try {
     session?.close();
-  } catch {}
+  } catch {
+    // The session may already have exited or closed.
+  }
 });
 
 describe("quit", () => {
@@ -17,9 +19,7 @@ describe("quit", () => {
     expect(textBefore).toContain("Hello World");
     await session.press("q");
     // Give the process time to exit
-    await new Promise((r) => {
-      setTimeout(r, 2000);
-    });
+    await Bun.sleep(2000);
     // After quitting, getting text should either throw or return empty/different content
     try {
       const textAfter = await session.text();

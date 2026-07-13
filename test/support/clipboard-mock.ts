@@ -13,8 +13,12 @@ export const clipboardStub = function clipboardStub() {
     copyToClipboard: (text: string) => {
       copied.push(text);
     },
-    copyToPrimary: async () => {},
-    readClipboard: async () => {},
+    copyToPrimary: async () => {
+      // The mock intentionally performs no primary-selection I/O.
+    },
+    readClipboard: async () => {
+      // The mock intentionally performs no clipboard I/O.
+    },
     readClipboardText: () => "",
     readPrimaryText: () => "",
   };

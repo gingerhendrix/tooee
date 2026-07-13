@@ -12,7 +12,9 @@ let session: Session;
 afterEach(() => {
   try {
     session?.close();
-  } catch {}
+  } catch {
+    // The session may already have exited or closed.
+  }
 });
 
 const launchViewDir = async function launchViewDir(): Promise<Session> {

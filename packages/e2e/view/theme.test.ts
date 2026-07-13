@@ -7,12 +7,14 @@ let session: Session;
 afterEach(() => {
   try {
     session?.close();
-  } catch {}
+  } catch {
+    // The session may already have exited or closed.
+  }
 });
 
 const extractTheme = function extractTheme(text: string): string {
-  const match = text.match(/Theme:\s*(\S+)/u);
-  return match ? match[1] : "";
+  const match = /Theme:\s*(?<theme>\S+)/u.exec(text);
+  return match?.groups?.theme ?? "";
 };
 
 describe("theme switching", () => {
@@ -45,9 +47,7 @@ describe("theme switching", () => {
       }
       // Deferred(lint-sweep): The polling interval controls the render-transition timing.
       // oxlint-disable-next-line no-await-in-loop -- Preserve sequential polling timing.
-      await new Promise((resolve) => {
-        setTimeout(resolve, 250);
-      });
+      await Bun.sleep(250);
     }
     expect(after).not.toBe(initial);
   }, 20_000);
