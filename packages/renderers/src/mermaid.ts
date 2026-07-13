@@ -2,7 +2,7 @@ import { renderMermaidASCII } from "beautiful-mermaid";
 import { parseColor, StyledText } from "@opentui/core";
 import type { TextChunk } from "@opentui/core";
 
-type BeautifulMermaidAsciiTheme = {
+interface BeautifulMermaidAsciiTheme {
   fg?: string;
   border?: string;
   line?: string;
@@ -11,7 +11,7 @@ type BeautifulMermaidAsciiTheme = {
   bg?: string;
   corner?: string;
   junction?: string;
-};
+}
 
 export type MermaidRenderMode = "plain" | "ansi";
 

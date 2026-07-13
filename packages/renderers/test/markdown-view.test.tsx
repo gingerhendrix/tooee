@@ -990,7 +990,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
     expect(arrowBaseline).not.toEqual(letterBaseline);
 
     // At every pan offset the arrow and letter colors must stay unchanged.
-    const maxScrollX = diagram.maxScrollX;
+    const { maxScrollX } = diagram;
     expect(maxScrollX).toBeGreaterThan(0);
     for (let offset = 1; offset <= maxScrollX; offset += 3) {
       diagram.scrollX = offset;

@@ -13,9 +13,9 @@ const cols = function cols(headers: string[]) {
 const rows = function rows(columns: ReturnType<typeof cols>, values: string[][]) {
   return values.map((row) => {
     const record: Record<string, string> = {};
-    columns.forEach((column, index) => {
+    for (const [index, column] of columns.entries()) {
       record[column.key] = row[index] ?? "";
-    });
+    }
     return record;
   });
 };
@@ -91,7 +91,7 @@ describe("Table mouse interaction", () => {
     await testSetup.renderOnce();
 
     expect(events.length).toBe(1);
-    const event = events[0];
+    const [event] = events;
     if (event === undefined) {
       throw new Error("Expected a context-menu event");
     }

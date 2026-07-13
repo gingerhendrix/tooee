@@ -107,13 +107,13 @@ export const computeRowDocumentGutterWidth = function computeRowDocumentGutterWi
 
 export class RowDocumentRenderable extends ScrollBoxRenderable {
   // -- Options --
-  private _mode: "auto" | "multi" | "provider";
+  private readonly _mode: "auto" | "multi" | "provider";
   private _showGutter: boolean;
   private _showLineNumbers: boolean;
-  private _lineNumberStart: number;
-  private _signColumnWidth: number;
-  private _gutterPaddingRight: number;
-  private _rowChildOffset: number;
+  private readonly _lineNumberStart: number;
+  private readonly _signColumnWidth: number;
+  private readonly _gutterPaddingRight: number;
+  private readonly _rowChildOffset: number;
   private _palette: Required<RowDocumentPalette>;
   private _layers: readonly DecorationLayer[] = [];
   private _layerGutterBgs = new Map<number, string>();

@@ -86,13 +86,11 @@ export const parseJSON = function parseJSON(input: string): {
   columns: ColumnDef[];
   rows: TableRow[];
 } {
-  const data = JSON.parse(input);
+  const data: unknown = JSON.parse(input);
   if (!Array.isArray(data) || data.length === 0) {
     return { columns: [], rows: [] };
   }
-  const keys = Array.from(
-    new Set(data.flatMap((item: Record<string, unknown>) => Object.keys(item))),
-  );
+  const keys = [...new Set(data.flatMap((item: Record<string, unknown>) => Object.keys(item)))];
   const columns: ColumnDef[] = keys.map((key) => ({ header: key, key }));
   const rows = data.map((item: Record<string, unknown>) => {
     const row: TableRow = {};
@@ -110,7 +108,7 @@ export const detectFormat = function detectFormat(input: string): Format {
   const trimmed = input.trimStart();
   if (trimmed.startsWith("[")) {
     try {
-      const parsed = JSON.parse(trimmed);
+      const parsed: unknown = JSON.parse(trimmed);
       if (Array.isArray(parsed)) {
         return "json";
       }
@@ -181,9 +179,9 @@ const createColumnDefs = function createColumnDefs(rawHeaders: string[]): Column
 const buildRows = function buildRows(columns: ColumnDef[], rawRows: string[][]): TableRow[] {
   return rawRows.map((row) => {
     const record: TableRow = {};
-    columns.forEach((column, index) => {
+    for (const [index, column] of columns.entries()) {
       record[column.key] = row[index] ?? "";
-    });
+    }
     return record;
   });
 };

@@ -91,7 +91,7 @@ describe("CodeView mouse interaction", () => {
     await testSetup.renderOnce();
 
     expect(events.length).toBe(1);
-    const event = events[0];
+    const [event] = events;
     if (event === undefined) {
       throw new Error("Expected a context-menu event");
     }

@@ -16,9 +16,9 @@ const createRows = function createRows(
 ) {
   return values.map((row) => {
     const record: Record<string, string> = {};
-    columns.forEach((column, index) => {
+    for (const [index, column] of columns.entries()) {
       record[column.key] = row[index] ?? "";
-    });
+    }
     return record;
   });
 };

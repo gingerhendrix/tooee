@@ -259,7 +259,8 @@ const ListLineRenderer = function ListLineRenderer({
     // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
     content = <InlineTokens tokens={inlineTokens} theme={theme} />;
   } else if (hasText) {
-    content = "text" in token ? token.text : "";
+    const tokenText: unknown = "text" in token ? token.text : "";
+    content = typeof tokenText === "string" ? tokenText : "";
   }
 
   return (
@@ -649,7 +650,8 @@ const getPlainText = function getPlainText(tokens: Token[]): string {
         return getPlainText(token.tokens);
       }
       if ("text" in token) {
-        return token.text;
+        const tokenText: unknown = token.text;
+        return typeof tokenText === "string" ? tokenText : "";
       }
       return "";
     })

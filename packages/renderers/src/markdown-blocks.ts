@@ -77,18 +77,17 @@ export const getFlatBlockText = function getFlatBlockText(block: FlatBlock): str
  */
 class MarkdownResolver {
   readonly index: SourceIndex;
+  readonly markdown: string;
   cursor = 0;
 
-  constructor(
-    readonly markdown: string,
-    sourceId?: string,
-  ) {
+  constructor(markdown: string, sourceId?: string) {
+    this.markdown = markdown;
     this.index = new SourceIndex(markdown, sourceId);
   }
 
   /** Resolve `raw` at/after the cursor within `[cursor, bound]`, then advance. */
   resolveRaw(raw: string, bound: number): DocumentRowSource | null {
-    const match = this.find(raw, bound);
+    const match = this.findRaw(raw, bound);
     if (!match) {
       return null;
     }
@@ -98,7 +97,7 @@ class MarkdownResolver {
 
   /** Find `raw`'s offset range without advancing the cursor. */
   locate(raw: string, bound: number): { start: number; end: number } | null {
-    return this.find(raw, bound);
+    return this.findRaw(raw, bound);
   }
 
   /**
@@ -108,7 +107,7 @@ class MarkdownResolver {
    * newline-tolerant match (a needle `\n` matches a source `\r\n` or `\n`) so
    * offsets keep addressing the original `\r\n` string without normalizing it.
    */
-  private find(raw: string, bound: number): { start: number; end: number } | null {
+  private findRaw(raw: string, bound: number): { start: number; end: number } | null {
     if (raw.length === 0) {
       return null;
     }
@@ -149,17 +148,17 @@ class MarkdownResolver {
     let h = start;
     let n = 0;
     while (n < raw.length) {
-      const code = raw.charCodeAt(n);
+      const code = raw.codePointAt(n);
       if (code === LINE_FEED_CODE) {
-        if (h + 1 < length && md.charCodeAt(h) === 13 && md.charCodeAt(h + 1) === 10) {
+        if (h + 1 < length && md.codePointAt(h) === 13 && md.codePointAt(h + 1) === 10) {
           h += 2;
-        } else if (h < length && md.charCodeAt(h) === 10) {
+        } else if (h < length && md.codePointAt(h) === 10) {
           h += 1;
         } else {
           return -1;
         }
         n += 1;
-      } else if (h < length && md.charCodeAt(h) === code) {
+      } else if (h < length && md.codePointAt(h) === code) {
         h += 1;
         n += 1;
       } else {
@@ -181,7 +180,7 @@ class MarkdownResolver {
     const markerStart = itemStart + (match.groups?.indent ?? "").length;
     let spanEnd = itemStart + match[0].length;
     while (spanEnd > markerStart) {
-      const code = this.markdown.charCodeAt(spanEnd - 1);
+      const code = this.markdown.codePointAt(spanEnd - 1);
       // Continue while the character is a space or tab.
       if (code !== 32 && code !== 9) {
         break;
@@ -340,7 +339,7 @@ export const flattenMarkdown = function flattenMarkdown(
  * The unmapped low-level form: flatten already-lexed tokens with no source
  * provenance (every block's `source` is `null`).
  *
- * @deprecated Prefer `flattenMarkdown(source)` for source-backed rows. Tokens
+ * Prefer `flattenMarkdown(source)` for source-backed rows. Tokens
  * carry no positions and the original source is unavailable here, so offsets
  * cannot be reconstructed.
  */

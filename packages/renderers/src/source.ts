@@ -62,7 +62,7 @@ const CARRIAGE_RETURN_CODE = 13;
 const buildLineStarts = function buildLineStarts(text: string): number[] {
   const starts = [0];
   for (let i = 0; i < text.length; i += 1) {
-    if (text.charCodeAt(i) === LINE_FEED_CODE) {
+    if (text.codePointAt(i) === LINE_FEED_CODE) {
       starts.push(i + 1);
     }
   }
@@ -76,11 +76,12 @@ const buildLineStarts = function buildLineStarts(text: string): number[] {
  */
 export class SourceIndex {
   readonly lineStarts: number[];
+  readonly text: string;
+  readonly sourceId?: string;
 
-  constructor(
-    readonly text: string,
-    readonly sourceId?: string,
-  ) {
+  constructor(text: string, sourceId?: string) {
+    this.text = text;
+    this.sourceId = sourceId;
     this.lineStarts = buildLineStarts(text);
   }
 
@@ -90,7 +91,7 @@ export class SourceIndex {
     let lo = 0;
     let hi = starts.length - 1;
     while (lo < hi) {
-      const mid = (lo + hi + 1) >> 1;
+      const mid = Math.floor((lo + hi + 1) / 2);
       if (starts[mid] <= offset) {
         lo = mid;
       } else {
@@ -110,9 +111,9 @@ export class SourceIndex {
     const starts = this.lineStarts;
     const nextStart = line + 1 < starts.length ? starts[line + 1] : this.text.length;
     let end = nextStart;
-    if (end > starts[line] && this.text.charCodeAt(end - 1) === LINE_FEED_CODE) {
+    if (end > starts[line] && this.text.codePointAt(end - 1) === LINE_FEED_CODE) {
       end -= 1;
-      if (end > starts[line] && this.text.charCodeAt(end - 1) === CARRIAGE_RETURN_CODE) {
+      if (end > starts[line] && this.text.codePointAt(end - 1) === CARRIAGE_RETURN_CODE) {
         end -= 1;
       }
     }
@@ -128,9 +129,9 @@ export class SourceIndex {
   span(rawStart: number, rawEnd: number, trimTrailingNewlines = true): SourceSpan {
     let end = rawEnd;
     if (trimTrailingNewlines) {
-      while (end > rawStart && this.text.charCodeAt(end - 1) === 10) {
+      while (end > rawStart && this.text.codePointAt(end - 1) === 10) {
         end -= 1;
-        if (end > rawStart && this.text.charCodeAt(end - 1) === 13) {
+        if (end > rawStart && this.text.codePointAt(end - 1) === 13) {
           end -= 1;
         }
       }
