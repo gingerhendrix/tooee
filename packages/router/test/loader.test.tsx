@@ -15,13 +15,7 @@ const ParamScreen = function ParamScreen(): React.ReactNode {
 // Helpers to control async loaders in tests
 
 const createDeferred = function createDeferred<T>() {
-  let resolve!: (value: T) => void;
-  let reject!: (error: Error) => void;
-  const promise = new Promise<T>((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-  return { promise, reject, resolve };
+  return Promise.withResolvers<T>();
 };
 
 // Screen components
@@ -75,7 +69,10 @@ describe("route loaders", () => {
     const dataRoute = createRoute({
       component: DataScreen,
       id: "data",
-      loader: async () => await deferred.promise,
+      loader: async () => {
+        const result = await deferred.promise;
+        return result;
+      },
       pendingComponent: LoadingScreen,
     });
 
@@ -147,7 +144,10 @@ describe("route loaders", () => {
       component: DataScreen,
       errorComponent: ErrorScreen,
       id: "failing",
-      loader: async () => await deferred.promise,
+      loader: async () => {
+        const result = await deferred.promise;
+        return result;
+      },
       pendingComponent: LoadingScreen,
     });
 
@@ -193,7 +193,10 @@ describe("route loaders", () => {
     const errorRoute = createRoute({
       component: DataScreen,
       id: "failing",
-      loader: async () => await deferred.promise,
+      loader: async () => {
+        const result = await deferred.promise;
+        return result;
+      },
       pendingComponent: LoadingScreen,
     });
 
@@ -273,7 +276,8 @@ describe("route loaders", () => {
       id: "data",
       loader: async ({ params: _params }) => {
         loadCount += 1;
-        return await Promise.resolve({ message: `load-${loadCount}` });
+        await Promise.resolve();
+        return { message: `load-${loadCount}` };
       },
     });
 
@@ -329,7 +333,10 @@ describe("route loaders", () => {
     const dataRoute = createRoute({
       component: DataScreen,
       id: "data",
-      loader: async () => await deferred.promise,
+      loader: async () => {
+        const result = await deferred.promise;
+        return result;
+      },
       // No pendingComponent
     });
 
@@ -373,9 +380,11 @@ describe("route loaders", () => {
       loader: async ({ params: _params }) => {
         callCount += 1;
         if (callCount === 1) {
-          return await deferred1.promise;
+          const result = await deferred1.promise;
+          return result;
         }
-        return await deferred2.promise;
+        const result = await deferred2.promise;
+        return result;
       },
       pendingComponent: LoadingScreen,
     });
@@ -443,7 +452,8 @@ describe("route loaders", () => {
       id: "param",
       loader: async ({ params }) => {
         receivedParams = params;
-        return await Promise.resolve({ echo: String(params.id) });
+        await Promise.resolve();
+        return { echo: String(params.id) };
       },
     });
 

@@ -128,11 +128,7 @@ export const ThemePicker = function ThemePicker({
             setFilter(value);
             setActiveIndex(0);
             // Preview first match
-            if (!value) {
-              if (entries.length > 0) {
-                onNavigate(entries[0].id);
-              }
-            } else {
+            if (value) {
               const results: { entry: ThemePickerEntry; score: number }[] = [];
               for (const entry of entries) {
                 const score = fuzzyMatch(value, entry.title);
@@ -144,6 +140,8 @@ export const ThemePicker = function ThemePicker({
               if (results.length > 0) {
                 onNavigate(results[0].entry.id);
               }
+            } else if (entries.length > 0) {
+              onNavigate(entries[0].id);
             }
           }}
           backgroundColor="transparent"

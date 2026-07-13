@@ -19,12 +19,12 @@ export const SearchBar = function SearchBar({
 }: SearchBarProps): React.ReactNode {
   const { theme } = useTheme();
 
-  const matchDisplay =
-    matchCount !== undefined && matchCount > 0
-      ? `${(currentMatch ?? 0) + 1}/${matchCount}`
-      : matchCount === 0 && query.length > 0
-        ? "No matches"
-        : "";
+  let matchDisplay = "";
+  if (matchCount !== undefined && matchCount > 0) {
+    matchDisplay = `${(currentMatch ?? 0) + 1}/${matchCount}`;
+  } else if (matchCount === 0 && query.length > 0) {
+    matchDisplay = "No matches";
+  }
 
   return (
     <box

@@ -40,26 +40,26 @@ const RouteRenderer = function RouteRenderer({
   const [loaderError, setLoaderError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!routeDef.loader) {
-      return;
-    }
+    const loader = routeDef.loader;
     let cancelled = false;
-    setLoading(true);
-    setLoaderError(null);
-    routeDef
-      .loader({ params: entry.params })
-      .then((result) => {
-        if (!cancelled) {
-          setData(result);
-          setLoading(false);
+    if (loader !== undefined) {
+      setLoading(true);
+      setLoaderError(null);
+      void (async () => {
+        try {
+          const result = await loader({ params: entry.params });
+          if (!cancelled) {
+            setData(result);
+            setLoading(false);
+          }
+        } catch (error) {
+          if (!cancelled) {
+            setLoaderError(error instanceof Error ? error : new Error(String(error)));
+            setLoading(false);
+          }
         }
-      })
-      .catch((error: unknown) => {
-        if (!cancelled) {
-          setLoaderError(error instanceof Error ? error : new Error(String(error)));
-          setLoading(false);
-        }
-      });
+      })();
+    }
     return () => {
       cancelled = true;
     };

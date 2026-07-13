@@ -93,7 +93,8 @@ export const ThemeSwitcherProvider = function ThemeSwitcherProvider({
 }: ThemeSwitcherProviderProps): ReactNode {
   const allThemes = useMemo(() => getThemeNames(), []);
   const [themeName, setThemeName] = useState(initialTheme ?? DEFAULT_THEME_NAME);
-  const [mode, _setMode] = useState<"dark" | "light">(initialMode ?? DEFAULT_MODE);
+  const [mode, setMode] = useState<"dark" | "light">(initialMode ?? DEFAULT_MODE);
+  void setMode;
 
   const theme = useMemo(() => buildTheme(themeName, mode), [themeName, mode]);
 

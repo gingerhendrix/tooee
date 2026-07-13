@@ -210,7 +210,7 @@ export const resolveTheme = function resolveTheme(
       if (seen.has(c)) {
         return "#808080";
       }
-      if (defs[c] != null) {
+      if (defs[c] !== undefined && defs[c] !== null) {
         return resolveColor(defs[c], new Set(seen).add(c));
       }
       if (json.theme[c] !== undefined) {

@@ -37,9 +37,10 @@ export const useNavSearchStore = function useNavSearchStore(options: {
 }): NavSearchStore {
   const depsRef = useRef<NavSearchDeps>({ isSelectable: options.isSelectable ?? (() => true) });
   depsRef.current.isSelectable = options.isSelectable ?? (() => true);
-  const [store] = useState(() =>
+  const [store, setStore] = useState(() =>
     createNavSearchStore({ deps: depsRef.current, keys: options.keys }),
   );
+  void setStore;
   useEffect(() => {
     const currentKeys = store.getSnapshot().context.rowKeys;
     const keysChanged =
