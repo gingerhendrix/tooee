@@ -9,8 +9,10 @@ const beforeEnd = process.stdin.listenerCount("end");
 const beforeClose = process.stdin.listenerCount("close");
 const handle = await launchCli(<SessionCleanupApp />);
 
-const { promise: destroyed, resolve: resolveDestroyed } = Promise.withResolvers<void>();
-handle.renderer.once("destroy", resolveDestroyed);
+const { promise: destroyed, resolve: resolveDestroyed } = Promise.withResolvers<null>();
+handle.renderer.once("destroy", () => {
+  resolveDestroyed(null);
+});
 await destroyed;
 
 const endListeners = process.stdin.listenerCount("end") - beforeEnd;

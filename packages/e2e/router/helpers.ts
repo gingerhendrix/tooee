@@ -1,10 +1,10 @@
 import { launchTerminal } from "tuistory";
 import type { Session } from "tuistory";
-import { resolve } from "node:path";
+import path from "node:path";
 import { ensureTestConfigHome, resetTestConfig } from "../support/test-config.js";
 
-const REPO_ROOT = resolve(import.meta.dir, "../../..");
-const FIXTURE_APP = resolve(import.meta.dir, "fixtures/router-app.tsx");
+const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
+const FIXTURE_APP = path.resolve(import.meta.dir, "fixtures/router-app.tsx");
 const CONFIG_NAMESPACE = "router-e2e";
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
 

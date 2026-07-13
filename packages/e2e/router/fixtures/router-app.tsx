@@ -21,7 +21,7 @@ import {
 const args = process.argv.slice(2);
 const loaderDelayArg = args.find((a) => a.startsWith("--loader-delay="));
 const loaderDelay =
-  (loaderDelayArg?.length ?? 0) > 0 ? Number.parseInt(loaderDelayArg.split("=")[1], 10) : 500;
+  (loaderDelayArg?.length ?? 0) > 0 ? Math.trunc(Number(loaderDelayArg.split("=")[1])) : 500;
 
 // --- Screen Components ---
 
