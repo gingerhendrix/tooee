@@ -21,7 +21,7 @@ export default defineConfig({
   rules: {
     // Option C residual gate: these entries remain disabled only for the exact
     // implementation/public-contract sites recorded in the lint sweep report.
-    complexity: "off",
+    complexity: "error",
     "no-bitwise": "off",
     "no-duplicate-imports": ["error", { allowSeparateTypeImports: true }],
     "prefer-destructuring": "off",

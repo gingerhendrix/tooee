@@ -421,6 +421,46 @@ export const createCommandStore = function createCommandStore(
     return parsed;
   };
 
+  const collectCandidates = function collectCandidates(
+    commands: ReadonlyMap<string, Command> | undefined,
+    currentMode: Mode,
+    cmdCtx: CommandContext,
+  ): {
+    singleStep: { command: Command; parsed: ParsedHotkey }[];
+    multiStep: { command: Command; hotkey: string; parsed: ParsedHotkey }[];
+  } {
+    const singleStep: { command: Command; parsed: ParsedHotkey }[] = [];
+    const multiStep: { command: Command; hotkey: string; parsed: ParsedHotkey }[] = [];
+
+    for (const command of commands?.values() ?? []) {
+      const commandModes = command.modes ?? DEFAULT_MODES;
+      if (!commandModes.includes(currentMode) || (command.when && !command.when(cmdCtx))) {
+        continue;
+      }
+
+      const hotkey = config.keymap?.[command.id] ?? command.defaultHotkey;
+      if (hotkey === undefined || hotkey === "") {
+        continue;
+      }
+
+      const parsed = getParsedHotkey(hotkey);
+
+      // Unmatchable hotkeys (e.g. <leader> with no configured leader) register
+      // nothing rather than matching everything.
+      if (parsed.steps.length === 0) {
+        continue;
+      }
+
+      if (parsed.steps.length === 1) {
+        singleStep.push({ command, parsed });
+      } else {
+        multiStep.push({ command, hotkey, parsed });
+      }
+    }
+
+    return { multiStep, singleStep };
+  };
+
   const key = function key(event: KeyEvent): KeyDispatchResult {
     const ctx = store.getSnapshot().context;
 
@@ -428,42 +468,11 @@ export const createCommandStore = function createCommandStore(
     const surface = selectActiveModalSurface(ctx) ?? rootRecord;
     const currentMode = surface.getMode();
     const cmdCtx = surface.buildCtx();
-    const commands = ctx.commandsBySurface.get(surface.id);
-
-    // Collect eligible commands with their parsed hotkeys
-    const singleStepCandidates: { command: Command; parsed: ParsedHotkey }[] = [];
-    const multiStepCandidates: { command: Command; hotkey: string; parsed: ParsedHotkey }[] = [];
-
-    if (commands) {
-      for (const command of commands.values()) {
-        const commandModes = command.modes ?? DEFAULT_MODES;
-        if (!commandModes.includes(currentMode)) {
-          continue;
-        }
-        if (command.when && !command.when(cmdCtx)) {
-          continue;
-        }
-
-        const hotkey = config.keymap?.[command.id] ?? command.defaultHotkey;
-        if (hotkey === undefined || hotkey === "") {
-          continue;
-        }
-
-        const parsed = getParsedHotkey(hotkey);
-
-        // Unmatchable hotkeys (e.g. <leader> with no configured leader) register
-        // nothing rather than matching everything.
-        if (parsed.steps.length === 0) {
-          continue;
-        }
-
-        if (parsed.steps.length === 1) {
-          singleStepCandidates.push({ command, parsed });
-        } else {
-          multiStepCandidates.push({ command, hotkey, parsed });
-        }
-      }
-    }
+    const { multiStep: multiStepCandidates, singleStep: singleStepCandidates } = collectCandidates(
+      ctx.commandsBySurface.get(surface.id),
+      currentMode,
+      cmdCtx,
+    );
 
     // Check multi-step sequences first (they consume buffer state)
     if (multiStepCandidates.length > 0) {
