@@ -1,15 +1,17 @@
-import { useCommand } from "@tooee/commands"
-import { useRouter } from "./hooks.js"
+import { useCommand } from "@tooee/commands";
+import { useRouter } from "./hooks.js";
 
-export function useRouterCommands() {
-  const router = useRouter()
+export const useRouterCommands = function useRouterCommands() {
+  const router = useRouter();
 
   useCommand({
-    id: "router.back",
-    title: "Go back",
+    handler: () => {
+      router.pop();
+    },
     hotkey: "backspace",
+    id: "router.back",
     modes: ["cursor"],
+    title: "Go back",
     when: () => router.canGoBack(),
-    handler: () => router.pop(),
-  })
-}
+  });
+};

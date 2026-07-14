@@ -1,33 +1,33 @@
-import { testRender } from "../../../test/support/test-render.ts"
-import { test, expect, afterEach } from "bun:test"
-import { act } from "react"
-import { TooeeProvider } from "@tooee/shell"
-import { useCommand } from "@tooee/commands"
-import { useToast } from "@tooee/toasts"
-import { type TestSession } from "./support/test-helpers.ts"
+import { testRender } from "../../../test/support/test-render.ts";
+import { test, expect, afterEach } from "bun:test";
+import { act } from "react";
+import { TooeeProvider } from "@tooee/shell";
+import { useCommand } from "@tooee/commands";
+import { useToast } from "@tooee/toasts";
+import type { TestSession } from "./support/test-helpers.ts";
 
-function ToastContextHarness() {
-  const { currentToast } = useToast()
+const ToastContextHarness = function ToastContextHarness(): React.ReactNode {
+  const { currentToast } = useToast();
 
   useCommand({
-    id: "test.toast-via-ctx",
-    title: "Toast via context",
+    handler: (ctx) => {
+      ctx.toast.toast({ level: "success", message: "from context" });
+    },
     hotkey: "1",
+    id: "test.toast-via-ctx",
     modes: ["cursor"],
-    handler: (ctx) => {
-      ctx.toast.toast({ message: "from context", level: "success" })
-    },
-  })
+    title: "Toast via context",
+  });
 
   useCommand({
-    id: "test.dismiss-via-ctx",
-    title: "Dismiss via context",
-    hotkey: "2",
-    modes: ["cursor"],
     handler: (ctx) => {
-      ctx.toast.dismiss()
+      ctx.toast.dismiss();
     },
-  })
+    hotkey: "2",
+    id: "test.dismiss-via-ctx",
+    modes: ["cursor"],
+    title: "Dismiss via context",
+  });
 
   return (
     <box>
@@ -39,53 +39,56 @@ function ToastContextHarness() {
         }
       />
     </box>
-  )
-}
+  );
+};
 
-let testSetup: TestSession
+let testSetup: TestSession;
 
 afterEach(() => {
-  testSetup?.renderer.destroy()
-})
+  testSetup?.renderer.destroy();
+});
 
 test("ctx.toast is available in command handlers", async () => {
   testSetup = await testRender(
     <TooeeProvider>
       <ToastContextHarness />
     </TooeeProvider>,
-    { width: 60, height: 24, kittyKeyboard: true },
-  )
-  await testSetup.renderOnce()
-  expect(testSetup.captureCharFrame()).toContain("ctx-toast:none")
+    { height: 24, kittyKeyboard: true, width: 60 },
+  );
+  await testSetup.renderOnce();
+  expect(testSetup.captureCharFrame()).toContain("ctx-toast:none");
 
   await act(async () => {
-    testSetup.mockInput.pressKey("1")
-  })
-  await testSetup.renderOnce()
-  const frame = testSetup.captureCharFrame()
-  expect(frame).toContain("ctx-toast:success:from context")
-})
+    testSetup.mockInput.pressKey("1");
+    await Promise.resolve();
+  });
+  await testSetup.renderOnce();
+  const frame = testSetup.captureCharFrame();
+  expect(frame).toContain("ctx-toast:success:from context");
+});
 
 test("ctx.toast.dismiss works from command handler", async () => {
   testSetup = await testRender(
     <TooeeProvider>
       <ToastContextHarness />
     </TooeeProvider>,
-    { width: 60, height: 24, kittyKeyboard: true },
-  )
-  await testSetup.renderOnce()
+    { height: 24, kittyKeyboard: true, width: 60 },
+  );
+  await testSetup.renderOnce();
 
   // Show a toast
   await act(async () => {
-    testSetup.mockInput.pressKey("1")
-  })
-  await testSetup.renderOnce()
-  expect(testSetup.captureCharFrame()).toContain("ctx-toast:success:from context")
+    testSetup.mockInput.pressKey("1");
+    await Promise.resolve();
+  });
+  await testSetup.renderOnce();
+  expect(testSetup.captureCharFrame()).toContain("ctx-toast:success:from context");
 
   // Dismiss it
   await act(async () => {
-    testSetup.mockInput.pressKey("2")
-  })
-  await testSetup.renderOnce()
-  expect(testSetup.captureCharFrame()).toContain("ctx-toast:none")
-})
+    testSetup.mockInput.pressKey("2");
+    await Promise.resolve();
+  });
+  await testSetup.renderOnce();
+  expect(testSetup.captureCharFrame()).toContain("ctx-toast:none");
+});

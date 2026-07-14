@@ -1,0 +1,6 @@
+pre-commit:
+  commands:
+    lint-check:
+      run: bun run lint:staged
+    typecheck:
+      run: bun run check

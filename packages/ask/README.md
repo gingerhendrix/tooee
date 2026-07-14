@@ -36,9 +36,9 @@ The low-level vim helpers (`handleEditBufferVimMotion`, `appendAtCursor`,
 stack and resolves the result:
 
 ```tsx
-const ask = useAskDialog()
+const ask = useAskDialog();
 
-const value = await ask.open({ prompt: "Commit message" })
+const value = await ask.open({ prompt: "Commit message" });
 // string on submit, null on cancel/replacement/unmount
 ```
 

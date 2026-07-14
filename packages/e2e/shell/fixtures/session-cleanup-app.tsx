@@ -1,18 +1,22 @@
-import { useQuitCommand, launchCli } from "@tooee/shell"
+import { useQuitCommand, launchCli } from "@tooee/shell";
 
-function SessionCleanupApp() {
-  useQuitCommand()
-  return <text>session cleanup ready</text>
-}
+const SessionCleanupApp = function SessionCleanupApp(): React.ReactNode {
+  useQuitCommand();
+  return <text>session cleanup ready</text>;
+};
 
-const beforeEnd = process.stdin.listenerCount("end")
-const beforeClose = process.stdin.listenerCount("close")
-const handle = await launchCli(<SessionCleanupApp />)
+const beforeEnd = process.stdin.listenerCount("end");
+const beforeClose = process.stdin.listenerCount("close");
+const handle = await launchCli(<SessionCleanupApp />);
 
-await new Promise<void>((resolve) => handle.renderer.once("destroy", resolve))
+const { promise: destroyed, resolve: resolveDestroyed } = Promise.withResolvers<null>();
+handle.renderer.once("destroy", () => {
+  resolveDestroyed(null);
+});
+await destroyed;
 
-const endListeners = process.stdin.listenerCount("end") - beforeEnd
-const closeListeners = process.stdin.listenerCount("close") - beforeClose
+const endListeners = process.stdin.listenerCount("end") - beforeEnd;
+const closeListeners = process.stdin.listenerCount("close") - beforeClose;
 process.stdout.write(
   `session cleanup complete raw=${String(process.stdin.isRaw)} end=${endListeners} close=${closeListeners}\n`,
-)
+);

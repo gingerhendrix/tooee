@@ -1,25 +1,25 @@
-import { useEffect, useMemo, useRef } from "react"
-import { useSurfaceRegistry } from "./context.js"
-import type { Command, CommandHandler, CommandWhen } from "./types.js"
-import type { Mode } from "./mode.js"
+import { useEffect, useMemo, useRef } from "react";
+import { useSurfaceRegistry } from "./context.js";
+import type { Command, CommandHandler, CommandWhen } from "./types.js";
+import type { Mode } from "./mode.js";
 
 export interface ActionDefinition {
-  id: string
-  title: string
-  hotkey?: string
-  modes?: Mode[]
-  handler: CommandHandler
-  when?: CommandWhen
-  category?: string
-  group?: string
-  icon?: string
-  hidden?: boolean
+  id: string;
+  title: string;
+  hotkey?: string;
+  modes?: Mode[];
+  handler: CommandHandler;
+  when?: CommandWhen;
+  category?: string;
+  group?: string;
+  icon?: string;
+  hidden?: boolean;
 }
 
-export function useActions(actions: ActionDefinition[] | undefined): void {
-  const registry = useSurfaceRegistry()
-  const actionsRef = useRef(actions)
-  actionsRef.current = actions
+export const useActions = function useActions(actions: ActionDefinition[] | undefined): void {
+  const registry = useSurfaceRegistry();
+  const actionsRef = useRef(actions);
+  actionsRef.current = actions;
 
   const key = useMemo(
     () =>
@@ -32,32 +32,43 @@ export function useActions(actions: ActionDefinition[] | undefined): void {
         )
         .join(",") ?? "",
     [actions],
-  )
+  );
 
   useEffect(() => {
-    const current = actionsRef.current
-    if (!current || current.length === 0) return
+    const { current } = actionsRef;
+    if (!current || current.length === 0) {
+      return () => void 0;
+    }
 
     const unregisters = current.map((action, i) => {
       const command: Command = {
-        id: action.id,
-        title: action.title,
-        defaultHotkey: action.hotkey,
-        modes: action.modes,
-        handler: (ctx) => actionsRef.current?.[i]?.handler(ctx),
-        when: action.when ? (ctx) => actionsRef.current?.[i]?.when?.(ctx) ?? false : undefined,
         category: action.category,
+        defaultHotkey: action.hotkey,
         group: action.group,
-        icon: action.icon,
+        handler: async (ctx) => {
+          // A stale index (the action list shrank between registration and
+          // dispatch) is a no-op, so the missing-action path just returns. The
+          // body runs synchronously up to the call, preserving dispatch timing.
+          const currentAction = actionsRef.current?.[i];
+          if (currentAction === undefined) {
+            return;
+          }
+          await currentAction.handler(ctx);
+        },
         hidden: action.hidden,
-      }
-      return registry.register(command)
-    })
+        icon: action.icon,
+        id: action.id,
+        modes: action.modes,
+        title: action.title,
+        when: action.when ? (ctx) => actionsRef.current?.[i]?.when?.(ctx) ?? false : undefined,
+      };
+      return registry.register(command);
+    });
 
     return () => {
       for (const unregister of unregisters) {
-        unregister()
+        unregister();
       }
-    }
-  }, [key, registry])
-}
+    };
+  }, [key, registry]);
+};

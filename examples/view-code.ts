@@ -11,14 +11,12 @@
  * Controls: j/k scroll, q quit, t/T cycle themes
  */
 
-import { launch, type ContentProvider } from "@tooee/view"
+import { launch } from "@tooee/view";
+import type { ContentProvider } from "@tooee/view";
 
 // Create a content provider with inline TypeScript code
 const contentProvider: ContentProvider = {
   load: () => ({
-    title: "example.ts",
-    format: "code",
-    language: "typescript",
     code: `/**
  * A simple reactive state management system
  */
@@ -68,8 +66,11 @@ count.set(2) // logs: "Count changed to: 2"
 unsubscribe()
 count.set(3) // no log - unsubscribed
 `,
+    format: "code",
+    language: "typescript",
+    title: "example.ts",
   }),
-}
+};
 
 // Launch the viewer with our code content
-launch({ contentProvider })
+await launch({ contentProvider });

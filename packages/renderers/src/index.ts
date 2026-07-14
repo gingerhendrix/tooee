@@ -1,38 +1,39 @@
-export { MarkdownView, type MarkdownLinkHandler } from "./MarkdownView.js"
-export { flattenMarkdown, flattenTokens, getFlatBlockText } from "./markdown-blocks.js"
-export type { FlatBlock, FlattenMarkdownOptions } from "./markdown-blocks.js"
-export { sourceLines, sourceLineAdapter } from "./source.js"
+export { MarkdownView } from "./markdown-view.js";
+export type { MarkdownLinkHandler } from "./markdown-view.js";
+export { flattenMarkdown, getFlatBlockText } from "./markdown-blocks.js";
+export type { FlatBlock, FlattenMarkdownOptions } from "./markdown-blocks.js";
+export { sourceLines, sourceLineAdapter } from "./source.js";
 export type {
   DocumentRowAnchor,
   DocumentRowSource,
   SourceLineRow,
   SourcePoint,
   SourceSpan,
-} from "./source.js"
+} from "./source.js";
 export {
   CodeBlockChrome,
   defaultCodeBlockRenderer,
   mermaidCodeBlockRenderer,
   DEFAULT_CODE_BLOCK_RENDERERS,
   getFenceType,
-} from "./code-blocks.js"
-export type { CodeBlockRenderer, CodeBlockRendererProps, CodeBlockHScroll } from "./code-blocks.js"
-export { CodeView } from "./CodeView.js"
-export { Table, computeColumnWidths, isNumeric, sampleRows } from "./Table.js"
-export type { TableProps, ColumnWidthOptions } from "./Table.js"
-export type { ColumnDef, TableRow } from "./table-types.js"
-export { CommandPalette } from "./CommandPalette.js"
-export type { CommandPaletteEntry } from "./CommandPalette.js"
-export { ContextMenu } from "./ContextMenu.js"
-export type { ContextMenuEntry } from "./ContextMenu.js"
-export { parseCSV, parseTSV, parseJSON, parseAuto, detectFormat } from "./parsers.js"
-export type { Format, ParsedTable } from "./parsers.js"
-export { RowDocumentRenderable } from "./RowDocumentRenderable.js"
+} from "./code-blocks.js";
+export type { CodeBlockRenderer, CodeBlockRendererProps, CodeBlockHScroll } from "./code-blocks.js";
+export { CodeView } from "./code-view.js";
+export { Table, computeColumnWidths, isNumeric, sampleRows } from "./table.js";
+export type { TableProps, ColumnWidthOptions } from "./table.js";
+export type { ColumnDef, TableRow } from "./table-types.js";
+export { CommandPalette } from "./command-palette.js";
+export type { CommandPaletteEntry } from "./command-palette.js";
+export { ContextMenu } from "./context-menu.js";
+export type { ContextMenuEntry } from "./context-menu.js";
+export { parseCSV, parseTSV, parseJSON, parseAuto, detectFormat } from "./parsers.js";
+export type { Format, ParsedTable } from "./parsers.js";
+export { RowDocumentRenderable } from "./row-document-renderable.js";
 export {
   DEFAULT_SIGN_COLUMN_WIDTH,
   computeRowDocumentGutterWidth,
-} from "./RowDocumentRenderable.js"
-export type { RowDocumentOptions, RowDocumentPalette } from "./RowDocumentRenderable.js"
-export type { DecorationLayer, RowDecoration } from "./DecorationLayer.js"
-export type { DocumentBindings } from "./DocumentBindings.js"
-export { useGutterPalette } from "./useGutterPalette.js"
+} from "./row-document-renderable.js";
+export type { RowDocumentOptions, RowDocumentPalette } from "./row-document-renderable.js";
+export type { DecorationLayer, RowDecoration } from "./decoration-layer.js";
+export type { DocumentBindings } from "./document-bindings.js";
+export { useGutterPalette } from "./use-gutter-palette.js";

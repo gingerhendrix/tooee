@@ -9,18 +9,18 @@ This guide describes the API shipped in Tooee 0.2.1.
 The complete, CI-typechecked version is [`../examples/source-aware-document.tsx`](../examples/source-aware-document.tsx).
 
 ```tsx
-import { useMemo } from "react"
-import { sourceLines, sourceLineAdapter } from "@tooee/renderers"
-import { Document, DocumentScreen, launchCli, useDocumentController } from "@tooee/shell"
+import { useMemo } from "react";
+import { sourceLines, sourceLineAdapter } from "@tooee/renderers";
+import { Document, DocumentScreen, launchCli, useDocumentController } from "@tooee/shell";
 
 function SourceDocument({ source }: { source: string }) {
-  const rows = useMemo(() => sourceLines(source, { sourceId: "notes.txt" }), [source])
+  const rows = useMemo(() => sourceLines(source, { sourceId: "notes.txt" }), [source]);
   const controller = useDocumentController({
     rows,
     adapter: sourceLineAdapter,
     search: {},
     preserveCursorByKey: false,
-  })
+  });
 
   return (
     <DocumentScreen controller={controller} titleBar={{ title: "Notes" }}>
@@ -30,10 +30,10 @@ function SourceDocument({ source }: { source: string }) {
         renderRow={(row) => <text content={row.text || " "} />}
       />
     </DocumentScreen>
-  )
+  );
 }
 
-void launchCli(<SourceDocument source={"first line\nsecond line\n"} />)
+void launchCli(<SourceDocument source={"first line\nsecond line\n"} />);
 ```
 
 `launchCli` installs `TooeeProvider`, so the hook has the theme, command, overlay, and clipboard providers it needs. If an application already mounts Tooee, render the component beneath its existing `TooeeProvider` instead.
@@ -44,10 +44,10 @@ void launchCli(<SourceDocument source={"first line\nsecond line\n"} />)
 
 ```ts
 interface DocumentRowAdapter<T> {
-  getKey?: (row: T, index: number) => React.Key
-  getText: (row: T, index: number) => string
-  isSelectable?: (row: T, index: number) => boolean
-  getSource?: (row: T, index: number) => DocumentRowSource | null
+  getKey?: (row: T, index: number) => React.Key;
+  getText: (row: T, index: number) => string;
+  isSelectable?: (row: T, index: number) => boolean;
+  getSource?: (row: T, index: number) => DocumentRowSource | null;
 }
 ```
 
@@ -64,7 +64,7 @@ Use a key derived from immutable domain identity whenever rows can sort, filter,
 const adapter: DocumentRowAdapter<Issue> = {
   getKey: (issue) => issue.id,
   getText: (issue) => `${issue.title} ${issue.author}`,
-}
+};
 ```
 
 Set `preserveCursorByKey: true` to keep the cursor on the same key across a new `rows` array. Toggled multi-selection is key-backed whenever `getKey` exists. If the active key disappears, the controller clamps to a nearby selectable row. Source identity is deliberately separate: a `SourceSpan` says where content came from; `getKey` says whether two rows are the same interactive row.
@@ -76,7 +76,7 @@ Use index identity only when position really is identity, such as `sourceLines()
 The principal signature is:
 
 ```ts
-function useDocumentController<T>(options: UseDocumentControllerOptions<T>): DocumentController<T>
+function useDocumentController<T>(options: UseDocumentControllerOptions<T>): DocumentController<T>;
 ```
 
 Important options are:
@@ -112,9 +112,9 @@ Low-level renderers should depend on `DocumentBindings`, not on the generic cont
 
 ```ts
 interface DocumentBindings {
-  ref: React.RefObject<RowDocumentRenderable | null>
-  decorations: readonly DecorationLayer[]
-  onMouseDown(event: MouseEvent): void
+  ref: React.RefObject<RowDocumentRenderable | null>;
+  decorations: readonly DecorationLayer[];
+  onMouseDown(event: MouseEvent): void;
 }
 ```
 
@@ -149,18 +149,18 @@ Source coordinates are zero-based. Offsets and columns are UTF-16 code-unit indi
 
 ```ts
 interface SourcePoint {
-  offset: number
-  line: number
-  column: number
+  offset: number;
+  line: number;
+  column: number;
 }
 
 interface SourceSpan {
-  sourceId?: string
-  start: SourcePoint
-  end: SourcePoint
-  lastLine: number
-  text: string
-  lineText: string
+  sourceId?: string;
+  start: SourcePoint;
+  end: SourcePoint;
+  lastLine: number;
+  text: string;
+  lineText: string;
 }
 ```
 
@@ -170,8 +170,8 @@ A row's provenance is:
 
 ```ts
 interface DocumentRowSource {
-  primary: SourceSpan
-  related?: readonly SourceSpan[]
+  primary: SourceSpan;
+  related?: readonly SourceSpan[];
 }
 ```
 
@@ -181,11 +181,11 @@ The controller wraps each valid row in `DocumentRowAnchor<T>`:
 
 ```ts
 interface DocumentRowAnchor<T> {
-  row: T
-  index: number
-  key: React.Key
-  text: string
-  source: DocumentRowSource | null
+  row: T;
+  index: number;
+  key: React.Key;
+  text: string;
+  source: DocumentRowSource | null;
 }
 ```
 
@@ -202,7 +202,7 @@ These values are derived from the current rows and adapter, not a parallel mappi
 ### Markdown
 
 ```ts
-const blocks = flattenMarkdown(markdown, { sourceId: "README.md" })
+const blocks = flattenMarkdown(markdown, { sourceId: "README.md" });
 ```
 
 `flattenMarkdown(source, options?)` lexes, flattens, and maps Markdown in the exact navigation/render order. Each `FlatBlock` has `source: DocumentRowSource | null`. Use `getFlatBlockText(block)` for semantic search/copy text, including synthetic bullet rows:
@@ -211,7 +211,7 @@ const blocks = flattenMarkdown(markdown, { sourceId: "README.md" })
 const markdownAdapter: DocumentRowAdapter<FlatBlock> = {
   getText: getFlatBlockText,
   getSource: (block) => block.source,
-}
+};
 ```
 
 Pass that same `blocks` array to `MarkdownView` via its `blocks` prop and the controller via `rows`. Re-lexing separately or reconstructing positions from marked tokens can drift, especially for repeated and nested blocks.
@@ -219,8 +219,8 @@ Pass that same `blocks` array to `MarkdownView` via its `blocks` prop and the co
 ### Code and plain text
 
 ```ts
-const rows = sourceLines(source, { sourceId: "src/index.ts" })
-const controller = useDocumentController({ rows, adapter: sourceLineAdapter })
+const rows = sourceLines(source, { sourceId: "src/index.ts" });
+const controller = useDocumentController({ rows, adapter: sourceLineAdapter });
 ```
 
 `sourceLines()` returns one `SourceLineRow` per physical line. Empty input produces one empty row; a trailing newline produces a final empty row. Line spans exclude LF/CRLF delimiters while offsets still address the original string. `sourceLineAdapter` supplies `getText` and `getSource`.
@@ -238,10 +238,10 @@ const controller = useDocumentController({ rows, adapter: sourceLineAdapter })
 For a comment, quote, or jump-to-source action, use:
 
 ```ts
-const anchor = ctx.document?.activeAnchor
-const span = anchor?.source?.primary
+const anchor = ctx.document?.activeAnchor;
+const span = anchor?.source?.primary;
 if (span) {
-  console.log(span.sourceId, span.start.line, span.lastLine, span.lineText)
+  console.log(span.sourceId, span.start.line, span.lastLine, span.lineText);
 }
 ```
 
@@ -259,12 +259,12 @@ import {
   type DocumentRowAdapter,
   type DocumentRowAnchor,
   type SourceSpan,
-} from "@tooee/shell"
+} from "@tooee/shell";
 import {
   flattenMarkdown,
   getFlatBlockText,
   sourceLines,
   sourceLineAdapter,
   type FlatBlock,
-} from "@tooee/renderers"
+} from "@tooee/renderers";
 ```

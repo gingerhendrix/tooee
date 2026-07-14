@@ -1,76 +1,78 @@
-import { testRender } from "../../../test/support/test-render.ts"
-import { test, expect, afterEach } from "bun:test"
-import { act } from "react"
-import { TooeeProvider, useThemeCommands, useQuitCommand } from "@tooee/shell"
-import { useTheme } from "@tooee/themes"
-import { useMode } from "@tooee/commands"
-import { type TestSession } from "./support/test-helpers.ts"
+import { testRender } from "../../../test/support/test-render.ts";
+import { test, expect, afterEach } from "bun:test";
+import { act } from "react";
+import { TooeeProvider, useThemeCommands, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { useMode } from "@tooee/commands";
+import type { TestSession } from "./support/test-helpers.ts";
 
-function ThemeHarness() {
-  const { picker } = useThemeCommands()
-  const { name: themeName } = useTheme()
-  const mode = useMode()
+const ThemeHarness = function ThemeHarness(): React.ReactNode {
+  const { picker } = useThemeCommands();
+  const { name: themeName } = useTheme();
+  const mode = useMode();
   return (
     <box>
       <text content={`theme:${themeName}`} />
       <text content={`open:${picker.isOpen}`} />
       <text content={`mode:${mode}`} />
     </box>
-  )
-}
+  );
+};
 
-function QuitHarness({ onQuit }: { onQuit: () => void }) {
-  useQuitCommand({ onQuit })
+const QuitHarness = function QuitHarness({ onQuit }: { onQuit: () => void }): React.ReactNode {
+  useQuitCommand({ onQuit });
   return (
     <box>
       <text content="quit-harness" />
     </box>
-  )
-}
+  );
+};
 
-let testSetup: TestSession
+let testSetup: TestSession;
 
 afterEach(() => {
-  testSetup?.renderer.destroy()
-})
+  testSetup?.renderer.destroy();
+});
 
 test("t opens theme picker", async () => {
   testSetup = await testRender(
     <TooeeProvider>
       <ThemeHarness />
     </TooeeProvider>,
-    { width: 60, height: 24, kittyKeyboard: true },
-  )
-  await testSetup.renderOnce()
-  expect(testSetup.captureCharFrame()).toContain("open:false")
+    { height: 24, kittyKeyboard: true, width: 60 },
+  );
+  await testSetup.renderOnce();
+  expect(testSetup.captureCharFrame()).toContain("open:false");
 
   await act(async () => {
-    testSetup.mockInput.pressKey("t")
-  })
-  await testSetup.renderOnce()
-  const frame = testSetup.captureCharFrame()
-  expect(frame).toContain("open:true")
-  expect(frame).toContain("mode:cursor")
-})
+    testSetup.mockInput.pressKey("t");
+    await Promise.resolve();
+  });
+  await testSetup.renderOnce();
+  const frame = testSetup.captureCharFrame();
+  expect(frame).toContain("open:true");
+  expect(frame).toContain("mode:cursor");
+});
 
 test("q calls onQuit handler", async () => {
-  let quitCalled = false
+  let quitCalled = false;
   testSetup = await testRender(
     <TooeeProvider>
       <QuitHarness
         onQuit={() => {
-          quitCalled = true
+          quitCalled = true;
         }}
       />
     </TooeeProvider>,
-    { width: 60, height: 24, kittyKeyboard: true },
-  )
-  await testSetup.renderOnce()
-  expect(testSetup.captureCharFrame()).toContain("quit-harness")
+    { height: 24, kittyKeyboard: true, width: 60 },
+  );
+  await testSetup.renderOnce();
+  expect(testSetup.captureCharFrame()).toContain("quit-harness");
 
   await act(async () => {
-    testSetup.mockInput.pressKey("q")
-  })
-  await testSetup.renderOnce()
-  expect(quitCalled).toBe(true)
-})
+    testSetup.mockInput.pressKey("q");
+    await Promise.resolve();
+  });
+  await testSetup.renderOnce();
+  expect(quitCalled).toBe(true);
+});

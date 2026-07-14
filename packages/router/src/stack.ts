@@ -1,24 +1,36 @@
-import type { RouterState, RouterAction } from "./types.js"
+import type { RouterState, RouterAction } from "./types.js";
 
-export function stackReducer(state: RouterState, action: RouterAction): RouterState {
+export const stackReducer = function stackReducer(
+  state: RouterState,
+  action: RouterAction,
+): RouterState {
   switch (action.type) {
-    case "push":
+    case "push": {
       return {
-        stack: [...state.stack, { routeId: action.routeId, params: action.params ?? {} }],
+        stack: [...state.stack, { params: action.params ?? {}, routeId: action.routeId }],
+      };
+    }
+    case "pop": {
+      if (state.stack.length <= 1) {
+        return state;
       }
-    case "pop":
-      if (state.stack.length <= 1) return state
-      return { stack: state.stack.slice(0, -1) }
-    case "replace":
+      return { stack: state.stack.slice(0, -1) };
+    }
+    case "replace": {
       return {
         stack: [
           ...state.stack.slice(0, -1),
-          { routeId: action.routeId, params: action.params ?? {} },
+          { params: action.params ?? {}, routeId: action.routeId },
         ],
-      }
-    case "reset":
+      };
+    }
+    case "reset": {
       return {
-        stack: [{ routeId: action.routeId, params: action.params ?? {} }],
-      }
+        stack: [{ params: action.params ?? {}, routeId: action.routeId }],
+      };
+    }
+    default: {
+      return state;
+    }
   }
-}
+};

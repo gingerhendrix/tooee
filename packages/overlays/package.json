@@ -34,6 +34,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@tooee/commands": "workspace:*",
     "@xstate/store": "^4"
   },
   "devDependencies": {

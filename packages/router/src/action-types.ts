@@ -1,12 +1,12 @@
 export interface NavigateResult {
-  type: "navigate"
-  route: string
-  params?: Record<string, unknown>
-  mode?: "push" | "replace"
+  type: "navigate";
+  route: string;
+  params?: Record<string, unknown>;
+  mode?: "push" | "replace";
 }
 
 export interface BackResult {
-  type: "back"
+  type: "back";
 }
 
-export type ActionNavigationResult = NavigateResult | BackResult
+export type ActionNavigationResult = NavigateResult | BackResult;

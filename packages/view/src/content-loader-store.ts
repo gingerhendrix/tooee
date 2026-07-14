@@ -1,154 +1,186 @@
-import { createStore } from "@xstate/store"
-import type { MarkSet } from "@tooee/marks"
-import type { AnyContent, Content, ContentChunk, ContentFormat, CustomContent } from "./types.js"
+import { createStore } from "@xstate/store";
+import type { MarkSet } from "@tooee/marks";
+import type { AnyContent, Content, ContentChunk, ContentFormat } from "./types.js";
 
-export type ContentLoaderStatus = "idle" | "loading" | "streaming" | "ready" | "error"
+export type ContentLoaderStatus = "idle" | "loading" | "streaming" | "ready" | "error";
 
 export interface ContentLoaderContext {
-  status: ContentLoaderStatus
-  requestId: number
-  loadSeq: number
-  content: AnyContent | null
-  error: string | null
-  providerMarks: MarkSet[]
-  title: string | undefined
+  status: ContentLoaderStatus;
+  requestId: number;
+  loadSeq: number;
+  content: AnyContent | null;
+  error: string | null;
+  providerMarks: MarkSet[];
+  title: string | undefined;
+}
+
+interface ContentLoaderEventPayloads {
+  loadStarted: { marks: MarkSet[]; title?: string };
+  streamStarted: { requestId: number; format: string };
+  chunkReceived: { requestId: number; chunk: ContentChunk };
+  loaded: { requestId: number; content: AnyContent };
+  streamEnded: { requestId: number };
+  loadFailed: { requestId: number; error: string };
+  loadCancelled: { requestId: number };
+  reloadRequested: Record<PropertyKey, never>;
 }
 
 export type ContentLoaderEvents = {
-  loadStarted: { marks: MarkSet[]; title?: string }
-  streamStarted: { requestId: number; format: string }
-  chunkReceived: { requestId: number; chunk: ContentChunk }
-  loaded: { requestId: number; content: AnyContent }
-  streamEnded: { requestId: number }
-  loadFailed: { requestId: number; error: string }
-  loadCancelled: { requestId: number }
-  reloadRequested: {}
-}
+  [Event in keyof ContentLoaderEventPayloads]: ContentLoaderEventPayloads[Event];
+};
 
-export function isAsyncIterable(value: unknown): value is AsyncIterable<ContentChunk> {
-  return value != null && typeof value === "object" && Symbol.asyncIterator in value
-}
+export const isAsyncIterable = function isAsyncIterable(
+  value: unknown,
+): value is AsyncIterable<ContentChunk> {
+  return (
+    value !== null &&
+    value !== undefined &&
+    typeof value === "object" &&
+    Symbol.asyncIterator in value
+  );
+};
 
-export function createEmptyContent(format: string, title?: string): AnyContent {
+export const createEmptyContent = function createEmptyContent(
+  format: string,
+  title?: string,
+): AnyContent {
   switch (format) {
-    case "markdown":
-      return { format, markdown: "", title }
-    case "code":
-      return { format, code: "", title }
-    case "text":
-      return { format, text: "", title }
-    case "table":
-      return { format, columns: [], rows: [], title }
-    default:
-      return { format, data: undefined, title } as CustomContent
+    case "markdown": {
+      return { format, markdown: "", title };
+    }
+    case "code": {
+      return { code: "", format, title };
+    }
+    case "text": {
+      return { format, text: "", title };
+    }
+    case "table": {
+      return { columns: [], format, rows: [], title };
+    }
+    default: {
+      return { data: undefined, format, title };
+    }
   }
-}
+};
 
-function ensureContentFormat<F extends ContentFormat>(
+const ensureContentFormat = function ensureContentFormat<F extends ContentFormat>(
   current: AnyContent | null,
   format: F,
   title?: string,
 ): Extract<Content, { format: F }> {
   if (!current || current.format !== format) {
-    return createEmptyContent(format, title) as Extract<Content, { format: F }>
+    // Deferred(lint-sweep): add schema-based validation for custom and streamed content formats.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- format-dependent content is trusted at this provider boundary
+    return createEmptyContent(format, title) as Extract<Content, { format: F }>;
   }
-  return current as Extract<Content, { format: F }>
-}
+  // Deferred(lint-sweep): add schema-based validation for custom and streamed content formats.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the provider contract supplies the matching format
+  return current as Extract<Content, { format: F }>;
+};
 
-export function applyContentChunk(
+export const applyContentChunk = function applyContentChunk(
   current: AnyContent | null,
   chunk: ContentChunk,
   title?: string,
 ): AnyContent {
   switch (chunk.type) {
-    case "replace":
-      return chunk.content
-    case "append":
+    case "replace": {
+      return chunk.content;
+    }
+    case "append": {
       if (chunk.format === "markdown") {
-        const target = ensureContentFormat(current, "markdown", title)
-        return { ...target, markdown: target.markdown + chunk.data }
+        const target = ensureContentFormat(current, "markdown", title);
+        return { ...target, markdown: target.markdown + chunk.data };
       }
       if (chunk.format === "code") {
-        const target = ensureContentFormat(current, "code", title)
+        const target = ensureContentFormat(current, "code", title);
         return {
           ...target,
           code: target.code + chunk.data,
           language: chunk.language ?? target.language,
-        }
+        };
       }
       {
-        const target = ensureContentFormat(current, "text", title)
-        return { ...target, text: target.text + chunk.data }
+        const target = ensureContentFormat(current, "text", title);
+        return { ...target, text: target.text + chunk.data };
       }
-    case "patch":
-      return chunk.apply(current)
-    default:
-      return current ?? createEmptyContent("markdown", title)
+    }
+    case "patch": {
+      return chunk.apply(current);
+    }
+    case "marks": {
+      return current ?? createEmptyContent("markdown", title);
+    }
+    default: {
+      return current ?? createEmptyContent("markdown", title);
+    }
   }
-}
+};
 
-export function normalizeError(error: unknown): string {
-  return error instanceof Error ? error.message : String(error)
-}
+export const normalizeError = function normalizeError(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+};
 
-export function createContentLoaderStore() {
+export const createContentLoaderStore = function createContentLoaderStore() {
   return createStore<ContentLoaderContext, ContentLoaderEvents>({
     context: {
-      status: "idle",
-      requestId: 0,
-      loadSeq: 0,
       content: null,
       error: null,
+      loadSeq: 0,
       providerMarks: [],
+      requestId: 0,
+      status: "idle",
       title: undefined,
     },
     on: {
-      loadStarted: (ctx, event) => ({
-        ...ctx,
-        status: "loading",
-        requestId: ctx.requestId + 1,
-        error: null,
-        providerMarks: event.marks,
-        title: event.title,
-      }),
-      streamStarted: (ctx, event) =>
-        event.requestId !== ctx.requestId
-          ? ctx
-          : {
-              ...ctx,
-              status: "streaming",
-              content: createEmptyContent(event.format, ctx.title),
-            },
       chunkReceived: (ctx, event) => {
-        if (event.requestId !== ctx.requestId) return ctx
+        if (event.requestId !== ctx.requestId) {
+          return ctx;
+        }
         if (event.chunk.type === "marks") {
-          const markSet = event.chunk.set
+          const markSet = event.chunk.set;
           const providerMarks = [
             ...ctx.providerMarks.filter((set) => set.namespace !== markSet.namespace),
             markSet,
-          ]
-          return { ...ctx, providerMarks }
+          ];
+          return { ...ctx, providerMarks };
         }
-        return { ...ctx, content: applyContentChunk(ctx.content, event.chunk, ctx.title) }
+        return { ...ctx, content: applyContentChunk(ctx.content, event.chunk, ctx.title) };
       },
-      loaded: (ctx, event) =>
-        event.requestId !== ctx.requestId
-          ? ctx
-          : { ...ctx, status: "ready", content: event.content },
-      streamEnded: (ctx, event) =>
-        event.requestId !== ctx.requestId ? ctx : { ...ctx, status: "ready" },
-      loadFailed: (ctx, event) =>
-        event.requestId !== ctx.requestId ? ctx : { ...ctx, status: "error", error: event.error },
       loadCancelled: (ctx, event) =>
-        event.requestId !== ctx.requestId ? ctx : { ...ctx, requestId: ctx.requestId + 1 },
+        event.requestId === ctx.requestId ? { ...ctx, requestId: ctx.requestId + 1 } : ctx,
+      loadFailed: (ctx, event) =>
+        event.requestId === ctx.requestId ? { ...ctx, error: event.error, status: "error" } : ctx,
+      loadStarted: (ctx, event) => ({
+        ...ctx,
+        error: null,
+        providerMarks: event.marks,
+        requestId: ctx.requestId + 1,
+        status: "loading",
+        title: event.title,
+      }),
+      loaded: (ctx, event) =>
+        event.requestId === ctx.requestId
+          ? { ...ctx, content: event.content, status: "ready" }
+          : ctx,
       reloadRequested: (ctx) => ({ ...ctx, loadSeq: ctx.loadSeq + 1 }),
+      streamEnded: (ctx, event) =>
+        event.requestId === ctx.requestId ? { ...ctx, status: "ready" } : ctx,
+      streamStarted: (ctx, event) =>
+        event.requestId === ctx.requestId
+          ? {
+              ...ctx,
+              content: createEmptyContent(event.format, ctx.title),
+              status: "streaming",
+            }
+          : ctx,
     },
-  })
-}
+  });
+};
 
-export const selectContent = (ctx: ContentLoaderContext) => ctx.content
-export const selectStatus = (ctx: ContentLoaderContext) => ctx.status
-export const selectStreaming = (ctx: ContentLoaderContext) => ctx.status === "streaming"
-export const selectError = (ctx: ContentLoaderContext) => ctx.error
-export const selectProviderMarks = (ctx: ContentLoaderContext) => ctx.providerMarks
-export const selectLoadSeq = (ctx: ContentLoaderContext) => ctx.loadSeq
+export const selectContent = (ctx: ContentLoaderContext) => ctx.content;
+export const selectStatus = (ctx: ContentLoaderContext) => ctx.status;
+export const selectStreaming = (ctx: ContentLoaderContext) => ctx.status === "streaming";
+export const selectError = (ctx: ContentLoaderContext) => ctx.error;
+export const selectProviderMarks = (ctx: ContentLoaderContext) => ctx.providerMarks;
+export const selectLoadSeq = (ctx: ContentLoaderContext) => ctx.loadSeq;

@@ -11,28 +11,28 @@
  * Controls: q quit, t/T cycle themes
  */
 
-import { launch, type ContentProvider, type ContentChunk } from "@tooee/view"
-
-// Helper to create a delay
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+import { launch } from "@tooee/view";
+import type { ContentProvider, ContentChunk } from "@tooee/view";
 
 // Create a streaming content provider
 const contentProvider: ContentProvider = {
   async *load(): AsyncIterable<ContentChunk> {
-    yield { type: "append", format: "markdown", data: "Processing: " }
-    await sleep(200)
+    yield { data: "Processing: ", format: "markdown", type: "append" };
+    await Bun.sleep(200);
 
     // Stream the response character by character
     const response =
-      "This is a mock streaming response demonstrating View's ability to handle async iteration via ContentProvider.load()."
+      "This is a mock streaming response demonstrating View's ability to handle async iteration via ContentProvider.load().";
 
     for (const char of response) {
-      yield { type: "append", format: "markdown", data: char }
-      await sleep(20)
+      yield { data: char, format: "markdown", type: "append" };
+      // Deferred(lint-sweep): preserve character-by-character streaming order
+      // oxlint-disable-next-line no-await-in-loop -- each delay follows the yielded character
+      await Bun.sleep(20);
     }
 
-    yield { type: "append", format: "markdown", data: "\n" }
+    yield { data: "\n", format: "markdown", type: "append" };
   },
-}
+};
 
-launch({ contentProvider })
+await launch({ contentProvider });

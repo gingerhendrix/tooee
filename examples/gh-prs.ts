@@ -9,15 +9,36 @@
  * Controls: j/k scroll, h/l columns, q quit
  */
 
-import { launch, type ContentProvider, type Content } from "@tooee/view"
+import { launch } from "@tooee/view";
+import type { ContentProvider, Content } from "@tooee/view";
 
 interface PR {
-  number: number
-  title: string
-  author: { login: string }
-  state: string
-  createdAt: string
+  number: number;
+  title: string;
+  author: { login: string };
+  state: string;
+  createdAt: string;
 }
+
+const isPR = function isPR(value: unknown): value is PR {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "number" in value &&
+    typeof value.number === "number" &&
+    "title" in value &&
+    typeof value.title === "string" &&
+    "author" in value &&
+    typeof value.author === "object" &&
+    value.author !== null &&
+    "login" in value.author &&
+    typeof value.author.login === "string" &&
+    "state" in value &&
+    typeof value.state === "string" &&
+    "createdAt" in value &&
+    typeof value.createdAt === "string"
+  );
+};
 
 const contentProvider: ContentProvider = {
   async load(): Promise<Content> {
@@ -29,65 +50,69 @@ const contentProvider: ContentProvider = {
       "number,title,author,state,createdAt",
       "--limit",
       "50",
-    ])
+    ]);
 
-    const text = await new Response(proc.stdout).text()
-    const exitCode = await proc.exited
+    const text = await new Response(proc.stdout).text();
+    const exitCode = await proc.exited;
 
     const columns = [
-      { key: "number", header: "#" },
-      { key: "title", header: "Title" },
-      { key: "author", header: "Author" },
-      { key: "state", header: "State" },
-      { key: "created", header: "Created" },
-    ]
+      { header: "#", key: "number" },
+      { header: "Title", key: "title" },
+      { header: "Author", key: "author" },
+      { header: "State", key: "state" },
+      { header: "Created", key: "created" },
+    ];
 
     if (exitCode !== 0) {
       return {
-        format: "table",
-        title: "Pull Requests",
         columns,
+        format: "table",
         rows: [
           {
-            number: "Error",
-            title: "Failed to fetch PRs. Is `gh` installed and authenticated?",
             author: "",
-            state: "",
             created: "",
+            number: "Error",
+            state: "",
+            title: "Failed to fetch PRs. Is `gh` installed and authenticated?",
           },
         ],
-      }
+        title: "Pull Requests",
+      };
     }
 
-    const prs: PR[] = JSON.parse(text || "[]")
+    const parsed: unknown = JSON.parse(text || "[]");
+    if (!Array.isArray(parsed) || !parsed.every(isPR)) {
+      throw new Error("GitHub returned invalid pull request data");
+    }
+    const prs = parsed;
 
     if (prs.length === 0) {
       return {
-        format: "table",
-        title: "Pull Requests",
         columns,
+        format: "table",
         rows: [
           {
-            number: "Info",
-            title: "No open pull requests",
             author: "",
-            state: "",
             created: "",
+            number: "Info",
+            state: "",
+            title: "No open pull requests",
           },
         ],
-      }
+        title: "Pull Requests",
+      };
     }
 
     const rows = prs.map((pr) => ({
-      number: String(pr.number),
-      title: pr.title.length > 60 ? `${pr.title.slice(0, 60)}...` : pr.title,
       author: pr.author.login,
-      state: pr.state,
       created: new Date(pr.createdAt).toLocaleDateString(),
-    }))
+      number: String(pr.number),
+      state: pr.state,
+      title: pr.title.length > 60 ? `${pr.title.slice(0, 60)}...` : pr.title,
+    }));
 
-    return { format: "table", columns, rows, title: "Pull Requests" }
+    return { columns, format: "table", rows, title: "Pull Requests" };
   },
-}
+};
 
-launch({ contentProvider })
+await launch({ contentProvider });

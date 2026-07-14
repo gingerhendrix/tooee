@@ -1,91 +1,90 @@
-import type {
-  RouterOptions,
-  RouterInstance,
-  RouterState,
-  RouteDefinition,
-  StackEntry,
-} from "./types.js"
-import { stackReducer } from "./stack.js"
-import { StateCache } from "./state-cache.js"
+import type { AnyRoute, RouterOptions, RouterInstance, RouterState, StackEntry } from "./types.js";
+import { stackReducer } from "./stack.js";
+import { StateCache } from "./state-cache.js";
 
-export function createRouter(options: RouterOptions): RouterInstance {
-  const routeMap = new Map<string, RouteDefinition>()
+export const createRouter = function createRouter(options: RouterOptions): RouterInstance {
+  const routeMap = new Map<string, AnyRoute>();
   for (const route of options.routes) {
-    routeMap.set(route.id, route)
+    routeMap.set(route.id, route);
   }
 
   if (!routeMap.has(options.defaultRoute)) {
-    throw new Error(`Default route "${options.defaultRoute}" not found in routes`)
+    throw new Error(`Default route "${options.defaultRoute}" not found in routes`);
   }
 
   let state: RouterState = {
     stack: [
       {
-        routeId: options.defaultRoute,
         params: options.initialParams ?? {},
+        routeId: options.defaultRoute,
       },
     ],
-  }
+  };
 
-  const listeners = new Set<() => void>()
-  const stateCache = new StateCache()
+  const listeners = new Set<() => void>();
+  const stateCache = new StateCache();
 
-  function dispatch(action: Parameters<typeof stackReducer>[1]) {
+  const dispatch = function dispatch(action: Parameters<typeof stackReducer>[1]) {
     if (action.type !== "pop" && !routeMap.has(action.routeId)) {
-      throw new Error(`Route "${action.routeId}" not found`)
+      throw new Error(`Route "${action.routeId}" not found`);
     }
-    const prev = state
-    const next = stackReducer(state, action)
+    const prev = state;
+    const next = stackReducer(state, action);
     if (next !== state) {
       if (action.type === "pop" && prev.stack.length > 1) {
-        const poppedIndex = prev.stack.length - 1
-        const poppedEntry = prev.stack[poppedIndex]
-        stateCache.clear(`${poppedIndex}:${poppedEntry.routeId}`)
+        const poppedIndex = prev.stack.length - 1;
+        const poppedEntry = prev.stack[poppedIndex];
+        // Screen-state keys are named by stack position + route id (see useScreenState).
+        stateCache.clear(`${poppedIndex}:${poppedEntry.routeId}`);
       } else if (action.type === "reset") {
-        stateCache.clearAll()
+        stateCache.clearAll();
       }
-      state = next
+      state = next;
       for (const listener of listeners) {
-        listener()
+        listener();
       }
     }
-  }
+  };
 
   const instance: RouterInstance = {
-    push(routeId, params) {
-      dispatch({ type: "push", routeId, params })
-    },
-    pop() {
-      dispatch({ type: "pop" })
-    },
-    replace(routeId, params) {
-      dispatch({ type: "replace", routeId, params })
-    },
-    reset(routeId, params) {
-      dispatch({ type: "reset", routeId, params })
-    },
     canGoBack() {
-      return state.stack.length > 1
+      return state.stack.length > 1;
     },
     get currentRoute(): StackEntry {
-      return state.stack[state.stack.length - 1]
-    },
-    get stack(): readonly StackEntry[] {
-      return state.stack
-    },
-    get stateCache() {
-      return stateCache
-    },
-    subscribe(listener) {
-      listeners.add(listener)
-      return () => {
-        listeners.delete(listener)
+      const currentRoute = state.stack.at(-1);
+      if (currentRoute === undefined) {
+        throw new Error("Router stack is empty");
       }
+      return currentRoute;
     },
     getRouteDefinition(routeId) {
-      return routeMap.get(routeId)
+      return routeMap.get(routeId);
     },
-  }
+    pop() {
+      dispatch({ type: "pop" });
+    },
+    push(routeId, params) {
+      dispatch({ params, routeId, type: "push" });
+    },
+    replace(routeId, params) {
+      dispatch({ params, routeId, type: "replace" });
+    },
+    reset(routeId, params) {
+      dispatch({ params, routeId, type: "reset" });
+    },
+    get stack(): readonly StackEntry[] {
+      return state.stack;
+    },
+    get stateCache() {
+      return stateCache;
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+  };
 
-  return instance
-}
+  return instance;
+};

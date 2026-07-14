@@ -1,12 +1,12 @@
-export { useSearch } from "./search-hook.js"
-export { useNavSearchStore, useSearchBindings } from "./search-hook.js"
-export { createNavSearchStore } from "./nav-search-store.js"
+export { useSearch } from "./search-hook.js";
+export { useNavSearchStore, useSearchBindings } from "./search-hook.js";
+export { createNavSearchStore } from "./nav-search-store.js";
 export type {
   NavSearchStore,
   NavSearchContext,
   NavSearchEvents,
   RowKey,
-} from "./nav-search-store.js"
+} from "./nav-search-store.js";
 export {
   selectCursor,
   selectRowKeys,
@@ -19,8 +19,8 @@ export {
   selectCurrentMatchIndex,
   deriveSelection,
   resolveIndex,
-} from "./nav-search-store.js"
-export type { UseSearchOptions, SearchState } from "./search-hook.js"
-export { findMatchingLines } from "./search.js"
-export { SearchBar } from "./SearchBar.js"
-export type { SearchBarProps } from "./SearchBar.js"
+} from "./nav-search-store.js";
+export type { UseSearchOptions, SearchState } from "./search-hook.js";
+export { findMatchingLines } from "./search.js";
+export { SearchBar } from "./search-bar.js";
+export type { SearchBarProps } from "./search-bar.js";

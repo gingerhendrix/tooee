@@ -1,25 +1,25 @@
-export { View } from "./View.js"
-export { DirectoryView } from "./DirectoryView.js"
-export { launch, launchDirectory } from "./launch.js"
-export type { ViewLaunchOptions } from "./launch.js"
+export { View } from "./view.js";
+export { DirectoryView } from "./directory-view.js";
+export { launch, launchDirectory } from "./launch.js";
+export type { ViewLaunchOptions } from "./launch.js";
 export {
   createFileProvider,
   createStdinProvider,
   createTableFileProvider,
   createTableStdinProvider,
-} from "./default-provider.js"
-export type { CreateProviderOptions } from "./default-provider.js"
-export { listDirectoryFiles } from "./directory-provider.js"
-export type { DirectoryEntry } from "./directory-provider.js"
+} from "./default-provider.js";
+export type { CreateProviderOptions } from "./default-provider.js";
+export { listDirectoryFiles } from "./directory-provider.js";
+export type { DirectoryEntry } from "./directory-provider.js";
 export {
   createViewCommandContext,
   useProvideViewCommandContext,
-} from "./hooks/useViewCommandContext.js"
+} from "./hooks/use-view-command-context.js";
 export type {
   CreateViewCommandContextOptions,
   ProvideViewCommandContextOptions,
   ViewCommandContext,
-} from "./hooks/useViewCommandContext.js"
+} from "./hooks/use-view-command-context.js";
 export type {
   AnyContent,
   Content,
@@ -33,7 +33,7 @@ export type {
   ViewContentProvider,
   ColumnDef,
   TableRow,
-} from "./types.js"
-export { getTextContent, isBuiltinContent, isCustomContent } from "./types.js"
-export { CodeBlockChrome } from "@tooee/renderers"
-export type { CodeBlockRenderer, CodeBlockRendererProps, CodeBlockHScroll } from "@tooee/renderers"
+} from "./types.js";
+export { getTextContent, isBuiltinContent, isCustomContent } from "./types.js";
+export { CodeBlockChrome } from "@tooee/renderers";
+export type { CodeBlockRenderer, CodeBlockRendererProps, CodeBlockHScroll } from "@tooee/renderers";

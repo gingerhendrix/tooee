@@ -1,0 +1,346 @@
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { act, useRef, useState } from "react";
+import { TooeeProvider } from "@tooee/shell";
+import { useCommand } from "@tooee/commands";
+import { useCurrentOverlay, useOverlay, useOverlayState } from "@tooee/overlays";
+import type { OverlayController } from "@tooee/overlays";
+import { testRender } from "../../../test/support/test-render.ts";
+import { expectDefined } from "./support/expect-defined.ts";
+import { useAskDialog } from "../src/use-ask-dialog.js";
+import type { AskDialogHandle } from "../src/use-ask-dialog.js";
+
+type TestSession = Awaited<ReturnType<typeof testRender>>;
+
+let testSetup: TestSession;
+
+afterEach(() => {
+  testSetup?.renderer.destroy();
+});
+
+const press = async function press(key: string, modifiers?: { ctrl?: boolean; shift?: boolean }) {
+  await act(async () => {
+    testSetup.mockInput.pressKey(key, modifiers);
+    await Promise.resolve();
+  });
+  await testSetup.renderOnce();
+};
+
+const pressEscape = async function pressEscape() {
+  await act(async () => {
+    testSetup.mockInput.pressEscape();
+    await Promise.resolve();
+  });
+  await testSetup.renderOnce();
+};
+
+const pressEnter = async function pressEnter() {
+  await act(async () => {
+    testSetup.mockInput.pressEnter();
+    await Promise.resolve();
+  });
+  await testSetup.renderOnce();
+};
+
+const typeText = async function typeText(text: string) {
+  await act(async () => {
+    await testSetup.mockInput.typeText(text);
+  });
+  await testSetup.renderOnce();
+};
+
+interface HarnessHandles {
+  dialog: AskDialogHandle;
+  ownerDialog: AskDialogHandle | null;
+  overlay: OverlayController;
+  stackIds: () => readonly string[];
+  unmountOwner: () => void;
+}
+
+const handles: { current: HarnessHandles | null } = { current: null };
+let hostProbeCount = 0;
+let settlements: (string | null)[] = [];
+
+beforeEach(() => {
+  handles.current = null;
+  hostProbeCount = 0;
+  settlements = [];
+});
+
+const record = function record(label: string) {
+  return (value: string | null) => {
+    settlements.push(value === null ? null : `${label}:${value}`);
+  };
+};
+
+/** Child that owns its own dialog hook, so owner unmount can be exercised. */
+const DialogOwner = function DialogOwner({
+  openRef,
+}: {
+  openRef: { current: AskDialogHandle | null };
+}) {
+  const dialog = useAskDialog();
+  openRef.current = dialog;
+  return null;
+};
+
+const Harness = function Harness(): React.ReactNode {
+  const overlay = useOverlay();
+  const overlayState = useOverlayState();
+  const current = useCurrentOverlay();
+  const dialog = useAskDialog();
+  const [ownerMounted, setOwnerMounted] = useState(true);
+  const ownerDialogRef = useRef<AskDialogHandle | null>(null);
+  const stateRef = useRef(overlayState);
+  stateRef.current = overlayState;
+
+  useCommand({
+    handler: () => {
+      hostProbeCount += 1;
+    },
+    hotkey: "z",
+    id: "host-probe",
+    modes: ["cursor"],
+    title: "Host probe",
+  });
+
+  handles.current = {
+    dialog,
+    overlay,
+    get ownerDialog() {
+      return ownerDialogRef.current;
+    },
+    stackIds: () => stateRef.current.stack,
+    unmountOwner: () => {
+      setOwnerMounted(false);
+    },
+  };
+
+  return (
+    <box flexDirection="column">
+      <text content={`stack:${overlayState.stack.length}`} />
+      {ownerMounted && <DialogOwner openRef={ownerDialogRef} />}
+      {current}
+    </box>
+  );
+};
+
+const setup = async function setup() {
+  const session = await testRender(
+    <TooeeProvider>
+      <Harness />
+    </TooeeProvider>,
+    { height: 24, kittyKeyboard: true, width: 80 },
+  );
+  await session.renderOnce();
+  return session;
+};
+
+const openDialog = async function openDialog(
+  open: (options: { prompt: string }) => Promise<string | null>,
+  prompt: string,
+  label: string,
+) {
+  await act(async () => {
+    void open({ prompt }).then(record(label));
+    await Promise.resolve();
+  });
+  await testSetup.renderOnce();
+};
+
+describe("useAskDialog settlement", () => {
+  test("submit resolves the typed value, closes the overlay, and settles once", async () => {
+    testSetup = await setup();
+    await openDialog(
+      async (o) => {
+        const result = await expectDefined(handles.current).dialog.open(o);
+        return result;
+      },
+      "Question?",
+      "ask",
+    );
+    expect(testSetup.captureCharFrame()).toContain("Question?");
+
+    await typeText("hello");
+    await pressEnter();
+
+    expect(settlements).toEqual(["ask:hello"]);
+    expect(testSetup.captureCharFrame()).toContain("stack:0");
+    expect(testSetup.captureCharFrame()).not.toContain("Question?");
+  });
+
+  test("cancel via q in cursor mode resolves null exactly once", async () => {
+    testSetup = await setup();
+    await openDialog(
+      async (o) => {
+        const result = await expectDefined(handles.current).dialog.open(o);
+        return result;
+      },
+      "Question?",
+      "ask",
+    );
+
+    await pressEscape();
+    await press("q");
+
+    expect(settlements).toEqual([null]);
+    expect(testSetup.captureCharFrame()).toContain("stack:0");
+  });
+
+  test("host commands are suspended while the dialog is open and resume after", async () => {
+    testSetup = await setup();
+    await openDialog(
+      async (o) => {
+        const result = await expectDefined(handles.current).dialog.open(o);
+        return result;
+      },
+      "Question?",
+      "ask",
+    );
+
+    await pressEscape();
+    await press("z");
+    expect(hostProbeCount).toBe(0);
+
+    await press("q");
+    await press("z");
+    expect(hostProbeCount).toBe(1);
+    expect(settlements).toEqual([null]);
+  });
+
+  test("same-id replacement settles the displaced dialog null exactly once", async () => {
+    testSetup = await setup();
+    await openDialog(
+      async (o) => {
+        const result = await expectDefined(handles.current).dialog.open(o);
+        return result;
+      },
+      "Question?",
+      "ask",
+    );
+
+    const topId = expectDefined(expectDefined(handles.current).stackIds().at(-1));
+    await act(async () => {
+      expectDefined(handles.current).overlay.open(
+        topId,
+        (): React.ReactNode => <text content="REPLACEMENT" />,
+        undefined,
+        {
+          ownCommands: true,
+          role: "modal",
+        },
+      );
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
+
+    expect(settlements).toEqual([null]);
+    const frame = testSetup.captureCharFrame();
+    expect(frame).toContain("REPLACEMENT");
+    expect(frame).toContain("stack:1");
+
+    // Closing the replacement must not settle the dialog again.
+    await act(async () => {
+      expectDefined(handles.current).overlay.hide(topId);
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
+    expect(settlements).toEqual([null]);
+  });
+
+  test("unmounting the owning component settles null and removes the overlay record", async () => {
+    testSetup = await setup();
+    await openDialog(
+      async (o) => {
+        const result = await expectDefined(expectDefined(handles.current).ownerDialog).open(o);
+        return result;
+      },
+      "Owned?",
+      "owned",
+    );
+    expect(testSetup.captureCharFrame()).toContain("Owned?");
+
+    const ownerDialog = expectDefined(expectDefined(handles.current).ownerDialog);
+    await act(async () => {
+      expectDefined(handles.current).unmountOwner();
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
+
+    expect(settlements).toEqual([null]);
+    expect(testSetup.captureCharFrame()).toContain("stack:0");
+
+    // Opening on an unmounted owner resolves null without opening an overlay.
+    await act(async () => {
+      void ownerDialog.open({ prompt: "Too late?" }).then(record("late"));
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
+    expect(settlements).toEqual([null, null]);
+    expect(testSetup.captureCharFrame()).toContain("stack:0");
+  });
+
+  test("concurrent dialogs get unique overlay ids and settle independently", async () => {
+    testSetup = await setup();
+    await act(async () => {
+      void expectDefined(handles.current).dialog.open({ prompt: "First?" }).then(record("first"));
+      void expectDefined(handles.current).dialog.open({ prompt: "Second?" }).then(record("second"));
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
+
+    const ids = expectDefined(handles.current).stackIds();
+    expect(ids.length).toBe(2);
+    expect(new Set(ids).size).toBe(2);
+    expect(settlements).toEqual([]);
+
+    await typeText("two");
+    await pressEnter();
+    expect(settlements).toEqual(["second:two"]);
+
+    await typeText("one");
+    await pressEnter();
+    expect(settlements).toEqual(["second:two", "first:one"]);
+    expect(testSetup.captureCharFrame()).toContain("stack:0");
+  });
+
+  test("double submit cannot settle twice", async () => {
+    testSetup = await setup();
+
+    let submitFromCommand: (() => void) | null = null;
+    await act(async () => {
+      void expectDefined(handles.current)
+        .dialog.open({
+          commands: [
+            {
+              handler: () => {},
+              hidden: true,
+              id: "grab-submit",
+              title: "Grab submit",
+            },
+          ],
+          controllerRef: (controller) => {
+            if (controller) {
+              submitFromCommand = () => {
+                controller.submit();
+              };
+            }
+          },
+          prompt: "Once?",
+        })
+        .then(record("once"));
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
+
+    await typeText("v");
+    await act(async () => {
+      submitFromCommand?.();
+      submitFromCommand?.();
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
+
+    expect(settlements).toEqual(["once:v"]);
+    expect(testSetup.captureCharFrame()).toContain("stack:0");
+  });
+});

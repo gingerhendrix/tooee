@@ -35,13 +35,13 @@ const controller = useDocumentController({
   search: {},
   multiSelect: true,
   preserveCursorByKey: true,
-})
+});
 
 return (
   <DocumentScreen controller={controller} titleBar={{ title: "Items" }}>
     <Document controller={controller} renderRow={(row) => <text content={row.title} />} />
   </DocumentScreen>
-)
+);
 ```
 
 Keep one direct rendered host row per model row, in the same order. Delete duplicate row-count, cursor-repair, search matching, copy-range, scroll-follow, and screen-Y mapping code only after behavior tests pass.
@@ -52,11 +52,11 @@ Replace content-specific cursor snapshots used only to identify the active gener
 
 ```ts
 // Before: consumer-owned cursor plus a separately indexed row array
-const row = rows[ctx.view.cursor]
+const row = rows[ctx.view.cursor];
 
 // After: bounded command snapshot
-const row = ctx.document?.activeRow
-const anchor = ctx.document?.activeAnchor
+const row = ctx.document?.activeRow;
+const anchor = ctx.document?.activeAnchor;
 ```
 
 Keep content-specific state in its owning context. For example, a View action may still read `ctx.view.content`, while row identity and source provenance come from `ctx.document`.
@@ -81,25 +81,25 @@ Do not use a source offset as a row key unless source location truly defines dom
 Before:
 
 ```ts
-import { marked } from "marked"
-import { flattenTokens } from "@tooee/renderers"
+import { marked } from "marked";
+import { flattenTokens } from "@tooee/renderers";
 
-const blocks = flattenTokens(marked.lexer(markdown))
+const blocks = flattenTokens(marked.lexer(markdown));
 ```
 
 After:
 
 ```ts
-import { flattenMarkdown, getFlatBlockText } from "@tooee/renderers"
-import type { DocumentRowAdapter } from "@tooee/shell"
-import type { FlatBlock } from "@tooee/renderers"
+import { flattenMarkdown, getFlatBlockText } from "@tooee/renderers";
+import type { DocumentRowAdapter } from "@tooee/shell";
+import type { FlatBlock } from "@tooee/renderers";
 
-const blocks = flattenMarkdown(markdown, { sourceId: "README.md" })
+const blocks = flattenMarkdown(markdown, { sourceId: "README.md" });
 
 const adapter: DocumentRowAdapter<FlatBlock> = {
   getText: getFlatBlockText,
   getSource: (block) => block.source,
-}
+};
 ```
 
 Pass `blocks` both to `useDocumentController({ rows: blocks, adapter })` and to `<MarkdownView content={markdown} blocks={blocks} document={controller} />`. This makes rendering, navigation, search, copy, and source anchors share one authoritative row order.
@@ -111,13 +111,13 @@ Remove a direct `marked` dependency if it was used only for this flattening/mapp
 Delete consumer-side token searches, line-at-offset helpers, and parallel source-map arrays. For a live action:
 
 ```ts
-const anchor = ctx.document?.activeAnchor
-const source = anchor?.source?.primary
+const anchor = ctx.document?.activeAnchor;
+const source = anchor?.source?.primary;
 
-const renderedRow = anchor?.index
-const sourceStartLine = source?.start.line
-const sourceEndLine = source?.lastLine
-const sourceText = source?.lineText ?? anchor?.text
+const renderedRow = anchor?.index;
+const sourceStartLine = source?.start.line;
+const sourceEndLine = source?.lastLine;
+const sourceText = source?.lineText ?? anchor?.text;
 ```
 
 For offline normalization, build the same rows without React:
@@ -127,7 +127,7 @@ const anchors = flattenMarkdown(markdown, { sourceId: path }).map((block, index)
   renderedRow: index,
   renderedText: getFlatBlockText(block),
   source: block.source?.primary ?? null,
-}))
+}));
 ```
 
 Repeated blocks, nested/synthetic list rows, multiline blocks, CRLF, and Unicode are handled by Tooee's source mapper. Preserve an index/text fallback for the explicit `source: null` case.
@@ -137,10 +137,10 @@ Repeated blocks, nested/synthetic list rows, multiline blocks, CRLF, and Unicode
 Replace `source.split("\n")` plus custom offset arithmetic with:
 
 ```ts
-import { sourceLines, sourceLineAdapter } from "@tooee/renderers"
+import { sourceLines, sourceLineAdapter } from "@tooee/renderers";
 
-const rows = sourceLines(source, { sourceId: filePath })
-const controller = useDocumentController({ rows, adapter: sourceLineAdapter })
+const rows = sourceLines(source, { sourceId: filePath });
+const controller = useDocumentController({ rows, adapter: sourceLineAdapter });
 ```
 
 This preserves empty input and final-empty-line behavior, treats CRLF as one line break, and retains offsets into the original source. Render `row.text`; read provenance from `row.source` or a controller anchor.
@@ -171,7 +171,7 @@ const controller = useDocumentController({
   adapter,
   onRowPress: ({ row }) => openRow(row),
   contextMenu: ({ row }) => menuEntriesFor(row),
-})
+});
 ```
 
 The controller ignores modal-obscured clicks and trailing space, supports variable-height geometry, selects before opening a right-click menu, and invokes selected menu entries as command IDs. Keep menu policy and domain entries in the application.

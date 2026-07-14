@@ -20,13 +20,13 @@ Use `controllerRef` on an assembly, or the controller returned by `useChoose`, t
 overlay stack and resolves the typed selection:
 
 ```tsx
-const choose = useChooseDialog<Model>()
+const choose = useChooseDialog<Model>();
 
 const model = await choose.open({
   items: models, // readonly T[] or a sync/async loader
   toItem: (m) => ({ text: m.label }), // optional when T is a ChooseItem
   prompt: "Pick a model",
-})
+});
 // T on select, T[] with { multi: true }, null on cancel/replacement/unmount
 ```
 

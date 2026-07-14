@@ -1,282 +1,308 @@
-import { testRender } from "../../../test/support/test-render.ts"
-import { test, expect, afterEach, describe } from "bun:test"
-import { act, useState } from "react"
-import { TooeeProvider, useNavigation } from "@tooee/shell"
-import { findMatchingLines, useSearch, type SearchState } from "@tooee/search"
-import { useMode } from "@tooee/commands"
-import { press, pressEscape, type TestSession } from "./support/test-helpers.ts"
+import { testRender } from "../../../test/support/test-render.ts";
+import { test, expect, afterEach, describe } from "bun:test";
+import { act, useState } from "react";
+import { TooeeProvider, useNavigation } from "@tooee/shell";
+import { findMatchingLines, useSearch } from "@tooee/search";
+import type { SearchState } from "@tooee/search";
+import { useMode } from "@tooee/commands";
+import { expectDefined, press, pressEscape } from "./support/test-helpers.ts";
+import type { TestSession } from "./support/test-helpers.ts";
 
 describe("findMatchingLines", () => {
   test("empty query returns empty array", () => {
-    expect(findMatchingLines("hello\nworld", "")).toEqual([])
-  })
+    expect(findMatchingLines("hello\nworld", "")).toEqual([]);
+  });
 
   test("single match", () => {
-    expect(findMatchingLines("foo\nbar\nbaz", "bar")).toEqual([1])
-  })
+    expect(findMatchingLines("foo\nbar\nbaz", "bar")).toEqual([1]);
+  });
 
   test("multiple matches", () => {
-    expect(findMatchingLines("foo\nbar\nfoo\nbaz", "foo")).toEqual([0, 2])
-  })
+    expect(findMatchingLines("foo\nbar\nfoo\nbaz", "foo")).toEqual([0, 2]);
+  });
 
   test("case insensitive", () => {
-    expect(findMatchingLines("Hello\nWORLD\nhello", "hello")).toEqual([0, 2])
-  })
+    expect(findMatchingLines("Hello\nWORLD\nhello", "hello")).toEqual([0, 2]);
+  });
 
   test("no matches", () => {
-    expect(findMatchingLines("foo\nbar\nbaz", "xyz")).toEqual([])
-  })
+    expect(findMatchingLines("foo\nbar\nbaz", "xyz")).toEqual([]);
+  });
 
   test("partial line match", () => {
-    expect(findMatchingLines("foobar\nbaz", "oob")).toEqual([0])
-  })
+    expect(findMatchingLines("foobar\nbaz", "oob")).toEqual([0]);
+  });
 
   test("single line text", () => {
-    expect(findMatchingLines("hello world", "world")).toEqual([0])
-  })
+    expect(findMatchingLines("hello world", "world")).toEqual([0]);
+  });
 
   test("empty text", () => {
-    expect(findMatchingLines("", "foo")).toEqual([])
-  })
-})
+    expect(findMatchingLines("", "foo")).toEqual([]);
+  });
+});
 
-const TEST_TEXT = "alpha\nbeta\ngamma\nalpha again\ndelta"
+const TEST_TEXT = "alpha\nbeta\ngamma\nalpha again\ndelta";
 
 // Module-level ref for imperative access to search state from tests
-let _searchHandle: SearchState | null = null
+let searchHandle: SearchState | null = null;
 
-function SearchHarness() {
-  const nav = useNavigation({ rowCount: TEST_TEXT.split("\n").length, viewportHeight: 3 })
-  const mode = useMode()
+const SearchHarness = function SearchHarness(): React.ReactNode {
+  const nav = useNavigation({ rowCount: TEST_TEXT.split("\n").length, viewportHeight: 3 });
+  const mode = useMode();
   const search = useSearch({
     match: (query) => findMatchingLines(TEST_TEXT, query),
     onJump: nav.setCursor,
-  })
+  });
 
   // Expose search state to test code via module-level ref
-  _searchHandle = search
+  searchHandle = search;
 
   return (
     <box flexDirection="column">
       <text content={`mode:${mode}`} />
-      <text content={`cursor:${nav.cursor !== null ? nav.cursor : "null"}`} />
+      <text content={`cursor:${nav.cursor ?? "null"}`} />
       <text content={`search:${search.searchActive}`} />
       <text content={`matches:${search.matchingLines.join(",")}`} />
       <text content={`matchIdx:${search.currentMatchIndex}`} />
       <text content={`query:${search.searchQuery}`} />
     </box>
-  )
-}
+  );
+};
 
-async function setup() {
+const setup = async function setup() {
   const session = await testRender(
     <TooeeProvider>
       <SearchHarness />
     </TooeeProvider>,
-    { width: 60, height: 24, kittyKeyboard: true },
-  )
-  await session.renderOnce()
-  return session
-}
+    { height: 24, kittyKeyboard: true, width: 60 },
+  );
+  await session.renderOnce();
+  return session;
+};
 
-let testSetup: TestSession
+let testSetup: TestSession;
 
 afterEach(() => {
-  testSetup?.renderer.destroy()
-  _searchHandle = null
-})
+  testSetup?.renderer.destroy();
+  searchHandle = null;
+});
 
 describe("search hook", () => {
   test("computes matches once per query event and not again on submit", async () => {
-    let calls = 0
-    function CountingHarness() {
-      const nav = useNavigation({ rowCount: 2 })
+    let calls = 0;
+    const CountingHarness = function CountingHarness(): React.ReactNode {
+      const nav = useNavigation({ rowCount: 2 });
       const search = useSearch({
         match: () => {
-          calls++
-          return [0]
+          calls += 1;
+          return [0];
         },
         onJump: nav.setCursor,
-      })
-      _searchHandle = search
-      return <text content={search.searchQuery} />
-    }
+      });
+      searchHandle = search;
+      return <text content={search.searchQuery} />;
+    };
     testSetup = await testRender(
       <TooeeProvider>
         <CountingHarness />
       </TooeeProvider>,
-      { width: 40, height: 10, kittyKeyboard: true },
-    )
-    await testSetup.renderOnce()
-    await act(async () => _searchHandle!.setSearchQuery("a"))
-    await act(async () => _searchHandle!.submitSearch())
-    await testSetup.renderOnce()
-    expect(calls).toBe(1)
-  })
+      { height: 10, kittyKeyboard: true, width: 40 },
+    );
+    await testSetup.renderOnce();
+    await act(async () => {
+      expectDefined(searchHandle).setSearchQuery("a");
+      await Promise.resolve();
+    });
+    await act(async () => {
+      expectDefined(searchHandle).submitSearch();
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
+    expect(calls).toBe(1);
+  });
 
   test("/ activates search and switches to insert mode", async () => {
-    testSetup = await setup()
-    await press(testSetup, "/")
-    const frame = testSetup.captureCharFrame()
-    expect(frame).toContain("search:true")
-    expect(frame).toContain("mode:insert")
-  })
+    testSetup = await setup();
+    await press(testSetup, "/");
+    const frame = testSetup.captureCharFrame();
+    expect(frame).toContain("search:true");
+    expect(frame).toContain("mode:insert");
+  });
 
   test("search live-updates matches while typing", async () => {
-    testSetup = await setup()
-    await press(testSetup, "/")
+    testSetup = await setup();
+    await press(testSetup, "/");
 
     await act(async () => {
-      _searchHandle!.setSearchQuery("alpha")
-    })
-    await testSetup.renderOnce()
+      expectDefined(searchHandle).setSearchQuery("alpha");
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
 
-    const frame = testSetup.captureCharFrame()
-    expect(frame).toContain("search:true")
-    expect(frame).toContain("query:alpha")
-    expect(frame).toContain("matches:0,3")
-  })
+    const frame = testSetup.captureCharFrame();
+    expect(frame).toContain("search:true");
+    expect(frame).toContain("query:alpha");
+    expect(frame).toContain("matches:0,3");
+  });
 
   test("Escape cancels search and restores cursor mode", async () => {
-    testSetup = await setup()
-    await press(testSetup, "/")
+    testSetup = await setup();
+    await press(testSetup, "/");
 
     await act(async () => {
-      _searchHandle!.setSearchQuery("alpha")
-    })
-    await testSetup.renderOnce()
+      expectDefined(searchHandle).setSearchQuery("alpha");
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
 
-    await pressEscape(testSetup)
-    const frame = testSetup.captureCharFrame()
-    expect(frame).toContain("search:false")
-    expect(frame).toContain("mode:cursor")
-    expect(frame).toContain("matches:")
-  })
+    await pressEscape(testSetup);
+    const frame = testSetup.captureCharFrame();
+    expect(frame).toContain("search:false");
+    expect(frame).toContain("mode:cursor");
+    expect(frame).toContain("matches:");
+  });
 
   test("n and N cycle matches after submit", async () => {
-    testSetup = await setup()
-    await press(testSetup, "/")
+    testSetup = await setup();
+    await press(testSetup, "/");
 
     await act(async () => {
-      _searchHandle!.setSearchQuery("alpha")
-    })
-    await testSetup.renderOnce()
+      expectDefined(searchHandle).setSearchQuery("alpha");
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
 
     // Submit search
     await act(async () => {
-      _searchHandle!.submitSearch()
-    })
-    await testSetup.renderOnce()
+      expectDefined(searchHandle).submitSearch();
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
 
-    let frame = testSetup.captureCharFrame()
-    expect(frame).toContain("search:false")
-    expect(frame).toContain("mode:cursor")
-    expect(frame).toContain("matches:0,3")
-    expect(frame).toContain("matchIdx:0")
-    expect(frame).toContain("cursor:0")
+    let frame = testSetup.captureCharFrame();
+    expect(frame).toContain("search:false");
+    expect(frame).toContain("mode:cursor");
+    expect(frame).toContain("matches:0,3");
+    expect(frame).toContain("matchIdx:0");
+    expect(frame).toContain("cursor:0");
 
-    await press(testSetup, "n")
-    frame = testSetup.captureCharFrame()
-    expect(frame).toContain("matchIdx:1")
-    expect(frame).toContain("cursor:3")
+    await press(testSetup, "n");
+    frame = testSetup.captureCharFrame();
+    expect(frame).toContain("matchIdx:1");
+    expect(frame).toContain("cursor:3");
 
-    await press(testSetup, "n", { shift: true })
-    frame = testSetup.captureCharFrame()
-    expect(frame).toContain("matchIdx:0")
-    expect(frame).toContain("cursor:0")
-  })
+    await press(testSetup, "n", { shift: true });
+    frame = testSetup.captureCharFrame();
+    expect(frame).toContain("matchIdx:0");
+    expect(frame).toContain("cursor:0");
+  });
 
   test("submitSearch exits insert mode but keeps matches", async () => {
-    testSetup = await setup()
-    await press(testSetup, "/")
+    testSetup = await setup();
+    await press(testSetup, "/");
 
     await act(async () => {
-      _searchHandle!.setSearchQuery("alpha")
-    })
-    await testSetup.renderOnce()
+      expectDefined(searchHandle).setSearchQuery("alpha");
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
 
     await act(async () => {
-      _searchHandle!.submitSearch()
-    })
-    await testSetup.renderOnce()
+      expectDefined(searchHandle).submitSearch();
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
 
-    const frame = testSetup.captureCharFrame()
-    expect(frame).toContain("mode:cursor")
-    expect(frame).toContain("search:false")
-    expect(frame).toContain("matches:0,3")
-  })
-})
+    const frame = testSetup.captureCharFrame();
+    expect(frame).toContain("mode:cursor");
+    expect(frame).toContain("search:false");
+    expect(frame).toContain("matches:0,3");
+  });
+});
 
 // A document whose text arrives after the first render, the way a streaming or
 // reloaded provider delivers it.
-let _appendLine: ((line: string) => void) | null = null
+let appendLine: ((line: string) => void) | null = null;
 
-function GrowingSearchHarness({ deps }: { deps: boolean }) {
-  const [lines, setLines] = useState(["alpha", "beta"])
-  _appendLine = (line) => setLines((current) => [...current, line])
+const GrowingSearchHarness = function GrowingSearchHarness({
+  deps,
+}: {
+  deps: boolean;
+}): React.ReactNode {
+  const [lines, setLines] = useState(["alpha", "beta"]);
+  appendLine = (line) => {
+    setLines((current) => [...current, line]);
+  };
 
-  const text = lines.join("\n")
-  const nav = useNavigation({ rowCount: lines.length, viewportHeight: 3 })
+  const text = lines.join("\n");
+  const nav = useNavigation({ rowCount: lines.length, viewportHeight: 3 });
   const search = useSearch({
+    deps: deps ? [text] : undefined,
     match: (query) => findMatchingLines(text, query),
     onJump: nav.setCursor,
-    deps: deps ? [text] : undefined,
-  })
-  _searchHandle = search
+  });
+  searchHandle = search;
 
-  return <text content={`matches:[${search.matchingLines.join(",")}]`} />
-}
+  return <text content={`matches:[${search.matchingLines.join(",")}]`} />;
+};
 
-async function setupGrowing(deps: boolean) {
+const setupGrowing = async function setupGrowing(deps: boolean) {
   const session = await testRender(
     <TooeeProvider>
       <GrowingSearchHarness deps={deps} />
     </TooeeProvider>,
-    { width: 60, height: 24, kittyKeyboard: true },
-  )
-  await session.renderOnce()
-  return session
-}
+    { height: 24, kittyKeyboard: true, width: 60 },
+  );
+  await session.renderOnce();
+  return session;
+};
 
 describe("search over changing content", () => {
   test("a committed query re-matches rows added after the search", async () => {
-    testSetup = await setupGrowing(true)
-    await press(testSetup, "/")
+    testSetup = await setupGrowing(true);
+    await press(testSetup, "/");
 
     await act(async () => {
-      _searchHandle!.setSearchQuery("alpha")
-    })
+      expectDefined(searchHandle).setSearchQuery("alpha");
+      await Promise.resolve();
+    });
     await act(async () => {
-      _searchHandle!.submitSearch()
-    })
-    await testSetup.renderOnce()
-    expect(testSetup.captureCharFrame()).toContain("matches:[0]")
+      expectDefined(searchHandle).submitSearch();
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
+    expect(testSetup.captureCharFrame()).toContain("matches:[0]");
 
     await act(async () => {
-      _appendLine!("alpha again")
-    })
-    await testSetup.renderOnce()
+      expectDefined(appendLine)("alpha again");
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
 
-    expect(testSetup.captureCharFrame()).toContain("matches:[0,2]")
-  })
+    expect(testSetup.captureCharFrame()).toContain("matches:[0,2]");
+  });
 
   test("without deps the committed matches stay memoized on the query", async () => {
-    testSetup = await setupGrowing(false)
-    await press(testSetup, "/")
+    testSetup = await setupGrowing(false);
+    await press(testSetup, "/");
 
     await act(async () => {
-      _searchHandle!.setSearchQuery("alpha")
-    })
+      expectDefined(searchHandle).setSearchQuery("alpha");
+      await Promise.resolve();
+    });
     await act(async () => {
-      _searchHandle!.submitSearch()
-    })
-    await testSetup.renderOnce()
+      expectDefined(searchHandle).submitSearch();
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
 
     await act(async () => {
-      _appendLine!("alpha again")
-    })
-    await testSetup.renderOnce()
+      expectDefined(appendLine)("alpha again");
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
 
-    expect(testSetup.captureCharFrame()).toContain("matches:[0]")
-  })
-})
+    expect(testSetup.captureCharFrame()).toContain("matches:[0]");
+  });
+});

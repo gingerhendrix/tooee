@@ -1,53 +1,53 @@
-import { useCommand, useSetMode } from "@tooee/commands"
-import { copyToClipboard } from "@tooee/clipboard"
+import { useCommand, useSetMode } from "@tooee/commands";
+import { copyToClipboard } from "@tooee/clipboard";
 
 export interface UseCopyOptions {
-  getRowText: (index: number) => string
-  cursor: number | null
-  selection: { start: number; end: number } | null
-  toggledIndices: ReadonlySet<number>
+  getRowText: (index: number) => string;
+  cursor: number | null;
+  selection: { start: number; end: number } | null;
+  toggledIndices: ReadonlySet<number>;
   /** Register the copy command (default true). */
-  enabled?: boolean
+  enabled?: boolean;
 }
 
-export function useCopy({
+export const useCopy = function useCopy({
   getRowText,
   cursor,
   selection,
   toggledIndices,
   enabled,
 }: UseCopyOptions): void {
-  const setMode = useSetMode()
+  const setMode = useSetMode();
 
   useCommand({
-    id: "select-copy",
-    title: "Copy selection",
-    hotkey: "y",
-    modes: ["select"],
     enabled,
     handler: () => {
-      let text = ""
+      let text = "";
 
       if (toggledIndices.size > 0) {
-        text = Array.from(toggledIndices)
-          .sort((left, right) => left - right)
+        text = [...toggledIndices]
+          .toSorted((left, right) => left - right)
           .map((index) => getRowText(index))
-          .join("\n")
+          .join("\n");
       } else if (selection) {
-        const rows: string[] = []
-        for (let index = selection.start; index <= selection.end; index++) {
-          rows.push(getRowText(index))
+        const rows: string[] = [];
+        for (let index = selection.start; index <= selection.end; index += 1) {
+          rows.push(getRowText(index));
         }
-        text = rows.join("\n")
+        text = rows.join("\n");
       } else if (cursor !== null) {
-        text = getRowText(cursor)
+        text = getRowText(cursor);
       }
 
       if (text) {
-        void copyToClipboard(text)
+        void copyToClipboard(text);
       }
 
-      setMode("cursor")
+      setMode("cursor");
     },
-  })
-}
+    hotkey: "y",
+    id: "select-copy",
+    modes: ["select"],
+    title: "Copy selection",
+  });
+};

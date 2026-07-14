@@ -15,11 +15,12 @@
     "apps/*",
     "examples"
   ],
+  "type": "module",
   "scripts": {
     "build": "bunx tsc -b",
     "clean": "rm -rf packages/*/dist apps/*/dist",
-    "test": "bun --conditions=@tooee/source test",
-    "test:parallel": "find packages -name '*.test.ts' -o -name '*.test.tsx' | grep -v node_modules | xargs -P4 -I{} bun --conditions=@tooee/source test {}",
+    "test": "find . -path '*/node_modules' -prune -o \\( -name '*.test.ts' -o -name '*.test.tsx' \\) -print0 | xargs -0 -P4 -n1 bun --conditions=@tooee/source test",
+    "test:parallel": "find . -path '*/node_modules' -prune -o \\( -name '*.test.ts' -o -name '*.test.tsx' \\) -print0 | xargs -0 -P4 -n1 bun --conditions=@tooee/source test",
     "bench": "bun --conditions=@tooee/source benchmarks/run.ts",
     "bench:render": "bun --conditions=@tooee/source benchmarks/render-first-frame.tsx",
     "bench:interaction": "bun --conditions=@tooee/source benchmarks/interaction-latency.tsx",
@@ -28,10 +29,14 @@
     "bench:data-prep": "bun --conditions=@tooee/source benchmarks/data-prep.ts",
     "bench:compare": "bun --conditions=@tooee/source benchmarks/compare.ts",
     "check": "bunx tsc -b && bunx tsc -p examples",
-    "lint": "oxlint --react-plugin .",
-    "lint:fix": "oxlint --react-plugin --fix .",
+    "lint": "ultracite fix",
+    "lint:check": "ultracite check --no-error-on-unmatched-pattern",
+    "lint:oxlint": "oxlint --type-aware --deny-warnings .",
+    "lint:staged": "bun run lint:check",
     "format": "oxfmt --write .",
-    "format:check": "oxfmt --check ."
+    "format:check": "oxfmt --check .",
+    "react-doctor": "react-doctor . --project . --json --no-score --no-parallel --blocking none",
+    "prepare": "lefthook install"
   },
   "devDependencies": {
     "@opentui/core": "^0.4.3",
@@ -40,11 +45,16 @@
     "@tooee/shell": "workspace:*",
     "@tooee/view": "workspace:*",
     "@types/bun": "^1.3.10",
+    "@types/react": "^19.2.17",
     "ghostty-opentui": "^1.4.5",
+    "lefthook": "2.1.10",
     "marked": "^17.0.4",
-    "oxfmt": "^0.36.0",
-    "oxlint": "^1.51.0",
+    "oxfmt": "0.36.0",
+    "oxlint": "1.73.0",
+    "oxlint-tsgolint": "0.24.0",
     "react": "^19.2.4",
-    "tuistory": "^0.0.16"
+    "react-doctor": "0.7.4",
+    "tuistory": "^0.0.16",
+    "ultracite": "7.9.3"
   }
 }

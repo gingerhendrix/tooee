@@ -20,40 +20,40 @@ Use OpenTUI's headless test renderer via `@opentui/react/test-utils`. These are 
 
 ### What's tested
 
-| File                                   | Covers                                                  |
-| -------------------------------------- | ------------------------------------------------------- |
-| `layout/test/TitleBar.test.tsx`        | Title and subtitle rendering                            |
-| `layout/test/StatusBar.test.tsx`       | Label:value pairs                                       |
-| `layout/test/AppLayout.test.tsx`       | Full layout chrome (title bar, status bar, scroll area) |
-| `renderers/test/MarkdownView.test.tsx` | Heading, list, code block rendering                     |
-| `renderers/test/CodeView.test.tsx`     | Code content and line numbers                           |
-| `renderers/test/Table.test.tsx`        | Table rendering                                         |
-| `renderers/test/parsers.test.ts`       | Table parser logic                                      |
-| `shell/test/modal.test.tsx`            | j/k scroll, gg/G jump, ctrl+d/u, mode transitions       |
-| `shell/test/search.test.tsx`           | findMatchingLines, search activation/cancel/navigation  |
-| `shell/test/cursor.test.tsx`           | Cursor/select mode transitions, movement, selection     |
-| `shell/test/command-palette.test.tsx`  | Palette open/close, entry filtering                     |
-| `shell/test/commands.test.tsx`         | Theme cycling (t/T), quit (q)                           |
-| `choose/test/fuzzy.test.ts`            | Fuzzy filter scoring, matching, sorting                 |
+| File                                    | Covers                                                  |
+| --------------------------------------- | ------------------------------------------------------- |
+| `layout/test/title-bar.test.tsx`        | Title and subtitle rendering                            |
+| `layout/test/status-bar.test.tsx`       | Label:value pairs                                       |
+| `layout/test/app-layout.test.tsx`       | Full layout chrome (title bar, status bar, scroll area) |
+| `renderers/test/markdown-view.test.tsx` | Heading, list, code block rendering                     |
+| `renderers/test/code-view.test.tsx`     | Code content and line numbers                           |
+| `renderers/test/table.test.tsx`         | Table rendering                                         |
+| `renderers/test/parsers.test.ts`        | Table parser logic                                      |
+| `shell/test/modal.test.tsx`             | j/k scroll, gg/G jump, ctrl+d/u, mode transitions       |
+| `shell/test/search.test.tsx`            | findMatchingLines, search activation/cancel/navigation  |
+| `shell/test/cursor.test.tsx`            | Cursor/select mode transitions, movement, selection     |
+| `shell/test/command-palette.test.tsx`   | Palette open/close, entry filtering                     |
+| `shell/test/commands.test.tsx`          | Theme cycling (t/T), quit (q)                           |
+| `choose/test/fuzzy.test.ts`             | Fuzzy filter scoring, matching, sorting                 |
 
 ### Pattern
 
 ```tsx
-import { testRender } from "@opentui/react/test-utils"
-import { test, expect, afterEach } from "bun:test"
+import { testRender } from "@opentui/react/test-utils";
+import { test, expect, afterEach } from "bun:test";
 
-let testSetup: Awaited<ReturnType<typeof testRender>>
+let testSetup: Awaited<ReturnType<typeof testRender>>;
 
 afterEach(() => {
-  testSetup?.renderer.destroy()
-})
+  testSetup?.renderer.destroy();
+});
 
 test("renders content", async () => {
-  testSetup = await testRender(<MyComponent />, { width: 80, height: 24 })
-  await testSetup.renderOnce()
-  const frame = testSetup.captureCharFrame()
-  expect(frame).toContain("expected text")
-})
+  testSetup = await testRender(<MyComponent />, { width: 80, height: 24 });
+  await testSetup.renderOnce();
+  const frame = testSetup.captureCharFrame();
+  expect(frame).toContain("expected text");
+});
 ```
 
 ### Key simulation
@@ -68,8 +68,8 @@ testSetup.renderer.keyInput.emit("keypress", {
   option: false,
   eventType: "press",
   repeated: false,
-})
-await testSetup.renderOnce()
+});
+await testSetup.renderOnce();
 ```
 
 Key input must be wrapped in React's `act()` to flush state updates through the command system.
@@ -119,35 +119,35 @@ Test fixtures live in `packages/view/test/fixtures/`:
 ### Pattern
 
 ```typescript
-import { describe, test, expect, afterEach } from "bun:test"
-import { type Session } from "tuistory"
-import { launchView } from "./helpers.ts"
+import { describe, test, expect, afterEach } from "bun:test";
+import { type Session } from "tuistory";
+import { launchView } from "./helpers.ts";
 
-let session: Session
+let session: Session;
 
 afterEach(() => {
   try {
-    session?.close()
+    session?.close();
   } catch {}
-})
+});
 
 test("renders markdown heading", async () => {
-  session = await launchView("sample.md")
-  const text = await session.text()
-  expect(text).toContain("Hello World")
-}, 20000)
+  session = await launchView("sample.md");
+  const text = await session.text();
+  expect(text).toContain("Hello World");
+}, 20000);
 ```
 
 ### tuistory API
 
 ```typescript
-await session.press("j") // single key
-await session.press(["ctrl", "d"]) // chord
-await session.type("search query") // type string
-await session.waitForText("pattern") // wait for text
-await session.waitForText(/regex/) // regex match
-const text = await session.text() // get terminal text
-session.close() // cleanup
+await session.press("j"); // single key
+await session.press(["ctrl", "d"]); // chord
+await session.type("search query"); // type string
+await session.waitForText("pattern"); // wait for text
+await session.waitForText(/regex/); // regex match
+const text = await session.text(); // get terminal text
+session.close(); // cleanup
 ```
 
 ### Timeouts
@@ -195,7 +195,7 @@ testSetup.renderer.keyInput.emit("keypress", {
   option: false,
   eventType: "press",
   repeated: false,
-})
+});
 ```
 
 ### E2E tests: Escape is unreliable
@@ -206,7 +206,7 @@ tuistory sends raw `\x1b` for `session.press("escape")`, but OpenTUI enables the
 
 ```typescript
 // Instead of: await session.press("escape")
-await session.writeRaw("\x1b[27u")
+await session.writeRaw("\x1b[27u");
 ```
 
 **Affected e2e scenarios** (skip or use workaround):

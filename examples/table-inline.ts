@@ -11,10 +11,11 @@
  * Controls: j/k scroll rows, h/l scroll columns, q quit, t/T cycle themes
  */
 
-import { launch, type ContentProvider, type Content } from "@tooee/view"
+import { launch } from "@tooee/view";
+import type { ContentProvider, Content } from "@tooee/view";
 
-const headers = ["Language", "Year", "Creator", "Paradigm"]
-const columnKeys = ["language", "year", "creator", "paradigm"] as const
+const headers = ["Language", "Year", "Creator", "Paradigm"];
+const columnKeys = ["language", "year", "creator", "paradigm"] as const;
 const rows = [
   ["TypeScript", "2012", "Anders Hejlsberg", "Multi-paradigm"],
   ["Rust", "2010", "Graydon Hoare", "Multi-paradigm"],
@@ -26,30 +27,30 @@ const rows = [
   ["JavaScript", "1995", "Brendan Eich", "Multi-paradigm"],
   ["Ruby", "1995", "Yukihiro Matsumoto", "Object-oriented"],
   ["Elixir", "2011", "Jose Valim", "Functional"],
-]
+];
 
 const columns = headers.map((header, index) => ({
-  key: columnKeys[index],
   header,
-}))
+  key: columnKeys[index],
+}));
 
 const tableRows = rows.map((row) => {
   const record: Record<(typeof columnKeys)[number], string> = {
-    language: row[0] ?? "",
-    year: row[1] ?? "",
     creator: row[2] ?? "",
+    language: row[0] ?? "",
     paradigm: row[3] ?? "",
-  }
-  return record
-})
+    year: row[1] ?? "",
+  };
+  return record;
+});
 
 const contentProvider: ContentProvider = {
   load: (): Content => ({
-    title: "Programming Languages",
-    format: "table",
     columns,
+    format: "table",
     rows: tableRows,
+    title: "Programming Languages",
   }),
-}
+};
 
-launch({ contentProvider })
+await launch({ contentProvider });

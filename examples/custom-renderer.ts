@@ -12,32 +12,28 @@
  * Controls: j/k scroll, c enter cursor mode, q quit, t theme picker
  */
 
-import { createElement } from "react"
-import {
-  launch,
-  type ContentProvider,
-  type CustomContent,
-  type ContentRendererProps,
-} from "@tooee/view"
-import { useTheme } from "@tooee/themes"
-import type { ReactNode } from "react"
+import { createElement } from "react";
+import { launch } from "@tooee/view";
+import type { ContentProvider, CustomContent, ContentRendererProps } from "@tooee/view";
+import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
 
 // === Custom data types ===
 
 interface KanbanCard {
-  id: string
-  title: string
-  assignee?: string
-  priority: "low" | "medium" | "high" | "critical"
+  id: string;
+  title: string;
+  assignee?: string;
+  priority: "low" | "medium" | "high" | "critical";
 }
 
 interface KanbanColumn {
-  name: string
-  cards: KanbanCard[]
+  name: string;
+  cards: KanbanCard[];
 }
 
 interface KanbanData {
-  columns: KanbanColumn[]
+  columns: KanbanColumn[];
 }
 
 // === Sample data ===
@@ -45,186 +41,207 @@ interface KanbanData {
 const kanbanData: KanbanData = {
   columns: [
     {
+      cards: [
+        { assignee: "alice", id: "T-101", priority: "medium", title: "Add dark mode support" },
+        { id: "T-102", priority: "low", title: "Write API documentation" },
+        { assignee: "bob", id: "T-103", priority: "low", title: "Upgrade dependencies" },
+      ],
       name: "Backlog",
-      cards: [
-        { id: "T-101", title: "Add dark mode support", assignee: "alice", priority: "medium" },
-        { id: "T-102", title: "Write API documentation", priority: "low" },
-        { id: "T-103", title: "Upgrade dependencies", assignee: "bob", priority: "low" },
-      ],
     },
     {
+      cards: [
+        { assignee: "carol", id: "T-104", priority: "critical", title: "Fix login timeout bug" },
+        { assignee: "alice", id: "T-105", priority: "high", title: "Implement search feature" },
+      ],
       name: "In Progress",
-      cards: [
-        { id: "T-104", title: "Fix login timeout bug", assignee: "carol", priority: "critical" },
-        { id: "T-105", title: "Implement search feature", assignee: "alice", priority: "high" },
-      ],
     },
     {
+      cards: [
+        { assignee: "bob", id: "T-106", priority: "medium", title: "Refactor auth middleware" },
+      ],
       name: "Review",
-      cards: [
-        { id: "T-106", title: "Refactor auth middleware", assignee: "bob", priority: "medium" },
-      ],
     },
     {
-      name: "Done",
       cards: [
-        { id: "T-107", title: "Set up CI pipeline", assignee: "carol", priority: "high" },
-        { id: "T-108", title: "Create project README", assignee: "alice", priority: "medium" },
-        { id: "T-109", title: "Configure linting", assignee: "bob", priority: "low" },
+        { assignee: "carol", id: "T-107", priority: "high", title: "Set up CI pipeline" },
+        { assignee: "alice", id: "T-108", priority: "medium", title: "Create project README" },
+        { assignee: "bob", id: "T-109", priority: "low", title: "Configure linting" },
       ],
+      name: "Done",
     },
   ],
-}
+};
 
 // === Custom renderer ===
 
 const PRIORITY_INDICATORS: Record<string, string> = {
   critical: "!!!",
   high: " !! ",
-  medium: "  ! ",
   low: "    ",
-}
+  medium: "  ! ",
+};
 
-const COLUMN_WIDTH = 36
-const CARD_INNER_WIDTH = COLUMN_WIDTH - 4 // borders + padding
+const COLUMN_WIDTH = 36;
+const CARD_INNER_WIDTH = COLUMN_WIDTH - 4;
 
-function truncateText(text: string, maxLen: number): string {
-  if (text.length <= maxLen) return text
-  return text.slice(0, maxLen - 1) + "\u2026"
-}
+const truncateText = function truncateText(text: string, maxLen: number): string {
+  if (text.length <= maxLen) {
+    return text;
+  }
+  return `${text.slice(0, maxLen - 1)}\u2026`;
+};
 
-function padRight(text: string, width: number): string {
-  if (text.length >= width) return text.slice(0, width)
-  return text + " ".repeat(width - text.length)
-}
+const padRight = function padRight(text: string, width: number): string {
+  if (text.length >= width) {
+    return text.slice(0, width);
+  }
+  return text + " ".repeat(width - text.length);
+};
 
-function h(tag: string, props: Record<string, unknown>, ...children: ReactNode[]): ReactNode {
-  return createElement(tag, props, ...children)
-}
+const h = function h(
+  tag: string,
+  props: Record<string, unknown>,
+  ...children: ReactNode[]
+): ReactNode {
+  return createElement(tag, props, ...children);
+};
 
-function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
-  const { theme } = useTheme()
-  const data = (content as CustomContent<KanbanData>).data
+const KanbanRenderer = function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
+  const { theme } = useTheme();
+  // Deferred(lint-sweep): add schema-based validation for custom renderer content
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- custom format payload validation is deferred
+  const { data } = content as CustomContent<KanbanData>;
 
-  const maxCards = Math.max(...data.columns.map((col) => col.cards.length))
+  const maxCards = Math.max(...data.columns.map((col) => col.cards.length));
 
   // Build the board as lines
-  const lines: { text: string; fg?: string }[] = []
+  const lines: { text: string; fg?: string }[] = [];
 
   // Header row
   const headerLine = data.columns
     .map((col) => {
-      const label = ` ${col.name} (${col.cards.length}) `
-      return padRight(label, COLUMN_WIDTH)
+      const label = ` ${col.name} (${col.cards.length}) `;
+      return padRight(label, COLUMN_WIDTH);
     })
-    .join("  ")
-  lines.push({ text: headerLine, fg: theme.primary })
+    .join("  ");
+  lines.push({ fg: theme.primary, text: headerLine });
 
   // Separator
-  const sepLine = data.columns.map(() => "\u2500".repeat(COLUMN_WIDTH)).join("  ")
-  lines.push({ text: sepLine, fg: theme.border })
+  const sepLine = data.columns.map(() => "\u2500".repeat(COLUMN_WIDTH)).join("  ");
+  lines.push({ fg: theme.border, text: sepLine });
 
   // Card rows
-  for (let cardIdx = 0; cardIdx < maxCards; cardIdx++) {
+  for (let cardIdx = 0; cardIdx < maxCards; cardIdx += 1) {
     // Top border of card
     const topLine = data.columns
       .map((col) => {
-        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH)
-        return "\u250C" + "\u2500".repeat(COLUMN_WIDTH - 2) + "\u2510"
+        if (cardIdx >= col.cards.length) {
+          return " ".repeat(COLUMN_WIDTH);
+        }
+        return `\u250C${"\u2500".repeat(COLUMN_WIDTH - 2)}\u2510`;
       })
-      .join("  ")
-    lines.push({ text: topLine, fg: theme.border })
+      .join("  ");
+    lines.push({ fg: theme.border, text: topLine });
 
     // Card ID + priority line
     const idLine = data.columns
       .map((col) => {
-        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH)
-        const card = col.cards[cardIdx]
-        const priority = PRIORITY_INDICATORS[card.priority] ?? "    "
-        const inner = padRight(` ${card.id} ${priority}`, CARD_INNER_WIDTH)
-        return "\u2502" + inner + "\u2502"
+        if (cardIdx >= col.cards.length) {
+          return " ".repeat(COLUMN_WIDTH);
+        }
+        const card = col.cards[cardIdx];
+        const priority = PRIORITY_INDICATORS[card.priority] ?? "    ";
+        const inner = padRight(` ${card.id} ${priority}`, CARD_INNER_WIDTH);
+        return `\u2502${inner}\u2502`;
       })
-      .join("  ")
-    lines.push({ text: idLine })
+      .join("  ");
+    lines.push({ text: idLine });
 
     // Card title line
     const titleLine = data.columns
       .map((col) => {
-        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH)
-        const card = col.cards[cardIdx]
+        if (cardIdx >= col.cards.length) {
+          return " ".repeat(COLUMN_WIDTH);
+        }
+        const card = col.cards[cardIdx];
         const inner = padRight(
           ` ${truncateText(card.title, CARD_INNER_WIDTH - 2)} `,
           CARD_INNER_WIDTH,
-        )
-        return "\u2502" + inner + "\u2502"
+        );
+        return `\u2502${inner}\u2502`;
       })
-      .join("  ")
-    lines.push({ text: titleLine })
+      .join("  ");
+    lines.push({ text: titleLine });
 
     // Assignee line
     const assigneeLine = data.columns
       .map((col) => {
-        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH)
-        const card = col.cards[cardIdx]
-        const assignee = card.assignee ? `@${card.assignee}` : "(unassigned)"
-        const inner = padRight(` ${assignee} `, CARD_INNER_WIDTH)
-        return "\u2502" + inner + "\u2502"
+        if (cardIdx >= col.cards.length) {
+          return " ".repeat(COLUMN_WIDTH);
+        }
+        const card = col.cards[cardIdx];
+        const assignee = (card.assignee?.length ?? 0) > 0 ? `@${card.assignee}` : "(unassigned)";
+        const inner = padRight(` ${assignee} `, CARD_INNER_WIDTH);
+        return `\u2502${inner}\u2502`;
       })
-      .join("  ")
-    lines.push({ text: assigneeLine, fg: theme.textMuted })
+      .join("  ");
+    lines.push({ fg: theme.textMuted, text: assigneeLine });
 
     // Bottom border of card
     const bottomLine = data.columns
       .map((col) => {
-        if (cardIdx >= col.cards.length) return " ".repeat(COLUMN_WIDTH)
-        return "\u2514" + "\u2500".repeat(COLUMN_WIDTH - 2) + "\u2518"
+        if (cardIdx >= col.cards.length) {
+          return " ".repeat(COLUMN_WIDTH);
+        }
+        return `\u2514${"\u2500".repeat(COLUMN_WIDTH - 2)}\u2518`;
       })
-      .join("  ")
-    lines.push({ text: bottomLine, fg: theme.border })
+      .join("  ");
+    lines.push({ fg: theme.border, text: bottomLine });
 
     // Spacing between cards
     if (cardIdx < maxCards - 1) {
-      lines.push({ text: "" })
+      lines.push({ text: "" });
     }
   }
 
   return h(
     "box",
     { style: { flexDirection: "column", marginLeft: 1, marginTop: 1 } },
-    ...lines.map((line, i) => h("text", { key: i, content: line.text, fg: line.fg ?? theme.text })),
-  )
-}
+    ...lines.map(
+      (line, i): ReactNode => h("text", { content: line.text, fg: line.fg ?? theme.text, key: i }),
+    ),
+  );
+};
 
 // === Content provider ===
 
 const contentProvider: ContentProvider = {
   load: (): CustomContent<KanbanData> => ({
-    format: "kanban",
     data: kanbanData,
-    title: "Project Board",
-    getTextContent: () => {
+    format: "kanban",
+    getTextContent: () =>
       // Provide text representation for search and copy
-      return kanbanData.columns
+      kanbanData.columns
         .map((col) => {
-          const header = `== ${col.name} (${col.cards.length}) ==`
+          const header = `== ${col.name} (${col.cards.length}) ==`;
           const cards = col.cards
             .map(
               (card) =>
-                `  ${card.id}: ${card.title} [${card.priority}]${card.assignee ? ` @${card.assignee}` : ""}`,
+                `  ${card.id}: ${card.title} [${card.priority}]${(card.assignee?.length ?? 0) > 0 ? ` @${card.assignee}` : ""}`,
             )
-            .join("\n")
-          return `${header}\n${cards}`
+            .join("\n");
+          return `${header}\n${cards}`;
         })
-        .join("\n\n")
-    },
+        .join("\n\n"),
+    title: "Project Board",
   }),
-}
+};
 
 // === Launch ===
 
-launch({
+await launch({
   contentProvider,
   renderers: {
     kanban: KanbanRenderer,
   },
-})
+});

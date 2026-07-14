@@ -12,43 +12,44 @@
  * Controls: j/k navigate, Enter select, / filter, Escape cancel
  */
 
-import { launch, createStaticProvider, type ChooseItem } from "@tooee/choose"
+import { launch, createStaticProvider } from "@tooee/choose";
+import type { ChooseItem } from "@tooee/choose";
 
 // Define items with icons and descriptions
 const colors: ChooseItem[] = [
   {
+    description: "A warm, energetic color",
+    icon: "\u{1F534}",
     text: "Red",
     value: "red",
-    icon: "\u{1F534}", // Red circle emoji
-    description: "A warm, energetic color",
   },
   {
+    description: "The color of nature and growth",
+    icon: "\u{1F7E2}",
     text: "Green",
     value: "green",
-    icon: "\u{1F7E2}", // Green circle emoji
-    description: "The color of nature and growth",
   },
   {
+    description: "A calm, trustworthy color",
+    icon: "\u{1F535}",
     text: "Blue",
     value: "blue",
-    icon: "\u{1F535}", // Blue circle emoji
-    description: "A calm, trustworthy color",
   },
   {
+    description: "Bright and cheerful",
+    icon: "\u{1F7E1}",
     text: "Yellow",
     value: "yellow",
-    icon: "\u{1F7E1}", // Yellow circle emoji
-    description: "Bright and cheerful",
   },
   {
+    description: "Royal and creative",
+    icon: "\u{1F7E3}",
     text: "Purple",
     value: "purple",
-    icon: "\u{1F7E3}", // Purple circle emoji
-    description: "Royal and creative",
   },
-]
+];
 
-async function main() {
+const main = async function main() {
   // Launch returns the selected item(s) or null if cancelled
   const result = await launch({
     // createStaticProvider wraps an array as a ChooseContentProvider
@@ -59,15 +60,15 @@ async function main() {
       // Enable multi-select (uncomment to allow multiple selections)
       // multi: true,
     },
-  })
+  });
 
   if (result === null) {
-    console.log("Selection cancelled")
+    console.log("Selection cancelled");
   } else {
     // result.items contains the selected ChooseItem(s)
-    const selected = result.items[0]
-    console.log(`You chose: ${selected.text} (${selected.value})`)
+    const [selected] = result.items;
+    console.log(`You chose: ${selected.text} (${selected.value})`);
   }
-}
+};
 
-main()
+await main();

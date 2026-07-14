@@ -27,40 +27,40 @@ For more control, you can use the Tooee Launcher to build and run your TUI apps.
 Example - render git log in a table:
 
 ```typescript
-import { launch, type ContentProvider, type Content } from "@tooee/view"
+import { launch, type ContentProvider, type Content } from "@tooee/view";
 
 const contentProvider: ContentProvider = {
   async load(): Promise<Content> {
     // Use %x00 (null byte) as delimiter for safe parsing
-    const proc = Bun.spawn(["git", "log", "--format=%h%x00%s%x00%an%x00%ar"])
+    const proc = Bun.spawn(["git", "log", "--format=%h%x00%s%x00%an%x00%ar"]);
 
-    const text = await new Response(proc.stdout).text()
+    const text = await new Response(proc.stdout).text();
 
     const columns = [
       { key: "hash", header: "Hash" },
       { key: "message", header: "Message" },
       { key: "author", header: "Author" },
       { key: "date", header: "Date" },
-    ]
+    ];
 
-    const lines = text.trim().split("\n").filter(Boolean)
+    const lines = text.trim().split("\n").filter(Boolean);
 
     const rows = lines.map((line) => {
-      const [hash, subject, author, date] = line.split("\x00")
-      const preview = subject.length > 120 ? `${subject.slice(0, 120)}...` : subject
+      const [hash, subject, author, date] = line.split("\x00");
+      const preview = subject.length > 120 ? `${subject.slice(0, 120)}...` : subject;
       return {
         hash,
         message: preview,
         author,
         date,
-      }
-    })
+      };
+    });
 
-    return { format: "table", columns, rows, title: "Git Log" }
+    return { format: "table", columns, rows, title: "Git Log" };
   },
-}
+};
 
-launch({ contentProvider })
+launch({ contentProvider });
 ```
 
 ## React

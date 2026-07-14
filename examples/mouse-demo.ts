@@ -32,94 +32,98 @@
  *     q                quit
  */
 
-import { launch, type ContentProvider, type Content } from "@tooee/view"
-import type { ActionDefinition, CommandContext } from "@tooee/commands"
+import { launch } from "@tooee/view";
+import type { ContentProvider, Content } from "@tooee/view";
+import type { ActionDefinition, CommandContext } from "@tooee/commands";
 
 interface FileRow {
-  name: string
-  kind: string
-  size: string
-  modified: string
+  name: string;
+  kind: string;
+  size: string;
+  modified: string;
 }
 
 const files: FileRow[] = [
-  { name: "README.md", kind: "doc", size: "2.1 KB", modified: "2 hours ago" },
-  { name: "package.json", kind: "config", size: "1.9 KB", modified: "yesterday" },
-  { name: "src/index.ts", kind: "source", size: "812 B", modified: "10 min ago" },
-  { name: "src/launch.tsx", kind: "source", size: "1.2 KB", modified: "10 min ago" },
-  { name: "src/View.tsx", kind: "source", size: "4.4 KB", modified: "1 hour ago" },
-  { name: "tsconfig.json", kind: "config", size: "740 B", modified: "3 days ago" },
-  { name: "bun.lock", kind: "lock", size: "38 KB", modified: "1 hour ago" },
-  { name: "docs/testing.md", kind: "doc", size: "6.7 KB", modified: "yesterday" },
-  { name: "examples/mouse-demo.ts", kind: "source", size: "3.0 KB", modified: "just now" },
-  { name: "LICENSE", kind: "doc", size: "1.0 KB", modified: "30 days ago" },
-]
+  { kind: "doc", modified: "2 hours ago", name: "README.md", size: "2.1 KB" },
+  { kind: "config", modified: "yesterday", name: "package.json", size: "1.9 KB" },
+  { kind: "source", modified: "10 min ago", name: "src/index.ts", size: "812 B" },
+  { kind: "source", modified: "10 min ago", name: "src/launch.tsx", size: "1.2 KB" },
+  { kind: "source", modified: "1 hour ago", name: "src/view.tsx", size: "4.4 KB" },
+  { kind: "config", modified: "3 days ago", name: "tsconfig.json", size: "740 B" },
+  { kind: "lock", modified: "1 hour ago", name: "bun.lock", size: "38 KB" },
+  { kind: "doc", modified: "yesterday", name: "docs/testing.md", size: "6.7 KB" },
+  { kind: "source", modified: "just now", name: "examples/mouse-demo.ts", size: "3.0 KB" },
+  { kind: "doc", modified: "30 days ago", name: "LICENSE", size: "1.0 KB" },
+];
 
 const columns = [
-  { key: "name", header: "Name" },
-  { key: "kind", header: "Kind" },
-  { key: "size", header: "Size" },
-  { key: "modified", header: "Modified" },
-]
+  { header: "Name", key: "name" },
+  { header: "Kind", key: "kind" },
+  { header: "Size", key: "size" },
+  { header: "Modified", key: "modified" },
+];
 
 const contentProvider: ContentProvider = {
   load: (): Content => ({
-    title: "Mouse Demo — left-click to select, right-click for actions",
-    format: "table",
     columns,
-    rows: files as unknown as Record<string, string>[],
+    format: "table",
+    rows: files.map((file) => ({ ...file })),
+    title: "Mouse Demo — left-click to select, right-click for actions",
   }),
-}
+};
 
 /** Name of the row currently under the cursor, or a fallback. */
-function activeName(ctx: CommandContext): string {
-  const row = ctx.document?.activeRow as Record<string, unknown> | undefined
-  const name = row?.name
-  return typeof name === "string" ? name : "(no row)"
-}
+const activeName = function activeName(ctx: CommandContext): string {
+  const activeRow = ctx.document?.activeRow;
+  if (activeRow === null || typeof activeRow !== "object") {
+    return "(no row)";
+  }
+  const name = "name" in activeRow ? activeRow.name : undefined;
+  return typeof name === "string" ? name : "(no row)";
+};
 
 // These actions populate the right-click context menu. They are also reachable
 // from the command palette (:) and via their hotkeys.
 const actions: ActionDefinition[] = [
   {
-    id: "row.open",
-    title: "Open",
+    handler: (ctx) => {
+      ctx.toast.toast({ level: "info", message: `Open ${activeName(ctx)}` });
+    },
     hotkey: "o",
-    icon: "\u{1F4C2}", // open folder
+    icon: "\u{1F4C2}",
+    id: "row.open",
     modes: ["cursor"],
-    handler: (ctx) => {
-      ctx.toast.toast({ message: `Open ${activeName(ctx)}`, level: "info" })
-    },
+    title: "Open",
   },
   {
-    id: "row.copy-name",
-    title: "Copy name",
+    handler: (ctx) => {
+      ctx.toast.toast({ level: "success", message: `Copied "${activeName(ctx)}"` });
+    },
     hotkey: "y",
-    icon: "\u{1F4CB}", // clipboard
+    icon: "\u{1F4CB}",
+    id: "row.copy-name",
     modes: ["cursor"],
-    handler: (ctx) => {
-      ctx.toast.toast({ message: `Copied "${activeName(ctx)}"`, level: "success" })
-    },
+    title: "Copy name",
   },
   {
-    id: "row.mark-done",
-    title: "Mark done",
+    handler: (ctx) => {
+      ctx.toast.toast({ level: "success", message: `Marked ${activeName(ctx)} done` });
+    },
     hotkey: "x",
-    icon: "\u{2713}", // check
+    icon: "\u{2713}",
+    id: "row.mark-done",
     modes: ["cursor"],
-    handler: (ctx) => {
-      ctx.toast.toast({ message: `Marked ${activeName(ctx)} done`, level: "success" })
-    },
+    title: "Mark done",
   },
   {
-    id: "row.delete",
-    title: "Delete",
-    icon: "\u{1F5D1}", // wastebasket
-    modes: ["cursor"],
     handler: (ctx) => {
-      ctx.toast.toast({ message: `Delete ${activeName(ctx)} (demo only)`, level: "warning" })
+      ctx.toast.toast({ level: "warning", message: `Delete ${activeName(ctx)} (demo only)` });
     },
+    icon: "\u{1F5D1}",
+    id: "row.delete",
+    modes: ["cursor"],
+    title: "Delete",
   },
-]
+];
 
-launch({ contentProvider, actions })
+await launch({ actions, contentProvider });

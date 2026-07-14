@@ -1,10 +1,10 @@
-import { extend } from "@opentui/react"
-import { RowDocumentRenderable } from "./RowDocumentRenderable.js"
+import { extend } from "@opentui/react";
+import { RowDocumentRenderable } from "./row-document-renderable.js";
 
-extend({ "row-document": RowDocumentRenderable })
+extend({ "row-document": RowDocumentRenderable });
 
 declare module "@opentui/react" {
   interface OpenTUIComponents {
-    "row-document": typeof RowDocumentRenderable
+    "row-document": typeof RowDocumentRenderable;
   }
 }

@@ -2,12 +2,14 @@ export {
   OverlayContext,
   OverlayControllerContext,
   OverlayStateContext,
+  overlayUpdater,
+  overlayValue,
   useOverlay,
   useOverlayState,
   useCurrentOverlay,
   useHasOverlay,
   useHasModalOverlay,
-} from "./overlay-context.js"
+} from "./overlay-context.js";
 export type {
   OverlayContextValue,
   OverlayId,
@@ -19,7 +21,8 @@ export type {
   OverlayHandle,
   OverlayController,
   OverlayState,
-} from "./overlay-context.js"
+  OverlayUpdate,
+} from "./overlay-context.js";
 export {
   createOverlayStore,
   selectHasOverlay,
@@ -27,10 +30,15 @@ export {
   selectStack,
   selectStackIds,
   selectTop,
-} from "./overlay-store.js"
+} from "./overlay-store.js";
 export type {
   OverlayClosedEmit,
+  OverlayClosedEvent,
+  OverlayClosedTopEvent,
+  OverlayOpenedEvent,
   OverlayRecord,
   OverlayStore,
   OverlayStoreContext,
-} from "./overlay-store.js"
+  OverlayStoreEvents,
+  OverlayUpdatedEvent,
+} from "./overlay-store.js";

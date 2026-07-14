@@ -11,7 +11,8 @@
  * Controls: j/k scroll rows, h/l scroll columns, q quit, t/T cycle themes
  */
 
-import { launch, type ContentProvider, type Content } from "@tooee/view"
+import { launch } from "@tooee/view";
+import type { ContentProvider, Content } from "@tooee/view";
 
 const headers = [
   "Title",
@@ -24,7 +25,7 @@ const headers = [
   "Box Office",
   "Country",
   "Language",
-]
+];
 
 const columnKeys = [
   "title",
@@ -37,7 +38,7 @@ const columnKeys = [
   "boxOffice",
   "country",
   "language",
-]
+];
 
 const rows = [
   [
@@ -280,28 +281,28 @@ const rows = [
     "USA",
     "English",
   ],
-]
+];
 
 const columns = headers.map((header, index) => ({
-  key: columnKeys[index],
   header,
-}))
+  key: columnKeys[index],
+}));
 
 const tableRows = rows.map((row) => {
-  const record: Record<string, string> = {}
-  columnKeys.forEach((key, index) => {
-    record[key] = row[index] ?? ""
-  })
-  return record
-})
+  const record: Record<string, string> = {};
+  for (const [index, key] of columnKeys.entries()) {
+    record[key] = row[index] ?? "";
+  }
+  return record;
+});
 
 const contentProvider: ContentProvider = {
   load: (): Content => ({
-    title: "Movie Database",
-    format: "table",
     columns,
+    format: "table",
     rows: tableRows,
+    title: "Movie Database",
   }),
-}
+};
 
-launch({ contentProvider })
+await launch({ contentProvider });

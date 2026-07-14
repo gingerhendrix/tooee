@@ -1,14 +1,14 @@
-export type Mode = "dark" | "light"
+export type Mode = "dark" | "light";
 
 export interface TooeeConfig {
   theme?: {
-    name?: string
-    mode?: Mode
-  }
-  keys?: Record<string, string>
+    name?: string;
+    mode?: Mode;
+  };
+  keys?: Record<string, string>;
   view?: {
-    wrap?: boolean
-    gutter?: boolean
-    copyOnSelect?: boolean | "primary" | "clipboard"
-  }
+    wrap?: boolean;
+    gutter?: boolean;
+    copyOnSelect?: boolean | "primary" | "clipboard";
+  };
 }

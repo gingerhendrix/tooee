@@ -12,11 +12,11 @@
  *           shift+wheel also pans, q quit, t/T cycle themes
  */
 
-import { launch, type ContentProvider } from "@tooee/view"
+import { launch } from "@tooee/view";
+import type { ContentProvider } from "@tooee/view";
 
 const contentProvider: ContentProvider = {
   load: () => ({
-    title: "Mermaid Diagrams",
     format: "markdown",
     markdown: `# Mermaid diagrams in Tooee
 
@@ -72,7 +72,8 @@ this is not valid mermaid syntax {{{
 
 *Press \`q\` to quit this viewer.*
 `,
+    title: "Mermaid Diagrams",
   }),
-}
+};
 
-launch({ contentProvider })
+await launch({ contentProvider });

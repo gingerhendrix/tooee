@@ -5,31 +5,35 @@
  * Typechecked by `bun run check`. Run with:
  *   bun --conditions=@tooee/source examples/source-aware-document.tsx
  */
-import { useMemo } from "react"
-import { sourceLines, sourceLineAdapter } from "@tooee/renderers"
-import { Document, DocumentScreen, launchCli, useDocumentController } from "@tooee/shell"
+import { useMemo } from "react";
+import { sourceLines, sourceLineAdapter } from "@tooee/renderers";
+import { Document, DocumentScreen, launchCli, useDocumentController } from "@tooee/shell";
 
 const source = `# Release notes
 
 Document rows can retain their original source coordinates.
 Right-click a row to open application-owned command entries.
-`
+`;
 
-function SourceAwareDocument({ content }: { content: string }) {
-  const rows = useMemo(() => sourceLines(content, { sourceId: "release-notes.txt" }), [content])
+const SourceAwareDocument = function SourceAwareDocument({
+  content,
+}: {
+  content: string;
+}): React.ReactNode {
+  const rows = useMemo(() => sourceLines(content, { sourceId: "release-notes.txt" }), [content]);
 
   const controller = useDocumentController({
-    rows,
     adapter: sourceLineAdapter,
-    search: {},
-    preserveCursorByKey: false,
     onRowPress: ({ index, row }) => {
-      const line = row.source.primary.start.line
-      console.error(`pressed rendered row ${index}, source line ${line}`)
+      const { line } = row.source.primary.start;
+      console.error(`pressed rendered row ${index}, source line ${line}`);
     },
-  })
+    preserveCursorByKey: false,
+    rows,
+    search: {},
+  });
 
-  const activeSource = controller.activeAnchor?.source?.primary
+  const activeSource = controller.activeAnchor?.source?.primary;
 
   return (
     <DocumentScreen
@@ -46,10 +50,10 @@ function SourceAwareDocument({ content }: { content: string }) {
       <Document
         controller={controller}
         style={{ flexGrow: 1 }}
-        renderRow={(row) => <text content={row.text || " "} />}
+        renderRow={(row): React.ReactNode => <text content={row.text || " "} />}
       />
     </DocumentScreen>
-  )
-}
+  );
+};
 
-void launchCli(<SourceAwareDocument content={source} />)
+void launchCli(<SourceAwareDocument content={source} />);

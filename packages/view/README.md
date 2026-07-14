@@ -14,25 +14,25 @@ the document controller: `rowCount`, `cursor`, `activeKey`, `activeRow`,
 row actions read the cursor from there:
 
 ```ts
-handler: (ctx) => open(ctx.document?.activeRow)
+handler: (ctx) => open(ctx.document?.activeRow);
 ```
 
 `ctx.view` is content-only — what the viewer knows and the controller does not:
 
 ```ts
 interface ViewCommandContext {
-  content: AnyContent
-  format: string
-  title?: string
-  data?: unknown
-  reload: () => void
+  content: AnyContent;
+  format: string;
+  title?: string;
+  data?: unknown;
+  reload: () => void;
   marks: {
-    setMarkSet(set: MarkSet): void
-    clearNamespace(namespace: string): void
-    clearAll(): void
-    userMarks: MarkSet[]
-    providerMarks: MarkSet[]
-  }
+    setMarkSet(set: MarkSet): void;
+    clearNamespace(namespace: string): void;
+    clearAll(): void;
+    userMarks: MarkSet[];
+    providerMarks: MarkSet[];
+  };
 }
 ```
 
@@ -42,13 +42,13 @@ Custom surfaces that behave like a view, but do not render the built-in `View`
 component, can publish the `ctx.view` slice with `useProvideViewCommandContext`:
 
 ```tsx
-import { useProvideViewCommandContext } from "@tooee/view"
+import { useProvideViewCommandContext } from "@tooee/view";
 
 useProvideViewCommandContext({
   format: "stream-dashboard",
   title: "Stream Dashboard",
   data: { rowCount: rows.length },
-})
+});
 ```
 
 The hook fills safe defaults for headless surfaces: synthetic custom content,
@@ -69,7 +69,7 @@ const KanbanRenderer: ContentRenderer = ({ content, document }) => (
   <box onMouseDown={() => document.selectRow(0)}>
     <text content={`cursor: ${document.activeIndex}`} />
   </box>
-)
+);
 ```
 
 A renderer that owns a `<row-document>` binds the controller directly — it

@@ -1,5 +1,5 @@
-export { MarkdownSubview } from "./MarkdownSubview.js"
-export { CodeSubview } from "./CodeSubview.js"
-export { TableSubview } from "./TableSubview.js"
-export { CustomSubview } from "./CustomSubview.js"
-export type { SubviewProps } from "./types.js"
+export { MarkdownSubview } from "./markdown-subview.js";
+export { CodeSubview } from "./code-subview.js";
+export { TableSubview } from "./table-subview.js";
+export { CustomSubview } from "./custom-subview.js";
+export type { SubviewProps } from "./types.js";

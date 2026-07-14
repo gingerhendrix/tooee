@@ -1,5 +1,5 @@
-export { AppLayout } from "./AppLayout.js"
-export type { AppLayoutProps } from "./AppLayout.js"
-export { StatusBar } from "./StatusBar.js"
-export type { StatusBarItem } from "./StatusBar.js"
-export { TitleBar } from "./TitleBar.js"
+export { AppLayout } from "./app-layout.js";
+export type { AppLayoutProps } from "./app-layout.js";
+export { StatusBar } from "./status-bar.js";
+export type { StatusBarItem } from "./status-bar.js";
+export { TitleBar } from "./title-bar.js";

@@ -1,0 +1,88 @@
+import { testRender } from "../../../test/support/test-render.ts";
+import { test, expect, afterEach } from "bun:test";
+import { ThemeSwitcherProvider } from "@tooee/themes";
+import { ToastProvider } from "@tooee/toasts";
+import { AppLayout } from "../src/app-layout.js";
+
+let testSetup: Awaited<ReturnType<typeof testRender>>;
+
+afterEach(() => {
+  testSetup?.renderer.destroy();
+});
+
+test("renders title bar with title and subtitle", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <ToastProvider>
+        <AppLayout
+          titleBar={{ subtitle: "v1.0", title: "App Title" }}
+          statusBar={{ items: [{ label: "OK" }] }}
+        >
+          <text content="body" />
+        </AppLayout>
+      </ToastProvider>
+    </ThemeSwitcherProvider>,
+    { height: 24, width: 80 },
+  );
+  await testSetup.renderOnce();
+  const frame = testSetup.captureCharFrame();
+  expect(frame).toContain("App Title");
+  expect(frame).toContain("v1.0");
+});
+
+test("renders status bar with items", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <ToastProvider>
+        <AppLayout statusBar={{ items: [{ label: "Mode", value: "cursor" }] }}>
+          <text content="body" />
+        </AppLayout>
+      </ToastProvider>
+    </ThemeSwitcherProvider>,
+    { height: 24, width: 80 },
+  );
+  await testSetup.renderOnce();
+  const frame = testSetup.captureCharFrame();
+  expect(frame).toContain("Mode");
+  expect(frame).toContain("cursor");
+});
+
+test("renders children in scrollable area", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <ToastProvider>
+        <AppLayout statusBar={{ items: [{ label: "OK" }] }}>
+          <text content="Child Content Here" />
+        </AppLayout>
+      </ToastProvider>
+    </ThemeSwitcherProvider>,
+    { height: 24, width: 80 },
+  );
+  await testSetup.renderOnce();
+  const frame = testSetup.captureCharFrame();
+  expect(frame).toContain("Child Content Here");
+});
+
+test("snapshot full layout", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <ToastProvider>
+        <AppLayout
+          titleBar={{ subtitle: "snapshot", title: "Test App" }}
+          statusBar={{
+            items: [
+              { label: "Mode", value: "cmd" },
+              { label: "Line", value: "1" },
+            ],
+          }}
+        >
+          <text content="Main content area" />
+        </AppLayout>
+      </ToastProvider>
+    </ThemeSwitcherProvider>,
+    { height: 10, width: 60 },
+  );
+  await testSetup.renderOnce();
+  const frame = testSetup.captureCharFrame();
+  expect(frame).toMatchSnapshot();
+});

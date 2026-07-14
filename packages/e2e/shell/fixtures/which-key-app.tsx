@@ -1,71 +1,84 @@
 #!/usr/bin/env bun
 
-import { useMemo, useState } from "react"
-import { useActions, useCommandGroup, type ActionDefinition } from "@tooee/commands"
-import { AppLayout } from "@tooee/layout"
-import { launchCli, useQuitCommand } from "@tooee/shell"
+import { useMemo, useState } from "react";
+import { useActions, useCommandGroup } from "@tooee/commands";
+import type { ActionDefinition } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useQuitCommand } from "@tooee/shell";
 
-function WhichKeyE2EApp() {
-  const [lastAction, setLastAction] = useState("none")
+const WhichKeyE2EApp = function WhichKeyE2EApp(): React.ReactNode {
+  const [lastAction, setLastAction] = useState("none");
 
-  useQuitCommand()
+  useQuitCommand();
 
-  useCommandGroup({ id: "stream", title: "Stream", prefix: "space s" })
-  useCommandGroup({ id: "artifact", title: "Artifact", prefix: "space a" })
+  useCommandGroup({ id: "stream", prefix: "space s", title: "Stream" });
+  useCommandGroup({ id: "artifact", prefix: "space a", title: "Artifact" });
 
   const actions = useMemo<ActionDefinition[]>(
     () => [
       {
+        category: "Stream",
+        group: "Stream",
+        handler: () => {
+          setLastAction("opened today stream");
+        },
+        hotkey: "space s t",
         id: "e2e.stream.open-today",
         title: "Open today stream",
-        hotkey: "space s t",
-        category: "Stream",
-        group: "Stream",
-        handler: () => setLastAction("opened today stream"),
       },
       {
+        category: "Stream",
+        group: "Stream",
+        handler: () => {
+          setLastAction("dispatched task");
+        },
+        hotkey: "space s d",
         id: "e2e.stream.dispatch",
         title: "Dispatch task",
-        hotkey: "space s d",
-        category: "Stream",
-        group: "Stream",
-        handler: () => setLastAction("dispatched task"),
       },
       {
-        id: "e2e.artifact.open",
-        title: "Open artifact",
-        hotkey: "space a o",
         category: "Artifact",
         group: "Artifact",
-        handler: () => setLastAction("opened artifact"),
+        handler: () => {
+          setLastAction("opened artifact");
+        },
+        hotkey: "space a o",
+        id: "e2e.artifact.open",
+        title: "Open artifact",
       },
       {
-        id: "e2e.refresh",
-        title: "Refresh",
-        hotkey: "space r",
         category: "General",
         group: "General",
-        handler: () => setLastAction("refreshed"),
+        handler: () => {
+          setLastAction("refreshed");
+        },
+        hotkey: "space r",
+        id: "e2e.refresh",
+        title: "Refresh",
       },
       {
+        handler: () => {
+          setLastAction("hidden maintenance");
+        },
+        hidden: true,
+        hotkey: "space x",
         id: "e2e.hidden",
         title: "Hidden maintenance action",
-        hotkey: "space x",
-        hidden: true,
-        handler: () => setLastAction("hidden maintenance"),
       },
       {
+        category: "Navigation",
+        handler: () => {
+          setLastAction("local go");
+        },
+        hotkey: "g g",
         id: "e2e.local-go",
         title: "Local go command",
-        hotkey: "g g",
-        category: "Navigation",
-        handler: () => setLastAction("local go"),
       },
     ],
     [],
-  )
+  );
 
-  useActions(actions)
+  useActions(actions);
 
   return (
     <AppLayout statusBar={{ items: [{ label: "Mode:", value: "cursor" }] }}>
@@ -74,7 +87,7 @@ function WhichKeyE2EApp() {
         <text content={`last:${lastAction}`} />
       </box>
     </AppLayout>
-  )
-}
+  );
+};
 
-await launchCli(<WhichKeyE2EApp />, { leader: "space" })
+await launchCli(<WhichKeyE2EApp />, { leader: "space" });

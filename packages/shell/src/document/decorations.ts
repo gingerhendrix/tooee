@@ -1,41 +1,43 @@
-import type { DecorationLayer, RowDecoration } from "@tooee/renderers"
-import type { ResolvedTheme } from "@tooee/themes"
-import { DocumentDecorationPriorities } from "./types.js"
+import type { DecorationLayer, RowDecoration } from "@tooee/renderers";
+import type { ResolvedTheme } from "@tooee/themes";
+import { DocumentDecorationPriorities } from "./types.js";
 
-const SEARCH_SIGN = "●"
-const CURSOR_SIGN = "▸"
+const SEARCH_SIGN = "●";
+const CURSOR_SIGN = "▸";
 
 /** A decoration layer backed by an explicit row → decoration map. */
-function rowLayer(
+const rowLayer = function rowLayer(
   priority: number,
   rows: Map<number, Omit<RowDecoration, "row">>,
 ): DecorationLayer {
   return {
-    priority,
     *forVisibleRows(from: number, to: number): Generator<RowDecoration> {
-      for (let row = from; row <= to; row++) {
-        const decoration = rows.get(row)
-        if (decoration) yield { row, ...decoration }
+      for (let row = from; row <= to; row += 1) {
+        const decoration = rows.get(row);
+        if (decoration) {
+          yield { row, ...decoration };
+        }
       }
     },
-  }
-}
+    priority,
+  };
+};
 
-function singleRowLayer(
+const singleRowLayer = function singleRowLayer(
   priority: number,
   row: number,
   decoration: Omit<RowDecoration, "row">,
 ): DecorationLayer {
-  return rowLayer(priority, new Map([[row, decoration]]))
-}
+  return rowLayer(priority, new Map([[row, decoration]]));
+};
 
 export interface InteractionDecorationInput {
-  cursor: number | null
-  selection: { start: number; end: number } | null
-  toggledIndices: ReadonlySet<number>
-  matchingLines: readonly number[]
-  currentMatchIndex: number
-  theme: ResolvedTheme
+  cursor: number | null;
+  selection: { start: number; end: number } | null;
+  toggledIndices: ReadonlySet<number>;
+  matchingLines: readonly number[];
+  currentMatchIndex: number;
+  theme: ResolvedTheme;
 }
 
 /**
@@ -43,7 +45,7 @@ export interface InteractionDecorationInput {
  * rows, the active range selection, the current search match, and the cursor.
  * Returned in ascending priority; the renderer sorts, so order is informative.
  */
-export function buildInteractionDecorations({
+export const buildInteractionDecorations = function buildInteractionDecorations({
   cursor,
   selection,
   toggledIndices,
@@ -51,53 +53,53 @@ export function buildInteractionDecorations({
   currentMatchIndex,
   theme,
 }: InteractionDecorationInput): DecorationLayer[] {
-  const layers: DecorationLayer[] = []
+  const layers: DecorationLayer[] = [];
 
   if (matchingLines.length > 0) {
-    const rows = new Map<number, Omit<RowDecoration, "row">>()
+    const rows = new Map<number, Omit<RowDecoration, "row">>();
     for (const row of matchingLines) {
       rows.set(row, {
         background: theme.warning,
-        sign: { text: SEARCH_SIGN, fg: theme.warning },
-      })
+        sign: { fg: theme.warning, text: SEARCH_SIGN },
+      });
     }
-    layers.push(rowLayer(DocumentDecorationPriorities.SEARCH_MATCH, rows))
+    layers.push(rowLayer(DocumentDecorationPriorities.SEARCH_MATCH, rows));
   }
 
   if (toggledIndices.size > 0) {
-    const rows = new Map<number, Omit<RowDecoration, "row">>()
+    const rows = new Map<number, Omit<RowDecoration, "row">>();
     for (const row of toggledIndices) {
-      rows.set(row, { background: theme.backgroundPanel })
+      rows.set(row, { background: theme.backgroundPanel });
     }
-    layers.push(rowLayer(DocumentDecorationPriorities.TOGGLED, rows))
+    layers.push(rowLayer(DocumentDecorationPriorities.TOGGLED, rows));
   }
 
   if (selection) {
-    const rows = new Map<number, Omit<RowDecoration, "row">>()
-    for (let row = selection.start; row <= selection.end; row++) {
-      rows.set(row, { background: theme.selection })
+    const rows = new Map<number, Omit<RowDecoration, "row">>();
+    for (let row = selection.start; row <= selection.end; row += 1) {
+      rows.set(row, { background: theme.selection });
     }
-    layers.push(rowLayer(DocumentDecorationPriorities.SELECTION, rows))
+    layers.push(rowLayer(DocumentDecorationPriorities.SELECTION, rows));
   }
 
-  const currentMatch = matchingLines[currentMatchIndex]
-  if (currentMatch != null) {
+  const currentMatch = matchingLines[currentMatchIndex];
+  if (currentMatch !== null && currentMatch !== undefined) {
     layers.push(
       singleRowLayer(DocumentDecorationPriorities.CURRENT_MATCH, currentMatch, {
         background: theme.primary,
-        sign: { text: SEARCH_SIGN, fg: theme.primary },
+        sign: { fg: theme.primary, text: SEARCH_SIGN },
       }),
-    )
+    );
   }
 
   if (cursor !== null) {
     layers.push(
       singleRowLayer(DocumentDecorationPriorities.CURSOR, cursor, {
         background: theme.cursorLine,
-        sign: { text: CURSOR_SIGN, fg: theme.primary },
+        sign: { fg: theme.primary, text: CURSOR_SIGN },
       }),
-    )
+    );
   }
 
-  return layers
-}
+  return layers;
+};

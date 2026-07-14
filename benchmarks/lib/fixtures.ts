@@ -1,30 +1,34 @@
-import type { ColumnDef, TableRow } from "@tooee/renderers"
-import type { CodeContent, MarkdownContent, TableContent } from "@tooee/view"
+import type { ColumnDef, TableRow } from "@tooee/renderers";
+import type { Content } from "@tooee/view";
+
+type CodeContent = Extract<Content, { format: "code" }>;
+type MarkdownContent = Extract<Content, { format: "markdown" }>;
+type TableContent = Extract<Content, { format: "table" }>;
 
 export interface FixtureTier {
-  name: "moderate" | "large"
-  markdownSections: number
-  codeLines: number
-  tableRows: number
-  tableColumns: number
+  name: "moderate" | "large";
+  markdownSections: number;
+  codeLines: number;
+  tableRows: number;
+  tableColumns: number;
 }
 
 export const FIXTURE_TIERS: Record<FixtureTier["name"], FixtureTier> = {
-  moderate: {
-    name: "moderate",
-    markdownSections: 36,
-    codeLines: 650,
-    tableRows: 400,
-    tableColumns: 8,
-  },
   large: {
-    name: "large",
-    markdownSections: 140,
     codeLines: 3500,
-    tableRows: 2500,
+    markdownSections: 140,
+    name: "large",
     tableColumns: 12,
+    tableRows: 2500,
   },
-}
+  moderate: {
+    codeLines: 650,
+    markdownSections: 36,
+    name: "moderate",
+    tableColumns: 8,
+    tableRows: 400,
+  },
+};
 
 const WORDS = [
   "atlas",
@@ -39,102 +43,113 @@ const WORDS = [
   "juniper",
   "kernel",
   "lumen",
-]
+];
 
-function sentence(seed: number, words = 16): string {
-  const parts: string[] = []
+const sentence = function sentence(seed: number, words = 16): string {
+  const parts: string[] = [];
   for (let index = 0; index < words; index += 1) {
-    parts.push(WORDS[(seed + index * 7) % WORDS.length] ?? "word")
+    parts.push(WORDS[(seed + index * 7) % WORDS.length] ?? "word");
   }
-  return `${parts.join(" ")}.`
-}
+  return `${parts.join(" ")}.`;
+};
 
-function markdownTable(section: number): string {
-  const rows = ["| Metric | Value | Notes |", "| --- | ---: | --- |"]
+const markdownTable = function markdownTable(section: number): string {
+  const rows = ["| Metric | Value | Notes |", "| --- | ---: | --- |"];
   for (let row = 0; row < 6; row += 1) {
-    rows.push(`| item-${section}-${row} | ${section * 100 + row} | ${sentence(section + row, 7)} |`)
+    rows.push(
+      `| item-${section}-${row} | ${section * 100 + row} | ${sentence(section + row, 7)} |`,
+    );
   }
-  return rows.join("\n")
-}
+  return rows.join("\n");
+};
 
-export function makeMarkdownFixture(tier: FixtureTier = FIXTURE_TIERS.moderate): MarkdownContent {
-  const sections: string[] = ["# Tooee synthetic markdown benchmark", ""]
+export const makeMarkdownFixture = function makeMarkdownFixture(
+  tier: FixtureTier = FIXTURE_TIERS.moderate,
+): MarkdownContent {
+  const sections: string[] = ["# Tooee synthetic markdown benchmark", ""];
 
   for (let section = 0; section < tier.markdownSections; section += 1) {
-    sections.push(`## Section ${section}`)
-    sections.push(`${sentence(section, 20)} **strong-${section}** and \`inline-${section}\`.`)
-    sections.push("")
-    sections.push("- first deterministic list entry")
-    sections.push("- second deterministic list entry")
-    sections.push("- nested benchmark note")
-    sections.push("")
+    sections.push(
+      `## Section ${section}`,
+      `${sentence(section, 20)} **strong-${section}** and \`inline-${section}\`.`,
+      "",
+      "- first deterministic list entry",
+      "- second deterministic list entry",
+      "- nested benchmark note",
+      "",
+    );
 
     if (section % 4 === 0) {
-      sections.push("```ts")
-      sections.push(`export function section${section}(input: number) {`)
-      sections.push(`  return input + ${section}`)
-      sections.push("}")
-      sections.push("```")
-      sections.push("")
+      sections.push(
+        "```ts",
+        `export function section${section}(input: number) {`,
+        `  return input + ${section}`,
+        "}",
+        "```",
+        "",
+      );
     }
 
     if (section % 6 === 0) {
-      sections.push(markdownTable(section))
-      sections.push("")
+      sections.push(markdownTable(section), "");
     }
   }
 
-  const markdown = sections.join("\n")
+  const markdown = sections.join("\n");
   return {
     format: "markdown",
-    title: `markdown-${tier.name}`,
     markdown,
-  }
-}
+    title: `markdown-${tier.name}`,
+  };
+};
 
-export function makeCodeFixture(tier: FixtureTier = FIXTURE_TIERS.moderate): CodeContent {
-  const lines: string[] = []
+export const makeCodeFixture = function makeCodeFixture(
+  tier: FixtureTier = FIXTURE_TIERS.moderate,
+): CodeContent {
+  const lines: string[] = [];
   for (let line = 0; line < tier.codeLines; line += 1) {
-    const label = WORDS[line % WORDS.length]
+    const label = WORDS[line % WORDS.length];
     lines.push(
       `export const value${line} = { id: ${line}, label: "${label}", score: ${(line * 13) % 997} }`,
-    )
+    );
   }
 
   return {
-    format: "code",
-    title: `code-${tier.name}`,
-    language: "ts",
     code: lines.join("\n"),
-  }
-}
+    format: "code",
+    language: "ts",
+    title: `code-${tier.name}`,
+  };
+};
 
-export function makeTableFixture(tier: FixtureTier = FIXTURE_TIERS.moderate): TableContent {
+export const makeTableFixture = function makeTableFixture(
+  tier: FixtureTier = FIXTURE_TIERS.moderate,
+): TableContent {
   const columns: ColumnDef[] = Array.from({ length: tier.tableColumns }, (_, index) => ({
-    key: `col${index}`,
-    header: `Column ${index}`,
     align: index % 3 === 0 ? "right" : "left",
-  }))
+    header: `Column ${index}`,
+    key: `col${index}`,
+  }));
 
   const rows: TableRow[] = Array.from({ length: tier.tableRows }, (_, rowIndex) => {
-    const row: TableRow = {}
+    const row: TableRow = {};
     for (const [columnIndex, column] of columns.entries()) {
       row[column.key] =
         columnIndex % 3 === 0
           ? rowIndex * (columnIndex + 1)
-          : `${WORDS[(rowIndex + columnIndex) % WORDS.length]}-${rowIndex}-${columnIndex}`
+          : `${WORDS[(rowIndex + columnIndex) % WORDS.length]}-${rowIndex}-${columnIndex}`;
     }
-    return row
-  })
+    return row;
+  });
 
   return {
-    format: "table",
-    title: `table-${tier.name}`,
     columns,
+    format: "table",
     rows,
-  }
-}
+    title: `table-${tier.name}`,
+  };
+};
 
-export function countLines(text: string): number {
-  return text.split("\n").length
-}
+export const countLines = function countLines(text: string): number {
+  return text.split("\n").length;
+};

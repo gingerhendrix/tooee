@@ -1,11 +1,11 @@
-import { RGBA, SyntaxStyle } from "@opentui/core"
-import type { ResolvedTheme } from "./types.js"
+import { RGBA, SyntaxStyle } from "@opentui/core";
+import type { ResolvedTheme } from "./types.js";
 
 // ---------------------------------------------------------------------------
 // SyntaxStyle builder
 // ---------------------------------------------------------------------------
 
-function getSyntaxRules(resolved: ResolvedTheme) {
+const getSyntaxRules = function getSyntaxRules(resolved: ResolvedTheme) {
   return [
     { scope: ["default"], style: { foreground: RGBA.fromHex(resolved.text) } },
     { scope: ["prompt"], style: { foreground: RGBA.fromHex(resolved.accent) } },
@@ -22,7 +22,7 @@ function getSyntaxRules(resolved: ResolvedTheme) {
     },
     {
       scope: ["keyword.type"],
-      style: { foreground: RGBA.fromHex(resolved.syntaxType), bold: true, italic: true },
+      style: { bold: true, foreground: RGBA.fromHex(resolved.syntaxType), italic: true },
     },
     {
       scope: ["keyword.function", "function.method"],
@@ -100,11 +100,11 @@ function getSyntaxRules(resolved: ResolvedTheme) {
         "markup.heading.5",
         "markup.heading.6",
       ],
-      style: { foreground: RGBA.fromHex(resolved.markdownHeading), bold: true },
+      style: { bold: true, foreground: RGBA.fromHex(resolved.markdownHeading) },
     },
     {
       scope: ["markup.bold", "markup.strong"],
-      style: { foreground: RGBA.fromHex(resolved.markdownStrong), bold: true },
+      style: { bold: true, foreground: RGBA.fromHex(resolved.markdownStrong) },
     },
     {
       scope: ["markup.italic"],
@@ -122,8 +122,8 @@ function getSyntaxRules(resolved: ResolvedTheme) {
     {
       scope: ["markup.raw.inline"],
       style: {
-        foreground: RGBA.fromHex(resolved.markdownCode),
         background: RGBA.fromHex(resolved.background),
+        foreground: RGBA.fromHex(resolved.markdownCode),
       },
     },
     {
@@ -149,21 +149,21 @@ function getSyntaxRules(resolved: ResolvedTheme) {
     { scope: ["float"], style: { foreground: RGBA.fromHex(resolved.syntaxNumber) } },
     {
       scope: ["comment.error"],
-      style: { foreground: RGBA.fromHex(resolved.error), italic: true, bold: true },
+      style: { bold: true, foreground: RGBA.fromHex(resolved.error), italic: true },
     },
     {
       scope: ["comment.warning"],
-      style: { foreground: RGBA.fromHex(resolved.warning), italic: true, bold: true },
+      style: { bold: true, foreground: RGBA.fromHex(resolved.warning), italic: true },
     },
     {
       scope: ["comment.todo", "comment.note"],
-      style: { foreground: RGBA.fromHex(resolved.info), italic: true, bold: true },
+      style: { bold: true, foreground: RGBA.fromHex(resolved.info), italic: true },
     },
     { scope: ["namespace"], style: { foreground: RGBA.fromHex(resolved.syntaxType) } },
     { scope: ["field"], style: { foreground: RGBA.fromHex(resolved.syntaxVariable) } },
     {
       scope: ["type.definition"],
-      style: { foreground: RGBA.fromHex(resolved.syntaxType), bold: true },
+      style: { bold: true, foreground: RGBA.fromHex(resolved.syntaxType) },
     },
     { scope: ["keyword.export"], style: { foreground: RGBA.fromHex(resolved.syntaxKeyword) } },
     { scope: ["attribute", "annotation"], style: { foreground: RGBA.fromHex(resolved.warning) } },
@@ -180,31 +180,31 @@ function getSyntaxRules(resolved: ResolvedTheme) {
     {
       scope: ["diff.plus"],
       style: {
-        foreground: RGBA.fromHex(resolved.diffAdded),
         background: RGBA.fromHex(resolved.diffAddedBg),
+        foreground: RGBA.fromHex(resolved.diffAdded),
       },
     },
     {
       scope: ["diff.minus"],
       style: {
-        foreground: RGBA.fromHex(resolved.diffRemoved),
         background: RGBA.fromHex(resolved.diffRemovedBg),
+        foreground: RGBA.fromHex(resolved.diffRemoved),
       },
     },
     {
       scope: ["diff.delta"],
       style: {
-        foreground: RGBA.fromHex(resolved.diffContext),
         background: RGBA.fromHex(resolved.diffContextBg),
+        foreground: RGBA.fromHex(resolved.diffContext),
       },
     },
-    { scope: ["error"], style: { foreground: RGBA.fromHex(resolved.error), bold: true } },
-    { scope: ["warning"], style: { foreground: RGBA.fromHex(resolved.warning), bold: true } },
+    { scope: ["error"], style: { bold: true, foreground: RGBA.fromHex(resolved.error) } },
+    { scope: ["warning"], style: { bold: true, foreground: RGBA.fromHex(resolved.warning) } },
     { scope: ["info"], style: { foreground: RGBA.fromHex(resolved.info) } },
     { scope: ["debug"], style: { foreground: RGBA.fromHex(resolved.textMuted) } },
-  ]
-}
+  ];
+};
 
-export function buildSyntaxStyle(resolved: ResolvedTheme): SyntaxStyle {
-  return SyntaxStyle.fromTheme(getSyntaxRules(resolved))
-}
+export const buildSyntaxStyle = function buildSyntaxStyle(resolved: ResolvedTheme): SyntaxStyle {
+  return SyntaxStyle.fromTheme(getSyntaxRules(resolved));
+};

@@ -13,9 +13,9 @@ listeners.
 ```tsx
 const mount = mountTooee(sshRenderer, <App />, {
   provider: { initialMode: "normal" },
-})
+});
 
-mount.unmount()
+mount.unmount();
 ```
 
 Use `launchCli` for a locally owned renderer, or `runCliSession` when the UI
@@ -29,7 +29,7 @@ const result = await runCliSession<string>(
     provider: { initialMode: "insert" },
     stdinPolicy: "tty-if-piped",
   },
-)
+);
 ```
 
 Repeated `unmount`, `destroy`, `resolve`, and `cancel` calls are safe. A session

@@ -8,57 +8,65 @@
  * Controls: j/k navigate, / filter, Enter checkout, q quit
  */
 
-import { launch, type ChooseItem } from "@tooee/choose"
+import { launch } from "@tooee/choose";
+import type { ChooseItem } from "@tooee/choose";
 
 const branchProvider = {
   async load(): Promise<ChooseItem[]> {
     // Get current branch
-    const currentProc = Bun.spawn(["git", "branch", "--show-current"])
-    const currentBranch = (await new Response(currentProc.stdout).text()).trim()
+    const currentProc = Bun.spawn(["git", "branch", "--show-current"]);
+    const currentBranchText = await new Response(currentProc.stdout).text();
+    const currentBranch = currentBranchText.trim();
 
     // Get all local branches
-    const proc = Bun.spawn(["git", "branch", "--format=%(refname:short)"])
-    const text = await new Response(proc.stdout).text()
-    const exitCode = await proc.exited
+    const proc = Bun.spawn(["git", "branch", "--format=%(refname:short)"]);
+    const text = await new Response(proc.stdout).text();
+    const exitCode = await proc.exited;
 
     if (exitCode !== 0) {
-      return [{ text: "Not a git repository", value: "" }]
+      return [{ text: "Not a git repository", value: "" }];
     }
 
-    const branches = text.trim().split("\n").filter(Boolean)
+    const branches = text.trim().split("\n").filter(Boolean);
 
     if (branches.length === 0) {
-      return [{ text: "No branches found", value: "" }]
+      return [{ text: "No branches found", value: "" }];
     }
 
     return branches.map((branch) => {
-      const isCurrent = branch === currentBranch
-      const isMain = branch === "main" || branch === "master"
+      const isCurrent = branch === currentBranch;
+      const isMain = branch === "main" || branch === "master";
+      let icon = "\u{25CB}";
+      if (isCurrent) {
+        icon = "\u{2713}";
+      } else if (isMain) {
+        icon = "\u{25CF}";
+      }
 
       return {
+        description: isCurrent ? "current" : undefined,
+        icon,
         text: branch,
         value: branch,
-        icon: isCurrent ? "\u{2713}" : isMain ? "\u{25CF}" : "\u{25CB}",
-        description: isCurrent ? "current" : undefined,
-      }
-    })
+      };
+    });
   },
-}
+};
 
-async function main() {
+const main = async function main() {
   const result = await launch({
     contentProvider: branchProvider,
     options: { prompt: "Switch branch" },
-  })
+  });
 
-  if (result && result.items[0].value) {
-    const branch = result.items[0].value
+  if (result && result.items[0].value !== undefined && result.items[0].value !== "") {
+    const branch = result.items[0].value;
     const proc = Bun.spawn(["git", "checkout", branch], {
-      stdout: "inherit",
       stderr: "inherit",
-    })
-    await proc.exited
+      stdout: "inherit",
+    });
+    await proc.exited;
   }
-}
+};
 
-main()
+await main();

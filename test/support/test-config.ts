@@ -1,25 +1,25 @@
-import { mkdirSync, rmSync } from "fs"
-import { join, resolve } from "path"
+import { mkdirSync, rmSync } from "node:fs";
+import path from "node:path";
 
-const REPO_ROOT = resolve(import.meta.dir, "../..")
-const BASE_DIR = join(REPO_ROOT, ".tmp", "test-config")
+const REPO_ROOT = path.resolve(import.meta.dir, "../..");
+const BASE_DIR = path.join(REPO_ROOT, ".tmp", "test-config");
 
-function resolveHome(namespace: string): string {
-  return join(BASE_DIR, namespace)
-}
+const resolveHome = function resolveHome(namespace: string): string {
+  return path.join(BASE_DIR, namespace);
+};
 
-function resolveTooeeDir(namespace: string): string {
-  return join(resolveHome(namespace), "tooee")
-}
+const resolveTooeeDir = function resolveTooeeDir(namespace: string): string {
+  return path.join(resolveHome(namespace), "tooee");
+};
 
-export function ensureTestConfigHome(namespace: string): string {
-  const dir = resolveTooeeDir(namespace)
-  mkdirSync(dir, { recursive: true })
-  return resolveHome(namespace)
-}
+export const ensureTestConfigHome = function ensureTestConfigHome(namespace: string): string {
+  const dir = resolveTooeeDir(namespace);
+  mkdirSync(dir, { recursive: true });
+  return resolveHome(namespace);
+};
 
-export function resetTestConfig(namespace: string): void {
-  const dir = resolveTooeeDir(namespace)
-  rmSync(dir, { recursive: true, force: true })
-  mkdirSync(dir, { recursive: true })
-}
+export const resetTestConfig = function resetTestConfig(namespace: string): void {
+  const dir = resolveTooeeDir(namespace);
+  rmSync(dir, { force: true, recursive: true });
+  mkdirSync(dir, { recursive: true });
+};

@@ -1,44 +1,44 @@
-import type { Key } from "react"
-import { useProvideCommandContextKey } from "@tooee/commands"
-import type { DocumentRowAnchor } from "@tooee/renderers"
-import type { DocumentController } from "./types.js"
+import type { Key } from "react";
+import { useProvideCommandContextKey } from "@tooee/commands";
+import type { DocumentRowAnchor } from "@tooee/renderers";
+import type { DocumentController } from "./types.js";
 
 /** The `document` field contributed to the command context (see augmentation below). */
 export interface DocumentCommandContext {
-  kind?: string
-  title?: string
-  rowCount: number
-  cursor: number | null
-  activeKey: Key | null
-  activeRow: unknown
-  selection: { start: number; end: number } | null
-  selectedRows: readonly unknown[]
-  toggledIndices: ReadonlySet<number>
+  kind?: string;
+  title?: string;
+  rowCount: number;
+  cursor: number | null;
+  activeKey: Key | null;
+  activeRow: unknown;
+  selection: { start: number; end: number } | null;
+  selectedRows: readonly unknown[];
+  toggledIndices: ReadonlySet<number>;
 
   /**
    * The active/selected rows as source anchors — the common path for comment,
    * quote, and jump-to-source actions is `ctx.document?.activeAnchor`. Bounded
    * to active/selected rows; the typed controller owns all-row lookups.
    */
-  activeAnchor: DocumentRowAnchor<unknown> | null
-  selectedAnchors: readonly DocumentRowAnchor<unknown>[]
+  activeAnchor: DocumentRowAnchor<unknown> | null;
+  selectedAnchors: readonly DocumentRowAnchor<unknown>[];
 
-  reload?: () => void
+  reload?: () => void;
   /** Screen-supplied extras. */
-  [key: string]: unknown
+  [key: string]: unknown;
 }
 
 declare module "@tooee/commands" {
   interface CommandContext {
-    document?: DocumentCommandContext
+    document?: DocumentCommandContext;
   }
 }
 
 export interface ProvideDocumentCommandContextOptions {
-  kind?: string
-  title?: string
-  reload?: () => void
-  extras?: Record<string, unknown>
+  kind?: string;
+  title?: string;
+  reload?: () => void;
+  extras?: Record<string, unknown>;
 }
 
 /**
@@ -46,23 +46,23 @@ export interface ProvideDocumentCommandContextOptions {
  * document gets active/selected rows; content-specific fields belong on the
  * owning package's own context key.
  */
-export function useProvideDocumentCommandContext<T>(
+export const useProvideDocumentCommandContext = function useProvideDocumentCommandContext<T>(
   controller: DocumentController<T>,
   options: ProvideDocumentCommandContextOptions = {},
 ): void {
   useProvideCommandContextKey("document", () => ({
     ...options.extras,
-    kind: options.kind,
-    title: options.title,
-    rowCount: controller.rows.length,
-    cursor: controller.activeIndex,
+    activeAnchor: controller.activeAnchor,
     activeKey: controller.activeKey,
     activeRow: controller.activeRow,
-    selection: controller.navigation.selection,
-    selectedRows: controller.selectedRows,
-    toggledIndices: controller.toggledIndices,
-    activeAnchor: controller.activeAnchor,
-    selectedAnchors: controller.selectedAnchors,
+    cursor: controller.activeIndex,
+    kind: options.kind,
     reload: options.reload,
-  }))
-}
+    rowCount: controller.rows.length,
+    selectedAnchors: controller.selectedAnchors,
+    selectedRows: controller.selectedRows,
+    selection: controller.navigation.selection,
+    title: options.title,
+    toggledIndices: controller.toggledIndices,
+  }));
+};
