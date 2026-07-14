@@ -18,7 +18,7 @@ echo "Running build..."
 bun run build
 
 echo "Running tests..."
-bun test
+bun run test
 
 # Check working tree is clean
 if [[ -n "$(git status --porcelain)" ]]; then
