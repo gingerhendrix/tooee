@@ -41,6 +41,9 @@ export class MarkSet {
     let lo = 0;
     let hi = this.#marks.length;
     while (lo < hi) {
+      // `no-bitwise` is a typo-avoidance rule (`&` vs `&&`). An unsigned shift is the
+      // canonical overflow-safe binary-search midpoint and is intentional here.
+      // oxlint-disable-next-line no-bitwise -- deliberate binary-search midpoint
       const mid = (lo + hi) >>> 1;
       if (this.#marks[mid].range.from.line < line) {
         lo = mid + 1;

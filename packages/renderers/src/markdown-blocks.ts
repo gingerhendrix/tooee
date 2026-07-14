@@ -334,17 +334,3 @@ export const flattenMarkdown = function flattenMarkdown(
   flattenWalk(marked.lexer(markdown), 0, out, res, markdown.length);
   return out;
 };
-
-/**
- * The unmapped low-level form: flatten already-lexed tokens with no source
- * provenance (every block's `source` is `null`).
- *
- * @deprecated Prefer `flattenMarkdown(source)` for source-backed rows. Tokens
- * carry no positions and the original source is unavailable here, so offsets
- * cannot be reconstructed.
- */
-export const flattenTokens = function flattenTokens(tokens: Token[]): FlatBlock[] {
-  const out: FlatBlock[] = [];
-  flattenWalk(tokens, 0, out, null, 0);
-  return out;
-};

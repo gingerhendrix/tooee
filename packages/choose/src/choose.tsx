@@ -23,9 +23,16 @@ export interface ChooseProps {
   commands?: ActionDefinition[];
   controllerRef?: Ref<ChooseController>;
   renderItem?: ChooseListProps["renderItem"];
-  /** @deprecated Prefer commands with an id such as `submit`. */
+  /**
+   * Called with the selection when the chooser is submitted. This is the
+   * component-level equivalent of `useChoose`'s `onSubmit` and is how a host
+   * (including `launch()`) receives a `ChooseResult`. A registered command with
+   * the id `submit` still takes precedence, because a command can express its
+   * own submit behaviour — but commands receive a `CommandContext`, not a
+   * result, so they are not a replacement for this callback.
+   */
   onConfirm?: (result: ChooseResult) => void;
-  /** @deprecated Prefer commands or launch lifecycle handling. */
+  /** Called when the chooser is cancelled (quit, or submit with no selection). */
   onCancel?: () => void;
 }
 
@@ -55,8 +62,8 @@ export const Choose = function Choose({
     multi,
     onCancel,
     onSubmit: (result) => {
-      // Historical standalone behaviour: a command named `submit` wins over
-      // the deprecated callback, so existing action-driven CLIs are unchanged.
+      // Standalone behaviour: a command named `submit` wins over `onConfirm`, so
+      // action-driven CLIs keep their own submit semantics.
       if (effectiveCommands?.some((action) => action.id === "submit") === true) {
         invoke("submit");
         return;

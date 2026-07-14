@@ -1,5 +1,5 @@
 export { MarkdownView } from "./markdown-view.js";
-export { flattenMarkdown, flattenTokens, getFlatBlockText } from "./markdown-blocks.js";
+export { flattenMarkdown, getFlatBlockText } from "./markdown-blocks.js";
 export type { FlatBlock, FlattenMarkdownOptions } from "./markdown-blocks.js";
 export { sourceLines, sourceLineAdapter } from "./source.js";
 export type {

@@ -2,7 +2,7 @@ import { useLayoutEffect, useMemo, useRef } from "react";
 import type { ReactNode } from "react";
 import { useCommandRegistry, useCommandSequenceState } from "@tooee/commands";
 import type { CommandSequenceState, ParsedStep } from "@tooee/commands";
-import { useOverlay } from "@tooee/overlays";
+import { overlayValue, useOverlay } from "@tooee/overlays";
 import { useTheme } from "@tooee/themes";
 
 const OVERLAY_ID = "tooee.which-key";
@@ -61,7 +61,7 @@ export const WhichKeyProvider = function WhichKeyProvider({
     }
 
     if (openRef.current || overlay.isOpen(OVERLAY_ID)) {
-      overlay.update(OVERLAY_ID, sequence);
+      overlay.update(OVERLAY_ID, overlayValue(sequence));
       openRef.current = true;
       return;
     }

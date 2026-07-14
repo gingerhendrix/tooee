@@ -110,10 +110,16 @@ describe("registry unregister guards (R-05)", () => {
   });
 
   test("first group registrant's unmount does not delete the second's live group", async () => {
-    let groups: Map<string, RegisteredCommandGroup> | null = null;
+    // Captured through an explicitly typed object rather than a `let` that
+    // control-flow analysis narrows to its initial `null` value inside the probe
+    // component (which made every later read error-typed).
+    const observed: { groups?: ReadonlyMap<string, RegisteredCommandGroup> } = {};
+    const currentGroups = (): ReadonlyMap<string, RegisteredCommandGroup> =>
+      expectDefined(observed.groups);
 
     const Probe = function Probe() {
-      groups = useCommandRegistry().groups;
+      const { groups } = useCommandRegistry();
+      observed.groups = groups;
       return null;
     };
 
@@ -125,9 +131,11 @@ describe("registry unregister guards (R-05)", () => {
     );
     await testSetup.renderOnce();
 
-    expect(expectDefined(groups).get("g")?.title).toBe("Second group");
+    const group = currentGroups().get("g");
+    expect(group?.title).toBe("Second group");
 
     await press(testSetup, "h");
-    expect(expectDefined(groups).get("g")?.title).toBe("Second group");
+    const groupAfterKeypress = currentGroups().get("g");
+    expect(groupAfterKeypress?.title).toBe("Second group");
   });
 });

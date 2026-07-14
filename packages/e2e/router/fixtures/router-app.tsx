@@ -16,12 +16,55 @@ import {
   useRouterCommands,
   useScreenState,
 } from "@tooee/router";
+import type { Codec } from "@tooee/router";
 
 // Parse CLI args
 const args = process.argv.slice(2);
 const loaderDelayArg = args.find((a) => a.startsWith("--loader-delay="));
 const loaderDelay =
   (loaderDelayArg?.length ?? 0) > 0 ? Math.trunc(Number(loaderDelayArg.split("=")[1])) : 500;
+
+// --- Codecs ---
+// Route hooks decode what the router actually stores, so each typed shape brings
+// its own codec instead of a caller-asserted generic.
+
+const numberState: Codec<number> = {
+  parse: (value) => {
+    if (typeof value !== "number") {
+      throw new TypeError("Expected screen state to be a number");
+    }
+    return value;
+  },
+};
+
+const idParams: Codec<{ id: string }> = {
+  parse: (value) => {
+    if (typeof value !== "object" || value === null || !("id" in value)) {
+      throw new TypeError("Expected params { id }");
+    }
+    const { id } = value;
+    return { id: typeof id === "string" ? id : String(id) };
+  },
+};
+
+const messageData: Codec<{ message: string }> = {
+  parse: (value) => {
+    if (typeof value !== "object" || value === null || !("message" in value)) {
+      throw new TypeError("Expected loader data { message }");
+    }
+    const { message } = value;
+    if (typeof message !== "string") {
+      throw new TypeError("Expected message to be a string");
+    }
+    return { message };
+  },
+};
+
+// --- Route specs (identity + codecs), declared before their components ---
+
+const homeSpec = { id: "home", screenState: numberState } as const;
+const detailSpec = { id: "detail", params: idParams } as const;
+const slowSpec = { data: messageData, id: "slow" } as const;
 
 // --- Screen Components ---
 
@@ -31,7 +74,7 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
   const nav = useNavigate();
   const current = useCurrentRoute();
   const canGoBack = useCanGoBack();
-  const { savedState, saveState } = useScreenState<number>();
+  const { savedState, saveState } = useScreenState(homeSpec);
   const [counter, setCounter] = useState(savedState ?? 0);
 
   // Persist counter to state cache on every change
@@ -142,7 +185,7 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
 const DetailScreen = function DetailScreen(): React.ReactNode {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
-  const params = useParams<{ id: string }>();
+  const params = useParams(detailSpec);
   const nav = useNavigate();
   const current = useCurrentRoute();
   const canGoBack = useCanGoBack();
@@ -189,7 +232,7 @@ const DetailScreen = function DetailScreen(): React.ReactNode {
 
   return (
     <box flexDirection="column">
-      <text content={`Screen:detail:${params.id ?? "none"}`} />
+      <text content={`Screen:detail:${params.id}`} />
       <text
         content={`Route:${current.routeId} | Stack:detail | Back:${canGoBack} | Focus:${isFocused}`}
       />
@@ -237,7 +280,7 @@ const SettingsScreen = function SettingsScreen(): React.ReactNode {
 const SlowScreen = function SlowScreen(): React.ReactNode {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
-  const data = useRouteData<{ message: string }>();
+  const data = useRouteData(slowSpec);
   const current = useCurrentRoute();
   const canGoBack = useCanGoBack();
 
@@ -303,13 +346,13 @@ const ChildScreen = function ChildScreen(): React.ReactNode {
 
 // --- Route Definitions ---
 
-const homeRoute = createRoute({ component: HomeScreen, id: "home" });
-const detailRoute = createRoute({ component: DetailScreen, id: "detail" });
+const homeRoute = createRoute({ ...homeSpec, component: HomeScreen });
+const detailRoute = createRoute({ ...detailSpec, component: DetailScreen });
 const settingsRoute = createRoute({ component: SettingsScreen, id: "settings" });
 
 const slowRoute = createRoute({
+  ...slowSpec,
   component: SlowScreen,
-  id: "slow",
   loader: async () => {
     await Bun.sleep(loaderDelay);
     return { message: "loaded" };

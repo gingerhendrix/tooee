@@ -2,6 +2,8 @@ export {
   OverlayContext,
   OverlayControllerContext,
   OverlayStateContext,
+  overlayUpdater,
+  overlayValue,
   useOverlay,
   useOverlayState,
   useCurrentOverlay,
@@ -19,6 +21,7 @@ export type {
   OverlayHandle,
   OverlayController,
   OverlayState,
+  OverlayUpdate,
 } from "./overlay-context.js";
 export {
   createOverlayStore,
@@ -30,7 +33,12 @@ export {
 } from "./overlay-store.js";
 export type {
   OverlayClosedEmit,
+  OverlayClosedEvent,
+  OverlayClosedTopEvent,
+  OverlayOpenedEvent,
   OverlayRecord,
   OverlayStore,
   OverlayStoreContext,
+  OverlayStoreEvents,
+  OverlayUpdatedEvent,
 } from "./overlay-store.js";

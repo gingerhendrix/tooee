@@ -7,7 +7,6 @@ import { SearchBar } from "@tooee/search";
 import type { SearchState } from "@tooee/search";
 import { useTheme } from "@tooee/themes";
 import { useCurrentOverlay } from "@tooee/overlays";
-import { CommandSurfaceProvider } from "@tooee/commands";
 import { ToastContainer } from "@tooee/toasts";
 
 export interface AppLayoutProps {
@@ -20,11 +19,6 @@ export interface AppLayoutProps {
     focused?: boolean;
   };
   searchBar?: SearchState;
-  /**
-   * @deprecated Open overlays through `useOverlay()` instead. This compatibility
-   * prop will be removed in Tooee 0.3.0.
-   */
-  overlay?: ReactNode;
   children: ReactNode;
 }
 
@@ -45,24 +39,10 @@ export const AppLayout = function AppLayout({
   scrollRef,
   scrollProps,
   searchBar,
-  overlay,
   children,
 }: AppLayoutProps): ReactNode {
   const { theme } = useTheme();
   const contextOverlay = useCurrentOverlay();
-  const compatibilitySurfaceProps: {
-    id: string;
-    initialMode: "insert";
-    role: "modal";
-  } = {
-    id: "app-layout.overlay",
-    initialMode: "insert",
-    role: "modal",
-  };
-  const compatibilityOverlay =
-    overlay === null || overlay === undefined ? null : (
-      <CommandSurfaceProvider {...compatibilitySurfaceProps}>{overlay}</CommandSurfaceProvider>
-    );
   const handleSearchQueryChange = (query: string): void => {
     searchBar?.setSearchQuery(query);
   };
@@ -86,10 +66,9 @@ export const AppLayout = function AppLayout({
         ) : (
           <box style={{ flexGrow: 1, overflow: "hidden" }}>{children}</box>
         )}
-        {(hasRenderableOverlay(contextOverlay) || hasRenderableOverlay(compatibilityOverlay)) && (
+        {hasRenderableOverlay(contextOverlay) && (
           <box position="absolute" left={0} top={0} width="100%" height="100%">
             {contextOverlay}
-            {compatibilityOverlay}
           </box>
         )}
         <ToastContainer />

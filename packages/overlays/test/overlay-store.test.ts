@@ -8,6 +8,7 @@ import {
   selectTop,
 } from "../src/overlay-store.js";
 import type { OverlayClosedEmit, OverlayRecord } from "../src/overlay-store.js";
+import { overlayUpdater, overlayValue } from "../src/overlay-context.js";
 import type { OverlayOpenOptions } from "../src/overlay-context.js";
 
 const expectDefined = function expectDefined<T>(value: T | undefined): T {
@@ -50,13 +51,22 @@ describe("overlay store — stack transitions", () => {
     expect(selectIsOpen(ctx, "a")).toBe(true);
     expect(selectIsOpen(ctx, "zzz")).toBe(false);
 
-    store.trigger.updated({ id: "a", next: "payload!" });
+    store.trigger.updated({ id: "a", next: overlayValue<unknown>("payload!") });
     ctx = store.getSnapshot().context;
     expect(expectDefined(selectStack(ctx)[0]).payload).toBe("payload!");
     // Untouched entries keep identity.
     expect(selectStack(ctx)[1]).toBe(b);
 
-    store.trigger.updated({ id: "a", next: (prev: unknown) => `${prev}${prev}` });
+    store.trigger.updated({
+      id: "a",
+      next: overlayUpdater((previous: unknown) => {
+        // The store's payloads are `unknown`; this test's payload is a string.
+        if (typeof previous !== "string") {
+          throw new TypeError("Expected string payload");
+        }
+        return `${previous}${previous}`;
+      }),
+    });
     expect(expectDefined(selectStack(store.getSnapshot().context)[0]).payload).toBe(
       "payload!payload!",
     );
@@ -77,7 +87,7 @@ describe("overlay store — stack transitions", () => {
 
     store.trigger.closed({ id: "missing", reason: "close" });
     store.trigger.closedTop({ reason: "close" });
-    store.trigger.updated({ id: "missing", next: 1 });
+    store.trigger.updated({ id: "missing", next: overlayValue<unknown>(1) });
 
     expect(store.getSnapshot().context).toBe(before);
     expect(closes).toEqual([]);

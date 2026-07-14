@@ -45,7 +45,16 @@ export const useActions = function useActions(actions: ActionDefinition[] | unde
         category: action.category,
         defaultHotkey: action.hotkey,
         group: action.group,
-        handler: (ctx): void | Promise<void> | undefined => actionsRef.current?.[i]?.handler(ctx),
+        handler: async (ctx) => {
+          // A stale index (the action list shrank between registration and
+          // dispatch) is a no-op, so the missing-action path just returns. The
+          // body runs synchronously up to the call, preserving dispatch timing.
+          const currentAction = actionsRef.current?.[i];
+          if (currentAction === undefined) {
+            return;
+          }
+          await currentAction.handler(ctx);
+        },
         hidden: action.hidden,
         icon: action.icon,
         id: action.id,

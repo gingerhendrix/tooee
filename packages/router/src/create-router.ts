@@ -1,15 +1,9 @@
-import type {
-  RouterOptions,
-  RouterInstance,
-  RouterState,
-  RouteDefinition,
-  StackEntry,
-} from "./types.js";
+import type { AnyRoute, RouterOptions, RouterInstance, RouterState, StackEntry } from "./types.js";
 import { stackReducer } from "./stack.js";
 import { StateCache } from "./state-cache.js";
 
 export const createRouter = function createRouter(options: RouterOptions): RouterInstance {
-  const routeMap = new Map<string, RouteDefinition>();
+  const routeMap = new Map<string, AnyRoute>();
   for (const route of options.routes) {
     routeMap.set(route.id, route);
   }
@@ -40,6 +34,7 @@ export const createRouter = function createRouter(options: RouterOptions): Route
       if (action.type === "pop" && prev.stack.length > 1) {
         const poppedIndex = prev.stack.length - 1;
         const poppedEntry = prev.stack[poppedIndex];
+        // Screen-state keys are named by stack position + route id (see useScreenState).
         stateCache.clear(`${poppedIndex}:${poppedEntry.routeId}`);
       } else if (action.type === "reset") {
         stateCache.clearAll();

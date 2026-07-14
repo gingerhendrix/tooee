@@ -1,38 +1,63 @@
 import { test, expect, describe } from "bun:test";
-import { StateCache } from "@tooee/router";
+import { StateCache, createStateKey } from "@tooee/router";
+import type { Codec } from "@tooee/router";
+
+const scrollState: Codec<{ scrollY: number }> = {
+  parse: (value) => {
+    if (typeof value !== "object" || value === null || !("scrollY" in value)) {
+      throw new TypeError("Expected { scrollY }");
+    }
+    const { scrollY } = value;
+    if (typeof scrollY !== "number") {
+      throw new TypeError("Expected scrollY to be a number");
+    }
+    return { scrollY };
+  },
+};
+
+const homeKey = createStateKey("0:home", scrollState);
+const detailKey = createStateKey("1:detail", scrollState);
+const missingKey = createStateKey("0:unknown", scrollState);
 
 describe("StateCache", () => {
-  test("save and restore returns same value", () => {
+  test("save and restore returns the same value, decoded by the key's codec", () => {
     const cache = new StateCache();
-    cache.save("0:home", { scrollY: 42 });
-    expect(cache.restore<{ scrollY: number }>("0:home")).toEqual({ scrollY: 42 });
+    cache.save(homeKey, { scrollY: 42 });
+    expect(cache.restore(homeKey)).toEqual({ scrollY: 42 });
   });
 
   test("restore unknown key returns undefined", () => {
     const cache = new StateCache();
-    expect(cache.restore<unknown>("0:unknown")).toBeUndefined();
+    expect(cache.restore(missingKey)).toBeUndefined();
   });
 
   test("clear removes entry", () => {
     const cache = new StateCache();
-    cache.save("0:home", { data: true });
-    cache.clear("0:home");
-    expect(cache.restore<{ data: boolean }>("0:home")).toBeUndefined();
+    cache.save(homeKey, { scrollY: 1 });
+    cache.clear(homeKey);
+    expect(cache.restore(homeKey)).toBeUndefined();
   });
 
   test("overwrite replaces value", () => {
     const cache = new StateCache();
-    cache.save("0:home", { v: 1 });
-    cache.save("0:home", { v: 2 });
-    expect(cache.restore<{ v: number }>("0:home")).toEqual({ v: 2 });
+    cache.save(homeKey, { scrollY: 1 });
+    cache.save(homeKey, { scrollY: 2 });
+    expect(cache.restore(homeKey)).toEqual({ scrollY: 2 });
   });
 
   test("clearAll removes all entries", () => {
     const cache = new StateCache();
-    cache.save("0:home", { a: 1 });
-    cache.save("1:detail", { b: 2 });
+    cache.save(homeKey, { scrollY: 1 });
+    cache.save(detailKey, { scrollY: 2 });
     cache.clearAll();
-    expect(cache.restore<{ a: number }>("0:home")).toBeUndefined();
-    expect(cache.restore<{ b: number }>("1:detail")).toBeUndefined();
+    expect(cache.restore(homeKey)).toBeUndefined();
+    expect(cache.restore(detailKey)).toBeUndefined();
+  });
+
+  test("restore decodes rather than asserting: a mismatched value is rejected", () => {
+    const cache = new StateCache();
+    // Simulate a value written by an older build / different shape.
+    cache.save(createStateKey("0:home", { parse: (value) => value }), { scrollY: "nope" });
+    expect(() => cache.restore(homeKey)).toThrow(TypeError);
   });
 });

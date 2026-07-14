@@ -17,6 +17,7 @@ import type {
   OverlayController,
   OverlayRecord,
   OverlayStore,
+  OverlayUpdate,
 } from "@tooee/overlays";
 import {
   useMode,
@@ -33,6 +34,24 @@ declare module "@tooee/commands" {
     overlay: OverlayController;
   }
 }
+
+/**
+ * The store keeps payloads as `unknown` (one heterogeneous stack), so a typed
+ * `OverlayUpdate<TPayload>` is erased here — the same generic-erasure boundary
+ * the record already crosses on `open`. The value/updater distinction itself is
+ * carried through faithfully; only the payload type is erased.
+ */
+const eraseUpdate = function eraseUpdate<TPayload>(next: OverlayUpdate<TPayload>): OverlayUpdate {
+  if (next.kind === "value") {
+    return { kind: "value", value: next.value };
+  }
+  return {
+    kind: "updater",
+    update: (previous: unknown): unknown =>
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- payload type is erased in the store's stack
+      next.update(previous as TPayload),
+  };
+};
 
 interface OverlayBridge {
   setMode: (mode: Mode) => void;
@@ -120,8 +139,8 @@ export const OverlayProvider = function OverlayProvider({
           removeEntry(id, reason);
         },
         id,
-        update: (next: TPayload | ((prev: TPayload) => TPayload)) => {
-          overlayStore.trigger.updated({ id, next });
+        update: (next: OverlayUpdate<TPayload>) => {
+          overlayStore.trigger.updated({ id, next: eraseUpdate(next) });
         },
       };
 
@@ -131,8 +150,8 @@ export const OverlayProvider = function OverlayProvider({
   );
 
   const update = useCallback(
-    <TPayload,>(id: OverlayId, next: TPayload | ((prev: TPayload) => TPayload)) => {
-      overlayStore.trigger.updated({ id, next });
+    <TPayload,>(id: OverlayId, next: OverlayUpdate<TPayload>) => {
+      overlayStore.trigger.updated({ id, next: eraseUpdate(next) });
     },
     [overlayStore],
   );
@@ -220,7 +239,7 @@ export const OverlayProvider = function OverlayProvider({
             id: entry.id,
             isTop,
             payload: entry.payload,
-            update: (next: unknown) => {
+            update: (next: OverlayUpdate) => {
               update(entry.id, next);
             },
           });

@@ -2,6 +2,7 @@ export type {
   ActiveCommandSurface,
   Command,
   CommandContext,
+  CommandCommands,
   CommandContextBase,
   CommandGroup,
   CommandHandler,

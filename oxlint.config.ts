@@ -19,43 +19,44 @@ export default defineConfig({
     },
   ],
   rules: {
-    // Option C residual gate: these entries remain disabled only for the exact
-    // implementation/public-contract sites recorded in the lint sweep report.
+    // The Wave 3 sweep is closed: every rule below is enforced repository-wide.
+    // The only exceptions are the two policy entries at the end of this block.
     complexity: "error",
-    "no-bitwise": "off",
+    "no-bitwise": "error",
     "no-duplicate-imports": ["error", { allowSeparateTypeImports: true }],
-    "prefer-destructuring": "off",
+    "prefer-destructuring": "error",
     "typescript/ban-types": "error",
-    "typescript/consistent-type-definitions": "off",
+    "typescript/consistent-type-definitions": "error",
     "typescript/no-base-to-string": "error",
-    "typescript/no-deprecated": "off",
-    "typescript/no-empty-object-type": "off",
-    "typescript/no-explicit-any": "off",
-    "typescript/no-invalid-void-type": "off",
-    "typescript/no-redundant-type-constituents": "off",
-    "typescript/no-unnecessary-type-parameters": "off",
+    "typescript/no-deprecated": "error",
+    "typescript/no-empty-object-type": "error",
+    "typescript/no-explicit-any": "error",
+    "typescript/no-invalid-void-type": "error",
+    "typescript/no-redundant-type-constituents": "error",
+    "typescript/no-unnecessary-type-parameters": "error",
     "typescript/no-unsafe-argument": "error",
     "typescript/no-unsafe-assignment": "error",
-    "typescript/no-unsafe-call": "off",
-    "typescript/no-unsafe-member-access": "off",
+    "typescript/no-unsafe-call": "error",
+    "typescript/no-unsafe-member-access": "error",
     "typescript/no-unsafe-return": "error",
     "typescript/parameter-properties": "error",
     "typescript/prefer-readonly": "error",
-    "typescript/restrict-template-expressions": "off",
+    "typescript/restrict-template-expressions": "error",
     "unicorn/consistent-existence-index-check": "error",
     "unicorn/import-style": "error",
     "unicorn/no-array-for-each": "error",
     "unicorn/no-array-method-this-argument": "error",
     "unicorn/no-array-sort": "error",
-    "unicorn/no-immediate-mutation": "off",
-    "unicorn/prefer-at": "off",
+    "unicorn/no-immediate-mutation": "error",
+    "unicorn/prefer-at": "error",
     "unicorn/prefer-code-point": "error",
     "unicorn/prefer-export-from": "error",
     "unicorn/prefer-number-coercion": "error",
     "unicorn/prefer-single-call": "error",
     "unicorn/prefer-spread": "error",
-    // CommandSurfaceProvider's `role` is an internal surface role, not a DOM ARIA role.
-    // Keep the honest findings visible until the public prop is renamed or lint is scoped.
+    // Permanently off (policy). Tooee renders to a terminal, not the DOM: there is no
+    // accessibility tree and no ARIA. `CommandSurfaceProvider.role` is a Tooee command-surface
+    // role ("modal" | "passive"), and the rule can only ever produce false positives here.
     "jsx-a11y/aria-role": "off",
     // Tooee does not use React Compiler, so compiler-adoption guidance is not applicable.
     "react/react-compiler": "off",

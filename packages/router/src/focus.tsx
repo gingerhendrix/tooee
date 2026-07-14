@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef } from "react";
-import type { ReactNode } from "react";
+import type { EffectCallback, ReactNode } from "react";
 
 const ScreenFocusContext = createContext({ isFocused: false });
 
@@ -18,14 +18,14 @@ export const useScreenFocus = function useScreenFocus() {
   return useContext(ScreenFocusContext);
 };
 
-export const useScreenEffect = function useScreenEffect(effect: () => void | (() => void)) {
+/**
+ * `useEffect`, scoped to the focused screen. The callback uses React's own
+ * `EffectCallback` type (`() => void | Destructor`), so the no-cleanup branch is
+ * modelled the way React models it, without a hand-rolled `void` union.
+ */
+export const useScreenEffect = function useScreenEffect(effect: EffectCallback): void {
   const { isFocused } = useScreenFocus();
   const effectRef = useRef(effect);
   effectRef.current = effect;
-  useEffect(() => {
-    if (!isFocused) {
-      return;
-    }
-    return effectRef.current();
-  }, [isFocused]);
+  useEffect(() => (isFocused ? effectRef.current() : undefined), [isFocused]);
 };

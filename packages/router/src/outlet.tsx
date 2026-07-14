@@ -1,6 +1,6 @@
 import { createContext, createElement, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import type { RouteDefinition, StackEntry } from "./types.js";
+import type { AnyRoute, StackEntry } from "./types.js";
 import { useRouterInstance, useRouterStack, StackEntryIndexContext } from "./context.js";
 import { ScreenFocusProvider } from "./focus.js";
 import { RouteDataProvider } from "./loader.js";
@@ -12,10 +12,10 @@ const OutletDepthContext = createContext<number>(0);
 // Helper: walk parent chain and return [root, ..., leaf]
 
 export const getRouteChain = function getRouteChain(
-  routeMap: { get: (id: string) => RouteDefinition | undefined },
+  routeMap: { get: (id: string) => AnyRoute | undefined },
   routeId: string,
-): RouteDefinition[] {
-  const chain: RouteDefinition[] = [];
+): AnyRoute[] {
+  const chain: AnyRoute[] = [];
   let current = routeMap.get(routeId);
   while (current) {
     chain.unshift(current);
@@ -32,22 +32,22 @@ const RouteRenderer = function RouteRenderer({
   children,
 }: {
   entry: StackEntry;
-  routeDef: RouteDefinition;
+  routeDef: AnyRoute;
   children: ReactNode;
 }): ReactNode {
   const [data, setData] = useState<unknown>();
-  const [loading, setLoading] = useState(!!routeDef.loader);
+  const [loading, setLoading] = useState(routeDef.load !== undefined);
   const [loaderError, setLoaderError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const { loader } = routeDef;
+    const { load } = routeDef;
     let cancelled = false;
-    if (loader !== undefined) {
+    if (load !== undefined) {
       setLoading(true);
       setLoaderError(null);
       void (async () => {
         try {
-          const result = await loader({ params: entry.params });
+          const result = await load(entry.params);
           if (!cancelled) {
             setData(result);
             setLoading(false);
@@ -77,7 +77,11 @@ const RouteRenderer = function RouteRenderer({
     return routeDef.pendingComponent ? createElement(routeDef.pendingComponent) : null;
   }
 
-  return <RouteDataProvider data={data}>{children}</RouteDataProvider>;
+  return (
+    <RouteDataProvider routeId={routeDef.id} data={data}>
+      {children}
+    </RouteDataProvider>
+  );
 };
 
 // Outlet component
@@ -119,7 +123,7 @@ export const Outlet = function Outlet(): ReactNode {
     </StackEntryIndexContext>
   );
 
-  if (routeAtDepth.loader) {
+  if (routeAtDepth.load !== undefined) {
     return (
       <RouteRenderer entry={topEntry} routeDef={routeAtDepth}>
         {content}

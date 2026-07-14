@@ -2,9 +2,15 @@ import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, describe, afterEach } from "bun:test";
 import { act } from "react";
 import { createRoute, createRouter, RouterProvider, Outlet, useRouteData } from "@tooee/router";
+import { echoData, messageData } from "./support/codecs.ts";
+
+// Route specs (identity + data codec) declared before the components that read them.
+const paramSpec = { data: echoData, id: "param" } as const;
+const dataSpec = { data: messageData, id: "data" } as const;
+const noLoaderSpec = { id: "noloader" } as const;
 
 const ParamScreen = function ParamScreen(): React.ReactNode {
-  const data = useRouteData<{ echo: string }>();
+  const data = useRouteData(paramSpec);
   return (
     <box>
       <text content={`screen:param:${data?.echo ?? "none"}`} />
@@ -29,7 +35,7 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
 };
 
 const DataScreen = function DataScreen(): React.ReactNode {
-  const data = useRouteData<{ message: string }>();
+  const data = useRouteData(dataSpec);
   return (
     <box>
       <text content={`screen:data:${data?.message ?? "none"}`} />
@@ -67,8 +73,8 @@ describe("route loaders", () => {
 
     const homeRoute = createRoute({ component: HomeScreen, id: "home" });
     const dataRoute = createRoute({
+      ...dataSpec,
       component: DataScreen,
-      id: "data",
       loader: async () => {
         const result = await deferred.promise;
         return result;
@@ -239,7 +245,7 @@ describe("route loaders", () => {
     let capturedData: unknown = "sentinel";
 
     const NoLoaderScreen = function NoLoaderScreen(): React.ReactNode {
-      capturedData = useRouteData();
+      capturedData = useRouteData(noLoaderSpec);
       return (
         <box>
           <text content="screen:noloader" />
@@ -247,7 +253,7 @@ describe("route loaders", () => {
       );
     };
 
-    const noLoaderRoute = createRoute({ component: NoLoaderScreen, id: "noloader" });
+    const noLoaderRoute = createRoute({ ...noLoaderSpec, component: NoLoaderScreen });
 
     const router = createRouter({
       defaultRoute: "noloader",
@@ -272,8 +278,8 @@ describe("route loaders", () => {
 
     const homeRoute = createRoute({ component: HomeScreen, id: "home" });
     const dataRoute = createRoute({
+      ...dataSpec,
       component: DataScreen,
-      id: "data",
       loader: async ({ params: _params }) => {
         loadCount += 1;
         await Promise.resolve();
@@ -331,8 +337,8 @@ describe("route loaders", () => {
     const deferred = createDeferred<{ message: string }>();
 
     const dataRoute = createRoute({
+      ...dataSpec,
       component: DataScreen,
-      id: "data",
       loader: async () => {
         const result = await deferred.promise;
         return result;
@@ -375,8 +381,8 @@ describe("route loaders", () => {
 
     const homeRoute = createRoute({ component: HomeScreen, id: "home" });
     const dataRoute = createRoute({
+      ...dataSpec,
       component: DataScreen,
-      id: "data",
       loader: async ({ params: _params }) => {
         callCount += 1;
         if (callCount === 1) {
@@ -448,8 +454,8 @@ describe("route loaders", () => {
 
     const homeRoute = createRoute({ component: HomeScreen, id: "home" });
     const paramRoute = createRoute({
+      ...paramSpec,
       component: ParamScreen,
-      id: "param",
       loader: async ({ params }) => {
         receivedParams = params;
         await Promise.resolve();

@@ -4,6 +4,7 @@ import type {
   OverlayId,
   OverlayOpenOptions,
   OverlayRenderer,
+  OverlayUpdate,
 } from "./overlay-context.js";
 import type { Mode } from "@tooee/commands";
 
@@ -70,14 +71,50 @@ const restoreModeDecision = function restoreModeDecision(
  * evaluated and rejected: it gives the same strictness while adding runtime
  * schema objects this store does not need.
  */
+export interface OverlayOpenedEvent {
+  record: OverlayRecord;
+}
+
+/**
+ * `next` is a discriminated `OverlayUpdate`, not `unknown | ((prev) => unknown)`:
+ * the old union collapsed to `unknown`, so the transition had to guess with
+ * `typeof next === "function"` and could not store a function-valued payload.
+ * The caller now states which it means.
+ */
+export interface OverlayUpdatedEvent {
+  id: OverlayId;
+  next: OverlayUpdate;
+}
+
+export interface OverlayClosedEvent {
+  id: OverlayId;
+  reason: OverlayCloseReason;
+}
+
+export interface OverlayClosedTopEvent {
+  reason: OverlayCloseReason;
+}
+
+/**
+ * The two payload MAPS below must stay type aliases. XState v4 constrains them
+ * with `EventPayloadMap = Record<string, {} | null | undefined>`, and only an
+ * object-literal type alias gets TypeScript's implicit index signature — an
+ * `interface` is rejected by that constraint. The only way to make an interface
+ * satisfy it is to add an index signature, which would OPEN the map and destroy
+ * the closed-event-name guarantee pinned by `overlay-store.typecheck.ts`. The
+ * payload types themselves are interfaces (above), which is where the rule's
+ * intent actually applies.
+ */
+// oxlint-disable-next-line typescript/consistent-type-definitions -- XState's EventPayloadMap constraint needs an implicit index signature; an interface cannot satisfy it without opening the map
 export type OverlayStoreEvents = {
-  opened: { record: OverlayRecord };
-  updated: { id: OverlayId; next: unknown | ((prev: unknown) => unknown) };
-  closed: { id: OverlayId; reason: OverlayCloseReason };
-  closedTop: { reason: OverlayCloseReason };
+  opened: OverlayOpenedEvent;
+  updated: OverlayUpdatedEvent;
+  closed: OverlayClosedEvent;
+  closedTop: OverlayClosedTopEvent;
 };
 
-/** Emitted payload map (see OverlayStoreEvents docs — deliberately closed). */
+/** Emitted payload map (see OverlayStoreEvents above — deliberately closed). */
+// oxlint-disable-next-line typescript/consistent-type-definitions -- same XState EventPayloadMap constraint
 type OverlayStoreEmitted = {
   closed: OverlayClosedEmit;
 };
@@ -102,7 +139,7 @@ export const createOverlayStore = function createOverlayStore() {
         if (ctx.stack.length === 0) {
           return ctx;
         }
-        const record = ctx.stack[ctx.stack.length - 1];
+        const record = ctx.stack.at(-1);
         if (record === undefined) {
           return ctx;
         }
@@ -135,14 +172,8 @@ export const createOverlayStore = function createOverlayStore() {
         if (record === undefined) {
           return ctx;
         }
-        // Deferred(lint-sweep): make function-valued overlay payloads distinct from updater
-        // functions in the store API; until then the updater branch must trust the cast.
-        const applyUpdater = (next: unknown): unknown => {
-          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- updater/value ambiguity is an API-shaped deferred fix
-          const updater = next as (prev: unknown) => unknown;
-          return updater(record.payload);
-        };
-        const payload = typeof event.next === "function" ? applyUpdater(event.next) : event.next;
+        const payload =
+          event.next.kind === "updater" ? event.next.update(record.payload) : event.next.value;
         const stack = [...ctx.stack];
         stack[idx] = { ...record, payload };
         return { stack };

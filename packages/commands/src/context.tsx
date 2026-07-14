@@ -24,6 +24,7 @@ import {
   stepsKey,
 } from "./command-store.js";
 import type { CommandStore, ContextGetter, SurfaceRecord } from "./command-store.js";
+import { buildCommandContext, commandsFromRegistry } from "./build-context.js";
 
 interface CommandContextValue {
   registry: CommandRegistry;
@@ -46,25 +47,16 @@ const CommandSequenceContext = createContext<CommandSequenceState | null>(null);
 const CommandSurfaceDepthContext = createContext(0);
 
 /**
- * Placeholder context: augmented domain fields (overlay, view, ...) are only
- * present where their providers run, so the literal cannot satisfy the
- * module-augmented `CommandContext` locally. Dispatch never reaches these
- * placeholders.
- *
- * Deferred(lint-sweep): formalize context augmentation so this can be built type-safely.
+ * Placeholder context used before the dispatcher installs the real accessors,
+ * and by the fallback store. It has no context sources, so it carries only the
+ * core fields; dispatch never reaches it.
  */
 const placeholderCommandContext = function placeholderCommandContext(mode: Mode): CommandContext {
-  const placeholder = {
-    commands: {
-      invoke: () => void 0,
-      list: () => [],
-    },
-    exit: () => void 0,
+  return buildCommandContext({
+    commands: { invoke: () => void 0, list: () => [] },
     mode,
     setMode: () => void 0,
-  };
-  // oxlint-disable-next-line typescript/no-unnecessary-type-assertion, typescript/no-unsafe-type-assertion -- placeholder omits module-augmented fields contributed by other packages
-  return placeholder as unknown as CommandContext;
+  });
 };
 
 /**
@@ -165,25 +157,16 @@ const CommandDispatcher = function CommandDispatcher({
   modeRef.current = mode;
   const setMode = useSetMode();
 
-  const buildCtx = useCallback((): CommandContext => {
-    const registry = commandStore.registryFor(commandStore.rootRecord);
-    const ctx: Record<string, any> = {
-      commands: {
-        invoke: (id: string) => {
-          registry.invoke(id);
-        },
-        list: () => [...registry.commands.values()],
-      },
-      exit: () => void 0,
-      mode: modeRef.current,
-      setMode,
-    };
-    for (const getter of commandStore.store.getSnapshot().context.contextSources.values()) {
-      Object.assign(ctx, getter());
-    }
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- CommandContext is intentionally module-augmentable
-    return ctx as CommandContext;
-  }, [commandStore, setMode]);
+  const buildCtx = useCallback(
+    (): CommandContext =>
+      buildCommandContext({
+        commands: commandsFromRegistry(commandStore.registryFor(commandStore.rootRecord)),
+        contributions: commandStore.store.getSnapshot().context.contextSources.values(),
+        mode: modeRef.current,
+        setMode,
+      }),
+    [commandStore, setMode],
+  );
 
   const buildCtxRef = useRef(buildCtx);
   buildCtxRef.current = buildCtx;
@@ -307,23 +290,12 @@ const CommandSurfaceInner = function CommandSurfaceInner({
     // Deferred(lint-sweep): replace this lifecycle ref with an API that models render-time initialization.
     // oxlint-disable-next-line typescript/no-non-null-assertion, no-use-before-define -- initialized lifecycle ref intentionally captured by closure
     const registry = commandStore.registryFor(recordRef.current!);
-    const ctx: Record<string, any> = {
-      commands: {
-        invoke: (cmdId: string) => {
-          registry.invoke(cmdId);
-        },
-        list: () => [...registry.commands.values()],
-      },
-      exit: () => void 0,
+    return buildCommandContext({
+      commands: commandsFromRegistry(registry),
+      contributions: commandStore.store.getSnapshot().context.contextSources.values(),
       mode: modeRef.current,
       setMode,
-    };
-    for (const getter of commandStore.store.getSnapshot().context.contextSources.values()) {
-      Object.assign(ctx, getter());
-    }
-    // Deferred(lint-sweep): validate module-augmented command context at this API boundary.
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- CommandContext is intentionally module-augmentable
-    return ctx as CommandContext;
+    });
   }, [commandStore, setMode]);
 
   const buildCtxRef = useRef(buildCtx);

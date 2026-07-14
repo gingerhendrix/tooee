@@ -10,6 +10,12 @@ import {
   useCurrentRoute,
   useCanGoBack,
 } from "@tooee/router";
+import { idParams } from "./support/codecs.ts";
+
+// Route specs: identity + codecs, declared before the components that read them
+// (a component cannot reference its own route object before it exists).
+
+const detailSpec = { id: "detail", params: idParams } as const;
 
 // Route components
 
@@ -22,10 +28,10 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
 };
 
 const DetailScreen = function DetailScreen(): React.ReactNode {
-  const params = useParams<{ id: string }>();
+  const params = useParams(detailSpec);
   return (
     <box>
-      <text content={`screen:detail:${params.id ?? "none"}`} />
+      <text content={`screen:detail:${params.id}`} />
     </box>
   );
 };
@@ -60,7 +66,7 @@ const NestedChild = function NestedChild(): React.ReactNode {
 // Route definitions
 
 const homeRoute = createRoute({ component: HomeScreen, id: "home" });
-const detailRoute = createRoute({ component: DetailScreen, id: "detail" });
+const detailRoute = createRoute({ ...detailSpec, component: DetailScreen });
 const settingsRoute = createRoute({ component: SettingsScreen, id: "settings" });
 
 const layoutRoute = createRoute({ component: LayoutScreen, id: "layout" });

@@ -1,14 +1,13 @@
 import type { Mode } from "./mode.js";
 
-export interface CommandContextBase {
-  mode: Mode;
-  setMode: (mode: Mode) => void;
-  commands: { invoke: (id: string) => void; list: () => Command[] };
-  exit: () => void;
+export interface CommandCommands {
+  invoke: (id: string) => void;
+  list: () => Command[];
 }
 
 /**
- * The context handed to command handlers. Domain packages contribute typed
+ * The context handed to command handlers. The core fields below are always
+ * provided by the command provider. Domain packages contribute additional typed
  * fields via module augmentation (the mechanism the shell already uses for
  * `overlay` and `toast`):
  *
@@ -19,9 +18,22 @@ export interface CommandContextBase {
  *   }
  * }
  * ```
+ *
+ * Augmented fields are contributed at runtime by context sources
+ * (`useCommandContextSource`), so an augmenting package is responsible for
+ * mounting its provider. The core fields are declared here directly: the
+ * interface is still open for merging, but it is no longer an empty declaration
+ * that only inherits its own members.
  */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface CommandContext extends CommandContextBase {}
+export interface CommandContext {
+  mode: Mode;
+  setMode: (mode: Mode) => void;
+  commands: CommandCommands;
+  exit: () => void;
+}
+
+/** The subset of `CommandContext` the provider itself always supplies. */
+export type CommandContextBase = Pick<CommandContext, "mode" | "setMode" | "commands" | "exit">;
 
 export type CommandHandler = (ctx: CommandContext) => void | Promise<void>;
 export type CommandWhen = (ctx: CommandContext) => boolean;

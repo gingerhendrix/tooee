@@ -128,6 +128,60 @@ describe("command store — registration", () => {
     expect(registry.commands.get("dup")).toBe(second);
   });
 
+  // Map transitions are built by replaying entries into a new Map rather than
+  // clone-then-set. Re-registering an existing key must therefore keep the key's
+  // ORIGINAL insertion position (only its value changes), because command,
+  // surface and group iteration order is observable downstream (palette listing,
+  // which-key display, surface arbitration tie-breaks).
+  test("re-registering a duplicate id keeps the key's insertion position", () => {
+    const cs = makeStore();
+    const registry = cs.registryFor(cs.rootRecord);
+    registry.register(command("alpha", "a"));
+    registry.register(command("dup", "d"));
+    registry.register(command("omega", "o"));
+
+    const replacement = command("dup", "d", { title: "replacement" });
+    registry.register(replacement);
+
+    expect([...registry.commands.keys()]).toEqual(["alpha", "dup", "omega"]);
+    expect(registry.commands.get("dup")).toBe(replacement);
+  });
+
+  test("re-registering into a surface keeps the surface's insertion position", () => {
+    const cs = makeStore();
+    const first = makeSurface("s1", "modal", 1);
+    const second = makeSurface("s2", "modal", 2);
+    cs.pushSurface(first);
+    cs.pushSurface(second);
+    cs.registryFor(first).register(command("one", "1"));
+    cs.registryFor(second).register(command("two", "2"));
+    // Re-register on the earlier surface: its map is rebuilt, its position is not.
+    cs.registryFor(first).register(command("three", "3"));
+
+    expect([...cs.store.getSnapshot().context.commandsBySurface.keys()]).toEqual(["s1", "s2"]);
+  });
+
+  test("re-registering a duplicate group prefix keeps the group's insertion position", () => {
+    const cs = makeStore();
+    const leading = group("a", "Leading");
+    const first = group("g", "First");
+    const trailing = group("z", "Trailing");
+    const second = group("g", "Second");
+
+    cs.store.trigger.groupRegistered({ group: leading });
+    cs.store.trigger.groupRegistered({ group: first });
+    cs.store.trigger.groupRegistered({ group: trailing });
+    cs.store.trigger.groupRegistered({ group: second });
+
+    const { groups } = cs.store.getSnapshot().context;
+    expect([...groups.keys()]).toEqual([leading.prefixKey, first.prefixKey, trailing.prefixKey]);
+    expect(groups.get(first.prefixKey)).toBe(second);
+
+    // Unmount order is still identity-guarded after the rebuild.
+    cs.store.trigger.groupUnregistered({ group: first });
+    expect(cs.store.getSnapshot().context.groups.get(first.prefixKey)).toBe(second);
+  });
+
   test("group registration and identity-guarded unregistration", () => {
     const cs = makeStore();
     const first = group("g", "First");

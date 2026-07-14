@@ -171,10 +171,14 @@ const createBaseStore = function createBaseStore(initialContext: CommandStoreCon
         event: { surfaceId: string; command: Command },
       ): CommandStoreContext => {
         const existing = ctx.commandsBySurface.get(event.surfaceId);
-        const commands = new Map(existing);
-        commands.set(event.command.id, event.command);
-        const commandsBySurface = new Map(ctx.commandsBySurface);
-        commandsBySurface.set(event.surfaceId, commands);
+        // Map construction replays entries in order, so a re-registered id keeps its
+        // original insertion position and takes the new value — identical to
+        // clone-then-set. Pinned by the duplicate-id ordering tests.
+        const commands = new Map([...(existing ?? []), [event.command.id, event.command] as const]);
+        const commandsBySurface = new Map([
+          ...ctx.commandsBySurface,
+          [event.surfaceId, commands] as const,
+        ]);
         return { ...ctx, commandsBySurface };
       },
       commandUnregistered: (
@@ -202,8 +206,7 @@ const createBaseStore = function createBaseStore(initialContext: CommandStoreCon
         ctx: CommandStoreContext,
         event: { id: string; getter: ContextGetter },
       ): CommandStoreContext => {
-        const contextSources = new Map(ctx.contextSources);
-        contextSources.set(event.id, event.getter);
+        const contextSources = new Map([...ctx.contextSources, [event.id, event.getter] as const]);
         return { ...ctx, contextSources };
       },
       contextSourceUnregistered: (
@@ -221,8 +224,7 @@ const createBaseStore = function createBaseStore(initialContext: CommandStoreCon
         ctx: CommandStoreContext,
         event: { group: RegisteredCommandGroup },
       ): CommandStoreContext => {
-        const groups = new Map(ctx.groups);
-        groups.set(event.group.prefixKey, event.group);
+        const groups = new Map([...ctx.groups, [event.group.prefixKey, event.group] as const]);
         return { ...ctx, groups };
       },
       groupUnregistered: (

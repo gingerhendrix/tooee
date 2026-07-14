@@ -36,12 +36,37 @@ export interface OverlayOpenOptions {
   onClose?: (reason: OverlayCloseReason) => void;
 }
 
+/**
+ * An overlay payload change. The two cases are explicit because an overlay
+ * payload may itself be a function: `{ kind: "value" }` always replaces the
+ * payload, `{ kind: "updater" }` always derives it from the previous one. A
+ * `typeof next === "function"` check cannot tell those apart, so the caller
+ * chooses. Use the `overlayValue` / `overlayUpdater` helpers.
+ */
+export type OverlayUpdate<TPayload = unknown> =
+  | { kind: "value"; value: TPayload }
+  | { kind: "updater"; update: (previous: TPayload) => TPayload };
+
+/** Replace an overlay payload outright (safe even when the payload is a function). */
+export const overlayValue = function overlayValue<TPayload>(
+  value: TPayload,
+): OverlayUpdate<TPayload> {
+  return { kind: "value", value };
+};
+
+/** Derive the next overlay payload from the previous one. */
+export const overlayUpdater = function overlayUpdater<TPayload>(
+  update: (previous: TPayload) => TPayload,
+): OverlayUpdate<TPayload> {
+  return { kind: "updater", update };
+};
+
 export interface OverlayRenderArgs<TPayload> {
   id: OverlayId;
   payload: TPayload;
   isTop: boolean;
   close: (reason?: OverlayCloseReason) => void;
-  update: (next: TPayload | ((prev: TPayload) => TPayload)) => void;
+  update: (next: OverlayUpdate<TPayload>) => void;
 }
 
 export type OverlayRenderer<TPayload> = (args: OverlayRenderArgs<TPayload>) => ReactNode;
@@ -49,7 +74,7 @@ export type OverlayRenderer<TPayload> = (args: OverlayRenderArgs<TPayload>) => R
 export interface OverlayHandle<TPayload> {
   id: OverlayId;
   close: (reason?: OverlayCloseReason) => void;
-  update: (next: TPayload | ((prev: TPayload) => TPayload)) => void;
+  update: (next: OverlayUpdate<TPayload>) => void;
 }
 
 export interface OverlayController {
@@ -59,7 +84,7 @@ export interface OverlayController {
     payload: TPayload,
     options?: OverlayOpenOptions,
   ) => OverlayHandle<TPayload>;
-  update: <TPayload>(id: OverlayId, next: TPayload | ((prev: TPayload) => TPayload)) => void;
+  update: <TPayload>(id: OverlayId, next: OverlayUpdate<TPayload>) => void;
   show: (id: OverlayId, content: ReactNode, options?: OverlayOpenOptions) => void;
   hide: (id: OverlayId) => void;
   closeTop: (reason?: OverlayCloseReason) => void;
