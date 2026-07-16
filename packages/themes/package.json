@@ -1,6 +1,6 @@
 {
   "name": "@tooee/themes",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Theme management with 34 bundled themes for Tooee",
   "keywords": [
     "cli",
