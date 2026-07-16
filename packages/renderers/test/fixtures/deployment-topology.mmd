@@ -1,0 +1,54 @@
+flowchart BT
+  infrastructure[infrastructure]
+  audit[audit-log]
+  insightw[insight-events-worker]
+  events[events-router]
+  storage[storage-worker]
+  email[email-worker]
+  billing[translate-billing-api]
+  accounts[accounts-backend]
+  catify[catify-api]
+  translate[translate-api]
+  agents[agents-api]
+  publicapi[api]
+  admin[admin]
+  insight[insight]
+  zero[catify-zero-cache]
+
+  events --> audit
+  events --> insightw
+  billing --> events
+  billing --> infrastructure
+  accounts --> email
+  accounts --> events
+  accounts --> infrastructure
+  accounts --> insightw
+  accounts --> storage
+  accounts --> billing
+  catify --> accounts
+  catify --> events
+  catify --> storage
+  translate --> accounts
+  translate --> catify
+  translate --> email
+  translate --> events
+  translate --> infrastructure
+  translate --> insightw
+  translate --> storage
+  translate --> billing
+  agents --> accounts
+  agents --> storage
+  publicapi --> accounts
+  publicapi --> storage
+  publicapi --> translate
+  publicapi --> billing
+  admin --> accounts
+  admin --> audit
+  admin --> catify
+  admin --> storage
+  admin --> translate
+  admin --> billing
+  insight --> accounts
+  insight --> insightw
+  insight --> translate
+  zero --> catify

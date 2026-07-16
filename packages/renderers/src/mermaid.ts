@@ -1,4 +1,4 @@
-import { renderMermaidASCII } from "beautiful-mermaid";
+import { parseMermaid, renderMermaidASCII } from "beautiful-mermaid";
 import { parseColor, StyledText } from "@opentui/core";
 import type { TextChunk } from "@opentui/core";
 
@@ -17,12 +17,20 @@ export type MermaidRenderMode = "plain" | "ansi";
 
 export type MermaidRenderResult =
   | { ok: true; text: string; content: StyledText }
-  | { ok: false; reason: "empty" | "render-error"; message: string };
+  | { ok: false; reason: "complexity-limit" | "empty" | "render-error"; message: string };
 
 export interface MermaidRenderOptions {
   mode?: MermaidRenderMode;
   theme?: BeautifulMermaidAsciiTheme;
 }
+
+// beautiful-mermaid's flowchart renderer uses unbounded synchronous A* pathfinding.
+// Dense graphs can therefore block the UI thread and exhaust the process heap when
+// an edge cannot be routed. Keep synchronous work within a conservative budget;
+// MarkdownView will visibly fall back to the original Mermaid source instead.
+const MAX_SOURCE_LENGTH = 20_000;
+const MAX_SOURCE_LINES = 300;
+const MAX_FLOWCHART_EDGES = 32;
 
 // oxlint-disable-next-line no-control-regex -- ANSI SGR sequences start with the ESC control character
 const SGR_SEQUENCE = /\u001B\[(?<params>[0-9;]*)m/gu;
@@ -33,6 +41,19 @@ const SGR_SEQUENCE = /\u001B\[(?<params>[0-9;]*)m/gu;
  */
 export const isMermaidFence = function isMermaidFence(lang?: string): boolean {
   return (lang ?? "").trim().split(/\s+/u)[0]?.toLowerCase() === "mermaid";
+};
+
+const exceedsSynchronousRenderBudget = function exceedsSynchronousRenderBudget(
+  source: string,
+): boolean {
+  if (source.length > MAX_SOURCE_LENGTH || source.split("\n").length > MAX_SOURCE_LINES) {
+    return true;
+  }
+
+  const firstLine = source.trimStart().split(/[;\n]/u)[0]?.trim().toLowerCase() ?? "";
+  const isFlowchart = /^(?:flowchart|graph|statediagram(?:-v2)?)\b/u.test(firstLine);
+
+  return isFlowchart && parseMermaid(source).edges.length > MAX_FLOWCHART_EDGES;
 };
 
 const appendStyledChunk = function appendStyledChunk(
@@ -137,6 +158,14 @@ export const renderMermaidForTerminal = function renderMermaidForTerminal(
   }
 
   try {
+    if (exceedsSynchronousRenderBudget(source)) {
+      return {
+        message: "Mermaid diagram exceeds the synchronous rendering complexity limit",
+        ok: false,
+        reason: "complexity-limit",
+      };
+    }
+
     const mode = options.mode ?? "plain";
     const rendered = renderMermaidASCII(source, {
       colorMode: mode === "ansi" ? "truecolor" : "none",
