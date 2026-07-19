@@ -10,13 +10,23 @@ const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
 export const launchShellFixture = async function launchShellFixture(
   fixture: string,
   readyText = "which-key e2e ready",
+  options: { exitMarker?: string } = {},
 ): Promise<Session> {
   resetTestConfig(CONFIG_NAMESPACE);
   const fixturePath = path.resolve(import.meta.dir, "fixtures", fixture);
+  const command =
+    options.exitMarker !== undefined && options.exitMarker !== ""
+      ? {
+          args: [
+            "-lc",
+            `bun --conditions=@tooee/source ${JSON.stringify(fixturePath)}; printf '\\n%s\\n' ${JSON.stringify(options.exitMarker)}`,
+          ],
+          command: "bash",
+        }
+      : { args: ["--conditions=@tooee/source", fixturePath], command: "bun" };
   const session = await launchTerminal({
-    args: ["--conditions=@tooee/source", fixturePath],
+    ...command,
     cols: 80,
-    command: "bun",
     cwd: REPO_ROOT,
     env: { ...process.env, XDG_CONFIG_HOME: TEST_CONFIG_HOME },
     rows: 24,

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { PassThrough } from "node:stream";
+import { useEffect } from "react";
 import { createTestRenderer } from "@opentui/core/testing";
 import type { CliRendererConfig } from "@opentui/core";
 import { guardTerminalHealth, launchCli, mountTooee, runCliSession } from "../src/launch.js";
@@ -82,6 +83,40 @@ describe("mountTooee", () => {
 });
 
 describe("local sessions", () => {
+  test("renderer-originated destroy unmounts the owned React tree", async () => {
+    let effectCleanupCalls = 0;
+    const ResourceOwner = function ResourceOwner(): React.ReactNode {
+      useEffect(() => {
+        const interval = setInterval(() => void 0, 1000);
+        return () => {
+          clearInterval(interval);
+          effectCleanupCalls += 1;
+        };
+      }, []);
+      return <text>resource owner</text>;
+    };
+
+    sessionHandle = await launchCli(<ResourceOwner />, {
+      renderer: remoteRendererOptions(),
+      terminalHealth: false,
+    });
+    await Bun.sleep(20);
+    const unmountRoot = sessionHandle.root.unmount.bind(sessionHandle.root);
+    let rootUnmountCalls = 0;
+    sessionHandle.root.unmount = () => {
+      rootUnmountCalls += 1;
+      unmountRoot();
+    };
+
+    sessionHandle.renderer.destroy();
+    sessionHandle.destroy();
+    await Bun.sleep(20);
+
+    expect(sessionHandle.destroyed).toBe(true);
+    expect(rootUnmountCalls).toBe(1);
+    expect(effectCleanupCalls).toBe(1);
+  });
+
   test("destroy releases the renderer and health listeners exactly once", async () => {
     let rendererDestroyCalls = 0;
     const rendererOptions = remoteRendererOptions(() => {

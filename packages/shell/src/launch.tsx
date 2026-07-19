@@ -224,6 +224,16 @@ export const launchCli = async function launchCli(
     throw error;
   }
 
+  // Every renderer-originated shutdown path must release the React tree owned by this session.
+  const destroyRenderer = renderer.destroy.bind(renderer);
+  renderer.destroy = () => {
+    try {
+      mount.unmount();
+    } finally {
+      destroyRenderer();
+    }
+  };
+
   let destroyed = false;
   let removeHealthGuard = noop;
 
