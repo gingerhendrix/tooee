@@ -1,6 +1,6 @@
 {
   "name": "@tooee/view",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Terminal content viewer for markdown, code, text, and tables",
   "keywords": [
     "cli",

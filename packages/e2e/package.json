@@ -1,6 +1,6 @@
 {
   "name": "@tooee/e2e",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": true,
   "description": "End-to-end tests for Tooee packages",
   "type": "module",
