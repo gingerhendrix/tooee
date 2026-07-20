@@ -11,6 +11,10 @@ bun test             # Run tests
 bun run lint         # Lint with oxlint
 ```
 
+## Releases
+
+User-facing changes should include a Tegami release note. See [docs/releasing.md](docs/releasing.md) for the format and release flow; do not edit package versions or tags manually.
+
 ## Tech Stack
 
 - **Runtime**: Bun

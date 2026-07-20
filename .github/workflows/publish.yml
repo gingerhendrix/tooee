@@ -1,25 +1,27 @@
-name: Publish to npm
+name: Release
 
 on:
   push:
-    tags:
-      - "v*"
+    branches: [main]
   workflow_dispatch:
-    inputs:
-      version:
-        description: Version to resume publishing (without the v prefix)
-        required: true
-        type: string
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
-  id-token: write
   contents: write
+  id-token: write
+  pull-requests: write
 
 jobs:
-  publish:
+  release:
+    name: Version and publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - uses: oven-sh/setup-bun@v2
 
@@ -28,73 +30,18 @@ jobs:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
 
-      - run: npm install -g npm@11.11.0
+      # npm trusted publishing requires npm 11.5.1 or newer. Keep the known-good
+      # version from the previous release workflow for reproducible OIDC publishes.
+      - run: npm install --global npm@11.11.0
 
-      - run: bun install
+      - run: bun install --frozen-lockfile
 
       - run: bun run build
 
       # Running every OpenTUI test in one Bun process can crash Bun in CI.
       - run: bun run test:parallel
 
-      - name: Resolve release version
+      - name: Version or publish packages
+        run: bun run tegami ci
         env:
-          DISPATCH_VERSION: ${{ inputs.version }}
-        run: echo "VERSION=${DISPATCH_VERSION:-${GITHUB_REF_NAME#v}}" >> $GITHUB_ENV
-
-      - name: Verify package versions match release
-        run: |
-          PKG_VERSION=$(node -p "require('./packages/config/package.json').version")
-          if [[ "$PKG_VERSION" != "$VERSION" ]]; then
-            echo "Error: release $VERSION but packages/config has version $PKG_VERSION" >&2
-            exit 1
-          fi
-
-      - name: Pack and publish packages
-        run: |
-          PACKAGES=(
-            packages/config
-            packages/commands
-            packages/clipboard
-            packages/fuzzy
-            packages/marks
-            packages/search
-            packages/router
-            packages/overlays
-            packages/themes
-            packages/toasts
-            packages/layout
-            packages/renderers
-            packages/shell
-            packages/view
-            packages/ask
-            packages/choose
-            apps/cli
-            # New packages go last so established packages can recover from a
-            # first-publish bootstrap failure on a rerun.
-            packages/panels
-          )
-
-          for pkg in "${PACKAGES[@]}"; do
-            echo "Publishing $pkg..."
-            cd "$pkg"
-
-            # Skip if already published (partial-publish recovery)
-            PKG_NAME=$(node -p "require('./package.json').name")
-            if npm view "$PKG_NAME@$VERSION" version &>/dev/null; then
-              echo "  $PKG_NAME@$VERSION already published, skipping"
-              cd "$GITHUB_WORKSPACE"
-              continue
-            fi
-
-            bun pm pack --quiet
-            TARBALL=$(ls *.tgz)
-            npm publish "$TARBALL" --provenance --access public
-            rm -f "$TARBALL"
-            cd "$GITHUB_WORKSPACE"
-          done
-
-      - name: Create GitHub Release
-        run: gh release view "v$VERSION" >/dev/null 2>&1 || gh release create "v$VERSION" --generate-notes --target "$GITHUB_SHA"
-        env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
