@@ -53,6 +53,7 @@ jobs:
             packages/search
             packages/router
             packages/overlays
+            packages/panels
             packages/themes
             packages/toasts
             packages/layout
