@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to resume publishing (without the v prefix)
+        required: true
+        type: string
 
 permissions:
   id-token: write
@@ -31,14 +37,16 @@ jobs:
       # Running every OpenTUI test in one Bun process can crash Bun in CI.
       - run: bun run test:parallel
 
-      - name: Extract version from tag
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+      - name: Resolve release version
+        env:
+          DISPATCH_VERSION: ${{ inputs.version }}
+        run: echo "VERSION=${DISPATCH_VERSION:-${GITHUB_REF_NAME#v}}" >> $GITHUB_ENV
 
-      - name: Verify package versions match tag
+      - name: Verify package versions match release
         run: |
           PKG_VERSION=$(node -p "require('./packages/config/package.json').version")
           if [[ "$PKG_VERSION" != "$VERSION" ]]; then
-            echo "Error: tag $GITHUB_REF_NAME but packages/config has version $PKG_VERSION" >&2
+            echo "Error: release $VERSION but packages/config has version $PKG_VERSION" >&2
             exit 1
           fi
 
@@ -53,7 +61,6 @@ jobs:
             packages/search
             packages/router
             packages/overlays
-            packages/panels
             packages/themes
             packages/toasts
             packages/layout
@@ -63,6 +70,9 @@ jobs:
             packages/ask
             packages/choose
             apps/cli
+            # New packages go last so established packages can recover from a
+            # first-publish bootstrap failure on a rerun.
+            packages/panels
           )
 
           for pkg in "${PACKAGES[@]}"; do
@@ -85,6 +95,6 @@ jobs:
           done
 
       - name: Create GitHub Release
-        run: gh release create "$GITHUB_REF_NAME" --generate-notes
+        run: gh release view "v$VERSION" >/dev/null 2>&1 || gh release create "v$VERSION" --generate-notes --target "$GITHUB_SHA"
         env:
           GH_TOKEN: ${{ github.token }}
