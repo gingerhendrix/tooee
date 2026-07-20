@@ -35,6 +35,7 @@
 
     { "path": "packages/router" },
     { "path": "packages/choose" },
+    { "path": "packages/panels" },
     { "path": "apps/cli" }
   ]
 }

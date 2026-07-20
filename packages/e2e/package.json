@@ -12,6 +12,7 @@
     "@tooee/commands": "workspace:*",
     "@tooee/layout": "workspace:*",
     "@tooee/overlays": "workspace:*",
+    "@tooee/panels": "workspace:*",
     "@tooee/router": "workspace:*",
     "@tooee/shell": "workspace:*",
     "@tooee/view": "workspace:*",

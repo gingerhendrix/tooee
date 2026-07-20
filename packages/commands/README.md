@@ -25,6 +25,53 @@ Key ownership is by convention: Tooee packages use short built-in keys such as
 should use app/package-specific keys to avoid collisions. If multiple providers
 return the same top-level key, the last registered provider wins.
 
+## Command surfaces & arbitration
+
+Commands register on a **surface**. The root app is the implicit base surface;
+`CommandSurfaceProvider` nests another one with its own registry and local mode.
+Each surface has a role:
+
+- **`modal`** — while topmost it owns keyboard input and **swallows** every key,
+  suspending all lower surfaces (including the root) even for keys it does not
+  handle. This is the overlay model.
+- **`panel`** — a _peer_ surface that owns input only while it is its group's
+  active panel (see [`@tooee/panels`](../panels)). Selection is by activation,
+  not stack depth/order. Unlike a modal, an active panel does **not** swallow:
+  keys it neither matches nor holds a pending chord for **fall through** to the
+  enclosing surface.
+- **`passive`** — never owns input; purely visual (e.g. which-key).
+
+Key dispatch arbitrates in this order:
+
+```text
+topmost modal  →  active panel  →  root
+```
+
+**Fall-through & shadowing.** With no modal present, a key is offered to the
+active panel first. If the panel matches (or holds a multi-step chord), it wins
+— a panel command therefore **shadows** a root command bound to the same hotkey
+while that panel is active. If the panel does not match, the key falls through to
+the root, except when the active panel's local mode is `insert`: editor/input
+keys never fall through in insert mode. Once any surface holds a pending chord it owns subsequent keys until
+the chord resolves or times out. Any change of keyboard ownership (activation
+switch, a modal opening over a panel, a mode change) clears the pending chord and
+key buffer.
+
+**Panel activation** lives in the store as `activePanels` (a `groupId → panelId`
+map); `CommandStore` exposes `activatePanel` / `removePanelGroup`, and a
+`"panel"`-role `CommandSurfaceProvider` takes a `groupId`. Only groups on the
+active panel ancestry publish activation, so a nested group mounted in an
+inactive outer panel cannot win input. `@tooee/panels` wraps all of this — apps
+use `PanelGroup`/`Panel` rather than these primitives.
+
+**Surface-aware hooks.** `useActiveCommandSurface()` returns the keyboard owner
+(modal → active panel → `null` at root). `useSurfaceCommands()` defaults to that
+owner. `useEffectiveCommands()` returns the palette's effective set under normal
+fall-through — the active panel's commands plus non-shadowed root commands, with
+invocation routed to the owning surface. The shell palette uses the active
+panel's local mode; if opened programmatically during panel insert mode it omits
+root commands, matching the editor-safe dispatch boundary.
+
 ## Raw `useKeyboard` policy
 
 App-level `useKeyboard` handlers MUST guard against active overlays — either

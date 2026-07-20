@@ -41,6 +41,12 @@ export interface SurfaceRecord {
   depth: number;
   /** Monotonic registration order (tie-break), assigned by the wrapper on push. */
   order: number;
+  /**
+   * For `panel` surfaces: the id of the owning panel group. A panel surface
+   * arbitrates as active only when `activePanels.get(groupId) === id`. Ignored
+   * for other roles.
+   */
+  groupId?: string;
   /** Reads this surface's current local mode (mode stays in ModeProvider React state). */
   getMode: () => Mode;
   /** Builds the command context handed to this surface's handlers. */
@@ -57,6 +63,12 @@ export interface CommandStoreContext {
   /** Command groups keyed by prefixKey. */
   groups: ReadonlyMap<string, RegisteredCommandGroup>;
   contextSources: ReadonlyMap<string, ContextGetter>;
+  /**
+   * The active panel id per panel-group id. A panel group publishes its active
+   * panel here (see `panelActivated`); arbitration reads it to pick the active
+   * panel surface. Keyed by group id so nested groups are representable.
+   */
+  activePanels: ReadonlyMap<string, string>;
   /** Renderable pending-sequence display state (which-key input). */
   sequence: CommandSequenceState | null;
 }
@@ -84,6 +96,53 @@ export const selectActiveModalSurface = function selectActiveModalSurface(
     }
   }
   return best;
+};
+
+/**
+ * The active panel surface, or null: a `role === "panel"` record whose id is its
+ * group's active id (`activePanels.get(groupId) === id`). Passive/modal/root
+ * surfaces never qualify.
+ *
+ * When several groups are active (nested panels), the deepest active panel wins
+ * (order breaks depth ties) — the innermost link of the active chain. v1 tests
+ * exercise a single group; the map-per-group shape keeps nesting representable
+ * at no cost, and this heuristic resolves the innermost active panel for any
+ * well-formed nesting (an inner group mounted inside its outer group's active
+ * panel). Panels never win via depth/order against a *modal* surface — modal
+ * arbitration is a separate, earlier step (I-5).
+ */
+export const selectActivePanelSurface = function selectActivePanelSurface(
+  ctx: CommandStoreContext,
+): SurfaceRecord | null {
+  let best: SurfaceRecord | null = null;
+  for (const record of ctx.surfaces) {
+    if (record.role !== "panel" || record.groupId === undefined) {
+      continue;
+    }
+    if (ctx.activePanels.get(record.groupId) !== record.id) {
+      continue;
+    }
+    if (
+      best === null ||
+      record.depth > best.depth ||
+      (record.depth === best.depth && record.order > best.order)
+    ) {
+      best = record;
+    }
+  }
+  return best;
+};
+
+/**
+ * The surface that currently owns keyboard input, or null when the root app
+ * owns it: topmost modal → active panel → null. Mirrors the non-root part of
+ * key-dispatch arbitration and is used both to reconcile the sequence buffer
+ * across ownership changes and to back the surface-aware hooks.
+ */
+export const selectKeyboardOwnerSurface = function selectKeyboardOwnerSurface(
+  ctx: CommandStoreContext,
+): SurfaceRecord | null {
+  return selectActiveModalSurface(ctx) ?? selectActivePanelSurface(ctx);
 };
 
 /**
@@ -148,11 +207,14 @@ export const stepsKey = function stepsKey(steps: readonly ParsedStep[]): string 
 // --- Store -------------------------------------------------------------------
 
 /**
- * Sequence-clear rule for surface transitions: a pending chord (display state)
- * is cleared exactly when the transition changes which surface record owns
- * keyboard input. Pushing/popping a passive surface (e.g. which-key) keeps the
- * sequence it is displaying; replacing the active modal surface with a same-id
- * record clears it (F-09) because the record identity changes.
+ * Sequence-clear rule for surface/activation transitions: a pending chord
+ * (display state) is cleared exactly when the transition changes which surface
+ * record owns keyboard input — where ownership is `selectKeyboardOwnerSurface`
+ * (topmost modal → active panel → root). Pushing/popping a passive surface
+ * (e.g. which-key) keeps the sequence it is displaying; replacing the active
+ * surface with a same-id record clears it (F-09) because the record identity
+ * changes; activating a different panel clears it because the owner record
+ * changes.
  */
 const sequenceAfterStackChange = function sequenceAfterStackChange(
   before: SurfaceRecord | null,
@@ -243,6 +305,42 @@ const createBaseStore = function createBaseStore(initialContext: CommandStoreCon
         // A mode change is a transition, not a post-render repair: any pending
         // chord is invalidated (F-08 — including surface-local mode changes).
         ctx.sequence === null ? ctx : { ...ctx, sequence: null },
+      panelActivated: (
+        ctx: CommandStoreContext,
+        event: { groupId: string; panelId: string },
+      ): CommandStoreContext => {
+        if (ctx.activePanels.get(event.groupId) === event.panelId) {
+          return ctx;
+        }
+        const before = selectKeyboardOwnerSurface(ctx);
+        const activePanels = new Map([
+          ...ctx.activePanels,
+          [event.groupId, event.panelId] as const,
+        ]);
+        const after = selectKeyboardOwnerSurface({ ...ctx, activePanels });
+        return {
+          ...ctx,
+          activePanels,
+          sequence: sequenceAfterStackChange(before, after, ctx.sequence),
+        };
+      },
+      panelGroupRemoved: (
+        ctx: CommandStoreContext,
+        event: { groupId: string },
+      ): CommandStoreContext => {
+        if (!ctx.activePanels.has(event.groupId)) {
+          return ctx;
+        }
+        const before = selectKeyboardOwnerSurface(ctx);
+        const activePanels = new Map(ctx.activePanels);
+        activePanels.delete(event.groupId);
+        const after = selectKeyboardOwnerSurface({ ...ctx, activePanels });
+        return {
+          ...ctx,
+          activePanels,
+          sequence: sequenceAfterStackChange(before, after, ctx.sequence),
+        };
+      },
       sequencePending: (
         ctx: CommandStoreContext,
         event: { state: CommandSequenceState },
@@ -258,8 +356,8 @@ const createBaseStore = function createBaseStore(initialContext: CommandStoreCon
         if (surfaces.length === ctx.surfaces.length) {
           return ctx;
         }
-        const before = selectActiveModalSurface(ctx);
-        const after = selectActiveModalSurface({ ...ctx, surfaces });
+        const before = selectKeyboardOwnerSurface(ctx);
+        const after = selectKeyboardOwnerSurface({ ...ctx, surfaces });
         return {
           ...ctx,
           sequence: sequenceAfterStackChange(before, after, ctx.sequence),
@@ -270,9 +368,9 @@ const createBaseStore = function createBaseStore(initialContext: CommandStoreCon
         ctx: CommandStoreContext,
         event: { surface: SurfaceRecord },
       ): CommandStoreContext => {
-        const before = selectActiveModalSurface(ctx);
+        const before = selectKeyboardOwnerSurface(ctx);
         const surfaces = [...ctx.surfaces, event.surface];
-        const after = selectActiveModalSurface({ ...ctx, surfaces });
+        const after = selectKeyboardOwnerSurface({ ...ctx, surfaces });
         return {
           ...ctx,
           sequence: sequenceAfterStackChange(before, after, ctx.sequence),
@@ -336,6 +434,13 @@ export interface CommandStore {
 
   /** Push a surface record; assigns registration order. Returns the pop cleanup. */
   pushSurface: (surface: SurfaceRecord) => () => void;
+  /**
+   * Publish a panel group's active panel. Clears the pending chord when it
+   * changes which surface owns keyboard input. Idempotent for an unchanged id.
+   */
+  activatePanel: (groupId: string, panelId: string) => void;
+  /** Forget a panel group's activation (e.g. the group unmounted). */
+  removePanelGroup: (groupId: string) => void;
   /** Notify a (root or surface-local) mode change: clears buffer + pending sequence. */
   modeChanged: (surfaceId: string) => void;
 
@@ -367,6 +472,7 @@ export const createCommandStore = function createCommandStore(
   };
 
   const store = createBaseStore({
+    activePanels: new Map(),
     commandsBySurface: new Map(),
     contextSources: new Map(),
     groups: new Map(),
@@ -383,6 +489,11 @@ export const createCommandStore = function createCommandStore(
   // IO-adjacent wrapper state: key buffer, timer, parse cache, order counter.
   let buffer: readonly KeyEvent[] = [];
   let timer: ReturnType<typeof setTimeout> | null = null;
+  // Id of the surface that owns the pending chord. Once a surface holds a
+  // multi-step chord, subsequent keys route only to it until the chord resolves
+  // or times out (§5.2) — mixing surfaces mid-chord is undefined. Null when no
+  // chord is pending.
+  let sequenceOwnerId: string | null = null;
   const parseCache = new Map<string, ParsedHotkey>();
   const registries = new Map<SurfaceRecord, CommandRegistry>();
   let orderCounter = 1;
@@ -394,8 +505,11 @@ export const createCommandStore = function createCommandStore(
     }
   };
 
+  // Clearing the buffer always relinquishes chord ownership: the two are one
+  // unit of pending-sequence state.
   const clearBufferAndTimer = function clearBufferAndTimer(): void {
     buffer = [];
+    sequenceOwnerId = null;
     clearTimer();
   };
 
@@ -463,15 +577,28 @@ export const createCommandStore = function createCommandStore(
     return { multiStep, singleStep };
   };
 
-  const key = function key(event: KeyEvent): KeyDispatchResult {
-    const ctx = store.getSnapshot().context;
+  /** Outcome of dispatching one key against a single surface's registry. */
+  type SurfaceDispatch =
+    | { outcome: "invoke"; invoke: () => void }
+    | { outcome: "pending" }
+    | { outcome: "miss" };
 
-    // Arbitration: a topmost modal surface owns input; otherwise the root app.
-    const surface = selectActiveModalSurface(ctx) ?? rootRecord;
-    const currentMode = surface.getMode();
-    const cmdCtx = surface.buildCtx();
+  /**
+   * Run one key against one surface's candidates. Owns the shared buffer while
+   * it does so: on a full match it clears the buffer and resets the sequence;
+   * on a partial multi-step it leaves the buffer populated and publishes the
+   * pending display; on a miss it leaves the buffer empty (pruned) so a caller
+   * may retry the key against another surface (fall-through).
+   */
+  const runSurface = function runSurface(
+    record: SurfaceRecord,
+    event: KeyEvent,
+    ctx: CommandStoreContext,
+  ): SurfaceDispatch {
+    const currentMode = record.getMode();
+    const cmdCtx = record.buildCtx();
     const { multiStep: multiStepCandidates, singleStep: singleStepCandidates } = collectCandidates(
-      ctx.commandsBySurface.get(surface.id),
+      ctx.commandsBySurface.get(record.id),
       currentMode,
       cmdCtx,
     );
@@ -495,10 +622,10 @@ export const createCommandStore = function createCommandStore(
         store.trigger.sequenceReset();
         const matched = multiStepCandidates[matchedIndex].command;
         return {
-          handled: true,
           invoke: (): void => {
             void matched.handler(cmdCtx);
           },
+          outcome: "invoke",
         };
       }
 
@@ -522,9 +649,14 @@ export const createCommandStore = function createCommandStore(
           prefix: firstCandidate.parsed.steps.slice(0, pending.prefixLength),
         };
         store.trigger.sequencePending({ state });
-        return { handled: true };
+        return { outcome: "pending" };
       }
 
+      // No pending prefix survived. `pruneBuffer` only bounds history; it does
+      // not guarantee an empty buffer, so explicitly discard this surface's
+      // attempted sequence before single-step matching or fall-through. This
+      // also cancels the now-irrelevant timeout and relinquishes ownership.
+      clearBufferAndTimer();
       store.trigger.sequenceReset();
     }
 
@@ -533,26 +665,103 @@ export const createCommandStore = function createCommandStore(
       if (matchStep(event, parsed.steps[0])) {
         store.trigger.sequenceReset();
         return {
-          handled: true,
           invoke: (): void => {
             void command.handler(cmdCtx);
           },
+          outcome: "invoke",
         };
       }
     }
 
-    // A modal surface swallows unhandled keys: dispatch never falls through to
-    // the root app while a modal surface is topmost. (The caller does not
-    // preventDefault unmatched keys — same as today.)
+    // A miss is a dispatch boundary: no sequence contribution from this
+    // surface may leak into a fall-through attempt or a later physical key.
+    clearBufferAndTimer();
+    store.trigger.sequenceReset();
+    return { outcome: "miss" };
+  };
+
+  /**
+   * Translate a surface dispatch into the caller-facing result and record chord
+   * ownership: a pending chord makes `ownerId` the sequence owner; any resolved
+   * outcome (invoke/miss) relinquishes ownership. A `miss` is `handled: false`,
+   * so the caller does not preventDefault — matching today's modal-swallow and
+   * unhandled-key semantics.
+   */
+  const finishDispatch = function finishDispatch(
+    dispatch: SurfaceDispatch,
+    ownerId: string,
+  ): KeyDispatchResult {
+    if (dispatch.outcome === "pending") {
+      sequenceOwnerId = ownerId;
+      return { handled: true };
+    }
+    sequenceOwnerId = null;
+    if (dispatch.outcome === "invoke") {
+      return { handled: true, invoke: dispatch.invoke };
+    }
     return { handled: false };
+  };
+
+  const resolveOwner = function resolveOwner(
+    ctx: CommandStoreContext,
+    ownerId: string,
+  ): SurfaceRecord | null {
+    if (ownerId === ROOT_SURFACE_ID) {
+      return rootRecord;
+    }
+    return ctx.surfaces.find((record) => record.id === ownerId) ?? null;
+  };
+
+  const key = function key(event: KeyEvent): KeyDispatchResult {
+    const ctx = store.getSnapshot().context;
+
+    // Pending-chord ownership: while a chord is buffered, its owner keeps every
+    // subsequent key until the chord resolves or times out. Arbitration is
+    // suspended so a mid-chord activation/fall-through cannot split the chord.
+    if (buffer.length > 0 && sequenceOwnerId !== null) {
+      const owner = resolveOwner(ctx, sequenceOwnerId);
+      if (owner) {
+        return finishDispatch(runSurface(owner, event, ctx), sequenceOwnerId);
+      }
+      // The owner disappeared without a transition clearing the chord: drop it
+      // and re-arbitrate this key from a clean buffer.
+      clearBufferAndTimer();
+    }
+
+    // Arbitration: topmost modal → active panel → root.
+    const modal = selectActiveModalSurface(ctx);
+    if (modal) {
+      // A modal surface swallows unhandled keys: dispatch never falls through
+      // to lower surfaces while a modal surface is topmost.
+      return finishDispatch(runSurface(modal, event, ctx), modal.id);
+    }
+
+    const panel = selectActivePanelSurface(ctx);
+    if (panel) {
+      const dispatch = runSurface(panel, event, ctx);
+      if (dispatch.outcome !== "miss") {
+        return finishDispatch(dispatch, panel.id);
+      }
+      // Insert mode belongs to the focused editor/input. Never retry its typed
+      // key against root commands (including panel-switch Tab bindings).
+      if (panel.getMode() === "insert") {
+        return finishDispatch(dispatch, panel.id);
+      }
+      // Fall-through (§5.2): the active panel neither matched nor holds a
+      // pending chord, so the enclosing surface (root) gets the key. A panel
+      // command that DID match shadows the root command (handled above). The
+      // buffer is empty after a panel miss, so root dispatch starts clean.
+    }
+
+    return finishDispatch(runSurface(rootRecord, event, ctx), ROOT_SURFACE_ID);
   };
 
   const pushSurface = function pushSurface(surface: SurfaceRecord): () => void {
     surface.order = orderCounter;
     orderCounter += 1;
-    const before = selectActiveModalSurface(store.getSnapshot().context);
+    const before = selectKeyboardOwnerSurface(store.getSnapshot().context);
     store.trigger.surfacePushed({ surface });
-    const after = selectActiveModalSurface(store.getSnapshot().context);
+    const after = selectKeyboardOwnerSurface(store.getSnapshot().context);
     // Keep the wrapper buffer consistent with the transition's sequence-clear
     // rule: clear exactly when keyboard ownership changed.
     if (before !== after) {
@@ -560,13 +769,33 @@ export const createCommandStore = function createCommandStore(
     }
 
     return () => {
-      const beforePop = selectActiveModalSurface(store.getSnapshot().context);
+      const beforePop = selectKeyboardOwnerSurface(store.getSnapshot().context);
       store.trigger.surfacePopped({ surface });
-      const afterPop = selectActiveModalSurface(store.getSnapshot().context);
+      const afterPop = selectKeyboardOwnerSurface(store.getSnapshot().context);
       if (beforePop !== afterPop) {
         clearBufferAndTimer();
       }
     };
+  };
+
+  const activatePanel = function activatePanel(groupId: string, panelId: string): void {
+    const before = selectKeyboardOwnerSurface(store.getSnapshot().context);
+    store.trigger.panelActivated({ groupId, panelId });
+    const after = selectKeyboardOwnerSurface(store.getSnapshot().context);
+    // Activation is an ownership change: clear the wrapper buffer whenever the
+    // owning surface record changes (mirrors pushSurface / the store rule).
+    if (before !== after) {
+      clearBufferAndTimer();
+    }
+  };
+
+  const removePanelGroup = function removePanelGroup(groupId: string): void {
+    const before = selectKeyboardOwnerSurface(store.getSnapshot().context);
+    store.trigger.panelGroupRemoved({ groupId });
+    const after = selectKeyboardOwnerSurface(store.getSnapshot().context);
+    if (before !== after) {
+      clearBufferAndTimer();
+    }
   };
 
   const modeChanged = function modeChanged(surfaceId: string): void {
@@ -617,11 +846,13 @@ export const createCommandStore = function createCommandStore(
   };
 
   return {
+    activatePanel,
     dispose,
     key,
     modeChanged,
     pushSurface,
     registryFor,
+    removePanelGroup,
     reset,
     rootRecord,
     setConfig,

@@ -18,7 +18,8 @@ import { parseHotkey } from "./parse.js";
 import {
   ROOT_SURFACE_ID,
   createCommandStore,
-  selectActiveModalSurface,
+  selectActivePanelSurface,
+  selectKeyboardOwnerSurface,
   selectSequence,
   selectSurfaceCommandMap,
   stepsKey,
@@ -221,6 +222,12 @@ export interface CommandSurfaceProviderProps {
   id: string;
   /** Interaction role (default "modal"). */
   role?: CommandSurfaceRole;
+  /**
+   * For `role: "panel"` surfaces: the owning panel group's id. The surface only
+   * arbitrates as active while `activePanels.get(groupId) === id`. Ignored for
+   * other roles. Set by `@tooee/panels`'s `Panel`.
+   */
+  groupId?: string;
   /** Initial local mode for this surface (default "cursor"). */
   initialMode?: Mode;
 }
@@ -237,6 +244,7 @@ export const CommandSurfaceProvider = function CommandSurfaceProvider({
   children,
   id,
   role = "modal",
+  groupId,
   initialMode = "cursor",
 }: CommandSurfaceProviderProps): ReactNode {
   const parent = useContext(CommandContext);
@@ -255,7 +263,7 @@ export const CommandSurfaceProvider = function CommandSurfaceProvider({
     <ModeProvider initialMode={initialMode} onModeChange={handleModeChange}>
       {/* Deferred(lint-sweep): preserve top-down provider/wrapper organization. */}
       {/* oxlint-disable-next-line no-use-before-define -- inner surface is deliberately declared below */}
-      <CommandSurfaceInner id={id} role={role}>
+      <CommandSurfaceInner id={id} role={role} groupId={groupId}>
         {children}
         {/* oxlint-disable-next-line no-use-before-define -- closing inner surface declaration is below provider */}
       </CommandSurfaceInner>
@@ -267,10 +275,12 @@ const CommandSurfaceInner = function CommandSurfaceInner({
   children,
   id,
   role,
+  groupId,
 }: {
   children: ReactNode;
   id: string;
   role: CommandSurfaceRole;
+  groupId?: string;
 }): ReactNode {
   const parent = useContext(CommandContext);
   if (!parent) {
@@ -306,12 +316,14 @@ const CommandSurfaceInner = function CommandSurfaceInner({
     recordRef.current === null ||
     recordRef.current.id !== id ||
     recordRef.current.role !== role ||
-    recordRef.current.depth !== depth
+    recordRef.current.depth !== depth ||
+    recordRef.current.groupId !== groupId
   ) {
     recordRef.current = {
       buildCtx: () => buildCtxRef.current(),
       depth,
       getMode: () => modeRef.current,
+      groupId,
       id,
       order: 0,
       role,
@@ -443,18 +455,20 @@ export const useCommandSurfaceId = function useCommandSurfaceId(): string {
 };
 
 /**
- * Metadata for the topmost modal command surface, or null when the root app is
- * the active surface. Intended for which-key/help to read shortcuts from the
- * active interaction surface. `commands` is reactive (F-13).
+ * Metadata for the surface that currently owns keyboard input — the topmost
+ * modal surface, else the active panel, else null when the root app owns it.
+ * Intended for which-key/help to read shortcuts from the active interaction
+ * surface, and used as a suspension guard by contained editors (a surface whose
+ * id differs from the owner is suspended). `commands` is reactive (F-13).
  */
 export const useActiveCommandSurface =
   function useActiveCommandSurface(): ActiveCommandSurface | null {
     const ctx = useContext(CommandContext);
     const { store } = ctx?.commandStore ?? FALLBACK_COMMAND_STORE;
 
-    const record = useSelector(store, (s) => selectActiveModalSurface(s.context));
+    const record = useSelector(store, (s) => selectKeyboardOwnerSurface(s.context));
     const commandMap = useSelector(store, (s) => {
-      const active = selectActiveModalSurface(s.context);
+      const active = selectKeyboardOwnerSurface(s.context);
       return active ? selectSurfaceCommandMap(s.context, active.id) : undefined;
     });
 
@@ -473,8 +487,9 @@ export const useActiveCommandSurface =
   };
 
 /**
- * Commands registered on a surface (reactive). Defaults to the active modal
- * surface, falling back to the root surface when none is active.
+ * Commands registered on a surface (reactive). Defaults to the keyboard-owner
+ * surface (topmost modal, else active panel), falling back to the root surface
+ * when none is active.
  */
 export const useSurfaceCommands = function useSurfaceCommands(
   surfaceId?: string,
@@ -483,11 +498,83 @@ export const useSurfaceCommands = function useSurfaceCommands(
   const { store } = ctx?.commandStore ?? FALLBACK_COMMAND_STORE;
 
   const commandMap = useSelector(store, (s) => {
-    const id = surfaceId ?? selectActiveModalSurface(s.context)?.id ?? ROOT_SURFACE_ID;
+    const id = surfaceId ?? selectKeyboardOwnerSurface(s.context)?.id ?? ROOT_SURFACE_ID;
     return selectSurfaceCommandMap(s.context, id);
   });
 
   return useMemo(() => (commandMap ? [...commandMap.values()] : []), [commandMap]);
+};
+
+export interface EffectiveCommands {
+  /** Commands invocable from the current context, active-panel first. */
+  commands: Command[];
+  /** Invoke by id, routed to the surface that owns the command (panel, else root). */
+  invoke: (id: string) => void;
+}
+
+/**
+ * The command set a palette should present under panel fall-through: the active
+ * panel's commands plus the root's, mirroring dispatch. When a panel is active,
+ * a root command whose hotkey the panel shadows keeps its palette entry (still
+ * invocable there) but drops the now-misleading hotkey hint. With no active
+ * panel this is exactly the root command set, so non-panel apps are unchanged.
+ *
+ * Shadowing is computed on `defaultHotkey` — matching what the palette renders —
+ * so a `keymap`-remapped shadow is not reflected in the hint (a display-only
+ * edge; dispatch itself shadows correctly via the store).
+ */
+export const useEffectiveCommands = function useEffectiveCommands(): EffectiveCommands {
+  const ctx = useContext(CommandContext);
+  if (!ctx) {
+    throw new Error("useEffectiveCommands must be used within a CommandProvider");
+  }
+  const { commandStore } = ctx;
+  const { store } = commandStore;
+
+  const panelMap = useSelector(store, (s) => {
+    const panel = selectActivePanelSurface(s.context);
+    return panel ? selectSurfaceCommandMap(s.context, panel.id) : undefined;
+  });
+  const rootMap = useSelector(store, (s) => selectSurfaceCommandMap(s.context, ROOT_SURFACE_ID));
+  const hasPanel = useSelector(store, (s) => selectActivePanelSurface(s.context) !== null);
+
+  return useMemo(() => {
+    const rootCommands = rootMap ? [...rootMap.values()] : [];
+    const rootInvoke = (id: string): void => {
+      commandStore.registryFor(commandStore.rootRecord).invoke(id);
+    };
+    if (!hasPanel) {
+      return { commands: rootCommands, invoke: rootInvoke };
+    }
+
+    const panelCommands = panelMap ? [...panelMap.values()] : [];
+    const panelIds = new Set(panelCommands.map((command) => command.id));
+    const shadowed = new Set(
+      panelCommands
+        .map((command) => command.defaultHotkey)
+        .filter((hotkey): hotkey is string => hotkey !== undefined && hotkey !== ""),
+    );
+    const effectiveRoot = rootCommands
+      .filter((command) => !panelIds.has(command.id))
+      .map((command) =>
+        command.defaultHotkey !== undefined && shadowed.has(command.defaultHotkey)
+          ? { ...command, defaultHotkey: undefined }
+          : command,
+      );
+
+    const invoke = (id: string): void => {
+      if (panelIds.has(id)) {
+        const panel = selectActivePanelSurface(store.getSnapshot().context);
+        if (panel) {
+          commandStore.registryFor(panel).invoke(id);
+          return;
+        }
+      }
+      rootInvoke(id);
+    };
+
+    return { commands: [...panelCommands, ...effectiveRoot], invoke };
+  }, [panelMap, rootMap, hasPanel, commandStore, store]);
 };
 
 /**

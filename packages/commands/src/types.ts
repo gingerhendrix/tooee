@@ -75,9 +75,15 @@ export interface CommandRegistry {
  * Interaction role of a command surface.
  * - `modal`: owns keyboard input while topmost and suspends every lower surface
  *   (including the root app) — even for keys it does not handle.
+ * - `panel`: a peer surface that owns keyboard input only while it is its
+ *   group's active panel. Unlike `modal`, an active panel does NOT swallow
+ *   unhandled keys: keys it neither matches nor holds a pending chord for fall
+ *   through to the enclosing surface (see the command-store arbitration docs).
+ *   Panel surfaces never win via stack depth/order — only their group's active
+ *   id selects them.
  * - `passive`: never becomes the keyboard owner; purely visual.
  */
-export type CommandSurfaceRole = "modal" | "passive";
+export type CommandSurfaceRole = "modal" | "panel" | "passive";
 
 /**
  * A command surface is an interaction surface that can own keyboard input.
@@ -93,6 +99,12 @@ export interface CommandSurfaceEntry {
   depth: number;
   /** Monotonic registration order, used to break depth ties. */
   order: number;
+  /**
+   * For `panel` surfaces: the id of the panel group this surface belongs to.
+   * Arbitration selects a panel surface only when its group's active id equals
+   * this surface's id. Unused by other roles.
+   */
+  groupId?: string;
   registry: CommandRegistry;
   /** Reads this surface's current local mode. */
   getMode: () => Mode;

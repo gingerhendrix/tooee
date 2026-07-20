@@ -1,7 +1,19 @@
 import { createContext, useContext, useEffect, useMemo, useRef } from "react";
 import type { EffectCallback, ReactNode } from "react";
+import { useScreenScope } from "@tooee/commands";
 
-const ScreenFocusContext = createContext({ isFocused: false });
+/**
+ * Route-chain leaf flag. Set by `Outlet` at each depth to `isTopOfStack`, with
+ * OVERRIDE semantics: a nested `Outlet` replaces its parent layout's value, so a
+ * focused leaf rendered inside an unfocused parent layout stays focused. Default
+ * `true` ("not inside a route chain") so screen focus outside any router reduces
+ * to the enclosing scope.
+ */
+interface RouteFocusState {
+  active: boolean;
+}
+
+const RouteFocusContext = createContext<RouteFocusState>({ active: true });
 
 export const ScreenFocusProvider = function ScreenFocusProvider({
   active,
@@ -10,12 +22,20 @@ export const ScreenFocusProvider = function ScreenFocusProvider({
   active: boolean;
   children: ReactNode;
 }): ReactNode {
-  const value = useMemo(() => ({ isFocused: active }), [active]);
-  return <ScreenFocusContext value={value}>{children}</ScreenFocusContext>;
+  const value = useMemo<RouteFocusState>(() => ({ active }), [active]);
+  return <RouteFocusContext value={value}>{children}</RouteFocusContext>;
 };
 
-export const useScreenFocus = function useScreenFocus() {
-  return useContext(ScreenFocusContext);
+/**
+ * "Am I the live screen?" — the enclosing screen scope (panels etc.) ANDed with
+ * this depth's route-chain leaf flag. Both default to focused, so a plain router
+ * app is unchanged (scope `true` AND leaf), and a leaf inside an inactive panel
+ * reports unfocused (scope `false`) without the router knowing about panels.
+ */
+export const useScreenFocus = function useScreenFocus(): { isFocused: boolean } {
+  const scope = useScreenScope();
+  const route = useContext(RouteFocusContext);
+  return { isFocused: scope.isFocused && route.active };
 };
 
 /**
