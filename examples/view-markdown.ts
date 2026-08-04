@@ -4,7 +4,8 @@
  *
  * This example shows:
  * - Creating a ViewContentProvider with inline content
- * - Rendering markdown with headings, code blocks, lists, and emphasis
+ * - Rendering markdown with headings, images, code blocks, lists, and emphasis
+ * - Resolving a relative image from imageBasePath
  * - The load() method can return content synchronously or as a Promise
  *
  * Run: bun examples/view-markdown.ts
@@ -18,13 +19,18 @@ import type { ContentProvider } from "@tooee/view";
 const contentProvider: ContentProvider = {
   load: () => ({
     format: "markdown",
+    imageBasePath: import.meta.dir,
     markdown: `# Welcome to Tooee
 
 Tooee is a collection of **terminal micro-apps** built on OpenTUI.
 
+![Tooee native images](./assets/tooee-native-image.png)
+
+The image above uses standard Markdown syntax and OpenTUI's native image renderer.
+
 ## Features
 
-- **Markdown rendering** with syntax highlighting
+- **Markdown rendering** with native embedded images
 - **Modal navigation** inspired by vim
 - **Themeable** with 39+ built-in themes
 
