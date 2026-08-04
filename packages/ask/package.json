@@ -1,6 +1,6 @@
 {
   "name": "@tooee/ask",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Terminal text input gathering",
   "keywords": [
     "cli",
