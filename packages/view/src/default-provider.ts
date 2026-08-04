@@ -1,3 +1,4 @@
+import path from "node:path";
 import { parseAuto } from "@tooee/renderers";
 import type { Content, ContentFormat, ContentProvider } from "./types.js";
 
@@ -12,6 +13,11 @@ const detectFormat = function detectFormat(filePath: string): {
   const ext = filePath.split(".").pop()?.toLowerCase();
   if (ext === undefined || ext === "") {
     return { format: "text" };
+  }
+
+  const imageExts = new Set(["png", "jpg", "jpeg", "gif", "webp"]);
+  if (imageExts.has(ext)) {
+    return { format: "image" };
   }
 
   const tableExts = new Set(["csv", "tsv"]);
@@ -80,6 +86,9 @@ const contentFromText = function contentFromText(
     case "text": {
       return { format: "text", text, title };
     }
+    case "image": {
+      return { format: "image", src: text.trim(), title };
+    }
     default: {
       return { format: "text", text, title };
     }
@@ -94,11 +103,19 @@ export const createFileProvider = function createFileProvider(
     async load(): Promise<Content> {
       const detected = detectFormat(filePath);
       const format = options.renderer ?? detected.format;
-      const title = filePath.split("/").pop();
+      const title = path.basename(filePath);
+
+      if (format === "image") {
+        return { format: "image", src: filePath, title };
+      }
 
       const file = Bun.file(filePath);
       const text = await file.text();
-      return contentFromText(text, format, title, detected.language);
+      const content = contentFromText(text, format, title, detected.language);
+      if (content.format === "markdown") {
+        content.imageBasePath = path.dirname(path.resolve(filePath));
+      }
+      return content;
     },
   };
 };

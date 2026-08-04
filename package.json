@@ -40,8 +40,8 @@
     "prepare": "lefthook install"
   },
   "devDependencies": {
-    "@opentui/core": "^0.4.3",
-    "@opentui/react": "^0.4.3",
+    "@opentui/core": "^0.5.1",
+    "@opentui/react": "^0.5.1",
     "@tooee/renderers": "workspace:*",
     "@tooee/shell": "workspace:*",
     "@tooee/view": "workspace:*",

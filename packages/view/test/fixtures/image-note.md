@@ -1,0 +1,3 @@
+# Image note
+
+![[cover.png]]

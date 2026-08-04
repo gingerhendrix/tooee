@@ -2,6 +2,12 @@ export { MarkdownView } from "./markdown-view.js";
 export type { MarkdownLinkHandler } from "./markdown-view.js";
 export { flattenMarkdown, getFlatBlockText } from "./markdown-blocks.js";
 export type { FlatBlock, FlattenMarkdownOptions } from "./markdown-blocks.js";
+export {
+  parseObsidianImageEmbed,
+  resolveMarkdownImageSource,
+  splitMarkdownImages,
+} from "./markdown-images.js";
+export type { MarkdownImageEmbed, MarkdownInlineSegment } from "./markdown-images.js";
 export { sourceLines, sourceLineAdapter } from "./source.js";
 export type {
   DocumentRowAnchor,

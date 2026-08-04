@@ -108,6 +108,7 @@ export const MarkdownSubview = function MarkdownSubview({
         hScrollableBlocksRef={hScrollableBlocksRef}
         codeBlockRenderers={codeBlockRenderers}
         onLinkActivate={onLinkActivate}
+        imageBasePath={content.imageBasePath}
       />
     </ViewScreen>
   );

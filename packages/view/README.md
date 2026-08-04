@@ -1,6 +1,29 @@
 # @tooee/view
 
-Terminal content viewer for markdown, code, text, and tables.
+Terminal content viewer for markdown, code, text, images, and tables.
+
+## Images
+
+File providers detect PNG, JPEG, GIF, and WebP files and display them through OpenTUI's native image renderer. Programmatic providers can return image content with fit and protocol controls:
+
+```ts
+const content: ImageContent = {
+  format: "image",
+  src: "./cover.webp",
+  fit: "cover",
+  protocol: "auto",
+};
+```
+
+Markdown displays standard images and Obsidian image embeds. Relative paths resolve from the Markdown file when `createFileProvider()` loads it.
+
+```markdown
+![Cover](./images/cover.png)
+![[images/cover.png]]
+![[images/cover.png|40x12]]
+```
+
+The Obsidian suffix accepts alternative text, a width, or `widthxheight` cell dimensions.
 
 Part of the [Tooee](https://github.com/gingerhendrix/tooee) monorepo. See the main repo for documentation.
 

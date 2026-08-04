@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
+import type { ImageFit, ImageRenderProtocol, ImageSource } from "@opentui/core";
 import type { ColumnDef, SourceLineRow, TableRow } from "@tooee/renderers";
 import type { DocumentController } from "@tooee/shell";
 import type { MarkSet } from "@tooee/marks";
 
 // === Built-in content types ===
 
-export type Content = MarkdownContent | CodeContent | TextContent | TableContent;
+export type Content = MarkdownContent | CodeContent | TextContent | ImageContent | TableContent;
 
 export type ContentFormat = Content["format"];
 
@@ -17,6 +18,8 @@ interface BaseContent {
 export interface MarkdownContent extends BaseContent {
   format: "markdown";
   markdown: string;
+  /** Directory used to resolve relative standard Markdown and Obsidian image embeds. */
+  imageBasePath?: string;
 }
 
 export interface CodeContent extends BaseContent {
@@ -28,6 +31,13 @@ export interface CodeContent extends BaseContent {
 export interface TextContent extends BaseContent {
   format: "text";
   text: string;
+}
+
+export interface ImageContent extends BaseContent {
+  format: "image";
+  src: ImageSource;
+  fit?: ImageFit;
+  protocol?: ImageRenderProtocol;
 }
 
 export interface TableContent extends BaseContent {
@@ -112,7 +122,7 @@ export type { ColumnDef, TableRow } from "@tooee/renderers";
 
 // === Utilities ===
 
-const BUILTIN_FORMATS = new Set<string>(["markdown", "code", "text", "table"]);
+const BUILTIN_FORMATS = new Set<string>(["markdown", "code", "text", "image", "table"]);
 
 export const isBuiltinContent = function isBuiltinContent(content: AnyContent): content is Content {
   return BUILTIN_FORMATS.has(content.format);
@@ -176,6 +186,12 @@ export const getTextContent = function getTextContent(content: AnyContent): stri
     }
     case "text": {
       return content.text;
+    }
+    case "image": {
+      if (typeof content.src === "string") {
+        return content.src;
+      }
+      return content.src instanceof URL ? content.src.href : "";
     }
     case "table": {
       const headers = content.columns.map((column) => column.header ?? column.key);

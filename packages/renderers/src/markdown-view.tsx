@@ -1,5 +1,5 @@
 import type { Token, Tokens } from "marked";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactNode, RefObject } from "react";
 import { useTheme } from "@tooee/themes";
 import type { ResolvedTheme } from "@tooee/themes";
@@ -24,6 +24,8 @@ import { CodeBlock, DEFAULT_CODE_BLOCK_RENDERERS } from "./code-blocks.js";
 import type { CodeBlockRenderer } from "./code-blocks.js";
 import { checkboxMarker, flattenMarkdown } from "./markdown-blocks.js";
 import type { FlatBlock } from "./markdown-blocks.js";
+import { resolveMarkdownImageSource, splitMarkdownImages } from "./markdown-images.js";
+import type { MarkdownImageEmbed } from "./markdown-images.js";
 import "./row-document.js";
 import "./text-table.js";
 
@@ -84,6 +86,8 @@ interface MarkdownViewProps {
    * to document row selection. Unhandled links retain their native OSC-8 href.
    */
   onLinkActivate?: MarkdownLinkHandler;
+  /** Directory used to resolve relative standard Markdown and Obsidian image embeds. */
+  imageBasePath?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -227,6 +231,7 @@ export const MarkdownView = function MarkdownView({
   hScrollableBlocksRef,
   codeBlockRenderers,
   onLinkActivate,
+  imageBasePath,
 }: MarkdownViewProps): ReactNode {
   const { theme, syntax } = useTheme();
   const palette = useGutterPalette();
@@ -259,10 +264,19 @@ export const MarkdownView = function MarkdownView({
             hScrollableBlocksRef={hScrollableBlocksRef}
             codeBlockRenderers={mergedCodeBlockRenderers}
             onLinkActivate={onLinkActivate}
+            imageBasePath={imageBasePath}
           />
         ),
       ),
-    [blocks, theme, syntax, hScrollableBlocksRef, mergedCodeBlockRenderers, onLinkActivate],
+    [
+      blocks,
+      theme,
+      syntax,
+      hScrollableBlocksRef,
+      mergedCodeBlockRenderers,
+      onLinkActivate,
+      imageBasePath,
+    ],
   );
 
   return (
@@ -292,6 +306,7 @@ const FlatBlockRenderer = function FlatBlockRenderer({
   hScrollableBlocksRef,
   codeBlockRenderers,
   onLinkActivate,
+  imageBasePath,
 }: {
   block: FlatBlock;
   blockIndex: number;
@@ -300,6 +315,7 @@ const FlatBlockRenderer = function FlatBlockRenderer({
   hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>;
   codeBlockRenderers?: Record<string, CodeBlockRenderer>;
   onLinkActivate?: MarkdownLinkHandler;
+  imageBasePath?: string;
 }): ReactNode {
   const { token, indent, bullet } = block;
 
@@ -334,6 +350,7 @@ const FlatBlockRenderer = function FlatBlockRenderer({
           theme={theme}
           indent={indent}
           onLinkActivate={onLinkActivate}
+          imageBasePath={imageBasePath}
         />
       );
     }
@@ -509,21 +526,80 @@ const ParagraphRenderer = function ParagraphRenderer({
   theme,
   indent,
   onLinkActivate,
+  imageBasePath,
 }: {
   token: Tokens.Paragraph;
   theme: ResolvedTheme;
   indent: number;
   onLinkActivate?: MarkdownLinkHandler;
+  imageBasePath?: string;
 }): ReactNode {
+  const segments = splitMarkdownImages(token.tokens);
   return (
-    <box style={{ marginBottom: 1, marginLeft: 1 + indent, marginRight: 1 }}>
-      <text
-        style={{ fg: theme.markdownText }}
-        onMouseDown={linkMouseHandler(token.tokens, onLinkActivate)}
-      >
-        {/* oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization */}
-        <InlineTokens tokens={token.tokens} theme={theme} />
-      </text>
+    <box
+      style={{
+        flexDirection: "column",
+        marginBottom: 1,
+        marginLeft: 1 + indent,
+        marginRight: 1,
+      }}
+    >
+      {segments.map(
+        (segment, index): ReactNode =>
+          segment.type === "image" ? (
+            // oxlint-disable-next-line no-use-before-define -- Keep paragraph rendering before its image helper.
+            <MarkdownImage key={index} image={segment} basePath={imageBasePath} theme={theme} />
+          ) : (
+            <text
+              key={index}
+              style={{ fg: theme.markdownText }}
+              onMouseDown={linkMouseHandler(segment.tokens, onLinkActivate)}
+            >
+              {/* oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization */}
+              <InlineTokens tokens={segment.tokens} theme={theme} />
+            </text>
+          ),
+      )}
+    </box>
+  );
+};
+
+const MarkdownImage = function MarkdownImage({
+  image,
+  basePath,
+  theme,
+}: {
+  image: MarkdownImageEmbed;
+  basePath?: string;
+  theme: ResolvedTheme;
+}): ReactNode {
+  const source = resolveMarkdownImageSource(image.source, basePath);
+  const [state, setState] = useState<"loading" | "loaded" | "error">("loading");
+
+  useEffect(() => {
+    setState("loading");
+  }, [source]);
+
+  return (
+    <box style={{ flexDirection: "column" }}>
+      {state === "loading" && (
+        <text content={`Loading image: ${image.alt ?? image.source}`} fg={theme.textMuted} />
+      )}
+      {state === "error" && (
+        <text content={`Image failed to load: ${image.alt ?? image.source}`} fg={theme.error} />
+      )}
+      <image
+        source={source}
+        fit="fit"
+        protocol="auto"
+        onLoad={() => {
+          setState("loaded");
+        }}
+        onError={() => {
+          setState("error");
+        }}
+        style={{ height: image.height ?? 12, width: image.width ?? "100%" }}
+      />
     </box>
   );
 };

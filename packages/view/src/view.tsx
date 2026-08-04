@@ -10,6 +10,7 @@ import {
   MarkdownSubview,
   CodeSubview,
   TableSubview,
+  ImageSubview,
   CustomSubview,
 } from "./components/subviews/index.js";
 
@@ -103,6 +104,9 @@ export const View = function View({
     case "code":
     case "text": {
       return <CodeSubview content={content} {...shared} />;
+    }
+    case "image": {
+      return <ImageSubview content={content} {...shared} />;
     }
     case "table": {
       return <TableSubview content={content} {...shared} />;
