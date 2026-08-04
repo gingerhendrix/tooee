@@ -108,9 +108,10 @@ beforeEach(() => {
 describe("useScreenFocus", () => {
   test("returns isFocused true for top-of-stack screen", async () => {
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -126,9 +127,10 @@ describe("useScreenFocus", () => {
 
   test("nested parent has isFocused false, leaf has isFocused true", async () => {
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, layoutRoute, nestedRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -139,7 +141,7 @@ describe("useScreenFocus", () => {
     await testSetup.renderOnce();
 
     await act(async () => {
-      router.push("nested");
+      void router.push(nestedRoute);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -151,9 +153,10 @@ describe("useScreenFocus", () => {
 
   test("focus updates when navigating from leaf to parent-only", async () => {
     const router = createRouter({
-      defaultRoute: "layout",
+      initial: { routeId: "layout" },
       routes: [layoutRoute, nestedRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -169,7 +172,7 @@ describe("useScreenFocus", () => {
 
     // Push nested: layout loses focus, child gains it
     await act(async () => {
-      router.push("nested");
+      void router.push(nestedRoute);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -180,7 +183,7 @@ describe("useScreenFocus", () => {
 
     // Pop: layout regains focus
     await act(async () => {
-      router.pop();
+      void router.pop();
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -193,9 +196,10 @@ describe("useScreenFocus", () => {
 describe("useScreenEffect", () => {
   test("effect fires when screen is focused", async () => {
     const router = createRouter({
-      defaultRoute: "elayout",
+      initial: { routeId: "elayout" },
       routes: [effectLayoutRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -210,9 +214,10 @@ describe("useScreenEffect", () => {
 
   test("effect does not fire for unfocused parent", async () => {
     const router = createRouter({
-      defaultRoute: "enested",
+      initial: { routeId: "enested" },
       routes: [effectLayoutRoute, effectNestedRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -229,9 +234,10 @@ describe("useScreenEffect", () => {
 
   test("cleanup fires when screen loses focus, re-fires on regain", async () => {
     const router = createRouter({
-      defaultRoute: "elayout",
+      initial: { routeId: "elayout" },
       routes: [effectLayoutRoute, effectNestedRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -246,7 +252,7 @@ describe("useScreenEffect", () => {
 
     // Push nested: layout loses focus
     await act(async () => {
-      router.push("enested");
+      void router.push(effectNestedRoute);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -257,7 +263,7 @@ describe("useScreenEffect", () => {
     // Clear log and pop: layout regains focus
     effectLog = [];
     await act(async () => {
-      router.pop();
+      void router.pop();
       await Promise.resolve();
     });
     await testSetup.renderOnce();

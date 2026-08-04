@@ -6,32 +6,28 @@ import { useRouteDataContext } from "./loader.js";
 import type { RouteDataSource } from "./loader.js";
 import { createStateKey } from "./state-cache.js";
 
+/* oxlint-disable typescript/promise-function-async -- navigation callbacks preserve synchronous programmer errors */
+
 export const useNavigate = function useNavigate() {
   const router = useRouterInstance();
   return {
-    pop: useCallback(() => {
-      router.pop();
-    }, [router]),
-    push: useCallback(
-      (routeId: string, params?: Record<string, unknown>) => {
-        router.push(routeId, params);
-      },
+    pop: useCallback<RouterInstance["pop"]>((options) => router.pop(options), [router]),
+    push: useCallback<RouterInstance["push"]>(
+      (route, ...params) => router.push(route, ...params),
       [router],
     ),
-    replace: useCallback(
-      (routeId: string, params?: Record<string, unknown>) => {
-        router.replace(routeId, params);
-      },
+    replace: useCallback<RouterInstance["replace"]>(
+      (route, ...params) => router.replace(route, ...params),
       [router],
     ),
-    reset: useCallback(
-      (routeId: string, params?: Record<string, unknown>) => {
-        router.reset(routeId, params);
-      },
+    reset: useCallback<RouterInstance["reset"]>(
+      (route, ...params) => router.reset(route, ...params),
       [router],
     ),
   };
 };
+
+/* oxlint-enable typescript/promise-function-async */
 
 /** Is `routeId` the active route, or an ancestor of it (nested layouts)? */
 const isActiveRoute = function isActiveRoute(
@@ -103,13 +99,13 @@ export const useActionResultHandler = function useActionResultHandler() {
   return useCallback(
     (result: ActionNavigationResult) => {
       if (result.type === "navigate") {
-        if (result.mode === "replace") {
-          router.replace(result.route, result.params);
-        } else {
-          router.push(result.route, result.params);
-        }
+        void router.navigate({
+          params: result.params,
+          routeId: result.route,
+          type: result.mode === "replace" ? "replace" : "push",
+        });
       } else if (result.type === "back") {
-        router.pop();
+        void router.pop();
       }
     },
     [router],

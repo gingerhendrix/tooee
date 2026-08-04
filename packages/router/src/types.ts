@@ -1,52 +1,43 @@
 import type React from "react";
 import type { StateCache } from "./state-cache.js";
 
-/**
- * A decoder for a value that crosses an untyped boundary: params handed to
- * `push()`, loader output stored as `unknown`, or cached screen state. A codec
- * is what makes a route hook's return type truthful — without one, the caller
- * would just be asserting a type the router cannot check.
- */
+export type RouteParams = Record<string, unknown>;
+
 export interface Codec<T> {
   parse: (value: unknown) => T;
 }
 
-/**
- * A route as produced by `createRoute`. The type parameters come from the
- * route's codecs, so every hook that returns one of these shapes can decode it
- * from the untyped value the router actually stores.
- */
-export interface RouteDefinition<
-  TParams = Record<string, unknown>,
-  TData = unknown,
-  TState = unknown,
-> {
+/** Runtime-safe shape used by the heterogeneous route registry. */
+export interface AnyRoute {
   readonly id: string;
   readonly parent?: AnyRoute;
   readonly component: React.ComponentType;
   readonly pendingComponent?: React.ComponentType;
   readonly errorComponent?: React.ComponentType<{ error: Error }>;
-  /** Decodes a stack entry's params; `useParams(route)` returns `TParams`. */
-  readonly params: Codec<TParams>;
-  /** Decodes this route's loader output. Required by `useRouteData(route)`. */
-  readonly data?: Codec<TData>;
-  /** Decodes this route's cached screen state. Required by `useScreenState(route)`. */
-  readonly screenState?: Codec<TState>;
-  /**
-   * Erased runtime entry point for the loader. `createRoute` closes over the
-   * typed loader and the params codec, so the heterogeneous route registry can
-   * invoke it with raw stack params without re-asserting `TParams`.
-   */
-  readonly load?: (params: Record<string, unknown>) => Promise<unknown>;
-  /** Erased title accessor (see `load`). */
-  readonly title?: (params: Record<string, unknown>) => string;
+  readonly params: Codec<RouteParams>;
+  readonly resolveParams: (value: unknown) => RouteParams;
+  readonly data?: Codec<unknown>;
+  readonly screenState?: Codec<unknown>;
+  readonly load?: (params: RouteParams) => Promise<unknown>;
+  readonly title?: (params: RouteParams) => string;
 }
 
-/** A route of any shape, as held by the router's heterogeneous registry. */
-export type AnyRoute = RouteDefinition<unknown>;
+export interface RouteDefinition<
+  TParams extends RouteParams = RouteParams,
+  TData = unknown,
+  TState = unknown,
+> extends Omit<AnyRoute, "data" | "params" | "screenState"> {
+  readonly params: Codec<TParams>;
+  readonly canonicalize?: (params: TParams) => TParams;
+  readonly data?: Codec<TData>;
+  readonly screenState?: Codec<TState>;
+}
 
-/** The input accepted by `createRoute`. */
-export interface RouteConfig<TParams = Record<string, unknown>, TData = unknown, TState = unknown> {
+export interface RouteConfig<
+  TParams extends RouteParams = RouteParams,
+  TData = unknown,
+  TState = unknown,
+> {
   id: string;
   parent?: AnyRoute;
   component: React.ComponentType;
@@ -54,45 +45,113 @@ export interface RouteConfig<TParams = Record<string, unknown>, TData = unknown,
   errorComponent?: React.ComponentType<{ error: Error }>;
   title?: string | ((opts: { params: TParams }) => string);
   loader?: (opts: { params: TParams }) => Promise<TData>;
-  /**
-   * Declare a codec whenever the route declares a typed shape. Omitting one is
-   * only meaningful for the permissive defaults (`Record<string, unknown>`
-   * params, `unknown` data/state), where the stored value is passed through.
-   */
   params?: Codec<TParams>;
+  canonicalize?: (params: TParams) => TParams;
   data?: Codec<TData>;
   screenState?: Codec<TState>;
 }
 
 export interface StackEntry {
   routeId: string;
-  params: Record<string, unknown>;
+  params: RouteParams;
 }
 
 export interface RouterState {
   stack: StackEntry[];
 }
 
-export type RouterAction =
-  | { type: "push"; routeId: string; params?: Record<string, unknown> }
-  | { type: "pop" }
-  | { type: "replace"; routeId: string; params?: Record<string, unknown> }
-  | { type: "reset"; routeId: string; params?: Record<string, unknown> };
+export type SerializedNavigationIntent =
+  | { type: "push"; routeId: string; params?: RouteParams }
+  | { type: "replace"; routeId: string; params?: RouteParams }
+  | { type: "reset"; routeId: string; params?: RouteParams }
+  | { type: "pop" };
 
-export interface RouterOptions {
-  routes: AnyRoute[];
-  defaultRoute: string;
-  initialParams?: Record<string, unknown>;
+export type RouterAction = SerializedNavigationIntent;
+
+export interface ResolvedNavigation {
+  readonly id: number;
+  readonly intent: SerializedNavigationIntent;
+  readonly from: readonly Readonly<StackEntry>[];
+  readonly target: Readonly<StackEntry> | null;
+  readonly next: readonly Readonly<StackEntry>[];
+  readonly signal: AbortSignal;
 }
 
-export interface RouterInstance {
-  push: (routeId: string, params?: Record<string, unknown>) => void;
-  pop: () => void;
-  replace: (routeId: string, params?: Record<string, unknown>) => void;
-  reset: (routeId: string, params?: Record<string, unknown>) => void;
+export type NavigationResult =
+  | {
+      status: "committed";
+      id: number;
+      from: readonly Readonly<StackEntry>[];
+      to: readonly Readonly<StackEntry>[];
+    }
+  | { status: "cancelled"; id: number; reason: "guard" | "superseded" | "aborted" }
+  | { status: "noop"; id: number; reason: "stack-bottom" }
+  | { status: "failed"; id: number; error: Error };
+
+export type NavigationGuardResult =
+  // oxlint-disable-next-line typescript/no-invalid-void-type -- guard callbacks conventionally use implicit void to allow navigation
+  | void
+  | false
+  | {
+      target?: StackEntry;
+      beforeCommit?: () => void;
+      abort?: () => void;
+    };
+
+export type NavigationGuard<TContext> = (
+  navigation: ResolvedNavigation,
+  context: TContext,
+) => NavigationGuardResult | Promise<NavigationGuardResult>;
+
+export type NavigationEvent =
+  | { type: "started"; navigation: ResolvedNavigation }
+  | { type: "settled"; navigation: ResolvedNavigation; result: NavigationResult };
+
+export interface NavigationFailureContext {
+  readonly id: number;
+  readonly intent: SerializedNavigationIntent;
+  readonly navigation?: ResolvedNavigation;
+}
+
+export interface RouterOptions<TContext = undefined> {
+  routes: readonly AnyRoute[];
+  initial: { routeId: string; params?: RouteParams };
+  context?: TContext;
+  beforeNavigate?: NavigationGuard<TContext> | readonly NavigationGuard<TContext>[];
+  onNavigationError?: (error: Error, context: NavigationFailureContext) => void;
+  onSubscriberError?: (error: Error) => void;
+}
+
+type OptionalParams<TParams extends RouteParams> =
+  Record<string, never> extends TParams ? [params?: TParams] : [params: TParams];
+
+export interface RouterInstance<TContext = undefined> {
+  start: (options?: { signal?: AbortSignal }) => Promise<NavigationResult>;
+  readonly started: boolean;
+  navigate: (
+    intent: SerializedNavigationIntent,
+    options?: { signal?: AbortSignal },
+  ) => Promise<NavigationResult>;
+  push: <TParams extends RouteParams>(
+    route: RouteDefinition<TParams>,
+    ...params: OptionalParams<TParams>
+  ) => Promise<NavigationResult>;
+  replace: <TParams extends RouteParams>(
+    route: RouteDefinition<TParams>,
+    ...params: OptionalParams<TParams>
+  ) => Promise<NavigationResult>;
+  reset: <TParams extends RouteParams>(
+    route: RouteDefinition<TParams>,
+    ...params: OptionalParams<TParams>
+  ) => Promise<NavigationResult>;
+  pop: (options?: { signal?: AbortSignal }) => Promise<NavigationResult>;
+  addNavigationGuard: (guard: NavigationGuard<TContext>) => () => void;
+  readonly pendingNavigation: ResolvedNavigation | null;
+  subscribeNavigation: (listener: (event: NavigationEvent) => void) => () => void;
+  readonly context: TContext;
   canGoBack: () => boolean;
-  readonly currentRoute: StackEntry;
-  readonly stack: readonly StackEntry[];
+  readonly currentRoute: Readonly<StackEntry>;
+  readonly stack: readonly Readonly<StackEntry>[];
   readonly stateCache: StateCache;
   subscribe: (listener: () => void) => () => void;
   getRouteDefinition: (routeId: string) => AnyRoute | undefined;

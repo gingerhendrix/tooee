@@ -1,4 +1,4 @@
-import type { RouterState, RouterAction } from "./types.js";
+import type { RouterAction, RouterState } from "./types.js";
 
 export const stackReducer = function stackReducer(
   state: RouterState,

@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+/* oxlint-disable no-use-before-define -- command handlers close over route objects initialized before the app launches */
 import { useState, useEffect } from "react";
 import { launchCli } from "@tooee/shell";
 import { useCommand } from "@tooee/commands";
@@ -22,7 +23,7 @@ import type { Codec } from "@tooee/router";
 const args = process.argv.slice(2);
 const loaderDelayArg = args.find((a) => a.startsWith("--loader-delay="));
 const loaderDelay =
-  (loaderDelayArg?.length ?? 0) > 0 ? Math.trunc(Number(loaderDelayArg.split("=")[1])) : 500;
+  (loaderDelayArg?.length ?? 0) > 0 ? Math.trunc(Number(loaderDelayArg?.split("=")[1])) : 500;
 
 // --- Codecs ---
 // Route hooks decode what the router actually stores, so each typed shape brings
@@ -84,7 +85,7 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
 
   useCommand({
     handler: () => {
-      nav.push("detail", { id: "42" });
+      void nav.push(detailRoute, { id: "42" });
     },
     hotkey: "1",
     id: "home.push-detail",
@@ -94,7 +95,7 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
 
   useCommand({
     handler: () => {
-      nav.push("settings");
+      void nav.push(settingsRoute);
     },
     hotkey: "2",
     id: "home.push-settings",
@@ -104,7 +105,7 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
 
   useCommand({
     handler: () => {
-      nav.push("slow");
+      void nav.push(slowRoute);
     },
     hotkey: "3",
     id: "home.push-slow",
@@ -114,7 +115,7 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
 
   useCommand({
     handler: () => {
-      nav.push("error-route");
+      void nav.push(errorRoute);
     },
     hotkey: "4",
     id: "home.push-error",
@@ -124,7 +125,7 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
 
   useCommand({
     handler: () => {
-      nav.push("child");
+      void nav.push(childRoute);
     },
     hotkey: "5",
     id: "home.push-nested",
@@ -134,7 +135,7 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
 
   useCommand({
     handler: () => {
-      nav.replace("settings");
+      void nav.replace(settingsRoute);
     },
     hotkey: "r",
     id: "home.replace-settings",
@@ -144,7 +145,7 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
 
   useCommand({
     handler: () => {
-      nav.reset("home");
+      void nav.reset(homeRoute);
     },
     hotkey: "x",
     id: "home.reset",
@@ -192,7 +193,7 @@ const DetailScreen = function DetailScreen(): React.ReactNode {
 
   useCommand({
     handler: () => {
-      nav.replace("settings");
+      void nav.replace(settingsRoute);
     },
     hotkey: "r",
     id: "detail.replace-settings",
@@ -202,7 +203,7 @@ const DetailScreen = function DetailScreen(): React.ReactNode {
 
   useCommand({
     handler: () => {
-      nav.reset("home");
+      void nav.reset(homeRoute);
     },
     hotkey: "x",
     id: "detail.reset",
@@ -212,7 +213,7 @@ const DetailScreen = function DetailScreen(): React.ReactNode {
 
   useCommand({
     handler: () => {
-      nav.push("settings");
+      void nav.push(settingsRoute);
     },
     hotkey: "2",
     id: "detail.push-settings",
@@ -249,7 +250,7 @@ const SettingsScreen = function SettingsScreen(): React.ReactNode {
 
   useCommand({
     handler: () => {
-      nav.reset("home");
+      void nav.reset(homeRoute);
     },
     hotkey: "x",
     id: "settings.reset",
@@ -380,9 +381,10 @@ const childRoute = createRoute({
 // --- Router ---
 
 const router = createRouter({
-  defaultRoute: "home",
+  initial: { routeId: "home" },
   routes: [homeRoute, detailRoute, settingsRoute, slowRoute, errorRoute, parentRoute, childRoute],
 });
+await router.start();
 
 // --- Launch ---
 

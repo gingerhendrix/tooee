@@ -1,6 +1,7 @@
 export type {
   AnyRoute,
   Codec,
+  RouteParams,
   RouteConfig,
   RouteDefinition,
   StackEntry,
@@ -8,6 +9,13 @@ export type {
   RouterAction,
   RouterOptions,
   RouterInstance,
+  SerializedNavigationIntent,
+  ResolvedNavigation,
+  NavigationResult,
+  NavigationGuardResult,
+  NavigationGuard,
+  NavigationEvent,
+  NavigationFailureContext,
 } from "./types.js";
 
 export { createRoute } from "./create-route.js";

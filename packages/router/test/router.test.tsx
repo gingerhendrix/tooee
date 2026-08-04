@@ -100,11 +100,23 @@ afterEach(() => {
 });
 
 describe("RouterProvider + Outlet", () => {
+  test("rejects rendering before startup", () => {
+    const router = createRouter({
+      initial: { routeId: "home" },
+      routes: [homeRoute],
+    });
+
+    expect(() => {
+      void RouterProvider({ children: null, router });
+    }).toThrow("Await router.start() before rendering");
+  });
+
   test("renders default route", async () => {
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -122,9 +134,10 @@ describe("RouterProvider + Outlet", () => {
 
   test("push navigates to new route", async () => {
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -135,7 +148,7 @@ describe("RouterProvider + Outlet", () => {
     await testSetup.renderOnce();
 
     await act(async () => {
-      router.push("detail", { id: "42" });
+      void router.push(detailRoute, { id: "42" });
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -148,9 +161,10 @@ describe("RouterProvider + Outlet", () => {
 
   test("pop returns to previous route", async () => {
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -161,13 +175,13 @@ describe("RouterProvider + Outlet", () => {
     await testSetup.renderOnce();
 
     await act(async () => {
-      router.push("detail", { id: "1" });
+      void router.push(detailRoute, { id: "1" });
       await Promise.resolve();
     });
     await testSetup.renderOnce();
 
     await act(async () => {
-      router.pop();
+      void router.pop();
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -180,9 +194,10 @@ describe("RouterProvider + Outlet", () => {
 
   test("replace swaps current route", async () => {
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute, settingsRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -193,7 +208,7 @@ describe("RouterProvider + Outlet", () => {
     await testSetup.renderOnce();
 
     await act(async () => {
-      router.replace("settings");
+      void router.replace(settingsRoute);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -206,9 +221,10 @@ describe("RouterProvider + Outlet", () => {
 
   test("reset clears stack", async () => {
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute, settingsRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -219,18 +235,18 @@ describe("RouterProvider + Outlet", () => {
     await testSetup.renderOnce();
 
     await act(async () => {
-      router.push("detail", { id: "1" });
+      void router.push(detailRoute, { id: "1" });
       await Promise.resolve();
     });
     await act(async () => {
-      router.push("settings");
+      void router.push(settingsRoute);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("back:true");
 
     await act(async () => {
-      router.reset("home");
+      void router.reset(homeRoute);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -242,9 +258,10 @@ describe("RouterProvider + Outlet", () => {
 
   test("nested outlet renders parent chain", async () => {
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, layoutRoute, nestedRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -255,7 +272,7 @@ describe("RouterProvider + Outlet", () => {
     await testSetup.renderOnce();
 
     await act(async () => {
-      router.push("nested");
+      void router.push(nestedRoute);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -267,56 +284,59 @@ describe("RouterProvider + Outlet", () => {
 });
 
 describe("createRouter (imperative)", () => {
-  test("works outside React", () => {
+  test("works outside React", async () => {
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+    await router.start();
 
     expect(router.currentRoute.routeId).toBe("home");
     expect(router.canGoBack()).toBe(false);
 
-    router.push("detail", { id: "5" });
+    void router.push(detailRoute, { id: "5" });
     expect(router.currentRoute.routeId).toBe("detail");
     expect(router.currentRoute.params).toEqual({ id: "5" });
     expect(router.canGoBack()).toBe(true);
 
-    router.pop();
+    void router.pop();
     expect(router.currentRoute.routeId).toBe("home");
     expect(router.canGoBack()).toBe(false);
   });
 
-  test("subscribe notifies on changes", () => {
+  test("subscribe notifies on changes", async () => {
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+    await router.start();
 
     let callCount = 0;
     const unsub = router.subscribe(() => {
       callCount += 1;
     });
 
-    router.push("detail");
+    void router.push(detailRoute, { id: "6" });
     expect(callCount).toBe(1);
 
-    router.pop();
+    void router.pop();
     expect(callCount).toBe(2);
 
     // pop at bottom is no-op, should not notify
-    router.pop();
+    void router.pop();
     expect(callCount).toBe(2);
 
     unsub();
-    router.push("detail");
+    void router.push(detailRoute, { id: "7" });
     expect(callCount).toBe(2);
   });
 
-  test("getRouteDefinition returns route or undefined", () => {
+  test("getRouteDefinition returns route or undefined", async () => {
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+    await router.start();
 
     expect(router.getRouteDefinition("home")).toBe(homeRoute);
     expect(router.getRouteDefinition("nonexistent")).toBeUndefined();

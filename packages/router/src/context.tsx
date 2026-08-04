@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useSyncExternalStore } from "react";
+import { createContext, useCallback, useContext, useSyncExternalStore } from "react";
 import type { ReactNode } from "react";
 import type { RouterInstance, StackEntry } from "./types.js";
 
@@ -12,35 +12,21 @@ export const StackEntryIndexContext = createContext<number>(0);
 
 export interface RouterProviderProps {
   router: RouterInstance;
-  initialRoute?: string;
-  initialParams?: Record<string, unknown>;
   children: ReactNode;
 }
 
 export const RouterProvider = function RouterProvider({
   router,
-  initialRoute,
-  initialParams,
   children,
 }: RouterProviderProps): ReactNode {
-  const initialRouteRef = useRef(initialRoute);
-  const initialParamsRef = useRef(initialParams);
-  const routerRef = useRef(router);
+  if (!router.started) {
+    throw new Error(
+      "RouterProvider requires a started router. Await router.start() before rendering.",
+    );
+  }
 
-  // Only run the initial-route reconciliation on mount.
-  useEffect(() => {
-    const mountInitialRoute = initialRouteRef.current;
-    const mountRouter = routerRef.current;
-    if (
-      mountInitialRoute !== undefined &&
-      mountInitialRoute !== "" &&
-      mountRouter.currentRoute.routeId !== mountInitialRoute
-    ) {
-      mountRouter.reset(mountInitialRoute, initialParamsRef.current);
-    }
-  }, []);
-
-  const stack = useSyncExternalStore(router.subscribe, () => router.stack);
+  const subscribe = useCallback((listener: () => void) => router.subscribe(listener), [router]);
+  const stack = useSyncExternalStore(subscribe, () => router.stack);
 
   return (
     <RouterInstanceContext value={router}>

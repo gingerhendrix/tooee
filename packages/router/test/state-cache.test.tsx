@@ -71,9 +71,10 @@ afterEach(() => {
 describe("useScreenState", () => {
   test("saved state is available after pop", async () => {
     const router = createRouter({
-      defaultRoute: "screenA",
+      initial: { routeId: "screenA" },
       routes: [routeA, routeB],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -92,7 +93,7 @@ describe("useScreenState", () => {
 
     // Navigate away
     await act(async () => {
-      router.push("screenB");
+      void router.push(routeB);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -102,7 +103,7 @@ describe("useScreenState", () => {
 
     // Pop back
     await act(async () => {
-      router.pop();
+      void router.pop();
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -114,9 +115,10 @@ describe("useScreenState", () => {
 
   test("reset clears all saved state", async () => {
     const router = createRouter({
-      defaultRoute: "screenA",
+      initial: { routeId: "screenA" },
       routes: [routeA, routeB],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -131,11 +133,11 @@ describe("useScreenState", () => {
 
     // Push then reset
     await act(async () => {
-      router.push("screenB");
+      void router.push(routeB);
       await Promise.resolve();
     });
     await act(async () => {
-      router.reset("screenA");
+      void router.reset(routeA);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -147,9 +149,10 @@ describe("useScreenState", () => {
 
   test("different stack positions have independent cache entries", async () => {
     const router = createRouter({
-      defaultRoute: "screenA",
+      initial: { routeId: "screenA" },
       routes: [routeA, routeB],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -164,11 +167,11 @@ describe("useScreenState", () => {
 
     // Push screenB, then push screenA again (now at position 2)
     await act(async () => {
-      router.push("screenB");
+      void router.push(routeB);
       await Promise.resolve();
     });
     await act(async () => {
-      router.push("screenA");
+      void router.push(routeA);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -182,12 +185,12 @@ describe("useScreenState", () => {
 
     // Pop back to screenB
     await act(async () => {
-      router.pop();
+      void router.pop();
       await Promise.resolve();
     });
     // Pop back to screenA at position 0
     await act(async () => {
-      router.pop();
+      void router.pop();
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -199,9 +202,10 @@ describe("useScreenState", () => {
 
   test("saveState from hook stores state in cache", async () => {
     const router = createRouter({
-      defaultRoute: "saving",
+      initial: { routeId: "saving" },
       routes: [savingRoute, routeB],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -218,9 +222,10 @@ describe("useScreenState", () => {
 
   test("pop clears cache for the popped entry", async () => {
     const router = createRouter({
-      defaultRoute: "screenA",
+      initial: { routeId: "screenA" },
       routes: [routeA, routeB],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -231,7 +236,7 @@ describe("useScreenState", () => {
     await testSetup.renderOnce();
 
     await act(async () => {
-      router.push("screenB");
+      void router.push(routeB);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -242,7 +247,7 @@ describe("useScreenState", () => {
 
     // Pop screenB — its cache should be cleared
     await act(async () => {
-      router.pop();
+      void router.pop();
       await Promise.resolve();
     });
     await testSetup.renderOnce();

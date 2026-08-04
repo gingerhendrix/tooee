@@ -83,9 +83,10 @@ describe("route loaders", () => {
     });
 
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, dataRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -101,7 +102,7 @@ describe("route loaders", () => {
 
     // Navigate to data route — loader starts, pending shows
     await act(async () => {
-      router.push("data");
+      void router.push(dataRoute);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -126,9 +127,10 @@ describe("route loaders", () => {
     const homeRoute = createRoute({ component: HomeScreen, id: "home" });
 
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -158,9 +160,10 @@ describe("route loaders", () => {
     });
 
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, errorRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -171,7 +174,7 @@ describe("route loaders", () => {
     await testSetup.renderOnce();
 
     await act(async () => {
-      router.push("failing");
+      void router.push(errorRoute);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -207,9 +210,10 @@ describe("route loaders", () => {
     });
 
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, errorRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -220,7 +224,7 @@ describe("route loaders", () => {
     await testSetup.renderOnce();
 
     await act(async () => {
-      router.push("failing");
+      void router.push(errorRoute);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -256,9 +260,10 @@ describe("route loaders", () => {
     const noLoaderRoute = createRoute({ ...noLoaderSpec, component: NoLoaderScreen });
 
     const router = createRouter({
-      defaultRoute: "noloader",
+      initial: { routeId: "noloader" },
       routes: [noLoaderRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -288,9 +293,10 @@ describe("route loaders", () => {
     });
 
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, dataRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -302,7 +308,7 @@ describe("route loaders", () => {
 
     // Push to data route — loader runs
     await act(async () => {
-      router.push("data");
+      void router.push(dataRoute);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -313,7 +319,7 @@ describe("route loaders", () => {
 
     // Pop back
     await act(async () => {
-      router.pop();
+      void router.pop();
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -323,7 +329,7 @@ describe("route loaders", () => {
 
     // Push again — loader should run again
     await act(async () => {
-      router.push("data");
+      void router.push(dataRoute);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -347,9 +353,10 @@ describe("route loaders", () => {
     });
 
     const router = createRouter({
-      defaultRoute: "data",
+      initial: { routeId: "data" },
       routes: [dataRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -396,9 +403,10 @@ describe("route loaders", () => {
     });
 
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, dataRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -410,7 +418,7 @@ describe("route loaders", () => {
 
     // Push to data route with first params — slow loader starts
     await act(async () => {
-      router.push("data", { id: "1" });
+      void router.push(dataRoute, { id: "1" });
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -421,7 +429,7 @@ describe("route loaders", () => {
 
     // Before first loader resolves, push again with different params — second loader starts
     await act(async () => {
-      router.push("data", { id: "2" });
+      void router.push(dataRoute, { id: "2" });
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -464,9 +472,10 @@ describe("route loaders", () => {
     });
 
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, paramRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -477,7 +486,7 @@ describe("route loaders", () => {
     await testSetup.renderOnce();
 
     await act(async () => {
-      router.push("param", { id: "42" });
+      void router.push(paramRoute, { id: "42" });
       await Promise.resolve();
     });
     await testSetup.renderOnce();

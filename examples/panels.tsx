@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+/* oxlint-disable no-use-before-define -- command handlers close over routes initialized before rendering */
 /**
  * panels.tsx - Demonstrates first-class panels (@tooee/panels).
  *
@@ -95,7 +96,7 @@ const DetailOverview = function DetailOverview(): ReactNode {
   useRouterCommands();
   useCommand({
     handler: () => {
-      navigate.push("raw");
+      void navigate.push(rawRoute);
     },
     hotkey: "v",
     id: "detail.raw",
@@ -123,7 +124,11 @@ const DetailRaw = function DetailRaw(): ReactNode {
 
 const overviewRoute = createRoute({ component: DetailOverview, id: "overview" });
 const rawRoute = createRoute({ component: DetailRaw, id: "raw" });
-const detailRouter = createRouter({ defaultRoute: "overview", routes: [overviewRoute, rawRoute] });
+const detailRouter = createRouter({
+  initial: { routeId: "overview" },
+  routes: [overviewRoute, rawRoute],
+});
+await detailRouter.start();
 
 const ModalBody = function ModalBody({ onClose }: { onClose: () => void }): ReactNode {
   const { theme } = useTheme();

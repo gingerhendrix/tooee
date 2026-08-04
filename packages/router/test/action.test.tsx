@@ -51,9 +51,10 @@ describe("useActionResultHandler", () => {
     };
 
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -87,9 +88,10 @@ describe("useActionResultHandler", () => {
     };
 
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -121,9 +123,10 @@ describe("useActionResultHandler", () => {
     };
 
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -154,9 +157,10 @@ describe("useActionResultHandler", () => {
     };
 
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>
@@ -169,7 +173,7 @@ describe("useActionResultHandler", () => {
 
     // Push to detail first
     await act(async () => {
-      router.push("detail");
+      void router.push(detailRoute);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -204,9 +208,10 @@ describe("useActionResultHandler", () => {
     };
 
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+    await router.start();
 
     testSetup = await testRender(
       <RouterProvider router={router}>

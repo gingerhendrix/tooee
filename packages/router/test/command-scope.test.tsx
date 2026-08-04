@@ -108,9 +108,10 @@ afterEach(() => {
 describe("useRouterCommands", () => {
   test("registers a router.back command", async () => {
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+    await router.start();
 
     let ctx: ReturnType<typeof useCommandContext>;
 
@@ -139,9 +140,10 @@ describe("useRouterCommands", () => {
 
   test("when returns false when stack has single entry", async () => {
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+    await router.start();
 
     let ctx: ReturnType<typeof useCommandContext>;
 
@@ -168,9 +170,10 @@ describe("useRouterCommands", () => {
 
   test("when returns true when stack has multiple entries", async () => {
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+    await router.start();
 
     let ctx: ReturnType<typeof useCommandContext>;
 
@@ -191,7 +194,7 @@ describe("useRouterCommands", () => {
     await testSetup.renderOnce();
 
     await act(async () => {
-      router.push("detail");
+      void router.push(detailRoute);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -203,9 +206,10 @@ describe("useRouterCommands", () => {
 
   test("calling handler triggers router.pop()", async () => {
     const router = createRouter({
-      defaultRoute: "home",
+      initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+    await router.start();
 
     let ctx: ReturnType<typeof useCommandContext>;
 
@@ -227,7 +231,7 @@ describe("useRouterCommands", () => {
 
     // Push to detail
     await act(async () => {
-      router.push("detail");
+      void router.push(detailRoute);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -254,9 +258,10 @@ describe("natural command scoping via unmount", () => {
     const routeB = createRoute({ component: UnmountScreenB, id: "screenB" });
 
     const router = createRouter({
-      defaultRoute: "screenA",
+      initial: { routeId: "screenA" },
       routes: [routeA, routeB],
     });
+    await router.start();
 
     let ctx: ReturnType<typeof useCommandContext>;
 
@@ -286,7 +291,7 @@ describe("natural command scoping via unmount", () => {
 
     // Push screen B — screen A is unmounted, its commands should be gone
     await act(async () => {
-      router.push("screenB");
+      void router.push(routeB);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -302,9 +307,10 @@ describe("natural command scoping via unmount", () => {
     const routeB = createRoute({ component: RemountScreenB, id: "screenB" });
 
     const router = createRouter({
-      defaultRoute: "screenA",
+      initial: { routeId: "screenA" },
       routes: [routeA, routeB],
     });
+    await router.start();
 
     let ctx: ReturnType<typeof useCommandContext>;
 
@@ -333,7 +339,7 @@ describe("natural command scoping via unmount", () => {
 
     // Push screen B — screen A commands are gone
     await act(async () => {
-      router.push("screenB");
+      void router.push(routeB);
       await Promise.resolve();
     });
     await testSetup.renderOnce();
@@ -343,7 +349,7 @@ describe("natural command scoping via unmount", () => {
 
     // Pop back to screen A — commands should re-register
     await act(async () => {
-      router.pop();
+      void router.pop();
       await Promise.resolve();
     });
     await testSetup.renderOnce();

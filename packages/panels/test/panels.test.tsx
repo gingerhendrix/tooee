@@ -293,9 +293,13 @@ const makeStackRouters = function makeStackRouters(): {
   const thread = createRoute({ component: LeftThread, id: "thread" });
   const preview = createRoute({ component: RightPreview, id: "preview" });
   const detail = createRoute({ component: RightDetail, id: "detail" });
+  const left = createRouter({ initial: { routeId: "inbox" }, routes: [inbox, thread] });
+  const right = createRouter({ initial: { routeId: "preview" }, routes: [preview, detail] });
+  void left.start();
+  void right.start();
   return {
-    left: createRouter({ defaultRoute: "inbox", routes: [inbox, thread] }),
-    right: createRouter({ defaultRoute: "preview", routes: [preview, detail] }),
+    left,
+    right,
   };
 };
 
@@ -589,7 +593,7 @@ describe("router composition inside panels", () => {
     await settle(session);
 
     await act(async () => {
-      left.push("thread");
+      void left.navigate({ routeId: "thread", type: "push" });
       await Promise.resolve();
     });
     await session.renderOnce();
@@ -626,8 +630,8 @@ describe("router composition inside panels", () => {
     await settle(session);
 
     await act(async () => {
-      left.push("thread");
-      right.push("detail");
+      void left.navigate({ routeId: "thread", type: "push" });
+      void right.navigate({ routeId: "detail", type: "push" });
       await Promise.resolve();
     });
     await session.renderOnce();
@@ -684,8 +688,10 @@ describe("screen focus composition", () => {
   test("a leaf route inside the active panel stays focused; an inactive panel's leaf does not", async () => {
     const leftLeaf = createRoute({ component: LeftLeaf, id: "l" });
     const rightLeaf = createRoute({ component: RightLeaf, id: "r" });
-    const left = createRouter({ defaultRoute: "l", routes: [leftLeaf] });
-    const right = createRouter({ defaultRoute: "r", routes: [rightLeaf] });
+    const left = createRouter({ initial: { routeId: "l" }, routes: [leftLeaf] });
+    const right = createRouter({ initial: { routeId: "r" }, routes: [rightLeaf] });
+    await left.start();
+    await right.start();
 
     session = await testRender(
       <CommandProvider>
