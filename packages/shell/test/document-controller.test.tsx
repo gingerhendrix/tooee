@@ -82,6 +82,38 @@ const Harness = function Harness({
   );
 };
 
+/** Recreates equivalent row objects every time the controller renders. */
+const RecreatedRowsHarness = function RecreatedRowsHarness({
+  initial,
+  onReady,
+  ...options
+}: HarnessOptions & {
+  initial: readonly Row[];
+  onReady: (setRows: (rows: readonly Row[]) => void) => void;
+}): React.ReactNode {
+  const [rowsSource, setRowsSource] = useState(initial);
+  onReady(setRowsSource);
+  const rows = rowsSource.map((item) => ({ ...item }));
+  const document = useDocumentController<Row>({ adapter: ADAPTER, rows, ...options });
+  const mode = useMode();
+  handle = document;
+
+  return (
+    <box flexDirection="column" height="100%">
+      <text
+        content={`mode:${mode} active:${document.activeKey ?? "-"}/${document.activeIndex ?? "-"}`}
+        flexShrink={0}
+      />
+      <Document
+        controller={document}
+        showGutter={false}
+        style={{ flexGrow: 1 }}
+        renderRow={(r): React.ReactNode => <text content={r.label} />}
+      />
+    </box>
+  );
+};
+
 /** Lets a test swap the row collection after mount. */
 const DynamicHarness = function DynamicHarness({
   initial,
@@ -125,6 +157,33 @@ const setupDynamic = async function setupDynamic(
         initial={initial}
         onReady={(s) => {
           setRows = s;
+        }}
+        {...options}
+      />
+    </TooeeProvider>,
+    { height: 24, kittyKeyboard: true, width: 70 },
+  );
+  await session.renderOnce();
+  return async (rows: readonly Row[]) => {
+    await act(async () => {
+      setRows(rows);
+      await Promise.resolve();
+    });
+    await session.renderOnce();
+  };
+};
+
+const setupWithRecreatedRows = async function setupWithRecreatedRows(
+  initial: readonly Row[],
+  options: HarnessOptions = {},
+) {
+  let setRows!: (rows: readonly Row[]) => void;
+  session = await testRender(
+    <TooeeProvider>
+      <RecreatedRowsHarness
+        initial={initial}
+        onReady={(nextSetRows) => {
+          setRows = nextSetRows;
         }}
         {...options}
       />
@@ -353,6 +412,25 @@ describe("search", () => {
     await setup(ROWS, { search });
     await query("c");
     expect(expectDefined(controller().search).matchingLines).toEqual([2]);
+  });
+
+  test("recreated rows settle and changed content rematches a committed query", async () => {
+    const setRows = await setupWithRecreatedRows(ROWS);
+
+    await query("alpha");
+    expect(expectDefined(controller().search).matchingLines).toEqual([0, 3]);
+    expect(active()).toBe("a/0");
+
+    await act(async () => {
+      expectDefined(controller().search).submitSearch();
+      await Promise.resolve();
+    });
+    await session.renderOnce();
+
+    await setRows([row("a", "first"), row("b", "alpha"), row("c", "gamma"), row("d", "last")]);
+
+    expect(expectDefined(controller().search).matchingLines).toEqual([1]);
+    expect(active()).toBe("b/1");
   });
 
   test("search: false produces no search state and no / command", async () => {

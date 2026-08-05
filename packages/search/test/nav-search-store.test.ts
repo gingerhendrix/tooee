@@ -81,6 +81,34 @@ describe("search", () => {
     expect(context(store).cursor).toBe(1);
   });
 
+  test("ignores an unchanged result without resetting the current match", () => {
+    const store = createNavSearchStore({ keys: [0, 1, 2, 3] });
+    store.trigger.searchStarted({ mode: "cursor" });
+    store.trigger.searchChanged({ matches: [0, 2], query: "alpha" });
+    store.trigger.searchNext({});
+
+    const jumped: number[] = [];
+    store.on("jumped", ({ index }) => {
+      jumped.push(index);
+    });
+    const previousSnapshot = store.getSnapshot();
+
+    store.trigger.searchChanged({ matches: [0, 2], query: "alpha" });
+
+    expect(store.getSnapshot()).toBe(previousSnapshot);
+    expect(jumped).toEqual([]);
+    expect(context(store).cursor).toBe(2);
+    expect(context(store).search.currentMatchIndex).toBe(1);
+
+    store.trigger.searchChanged({ matches: [1, 3], query: "alpha" });
+
+    expect(store.getSnapshot()).not.toBe(previousSnapshot);
+    expect(jumped).toEqual([1]);
+    expect(selectMatches(context(store))).toEqual([1, 3]);
+    expect(context(store).cursor).toBe(1);
+    expect(context(store).search.currentMatchIndex).toBe(0);
+  });
+
   test("submit commits without re-matching and restores the prior mode", () => {
     const store = createNavSearchStore({ keys: [0, 1] });
     const restored: string[] = [];

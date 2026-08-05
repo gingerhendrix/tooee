@@ -218,6 +218,13 @@ export const createNavSearchStore = function createNavSearchStore(
         };
       },
       searchChanged: (ctx, event, enqueue) => {
+        const matchesUnchanged =
+          ctx.search.matches.length === event.matches.length &&
+          ctx.search.matches.every((match, index) => Object.is(match, event.matches[index]));
+        if (ctx.search.query === event.query && matchesUnchanged) {
+          return ctx;
+        }
+
         const [first] = event.matches;
         if (first !== undefined) {
           enqueue.emit.jumped({ index: first });
