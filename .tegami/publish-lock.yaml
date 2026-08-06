@@ -1,14 +1,13 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/router\":\n    type: minor\n---\n\n## Add guarded asynchronous router navigation\n\nRouter startup and later navigation now share one asynchronous, switch-latest preparation pipeline. Navigation uses typed route objects in application code, returns non-rejecting result promises, supports target canonicalization and resource guards, and isolates cache and subscriber failures at the commit boundary.\n"
-    filename: async-router-navigation.md
-    v: 0.0.0
-  - content: "---\npackages:\n  \"@tooee/search\":\n    type: patch\n---\n\n## Prevent repeated equivalent search updates\n\nSearch rematches now keep the current match and avoid repeated store updates when the query and ordered results stay the same.\n"
-    filename: fix-search-rematch-loop.md
+  - content: "---\npackages:\n  \"@tooee/ask\":\n    type: patch\n---\n\n## Submit multiline Ask prompts with Enter in command mode\n\nPlain Enter now submits Ask prompts from command mode. In multiline insert mode, Enter continues to add a newline and Shift+Enter submits.\n"
+    filename: ask-command-enter.md
     v: 0.0.0
 core:packages:
   - id: npm:@tooee/cli
     updated: true
-  - id: npm:@tooee/ask
+  - changelogIds:
+      - ask-command-enter.md
+    id: npm:@tooee/ask
     updated: true
   - id: npm:@tooee/choose
     updated: true
@@ -30,13 +29,9 @@ core:packages:
     updated: true
   - id: npm:@tooee/renderers
     updated: true
-  - changelogIds:
-      - async-router-navigation.md
-    id: npm:@tooee/router
+  - id: npm:@tooee/router
     updated: true
-  - changelogIds:
-      - fix-search-rematch-loop.md
-    id: npm:@tooee/search
+  - id: npm:@tooee/search
     updated: true
   - id: npm:@tooee/shell
     updated: true
