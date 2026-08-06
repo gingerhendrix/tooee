@@ -180,6 +180,24 @@ describe("Ask default value cursor", () => {
     expect(submitted).toBe("hello\n");
   });
 
+  test("multiline standalone Ask submits with Enter in cursor mode", async () => {
+    let submitted = "";
+    testSetup = await setupAsk({
+      defaultValue: "hello",
+      onSubmit: (value) => {
+        submitted = value;
+      },
+    });
+
+    await pressEscape();
+
+    expect(testSetup.captureCharFrame()).toContain("i insert  q quit  : palette  Enter submit");
+
+    await pressEnter();
+
+    expect(submitted).toBe("hello");
+  });
+
   test("single-line standalone Ask submits with Enter", async () => {
     let submitted = "";
     testSetup = await setupAsk({
@@ -224,6 +242,25 @@ describe("AskOverlay default value cursor", () => {
     await pressEnter();
 
     expect(submitted).toBe("hello!");
+  });
+
+  test("multiline overlay submits with Enter in cursor mode", async () => {
+    let submitted = "";
+    testSetup = await setup({
+      defaultValue: "hello",
+      multiline: true,
+      onSubmit: (value) => {
+        submitted = value;
+      },
+    });
+
+    await pressEscape();
+
+    expect(testSetup.captureCharFrame()).toContain("i insert  q quit  Enter submit");
+
+    await pressEnter();
+
+    expect(submitted).toBe("hello");
   });
 
   test("multiline cursor starts at the end of the default value", async () => {

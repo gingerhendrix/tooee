@@ -305,6 +305,9 @@ describe("AskOverlay chrome extension points", () => {
       "Shift+Enter submit  Esc commands",
     );
     expect(buildAskHints("cursor", {}).join("  ")).toBe("i insert  q quit  Enter submit");
+    expect(buildAskHints("cursor", { multiline: true }).join("  ")).toBe(
+      "i insert  q quit  Enter submit",
+    );
     expect(buildAskHints("cursor", { extra: ["m model"] }).join("  ")).toBe(
       "i insert  q quit  Enter submit  m model",
     );

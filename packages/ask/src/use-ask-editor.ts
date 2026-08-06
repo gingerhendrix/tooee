@@ -293,10 +293,21 @@ export const useAskEditor = function useAskEditor(
     handler: submit,
     hidden: true,
     hotkey: "Enter",
-    id: `${commandScope}:submit-single-line`,
-    modes: ["insert", "cursor"],
+    id: `${commandScope}:submit-insert`,
+    modes: ["insert"],
     title: "Submit",
     when: () => enabled("submit") && resolveSubmitKey() === "enter",
+  });
+  useCommand({
+    handler: submit,
+    hidden: true,
+    hotkey: "Enter",
+    id: `${commandScope}:submit-cursor`,
+    modes: ["cursor"],
+    title: "Submit",
+    // Command mode has no newline entry, so plain Enter always submits unless
+    // the consumer disabled the built-in submit command group.
+    when: () => enabled("submit") && resolveSubmitKey() !== "none",
   });
   useCommand({
     handler: submit,
@@ -305,8 +316,8 @@ export const useAskEditor = function useAskEditor(
     id: `${commandScope}:submit-multiline`,
     modes: ["insert", "cursor"],
     title: "Submit",
-    // Shift+Enter always submits (single-line editors have no newline for it
-    // to mean); plain Enter only when it is the configured submit key.
+    // Shift+Enter remains available for multiline insert mode and for
+    // compatibility in cursor mode.
     when: () => enabled("submit") && resolveSubmitKey() !== "none",
   });
 

@@ -12,7 +12,8 @@ export const buildAskHints = function buildAskHints(
   mode: Mode,
   opts: { multiline?: boolean; extra?: string[] } = {},
 ): string[] {
-  const submitHint = opts.multiline === true ? "Shift+Enter submit" : "Enter submit";
+  const submitHint =
+    opts.multiline === true && mode === "insert" ? "Shift+Enter submit" : "Enter submit";
   const base =
     mode === "insert" ? [submitHint, "Esc commands"] : ["i insert", "q quit", submitHint];
   return opts.extra ? [...base, ...opts.extra] : base;
