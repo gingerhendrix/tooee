@@ -404,6 +404,46 @@ describe("shared commands, context, and surfaces", () => {
 });
 
 describe("view extension points", () => {
+  test("wraps long rows and keeps the active row visible while scrolling", async () => {
+    const controllerRef = { current: null as ChooseController | null };
+    const items = Array.from({ length: 12 }, (_, index) => ({
+      description: `Provider API description for model ${index + 1} with a 200,000 token context.`,
+      text: `Command Code Model ${String(index + 1).padStart(2, "0")}`,
+    }));
+
+    testSetup = await testRender(
+      <TooeeProvider initialMode="insert">
+        <ChooseOverlay
+          items={items}
+          controllerRef={controllerRef}
+          inset={{ bottom: 1, left: 1, right: 1, top: 1 }}
+          onSelect={() => {}}
+          onCancel={() => {}}
+        />
+      </TooeeProvider>,
+      { height: 16, kittyKeyboard: true, width: 50 },
+    );
+    await testSetup.renderOnce();
+
+    const initialFrame = testSetup.captureCharFrame();
+    expect(initialFrame).toContain("description for model 1 with a 200,000 token");
+    expect(initialFrame).toContain("context.");
+
+    await act(async () => {
+      expectDefined(controllerRef.current).setActiveIndex(8);
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
+
+    const frame = testSetup.captureCharFrame();
+    const activeLine = frame
+      .split("\n")
+      .findIndex((line) => line.includes("Command Code Model 09"));
+    expect(activeLine).toBeGreaterThan(0);
+    expect(activeLine).toBeLessThan(14);
+    expect(frame).toContain("description for model 9 with a 200,000");
+  });
+
   test("renders custom hints, status, footer, and rows from shared context", async () => {
     testSetup = await setup(
       <ChooseOverlay

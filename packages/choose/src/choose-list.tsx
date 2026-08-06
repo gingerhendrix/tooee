@@ -64,10 +64,11 @@ export const ChooseList = function ChooseList({
   const interactionSuspended = choose.view.suspended || (suspended ?? false);
 
   useEffect(() => {
-    if (scrollRef.current && state.matches.length > 0) {
-      scrollRef.current.scrollTop = Math.max(0, state.activeIndex - 5);
+    const activeMatch = state.matches[state.activeIndex];
+    if (scrollRef.current && activeMatch !== undefined) {
+      scrollRef.current.scrollChildIntoView(`choose-item-${activeMatch.originalIndex}`);
     }
-  }, [state.activeIndex, state.matches.length]);
+  }, [state.activeIndex, state.matches]);
 
   return (
     <scrollbox ref={scrollRef} flexDirection="column" style={{ flexGrow: 1 }} focused={false}>
@@ -87,27 +88,24 @@ export const ChooseList = function ChooseList({
         const isActive = index === state.activeIndex;
         const isSelected = state.selectedOriginalIndices.has(match.originalIndex);
         const defaultContent = (
-          <>
+          <text fg={isActive ? theme.primary : theme.text} style={{ flexGrow: 1 }}>
             {state.multi && (
-              <text
-                content={isSelected ? "✓ " : "  "}
-                fg={isSelected ? theme.accent : theme.textMuted}
-              />
+              <span fg={isSelected ? theme.accent : theme.textMuted}>
+                {isSelected ? "✓ " : "  "}
+              </span>
             )}
             {(match.item.icon?.length ?? 0) > 0 && (
-              <text content={`${match.item.icon} `} fg={theme.textMuted} />
+              <span fg={theme.textMuted}>{`${match.item.icon} `}</span>
             )}
-            <text fg={isActive ? theme.primary : theme.text}>
-              <ChooseHighlightedText
-                text={match.item.text}
-                positions={match.positions}
-                highlightColor={theme.warning}
-              />
-            </text>
+            <ChooseHighlightedText
+              text={match.item.text}
+              positions={match.positions}
+              highlightColor={theme.warning}
+            />
             {(match.item.description?.length ?? 0) > 0 && (
-              <text content={`  ${match.item.description}`} fg={theme.textMuted} />
+              <span fg={theme.textMuted}>{`  ${match.item.description}`}</span>
             )}
-          </>
+          </text>
         );
         const context: ChooseItemRenderContext = {
           defaultContent,
@@ -123,8 +121,8 @@ export const ChooseList = function ChooseList({
         return (
           <box
             key={match.originalIndex}
+            id={`choose-item-${match.originalIndex}`}
             flexDirection="row"
-            height={1}
             backgroundColor={isActive ? theme.backgroundElement : undefined}
             style={{ paddingLeft: 1 }}
             onMouseDown={(event) => {
