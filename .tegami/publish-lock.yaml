@@ -1,79 +1,50 @@
 core:changelogs:
-  - content: "---\npackages:\n  group:tooee:\n    type: minor\n---\n\n## Display native images in View\n\nView can open PNG, JPEG, GIF, and WebP files through OpenTUI's native image renderer. Markdown now displays standard image links and Obsidian `![[image]]` embeds, including optional dimensions.\n"
-    filename: native-images.md
+  - content: "---\npackages:\n  \"@tooee/router\":\n    type: minor\n---\n\n## Add guarded asynchronous router navigation\n\nRouter startup and later navigation now share one asynchronous, switch-latest preparation pipeline. Navigation uses typed route objects in application code, returns non-rejecting result promises, supports target canonicalization and resource guards, and isolates cache and subscriber failures at the commit boundary.\n"
+    filename: async-router-navigation.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/search\":\n    type: patch\n---\n\n## Prevent repeated equivalent search updates\n\nSearch rematches now keep the current match and avoid repeated store updates when the query and ordered results stay the same.\n"
+    filename: fix-search-rematch-loop.md
     v: 0.0.0
 core:packages:
-  - changelogIds:
-      - native-images.md
-    id: npm:@tooee/cli
+  - id: npm:@tooee/cli
+    updated: true
+  - id: npm:@tooee/ask
+    updated: true
+  - id: npm:@tooee/choose
+    updated: true
+  - id: npm:@tooee/clipboard
+    updated: true
+  - id: npm:@tooee/commands
+    updated: true
+  - id: npm:@tooee/config
+    updated: true
+  - id: npm:@tooee/fuzzy
+    updated: true
+  - id: npm:@tooee/layout
+    updated: true
+  - id: npm:@tooee/marks
+    updated: true
+  - id: npm:@tooee/overlays
+    updated: true
+  - id: npm:@tooee/panels
+    updated: true
+  - id: npm:@tooee/renderers
     updated: true
   - changelogIds:
-      - native-images.md
-    id: npm:@tooee/ask
-    updated: true
-  - changelogIds:
-      - native-images.md
-    id: npm:@tooee/choose
-    updated: true
-  - changelogIds:
-      - native-images.md
-    id: npm:@tooee/clipboard
-    updated: true
-  - changelogIds:
-      - native-images.md
-    id: npm:@tooee/commands
-    updated: true
-  - changelogIds:
-      - native-images.md
-    id: npm:@tooee/config
-    updated: true
-  - changelogIds:
-      - native-images.md
-    id: npm:@tooee/layout
-    updated: true
-  - changelogIds:
-      - native-images.md
-    id: npm:@tooee/fuzzy
-    updated: true
-  - changelogIds:
-      - native-images.md
-    id: npm:@tooee/marks
-    updated: true
-  - changelogIds:
-      - native-images.md
-    id: npm:@tooee/overlays
-    updated: true
-  - changelogIds:
-      - native-images.md
-    id: npm:@tooee/panels
-    updated: true
-  - changelogIds:
-      - native-images.md
-    id: npm:@tooee/renderers
-    updated: true
-  - changelogIds:
-      - native-images.md
+      - async-router-navigation.md
     id: npm:@tooee/router
     updated: true
   - changelogIds:
-      - native-images.md
+      - fix-search-rematch-loop.md
     id: npm:@tooee/search
     updated: true
-  - changelogIds:
-      - native-images.md
-    id: npm:@tooee/shell
+  - id: npm:@tooee/shell
     updated: true
-  - changelogIds:
-      - native-images.md
-    id: npm:@tooee/toasts
+  - id: npm:@tooee/themes
     updated: true
-  - changelogIds:
-      - native-images.md
-    id: npm:@tooee/themes
+  - id: npm:@tooee/toasts
     updated: true
-  - changelogIds:
-      - native-images.md
-    id: npm:@tooee/view
+  - id: npm:@tooee/view
     updated: true
 npm:packages:
   - id: npm:@tooee/cli
@@ -82,8 +53,8 @@ npm:packages:
   - id: npm:@tooee/clipboard
   - id: npm:@tooee/commands
   - id: npm:@tooee/config
-  - id: npm:@tooee/layout
   - id: npm:@tooee/fuzzy
+  - id: npm:@tooee/layout
   - id: npm:@tooee/marks
   - id: npm:@tooee/overlays
   - id: npm:@tooee/panels
@@ -91,7 +62,7 @@ npm:packages:
   - id: npm:@tooee/router
   - id: npm:@tooee/search
   - id: npm:@tooee/shell
-  - id: npm:@tooee/toasts
   - id: npm:@tooee/themes
+  - id: npm:@tooee/toasts
   - id: npm:@tooee/view
   - id: npm:@tooee/examples
