@@ -426,13 +426,17 @@ describe("view extension points", () => {
     await testSetup.renderOnce();
 
     const initialFrame = testSetup.captureCharFrame();
-    expect(initialFrame).toContain("description for model 1 with a 200,000 token");
+    expect(initialFrame).toContain("description for model 1 with a 200,000");
     expect(initialFrame).toContain("context.");
     const initialLines = initialFrame.split("\n");
     const firstRowLine = initialLines.findIndex((line) => line.includes("Command Code Model 01"));
     const scrollbarThumbLine = initialLines.findIndex((line) => line.includes("▀"));
     expect(firstRowLine).toBeGreaterThan(0);
     expect(scrollbarThumbLine).toBe(firstRowLine);
+    const scrollbarColumn = initialLines[scrollbarThumbLine]?.indexOf("▀") ?? -1;
+    const descriptionLine = initialLines.find((line) => line.includes("description for model 1"));
+    expect(scrollbarColumn).toBeGreaterThan(0);
+    expect(descriptionLine?.at(scrollbarColumn - 1)).toBe(" ");
 
     await act(async () => {
       expectDefined(controllerRef.current).setActiveIndex(8);

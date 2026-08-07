@@ -124,7 +124,7 @@ export const ChooseList = function ChooseList({
             id={`choose-item-${match.originalIndex}`}
             flexDirection="row"
             backgroundColor={isActive ? theme.backgroundElement : undefined}
-            style={{ paddingLeft: 1 }}
+            style={{ paddingLeft: 1, paddingRight: 1 }}
             onMouseDown={(event) => {
               if (interactionSuspended || event.button !== 0 || rowClick === "none") {
                 return;
