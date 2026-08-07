@@ -631,6 +631,7 @@ const BlockquoteRenderer = function BlockquoteRenderer({
   return (
     <box
       style={{
+        flexDirection: "row",
         marginBottom: 1,
         marginLeft: 1 + indent,
         marginRight: 1,
@@ -638,7 +639,7 @@ const BlockquoteRenderer = function BlockquoteRenderer({
         paddingLeft: 2,
       }}
     >
-      <text style={{ fg: theme.markdownBlockQuote }} content="│ " />
+      <text style={{ fg: theme.markdownBlockQuote, flexShrink: 0 }} content="│ " />
       <text
         style={{ fg: theme.textMuted }}
         onMouseDown={linkMouseHandler(inlineTokens, onLinkActivate)}
