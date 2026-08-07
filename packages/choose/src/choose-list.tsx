@@ -71,7 +71,7 @@ export const ChooseList = function ChooseList({
   }, [state.activeIndex, state.matches]);
 
   return (
-    <scrollbox ref={scrollRef} flexDirection="column" style={{ flexGrow: 1 }} focused={false}>
+    <scrollbox ref={scrollRef} style={{ flexGrow: 1 }} focused={false}>
       {state.loading && <ThemedLine content={loadingContent} color={theme.textMuted} />}
 
       {!state.loading && state.error !== null && state.error !== "" && (
