@@ -1,15 +1,15 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/ask\":\n    type: patch\n---\n\n## Submit multiline Ask prompts with Enter in command mode\n\nPlain Enter now submits Ask prompts from command mode. In multiline insert mode, Enter continues to add a newline and Shift+Enter submits.\n"
-    filename: ask-command-enter.md
+  - content: "---\npackages:\n  \"@tooee/choose\":\n    type: patch\n---\n\n## Keep wrapped choices readable while scrolling\n\nLong choice labels and descriptions now wrap across full rows. The scrollbar stays beside the list, and keyboard navigation keeps the active row visible when rows use different heights.\n"
+    filename: fix-choose-wrapped-rows.md
     v: 0.0.0
 core:packages:
   - id: npm:@tooee/cli
     updated: true
-  - changelogIds:
-      - ask-command-enter.md
-    id: npm:@tooee/ask
+  - id: npm:@tooee/ask
     updated: true
-  - id: npm:@tooee/choose
+  - changelogIds:
+      - fix-choose-wrapped-rows.md
+    id: npm:@tooee/choose
     updated: true
   - id: npm:@tooee/clipboard
     updated: true
@@ -35,11 +35,11 @@ core:packages:
     updated: true
   - id: npm:@tooee/shell
     updated: true
-  - id: npm:@tooee/themes
-    updated: true
   - id: npm:@tooee/toasts
     updated: true
   - id: npm:@tooee/view
+    updated: true
+  - id: npm:@tooee/themes
     updated: true
 npm:packages:
   - id: npm:@tooee/cli
@@ -57,7 +57,7 @@ npm:packages:
   - id: npm:@tooee/router
   - id: npm:@tooee/search
   - id: npm:@tooee/shell
-  - id: npm:@tooee/themes
   - id: npm:@tooee/toasts
   - id: npm:@tooee/view
+  - id: npm:@tooee/themes
   - id: npm:@tooee/examples
