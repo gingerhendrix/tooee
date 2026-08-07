@@ -1,3 +1,9 @@
+## @tooee/choose@0.6.2
+
+### Keep wrapped choices readable while scrolling
+
+Long choice labels and descriptions now wrap across full rows. The scrollbar stays beside the list, and keyboard navigation keeps the active row visible when rows use different heights.
+
 ## @tooee/choose@0.5.0
 
 ### Display native images in View
