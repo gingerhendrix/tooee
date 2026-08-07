@@ -5,4 +5,4 @@ packages:
 
 ## Align Markdown blockquote markers with their text
 
-Markdown blockquote markers now appear to the left of the quote body. Wrapped text keeps the expected indentation and marker spacing.
+Markdown blockquotes now use a full-height left border beside the quote body. Wrapped text keeps consistent padding from the border.

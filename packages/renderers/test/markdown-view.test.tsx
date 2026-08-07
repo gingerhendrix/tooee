@@ -649,7 +649,7 @@ describe("table inside list item", () => {
 });
 
 describe("blockquote layout", () => {
-  test("quote marker is to the left of the body on the same row", async () => {
+  test("left border starts beside the body", async () => {
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView content="> This is an important quote" />
@@ -665,7 +665,7 @@ describe("blockquote layout", () => {
     expect(quoteRow?.indexOf("│")).toBeLessThan(quoteRow?.indexOf("This") ?? -1);
   });
 
-  test("wrapped quote body keeps its marker spacing and hanging indent", async () => {
+  test("wrapped quote body has a full-height border and consistent padding", async () => {
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView content="> This blockquote body wraps across multiple rows" />
@@ -675,10 +675,11 @@ describe("blockquote layout", () => {
     await testSetup.renderOnce();
     const rows = testSetup.captureCharFrame().split("\n");
     const firstBodyRow = rows.find((row) => row.includes("This blockquote"));
-    const continuationRow = rows.find((row) => row.includes("body wraps"));
+    const continuationRow = rows.find((row) => row.includes("wraps across"));
 
     expect(firstBodyRow).toContain("│ This blockquote");
-    expect(continuationRow?.indexOf("body wraps")).toBe(firstBodyRow?.indexOf("This"));
+    expect(continuationRow).toContain("│");
+    expect(continuationRow?.indexOf("wraps across")).toBe(firstBodyRow?.indexOf("This"));
   });
 });
 
