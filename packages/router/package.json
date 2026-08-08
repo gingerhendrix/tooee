@@ -1,6 +1,6 @@
 {
   "name": "@tooee/router",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Stack-based router for Tooee terminal apps",
   "keywords": [
     "cli",
