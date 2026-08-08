@@ -1,15 +1,13 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/choose\":\n    type: patch\n---\n\n## Keep wrapped choices readable while scrolling\n\nLong choice labels and descriptions now wrap across full rows. The scrollbar stays beside the list, and keyboard navigation keeps the active row visible when rows use different heights.\n"
-    filename: fix-choose-wrapped-rows.md
+  - content: "---\npackages:\n  \"@tooee/renderers\":\n    type: patch\n---\n\n## Align Markdown blockquote markers with their text\n\nMarkdown blockquotes now use a full-height left border beside the quote body. Wrapped text keeps consistent padding from the border.\n"
+    filename: fix-blockquote-layout.md
     v: 0.0.0
 core:packages:
   - id: npm:@tooee/cli
     updated: true
-  - id: npm:@tooee/ask
+  - id: npm:@tooee/choose
     updated: true
-  - changelogIds:
-      - fix-choose-wrapped-rows.md
-    id: npm:@tooee/choose
+  - id: npm:@tooee/ask
     updated: true
   - id: npm:@tooee/clipboard
     updated: true
@@ -17,9 +15,9 @@ core:packages:
     updated: true
   - id: npm:@tooee/config
     updated: true
-  - id: npm:@tooee/fuzzy
-    updated: true
   - id: npm:@tooee/layout
+    updated: true
+  - id: npm:@tooee/fuzzy
     updated: true
   - id: npm:@tooee/marks
     updated: true
@@ -27,37 +25,39 @@ core:packages:
     updated: true
   - id: npm:@tooee/panels
     updated: true
-  - id: npm:@tooee/renderers
-    updated: true
-  - id: npm:@tooee/router
+  - changelogIds:
+      - fix-blockquote-layout.md
+    id: npm:@tooee/renderers
     updated: true
   - id: npm:@tooee/search
     updated: true
+  - id: npm:@tooee/router
+    updated: true
   - id: npm:@tooee/shell
+    updated: true
+  - id: npm:@tooee/themes
     updated: true
   - id: npm:@tooee/toasts
     updated: true
   - id: npm:@tooee/view
-    updated: true
-  - id: npm:@tooee/themes
     updated: true
 npm:packages:
   - id: npm:@tooee/cli
-  - id: npm:@tooee/ask
   - id: npm:@tooee/choose
+  - id: npm:@tooee/ask
   - id: npm:@tooee/clipboard
   - id: npm:@tooee/commands
   - id: npm:@tooee/config
-  - id: npm:@tooee/fuzzy
   - id: npm:@tooee/layout
+  - id: npm:@tooee/fuzzy
   - id: npm:@tooee/marks
   - id: npm:@tooee/overlays
   - id: npm:@tooee/panels
   - id: npm:@tooee/renderers
-  - id: npm:@tooee/router
   - id: npm:@tooee/search
+  - id: npm:@tooee/router
   - id: npm:@tooee/shell
+  - id: npm:@tooee/themes
   - id: npm:@tooee/toasts
   - id: npm:@tooee/view
-  - id: npm:@tooee/themes
   - id: npm:@tooee/examples
