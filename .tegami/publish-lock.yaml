@@ -1,0 +1,102 @@
+core:changelogs:
+  - content: "---\npackages:\n  group:tooee:\n    type: patch\n---\n\n## Ship the compiled `@tooee/diff` output\n\n`@tooee/diff@0.7.0` reached npm without its `dist` build, so importing the package, or opening a\ndiff through `@tooee/view`, failed to resolve. This release republishes the package with the\ncompiled entry point in place. Install `0.7.1` or later for diff rendering.\n"
+    filename: fix-diff-dist-output.md
+    v: 0.0.0
+core:packages:
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/cli
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/ask
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/choose
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/commands
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/clipboard
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/config
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/diff
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/layout
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/fuzzy
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/marks
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/overlays
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/panels
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/renderers
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/router
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/shell
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/toasts
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/search
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/themes
+    updated: true
+  - changelogIds:
+      - fix-diff-dist-output.md
+    id: npm:@tooee/view
+    updated: true
+npm:packages:
+  - id: npm:@tooee/cli
+  - id: npm:@tooee/ask
+  - id: npm:@tooee/choose
+  - id: npm:@tooee/commands
+  - id: npm:@tooee/clipboard
+  - id: npm:@tooee/config
+  - id: npm:@tooee/diff
+  - id: npm:@tooee/layout
+  - id: npm:@tooee/fuzzy
+  - id: npm:@tooee/marks
+  - id: npm:@tooee/overlays
+  - id: npm:@tooee/panels
+  - id: npm:@tooee/renderers
+  - id: npm:@tooee/router
+  - id: npm:@tooee/shell
+  - id: npm:@tooee/toasts
+  - id: npm:@tooee/search
+  - id: npm:@tooee/themes
+  - id: npm:@tooee/view
+  - id: npm:@tooee/examples
