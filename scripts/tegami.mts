@@ -51,6 +51,7 @@ const paper = tegami({
     "@tooee/clipboard": { group: "tooee" },
     "@tooee/commands": { group: "tooee" },
     "@tooee/config": { group: "tooee" },
+    "@tooee/diff": { group: "tooee" },
     "@tooee/fuzzy": { group: "tooee" },
     "@tooee/layout": { group: "tooee" },
     "@tooee/marks": { group: "tooee" },

@@ -6,7 +6,13 @@ import type { MarkSet } from "@tooee/marks";
 
 // === Built-in content types ===
 
-export type Content = MarkdownContent | CodeContent | TextContent | ImageContent | TableContent;
+export type Content =
+  | MarkdownContent
+  | CodeContent
+  | TextContent
+  | ImageContent
+  | TableContent
+  | DiffContent;
 
 export type ContentFormat = Content["format"];
 
@@ -44,6 +50,14 @@ export interface TableContent extends BaseContent {
   format: "table";
   columns: ColumnDef[];
   rows: TableRow[];
+}
+
+export interface DiffContent extends BaseContent {
+  format: "diff";
+  /** Unified patch text, single- or multi-file. */
+  patch: string;
+  /** Initial layout; defaults to stacked (unified). */
+  layout?: "split" | "stack";
 }
 
 // === Custom content ===
@@ -122,7 +136,7 @@ export type { ColumnDef, TableRow } from "@tooee/renderers";
 
 // === Utilities ===
 
-const BUILTIN_FORMATS = new Set<string>(["markdown", "code", "text", "image", "table"]);
+const BUILTIN_FORMATS = new Set<string>(["markdown", "code", "text", "image", "table", "diff"]);
 
 export const isBuiltinContent = function isBuiltinContent(content: AnyContent): content is Content {
   return BUILTIN_FORMATS.has(content.format);
@@ -183,6 +197,9 @@ export const getTextContent = function getTextContent(content: AnyContent): stri
     }
     case "code": {
       return content.code;
+    }
+    case "diff": {
+      return content.patch;
     }
     case "text": {
       return content.text;

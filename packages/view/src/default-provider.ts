@@ -1,5 +1,6 @@
 import path from "node:path";
 import { parseAuto } from "@tooee/renderers";
+import { isDiffPatch } from "@tooee/diff";
 import type { Content, ContentFormat, ContentProvider } from "./types.js";
 
 export interface CreateProviderOptions {
@@ -23,6 +24,11 @@ const detectFormat = function detectFormat(filePath: string): {
   const tableExts = new Set(["csv", "tsv"]);
   if (tableExts.has(ext)) {
     return { format: "table" };
+  }
+
+  const diffExts = new Set(["diff", "patch"]);
+  if (diffExts.has(ext)) {
+    return { format: "diff" };
   }
 
   const markdownExts = new Set(["md", "mdx", "markdown"]);
@@ -79,6 +85,9 @@ const contentFromText = function contentFromText(
     case "code": {
       return { code: text, format: "code", language, title };
     }
+    case "diff": {
+      return { format: "diff", patch: text, title };
+    }
     case "table": {
       const parsed = parseAuto(text);
       return { columns: parsed.columns, format: "table", rows: parsed.rows, title };
@@ -111,7 +120,12 @@ export const createFileProvider = function createFileProvider(
 
       const file = Bun.file(filePath);
       const text = await file.text();
-      const content = contentFromText(text, format, title, detected.language);
+      // Patches are routinely written to files with no telling extension.
+      const resolved =
+        options.renderer === undefined && detected.format === "text" && isDiffPatch(text)
+          ? "diff"
+          : format;
+      const content = contentFromText(text, resolved, title, detected.language);
       if (content.format === "markdown") {
         content.imageBasePath = path.dirname(path.resolve(filePath));
       }
@@ -126,7 +140,7 @@ export const createStdinProvider = function createStdinProvider(
   return {
     async load(): Promise<Content> {
       const text = await new Response(Bun.stdin.stream()).text();
-      const format = options.renderer ?? "markdown";
+      const format = options.renderer ?? (isDiffPatch(text) ? "diff" : "markdown");
       return contentFromText(text, format, "stdin");
     },
   };

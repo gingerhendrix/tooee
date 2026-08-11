@@ -10,5 +10,7 @@ export interface TooeeConfig {
     wrap?: boolean;
     gutter?: boolean;
     copyOnSelect?: boolean | "primary" | "clipboard";
+    /** Initial layout for diff content. Defaults to "stack" (unified). */
+    diffLayout?: "split" | "stack";
   };
 }

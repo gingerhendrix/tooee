@@ -1,15 +1,14 @@
 {
-  "name": "@tooee/view",
+  "name": "@tooee/diff",
   "version": "0.6.3",
-  "description": "Terminal content viewer for markdown, code, text, images, and tables",
+  "description": "Hunk-backed unified/split diff rendering for Tooee",
   "keywords": [
     "cli",
-    "markdown",
+    "diff",
     "opentui",
-    "syntax-highlighting",
+    "patch",
     "terminal",
-    "tui",
-    "viewer"
+    "tui"
   ],
   "homepage": "https://github.com/gingerhendrix/tooee",
   "bugs": "https://github.com/gingerhendrix/tooee/issues",
@@ -18,7 +17,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/gingerhendrix/tooee.git",
-    "directory": "packages/view"
+    "directory": "packages/diff"
   },
   "files": [
     "dist",
@@ -40,19 +39,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tooee/commands": "workspace:*",
-    "@tooee/config": "workspace:*",
-    "@tooee/diff": "workspace:*",
-    "@tooee/layout": "workspace:*",
-    "@tooee/marks": "workspace:*",
-    "@tooee/overlays": "workspace:*",
     "@tooee/renderers": "workspace:*",
-    "@tooee/search": "workspace:*",
-    "@tooee/shell": "workspace:*",
     "@tooee/themes": "workspace:*",
-    "@xstate/store": "^4",
-    "@xstate/store-react": "^2",
-    "marked": "^17.0.4"
+    "hunkdiff": "0.18.0"
   },
   "devDependencies": {
     "@opentui/core": "^0.5.1",

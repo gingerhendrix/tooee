@@ -11,6 +11,7 @@
     { "path": "../marks" },
     { "path": "../themes" },
     { "path": "../overlays" },
+    { "path": "../diff" },
     { "path": "../renderers" },
     { "path": "../layout" },
     { "path": "../search" },

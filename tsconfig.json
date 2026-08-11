@@ -29,6 +29,7 @@
     { "path": "packages/search" },
     { "path": "packages/layout" },
     { "path": "packages/renderers" },
+    { "path": "packages/diff" },
     { "path": "packages/shell" },
     { "path": "packages/view" },
     { "path": "packages/ask" },
