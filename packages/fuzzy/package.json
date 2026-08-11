@@ -1,6 +1,6 @@
 {
   "name": "@tooee/fuzzy",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "description": "Fuzzy string matching for Tooee",
   "keywords": [
     "filter",

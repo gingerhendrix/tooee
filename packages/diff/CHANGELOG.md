@@ -1,10 +1,6 @@
----
-packages:
-  "group:tooee":
-    type: minor
----
+## @tooee/diff@0.7.0
 
-## Render diffs with Hunk
+### Render diffs with Hunk
 
 Patches are now a first-class Tooee format. `tooee view changes.patch` (or piping `git diff` into
 `tooee view`) opens a diff viewer built on Hunk's OpenTUI primitives, with stacked and split
