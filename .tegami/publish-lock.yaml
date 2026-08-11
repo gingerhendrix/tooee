@@ -1,61 +1,100 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/renderers\":\n    type: patch\n---\n\n## Align Markdown blockquote markers with their text\n\nMarkdown blockquotes now use a full-height left border beside the quote body. Wrapped text keeps consistent padding from the border.\n"
-    filename: fix-blockquote-layout.md
+  - content: "---\npackages:\n  group:tooee:\n    type: minor\n---\n\n## Render diffs with Hunk\n\nPatches are now a first-class Tooee format. `tooee view changes.patch` (or piping `git diff` into\n`tooee view`) opens a diff viewer built on Hunk's OpenTUI primitives, with stacked and split\nlayouts, word-level highlights and multi-file review.\n\nNavigation is per hunk: `j`/`k` step between hunks, `]`/`[` jump between files, `f` opens a file\npicker, `s` toggles split, `w` toggles wrapping, and `h`/`l` pan wide hunks. Search, copy and\nselection all work in real patch text.\n\nMarkdown ` ```diff ` and ` ```patch ` fences render as diff blocks too, with `split`, `nolines` and\n`wrap` options in the fence info string. Fences that are not real unified diffs keep falling back\nto the syntax-highlighted code block.\n"
+    filename: feat-hunk-diff-rendering.md
     v: 0.0.0
 core:packages:
-  - id: npm:@tooee/cli
-    updated: true
-  - id: npm:@tooee/choose
-    updated: true
-  - id: npm:@tooee/ask
-    updated: true
-  - id: npm:@tooee/clipboard
-    updated: true
-  - id: npm:@tooee/commands
-    updated: true
-  - id: npm:@tooee/config
-    updated: true
-  - id: npm:@tooee/layout
-    updated: true
-  - id: npm:@tooee/fuzzy
-    updated: true
-  - id: npm:@tooee/marks
-    updated: true
-  - id: npm:@tooee/overlays
-    updated: true
-  - id: npm:@tooee/panels
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/cli
     updated: true
   - changelogIds:
-      - fix-blockquote-layout.md
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/ask
+    updated: true
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/choose
+    updated: true
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/clipboard
+    updated: true
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/commands
+    updated: true
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/config
+    updated: true
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/diff
+    updated: true
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/fuzzy
+    updated: true
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/layout
+    updated: true
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/panels
+    updated: true
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/marks
+    updated: true
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/overlays
+    updated: true
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
     id: npm:@tooee/renderers
     updated: true
-  - id: npm:@tooee/search
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/router
     updated: true
-  - id: npm:@tooee/router
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/search
     updated: true
-  - id: npm:@tooee/shell
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/shell
     updated: true
-  - id: npm:@tooee/themes
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/themes
     updated: true
-  - id: npm:@tooee/toasts
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/toasts
     updated: true
-  - id: npm:@tooee/view
+  - changelogIds:
+      - feat-hunk-diff-rendering.md
+    id: npm:@tooee/view
     updated: true
 npm:packages:
   - id: npm:@tooee/cli
-  - id: npm:@tooee/choose
   - id: npm:@tooee/ask
+  - id: npm:@tooee/choose
   - id: npm:@tooee/clipboard
   - id: npm:@tooee/commands
   - id: npm:@tooee/config
-  - id: npm:@tooee/layout
+  - id: npm:@tooee/diff
   - id: npm:@tooee/fuzzy
+  - id: npm:@tooee/layout
+  - id: npm:@tooee/panels
   - id: npm:@tooee/marks
   - id: npm:@tooee/overlays
-  - id: npm:@tooee/panels
   - id: npm:@tooee/renderers
-  - id: npm:@tooee/search
   - id: npm:@tooee/router
+  - id: npm:@tooee/search
   - id: npm:@tooee/shell
   - id: npm:@tooee/themes
   - id: npm:@tooee/toasts
