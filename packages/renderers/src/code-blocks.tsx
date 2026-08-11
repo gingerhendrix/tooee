@@ -45,6 +45,13 @@ export interface CodeBlockRendererProps {
   syntax: SyntaxStyle;
   /** Left indentation (columns) when the block is nested inside a list. */
   indent: number;
+  /**
+   * Columns available to the renderer's own content: the document width less
+   * the gutter, the block's indent and margins, and `CodeBlockChrome`'s border.
+   * Renderers that must be told their width (Hunk diffs, for one) use it;
+   * flex-sized renderers can ignore it. Kept current across resizes.
+   */
+  width: number;
   /** Index of this block in the flattened block list. */
   blockIndex: number;
   /** Horizontal panning hooks for wide content (optional to use). */
@@ -65,6 +72,13 @@ export interface CodeBlockRendererProps {
  * every render.
  */
 export type CodeBlockRenderer = (props: CodeBlockRendererProps) => ReactNode;
+
+/**
+ * Columns `CodeBlockChrome` consumes around its children: left margin, right
+ * margin and both border edges. Subtracted (with the block indent) from the
+ * document content width to give a renderer its usable `width`.
+ */
+export const CODE_BLOCK_CHROME_WIDTH = 4;
 
 /**
  * The standard bordered-box chrome used by built-in code and mermaid blocks.
@@ -263,6 +277,7 @@ export const CodeBlock = function CodeBlock({
   theme,
   syntax,
   indent,
+  contentWidth,
   hScrollableBlocksRef,
   renderers,
 }: {
@@ -271,6 +286,8 @@ export const CodeBlock = function CodeBlock({
   theme: ResolvedTheme;
   syntax: SyntaxStyle;
   indent: number;
+  /** Columns the block list is laid out in, before chrome and indent. */
+  contentWidth: number;
   hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>;
   renderers?: Record<string, CodeBlockRenderer>;
 }): ReactNode {
@@ -285,6 +302,7 @@ export const CodeBlock = function CodeBlock({
     syntax,
     text: token.text,
     theme,
+    width: Math.max(1, contentWidth - CODE_BLOCK_CHROME_WIDTH - indent),
   };
 
   const custom = rendererProps.lang === "" ? undefined : renderers?.[rendererProps.lang];

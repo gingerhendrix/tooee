@@ -8,7 +8,7 @@ export {
   splitMarkdownImages,
 } from "./markdown-images.js";
 export type { MarkdownImageEmbed, MarkdownInlineSegment } from "./markdown-images.js";
-export { sourceLines, sourceLineAdapter } from "./source.js";
+export { sourceLines, sourceLineAdapter, SourceIndex } from "./source.js";
 export type {
   DocumentRowAnchor,
   DocumentRowSource,

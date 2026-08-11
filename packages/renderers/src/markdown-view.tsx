@@ -1,5 +1,6 @@
 import type { Token, Tokens } from "marked";
 import { useEffect, useMemo, useState } from "react";
+import { useTerminalDimensions } from "@opentui/react";
 import type { ReactNode, RefObject } from "react";
 import { useTheme } from "@tooee/themes";
 import type { ResolvedTheme } from "@tooee/themes";
@@ -18,7 +19,10 @@ import type {
   MouseEvent,
 } from "@opentui/core";
 import type { DocumentBindings } from "./document-bindings.js";
-import { DEFAULT_SIGN_COLUMN_WIDTH } from "./row-document-renderable.js";
+import {
+  DEFAULT_SIGN_COLUMN_WIDTH,
+  computeRowDocumentGutterWidth,
+} from "./row-document-renderable.js";
 import { useGutterPalette } from "./use-gutter-palette.js";
 import { CodeBlock, DEFAULT_CODE_BLOCK_RENDERERS } from "./code-blocks.js";
 import type { CodeBlockRenderer } from "./code-blocks.js";
@@ -223,6 +227,9 @@ const linkMouseHandler = function linkMouseHandler(
 // Component
 // ---------------------------------------------------------------------------
 
+/** Columns held back from the measured width for the scrollbar and right edge. */
+const MARKDOWN_SCROLLBAR_RESERVE = 2;
+
 export const MarkdownView = function MarkdownView({
   content,
   blocks: providedBlocks,
@@ -235,9 +242,23 @@ export const MarkdownView = function MarkdownView({
 }: MarkdownViewProps): ReactNode {
   const { theme, syntax } = useTheme();
   const palette = useGutterPalette();
+  const { width: terminalWidth } = useTerminalDimensions();
   const blocks = useMemo(
     () => providedBlocks ?? flattenMarkdown(content),
     [providedBlocks, content],
+  );
+
+  // Blocks that must be told their width (diff fences) need the columns left
+  // after the row-document gutter and the scrollbar.
+  const contentWidth = Math.max(
+    1,
+    terminalWidth -
+      computeRowDocumentGutterWidth({
+        rowCount: blocks.length,
+        showLineNumbers,
+        signColumnWidth: DEFAULT_SIGN_COLUMN_WIDTH,
+      }) -
+      MARKDOWN_SCROLLBAR_RESERVE,
   );
 
   // Merge user renderers over built-in defaults, normalizing keys to
@@ -261,6 +282,7 @@ export const MarkdownView = function MarkdownView({
             blockIndex={index}
             theme={theme}
             syntax={syntax}
+            contentWidth={contentWidth}
             hScrollableBlocksRef={hScrollableBlocksRef}
             codeBlockRenderers={mergedCodeBlockRenderers}
             onLinkActivate={onLinkActivate}
@@ -272,6 +294,7 @@ export const MarkdownView = function MarkdownView({
       blocks,
       theme,
       syntax,
+      contentWidth,
       hScrollableBlocksRef,
       mergedCodeBlockRenderers,
       onLinkActivate,
@@ -303,6 +326,7 @@ const FlatBlockRenderer = function FlatBlockRenderer({
   blockIndex,
   theme,
   syntax,
+  contentWidth,
   hScrollableBlocksRef,
   codeBlockRenderers,
   onLinkActivate,
@@ -312,6 +336,7 @@ const FlatBlockRenderer = function FlatBlockRenderer({
   blockIndex: number;
   theme: ResolvedTheme;
   syntax: SyntaxStyle;
+  contentWidth: number;
   hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>;
   codeBlockRenderers?: Record<string, CodeBlockRenderer>;
   onLinkActivate?: MarkdownLinkHandler;
@@ -364,6 +389,7 @@ const FlatBlockRenderer = function FlatBlockRenderer({
           theme={theme}
           syntax={syntax}
           indent={indent}
+          contentWidth={contentWidth}
           hScrollableBlocksRef={hScrollableBlocksRef}
           renderers={codeBlockRenderers}
         />
