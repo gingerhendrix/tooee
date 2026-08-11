@@ -12,7 +12,7 @@ import { launch as launchChoose, createStdinChooseProvider } from "@tooee/choose
 
 const [command, ...args] = process.argv.slice(2);
 
-const RENDERERS: ContentFormat[] = ["markdown", "code", "text", "table"];
+const RENDERERS: ContentFormat[] = ["markdown", "code", "text", "table", "diff"];
 
 interface ViewArgs {
   filePath?: string;
@@ -64,20 +64,21 @@ const printUsage = function printUsage(): void {
   console.log("Usage: tooee <command> [options]");
   console.log("");
   console.log("Commands:");
-  console.log("  view [file]    Display markdown, code, text, or tables");
+  console.log("  view [file]    Display markdown, code, text, diffs, or tables");
   console.log("  ask [prompt]   Gather multiline user input");
   console.log("  choose         Select items from a filterable list (stdin)");
   console.log("  table [file]   Display tabular data (deprecated; use view --renderer table)");
 
   console.log("");
   console.log("View options:");
-  console.log("  --renderer, -r <renderer>  Force renderer: markdown, code, text, table");
+  console.log("  --renderer, -r <renderer>  Force renderer: markdown, code, text, table, diff");
 
   console.log("");
   console.log("Examples:");
   console.log("  tooee view README.md");
   console.log("  tooee view --renderer text README.md");
   console.log("  tooee view --renderer table data.csv");
+  console.log("  git diff | tooee view --renderer diff");
   console.log("  cat file.md | tooee view");
   console.log("  cat data.csv | tooee view --renderer table");
   console.log('  tooee ask "Search for:"');

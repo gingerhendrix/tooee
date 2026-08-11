@@ -42,6 +42,7 @@
   "dependencies": {
     "@tooee/commands": "workspace:*",
     "@tooee/config": "workspace:*",
+    "@tooee/diff": "workspace:*",
     "@tooee/layout": "workspace:*",
     "@tooee/marks": "workspace:*",
     "@tooee/overlays": "workspace:*",

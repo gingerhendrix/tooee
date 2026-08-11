@@ -3,6 +3,7 @@ import { useTheme } from "@tooee/themes";
 import type { ActionDefinition } from "@tooee/commands";
 import type { MarkSet } from "@tooee/marks";
 import type { CodeBlockRenderer, MarkdownLinkHandler } from "@tooee/renderers";
+import { DIFF_CODE_BLOCK_RENDERERS } from "@tooee/diff";
 import { isCustomContent } from "./types.js";
 import type { ContentProvider, ContentRenderer } from "./types.js";
 import { useContentLoader } from "./hooks/use-content-loader.js";
@@ -11,6 +12,7 @@ import {
   CodeSubview,
   TableSubview,
   ImageSubview,
+  DiffSubview,
   CustomSubview,
 } from "./components/subviews/index.js";
 
@@ -58,6 +60,13 @@ export const View = function View({
   // interaction layers it generates, ordered by each set's own priority.
   const decorations = useMemo(() => [...providerMarks, ...userMarks], [providerMarks, userMarks]);
 
+  // ```diff / ```patch fences render as Hunk diff blocks unless the host
+  // registers its own renderer for those types.
+  const mergedCodeBlockRenderers = useMemo(
+    () => ({ ...DIFF_CODE_BLOCK_RENDERERS, ...codeBlockRenderers }),
+    [codeBlockRenderers],
+  );
+
   if ((error?.length ?? 0) > 0) {
     return (
       <box style={{ flexDirection: "column" }}>
@@ -95,7 +104,7 @@ export const View = function View({
       return (
         <MarkdownSubview
           content={content}
-          codeBlockRenderers={codeBlockRenderers}
+          codeBlockRenderers={mergedCodeBlockRenderers}
           onLinkActivate={onMarkdownLinkActivate}
           {...shared}
         />
@@ -110,6 +119,9 @@ export const View = function View({
     }
     case "table": {
       return <TableSubview content={content} {...shared} />;
+    }
+    case "diff": {
+      return <DiffSubview content={content} {...shared} />;
     }
     default: {
       return null;

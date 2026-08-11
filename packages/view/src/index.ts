@@ -29,6 +29,7 @@ export type {
   ContentRenderer,
   ContentRendererProps,
   CustomContent,
+  DiffContent,
   ImageContent,
   MarkdownContent,
   CodeContent,
