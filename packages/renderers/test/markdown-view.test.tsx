@@ -99,6 +99,82 @@ test("renders list items", async () => {
   expect(frame).toContain("Third item");
 });
 
+describe("Markdown line endings", () => {
+  test("renders paragraph soft line endings as spaces", async () => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={"Source lines should reflow\nwith the available width."} />
+      </ThemeSwitcherProvider>,
+      { height: 10, width: 80 },
+    );
+    await testSetup.renderOnce();
+    const rows = testSetup.captureCharFrame().split("\n");
+
+    expect(
+      rows.some((row) => row.includes("Source lines should reflow with the available width.")),
+    ).toBe(true);
+  });
+
+  test.each([
+    ["two trailing spaces", "First line.  \nSecond line."],
+    ["a trailing backslash", "First line.\\\nSecond line."],
+  ])("preserves hard line endings written with %s", async (_syntax, content) => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={content} />
+      </ThemeSwitcherProvider>,
+      { height: 10, width: 80 },
+    );
+    await testSetup.renderOnce();
+    const rows = testSetup.captureCharFrame().split("\n");
+    const firstLine = rows.findIndex((row) => row.includes("First line."));
+    const secondLine = rows.findIndex((row) => row.includes("Second line."));
+
+    expect(firstLine).toBeGreaterThanOrEqual(0);
+    expect(secondLine).toBe(firstLine + 1);
+  });
+
+  test.each([
+    [
+      "list item",
+      "- Source lines should\n  reflow in a list.",
+      "Source lines should reflow in a list.",
+    ],
+    [
+      "blockquote",
+      "> Source lines should\n> reflow in a quote.",
+      "Source lines should reflow in a quote.",
+    ],
+  ])("renders soft line endings as spaces in a %s", async (_container, content, expected) => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={content} />
+      </ThemeSwitcherProvider>,
+      { height: 10, width: 80 },
+    );
+    await testSetup.renderOnce();
+    const rows = testSetup.captureCharFrame().split("\n");
+
+    expect(rows.some((row) => row.includes(expected))).toBe(true);
+  });
+
+  test("preserves blockquote paragraph separation", async () => {
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={"> First paragraph.\n>\n> Second paragraph."} />
+      </ThemeSwitcherProvider>,
+      { height: 10, width: 80 },
+    );
+    await testSetup.renderOnce();
+    const rows = testSetup.captureCharFrame().split("\n");
+    const firstParagraph = rows.findIndex((row) => row.includes("First paragraph."));
+    const secondParagraph = rows.findIndex((row) => row.includes("Second paragraph."));
+
+    expect(firstParagraph).toBeGreaterThanOrEqual(0);
+    expect(secondParagraph).toBe(firstParagraph + 1);
+  });
+});
+
 test("renders code blocks", async () => {
   testSetup = await testRender(
     <ThemeSwitcherProvider>

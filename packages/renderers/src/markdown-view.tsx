@@ -44,6 +44,11 @@ export interface InlineLinkPosition {
   column: number;
 }
 
+/** Markdown soft line endings separate prose words without forcing a rendered break. */
+const normalizeSoftLineEndings = function normalizeSoftLineEndings(value: string): string {
+  return value.replaceAll("\n", " ");
+};
+
 interface MarkdownViewProps {
   content: string;
   /**
@@ -134,6 +139,11 @@ export const inlineLinkAtPosition = function inlineLinkAtPosition(
         return;
       }
       switch (token.type) {
+        case "text": {
+          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+          advanceText(normalizeSoftLineEndings((token as Tokens.Text).text), href);
+          break;
+        }
         case "link": {
           // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
           const link = token as Tokens.Link;
@@ -646,7 +656,7 @@ const BlockquoteRenderer = function BlockquoteRenderer({
   for (const child of token.tokens) {
     if ("tokens" in child && Array.isArray(child.tokens)) {
       if (inlineTokens.length > 0) {
-        inlineTokens.push({ raw: "\n", text: "\n", type: "text" });
+        inlineTokens.push({ raw: "\n", type: "br" });
       }
       inlineTokens.push(...child.tokens);
     } else if ("text" in child && typeof child.text === "string") {
@@ -767,7 +777,7 @@ const InlineTokens = function InlineTokens({
     switch (token.type) {
       case "text": {
         // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
-        result.push((token as Tokens.Text).text);
+        result.push(normalizeSoftLineEndings((token as Tokens.Text).text));
         break;
       }
       case "strong": {

@@ -192,4 +192,27 @@ describe("MarkdownView inline links", () => {
     expect(activated).toEqual(["https://example.com"]);
     expect(selected).toEqual([0]);
   });
+
+  test("soft line ending before a link keeps link hit testing on the reflowed row", async () => {
+    const activated: string[] = [];
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownHarness
+          content={"Before\n[linked artifact](nested/note.md) after"}
+          onLinkActivate={(href) => {
+            activated.push(href);
+            return true;
+          }}
+        />
+      </ThemeSwitcherProvider>,
+      { height: 10, width: 60 },
+    );
+    await testSetup.renderOnce();
+    await act(async () => {
+      // Content begins at x=5 (gutter) + 1 margin; the soft break contributes one space.
+      await testSetup.mockMouse.click(13, 0, MouseButtons.LEFT);
+    });
+
+    expect(activated).toEqual(["nested/note.md"]);
+  });
 });
