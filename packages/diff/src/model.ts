@@ -130,12 +130,37 @@ export const scanPatchSections = function scanPatchSections(patch: string): Patc
 // Model construction
 // ---------------------------------------------------------------------------
 
+const HUNK_HEADER_CONTEXT_SEPARATOR = " @@ ";
+
+/**
+ * Hunk stores the full hunk header in `hunkSpecs` and also exposes the section
+ * label as `hunkContext`. Its OpenTUI formatter joins those fields again, so a
+ * header such as `@@ -1 +1 @@ function f()` can otherwise render the section
+ * label twice. Keep the full source text in row.text, but pass Hunk a normalized
+ * hunk model for drawing.
+ */
+const normalizeHunkHeaderForRender = function normalizeHunkHeaderForRender(
+  hunk: HunkDiffFile["metadata"]["hunks"][number],
+): HunkDiffFile["metadata"]["hunks"][number] {
+  const { hunkContext, hunkSpecs } = hunk;
+  if (
+    hunkContext === undefined ||
+    hunkContext.length === 0 ||
+    hunkSpecs?.includes(HUNK_HEADER_CONTEXT_SEPARATOR) !== true
+  ) {
+    return hunk;
+  }
+
+  const [specs] = hunkSpecs.split(HUNK_HEADER_CONTEXT_SEPARATOR, 1);
+  return { ...hunk, hunkSpecs: `${specs} @@` };
+};
+
 /** Narrow a file to a single hunk while keeping its whole-file line arrays. */
 const narrowToHunk = function narrowToHunk(
   file: HunkDiffFile,
   hunkIndex: number,
 ): HunkDiffFileInput {
-  const hunk = file.metadata.hunks[hunkIndex];
+  const hunk = normalizeHunkHeaderForRender(file.metadata.hunks[hunkIndex]);
   return {
     ...file,
     id: `${file.id}#${hunkIndex}`,

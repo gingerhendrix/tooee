@@ -54,6 +54,20 @@ describe("diffCodeBlockRenderer", () => {
     expect(frame).not.toContain("+3 -2");
   });
 
+  test("renders hunk header context once", async () => {
+    const patch = `--- a/src/demo.ts
++++ b/src/demo.ts
+@@ -1,3 +1,3 @@ function demo()
+ const before = 1;
+-const value = before;
++const value = before + 1;
+ return value;
+`;
+    const frame = await renderMarkdown(fence("diff", patch));
+    const hunkHeaderLine = lineWith(frame, "@@ -1,3 +1,3 @@ function demo()");
+    expect(hunkHeaderLine.match(/function demo\(\)/gu)).toHaveLength(1);
+  });
+
   test("falls back to the default code block for prose-style diff fences", async () => {
     const frame = await renderMarkdown(fence("diff", "- removed idea\n+ added idea\n"));
     expect(frame).toContain("- removed idea");
