@@ -1,11 +1,11 @@
 import { useMemo, useRef } from "react";
 import type { TextBufferRenderable } from "@opentui/core";
 import { MarkdownView, flattenMarkdown, getFlatBlockText } from "@tooee/renderers";
-import type { CodeBlockRenderer, FlatBlock, MarkdownLinkHandler } from "@tooee/renderers";
-import { useCommand } from "@tooee/commands";
+import type { CodeBlockRenderer, FlatBlock } from "@tooee/renderers";
+import { useBuildCommandContext, useCommand } from "@tooee/commands";
 import { useDocumentController } from "@tooee/shell";
 import type { DocumentRowAdapter } from "@tooee/shell";
-import type { MarkdownContent } from "../../types.js";
+import type { MarkdownContent, MarkdownLinkActivateHandler } from "../../types.js";
 import { useContentCommands } from "../../hooks/use-content-commands.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
@@ -13,7 +13,7 @@ import type { SubviewProps } from "./types.js";
 interface MarkdownSubviewProps extends SubviewProps {
   content: MarkdownContent;
   codeBlockRenderers?: Record<string, CodeBlockRenderer>;
-  onLinkActivate?: MarkdownLinkHandler;
+  onLinkActivate?: MarkdownLinkActivateHandler;
 }
 
 /** Columns moved per h/l press when scrolling a wide block horizontally. */
@@ -42,6 +42,10 @@ export const MarkdownSubview = function MarkdownSubview({
   const blocks = useMemo(() => flattenMarkdown(content.markdown), [content.markdown]);
 
   const { showLineNumbers } = useContentCommands({ content, textContent });
+  const buildCommandContext = useBuildCommandContext();
+  const handleLinkActivate = onLinkActivate
+    ? (href: string): unknown => onLinkActivate(href, buildCommandContext())
+    : undefined;
 
   const document = useDocumentController<FlatBlock>({
     adapter: MARKDOWN_BLOCK_ADAPTER,
@@ -107,7 +111,7 @@ export const MarkdownSubview = function MarkdownSubview({
         document={document}
         hScrollableBlocksRef={hScrollableBlocksRef}
         codeBlockRenderers={codeBlockRenderers}
-        onLinkActivate={onLinkActivate}
+        onLinkActivate={handleLinkActivate}
         imageBasePath={content.imageBasePath}
       />
     </ViewScreen>

@@ -2,10 +2,10 @@ import { useCallback, useMemo, useState } from "react";
 import { useTheme } from "@tooee/themes";
 import type { ActionDefinition } from "@tooee/commands";
 import type { MarkSet } from "@tooee/marks";
-import type { CodeBlockRenderer, MarkdownLinkHandler } from "@tooee/renderers";
+import type { CodeBlockRenderer } from "@tooee/renderers";
 import { DIFF_CODE_BLOCK_RENDERERS } from "@tooee/diff";
 import { isCustomContent } from "./types.js";
-import type { ContentProvider, ContentRenderer } from "./types.js";
+import type { ContentProvider, ContentRenderer, MarkdownLinkActivateHandler } from "./types.js";
 import { useContentLoader } from "./hooks/use-content-loader.js";
 import {
   MarkdownSubview,
@@ -26,7 +26,7 @@ interface ViewProps {
    */
   codeBlockRenderers?: Record<string, CodeBlockRenderer>;
   /** Handles primary-button activation of inline Markdown links. */
-  onMarkdownLinkActivate?: MarkdownLinkHandler;
+  onMarkdownLinkActivate?: MarkdownLinkActivateHandler;
 }
 
 export const View = function View({

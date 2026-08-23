@@ -3,9 +3,9 @@ import { test, expect, afterEach, describe } from "bun:test";
 import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
 import { TooeeProvider } from "@tooee/shell";
-import type { ActionDefinition } from "@tooee/commands";
+import type { ActionDefinition, CommandContext } from "@tooee/commands";
 import { View } from "../src/view.js";
-import type { AnyContent, ContentProvider } from "../src/types.js";
+import type { AnyContent, ContentProvider, MarkdownLinkActivateHandler } from "../src/types.js";
 
 const staticProvider = function staticProvider(content: AnyContent): ContentProvider {
   return { format: content.format, load: () => content };
@@ -22,6 +22,11 @@ const MD = staticProvider({
   markdown: "First.\n\nSecond.\n\nThird.",
 });
 
+const MD_LINK = staticProvider({
+  format: "markdown",
+  markdown: "First.\n\nSecond.\n\n[linked artifact](nested/note.md)",
+});
+
 const ACTIONS: ActionDefinition[] = [
   { handler: () => {}, hotkey: "y", id: "row.copy", modes: ["cursor"], title: "Copy row" },
   { handler: () => {}, id: "row.open", modes: ["cursor"], title: "Open row" },
@@ -33,10 +38,18 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-const setup = async function setup(provider: ContentProvider, actions?: ActionDefinition[]) {
+const setup = async function setup(
+  provider: ContentProvider,
+  actions?: ActionDefinition[],
+  onMarkdownLinkActivate?: MarkdownLinkActivateHandler,
+) {
   const s = await testRender(
     <TooeeProvider>
-      <View contentProvider={provider} actions={actions} />
+      <View
+        contentProvider={provider}
+        actions={actions}
+        onMarkdownLinkActivate={onMarkdownLinkActivate}
+      />
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 80 },
   );
@@ -57,6 +70,14 @@ const lineOf = function lineOf(frame: string, text: string): { x: number; y: num
     }
   }
   return { x: -1, y: -1 };
+};
+
+const press = async function press(key: string) {
+  await act(async () => {
+    testSetup.mockInput.pressKey(key);
+    await Promise.resolve();
+  });
+  await testSetup.renderOnce();
 };
 
 describe("Code view mouse selection", () => {
@@ -174,5 +195,47 @@ describe("Markdown view mouse selection", () => {
     expect(frame).toContain("Copy row");
     expect(frame).toContain("Open row");
     expect(frame).toMatch(/Cursor:\s*1/u);
+  });
+
+  test("link activation receives raw href and fresh View context before consuming selection", async () => {
+    let activated: { context: CommandContext; href: string } | undefined;
+    testSetup = await setup(MD_LINK, undefined, (href, context) => {
+      activated = { context, href };
+      return true;
+    });
+    await press("j");
+
+    const pos = lineOf(testSetup.captureCharFrame(), "linked artifact");
+    expect(pos.y).toBeGreaterThan(-1);
+    await act(async () => {
+      await testSetup.mockMouse.click(pos.x, pos.y, MouseButtons.LEFT);
+    });
+    await testSetup.renderOnce();
+
+    expect(activated?.href).toBe("nested/note.md");
+    expect(activated?.context.view.format).toBe("markdown");
+    expect(activated?.context.document.kind).toBe("markdown");
+    expect(activated?.context.document.rowCount).toBe(3);
+    expect(activated?.context.document.cursor).toBe(1);
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*1/u);
+  });
+
+  test("a one-argument link handler remains compatible and only exact true consumes", async () => {
+    const activated: string[] = [];
+    const legacyHandler = (href: string): unknown => {
+      activated.push(href);
+      return "handled";
+    };
+    testSetup = await setup(MD_LINK, undefined, legacyHandler);
+
+    const pos = lineOf(testSetup.captureCharFrame(), "linked artifact");
+    expect(pos.y).toBeGreaterThan(-1);
+    await act(async () => {
+      await testSetup.mockMouse.click(pos.x, pos.y, MouseButtons.LEFT);
+    });
+    await testSetup.renderOnce();
+
+    expect(activated).toEqual(["nested/note.md"]);
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/u);
   });
 });

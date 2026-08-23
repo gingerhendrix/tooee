@@ -32,6 +32,7 @@ export type {
   DiffContent,
   ImageContent,
   MarkdownContent,
+  MarkdownLinkActivateHandler,
   CodeContent,
   TextContent,
   TableContent,

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { ImageFit, ImageRenderProtocol, ImageSource } from "@opentui/core";
+import type { CommandContext } from "@tooee/commands";
 import type { ColumnDef, SourceLineRow, TableRow } from "@tooee/renderers";
 import type { DocumentController } from "@tooee/shell";
 import type { MarkSet } from "@tooee/marks";
@@ -15,6 +16,9 @@ export type Content =
   | DiffContent;
 
 export type ContentFormat = Content["format"];
+
+/** Handles an inline Markdown link with the View's live command context. */
+export type MarkdownLinkActivateHandler = (href: string, context: CommandContext) => unknown;
 
 interface BaseContent {
   title?: string;
