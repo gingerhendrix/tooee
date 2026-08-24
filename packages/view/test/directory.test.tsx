@@ -2,6 +2,8 @@ import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, describe } from "bun:test";
 import { act } from "react";
 import path from "node:path";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { TooeeProvider } from "@tooee/shell";
 import { DirectoryView } from "../src/directory-view.js";
 import { listDirectoryFiles } from "../src/directory-provider.js";
@@ -20,6 +22,24 @@ describe("listDirectoryFiles", () => {
     const files = listDirectoryFiles(TEST_DIR);
     for (const f of files) {
       expect(f.path).toBe(path.resolve(TEST_DIR, f.name));
+    }
+  });
+
+  test("includes every stock table and diff extension in sorted order", () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "tooee-directory-"));
+    try {
+      for (const name of ["delta.patch", "beta.tsv", "alpha.csv", "charlie.diff"]) {
+        writeFileSync(path.join(dir, name), "fixture");
+      }
+
+      expect(listDirectoryFiles(dir).map((file) => file.name)).toEqual([
+        "alpha.csv",
+        "beta.tsv",
+        "charlie.diff",
+        "delta.patch",
+      ]);
+    } finally {
+      rmSync(dir, { force: true, recursive: true });
     }
   });
 });
