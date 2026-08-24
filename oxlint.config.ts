@@ -6,7 +6,8 @@ export default defineConfig({
   extends: [core, react],
   // Tool configs are validated by Ultracite Doctor and their own CLIs. Type-aware
   // lint cannot resolve Oxfmt's config-only type surface through the repo projects.
-  ignorePatterns: [...core.ignorePatterns, "oxlint.config.ts", "oxfmt.config.ts"],
+  // The documentation site is an independent Bun project checked by its own CI step.
+  ignorePatterns: [...core.ignorePatterns, "oxlint.config.ts", "oxfmt.config.ts", "site/**"],
   options: {
     typeAware: true,
   },
