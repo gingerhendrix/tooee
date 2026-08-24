@@ -7,6 +7,7 @@ import { DIFF_CODE_BLOCK_RENDERERS } from "@tooee/diff";
 import { isCustomContent } from "./types.js";
 import type { ContentProvider, ContentRenderer, MarkdownLinkActivateHandler } from "./types.js";
 import { useContentLoader } from "./hooks/use-content-loader.js";
+import { ViewState } from "./components/view-state.js";
 import {
   MarkdownSubview,
   CodeSubview,
@@ -68,19 +69,11 @@ export const View = function View({
   );
 
   if ((error?.length ?? 0) > 0) {
-    return (
-      <box style={{ flexDirection: "column" }}>
-        <text content={`Error: ${error}`} fg={theme.error} />
-      </box>
-    );
+    return <ViewState message={`Error: ${error}`} color={theme.error} />;
   }
 
   if (!content) {
-    return (
-      <box>
-        <text content="Loading..." fg={theme.textMuted} />
-      </box>
-    );
+    return <ViewState message="Loading..." color={theme.textMuted} />;
   }
 
   const shared = {

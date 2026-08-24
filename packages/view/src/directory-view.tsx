@@ -6,6 +6,7 @@ import { listDirectoryFiles } from "./directory-provider.js";
 import type { DirectoryEntry } from "./directory-provider.js";
 import type { AnyContent, ContentProvider } from "./types.js";
 import { createFileProvider } from "./default-provider.js";
+import { ViewState } from "./components/view-state.js";
 
 const createDirectoryFileProvider = function createDirectoryFileProvider(
   entry: DirectoryEntry,
@@ -68,11 +69,7 @@ export const DirectoryView = function DirectoryView({
   });
 
   if (files.length === 0 || !contentProvider) {
-    return (
-      <box>
-        <text content="No viewable files in directory" />
-      </box>
-    );
+    return <ViewState message="No viewable files in directory" />;
   }
 
   return <View contentProvider={contentProvider} actions={actions} />;
