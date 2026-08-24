@@ -27,6 +27,14 @@ jobs:
 
       - run: bun install --frozen-lockfile
 
+      - name: Install documentation site dependencies
+        working-directory: site
+        run: bun install --frozen-lockfile
+
+      - name: Check documentation site
+        working-directory: site
+        run: bun run check
+
       - run: bun run check
 
       - run: bun run lint
