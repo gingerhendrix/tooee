@@ -1,0 +1,34 @@
+---
+title: Getting started with the CLI
+description: Install the Tooee CLI and launch a terminal micro-app.
+---
+
+The Tooee CLI exposes small interactive tools for viewing content, collecting text, and choosing from a list. This page is a placeholder for the full command reference.
+
+## Install
+
+Install the CLI globally with Bun:
+
+```bash
+bun add --global @tooee/cli
+```
+
+## Try it
+
+Open a Markdown file:
+
+```bash
+tooee view README.md
+```
+
+Choose an item from a shell pipeline:
+
+```bash
+printf 'alpha\nbeta\ngamma\n' | tooee choose
+```
+
+Run `tooee --help` to see the commands and options supported by the installed version.
+
+## Next steps
+
+The full CLI reference and TypeScript integration guides are still to come. For current package source and examples, visit the [Tooee repository](https://github.com/gingerhendrix/tooee).
