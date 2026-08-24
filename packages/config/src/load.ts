@@ -54,6 +54,9 @@ const validateConfig = function validateConfig(value: unknown): Partial<TooeeCon
     if (typeof value.view.gutter === "boolean") {
       view.gutter = value.view.gutter;
     }
+    if (value.view.diffLayout === "split" || value.view.diffLayout === "stack") {
+      view.diffLayout = value.view.diffLayout;
+    }
     if (
       typeof value.view.copyOnSelect === "boolean" ||
       value.view.copyOnSelect === "primary" ||
