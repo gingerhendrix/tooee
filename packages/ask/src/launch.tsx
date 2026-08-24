@@ -21,6 +21,6 @@ export const launch = async function launch(options: AskLaunchOptions): Promise<
       actions={options.actions}
       onSubmit={handleSubmit}
     />,
-    { exitOnCtrlC: false, provider: { initialMode: "insert" } },
+    { provider: { initialMode: "insert" } },
   );
 };

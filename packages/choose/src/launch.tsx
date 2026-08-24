@@ -23,7 +23,6 @@ export const launch = async function launch(
       />
     ),
     {
-      exitOnCtrlC: false,
       provider: { initialMode: "insert" },
       stdinPolicy: "tty-if-piped",
     },
