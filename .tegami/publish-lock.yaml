@@ -1,82 +1,116 @@
 core:changelogs:
-  - content: "---\npackages:\n  group:tooee:\n    type: patch\n---\n\n## Ship the compiled `@tooee/diff` output\n\n`@tooee/diff@0.7.0` reached npm without its `dist` build, so importing the package, or opening a\ndiff through `@tooee/view`, failed to resolve. This release republishes the package with the\ncompiled entry point in place. Install `0.7.1` or later for diff rendering.\n"
-    filename: fix-diff-dist-output.md
+  - content: "---\npackages:\n  group:tooee:\n    type: patch\n---\n\n## Add the Tooee documentation site\n\nTooee now includes a small searchable documentation site for `tooee.dev`, starting with an overview and CLI setup guide.\n"
+    filename: add-docs-site.md
+    v: 0.0.0
+  - content: "---\npackages:\n  group:tooee:\n    type: patch\n---\n\n## Restore expected CLI view and exit behavior\n\nStandalone ask and choose sessions now exit on Ctrl+C. View keeps `q` available in error and empty-directory states, honors persisted diff layouts, and includes CSV, TSV, diff, and patch files in directory browsing.\n"
+    filename: fix-four-cli-issues.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/choose\":\n    type: patch\n---\n\n## Keep choice text clear of the scrollbar\n\nLong choice labels and descriptions now keep a space between wrapped text and the scrollbar.\n"
+    filename: fix-choose-scrollbar-spacing.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/renderers\":\n    type: patch\n---\n\n## Reflow Markdown prose across source lines\n\nMarkdown soft line breaks now behave as spaces so prose wraps to the available viewport width, while explicit hard breaks still start a new rendered line.\n"
+    filename: fix-markdown-softbreak-wrap.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/view\":\n    type: patch\n---\n\n## Provide View context when Markdown links activate\n\nMarkdown link handlers on `View` now receive the live command context with the raw link URL. Existing one-argument handlers continue to work.\n"
+    filename: markdown-link-context.md
     v: 0.0.0
 core:packages:
   - changelogIds:
-      - fix-diff-dist-output.md
+      - add-docs-site.md
+      - fix-four-cli-issues.md
     id: npm:@tooee/cli
     updated: true
   - changelogIds:
-      - fix-diff-dist-output.md
+      - add-docs-site.md
+      - fix-four-cli-issues.md
     id: npm:@tooee/ask
     updated: true
   - changelogIds:
-      - fix-diff-dist-output.md
+      - add-docs-site.md
+      - fix-choose-scrollbar-spacing.md
+      - fix-four-cli-issues.md
     id: npm:@tooee/choose
     updated: true
   - changelogIds:
-      - fix-diff-dist-output.md
+      - add-docs-site.md
+      - fix-four-cli-issues.md
     id: npm:@tooee/commands
     updated: true
   - changelogIds:
-      - fix-diff-dist-output.md
+      - add-docs-site.md
+      - fix-four-cli-issues.md
     id: npm:@tooee/clipboard
     updated: true
   - changelogIds:
-      - fix-diff-dist-output.md
-    id: npm:@tooee/config
-    updated: true
-  - changelogIds:
-      - fix-diff-dist-output.md
+      - add-docs-site.md
+      - fix-four-cli-issues.md
     id: npm:@tooee/diff
     updated: true
   - changelogIds:
-      - fix-diff-dist-output.md
-    id: npm:@tooee/layout
+      - add-docs-site.md
+      - fix-four-cli-issues.md
+    id: npm:@tooee/config
     updated: true
   - changelogIds:
-      - fix-diff-dist-output.md
+      - add-docs-site.md
+      - fix-four-cli-issues.md
     id: npm:@tooee/fuzzy
     updated: true
   - changelogIds:
-      - fix-diff-dist-output.md
+      - add-docs-site.md
+      - fix-four-cli-issues.md
+    id: npm:@tooee/layout
+    updated: true
+  - changelogIds:
+      - add-docs-site.md
+      - fix-four-cli-issues.md
     id: npm:@tooee/marks
     updated: true
   - changelogIds:
-      - fix-diff-dist-output.md
+      - add-docs-site.md
+      - fix-four-cli-issues.md
     id: npm:@tooee/overlays
     updated: true
   - changelogIds:
-      - fix-diff-dist-output.md
+      - add-docs-site.md
+      - fix-four-cli-issues.md
     id: npm:@tooee/panels
     updated: true
   - changelogIds:
-      - fix-diff-dist-output.md
-    id: npm:@tooee/renderers
-    updated: true
-  - changelogIds:
-      - fix-diff-dist-output.md
+      - add-docs-site.md
+      - fix-four-cli-issues.md
     id: npm:@tooee/router
     updated: true
   - changelogIds:
-      - fix-diff-dist-output.md
-    id: npm:@tooee/shell
+      - add-docs-site.md
+      - fix-four-cli-issues.md
+      - fix-markdown-softbreak-wrap.md
+    id: npm:@tooee/renderers
     updated: true
   - changelogIds:
-      - fix-diff-dist-output.md
-    id: npm:@tooee/toasts
-    updated: true
-  - changelogIds:
-      - fix-diff-dist-output.md
+      - add-docs-site.md
+      - fix-four-cli-issues.md
     id: npm:@tooee/search
     updated: true
   - changelogIds:
-      - fix-diff-dist-output.md
+      - add-docs-site.md
+      - fix-four-cli-issues.md
     id: npm:@tooee/themes
     updated: true
   - changelogIds:
-      - fix-diff-dist-output.md
+      - add-docs-site.md
+      - fix-four-cli-issues.md
+    id: npm:@tooee/shell
+    updated: true
+  - changelogIds:
+      - add-docs-site.md
+      - fix-four-cli-issues.md
+    id: npm:@tooee/toasts
+    updated: true
+  - changelogIds:
+      - add-docs-site.md
+      - fix-four-cli-issues.md
+      - markdown-link-context.md
     id: npm:@tooee/view
     updated: true
 npm:packages:
@@ -85,18 +119,18 @@ npm:packages:
   - id: npm:@tooee/choose
   - id: npm:@tooee/commands
   - id: npm:@tooee/clipboard
-  - id: npm:@tooee/config
   - id: npm:@tooee/diff
-  - id: npm:@tooee/layout
+  - id: npm:@tooee/config
   - id: npm:@tooee/fuzzy
+  - id: npm:@tooee/layout
   - id: npm:@tooee/marks
   - id: npm:@tooee/overlays
   - id: npm:@tooee/panels
-  - id: npm:@tooee/renderers
   - id: npm:@tooee/router
-  - id: npm:@tooee/shell
-  - id: npm:@tooee/toasts
+  - id: npm:@tooee/renderers
   - id: npm:@tooee/search
   - id: npm:@tooee/themes
+  - id: npm:@tooee/shell
+  - id: npm:@tooee/toasts
   - id: npm:@tooee/view
   - id: npm:@tooee/examples

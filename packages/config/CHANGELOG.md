@@ -1,3 +1,13 @@
+## @tooee/config@0.7.2
+
+### Add the Tooee documentation site
+
+Tooee now includes a small searchable documentation site for `tooee.dev`, starting with an overview and CLI setup guide.
+
+### Restore expected CLI view and exit behavior
+
+Standalone ask and choose sessions now exit on Ctrl+C. View keeps `q` available in error and empty-directory states, honors persisted diff layouts, and includes CSV, TSV, diff, and patch files in directory browsing.
+
 ## @tooee/config@0.7.1
 
 ### Ship the compiled `@tooee/diff` output

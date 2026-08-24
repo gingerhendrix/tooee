@@ -1,6 +1,6 @@
 {
   "name": "@tooee/panels",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "First-class panels (peer command surfaces with activation and chrome) for Tooee",
   "keywords": [
     "cli",
