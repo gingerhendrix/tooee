@@ -1,6 +1,6 @@
 {
   "name": "@tooee/diff",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Hunk-backed unified/split diff rendering for Tooee",
   "keywords": [
     "cli",
