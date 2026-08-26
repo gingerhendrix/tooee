@@ -173,6 +173,7 @@ describe("diff search and copy", () => {
     await press("j");
     await press("v");
     await press("y");
+    await press("v");
 
     expect(copied).toHaveLength(1);
     expect(copied[0]).toStartWith("@@ -1,3 +1,4 @@");
