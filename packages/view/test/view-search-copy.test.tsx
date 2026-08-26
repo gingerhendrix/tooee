@@ -119,12 +119,30 @@ describe("search over migrated subviews", () => {
 });
 
 describe("copy over migrated subviews", () => {
-  test("a code View copies the selected line range", async () => {
+  test("yy copies the current semantic code row", async () => {
+    testSetup = await setup(staticProvider(CODE));
+    await press("j");
+    await press("y");
+    await press("y");
+
+    expect(copied).toEqual(["beta"]);
+  });
+
+  test("yg copies the whole View document", async () => {
+    testSetup = await setup(staticProvider(CODE));
+    await press("y");
+    await press("g");
+
+    expect(copied).toEqual([CODE.code]);
+  });
+
+  test("yv copies a selected code line range", async () => {
     testSetup = await setup(staticProvider(CODE));
     await press("j");
     await press("v");
     await press("j");
     await press("y");
+    await press("v");
 
     expect(copied).toEqual(["beta\ngamma"]);
   });
@@ -144,10 +162,19 @@ describe("copy over migrated subviews", () => {
     });
     await testSetup.renderOnce();
 
-    await press("v");
     await press("y");
+    await press("v");
 
     expect(copied).toEqual(["Alice\tdev\nCarol\tdev"]);
+  });
+
+  test("a pending y sequence resolves only the requested target", async () => {
+    testSetup = await setup(staticProvider(CODE));
+    await press("y");
+    expect(copied).toEqual([]);
+    await press("g");
+
+    expect(copied).toEqual([CODE.code]);
   });
 });
 

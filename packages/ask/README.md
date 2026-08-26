@@ -54,8 +54,12 @@ overlay content (`AppLayout` does; custom hosts render `useCurrentOverlay()`).
 
 ## Reserved keys
 
-Cursor mode: `h j k l 0 $ w b g G i a o O q Escape Enter Shift+Enter`, arrows,
+Cursor mode: `h j k l 0 $ w b g G i a o O q y Escape Enter Shift+Enter`, arrows,
 `home`/`end`. Insert mode: `Escape`, the submit key(s).
+
+Clipboard sequences in cursor mode are `yy` for the current line, `yg` for the
+whole buffer, and `yv` for the active editor selection. Consumers can disable
+the built-in `copy` command group when taking over those sequences.
 
 Consumers extending with `commands` should avoid these; `m`, `d`, `x`, `c`, and
 ctrl-chords are free today. Future vim work (`x`, `dd`, counts) will claim more

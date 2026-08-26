@@ -3,6 +3,8 @@ import { test, expect, afterEach, beforeEach, describe } from "bun:test";
 import { copied } from "../../../test/support/clipboard-mock.ts";
 
 const { TooeeProvider, useDocumentController, Document } = await import("@tooee/shell");
+const { useMode } = await import("@tooee/commands");
+const { useToast } = await import("@tooee/toasts");
 const { press, pressTab } = await import("./support/test-helpers.ts");
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
@@ -17,13 +19,25 @@ const ROWS: Row[] = [
   { id: "c", label: "gamma" },
 ];
 
-const Harness = function Harness({ copy }: { copy?: boolean }): React.ReactNode {
+const StateProbe = function StateProbe(): React.ReactNode {
+  const mode = useMode();
+  const { currentToast } = useToast();
+  return <text content={`mode:${mode} toast:${currentToast?.message ?? "none"}`} />;
+};
+
+const Harness = function Harness({
+  copy,
+  rows = ROWS,
+}: {
+  copy?: boolean;
+  rows?: Row[];
+}): React.ReactNode {
   const document = useDocumentController<Row>({
     // Copy must use the same semantic text projection as search.
     adapter: { getKey: (r) => r.id, getText: (r) => `${r.id}\t${r.label}` },
     copy,
     multiSelect: true,
-    rows: ROWS,
+    rows,
   });
 
   return (
@@ -34,6 +48,7 @@ const Harness = function Harness({ copy }: { copy?: boolean }): React.ReactNode 
         style={{ flexGrow: 1 }}
         renderRow={(r): React.ReactNode => <text content={r.label} />}
       />
+      <StateProbe />
     </box>
   );
 };
@@ -48,10 +63,10 @@ afterEach(() => {
   session?.renderer.destroy();
 });
 
-const setup = async function setup(copy?: boolean) {
+const setup = async function setup(copy?: boolean, rows?: Row[]) {
   session = await testRender(
     <TooeeProvider>
-      <Harness copy={copy} />
+      <Harness copy={copy} rows={rows} />
     </TooeeProvider>,
     { height: 12, kittyKeyboard: true, width: 40 },
   );
@@ -60,25 +75,30 @@ const setup = async function setup(copy?: boolean) {
 };
 
 describe("copy", () => {
-  test("copies the cursor row using the adapter text", async () => {
+  test("yy copies the cursor row using the adapter text without entering select mode", async () => {
     await setup();
     await press(session, "j");
-    await press(session, "v");
+    await press(session, "y");
+    expect(copied).toEqual([]);
     await press(session, "y");
 
     expect(copied).toEqual(["b\tbeta"]);
+    expect(session.captureCharFrame()).toContain("mode:cursor");
   });
 
-  test("copies a select-mode range", async () => {
+  test("yv copies a select-mode range and returns to cursor mode", async () => {
     await setup();
     await press(session, "v");
     await press(session, "j");
     await press(session, "y");
+    expect(copied).toEqual([]);
+    await press(session, "v");
 
     expect(copied).toEqual(["a\talpha\nb\tbeta"]);
+    expect(session.captureCharFrame()).toContain("mode:cursor");
   });
 
-  test("toggled rows win over the range, in row order", async () => {
+  test("yv copies toggled rows in row order without requiring select mode", async () => {
     await setup();
     await press(session, "j");
     await press(session, "j");
@@ -86,16 +106,47 @@ describe("copy", () => {
     await press(session, "k");
     await press(session, "k");
     await pressTab(session);
-    await press(session, "v");
     await press(session, "y");
+    await press(session, "v");
 
     expect(copied).toEqual(["a\talpha\nc\tgamma"]);
   });
 
-  test("copy: false unregisters the copy command", async () => {
-    await setup(false);
-    await press(session, "v");
+  test("yv does not fall back to the cursor row when no selection exists", async () => {
+    await setup();
     await press(session, "y");
+    await press(session, "v");
+
+    expect(copied).toEqual([]);
+    expect(session.captureCharFrame()).toContain("Nothing selected");
+  });
+
+  test("yy reports an empty document instead of invoking the clipboard", async () => {
+    await setup(undefined, []);
+    await press(session, "y");
+    await press(session, "y");
+
+    expect(copied).toEqual([]);
+    expect(session.captureCharFrame()).toContain("Nothing to copy");
+  });
+
+  test("a failed y sequence owns the conflicting key and invokes neither command", async () => {
+    await setup();
+    await press(session, "y");
+    await press(session, "x");
+
+    expect(copied).toEqual([]);
+    expect(session.captureCharFrame()).toContain("mode:cursor");
+  });
+
+  test("copy: false unregisters both copy commands", async () => {
+    await setup(false);
+    await press(session, "y");
+    await press(session, "y");
+    await press(session, "v");
+    await press(session, "j");
+    await press(session, "y");
+    await press(session, "v");
 
     expect(copied).toEqual([]);
   });

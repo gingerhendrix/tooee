@@ -6,7 +6,7 @@ import type {
   PasteEvent,
   TextareaRenderable,
 } from "@opentui/core";
-import { readPrimaryText } from "@tooee/clipboard";
+import { copyToClipboard, readPrimaryText } from "@tooee/clipboard";
 import {
   useActiveCommandSurface,
   useCommand,
@@ -15,7 +15,7 @@ import {
   useProvideCommandContext,
   useSetMode,
 } from "@tooee/commands";
-import type { Mode } from "@tooee/commands";
+import type { CommandContext, Mode } from "@tooee/commands";
 import { appendAtCursor, openLineAtCursor } from "./vim-motions.js";
 import type { VimMotionState } from "./vim-motions.js";
 
@@ -27,7 +27,13 @@ declare module "@tooee/commands" {
 }
 
 /** Built-in command groups; disable one to take over its keys entirely. */
-export type AskEditorCommandGroup = "motions" | "insert-commands" | "submit" | "cancel" | "escape";
+export type AskEditorCommandGroup =
+  | "motions"
+  | "insert-commands"
+  | "copy"
+  | "submit"
+  | "cancel"
+  | "escape";
 
 export type AskSubmitKey = "enter" | "shift+enter" | "none";
 
@@ -200,6 +206,64 @@ export const useAskEditor = function useAskEditor(
     const { current } = optionsRef;
     return current.submitKey ?? (current.multiline === true ? "shift+enter" : "enter");
   }, []);
+
+  const copyText = useCallback(
+    (text: string, emptyMessage: string, successMessage: string, ctx: CommandContext) => {
+      if (text === "") {
+        ctx.toast.toast({ level: "warning", message: emptyMessage });
+        return;
+      }
+      void copyToClipboard(text);
+      ctx.toast.toast({ level: "success", message: successMessage });
+    },
+    [],
+  );
+
+  useCommand({
+    handler: (ctx) => {
+      const target = getTarget();
+      if (!target) {
+        copyText("", "Nothing to copy", "Copied line to clipboard", ctx);
+        return;
+      }
+      const text = target.plainText;
+      const offset = Math.min(target.cursorOffset, text.length);
+      const start = offset === 0 ? 0 : text.lastIndexOf("\n", offset - 1) + 1;
+      const nextNewline = text.indexOf("\n", offset);
+      const end = nextNewline === -1 ? text.length : nextNewline;
+      copyText(text.slice(start, end), "Nothing to copy", "Copied line to clipboard", ctx);
+    },
+    hidden: true,
+    hotkey: "y y",
+    id: `${commandScope}:copy-line`,
+    modes: ["cursor"],
+    title: "Copy current line",
+    when: () => enabled("copy"),
+  });
+  useCommand({
+    handler: (ctx) => {
+      copyText(getText(), "Nothing to copy", "Copied document to clipboard", ctx);
+    },
+    hidden: true,
+    hotkey: "y g",
+    id: `${commandScope}:copy-document`,
+    modes: ["cursor"],
+    title: "Copy document",
+    when: () => enabled("copy"),
+  });
+  useCommand({
+    handler: (ctx) => {
+      const target = getTarget();
+      const text = target?.hasSelection() === true ? target.getSelectedText() : "";
+      copyText(text, "Nothing selected", "Copied selection to clipboard", ctx);
+    },
+    hidden: true,
+    hotkey: "y v",
+    id: `${commandScope}:copy-selection`,
+    modes: ["cursor"],
+    title: "Copy selection",
+    when: () => enabled("copy"),
+  });
 
   const enterInsertMode = useCallback(() => {
     vimMotionStateRef.current.pendingG = false;

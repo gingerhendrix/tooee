@@ -22,6 +22,8 @@ export const useContentCommands = function useContentCommands({
 
   useCopyCommand({
     getText: () => (content ? textContent : undefined),
+    hotkey: "y g",
+    modes: ["cursor", "select"],
   });
   useToggleLineNumbersCommand({
     onToggle: () => {

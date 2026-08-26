@@ -1,12 +1,16 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { act, useRef, useState } from "react";
 import { TooeeProvider } from "@tooee/shell";
-import { CommandSurfaceProvider, useCommand } from "@tooee/commands";
+import { CommandSurfaceProvider, useCommand, useMode } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
 import { testRender } from "../../../test/support/test-render.ts";
+import { copied } from "../../../test/support/clipboard-mock.ts";
 import { expectDefined } from "./support/expect-defined.ts";
+import { AskEditor } from "../src/ask-editor.js";
 import { AskOverlay } from "../src/ask-overlay.js";
 import { buildAskHints } from "../src/ask-panel.js";
-import type { AskEditorController } from "../src/use-ask-editor.js";
+import { useAskEditor } from "../src/use-ask-editor.js";
+import type { AskEditorCommandGroup, AskEditorController } from "../src/use-ask-editor.js";
 
 const ControllerHost = function ControllerHost(props: {
   multiline?: boolean;
@@ -23,6 +27,28 @@ const ControllerHost = function ControllerHost(props: {
       onCancel={() => {}}
       controllerRef={props.controllerRef}
     />
+  );
+};
+
+const CopyHost = function CopyHost(props: {
+  defaultValue?: string;
+  disable?: AskEditorCommandGroup[];
+  multiline?: boolean;
+}): React.ReactNode {
+  const { editor } = useAskEditor({
+    commandScope: "copy-test",
+    defaultValue: props.defaultValue,
+    disable: props.disable,
+    multiline: props.multiline,
+  });
+  const mode = useMode();
+  return (
+    <AppLayout
+      scrollProps={{ focused: false }}
+      statusBar={{ items: [{ label: "mode:", value: mode }] }}
+    >
+      <AskEditor editor={editor} />
+    </AppLayout>
   );
 };
 
@@ -85,6 +111,10 @@ const Host = function Host(props: {
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
+beforeEach(() => {
+  copied.length = 0;
+});
+
 afterEach(() => {
   testSetup?.renderer.destroy();
 });
@@ -137,6 +167,133 @@ const typeText = async function typeText(text: string) {
   });
   await testSetup.renderOnce();
 };
+
+interface EditableTestTarget {
+  cursorOffset: number;
+  insertText: (text: string) => void;
+  plainText: string;
+  setSelection: (start: number, end: number) => void;
+}
+
+const hasChildren = function hasChildren(node: object): node is { getChildren: () => unknown[] } {
+  return "getChildren" in node && typeof node.getChildren === "function";
+};
+
+const findEditable = function findEditable(node: unknown): EditableTestTarget | undefined {
+  if (node === null || node === undefined || typeof node !== "object") {
+    return undefined;
+  }
+  if (
+    "plainText" in node &&
+    typeof node.plainText === "string" &&
+    "cursorOffset" in node &&
+    typeof node.cursorOffset === "number" &&
+    "insertText" in node &&
+    typeof node.insertText === "function" &&
+    "setSelection" in node &&
+    typeof node.setSelection === "function"
+  ) {
+    return node;
+  }
+  if (hasChildren(node)) {
+    for (const child of node.getChildren()) {
+      const editable = findEditable(child);
+      if (editable) {
+        return editable;
+      }
+    }
+  }
+  return undefined;
+};
+
+describe("AskEditor clipboard commands", () => {
+  test("yy copies the single-line buffer in cursor mode", async () => {
+    testSetup = await setup(<CopyHost defaultValue="single line" />);
+    await pressEscape();
+    await press("y");
+    expect(copied).toEqual([]);
+    await press("y");
+
+    expect(copied).toEqual(["single line"]);
+    expect(testSetup.renderer.getCursorState().style).toBe("block");
+  });
+
+  test("yy copies only the current multiline line", async () => {
+    testSetup = await setup(<CopyHost multiline defaultValue={"first\nsecond\nthird"} />);
+    await pressEscape();
+    act(() => {
+      expectDefined(findEditable(testSetup.renderer.root)).cursorOffset = 8;
+    });
+    await press("y");
+    await press("y");
+
+    expect(copied).toEqual(["second"]);
+  });
+
+  test("yg copies the whole multiline document", async () => {
+    testSetup = await setup(<CopyHost multiline defaultValue={"first\nsecond"} />);
+    await pressEscape();
+    await press("y");
+    await press("g");
+
+    expect(copied).toEqual(["first\nsecond"]);
+  });
+
+  test("yv copies the active editor selection", async () => {
+    testSetup = await setup(<CopyHost multiline defaultValue="one two three" />);
+    await pressEscape();
+    act(() => {
+      expectDefined(findEditable(testSetup.renderer.root)).setSelection(4, 7);
+    });
+    await press("y");
+    await press("v");
+
+    expect(copied).toEqual(["two"]);
+  });
+
+  test("copy sequences stay inactive in insert mode", async () => {
+    testSetup = await setup(<CopyHost defaultValue="start" />);
+    await typeText("yy");
+
+    expect(copied).toEqual([]);
+    expect(expectDefined(findEditable(testSetup.renderer.root)).plainText).toBe("startyy");
+  });
+
+  test("empty copy targets warn without touching the clipboard", async () => {
+    testSetup = await setup(<CopyHost multiline />);
+    await pressEscape();
+    await press("y");
+    await press("y");
+    expect(testSetup.captureCharFrame()).toContain("Nothing to copy");
+    await press("y");
+    await press("g");
+    expect(testSetup.captureCharFrame()).toContain("Nothing to copy");
+    await press("y");
+    await press("v");
+
+    expect(copied).toEqual([]);
+    expect(testSetup.captureCharFrame()).toContain("Nothing selected");
+  });
+
+  test("a failed y chord falls through to the conflicting insert command without copying", async () => {
+    testSetup = await setup(<CopyHost defaultValue="text" />);
+    await pressEscape();
+    await press("y");
+    await press("i");
+
+    expect(testSetup.renderer.getCursorState().style).toBe("line");
+    expect(copied).toEqual([]);
+  });
+
+  test("the copy command group can be disabled for consumer overrides", async () => {
+    testSetup = await setup(<CopyHost defaultValue="text" disable={["copy"]} />);
+    await pressEscape();
+    await press("y");
+    await press("y");
+
+    expect(copied).toEqual([]);
+  });
+});
 
 describe("AskEditorController", () => {
   test("setText replaces the single-line value through React state", async () => {

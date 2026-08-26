@@ -21,7 +21,24 @@ export const useCopy = function useCopy({
 
   useCommand({
     enabled,
-    handler: () => {
+    handler: (ctx) => {
+      const text = cursor === null ? "" : getRowText(cursor);
+      if (text) {
+        void copyToClipboard(text);
+        ctx.toast.toast({ level: "success", message: "Copied line to clipboard" });
+      } else {
+        ctx.toast.toast({ level: "warning", message: "Nothing to copy" });
+      }
+    },
+    hotkey: "y y",
+    id: "copy-line",
+    modes: ["cursor", "select"],
+    title: "Copy current line",
+  });
+
+  useCommand({
+    enabled,
+    handler: (ctx) => {
       let text = "";
 
       if (toggledIndices.size > 0) {
@@ -35,19 +52,20 @@ export const useCopy = function useCopy({
           rows.push(getRowText(index));
         }
         text = rows.join("\n");
-      } else if (cursor !== null) {
-        text = getRowText(cursor);
       }
 
       if (text) {
         void copyToClipboard(text);
+        ctx.toast.toast({ level: "success", message: "Copied selection to clipboard" });
+      } else {
+        ctx.toast.toast({ level: "warning", message: "Nothing selected" });
       }
 
       setMode("cursor");
     },
-    hotkey: "y",
-    id: "select-copy",
-    modes: ["select"],
+    hotkey: "y v",
+    id: "copy-selection",
+    modes: ["cursor", "select"],
     title: "Copy selection",
   });
 };

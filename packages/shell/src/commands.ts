@@ -1,7 +1,7 @@
 import { useRenderer } from "@opentui/react";
 import { copyToClipboard, readClipboardText, readPrimaryText } from "@tooee/clipboard";
 import { useCommand } from "@tooee/commands";
-import type { CommandWhen } from "@tooee/commands";
+import type { CommandWhen, Mode } from "@tooee/commands";
 import { useToast } from "@tooee/toasts";
 import { useThemePicker } from "./theme-picker.js";
 import type { ThemePickerState } from "./theme-picker.js";
@@ -71,6 +71,8 @@ export const useQuitCommand = function useQuitCommand(opts?: UseQuitCommandOptio
 
 export const useCopyCommand = function useCopyCommand(opts: {
   getText: () => string | undefined;
+  hotkey?: string;
+  modes?: Mode[];
   when?: CommandWhen;
 }) {
   useCommand({
@@ -83,8 +85,9 @@ export const useCopyCommand = function useCopyCommand(opts: {
         ctx.toast.toast({ level: "warning", message: "Nothing to copy" });
       }
     },
-    hotkey: "y",
+    hotkey: opts.hotkey ?? "y",
     id: "copy",
+    modes: opts.modes,
     title: "Copy to clipboard",
     when: opts.when,
   });
