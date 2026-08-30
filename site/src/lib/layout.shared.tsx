@@ -4,7 +4,7 @@ export const baseOptions = (): BaseLayoutProps => ({
   githubUrl: "https://github.com/gingerhendrix/tooee",
   nav: {
     title: (
-      <span className="font-logotype text-[44px] font-medium leading-none tracking-wide normal-case">
+      <span className="font-logotype text-[60pt] font-medium leading-none tracking-wide normal-case">
         tooee
       </span>
     ),
