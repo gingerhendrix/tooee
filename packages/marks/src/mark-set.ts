@@ -1,5 +1,13 @@
 import type { Mark } from "./types.js";
 
+/** Rendering hints for one visible row, derived from the marks that cover it. */
+export interface RowDecoration {
+  row: number;
+  background?: string;
+  gutterBackground?: string;
+  sign?: { text: string; fg?: string };
+}
+
 const deepFreezeMark = function deepFreezeMark(mark: Mark): Mark {
   Object.freeze(mark.range.from);
   Object.freeze(mark.range.to);
@@ -88,26 +96,13 @@ export class MarkSet {
     return results;
   }
 
-  *forVisibleRows(
-    from: number,
-    to: number,
-  ): Generator<{
-    row: number;
-    background?: string;
-    gutterBackground?: string;
-    sign?: { text: string; fg?: string };
-  }> {
+  *forVisibleRows(from: number, to: number): Generator<RowDecoration> {
     const marks = this.marksInRange(from, to);
     for (const mark of marks) {
       const startLine = Math.max(from, mark.range.from.line);
       const endLine = Math.min(to, mark.range.to.line);
       for (let line = startLine; line <= endLine; line += 1) {
-        const decoration: {
-          row: number;
-          background?: string;
-          gutterBackground?: string;
-          sign?: { text: string; fg?: string };
-        } = { row: line };
+        const decoration: RowDecoration = { row: line };
 
         if ((mark.style.background?.length ?? 0) > 0) {
           decoration.background = mark.style.background;

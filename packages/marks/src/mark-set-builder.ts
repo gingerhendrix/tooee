@@ -4,7 +4,7 @@ import { MarkSet } from "./mark-set.js";
 export class MarkSetBuilder {
   readonly #marks: Mark[] = [];
 
-  addLine(line: number, style: MarkStyle, data?: unknown): this {
+  addLine(line: number, style: MarkStyle, data?: Mark["data"]): this {
     this.#marks.push({
       data,
       range: { from: { line }, to: { line } },
@@ -13,7 +13,7 @@ export class MarkSetBuilder {
     return this;
   }
 
-  addRange(from: MarkPosition, to: MarkPosition, style: MarkStyle, data?: unknown): this {
+  addRange(from: MarkPosition, to: MarkPosition, style: MarkStyle, data?: Mark["data"]): this {
     this.#marks.push({
       data,
       range: { from, to },

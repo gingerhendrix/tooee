@@ -2,6 +2,7 @@ export type { MarkPosition, MarkRange, MarkStyle, Mark, MarkPriority } from "./t
 export { MarkPriorities } from "./types.js";
 
 export { MarkSet } from "./mark-set.js";
+export type { RowDecoration } from "./mark-set.js";
 export { MarkSetBuilder } from "./mark-set-builder.js";
 
 export type { MarkState } from "./mark-state.js";
