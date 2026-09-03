@@ -19,7 +19,7 @@
     },
     {
       "rule": "anti-slop/no-runtime-typeof",
-      "maximum": 56
+      "maximum": 36
     },
     {
       "rule": "anti-slop/no-shape-in-symbol-names",
@@ -27,11 +27,11 @@
     },
     {
       "rule": "anti-slop/no-unknown-parameters",
-      "maximum": 14
+      "maximum": 12
     },
     {
       "rule": "anti-slop/no-unknown-returns",
-      "maximum": 5
+      "maximum": 3
     },
     {
       "rule": "anti-slop/no-unsafe-dictionary-type",

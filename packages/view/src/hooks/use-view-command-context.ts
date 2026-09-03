@@ -50,6 +50,18 @@ export interface CreateViewCommandContextOptions {
 
 export type ProvideViewCommandContextOptions = CreateViewCommandContextOptions;
 
+type ViewCommandContextInput =
+  | ProvideViewCommandContextOptions
+  | (() => ProvideViewCommandContextOptions);
+
+/** Resolve the hook's public eager-or-lazy option union at its boundary. */
+const resolveViewCommandContextOptions = function resolveViewCommandContextOptions(
+  options: ViewCommandContextInput,
+): ProvideViewCommandContextOptions {
+  // oxlint-disable-next-line anti-slop/no-runtime-typeof -- public hook boundary distinguishes the documented lazy options callback from eager options
+  return typeof options === "function" ? options() : options;
+};
+
 export const createViewCommandContext = function createViewCommandContext({
   content,
   format,
@@ -84,9 +96,9 @@ export const createViewCommandContext = function createViewCommandContext({
 };
 
 export const useProvideViewCommandContext = function useProvideViewCommandContext(
-  options: ProvideViewCommandContextOptions | (() => ProvideViewCommandContextOptions),
+  options: ViewCommandContextInput,
 ) {
   useProvideCommandContextKey("view", () =>
-    createViewCommandContext(typeof options === "function" ? options() : options),
+    createViewCommandContext(resolveViewCommandContextOptions(options)),
   );
 };

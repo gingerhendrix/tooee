@@ -44,7 +44,7 @@ export const MarkdownSubview = function MarkdownSubview({
   const { showLineNumbers } = useContentCommands({ content, textContent });
   const buildCommandContext = useBuildCommandContext();
   const handleLinkActivate = onLinkActivate
-    ? (href: string): unknown => onLinkActivate(href, buildCommandContext())
+    ? (href: string) => onLinkActivate(href, buildCommandContext())
     : undefined;
 
   const document = useDocumentController<FlatBlock>({
