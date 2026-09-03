@@ -6,10 +6,12 @@ import { ToastProvider, useToast, ToastContainer } from "@tooee/toasts";
 import type { ToastLevel } from "@tooee/toasts";
 import { expectDefined } from "./support/expect-defined.ts";
 
+const LEVELS: readonly ToastLevel[] = ["info", "success", "warning", "error"];
+
 const DurationTest = function DurationTest(): React.ReactNode {
   const { toast, currentToast } = useToast();
   useEffect(() => {
-    for (const l of ["info", "success", "warning", "error"] as ToastLevel[]) {
+    for (const l of LEVELS) {
       toast({ level: l, message: `${l} toast` });
     }
   }, [toast]);
@@ -249,12 +251,12 @@ test("ToastContainer renders icon and message", async () => {
 });
 
 test("ToastContainer renders correct icon per level", async () => {
-  const icons: Record<ToastLevel, string> = {
+  const icons = {
     error: "✗",
     info: "ℹ",
     success: "✓",
     warning: "⚠",
-  };
+  } satisfies Record<ToastLevel, string>;
 
   const iconEntries: readonly [ToastLevel, string][] = [
     ["error", icons.error],

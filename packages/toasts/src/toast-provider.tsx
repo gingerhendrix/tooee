@@ -8,14 +8,14 @@ import {
   useMemo,
 } from "react";
 import type { ReactNode } from "react";
-import type { ToastOptions, ToastEntry, ToastController } from "./types.js";
+import type { ToastOptions, ToastEntry, ToastController, ToastLevel } from "./types.js";
 
-const DEFAULT_DURATIONS: Record<string, number> = {
+const DEFAULT_DURATIONS = {
   error: 5000,
   info: 2000,
   success: 1500,
   warning: 3000,
-};
+} satisfies Record<ToastLevel, number>;
 
 let nextToastId = 0;
 
@@ -46,7 +46,7 @@ export const ToastProvider = function ToastProvider({
       clearTimer();
 
       const level = options.level ?? "info";
-      const duration = options.duration ?? DEFAULT_DURATIONS[level] ?? 2000;
+      const duration = options.duration ?? DEFAULT_DURATIONS[level];
       const id = options.id ?? `toast-${nextToastId}`;
       if (options.id === undefined || options.id === null) {
         nextToastId += 1;

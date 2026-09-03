@@ -3,12 +3,12 @@ import { useTheme } from "@tooee/themes";
 import { useToast } from "./toast-provider.js";
 import type { ToastLevel } from "./types.js";
 
-const LEVEL_ICONS: Record<ToastLevel, string> = {
+const LEVEL_ICONS = {
   error: "✗",
   info: "ℹ",
   success: "✓",
   warning: "⚠",
-};
+} satisfies Record<ToastLevel, string>;
 
 const getLevelColor = function getLevelColor(
   theme: ReturnType<typeof useTheme>["theme"],
