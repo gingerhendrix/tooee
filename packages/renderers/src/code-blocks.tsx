@@ -203,9 +203,9 @@ export const mermaidCodeBlockRenderer: CodeBlockRenderer = ({
 };
 
 /** Built-in code block renderers, merged under user-provided entries. */
-export const DEFAULT_CODE_BLOCK_RENDERERS: Record<string, CodeBlockRenderer> = {
+export const DEFAULT_CODE_BLOCK_RENDERERS = {
   mermaid: mermaidCodeBlockRenderer,
-};
+} satisfies Record<string, CodeBlockRenderer>;
 
 // ---------------------------------------------------------------------------
 // Horizontal panning registration

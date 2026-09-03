@@ -7,11 +7,11 @@
     },
     {
       "rule": "anti-slop/no-conditional-empty-object-spread",
-      "maximum": 7
+      "maximum": 6
     },
     {
       "rule": "anti-slop/no-known-value-widening",
-      "maximum": 51
+      "maximum": 49
     },
     {
       "rule": "anti-slop/no-object-parameters",
