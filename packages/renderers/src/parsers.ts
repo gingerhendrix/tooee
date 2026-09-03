@@ -9,7 +9,7 @@ export interface ParsedTable extends TableData {
   format: Format;
 }
 
-type JsonValue = string | number | boolean | null | readonly JsonValue[] | JsonObject;
+type JsonValue = string | number | boolean | null | JsonValue[] | JsonObject;
 
 interface JsonObject {
   readonly [key: string]: JsonValue | undefined;
@@ -21,8 +21,28 @@ const parseJsonDocument = function parseJsonDocument(input: string): JsonValue {
   return JSON.parse(input) as JsonValue;
 };
 
-const isJsonObject = function isJsonObject(value: JsonValue): value is JsonObject {
-  return value instanceof Object && !Array.isArray(value);
+const isJsonArray = function isJsonArray(value: JsonValue): value is JsonValue[] {
+  return Array.isArray(value);
+};
+
+const jsonEntryKeys = function jsonEntryKeys(value: JsonValue): string[] {
+  if (value === null) {
+    throw new TypeError("A JSON table row cannot be null");
+  }
+  return Object.keys(value);
+};
+
+const readJsonEntry = function readJsonEntry(value: JsonValue, key: string): JsonValue | undefined {
+  if (isJsonArray(value)) {
+    return value[Number(key)];
+  }
+  if (value instanceof Object) {
+    return value[key];
+  }
+  if (Object.prototype.toString.call(value) === "[object String]") {
+    return String.prototype.charAt.call(value, Number(key));
+  }
+  return undefined;
 };
 
 export const parseCSV = function parseCSV(input: string): TableData {
@@ -97,15 +117,15 @@ export const parseTSV = function parseTSV(input: string): TableData {
 
 export const parseJSON = function parseJSON(input: string): TableData {
   const data = parseJsonDocument(input);
-  if (!Array.isArray(data) || data.length === 0 || !data.every(isJsonObject)) {
+  if (!isJsonArray(data) || data.length === 0) {
     return { columns: [], rows: [] };
   }
-  const keys = [...new Set(data.flatMap((item) => Object.keys(item)))];
+  const keys = [...new Set(data.flatMap(jsonEntryKeys))];
   const columns: ColumnDef[] = keys.map((key) => ({ header: key, key }));
   const rows = data.map((item) => {
     const row: TableRow = {};
     for (const column of columns) {
-      row[column.key] = item[column.key] ?? "";
+      row[column.key] = readJsonEntry(item, column.key) ?? "";
     }
     return row;
   });
@@ -119,7 +139,7 @@ export const detectFormat = function detectFormat(input: string): Format {
   if (trimmed.startsWith("[")) {
     try {
       const parsed = parseJsonDocument(trimmed);
-      if (Array.isArray(parsed)) {
+      if (isJsonArray(parsed)) {
         return "json";
       }
     } catch {
