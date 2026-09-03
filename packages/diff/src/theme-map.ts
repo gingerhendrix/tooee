@@ -18,7 +18,7 @@ export interface HunkThemePair {
 const GITHUB: HunkThemePair = { dark: "github-dark", light: "github-light" };
 
 /** Closest bundled Hunk theme for each theme shipped with `@tooee/themes`. */
-export const HUNK_THEME_MAP: Record<string, HunkThemePair> = {
+export const HUNK_THEME_MAP = {
   aura: { dark: "laserwave", light: "min-light" },
   ayu: { dark: "ayu-dark", light: "ayu-light" },
   catppuccin: { dark: "catppuccin-mocha", light: "catppuccin-latte" },
@@ -53,7 +53,9 @@ export const HUNK_THEME_MAP: Record<string, HunkThemePair> = {
   vercel: { dark: "vitesse-black", light: "vitesse-light" },
   vesper: { dark: "vesper", light: "min-light" },
   zenburn: { dark: "gruvbox-dark-soft", light: "gruvbox-light-soft" },
-};
+} satisfies Record<string, HunkThemePair>;
+
+const HUNK_THEME_BY_NAME = new Map<string, HunkThemePair>(Object.entries(HUNK_THEME_MAP));
 
 const HEX_COLOR = /^#(?<digits>[0-9a-f]{3}|[0-9a-f]{6})$/iu;
 /** Rec. 601 luma above this counts as a light background. */
@@ -83,6 +85,6 @@ export const resolveHunkDiffTheme = function resolveHunkDiffTheme(
   themeName: string,
   theme: ResolvedTheme,
 ): HunkDiffThemeName {
-  const pair = HUNK_THEME_MAP[themeName] ?? GITHUB;
+  const pair = HUNK_THEME_BY_NAME.get(themeName) ?? GITHUB;
   return isLightBackground(theme.background) ? pair.light : pair.dark;
 };

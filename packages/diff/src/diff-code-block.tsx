@@ -96,7 +96,7 @@ const DiffCodeBlock = function DiffCodeBlock({
 export const diffCodeBlockRenderer: CodeBlockRenderer = DiffCodeBlock;
 
 /** Fence types `diffCodeBlockRenderer` is registered for. */
-export const DIFF_CODE_BLOCK_RENDERERS: Record<string, CodeBlockRenderer> = {
+export const DIFF_CODE_BLOCK_RENDERERS = {
   diff: diffCodeBlockRenderer,
   patch: diffCodeBlockRenderer,
-};
+} satisfies Record<string, CodeBlockRenderer>;
