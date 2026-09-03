@@ -20,24 +20,71 @@ interface PR {
   createdAt: string;
 }
 
-const isPR = function isPR(value: unknown): value is PR {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "number" in value &&
-    typeof value.number === "number" &&
-    "title" in value &&
-    typeof value.title === "string" &&
-    "author" in value &&
-    typeof value.author === "object" &&
-    value.author !== null &&
-    "login" in value.author &&
-    typeof value.author.login === "string" &&
-    "state" in value &&
-    typeof value.state === "string" &&
-    "createdAt" in value &&
-    typeof value.createdAt === "string"
-  );
+type JsonValue = string | number | boolean | null | readonly JsonValue[] | JsonObject;
+
+interface JsonObject {
+  readonly [key: string]: JsonValue | undefined;
+}
+
+const parseJsonDocument = function parseJsonDocument(text: string): JsonValue {
+  // SAFETY: JSON.parse without a reviver produces only the JSON grammar represented by JsonValue.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the standard JSON parser establishes the local JSON grammar
+  return JSON.parse(text) as JsonValue;
+};
+
+const isJsonObject = function isJsonObject(value: JsonValue | undefined): value is JsonObject {
+  return value instanceof Object && !Array.isArray(value);
+};
+
+const isJsonArray = function isJsonArray(value: JsonValue): value is readonly JsonValue[] {
+  return Array.isArray(value);
+};
+
+const isJsonNumber = function isJsonNumber(value: JsonValue | undefined): value is number {
+  // oxlint-disable-next-line anti-slop/no-runtime-typeof -- primitive representation check is contained in the gh JSON boundary decoder
+  return typeof value === "number";
+};
+
+const isJsonString = function isJsonString(value: JsonValue | undefined): value is string {
+  // oxlint-disable-next-line anti-slop/no-runtime-typeof -- primitive representation check is contained in the gh JSON boundary decoder
+  return typeof value === "string";
+};
+
+const decodePR = function decodePR(value: JsonValue): PR | null {
+  if (!isJsonObject(value) || !isJsonObject(value.author)) {
+    return null;
+  }
+
+  const { author, createdAt, number, state, title } = value;
+  if (
+    !isJsonNumber(number) ||
+    !isJsonString(title) ||
+    !isJsonString(author.login) ||
+    !isJsonString(state) ||
+    !isJsonString(createdAt)
+  ) {
+    return null;
+  }
+
+  return { author: { login: author.login }, createdAt, number, state, title };
+};
+
+const decodePullRequests = function decodePullRequests(text: string): PR[] {
+  const parsed = parseJsonDocument(text === "" ? "[]" : text);
+  if (!isJsonArray(parsed)) {
+    // oxlint-disable-next-line unicorn/prefer-type-error -- preserve the example's existing invalid-payload Error contract
+    throw new Error("GitHub returned invalid pull request data");
+  }
+
+  const pullRequests: PR[] = [];
+  for (const value of parsed) {
+    const pullRequest = decodePR(value);
+    if (pullRequest === null) {
+      throw new Error("GitHub returned invalid pull request data");
+    }
+    pullRequests.push(pullRequest);
+  }
+  return pullRequests;
 };
 
 const contentProvider: ContentProvider = {
@@ -80,11 +127,7 @@ const contentProvider: ContentProvider = {
       };
     }
 
-    const parsed: unknown = JSON.parse(text || "[]");
-    if (!Array.isArray(parsed) || !parsed.every(isPR)) {
-      throw new Error("GitHub returned invalid pull request data");
-    }
-    const prs = parsed;
+    const prs = decodePullRequests(text);
 
     if (prs.length === 0) {
       return {

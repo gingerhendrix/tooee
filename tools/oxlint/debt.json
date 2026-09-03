@@ -19,7 +19,7 @@
     },
     {
       "rule": "anti-slop/no-runtime-typeof",
-      "maximum": 34
+      "maximum": 27
     },
     {
       "rule": "anti-slop/no-shape-in-symbol-names",
@@ -27,7 +27,7 @@
     },
     {
       "rule": "anti-slop/no-unknown-parameters",
-      "maximum": 12
+      "maximum": 11
     },
     {
       "rule": "anti-slop/no-unknown-returns",
@@ -39,7 +39,7 @@
     },
     {
       "rule": "anti-slop/require-safety-comment-for-type-assertion",
-      "maximum": 5
+      "maximum": 4
     }
   ]
 }

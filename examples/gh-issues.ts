@@ -33,7 +33,9 @@ const decodeIssues = function decodeIssues(text: string): Issue[] {
   if (!Array.isArray(parsed)) {
     throw new TypeError("GitHub returned invalid issue data");
   }
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- one-off cast at the gh CLI boundary
+  // SAFETY: `gh issue list` owns this JSON and the command requests exactly the five fields in
+  // Issue; the array envelope check above rejects non-list output before consumers receive it.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the requested gh field set establishes the item contract at this process boundary
   return parsed as Issue[];
 };
 
