@@ -34,8 +34,13 @@ const loadJsonThemesFromDir = function loadJsonThemesFromDir(
       const name = path.basename(file, ".json");
       try {
         const content = readFileSync(path.join(dir, file), "utf-8");
-        // Deferred(lint-sweep): replace with schema-based validation of untrusted JSON
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- untrusted external JSON, validated in a later sweep
+        // SAFETY: the file is not validated here on purpose. Its only consumer is
+        // `resolveTheme`, which reads each key with a per-key fallback, and
+        // `buildTheme` catches every malformed value and returns the hardcoded
+        // theme, so a document that is not a ThemeJSON cannot escape this module.
+        // A strict decoder would also drop malformed files from `getThemeNames`,
+        // which is a behaviour change reserved for a separate decision.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- tolerant consumer boundary; see the SAFETY note
         target.set(name, JSON.parse(content) as ThemeJSON);
       } catch {
         // skip invalid files

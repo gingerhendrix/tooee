@@ -134,8 +134,8 @@ export const RESOLVED_KEYS: (keyof ResolvedTheme)[] = [
   "syntaxPunctuation",
 ];
 
-// Fallbacks used when a theme key is missing
-export const FALLBACKS: Record<string, string> = {
+// Fallbacks used when a theme key is missing: a complete theme in its own right.
+export const FALLBACKS: ResolvedTheme = {
   accent: "#808080",
   background: "#1e1e1e",
   backgroundElement: "#1e1e1e",
@@ -194,6 +194,11 @@ export const FALLBACKS: Record<string, string> = {
 // Resolution
 // ---------------------------------------------------------------------------
 
+/** A mode-specific colour pair is an object; a single colour is a string. */
+const isVariant = function isVariant(value: ColorValue): value is Variant {
+  return value instanceof Object;
+};
+
 export const resolveTheme = function resolveTheme(
   json: ThemeJSON,
   mode: "dark" | "light",
@@ -201,31 +206,34 @@ export const resolveTheme = function resolveTheme(
   const defs = json.defs ?? {};
 
   const resolveColor = function resolveColor(c: ColorValue, seen = new Set<string>()): string {
-    if (typeof c === "string") {
-      if (c === "transparent" || c === "none") {
-        return "#00000000";
-      }
-      if (c.startsWith("#")) {
-        return c;
-      }
-      if (seen.has(c)) {
-        return "#808080";
-      }
-      if (defs[c] !== undefined && defs[c] !== null) {
-        return resolveColor(defs[c], new Set(seen).add(c));
-      }
-      if (json.theme[c] !== undefined) {
-        return resolveColor(json.theme[c], new Set(seen).add(c));
-      }
+    if (isVariant(c)) {
+      return resolveColor(c[mode], seen);
+    }
+    if (c === "transparent" || c === "none") {
+      return "#00000000";
+    }
+    if (c.startsWith("#")) {
+      return c;
+    }
+    if (seen.has(c)) {
       return "#808080";
     }
-    return resolveColor(c[mode], seen);
+    if (defs[c] !== undefined && defs[c] !== null) {
+      return resolveColor(defs[c], new Set(seen).add(c));
+    }
+    if (json.theme[c] !== undefined) {
+      return resolveColor(json.theme[c], new Set(seen).add(c));
+    }
+    return "#808080";
   };
 
-  const result = {} as Record<string, string>;
+  // Start from the complete fallback theme, then resolve every key the JSON defines.
+  const result: ResolvedTheme = { ...FALLBACKS };
   for (const key of RESOLVED_KEYS) {
     const val = json.theme[key];
-    result[key] = val === undefined ? (FALLBACKS[key] ?? "#808080") : resolveColor(val);
+    if (val !== undefined) {
+      result[key] = resolveColor(val);
+    }
   }
   // Dynamic fallbacks that reference other resolved keys
   if (json.theme.cursorLine === undefined) {
@@ -234,7 +242,5 @@ export const resolveTheme = function resolveTheme(
   if (json.theme.selection === undefined) {
     result.selection = result.backgroundPanel;
   }
-  // Deferred(lint-sweep): replace with a typed exhaustive key map for compile-time completeness
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- RESOLVED_KEYS drives every required key and defaults missing values
-  return result as unknown as ResolvedTheme;
+  return result;
 };
