@@ -3,15 +3,15 @@
   "budgets": [
     {
       "rule": "anti-slop/no-chained-type-assertions",
-      "maximum": 1
+      "maximum": 0
     },
     {
       "rule": "anti-slop/no-conditional-empty-object-spread",
-      "maximum": 1
+      "maximum": 0
     },
     {
       "rule": "anti-slop/no-known-value-widening",
-      "maximum": 30
+      "maximum": 25
     },
     {
       "rule": "anti-slop/no-object-parameters",
@@ -19,7 +19,7 @@
     },
     {
       "rule": "anti-slop/no-runtime-typeof",
-      "maximum": 64
+      "maximum": 58
     },
     {
       "rule": "anti-slop/no-shape-in-symbol-names",
@@ -27,7 +27,7 @@
     },
     {
       "rule": "anti-slop/no-unknown-parameters",
-      "maximum": 17
+      "maximum": 16
     },
     {
       "rule": "anti-slop/no-unknown-returns",
@@ -39,7 +39,7 @@
     },
     {
       "rule": "anti-slop/require-safety-comment-for-type-assertion",
-      "maximum": 19
+      "maximum": 9
     }
   ]
 }

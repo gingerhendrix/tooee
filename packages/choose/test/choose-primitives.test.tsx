@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { act, useState } from "react";
+import { act, createRef, useState } from "react";
 import { CommandSurfaceProvider, useCommand } from "@tooee/commands";
 import { TooeeProvider } from "@tooee/shell";
 import { testRender } from "../../../test/support/test-render.ts";
@@ -121,7 +121,7 @@ const typeText = async function typeText(text: string) {
 
 describe("ChooseController and normalized sources", () => {
   test("controls filter, active item, multi-selection, and same-tick submission", async () => {
-    const controllerRef = { current: null as ChooseController | null };
+    const controllerRef = createRef<ChooseController>();
     let submitted: ChooseItem[] = [];
     testSetup = await setup(
       <ChooseOverlay
@@ -157,7 +157,7 @@ describe("ChooseController and normalized sources", () => {
   });
 
   test("accepts a synchronous loader and reloads it through the controller", async () => {
-    const controllerRef = { current: null as ChooseController | null };
+    const controllerRef = createRef<ChooseController>();
     let revision = 0;
     const source = () => {
       revision += 1;
@@ -183,7 +183,7 @@ describe("ChooseController and normalized sources", () => {
   });
 
   test("reflects direct-array replacement and resets active selection", async () => {
-    const controllerRef = { current: null as ChooseController | null };
+    const controllerRef = createRef<ChooseController>();
     let replace!: () => void;
 
     const Host = function Host(): React.ReactNode {
@@ -275,7 +275,7 @@ describe("shared commands, context, and surfaces", () => {
   });
 
   test("Escape enters cursor mode, i returns to insert, and cursor q cancels", async () => {
-    const controllerRef = { current: null as ChooseController | null };
+    const controllerRef = createRef<ChooseController>();
     let cancellations = 0;
     testSetup = await setup(
       <ChooseOverlay
@@ -405,7 +405,7 @@ describe("shared commands, context, and surfaces", () => {
 
 describe("view extension points", () => {
   test("wraps long rows and keeps the active row visible while scrolling", async () => {
-    const controllerRef = { current: null as ChooseController | null };
+    const controllerRef = createRef<ChooseController>();
     const items = Array.from({ length: 12 }, (_, index) => ({
       description: `Provider API description for model ${index + 1} with a 200,000 token context.`,
       text: `Command Code Model ${String(index + 1).padStart(2, "0")}`,

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { CloseButton, useTheme } from "@tooee/themes";
+import { decodeReactContent } from "./react-content.js";
 import type { UseChooseResult } from "./use-choose.js";
 
 export interface ChooseFilterProps {
@@ -22,10 +23,17 @@ export const ChooseFilter = function ChooseFilter({
   const { state, view } = choose;
   const handleFilterInput = view.onFilterInput;
   const handleFilterKeyDown = view.onFilterKeyDown;
+  const promptContent = decodeReactContent(prompt);
+  let renderedPrompt: ReactNode = null;
+  if (promptContent.kind === "string") {
+    renderedPrompt = <text content={promptContent.value} fg={theme.accent} />;
+  } else if (promptContent.kind === "node") {
+    renderedPrompt = promptContent.value;
+  }
 
   return (
     <box flexDirection="row" height={1} style={{ paddingLeft: 1, paddingRight: 1 }}>
-      {typeof prompt === "string" ? <text content={prompt} fg={theme.accent} /> : prompt}
+      {renderedPrompt}
       <input
         ref={view.filterRef}
         focused={view.filterFocused}

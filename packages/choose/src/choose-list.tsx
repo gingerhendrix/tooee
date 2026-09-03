@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import type { ScrollBoxRenderable } from "@opentui/core";
 import { useTheme } from "@tooee/themes";
 import { ChooseHighlightedText } from "./choose-highlighted-text.js";
+import { decodeReactContent } from "./react-content.js";
 import type { FuzzyMatch } from "./fuzzy.js";
 import type { ChooseItem } from "./types.js";
 import type { UseChooseResult } from "./use-choose.js";
@@ -37,9 +38,16 @@ const ThemedLine = function ThemedLine({
   content: ReactNode;
   color: string;
 }): ReactNode {
+  const decoded = decodeReactContent(content);
+  let rendered: ReactNode = null;
+  if (decoded.kind === "string") {
+    rendered = <text content={decoded.value} fg={color} />;
+  } else if (decoded.kind === "node") {
+    rendered = decoded.value;
+  }
   return (
     <box height={1} style={{ paddingLeft: 2 }}>
-      {typeof content === "string" ? <text content={content} fg={color} /> : content}
+      {rendered}
     </box>
   );
 };
