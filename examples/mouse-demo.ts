@@ -75,10 +75,15 @@ const contentProvider: ContentProvider = {
 /** Name of the row currently under the cursor, or a fallback. */
 const activeName = function activeName(ctx: CommandContext): string {
   const activeRow = ctx.document?.activeRow;
-  if (activeRow === null || typeof activeRow !== "object") {
+  if (activeRow === null) {
+    return "(no row)";
+  }
+  // oxlint-disable-next-line anti-slop/no-runtime-typeof -- the public command context intentionally erases host-owned rows; this example decodes its FileRow at that boundary
+  if (typeof activeRow !== "object") {
     return "(no row)";
   }
   const name = "name" in activeRow ? activeRow.name : undefined;
+  // oxlint-disable-next-line anti-slop/no-runtime-typeof -- FileRow.name is decoded from the erased public command-context row before toast use
   return typeof name === "string" ? name : "(no row)";
 };
 
