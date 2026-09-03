@@ -50,7 +50,9 @@ export const buildCommandContext = function buildCommandContext(
 ): CommandContext {
   const base: CommandContextBase = {
     commands: input.commands,
-    exit: () => void 0,
+    exit: () => {
+      // Default until a registered context source supplies the real exit.
+    },
     mode: input.mode,
     setMode: input.setMode,
   };

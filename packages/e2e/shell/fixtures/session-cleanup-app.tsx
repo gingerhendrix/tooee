@@ -6,7 +6,9 @@ let effectCleanupRan = false;
 const SessionCleanupApp = function SessionCleanupApp(): React.ReactNode {
   useQuitCommand();
   useEffect(() => {
-    const interval = setInterval(() => void 0, 1000);
+    const interval = setInterval(() => {
+      // Keeps a live timer that the effect cleanup must clear.
+    }, 1000);
     return () => {
       clearInterval(interval);
       effectCleanupRan = true;

@@ -288,12 +288,16 @@ export const useDocumentController = function useDocumentController<T>(
   useEffect(() => {
     const document = ref.current;
     if (!document || cursor === null) {
-      return () => void 0;
+      return () => {
+        // No document or cursor yet: no listener was attached.
+      };
     }
 
     if (document.getRowMetrics(cursor)) {
       document.scrollToRow(cursor, "nearest");
-      return () => void 0;
+      return () => {
+        // The row was followed synchronously: no listener was attached.
+      };
     }
 
     // Geometry is computed during render, so the first cursor effect after a

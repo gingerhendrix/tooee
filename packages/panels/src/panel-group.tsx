@@ -82,7 +82,7 @@ export const PanelGroup = function PanelGroup({
   }, []);
 
   const activatable = useMemo(
-    () => registrations.filter((entry) => !entry.disabled).sort((a, b) => a.order - b.order),
+    () => registrations.filter((entry) => !entry.disabled).toSorted((a, b) => a.order - b.order),
     [registrations],
   );
 

@@ -190,7 +190,9 @@ const openTtyInput = function openTtyInput(policy: CliStdinPolicy): tty.ReadStre
   }
 };
 
-const noop: () => void = () => void 0;
+const noop: () => void = () => {
+  // Default health-guard remover until a guard is installed.
+};
 
 /** Create, mount, and return a locally owned Tooee renderer session. */
 export const launchCli = async function launchCli(

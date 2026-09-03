@@ -76,8 +76,12 @@ export const OverlayProvider = function OverlayProvider({
   // must be cleared here). Subscribed at store creation — before any child
   // effect can open an overlay.
   const bridgeRef = useRef<OverlayBridge>({
-    resetSequence: () => void 0,
-    setMode: () => void 0,
+    resetSequence: () => {
+      // Placeholder until the effect below binds the live command store.
+    },
+    setMode: () => {
+      // Placeholder until the effect below binds the live mode setter.
+    },
   });
   const storeRef = useRef<OverlayStore | null>(null);
   if (storeRef.current === null) {

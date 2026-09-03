@@ -54,9 +54,16 @@ const CommandSurfaceDepthContext = createContext(0);
  */
 const placeholderCommandContext = function placeholderCommandContext(mode: Mode): CommandContext {
   return buildCommandContext({
-    commands: { invoke: () => void 0, list: () => [] },
+    commands: {
+      invoke: () => {
+        // Placeholder: no dispatcher is mounted yet.
+      },
+      list: () => [],
+    },
     mode,
-    setMode: () => void 0,
+    setMode: () => {
+      // Placeholder: no dispatcher is mounted yet.
+    },
   });
 };
 
