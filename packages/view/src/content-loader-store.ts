@@ -2,6 +2,8 @@ import { createStore } from "@xstate/store";
 import type { MarkSet } from "@tooee/marks";
 import type { AnyContent, Content, ContentChunk, ContentFormat } from "./types.js";
 
+type ContentProviderResult = AnyContent | Promise<AnyContent> | AsyncIterable<ContentChunk>;
+
 export type ContentLoaderStatus = "idle" | "loading" | "streaming" | "ready" | "error";
 
 export interface ContentLoaderContext {
@@ -30,11 +32,12 @@ export type ContentLoaderEvents = {
 };
 
 export const isAsyncIterable = function isAsyncIterable(
-  value: unknown,
+  value: ContentProviderResult,
 ): value is AsyncIterable<ContentChunk> {
   return (
     value !== null &&
     value !== undefined &&
+    // oxlint-disable-next-line anti-slop/no-runtime-typeof -- provider result boundary distinguishes the documented async-iterable source from content and promises
     typeof value === "object" &&
     Symbol.asyncIterator in value
   );
@@ -69,11 +72,11 @@ const ensureContentFormat = function ensureContentFormat<F extends ContentFormat
   title?: string,
 ): Extract<Content, { format: F }> {
   if (!current || current.format !== format) {
-    // Deferred(lint-sweep): add schema-based validation for custom and streamed content formats.
+    // SAFETY: createEmptyContent returns the built-in content variant selected by the same format.
     // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- format-dependent content is trusted at this provider boundary
     return createEmptyContent(format, title) as Extract<Content, { format: F }>;
   }
-  // Deferred(lint-sweep): add schema-based validation for custom and streamed content formats.
+  // SAFETY: The equality guard narrows current to the built-in content variant selected by format.
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the provider contract supplies the matching format
   return current as Extract<Content, { format: F }>;
 };
@@ -117,8 +120,8 @@ export const applyContentChunk = function applyContentChunk(
   }
 };
 
-export const normalizeError = function normalizeError(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+export const normalizeError = function normalizeError(cause: unknown): string {
+  return cause instanceof Error ? cause.message : String(cause);
 };
 
 export const createContentLoaderStore = function createContentLoaderStore() {

@@ -7,10 +7,12 @@ export interface CreateProviderOptions {
   renderer?: ContentFormat;
 }
 
-const detectFormat = function detectFormat(filePath: string): {
+interface DetectedFileFormat {
   format: ContentFormat;
   language?: string;
-} {
+}
+
+const detectFormat = function detectFormat(filePath: string): DetectedFileFormat {
   const ext = filePath.split(".").pop()?.toLowerCase();
   if (ext === undefined || ext === "") {
     return { format: "text" };
@@ -36,36 +38,36 @@ const detectFormat = function detectFormat(filePath: string): {
     return { format: "markdown" };
   }
 
-  const codeExts: Record<string, string> = {
-    bash: "bash",
-    c: "c",
-    cpp: "cpp",
-    css: "css",
-    go: "go",
-    h: "c",
-    hpp: "cpp",
-    html: "html",
-    java: "java",
-    js: "javascript",
-    json: "json",
-    jsx: "javascript",
-    kt: "kotlin",
-    py: "python",
-    rb: "ruby",
-    rs: "rust",
-    sh: "bash",
-    sql: "sql",
-    swift: "swift",
-    toml: "toml",
-    ts: "typescript",
-    tsx: "typescript",
-    yaml: "yaml",
-    yml: "yaml",
-    zsh: "zsh",
-  };
+  const codeExts = new Map<string, string>([
+    ["bash", "bash"],
+    ["c", "c"],
+    ["cpp", "cpp"],
+    ["css", "css"],
+    ["go", "go"],
+    ["h", "c"],
+    ["hpp", "cpp"],
+    ["html", "html"],
+    ["java", "java"],
+    ["js", "javascript"],
+    ["json", "json"],
+    ["jsx", "javascript"],
+    ["kt", "kotlin"],
+    ["py", "python"],
+    ["rb", "ruby"],
+    ["rs", "rust"],
+    ["sh", "bash"],
+    ["sql", "sql"],
+    ["swift", "swift"],
+    ["toml", "toml"],
+    ["ts", "typescript"],
+    ["tsx", "typescript"],
+    ["yaml", "yaml"],
+    ["yml", "yaml"],
+    ["zsh", "zsh"],
+  ]);
 
-  const language = codeExts[ext];
-  if (typeof language === "string") {
+  const language = codeExts.get(ext);
+  if (language !== undefined) {
     return { format: "code", language };
   }
 

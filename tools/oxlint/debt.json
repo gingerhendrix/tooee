@@ -11,7 +11,7 @@
     },
     {
       "rule": "anti-slop/no-known-value-widening",
-      "maximum": 25
+      "maximum": 17
     },
     {
       "rule": "anti-slop/no-object-parameters",
@@ -19,7 +19,7 @@
     },
     {
       "rule": "anti-slop/no-runtime-typeof",
-      "maximum": 58
+      "maximum": 56
     },
     {
       "rule": "anti-slop/no-shape-in-symbol-names",
@@ -27,7 +27,7 @@
     },
     {
       "rule": "anti-slop/no-unknown-parameters",
-      "maximum": 16
+      "maximum": 14
     },
     {
       "rule": "anti-slop/no-unknown-returns",
@@ -39,7 +39,7 @@
     },
     {
       "rule": "anti-slop/require-safety-comment-for-type-assertion",
-      "maximum": 9
+      "maximum": 6
     }
   ]
 }
