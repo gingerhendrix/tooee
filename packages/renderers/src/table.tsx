@@ -141,40 +141,44 @@ const computeColumnWidths = function computeColumnWidths(
   });
 };
 
-const formatCellValue = function formatCellValue(value: unknown): string {
+const formatCellValue = function formatCellValue(value: TableRow[string]): string {
   if (value === null || value === undefined) {
     return "";
-  }
-  if (typeof value === "string") {
-    return value;
-  }
-  if (typeof value === "number" || typeof value === "boolean") {
-    return String(value);
   }
   if (value instanceof Date) {
     return value.toISOString();
   }
-  if (typeof value === "string") {
-    return value;
-  }
-  if (
-    typeof value === "number" ||
-    typeof value === "bigint" ||
-    typeof value === "boolean" ||
-    typeof value === "symbol"
-  ) {
-    return value.toString();
-  }
-  if (value === null || value === undefined) {
-    return String(value);
-  }
-  if (typeof value === "function") {
-    return Function.prototype.toString.call(value);
+  const valueTag = Object.prototype.toString.call(value);
+  switch (valueTag) {
+    case "[object String]": {
+      return String.prototype.toString.call(value);
+    }
+    case "[object Number]": {
+      return Number.prototype.toString.call(value);
+    }
+    case "[object BigInt]": {
+      return BigInt.prototype.toString.call(value);
+    }
+    case "[object Boolean]": {
+      return Boolean.prototype.toString.call(value);
+    }
+    case "[object Symbol]": {
+      return Symbol.prototype.toString.call(value);
+    }
+    case "[object Function]":
+    case "[object AsyncFunction]":
+    case "[object GeneratorFunction]":
+    case "[object AsyncGeneratorFunction]": {
+      return Function.prototype.toString.call(value);
+    }
+    default: {
+      break;
+    }
   }
   try {
     return JSON.stringify(value);
   } catch {
-    return Array.isArray(value) ? value.join(",") : Object.prototype.toString.call(value);
+    return Array.isArray(value) ? value.join(",") : valueTag;
   }
 };
 
