@@ -49,7 +49,11 @@ export function createRoute(config: RouteConfig): RouteDefinition {
     title:
       title === undefined
         ? undefined
-        : (rawParams: RouteParams): string =>
-            typeof title === "string" ? title : title({ params: params.parse(rawParams) }),
+        : // oxlint-disable-next-line eslint/arrow-body-style -- the block places the exact local Function suppression beside its evidence
+          (rawParams: RouteParams): string => {
+            // The configured title is either a callback or its final string value.
+            // oxlint-disable-next-line unicorn/no-instanceof-builtins -- the callback is an in-process function supplied to createRoute
+            return title instanceof Function ? title({ params: params.parse(rawParams) }) : title;
+          },
   };
 }

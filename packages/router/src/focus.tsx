@@ -13,6 +13,11 @@ interface RouteFocusState {
   active: boolean;
 }
 
+/** The combined focus state for the current screen. */
+export interface ScreenFocus {
+  isFocused: boolean;
+}
+
 const RouteFocusContext = createContext<RouteFocusState>({ active: true });
 
 export const ScreenFocusProvider = function ScreenFocusProvider({
@@ -32,7 +37,7 @@ export const ScreenFocusProvider = function ScreenFocusProvider({
  * app is unchanged (scope `true` AND leaf), and a leaf inside an inactive panel
  * reports unfocused (scope `false`) without the router knowing about panels.
  */
-export const useScreenFocus = function useScreenFocus(): { isFocused: boolean } {
+export const useScreenFocus = function useScreenFocus(): ScreenFocus {
   const scope = useScreenScope();
   const route = useContext(RouteFocusContext);
   return { isFocused: scope.isFocused && route.active };

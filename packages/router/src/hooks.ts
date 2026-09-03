@@ -8,6 +8,12 @@ import { createStateKey } from "./state-cache.js";
 
 /* oxlint-disable typescript/promise-function-async -- navigation callbacks preserve synchronous programmer errors */
 
+/** Access to the saved state for one routed screen. */
+export interface ScreenStateHandle<TState> {
+  savedState: TState | undefined;
+  saveState: (state: TState) => void;
+}
+
 export const useNavigate = function useNavigate() {
   const router = useRouterInstance();
   return {
@@ -123,10 +129,7 @@ export const useActionResultHandler = function useActionResultHandler() {
 export const useScreenState = function useScreenState<TState>(route: {
   readonly id: string;
   readonly screenState?: Codec<TState>;
-}): {
-  savedState: TState | undefined;
-  saveState: (state: TState) => void;
-} {
+}): ScreenStateHandle<TState> {
   const router = useRouterInstance();
   const stackIndex = useStackEntryIndex();
   const stack = useRouterStack();

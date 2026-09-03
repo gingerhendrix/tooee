@@ -32,7 +32,9 @@ export class StateCache {
 
   /** Clearing needs only the key's identity, not its value type. */
   clear(key: StateKey<unknown> | string): void {
-    this.cache.delete(typeof key === "string" ? key : key.name);
+    // A StateKey is the object branch; a cache name is the primitive branch.
+    // oxlint-disable-next-line unicorn/no-instanceof-builtins -- StateKey is created in this package and does not cross a realm boundary
+    this.cache.delete(key instanceof Object ? key.name : key);
   }
 
   clearAll(): void {
