@@ -37,8 +37,8 @@ interface Request {
   settled: boolean;
 }
 
-const asError = function asError(error: unknown): Error {
-  return error instanceof Error ? error : new Error(String(error));
+const asError = function asError(cause: unknown): Error {
+  return cause instanceof Error ? cause : new Error(String(cause));
 };
 
 const cloneEntry = function cloneEntry(entry: Readonly<StackEntry>): StackEntry {
@@ -87,12 +87,17 @@ export const createRouter = function createRouter<TContext = undefined>(
     routeMap.set(route.id, route);
   }
 
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- omitted context is exactly TContext's undefined default; non-default contexts are supplied by inference
+  // SAFETY: when context is omitted, TContext keeps its undefined default; when a
+  // context is present, RouterOptions inference gives TContext that value's type.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the generic default and RouterOptions inference establish the context type
   const context = options.context as TContext;
   const initialGuards: NavigationGuard<TContext>[] = [];
   const configuredGuards = options.beforeNavigate;
   if (configuredGuards !== undefined) {
-    if (typeof configuredGuards === "function") {
+    // The configured value is either a callable guard or a readonly guard list;
+    // Function is the domain branch that preserves the readonly array type.
+    // oxlint-disable-next-line unicorn/no-instanceof-builtins -- realm-safe checks are irrelevant for an in-process callback supplied to createRouter
+    if (configuredGuards instanceof Function) {
       initialGuards.push(configuredGuards);
     } else {
       for (const guard of configuredGuards) {
@@ -124,9 +129,9 @@ export const createRouter = function createRouter<TContext = undefined>(
     }
   };
 
-  const reportSubscriberError = function reportSubscriberError(error: unknown): void {
+  const reportSubscriberError = function reportSubscriberError(error: Error): void {
     try {
-      options.onSubscriberError?.(asError(error));
+      options.onSubscriberError?.(error);
     } catch {
       // Error sinks are deliberately isolated.
     }
@@ -137,7 +142,7 @@ export const createRouter = function createRouter<TContext = undefined>(
       try {
         listener(event);
       } catch (error) {
-        reportSubscriberError(error);
+        reportSubscriberError(asError(error));
       }
     }
   };
@@ -255,15 +260,14 @@ export const createRouter = function createRouter<TContext = undefined>(
     }
   };
 
-  const fail = function fail(request: Request, error: unknown, handles: GuardHandle[]): void {
-    const normalized = asError(error);
+  const fail = function fail(request: Request, error: Error, handles: GuardHandle[]): void {
     cleanupHandles(request, handles);
-    reportNavigationError(normalized, {
+    reportNavigationError(error, {
       id: request.id,
       intent: request.intent,
       navigation: request.navigation,
     });
-    finish(request, { error: normalized, id: request.id, status: "failed" });
+    finish(request, { error, id: request.id, status: "failed" });
   };
 
   const commit = function commit(request: Request, handles: GuardHandle[]): void {
@@ -277,7 +281,7 @@ export const createRouter = function createRouter<TContext = undefined>(
         handle.beforeCommit?.();
       }
     } catch (error) {
-      fail(request, error, handles);
+      fail(request, asError(error), handles);
       return;
     }
     if (request.controller.signal.aborted) {
@@ -328,7 +332,7 @@ export const createRouter = function createRouter<TContext = undefined>(
       try {
         listener();
       } catch (error) {
-        reportSubscriberError(error);
+        reportSubscriberError(asError(error));
       }
     }
     const result: NavigationResult = {
@@ -368,7 +372,7 @@ export const createRouter = function createRouter<TContext = undefined>(
     try {
       output = guardList[index](navigation, context);
     } catch (error) {
-      fail(request, error, handles);
+      fail(request, asError(error), handles);
       return;
     }
 
@@ -391,7 +395,7 @@ export const createRouter = function createRouter<TContext = undefined>(
             request.navigation = navigationFor(request, navigation.from, target);
             pendingNavigation = request.navigation;
           } catch (error) {
-            fail(request, error, handles);
+            fail(request, asError(error), handles);
             return;
           }
         }
@@ -400,10 +404,11 @@ export const createRouter = function createRouter<TContext = undefined>(
     };
 
     if (output instanceof Promise) {
+      const rejectGuard = function rejectGuard(cause: unknown): void {
+        fail(request, asError(cause), handles);
+      };
       // oxlint-disable-next-line promise/prefer-await-to-callbacks, promise/prefer-await-to-then -- chaining preserves synchronous commits for synchronous guards
-      void output.then(continueWith, (error: unknown) => {
-        fail(request, error, handles);
-      });
+      void output.then(continueWith, rejectGuard);
     } else {
       continueWith(output);
     }
@@ -442,7 +447,7 @@ export const createRouter = function createRouter<TContext = undefined>(
       const target = resolveTarget(rawTarget);
       request.navigation = navigationFor(request, from, target);
     } catch (error) {
-      fail(request, error, []);
+      fail(request, asError(error), []);
       return;
     }
     pendingNavigation = request.navigation;
