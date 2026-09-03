@@ -14,7 +14,8 @@ import type { Mode } from "../src/mode.js";
 import { keyEvent as key } from "./support/key-event.ts";
 import { expectDefined } from "./support/expect-defined.ts";
 
-const cursorContextGetter = () => ({ mode: "cursor" as Mode });
+const cursorMode: Mode = "cursor";
+const cursorContextGetter = () => ({ mode: cursorMode });
 
 const fakeCtx = function fakeCtx(mode: Mode): CommandContext {
   return {

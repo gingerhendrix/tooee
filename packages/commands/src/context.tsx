@@ -429,9 +429,13 @@ export const useCommandRegistry = function useCommandRegistry(): CommandContextV
 
   return useMemo(
     () => ({
+      // SAFETY: the store builds `contextSources` with `new Map(...)` and only types
+      // it readonly; the runtime value is a `Map`, and this facade only reads it.
       // Deferred(lint-sweep): expose readonly store maps through an immutable registry API.
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- compatibility facade preserves the existing mutable Map API
       contextSources: contextSources as Map<string, ContextGetter>,
+      // SAFETY: the store builds `groups` with `new Map(...)` and only types it
+      // readonly; the runtime value is a `Map`, and this facade only reads it.
       // Deferred(lint-sweep): expose readonly store maps through an immutable registry API.
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- compatibility facade preserves the existing mutable Map API
       groups: groups as Map<string, RegisteredCommandGroup>,
@@ -480,15 +484,16 @@ export const useActiveCommandSurface =
     });
 
     return useMemo(() => {
-      if (!record) {
+      // The keyboard owner is always a modal or panel surface: the root record
+      // never comes out of `selectKeyboardOwnerSurface`. The guard lets the type
+      // say so instead of asserting it.
+      if (!record || record.role === "root") {
         return null;
       }
       return {
         commands: commandMap ? [...commandMap.values()] : [],
         id: record.id,
-        // Deferred(lint-sweep): model selector records with the public surface-role type.
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- selector record is trusted store data
-        role: record.role as CommandSurfaceRole,
+        role: record.role,
       };
     }, [record, commandMap]);
   };

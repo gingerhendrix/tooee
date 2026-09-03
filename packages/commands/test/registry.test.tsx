@@ -113,7 +113,10 @@ describe("registry unregister guards (R-05)", () => {
     // Captured through an explicitly typed object rather than a `let` that
     // control-flow analysis narrows to its initial `null` value inside the probe
     // component (which made every later read error-typed).
-    const observed: { groups?: ReadonlyMap<string, RegisteredCommandGroup> } = {};
+    interface ObservedRegistry {
+      groups?: ReadonlyMap<string, RegisteredCommandGroup>;
+    }
+    const observed: ObservedRegistry = {};
     const currentGroups = (): ReadonlyMap<string, RegisteredCommandGroup> =>
       expectDefined(observed.groups);
 

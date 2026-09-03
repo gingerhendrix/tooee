@@ -1,18 +1,18 @@
 import type { ParsedHotkey, ParsedStep } from "./types.js";
 
-const KEY_ALIASES: Record<string, string> = {
-  backspace: "backspace",
-  cr: "return",
-  del: "delete",
-  enter: "return",
-  esc: "escape",
-  plus: "+",
-  tab: "tab",
-};
+const KEY_ALIASES: ReadonlyMap<string, string> = new Map([
+  ["backspace", "backspace"],
+  ["cr", "return"],
+  ["del", "delete"],
+  ["enter", "return"],
+  ["esc", "escape"],
+  ["plus", "+"],
+  ["tab", "tab"],
+]);
 
 const normalizeKey = function normalizeKey(key: string): string {
   const lower = key.toLowerCase();
-  return KEY_ALIASES[lower] ?? lower;
+  return KEY_ALIASES.get(lower) ?? lower;
 };
 
 const warned = new Set<string>();

@@ -59,9 +59,12 @@ export const buildCommandContext = function buildCommandContext(
   for (const getter of input.contributions ?? []) {
     Object.assign(base, getter());
   }
-  // The assertion is required by the whole-program build (where every domain's
-  // augmentation is visible) and is redundant in the package-local program,
-  // hence both suppressions.
+  // SAFETY: a domain's commands are registered by the same components that mount
+  // that domain's context source, so every field a handler can read has been
+  // merged into `base` by the loop above before that handler runs (see the
+  // readiness contract in the doc comment). The assertion is required by the
+  // whole-program build (where every domain's augmentation is visible) and is
+  // redundant in the package-local program, hence both suppressions.
   // oxlint-disable-next-line typescript/no-unnecessary-type-assertion, typescript/no-unsafe-type-assertion -- single documented augmentation boundary (see above)
   return base as CommandContext;
 };
