@@ -4,6 +4,7 @@ import type {
   LineInfoProvider,
   ScrollBoxOptions,
   OptimizedBuffer,
+  Renderable,
 } from "@opentui/core";
 import type { DecorationLayer, RowDecoration } from "./decoration-layer.js";
 
@@ -16,6 +17,13 @@ export const DEFAULT_SIGN_COLUMN_WIDTH = 3;
 export interface RowDocumentPalette {
   gutterFg?: string;
   gutterBg?: string;
+}
+
+export interface VisibleRowRange {
+  virtualTop: number;
+  virtualBottom: number;
+  firstRow: number;
+  lastRow: number;
 }
 
 export interface RowDocumentOptions extends ScrollBoxOptions {
@@ -40,15 +48,10 @@ export interface RowDocumentOptions extends ScrollBoxOptions {
 // Provider detection
 // ---------------------------------------------------------------------------
 
-const isRowContentProvider = function isRowContentProvider(x: unknown): x is LineInfoProvider {
-  return (
-    x !== null &&
-    x !== undefined &&
-    typeof x === "object" &&
-    "lineInfo" in x &&
-    "lineCount" in x &&
-    "virtualLineCount" in x
-  );
+const isRowContentProvider = function isRowContentProvider(
+  renderable: Renderable,
+): renderable is Renderable & LineInfoProvider {
+  return "lineInfo" in renderable && "lineCount" in renderable && "virtualLineCount" in renderable;
 };
 
 // ---------------------------------------------------------------------------
@@ -260,12 +263,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     return this.getRowAtVirtualY(virtualY);
   }
 
-  getVisibleRange(): {
-    virtualTop: number;
-    virtualBottom: number;
-    firstRow: number;
-    lastRow: number;
-  } {
+  getVisibleRange(): VisibleRowRange {
     const top = Math.floor(this.scrollTop);
     const bottom = top + this.viewport.height;
     return {

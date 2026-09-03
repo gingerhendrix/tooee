@@ -39,7 +39,11 @@ export {
   DEFAULT_SIGN_COLUMN_WIDTH,
   computeRowDocumentGutterWidth,
 } from "./row-document-renderable.js";
-export type { RowDocumentOptions, RowDocumentPalette } from "./row-document-renderable.js";
+export type {
+  RowDocumentOptions,
+  RowDocumentPalette,
+  VisibleRowRange,
+} from "./row-document-renderable.js";
 export type { DecorationLayer, RowDecoration } from "./decoration-layer.js";
 export type { DocumentBindings } from "./document-bindings.js";
 export { useGutterPalette } from "./use-gutter-palette.js";
