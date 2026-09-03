@@ -1,0 +1,6 @@
+{
+  "name": "@streamos/vendored-anti-slop",
+  "private": true,
+  "type": "module",
+  "license": "MIT"
+}

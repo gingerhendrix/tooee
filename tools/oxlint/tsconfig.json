@@ -1,0 +1,4 @@
+{
+  "extends": "../../tsconfig.lint.json",
+  "include": ["check-debt.ts", "test/**/*.ts"]
+}

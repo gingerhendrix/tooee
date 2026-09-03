@@ -1,0 +1,15 @@
+{
+  "measuredAt": "3ff088cc3dede0b3c0ee14c1271874730182e899",
+  "budgets": [
+    { "rule": "anti-slop/no-chained-type-assertions", "maximum": 2 },
+    { "rule": "anti-slop/no-conditional-empty-object-spread", "maximum": 10 },
+    { "rule": "anti-slop/no-known-value-widening", "maximum": 69 },
+    { "rule": "anti-slop/no-object-parameters", "maximum": 2 },
+    { "rule": "anti-slop/no-runtime-typeof", "maximum": 112 },
+    { "rule": "anti-slop/no-shape-in-symbol-names", "maximum": 9 },
+    { "rule": "anti-slop/no-unknown-parameters", "maximum": 29 },
+    { "rule": "anti-slop/no-unknown-returns", "maximum": 7 },
+    { "rule": "anti-slop/no-unsafe-dictionary-type", "maximum": 20 },
+    { "rule": "anti-slop/require-safety-comment-for-type-assertion", "maximum": 76 }
+  ]
+}

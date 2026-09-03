@@ -1,0 +1,3 @@
+# oxfmt reads this file by default. The vendored anti-slop Oxlint plugin stays
+# byte-identical to the StreamOS copy, which uses a different formatter profile.
+tools/oxlint/anti-slop/
