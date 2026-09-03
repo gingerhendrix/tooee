@@ -97,8 +97,9 @@ export const printLatencySummary = function printLatencySummary(
 };
 
 export const printMemoryMetrics = function printMemoryMetrics(metricPrefix: string): void {
-  if (typeof Bun.gc === "function") {
-    Bun.gc(true);
+  const collectGarbage = Bun.gc;
+  if (collectGarbage !== undefined) {
+    collectGarbage(true);
   }
   const usage = process.memoryUsage();
   console.log(`METRIC ${metricPrefix}_rss_bytes=${usage.rss}`);

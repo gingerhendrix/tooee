@@ -19,7 +19,7 @@
     },
     {
       "rule": "anti-slop/no-runtime-typeof",
-      "maximum": 19
+      "maximum": 18
     },
     {
       "rule": "anti-slop/no-shape-in-symbol-names",
