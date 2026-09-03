@@ -4,7 +4,7 @@ import { expectDefined } from "./support/expect-defined.js";
 import type { FlatBlock } from "../src/markdown-blocks.js";
 
 /** Compact per-row projection: order, kind, bullet/checkbox, semantic text, and exact source. */
-interface RowShape {
+interface RowProjection {
   type: string;
   bullet?: string;
   checked?: boolean;
@@ -22,9 +22,9 @@ interface RowShape {
   } | null;
 }
 
-const shape = function shape(block: FlatBlock): RowShape {
+const projectRow = function projectRow(block: FlatBlock): RowProjection {
   const p = block.source?.primary;
-  const row: RowShape = {
+  const row: RowProjection = {
     source: p
       ? {
           e: p.end.offset,
@@ -50,8 +50,8 @@ const shape = function shape(block: FlatBlock): RowShape {
   return row;
 };
 
-const rows = function rows(markdown: string, options?: { sourceId?: string }): RowShape[] {
-  return flattenMarkdown(markdown, options).map(shape);
+const rows = function rows(markdown: string, options?: { sourceId?: string }): RowProjection[] {
+  return flattenMarkdown(markdown, options).map(projectRow);
 };
 
 describe("flattenMarkdown row order and provenance", () => {
@@ -460,7 +460,7 @@ describe("flattenMarkdown row order and provenance", () => {
 describe("getFlatBlockText", () => {
   test("uses token raw for content rows and visible bullet text for synthetic rows", () => {
     const synthetic = flattenMarkdown("1. first\n2.\n   - nested").find(
-      (b) => (b.token as { raw?: string }).raw === "",
+      (block) => block.token.raw === "",
     );
     // For a bullet-only synthetic row, text falls back to the visible bullet.
     expect(synthetic).toBeDefined();
