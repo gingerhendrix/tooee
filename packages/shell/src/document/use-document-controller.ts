@@ -63,10 +63,13 @@ const resolveContextMenuEntries = function resolveContextMenuEntries(
 ): ContextMenuEntry[] {
   const [first] = items;
   if (first !== undefined && "handler" in first) {
-    // Deferred(lint-sweep): add a typed discriminated-union API for mixed menu items.
+    // SAFETY: The first entry has an ActionDefinition handler, and the public union permits only
+    // homogeneous ActionDefinition or ContextMenuEntry arrays.
     // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- current public menu item union requires this projection
     return actionsToContextMenuEntries(items as readonly ActionDefinition[], context);
   }
+  // SAFETY: An empty collection or a first entry without a handler is the ContextMenuEntry arm of
+  // the public homogeneous-array union.
   return [...(items as readonly ContextMenuEntry[])];
 };
 
@@ -386,6 +389,7 @@ export const useDocumentController = function useDocumentController<T>(
       // not re-rendered yet); registry `invoke` re-checks `when` with a fresh
       // context when an entry is actually chosen, after selection commits.
       const context = buildCommandContext();
+      // oxlint-disable-next-line anti-slop/no-runtime-typeof -- public context-menu boundary accepts either a callback or prepared entries
       const items = typeof menu === "function" ? menu({ ...hit, context, event }) : menu;
       const entries = resolveContextMenuEntries(items, context);
       if (entries.length === 0) {

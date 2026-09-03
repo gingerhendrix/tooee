@@ -7,11 +7,11 @@
     },
     {
       "rule": "anti-slop/no-conditional-empty-object-spread",
-      "maximum": 6
+      "maximum": 1
     },
     {
       "rule": "anti-slop/no-known-value-widening",
-      "maximum": 36
+      "maximum": 32
     },
     {
       "rule": "anti-slop/no-object-parameters",
@@ -19,7 +19,7 @@
     },
     {
       "rule": "anti-slop/no-runtime-typeof",
-      "maximum": 80
+      "maximum": 78
     },
     {
       "rule": "anti-slop/no-shape-in-symbol-names",
@@ -27,19 +27,19 @@
     },
     {
       "rule": "anti-slop/no-unknown-parameters",
-      "maximum": 20
+      "maximum": 19
     },
     {
       "rule": "anti-slop/no-unknown-returns",
-      "maximum": 6
+      "maximum": 5
     },
     {
       "rule": "anti-slop/no-unsafe-dictionary-type",
-      "maximum": 16
+      "maximum": 14
     },
     {
       "rule": "anti-slop/require-safety-comment-for-type-assertion",
-      "maximum": 28
+      "maximum": 24
     }
   ]
 }

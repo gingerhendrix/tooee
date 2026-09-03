@@ -24,7 +24,8 @@ export interface DocumentCommandContext {
   selectedAnchors: readonly DocumentRowAnchor<unknown>[];
 
   reload?: () => void;
-  /** Screen-supplied extras. */
+  /** Screen-supplied extras. Hosts own the values for their command handlers. */
+  // oxlint-disable-next-line anti-slop/no-unsafe-dictionary-type -- public host-extension contract accepts domain values owned by each screen
   [key: string]: unknown;
 }
 
@@ -38,6 +39,7 @@ export interface ProvideDocumentCommandContextOptions {
   kind?: string;
   title?: string;
   reload?: () => void;
+  // oxlint-disable-next-line anti-slop/no-unsafe-dictionary-type -- public host-extension contract accepts domain values owned by each screen
   extras?: Record<string, unknown>;
 }
 

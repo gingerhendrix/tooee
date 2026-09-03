@@ -39,7 +39,15 @@ export const DocumentScreen = function DocumentScreen<T>({
   const mode = useMode();
 
   const { name: themeName } = useThemeCommands({ enabled: themeCommands });
-  useQuitCommand(typeof quit === "boolean" ? { enabled: quit } : quit);
+  let quitOptions: UseQuitCommandOptions;
+  if (quit === true) {
+    quitOptions = { enabled: true };
+  } else if (quit === false) {
+    quitOptions = { enabled: false };
+  } else {
+    quitOptions = quit;
+  }
+  useQuitCommand(quitOptions);
   useActions(actions);
   useProvideDocumentCommandContext(controller, context);
 

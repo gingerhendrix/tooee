@@ -168,13 +168,20 @@ const resolveProviderOptions = function resolveProviderOptions(
   options: LaunchCliOptions,
 ): TooeeProviderOptions {
   const { leader, config, initialMode, sequenceTimeoutMs } = options;
-  return {
-    ...(leader === undefined ? {} : { leader }),
-    ...(config === undefined ? {} : { config }),
-    ...(initialMode === undefined ? {} : { initialMode }),
-    ...(sequenceTimeoutMs === undefined ? {} : { sequenceTimeoutMs }),
-    ...options.provider,
-  };
+  const aliases: TooeeProviderOptions = {};
+  if (leader !== undefined) {
+    aliases.leader = leader;
+  }
+  if (config !== undefined) {
+    aliases.config = config;
+  }
+  if (initialMode !== undefined) {
+    aliases.initialMode = initialMode;
+  }
+  if (sequenceTimeoutMs !== undefined) {
+    aliases.sequenceTimeoutMs = sequenceTimeoutMs;
+  }
+  return { ...aliases, ...options.provider };
 };
 
 const openTtyInput = function openTtyInput(policy: CliStdinPolicy): tty.ReadStream | undefined {
@@ -204,11 +211,14 @@ export const launchCli = async function launchCli(
 
   try {
     ttyInput = openTtyInput(options.stdinPolicy ?? "process");
-    renderer = await createCliRenderer({
+    const rendererOptions: CliRendererConfig = {
       ...options.renderer,
       exitOnCtrlC: options.exitOnCtrlC ?? true,
-      ...(ttyInput ? { stdin: ttyInput } : {}),
-    });
+    };
+    if (ttyInput !== undefined) {
+      rendererOptions.stdin = ttyInput;
+    }
+    renderer = await createCliRenderer(rendererOptions);
   } catch (error) {
     ttyInput?.destroy();
     throw error;
