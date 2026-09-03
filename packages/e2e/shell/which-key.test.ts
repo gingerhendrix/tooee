@@ -17,7 +17,7 @@ const expectSomeFrame = function expectSomeFrame(
   pattern: RegExp | string,
 ): string {
   const matchingFrame = frames.find((frame) =>
-    typeof pattern === "string" ? frame.includes(pattern) : pattern.test(frame),
+    pattern instanceof RegExp ? pattern.test(frame) : frame.includes(pattern),
   );
   expect(matchingFrame, frames.join("\n--- frame ---\n")).toBeDefined();
   if (matchingFrame === undefined) {
