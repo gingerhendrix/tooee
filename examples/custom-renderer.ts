@@ -74,12 +74,12 @@ const kanbanData: KanbanData = {
 
 // === Custom renderer ===
 
-const PRIORITY_INDICATORS: Record<string, string> = {
+const PRIORITY_INDICATORS = {
   critical: "!!!",
   high: " !! ",
   low: "    ",
   medium: "  ! ",
-};
+} satisfies Record<KanbanCard["priority"], string>;
 
 const COLUMN_WIDTH = 36;
 const CARD_INNER_WIDTH = COLUMN_WIDTH - 4;
@@ -98,9 +98,20 @@ const padRight = function padRight(text: string, width: number): string {
   return text + " ".repeat(width - text.length);
 };
 
+interface OpenTuiElementProperties {
+  content?: string;
+  fg?: string;
+  key?: number;
+  style?: {
+    flexDirection: "column";
+    marginLeft: number;
+    marginTop: number;
+  };
+}
+
 const h = function h(
   tag: string,
-  props: Record<string, unknown>,
+  props: OpenTuiElementProperties,
   ...children: ReactNode[]
 ): ReactNode {
   return createElement(tag, props, ...children);
@@ -108,8 +119,9 @@ const h = function h(
 
 const KanbanRenderer = function KanbanRenderer({ content }: ContentRendererProps): ReactNode {
   const { theme } = useTheme();
-  // Deferred(lint-sweep): add schema-based validation for custom renderer content
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- custom format payload validation is deferred
+  // SAFETY: this file's provider returns KanbanData for the `kanban` format, and the same
+  // launch call registers this renderer only for that format.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the co-located provider and registry establish the erased custom-content payload
   const { data } = content as CustomContent<KanbanData>;
 
   const maxCards = Math.max(...data.columns.map((col) => col.cards.length));
