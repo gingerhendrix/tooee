@@ -136,11 +136,7 @@ describe("ctx.document from a View screen", () => {
     expect(document.rowCount).toBe(4);
     expect(document.cursor).toBe(1);
     // Code rows are now source-backed SourceLineRow objects, not bare strings.
-    const { activeRow } = document;
-    if (typeof activeRow !== "object" || activeRow === null || !("text" in activeRow)) {
-      throw new Error("Expected code document row to contain text");
-    }
-    expect(activeRow.text).toBe("beta");
+    expect(document.activeRow).toHaveProperty("text", "beta");
     expect(document.activeAnchor?.text).toBe("beta");
     expect(document.activeAnchor?.source?.primary.start.line).toBe(1);
   });
@@ -155,7 +151,7 @@ describe("ctx.view from a View screen", () => {
     const view = expectDefined(viewCtx);
     expect(view.format).toBe("table");
     expect(view.title).toBe("People");
-    expect(typeof view.reload).toBe("function");
+    expect(view.reload).toBeDefined();
     expect(view.marks.userMarks).toEqual([]);
     expect(view.marks.providerMarks).toEqual([]);
 

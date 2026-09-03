@@ -40,7 +40,12 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-const lineOf = function lineOf(frame: string, text: string): { x: number; y: number } {
+interface FramePosition {
+  x: number;
+  y: number;
+}
+
+const lineOf = function lineOf(frame: string, text: string): FramePosition {
   const lines = frame.split("\n");
   for (let y = 0; y < lines.length; y += 1) {
     const x = lines[y].indexOf(text);

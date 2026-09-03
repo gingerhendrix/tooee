@@ -61,7 +61,12 @@ const setup = async function setup(
   return s;
 };
 
-const lineOf = function lineOf(frame: string, text: string): { x: number; y: number } {
+interface FramePosition {
+  x: number;
+  y: number;
+}
+
+const lineOf = function lineOf(frame: string, text: string): FramePosition {
   const lines = frame.split("\n");
   for (let y = 0; y < lines.length; y += 1) {
     const x = lines[y].indexOf(text);
@@ -222,7 +227,7 @@ describe("Markdown view mouse selection", () => {
 
   test("a one-argument link handler remains compatible and only exact true consumes", async () => {
     const activated: string[] = [];
-    const legacyHandler = (href: string): unknown => {
+    const legacyHandler = (href: string) => {
       activated.push(href);
       return "handled";
     };
