@@ -56,7 +56,11 @@ interface HarnessHandles {
   unmountOwner: () => void;
 }
 
-const handles: { current: HarnessHandles | null } = { current: null };
+interface HarnessRef {
+  current: HarnessHandles | null;
+}
+
+const handles: HarnessRef = { current: null };
 let hostProbeCount = 0;
 let settlements: (string | null)[] = [];
 

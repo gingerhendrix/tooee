@@ -51,15 +51,46 @@ export interface AskPanelProps {
   onMouseDown?: (event: MouseEvent) => void;
 }
 
-const hasContent = function hasContent(content: ReactNode): boolean {
-  return content !== null && content !== undefined;
+interface EmptyPanelContent {
+  kind: "empty";
+}
+
+interface StringPanelContent {
+  kind: "string";
+  value: string;
+}
+
+interface NodePanelContent {
+  kind: "node";
+  value: ReactNode;
+}
+
+type PanelContent = EmptyPanelContent | StringPanelContent | NodePanelContent;
+
+/** Decode a public React slot once into the panel's three rendering cases. */
+const decodePanelContent = function decodePanelContent(content: ReactNode): PanelContent {
+  if (content === null || content === undefined) {
+    return { kind: "empty" };
+  }
+  // oxlint-disable-next-line anti-slop/no-runtime-typeof -- ReactNode boundary distinguishes themed primitive text from nodes rendered by React
+  if (typeof content === "string") {
+    return { kind: "string", value: content };
+  }
+  return { kind: "node", value: content };
 };
 
-const renderStatus = function renderStatus(status: ReactNode, textMuted: string): ReactNode {
-  if (!hasContent(status)) {
+const renderStatus = function renderStatus(status: PanelContent, textMuted: string): ReactNode {
+  if (status.kind === "empty") {
     return null;
   }
-  return typeof status === "string" ? <text content={status} fg={textMuted} /> : status;
+  return status.kind === "string" ? <text content={status.value} fg={textMuted} /> : status.value;
+};
+
+const renderHints = function renderHints(hints: PanelContent, textMuted: string): ReactNode {
+  if (hints.kind === "empty") {
+    return null;
+  }
+  return hints.kind === "string" ? <text content={hints.value} fg={textMuted} /> : hints.value;
 };
 
 /**
@@ -83,6 +114,11 @@ export const AskPanel = function AskPanel({
 
   const defaults = buildAskHints(mode, { multiline });
   const hintContent = hints ? hints({ defaults, mode }) : defaults.join("  ");
+  const decodedTitle = decodePanelContent(title);
+  const decodedPrompt = decodePanelContent(prompt);
+  const decodedFooter = decodePanelContent(footer);
+  const decodedHints = decodePanelContent(hintContent);
+  const decodedStatus = decodePanelContent(statusRight);
 
   return (
     <box
@@ -97,7 +133,7 @@ export const AskPanel = function AskPanel({
       borderColor={theme.borderActive}
       onMouseDown={onMouseDown}
     >
-      {title !== null && title !== undefined && (
+      {decodedTitle.kind !== "empty" && (
         <box
           flexDirection="row"
           height={1}
@@ -105,25 +141,25 @@ export const AskPanel = function AskPanel({
           paddingRight={1}
           backgroundColor={theme.backgroundElement}
         >
-          {typeof title === "string" ? (
-            <text content={title} fg={theme.accent} style={{ flexGrow: 1 }} />
+          {decodedTitle.kind === "string" ? (
+            <text content={decodedTitle.value} fg={theme.accent} style={{ flexGrow: 1 }} />
           ) : (
             <box flexDirection="row" style={{ flexGrow: 1 }}>
-              {title}
+              {decodedTitle.value}
             </box>
           )}
           {onClose && <CloseButton onClose={onClose} />}
         </box>
       )}
 
-      {prompt !== null && prompt !== undefined && (
+      {decodedPrompt.kind !== "empty" && (
         <box paddingLeft={1} paddingRight={1}>
-          {typeof prompt === "string" ? (
+          {decodedPrompt.kind === "string" ? (
             <text fg={theme.text}>
-              <strong>{prompt}</strong>
+              <strong>{decodedPrompt.value}</strong>
             </text>
           ) : (
-            prompt
+            decodedPrompt.value
           )}
         </box>
       )}
@@ -133,9 +169,9 @@ export const AskPanel = function AskPanel({
         {children}
       </box>
 
-      {footer !== null && footer !== undefined && (
+      {decodedFooter.kind !== "empty" && (
         <box paddingLeft={1} paddingRight={1}>
-          {footer}
+          {decodedFooter.value}
         </box>
       )}
 
@@ -148,13 +184,9 @@ export const AskPanel = function AskPanel({
         backgroundColor={theme.backgroundElement}
       >
         <box flexDirection="row" style={{ flexGrow: 1 }}>
-          {typeof hintContent === "string" ? (
-            <text content={hintContent} fg={theme.textMuted} />
-          ) : (
-            hintContent
-          )}
+          {renderHints(decodedHints, theme.textMuted)}
         </box>
-        {renderStatus(statusRight, theme.textMuted)}
+        {renderStatus(decodedStatus, theme.textMuted)}
       </box>
     </box>
   );
