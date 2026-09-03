@@ -61,9 +61,15 @@ graph LR
 
 const BAR_WIDTH = 30;
 
+interface OpenTuiElementProperties {
+  fg?: string;
+  key?: number;
+  style?: { height: number };
+}
+
 const h = function h(
   tag: string,
-  props: Record<string, unknown>,
+  props: OpenTuiElementProperties,
   ...children: ReactNode[]
 ): ReactNode {
   return createElement(tag, props, ...children);
