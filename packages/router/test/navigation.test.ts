@@ -5,6 +5,7 @@ import type {
   NavigationGuard,
   NavigationResult,
   ResolvedNavigation,
+  RouteParams,
 } from "@tooee/router";
 import { idParams, valueState } from "./support/codecs.ts";
 
@@ -27,7 +28,9 @@ const expectStatus = function expectStatus<TStatus extends NavigationResult["sta
   if (result.status !== status) {
     throw new Error(`Expected ${status}, got ${result.status}`);
   }
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the runtime status check narrows the discriminated result for the generic test helper
+  // SAFETY: the equality guard above checks the same discriminant that selects
+  // this Extract member from NavigationResult.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the checked status discriminant establishes the generic Extract member
   return result as Extract<NavigationResult, { status: TStatus }>;
 };
 
@@ -196,21 +199,24 @@ describe("target resolution and typed navigation", () => {
   });
 
   test("pop resolves and canonicalizes the revealed entry; bottom pop is a no-op", async () => {
+    const initialParams: RouteParams = { tab: "UPPER" };
     const canonicalHome = createRoute({
       canonicalize: (params) => ({
+        // This test owns the string fixture in initialParams and checks its canonical result below.
+        // oxlint-disable-next-line anti-slop/no-runtime-typeof -- preserve the default branch while testing the open RouteParams contract
         tab: typeof params.tab === "string" ? params.tab.toLowerCase() : "default",
       }),
       component: Screen,
       id: "canonical-home",
     });
-    const targets: Readonly<{ routeId: string; params: Record<string, unknown> }>[] = [];
+    const targets: Readonly<{ routeId: string; params: RouteParams }>[] = [];
     const router = createRouter({
       beforeNavigate: (navigation) => {
         if (navigation.intent.type === "pop" && navigation.target !== null) {
           targets.push(navigation.target);
         }
       },
-      initial: { params: { tab: "UPPER" }, routeId: "canonical-home" },
+      initial: { params: initialParams, routeId: "canonical-home" },
       routes: [canonicalHome, settingsRoute],
     });
     await router.start();
