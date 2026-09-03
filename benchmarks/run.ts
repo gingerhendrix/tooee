@@ -15,6 +15,11 @@ interface RunOptions {
   scripts: string[];
 }
 
+interface PackageInfo {
+  name?: string;
+  version?: string;
+}
+
 const readArgValue = function readArgValue(args: string[], index: number): string {
   const value = args[index + 1];
   if (!value) {
@@ -141,14 +146,12 @@ const gitSha = function gitSha(): string | undefined {
   return Buffer.from(proc.stdout).toString("utf-8").trim();
 };
 
-const packageInfo = async function packageInfo(): Promise<{ name?: string; version?: string }> {
+const packageInfo = async function packageInfo(): Promise<PackageInfo> {
   try {
-    // Deferred(lint-sweep): add schema-based validation for package metadata JSON
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- package metadata validation is deferred
-    const packageJson = JSON.parse(await Bun.file("package.json").text()) as {
-      name?: string;
-      version?: string;
-    };
+    // SAFETY: the checked-in root package manifest owns `name` and optional `version` as strings,
+    // and this local diagnostic reads only those metadata fields from that repository-owned file.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the repository-owned root manifest establishes PackageInfo
+    const packageJson = JSON.parse(await Bun.file("package.json").text()) as PackageInfo;
     return { name: packageJson.name, version: packageJson.version };
   } catch {
     return {};

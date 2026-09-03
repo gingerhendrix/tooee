@@ -39,7 +39,7 @@
     },
     {
       "rule": "anti-slop/require-safety-comment-for-type-assertion",
-      "maximum": 4
+      "maximum": 3
     }
   ]
 }
