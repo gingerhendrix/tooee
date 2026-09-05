@@ -5,6 +5,7 @@ import { TooeeProvider } from "@tooee/shell";
 import { Choose } from "../src/choose.js";
 import { ChooseOverlay } from "../src/choose-overlay.js";
 import type { ChooseContentProvider, ChooseItem } from "../src/types.js";
+import type { ReactNode } from "react";
 
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
@@ -77,7 +78,7 @@ describe("Choose async load (R-02)", () => {
     const fastProvider: ChooseContentProvider = { load: () => [{ text: "fresh-item" }] };
 
     let swap!: () => void;
-    const Harness = function Harness(): React.ReactNode {
+    const Harness = function Harness(): ReactNode {
       const [provider, setProvider] = useState(slowProvider);
       swap = () => {
         setProvider(fastProvider);
@@ -122,7 +123,7 @@ describe("Choose async load (R-02)", () => {
     const fastProvider: ChooseContentProvider = { load: () => [{ text: "fresh-item" }] };
 
     let swap!: () => void;
-    const Harness = function Harness(): React.ReactNode {
+    const Harness = function Harness(): ReactNode {
       const [provider, setProvider] = useState(slowProvider);
       swap = () => {
         setProvider(fastProvider);

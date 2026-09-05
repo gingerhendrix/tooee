@@ -4,8 +4,9 @@ import { TooeeProvider, useNavigation } from "@tooee/shell";
 import { useMode } from "@tooee/commands";
 import { press, pressTab, pressEscape } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
+import type { ReactNode } from "react";
 
-const CursorHarness = function CursorHarness({ rowCount }: { rowCount: number }): React.ReactNode {
+const CursorHarness = function CursorHarness({ rowCount }: { rowCount: number }): ReactNode {
   const nav = useNavigation({ multiSelect: true, rowCount, viewportHeight: 10 });
   const mode = useMode();
   const { selection } = nav;

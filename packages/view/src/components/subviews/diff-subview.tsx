@@ -11,6 +11,7 @@ import { useContentDocument } from "../../hooks/use-content-document.js";
 import { ViewScreen } from "../view-screen.js";
 import { DiffFilePickerOverlay } from "../diff-file-picker.js";
 import type { SubviewProps } from "./types.js";
+import type { ReactNode } from "react";
 
 interface DiffSubviewProps extends SubviewProps {
   content: DiffContent;
@@ -40,7 +41,7 @@ export const DiffSubview = function DiffSubview({
   decorations,
   actions,
   ...screen
-}: DiffSubviewProps): React.ReactNode {
+}: DiffSubviewProps): ReactNode {
   const config = useConfig();
   const overlay = useOverlay();
   const textContent = content.patch;

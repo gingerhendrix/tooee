@@ -3,8 +3,9 @@ import { test, expect, afterEach, describe } from "bun:test";
 import { act, useState } from "react";
 import { CommandProvider, useActions, useCommand } from "../src/index.js";
 import type { Mode } from "../src/index.js";
+import type { ReactNode } from "react";
 
-const ModesReregistrationHarness = function ModesReregistrationHarness(): React.ReactNode {
+const ModesReregistrationHarness = function ModesReregistrationHarness(): ReactNode {
   const [modes, setModes] = useState<Mode[]>(["cursor"]);
   const [count, setCount] = useState(0);
   useActions([
@@ -29,7 +30,7 @@ const ModesReregistrationHarness = function ModesReregistrationHarness(): React.
   return <text content={`count:${count}`} />;
 };
 
-const WhenReregistrationHarness = function WhenReregistrationHarness(): React.ReactNode {
+const WhenReregistrationHarness = function WhenReregistrationHarness(): ReactNode {
   const [restricted, setRestricted] = useState(false);
   const [count, setCount] = useState(0);
   useActions([

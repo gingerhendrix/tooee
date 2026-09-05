@@ -9,6 +9,7 @@ import type { AskOptions } from "./types.js";
 import { AskEditor } from "./ask-editor.js";
 import { buildAskHints } from "./ask-panel.js";
 import { useAskEditor } from "./use-ask-editor.js";
+import type { ReactNode } from "react";
 
 export interface AskProps extends AskOptions {
   actions?: ActionDefinition[];
@@ -27,7 +28,7 @@ export const Ask = function Ask({
   multiline = true,
   actions,
   onSubmit,
-}: AskProps): React.ReactNode {
+}: AskProps): ReactNode {
   const renderer = useRenderer();
   const { invoke } = useCommandContext();
 

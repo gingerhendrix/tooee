@@ -8,6 +8,7 @@ import type { MarkdownContent, MarkdownLinkActivateHandler } from "../../types.j
 import { useContentDocument } from "../../hooks/use-content-document.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
+import type { ReactNode } from "react";
 
 interface MarkdownSubviewProps extends SubviewProps {
   content: MarkdownContent;
@@ -35,7 +36,7 @@ export const MarkdownSubview = function MarkdownSubview({
   decorations,
   actions,
   ...screen
-}: MarkdownSubviewProps): React.ReactNode {
+}: MarkdownSubviewProps): ReactNode {
   const textContent = content.markdown;
   const lineCount = useMemo(() => textContent.split("\n").length, [textContent]);
   const blocks = useMemo(() => flattenMarkdown(content.markdown), [content.markdown]);

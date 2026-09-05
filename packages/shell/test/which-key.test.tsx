@@ -6,12 +6,13 @@ import type { CommandSequenceState, ParsedStep } from "@tooee/commands";
 import { useCurrentOverlay, useHasOverlay } from "@tooee/overlays";
 import { press } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
+import type { ReactNode } from "react";
 
 const step = function step(key: string): ParsedStep {
   return { ctrl: false, key, meta: false, option: false, shift: false };
 };
 
-const WhichKeyHarness = function WhichKeyHarness(): React.ReactNode {
+const WhichKeyHarness = function WhichKeyHarness(): ReactNode {
   const sequence = useCommandSequenceState();
   const overlay = useCurrentOverlay();
   const hasOverlay = useHasOverlay();
@@ -63,7 +64,7 @@ const WhichKeyHarness = function WhichKeyHarness(): React.ReactNode {
   );
 };
 
-const ActionMetadataHarness = function ActionMetadataHarness(): React.ReactNode {
+const ActionMetadataHarness = function ActionMetadataHarness(): ReactNode {
   const sequence = useCommandSequenceState();
   const overlay = useCurrentOverlay();
   const hasOverlay = useHasOverlay();

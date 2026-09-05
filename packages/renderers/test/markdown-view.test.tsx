@@ -7,8 +7,9 @@ import { MarkdownView } from "../src/markdown-view.js";
 import type { CodeBlockRenderer } from "../src/code-blocks.js";
 import { decorationBindings } from "./support/bindings.js";
 import { ansiToStyledText, renderMermaidForTerminal } from "../src/mermaid.js";
+import type { ReactNode } from "react";
 
-const graphqlRenderer: CodeBlockRenderer = ({ text, theme, indent }): React.ReactNode => (
+const graphqlRenderer: CodeBlockRenderer = ({ text, theme, indent }): ReactNode => (
   <box style={{ marginBottom: 1, marginLeft: 1 + indent }}>
     <text content={`GraphQL query (${text.split("\n").length} lines)`} fg={theme.accent} />
   </box>
@@ -18,11 +19,11 @@ const throwingRenderer: CodeBlockRenderer = () => {
   throw new Error("renderer exploded");
 };
 
-const overrideRenderer: CodeBlockRenderer = ({ theme }): React.ReactNode => (
+const overrideRenderer: CodeBlockRenderer = ({ theme }): ReactNode => (
   <text content="custom mermaid override" fg={theme.accent} />
 );
 
-const hScrollRenderer: CodeBlockRenderer = ({ text, theme, indent, hScroll }): React.ReactNode => {
+const hScrollRenderer: CodeBlockRenderer = ({ text, theme, indent, hScroll }): ReactNode => {
   const { register, onMouseScroll: handleMouseScroll } = hScroll;
   return (
     <box style={{ marginBottom: 1, marginLeft: 1 + indent }}>
@@ -1426,7 +1427,7 @@ describe("custom code block renderers", () => {
 
   test("renderer receives the full info string", async () => {
     let seenInfo: string | undefined;
-    const infoRenderer: CodeBlockRenderer = ({ info, theme }): React.ReactNode => {
+    const infoRenderer: CodeBlockRenderer = ({ info, theme }): ReactNode => {
       seenInfo = info;
       return <text content="custom" fg={theme.accent} />;
     };
@@ -1509,7 +1510,7 @@ describe("custom code block renderers", () => {
 
   test("custom renderer inside a list item receives its indent", async () => {
     let seenIndent: number | undefined;
-    const indentRenderer: CodeBlockRenderer = ({ indent, theme }): React.ReactNode => {
+    const indentRenderer: CodeBlockRenderer = ({ indent, theme }): ReactNode => {
       seenIndent = indent;
       return <text content="indented custom block" fg={theme.accent} />;
     };

@@ -7,6 +7,7 @@ import { useOverlay, useCurrentOverlay } from "@tooee/overlays";
 import type { OverlayController } from "@tooee/overlays";
 import { expectDefined, press } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
+import type { ReactNode } from "react";
 
 let testSetup: TestSession;
 
@@ -20,7 +21,7 @@ const ChordSurface = function ChordSurface({
 }: {
   generation: number;
   onChord: () => void;
-}): React.ReactNode {
+}): ReactNode {
   useCommand({ handler: onChord, hotkey: "g g", id: "s.chord", title: "Chord" });
   return <text content={`SURFACE gen:${generation}`} />;
 };
@@ -35,7 +36,7 @@ const SequenceProbe = function SequenceProbe() {
   return null;
 };
 
-const Harness = function Harness({ onChord }: { onChord: () => void }): React.ReactNode {
+const Harness = function Harness({ onChord }: { onChord: () => void }): ReactNode {
   const overlay = useOverlay();
   const current = useCurrentOverlay();
   const generationRef = useRef(0);
@@ -45,7 +46,7 @@ const Harness = function Harness({ onChord }: { onChord: () => void }): React.Re
     generationRef.current += 1;
     ctrl.open(
       "chord-overlay",
-      (): React.ReactNode => <ChordSurface generation={generation} onChord={onChord} />,
+      (): ReactNode => <ChordSurface generation={generation} onChord={onChord} />,
       null,
       { ownCommands: true, role: "modal", surfaceMode: "cursor" },
     );
@@ -105,7 +106,7 @@ describe("F-09: same-id overlay replacement resets a pending chord (shell bridge
     await act(async () => {
       expectDefined(controller).open(
         "chord-overlay",
-        (): React.ReactNode => (
+        (): ReactNode => (
           <ChordSurface
             generation={99}
             onChord={() => {

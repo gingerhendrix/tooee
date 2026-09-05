@@ -8,6 +8,7 @@ import { testRender } from "../../../test/support/test-render.ts";
 import { expectDefined } from "./support/expect-defined.ts";
 import { useAskDialog } from "../src/use-ask-dialog.js";
 import type { AskDialogHandle } from "../src/use-ask-dialog.js";
+import type { ReactNode } from "react";
 
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
@@ -87,7 +88,7 @@ const DialogOwner = function DialogOwner({
   return null;
 };
 
-const Harness = function Harness(): React.ReactNode {
+const Harness = function Harness(): ReactNode {
   const overlay = useOverlay();
   const overlayState = useOverlayState();
   const current = useCurrentOverlay();
@@ -226,7 +227,7 @@ describe("useAskDialog settlement", () => {
     await act(async () => {
       expectDefined(handles.current).overlay.open(
         topId,
-        (): React.ReactNode => <text content="REPLACEMENT" />,
+        (): ReactNode => <text content="REPLACEMENT" />,
         undefined,
         {
           ownCommands: true,

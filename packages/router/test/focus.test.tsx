@@ -9,10 +9,11 @@ import {
   useScreenFocus,
   useScreenEffect,
 } from "@tooee/router";
+import type { ReactNode } from "react";
 
 // Simple screen that reports its focus state
 
-const HomeScreen = function HomeScreen(): React.ReactNode {
+const HomeScreen = function HomeScreen(): ReactNode {
   const { isFocused } = useScreenFocus();
   return (
     <box>
@@ -23,7 +24,7 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
 
 // Nested layout that reports focus and renders child outlet
 
-const FocusLayout = function FocusLayout(): React.ReactNode {
+const FocusLayout = function FocusLayout(): ReactNode {
   const { isFocused } = useScreenFocus();
   return (
     <box>
@@ -33,7 +34,7 @@ const FocusLayout = function FocusLayout(): React.ReactNode {
   );
 };
 
-const FocusChild = function FocusChild(): React.ReactNode {
+const FocusChild = function FocusChild(): ReactNode {
   const { isFocused } = useScreenFocus();
   return (
     <box>
@@ -46,7 +47,7 @@ const FocusChild = function FocusChild(): React.ReactNode {
 
 let effectLog: string[] = [];
 
-const EffectLayout = function EffectLayout(): React.ReactNode {
+const EffectLayout = function EffectLayout(): ReactNode {
   useScreenEffect(() => {
     effectLog.push("layout:effect");
     return () => {
@@ -62,7 +63,7 @@ const EffectLayout = function EffectLayout(): React.ReactNode {
   );
 };
 
-const EffectChild = function EffectChild(): React.ReactNode {
+const EffectChild = function EffectChild(): ReactNode {
   useScreenEffect(() => {
     effectLog.push("child:effect");
     return () => {

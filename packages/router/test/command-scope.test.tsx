@@ -9,6 +9,7 @@ import {
   useRouterCommands,
 } from "@tooee/router";
 import { CommandProvider, useCommandContext, useCommand } from "@tooee/commands";
+import type { ReactNode } from "react";
 
 const expectDefined = function expectDefined<T>(value: T | undefined): T {
   if (value === undefined) {
@@ -17,7 +18,7 @@ const expectDefined = function expectDefined<T>(value: T | undefined): T {
   return value;
 };
 
-const UnmountScreenA = function UnmountScreenA(): React.ReactNode {
+const UnmountScreenA = function UnmountScreenA(): ReactNode {
   useRouterCommands();
   useCommand({
     handler: () => {},
@@ -33,7 +34,7 @@ const UnmountScreenA = function UnmountScreenA(): React.ReactNode {
   );
 };
 
-const UnmountScreenB = function UnmountScreenB(): React.ReactNode {
+const UnmountScreenB = function UnmountScreenB(): ReactNode {
   useCommand({
     handler: () => {},
     hotkey: "b",
@@ -48,7 +49,7 @@ const UnmountScreenB = function UnmountScreenB(): React.ReactNode {
   );
 };
 
-const RemountScreenA = function RemountScreenA(): React.ReactNode {
+const RemountScreenA = function RemountScreenA(): ReactNode {
   useRouterCommands();
   useCommand({
     handler: () => {},
@@ -64,7 +65,7 @@ const RemountScreenA = function RemountScreenA(): React.ReactNode {
   );
 };
 
-const RemountScreenB = function RemountScreenB(): React.ReactNode {
+const RemountScreenB = function RemountScreenB(): ReactNode {
   return (
     <box>
       <text content="screen:B" />
@@ -74,7 +75,7 @@ const RemountScreenB = function RemountScreenB(): React.ReactNode {
 
 // Screen that calls useRouterCommands
 
-const HomeScreen = function HomeScreen(): React.ReactNode {
+const HomeScreen = function HomeScreen(): ReactNode {
   useRouterCommands();
   return (
     <box>
@@ -83,7 +84,7 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
   );
 };
 
-const DetailScreen = function DetailScreen(): React.ReactNode {
+const DetailScreen = function DetailScreen(): ReactNode {
   useRouterCommands();
   return (
     <box>

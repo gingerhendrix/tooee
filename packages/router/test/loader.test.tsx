@@ -4,13 +4,14 @@ import { act } from "react";
 import { createRoute, createRouter, RouterProvider, Outlet, useRouteData } from "@tooee/router";
 import type { RouteParams } from "@tooee/router";
 import { echoData, messageData } from "./support/codecs.ts";
+import type { ReactNode } from "react";
 
 // Route specs (identity + data codec) declared before the components that read them.
 const paramSpec = { data: echoData, id: "param" } as const;
 const dataSpec = { data: messageData, id: "data" } as const;
 const noLoaderSpec = { id: "noloader" } as const;
 
-const ParamScreen = function ParamScreen(): React.ReactNode {
+const ParamScreen = function ParamScreen(): ReactNode {
   const data = useRouteData(paramSpec);
   return (
     <box>
@@ -27,7 +28,7 @@ const createDeferred = function createDeferred<T>() {
 
 // Screen components
 
-const HomeScreen = function HomeScreen(): React.ReactNode {
+const HomeScreen = function HomeScreen(): ReactNode {
   return (
     <box>
       <text content="screen:home" />
@@ -35,7 +36,7 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
   );
 };
 
-const DataScreen = function DataScreen(): React.ReactNode {
+const DataScreen = function DataScreen(): ReactNode {
   const data = useRouteData(dataSpec);
   return (
     <box>
@@ -44,7 +45,7 @@ const DataScreen = function DataScreen(): React.ReactNode {
   );
 };
 
-const LoadingScreen = function LoadingScreen(): React.ReactNode {
+const LoadingScreen = function LoadingScreen(): ReactNode {
   return (
     <box>
       <text content="screen:loading" />
@@ -52,7 +53,7 @@ const LoadingScreen = function LoadingScreen(): React.ReactNode {
   );
 };
 
-const ErrorScreen = function ErrorScreen({ error }: { error: Error }): React.ReactNode {
+const ErrorScreen = function ErrorScreen({ error }: { error: Error }): ReactNode {
   return (
     <box>
       <text content={`screen:error:${error.message}`} />
@@ -251,7 +252,7 @@ describe("route loaders", () => {
     // a route without a loader must overwrite it with `undefined`.
     let capturedData: string | undefined = "sentinel";
 
-    const NoLoaderScreen = function NoLoaderScreen(): React.ReactNode {
+    const NoLoaderScreen = function NoLoaderScreen(): ReactNode {
       capturedData = useRouteData<string>(noLoaderSpec);
       return (
         <box>

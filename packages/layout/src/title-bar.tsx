@@ -1,11 +1,12 @@
 import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
 
 interface TitleBarProps {
   title: string;
   subtitle?: string;
 }
 
-export const TitleBar = function TitleBar({ title, subtitle }: TitleBarProps): React.ReactNode {
+export const TitleBar = function TitleBar({ title, subtitle }: TitleBarProps): ReactNode {
   const { theme } = useTheme();
   return (
     <box

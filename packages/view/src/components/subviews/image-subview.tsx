@@ -6,6 +6,7 @@ import { getTextContent } from "../../types.js";
 import { useContentDocument } from "../../hooks/use-content-document.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
+import type { ReactNode } from "react";
 
 interface ImageSubviewProps extends SubviewProps {
   content: ImageContent;
@@ -16,7 +17,7 @@ export const ImageSubview = function ImageSubview({
   decorations,
   actions,
   ...screen
-}: ImageSubviewProps): React.ReactNode {
+}: ImageSubviewProps): ReactNode {
   const textContent = getTextContent(content);
   const rows = useMemo(() => sourceLines(textContent), [textContent]);
   const [error, setError] = useState(false);

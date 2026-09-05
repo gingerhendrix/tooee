@@ -1,5 +1,5 @@
 import { useImperativeHandle } from "react";
-import type { Ref } from "react";
+import type { ReactNode, Ref } from "react";
 import { AppLayout } from "@tooee/layout";
 import { useHasOverlay, useHasModalOverlay } from "@tooee/overlays";
 import { useTheme } from "@tooee/themes";
@@ -55,7 +55,7 @@ const resolveChooseProps = function resolveChooseProps(props: ChooseProps): Reso
   };
 };
 
-export const Choose = function Choose(props: ChooseProps): React.ReactNode {
+export const Choose = function Choose(props: ChooseProps): ReactNode {
   const { contentProvider, controllerRef, renderItem, onConfirm, onCancel } = props;
   const {
     actions: effectiveActions,

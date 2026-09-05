@@ -2,6 +2,7 @@ import type { CursorStyleOptions } from "@opentui/core";
 import { useTheme } from "@tooee/themes";
 import { EditorScrollbar } from "./editor-scrollbar.js";
 import type { AskEditorViewModel } from "./use-ask-editor.js";
+import type { ReactNode } from "react";
 
 export interface AskEditorProps {
   editor: AskEditorViewModel;
@@ -11,7 +12,7 @@ export interface AskEditorProps {
  * Presentational ask editor: the themed textarea/input plus scrollbar. All
  * behaviour lives in the view-model from `useAskEditor`.
  */
-export const AskEditor = function AskEditor({ editor }: AskEditorProps): React.ReactNode {
+export const AskEditor = function AskEditor({ editor }: AskEditorProps): ReactNode {
   const { theme } = useTheme();
   const handleContentChange = editor.bumpScroll;
   const handleCursorChange = editor.bumpScroll;

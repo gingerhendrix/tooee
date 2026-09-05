@@ -7,6 +7,7 @@ import type { ChooseItem } from "../src/types.js";
 import { useChooseDialog } from "../src/use-choose-dialog.js";
 import type { ChooseDialogHandle } from "../src/use-choose-dialog.js";
 import { expectDefined } from "./support/expect-defined.ts";
+import type { ReactNode } from "react";
 
 interface Fruit {
   id: number;
@@ -96,7 +97,7 @@ const DialogOwner = function DialogOwner({
   return null;
 };
 
-const Harness = function Harness(): React.ReactNode {
+const Harness = function Harness(): ReactNode {
   const overlayState = useOverlayState();
   const current = useCurrentOverlay();
   const fruits = useChooseDialog<Fruit>();

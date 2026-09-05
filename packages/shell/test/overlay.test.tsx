@@ -7,13 +7,14 @@ import { AppLayout } from "@tooee/layout";
 import { useCommand, useMode } from "@tooee/commands";
 import { press, pressEscape } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
+import type { ReactNode } from "react";
 
-const BuriedHarness = function BuriedHarness(): React.ReactNode {
+const BuriedHarness = function BuriedHarness(): ReactNode {
   const overlay = useOverlay();
   const mode = useMode();
   useCommand({
     handler: () => {
-      overlay.open("under", (): React.ReactNode => <text content="under-overlay" />, undefined, {
+      overlay.open("under", (): ReactNode => <text content="under-overlay" />, undefined, {
         mode: "insert",
       });
     },
@@ -24,7 +25,7 @@ const BuriedHarness = function BuriedHarness(): React.ReactNode {
   });
   useCommand({
     handler: () => {
-      overlay.open("over", (): React.ReactNode => <text content="over-overlay" />, undefined, {
+      overlay.open("over", (): ReactNode => <text content="over-overlay" />, undefined, {
         mode: "select",
       });
     },
@@ -54,14 +55,14 @@ const BuriedHarness = function BuriedHarness(): React.ReactNode {
   return <text content={`hostmode:${mode}`} />;
 };
 
-const createOverlayA = (): React.ReactNode => <text content="overlay-a" />;
-const createOverlayB = (): React.ReactNode => <text content="overlay-b" />;
-const createReplacedOverlayA = (): React.ReactNode => <text content="overlay-a-replaced" />;
-const createEscapeDismissibleOverlay = (): React.ReactNode => <text content="overlay-escape" />;
-const createEscapePersistentOverlay = (): React.ReactNode => <text content="overlay-persistent" />;
-const createAppLayoutOverlay = (): React.ReactNode => <text content="OVERLAY_CONTENT" />;
+const createOverlayA = (): ReactNode => <text content="overlay-a" />;
+const createOverlayB = (): ReactNode => <text content="overlay-b" />;
+const createReplacedOverlayA = (): ReactNode => <text content="overlay-a-replaced" />;
+const createEscapeDismissibleOverlay = (): ReactNode => <text content="overlay-escape" />;
+const createEscapePersistentOverlay = (): ReactNode => <text content="overlay-persistent" />;
+const createAppLayoutOverlay = (): ReactNode => <text content="OVERLAY_CONTENT" />;
 
-const OverlayHarness = function OverlayHarness(): React.ReactNode {
+const OverlayHarness = function OverlayHarness(): ReactNode {
   const overlay = useOverlay();
   const current = useCurrentOverlay();
   const has = useHasOverlay();
@@ -149,7 +150,7 @@ const OverlayHarness = function OverlayHarness(): React.ReactNode {
   );
 };
 
-const AppLayoutOverlayHarness = function AppLayoutOverlayHarness(): React.ReactNode {
+const AppLayoutOverlayHarness = function AppLayoutOverlayHarness(): ReactNode {
   const overlay = useOverlay();
 
   useCommand({
@@ -179,7 +180,7 @@ const AppLayoutOverlayHarness = function AppLayoutOverlayHarness(): React.ReactN
   );
 };
 
-const setup = async function setup(component: React.ReactNode) {
+const setup = async function setup(component: ReactNode) {
   const s = await testRender(<TooeeProvider>{component}</TooeeProvider>, {
     height: 24,
     kittyKeyboard: true,
@@ -293,11 +294,11 @@ describe("overlay lifecycle correctness (R-04)", () => {
   test("replacing a same-id overlay fires onClose with 'replaced'", async () => {
     const reasons: OverlayCloseReason[] = [];
 
-    const ReplaceHarness = function ReplaceHarness(): React.ReactNode {
+    const ReplaceHarness = function ReplaceHarness(): ReactNode {
       const overlay = useOverlay();
       useCommand({
         handler: () => {
-          overlay.open("dup", (): React.ReactNode => <text content="dup-overlay" />, undefined, {
+          overlay.open("dup", (): ReactNode => <text content="dup-overlay" />, undefined, {
             mode: null,
             onClose: (reason) => {
               reasons.push(reason);

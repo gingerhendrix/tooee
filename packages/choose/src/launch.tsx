@@ -2,6 +2,7 @@ import { runCliSession } from "@tooee/shell";
 import type { ActionDefinition } from "@tooee/commands";
 import { Choose } from "./choose.js";
 import type { ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.js";
+import type { ReactNode } from "react";
 
 export interface ChooseLaunchOptions {
   contentProvider: ChooseContentProvider;
@@ -13,7 +14,7 @@ export const launch = async function launch(
   opts: ChooseLaunchOptions,
 ): Promise<ChooseResult | null> {
   const result = await runCliSession<ChooseResult>(
-    ({ resolve, cancel }): React.ReactNode => (
+    ({ resolve, cancel }): ReactNode => (
       <Choose
         contentProvider={opts.contentProvider}
         title={opts.options?.title}

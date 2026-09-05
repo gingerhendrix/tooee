@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import type { MouseEvent } from "@opentui/core";
 import { useTheme } from "./context.js";
+import type { ReactNode } from "react";
 
 interface CloseButtonProps {
   /** Called when the button is clicked (left mouse button). */
@@ -21,7 +22,7 @@ export const CloseButton = function CloseButton({
   onClose,
   glyph = "✕",
   color,
-}: CloseButtonProps): React.ReactNode {
+}: CloseButtonProps): ReactNode {
   const { theme } = useTheme();
 
   const handleMouseDown = useCallback(

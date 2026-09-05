@@ -1,4 +1,5 @@
 import type { TextareaRenderable, InputRenderable } from "@opentui/core";
+import type { ReactNode } from "react";
 
 export interface EditorScrollbarProps {
   /** The editor whose viewport this scrollbar reflects. */
@@ -28,7 +29,7 @@ const TRACK_CHAR = "░";
 export const EditorScrollbar = function EditorScrollbar({
   target,
   color,
-}: EditorScrollbarProps): React.ReactNode {
+}: EditorScrollbarProps): ReactNode {
   if (!target) {
     return null;
   }

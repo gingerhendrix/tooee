@@ -7,6 +7,7 @@ import { useOverlay, useCurrentOverlay } from "@tooee/overlays";
 import type { OverlayCloseReason } from "@tooee/overlays";
 import { press, pressEnter, pressEscape } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
+import type { ReactNode } from "react";
 
 const AskSurface = function AskSurface({
   onSubmit,
@@ -14,7 +15,7 @@ const AskSurface = function AskSurface({
 }: {
   onSubmit: (value: string) => void;
   onCancel: () => void;
-}): React.ReactNode {
+}): ReactNode {
   const mode = useMode();
   const setMode = useSetMode();
 
@@ -44,17 +45,13 @@ const AskSurface = function AskSurface({
   );
 };
 
-const PassiveSurface = function PassiveSurface({
-  onAction,
-}: {
-  onAction: () => void;
-}): React.ReactNode {
+const PassiveSurface = function PassiveSurface({ onAction }: { onAction: () => void }): ReactNode {
   // Bound to the same hotkey the root uses to prove passive surfaces never win.
   useCommand({ handler: onAction, hotkey: "q", id: "passive.quit-like", title: "Passive" });
   return <text content="PASSIVE_OVERLAY" />;
 };
 
-const Harness = function Harness(): React.ReactNode {
+const Harness = function Harness(): ReactNode {
   const overlay = useOverlay();
   const current = useCurrentOverlay();
   const mode = useMode();
@@ -75,7 +72,7 @@ const Harness = function Harness(): React.ReactNode {
     handler: () => {
       overlay.open(
         "ask",
-        ({ close }: { close: (reason?: OverlayCloseReason) => void }): React.ReactNode => (
+        ({ close }: { close: (reason?: OverlayCloseReason) => void }): ReactNode => (
           <AskSurface
             onSubmit={(value) => {
               setSubmitted(value);
@@ -100,7 +97,7 @@ const Harness = function Harness(): React.ReactNode {
     handler: () => {
       overlay.open(
         "passive",
-        (): React.ReactNode => (
+        (): ReactNode => (
           <PassiveSurface
             onAction={() => {
               setPassiveAction((n) => n + 1);

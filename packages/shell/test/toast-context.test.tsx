@@ -5,8 +5,9 @@ import { TooeeProvider } from "@tooee/shell";
 import { useCommand } from "@tooee/commands";
 import { useToast } from "@tooee/toasts";
 import type { TestSession } from "./support/test-helpers.ts";
+import type { ReactNode } from "react";
 
-const ToastContextHarness = function ToastContextHarness(): React.ReactNode {
+const ToastContextHarness = function ToastContextHarness(): ReactNode {
   const { currentToast } = useToast();
 
   useCommand({

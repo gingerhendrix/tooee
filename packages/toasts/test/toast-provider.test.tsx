@@ -5,10 +5,11 @@ import { ThemeSwitcherProvider } from "@tooee/themes";
 import { ToastProvider, useToast, ToastContainer } from "@tooee/toasts";
 import type { ToastLevel } from "@tooee/toasts";
 import { expectDefined } from "./support/expect-defined.ts";
+import type { ReactNode } from "react";
 
 const LEVELS: readonly ToastLevel[] = ["info", "success", "warning", "error"];
 
-const DurationTest = function DurationTest(): React.ReactNode {
+const DurationTest = function DurationTest(): ReactNode {
   const { toast, currentToast } = useToast();
   useEffect(() => {
     for (const l of LEVELS) {
@@ -18,11 +19,7 @@ const DurationTest = function DurationTest(): React.ReactNode {
   return <text content={`duration:${currentToast?.duration ?? "none"}`} />;
 };
 
-const SingleLevelTest = function SingleLevelTest({
-  level,
-}: {
-  level: ToastLevel;
-}): React.ReactNode {
+const SingleLevelTest = function SingleLevelTest({ level }: { level: ToastLevel }): ReactNode {
   const { toast, currentToast } = useToast();
   useEffect(() => {
     toast({ level, message: "test" });
@@ -30,7 +27,7 @@ const SingleLevelTest = function SingleLevelTest({
   return <text content={`duration:${currentToast?.duration ?? "none"}`} />;
 };
 
-const DefaultLevelTest = function DefaultLevelTest(): React.ReactNode {
+const DefaultLevelTest = function DefaultLevelTest(): ReactNode {
   const { toast, currentToast } = useToast();
   useEffect(() => {
     toast({ message: "no level" });
@@ -51,7 +48,7 @@ afterEach(() => {
 /**
  * Harness that exposes toast state as text for assertions.
  */
-const ToastHarness = function ToastHarness(): React.ReactNode {
+const ToastHarness = function ToastHarness(): ReactNode {
   const { currentToast } = useToast();
   return (
     <box>
@@ -83,7 +80,7 @@ const ToastTrigger = function ToastTrigger({
   return null;
 };
 
-const renderWithProviders = async function renderWithProviders(children: React.ReactNode) {
+const renderWithProviders = async function renderWithProviders(children: ReactNode) {
   const result = await testRender(
     <ThemeSwitcherProvider>
       <ToastProvider>{children}</ToastProvider>
@@ -108,7 +105,7 @@ test("toast appears with correct level and message", async () => {
 test("dismiss clears the toast", async () => {
   let toastApi: ReturnType<typeof useToast>;
 
-  const DismissTest = function DismissTest(): React.ReactNode {
+  const DismissTest = function DismissTest(): ReactNode {
     toastApi = useToast();
     const { currentToast } = toastApi;
     return <text content={currentToast ? `toast:${currentToast.message}` : "toast:none"} />;
@@ -154,7 +151,7 @@ test("auto-dismisses after duration", async () => {
 test("same ID replaces existing toast and resets timer", async () => {
   let toastApi: ReturnType<typeof useToast>;
 
-  const DedupTest = function DedupTest(): React.ReactNode {
+  const DedupTest = function DedupTest(): ReactNode {
     toastApi = useToast();
     const { currentToast } = toastApi;
     return (

@@ -5,6 +5,7 @@ import { MouseButtons } from "@opentui/core/testing";
 import { TooeeProvider } from "@tooee/shell";
 import { View } from "../src/view.js";
 import type { AnyContent, ContentProvider, ContentRenderer } from "../src/types.js";
+import type { ReactNode } from "react";
 
 const CONTENT: AnyContent = {
   data: {},
@@ -16,7 +17,7 @@ const PROVIDER: ContentProvider = { format: "chart", load: () => CONTENT };
 
 // A renderer with its own markup: it resolves its own row and asks the
 // controller to select it.
-const RENDERER: ContentRenderer = ({ document }): React.ReactNode => (
+const RENDERER: ContentRenderer = ({ document }): ReactNode => (
   <box
     onMouseDown={() => {
       document.selectRow(2);
@@ -27,7 +28,7 @@ const RENDERER: ContentRenderer = ({ document }): React.ReactNode => (
 );
 
 // A renderer that reads controller state rather than a bag of cursor numbers.
-const STATE_RENDERER: ContentRenderer = ({ document }): React.ReactNode => (
+const STATE_RENDERER: ContentRenderer = ({ document }): ReactNode => (
   <box>
     <text content={`active:${document.activeIndex}`} />
     <text content={`rows:${document.rows.length}`} />

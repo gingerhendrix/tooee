@@ -9,8 +9,9 @@ import { buildChooseHints } from "../src/choose-panel.js";
 import type { ChooseContentProvider, ChooseItem, ChooseSource } from "../src/types.js";
 import type { ChooseController } from "../src/use-choose.js";
 import { expectDefined } from "./support/expect-defined.ts";
+import type { ReactNode } from "react";
 
-const ChildSurface = function ChildSurface({ close }: { close: () => void }): React.ReactNode {
+const ChildSurface = function ChildSurface({ close }: { close: () => void }): ReactNode {
   useCommand({
     handler: close,
     hotkey: "x",
@@ -29,7 +30,7 @@ const NestedHost = function NestedHost({
   onSelect,
 }: {
   onSelect: (item: ChooseItem) => void;
-}): React.ReactNode {
+}): ReactNode {
   const [open, setOpen] = useState(true);
   return (
     <ChooseOverlay
@@ -62,7 +63,7 @@ const deferred = function deferred<T>() {
   return Promise.withResolvers<T>();
 };
 
-const setup = async function setup(node: React.ReactNode) {
+const setup = async function setup(node: ReactNode) {
   const session = await testRender(<TooeeProvider initialMode="insert">{node}</TooeeProvider>, {
     height: 24,
     kittyKeyboard: true,
@@ -186,7 +187,7 @@ describe("ChooseController and normalized sources", () => {
     const controllerRef = createRef<ChooseController>();
     let replace!: () => void;
 
-    const Host = function Host(): React.ReactNode {
+    const Host = function Host(): ReactNode {
       const [items, setItems] = useState<ChooseItem[]>([{ text: "old-one" }, { text: "old-two" }]);
       replace = () => {
         setItems([{ text: "fresh-one" }]);
@@ -224,7 +225,7 @@ describe("ChooseController and normalized sources", () => {
     const slow = deferred<ChooseItem[]>();
     let replace!: () => void;
 
-    const Host = function Host(): React.ReactNode {
+    const Host = function Host(): ReactNode {
       const [source, setSource] = useState<ChooseSource>(() => async () => {
         const items = await slow.promise;
         return items;
@@ -463,7 +464,7 @@ describe("view extension points", () => {
         hints={() => "x extra"}
         statusRight="READY"
         footer={<text content="FOOTER" />}
-        renderItem={({ item, defaultContent }): React.ReactNode => (
+        renderItem={({ item, defaultContent }): ReactNode => (
           <>
             <text content={`CUSTOM:${item.text} `} />
             {defaultContent}

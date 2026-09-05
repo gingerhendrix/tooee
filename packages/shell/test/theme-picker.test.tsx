@@ -9,6 +9,7 @@ import { useMode } from "@tooee/commands";
 import { ensureTestConfigHome, resetTestConfig } from "../../../test/support/test-config.js";
 import { press, pressArrow, pressEnter, pressEscape } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
+import type { ReactNode } from "react";
 
 const CONFIG_NAMESPACE = "shell-theme-picker";
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
@@ -18,7 +19,7 @@ beforeEach(() => {
   resetTestConfig(CONFIG_NAMESPACE);
 });
 
-const ThemePickerHarness = function ThemePickerHarness(): React.ReactNode {
+const ThemePickerHarness = function ThemePickerHarness(): ReactNode {
   const { name: themeName, picker } = useThemeCommands();
   const mode = useMode();
   const { name: activeTheme } = useTheme();

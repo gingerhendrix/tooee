@@ -4,13 +4,14 @@ import { act, useState } from "react";
 import { CommandProvider, useCommand, useCommandGroup, useCommandRegistry } from "../src/index.js";
 import type { RegisteredCommandGroup } from "../src/index.js";
 import { expectDefined } from "./support/expect-defined.ts";
+import type { ReactNode } from "react";
 
 const CommandRegistrant = function CommandRegistrant({ onFire }: { onFire: () => void }) {
   useCommand({ handler: onFire, hotkey: "d", id: "dup", title: "Dup" });
   return null;
 };
 
-const CommandIdentityHarness = function CommandIdentityHarness(): React.ReactNode {
+const CommandIdentityHarness = function CommandIdentityHarness(): ReactNode {
   const [showFirst, setShowFirst] = useState(true);
   const [firstCount, setFirstCount] = useState(0);
   const [secondCount, setSecondCount] = useState(0);
@@ -50,8 +51,8 @@ const GroupRegistrant = function GroupRegistrant({ title }: { title: string }) {
 const GroupIdentityHarness = function GroupIdentityHarness({
   ProbeComponent,
 }: {
-  ProbeComponent: () => React.ReactNode;
-}): React.ReactNode {
+  ProbeComponent: () => ReactNode;
+}): ReactNode {
   const [showFirst, setShowFirst] = useState(true);
   useCommand({
     handler: () => {

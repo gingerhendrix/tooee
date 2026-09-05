@@ -4,6 +4,7 @@ import { act, useState } from "react";
 import { useContentLoader } from "../src/hooks/use-content-loader.js";
 import type { ContentChunk, ContentProvider } from "../src/types.js";
 import { expectDefined } from "./support/expect-defined.ts";
+import type { ReactNode } from "react";
 
 const failing = async function* failing(): AsyncIterable<ContentChunk> {
   yield { data: "partial", format: "text", type: "append" };
@@ -23,7 +24,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-const Loader = function Loader({ provider }: { provider: ContentProvider }): React.ReactNode {
+const Loader = function Loader({ provider }: { provider: ContentProvider }): ReactNode {
   const { content, streaming, error } = useContentLoader(provider);
   const text = content && "text" in content ? content.text : "";
   return (
@@ -71,7 +72,7 @@ describe("useContentLoader streaming lifecycle (R-03)", () => {
     const provider: ContentProvider = { format: "text", load: () => iterable };
 
     let hide!: () => void;
-    const Harness = function Harness(): React.ReactNode {
+    const Harness = function Harness(): ReactNode {
       const [show, setShow] = useState(true);
       hide = () => {
         setShow(false);
@@ -134,7 +135,7 @@ describe("useContentLoader reload and request identity", () => {
         return { format: "text", text: `sync-${calls}` };
       },
     };
-    const Harness = function Harness(): React.ReactNode {
+    const Harness = function Harness(): ReactNode {
       const result = useContentLoader(provider);
       ({ reload } = result);
       const value = result.content && "text" in result.content ? result.content.text : "";
@@ -162,7 +163,7 @@ describe("useContentLoader reload and request identity", () => {
         return await promise;
       },
     };
-    const Harness = function Harness(): React.ReactNode {
+    const Harness = function Harness(): ReactNode {
       const result = useContentLoader(provider);
       ({ reload } = result);
       const value = result.content && "text" in result.content ? result.content.text : "loading";
@@ -223,7 +224,7 @@ describe("useContentLoader reload and request identity", () => {
         return freshStream();
       },
     };
-    const Harness = function Harness(): React.ReactNode {
+    const Harness = function Harness(): ReactNode {
       const result = useContentLoader(provider);
       ({ reload } = result);
       const value = result.content && "text" in result.content ? result.content.text : "";

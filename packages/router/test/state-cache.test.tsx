@@ -10,6 +10,7 @@ import {
   useScreenState,
 } from "@tooee/router";
 import { counterState, valueState } from "./support/codecs.ts";
+import type { ReactNode } from "react";
 
 // Route specs (identity + screen-state codec) declared before their components.
 const screenASpec = { id: "screenA", screenState: valueState } as const;
@@ -22,7 +23,7 @@ const screenBKeyAt = (index: number) => createStateKey(`${index}:screenB`, value
 
 // Screen that displays saved state from useScreenState hook
 
-const ScreenA = function ScreenA(): React.ReactNode {
+const ScreenA = function ScreenA(): ReactNode {
   const { savedState } = useScreenState(screenASpec);
   return (
     <box>
@@ -31,7 +32,7 @@ const ScreenA = function ScreenA(): React.ReactNode {
   );
 };
 
-const ScreenB = function ScreenB(): React.ReactNode {
+const ScreenB = function ScreenB(): ReactNode {
   return (
     <box>
       <text content="screenB" />
@@ -41,7 +42,7 @@ const ScreenB = function ScreenB(): React.ReactNode {
 
 // Screen that saves state via the hook on mount
 
-const SavingScreen = function SavingScreen(): React.ReactNode {
+const SavingScreen = function SavingScreen(): ReactNode {
   const { savedState, saveState } = useScreenState(savingSpec);
   const count = savedState?.counter ?? 0;
   useEffect(() => {

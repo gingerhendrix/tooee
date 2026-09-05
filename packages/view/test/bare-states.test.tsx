@@ -9,6 +9,7 @@ import { testRender } from "../../../test/support/test-render.ts";
 import { DirectoryView } from "../src/directory-view.js";
 import { View } from "../src/view.js";
 import type { ContentProvider } from "../src/types.js";
+import type { ReactNode } from "react";
 
 let commandIds: string[] = [];
 let testSetup: Awaited<ReturnType<typeof testRender>>;
@@ -19,7 +20,7 @@ const CommandProbe = function CommandProbe(): null {
   return null;
 };
 
-const render = async function render(node: React.ReactNode) {
+const render = async function render(node: ReactNode) {
   const setup = await testRender(
     <TooeeProvider>
       {node}

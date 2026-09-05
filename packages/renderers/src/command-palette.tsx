@@ -45,7 +45,7 @@ export const CommandPalette = function CommandPalette({
   commands,
   onSelect,
   onClose,
-}: CommandPaletteProps): React.ReactNode {
+}: CommandPaletteProps): ReactNode {
   const { theme } = useTheme();
   const [filter, setFilter] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -143,7 +143,7 @@ export const CommandPalette = function CommandPalette({
       {/* Command list */}
       <scrollbox focused={false} style={{ flexGrow: 1 }}>
         {matches.map(
-          (match, i): React.ReactNode => (
+          (match, i): ReactNode => (
             <box
               key={match.item.id}
               flexDirection="row"

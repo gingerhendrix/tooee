@@ -1,4 +1,5 @@
 import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
 
 export interface SearchBarProps {
   query: string;
@@ -16,7 +17,7 @@ export const SearchBar = function SearchBar({
   onCancel: _onCancel,
   matchCount,
   currentMatch,
-}: SearchBarProps): React.ReactNode {
+}: SearchBarProps): ReactNode {
   const { theme } = useTheme();
 
   let matchDisplay = "";

@@ -7,6 +7,7 @@ import { testRender } from "../../../test/support/test-render.ts";
 import { expectDefined } from "./support/expect-defined.ts";
 import { useAskDialog } from "../src/use-ask-dialog.js";
 import type { AskEditorController } from "../src/use-ask-editor.js";
+import type { ReactNode } from "react";
 
 interface Model {
   id: string;
@@ -81,7 +82,7 @@ interface NestedHarnessHandles {
  * PTUI AskWithModel shape: an ask dialog whose surface command opens a nested
  * typed chooser, then inserts the chosen model into the parent editor.
  */
-const NestedHarness = function NestedHarness(): React.ReactNode {
+const NestedHarness = function NestedHarness(): ReactNode {
   const current = useCurrentOverlay();
   const ask = useAskDialog();
   const choose = useChooseDialog<Model>();

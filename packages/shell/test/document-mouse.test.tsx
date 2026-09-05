@@ -1,7 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, describe, beforeEach } from "bun:test";
 import { act } from "react";
-import type { Key } from "react";
+import type { Key, ReactNode } from "react";
 import { MouseButtons } from "@opentui/core/testing";
 import type { MouseButton } from "@opentui/core/testing";
 import { useActions } from "@tooee/commands";
@@ -38,7 +38,7 @@ const Harness = function Harness({
 }: {
   rows: readonly Row[];
   gap?: boolean;
-}): React.ReactNode {
+}): ReactNode {
   const document = useDocumentController<Row>({
     adapter: ADAPTER,
     contextMenu: menuFor,
@@ -59,7 +59,7 @@ const Harness = function Harness({
         controller={document}
         showGutter={false}
         style={{ flexGrow: 1 }}
-        renderRow={(r): React.ReactNode => (
+        renderRow={(r): ReactNode => (
           <text content={r.label} style={gap ? { marginBottom: 1 } : undefined} />
         )}
       />
@@ -199,11 +199,7 @@ describe("variable-height rows", () => {
   let tallHandle: DocumentController<TallRow> | null = null;
   let tallPresses: DocumentRowEvent<TallRow>[] = [];
 
-  const TallHarness = function TallHarness({
-    rows,
-  }: {
-    rows: readonly TallRow[];
-  }): React.ReactNode {
+  const TallHarness = function TallHarness({ rows }: { rows: readonly TallRow[] }): ReactNode {
     const document = useDocumentController<TallRow>({
       adapter: TALL_ADAPTER,
       onRowPress: (event) => {
@@ -218,11 +214,11 @@ describe("variable-height rows", () => {
           controller={document}
           showGutter={false}
           style={{ flexGrow: 1 }}
-          renderRow={(r): React.ReactNode => (
+          renderRow={(r): ReactNode => (
             <box style={{ flexDirection: "column" }}>
               {Array.from(
                 { length: r.lines },
-                (_, line): React.ReactNode => (
+                (_, line): ReactNode => (
                   <text key={line} content={`${r.label}:${line}`} />
                 ),
               )}
@@ -313,11 +309,7 @@ describe("non-selectable rows", () => {
   let sectionHandle: DocumentController<Row> | null = null;
   let sectionPresses: DocumentRowEvent<Row>[] = [];
 
-  const SectionHarness = function SectionHarness({
-    rows,
-  }: {
-    rows: readonly Row[];
-  }): React.ReactNode {
+  const SectionHarness = function SectionHarness({ rows }: { rows: readonly Row[] }): ReactNode {
     const document = useDocumentController<Row>({
       adapter: {
         ...ADAPTER,
@@ -335,7 +327,7 @@ describe("non-selectable rows", () => {
           controller={document}
           showGutter={false}
           style={{ flexGrow: 1 }}
-          renderRow={(r): React.ReactNode => <text content={r.label} />}
+          renderRow={(r): ReactNode => <text content={r.label} />}
         />
       </AppLayout>
     );
@@ -416,11 +408,7 @@ describe("action-backed context menu", () => {
     ];
   };
 
-  const ActionsHarness = function ActionsHarness({
-    rows,
-  }: {
-    rows: readonly Row[];
-  }): React.ReactNode {
+  const ActionsHarness = function ActionsHarness({ rows }: { rows: readonly Row[] }): ReactNode {
     const actions = makeActions();
     useActions(actions);
     const document = useDocumentController<Row>({
@@ -435,7 +423,7 @@ describe("action-backed context menu", () => {
           controller={document}
           showGutter={false}
           style={{ flexGrow: 1 }}
-          renderRow={(r): React.ReactNode => <text content={r.label} />}
+          renderRow={(r): ReactNode => <text content={r.label} />}
         />
       </AppLayout>
     );
@@ -486,7 +474,7 @@ describe("action-backed context menu", () => {
       rows,
     }: {
       rows: readonly Row[];
-    }): React.ReactNode {
+    }): ReactNode {
       const actions = makeActions();
       useActions(actions);
       const document = useDocumentController<Row>({
@@ -504,7 +492,7 @@ describe("action-backed context menu", () => {
             controller={document}
             showGutter={false}
             style={{ flexGrow: 1 }}
-            renderRow={(r): React.ReactNode => <text content={r.label} />}
+            renderRow={(r): ReactNode => <text content={r.label} />}
           />
         </AppLayout>
       );

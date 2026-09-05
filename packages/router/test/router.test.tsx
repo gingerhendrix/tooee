@@ -11,6 +11,7 @@ import {
   useCanGoBack,
 } from "@tooee/router";
 import { idParams } from "./support/codecs.ts";
+import type { ReactNode } from "react";
 
 // Route specs: identity + codecs, declared before the components that read them
 // (a component cannot reference its own route object before it exists).
@@ -19,7 +20,7 @@ const detailSpec = { id: "detail", params: idParams } as const;
 
 // Route components
 
-const HomeScreen = function HomeScreen(): React.ReactNode {
+const HomeScreen = function HomeScreen(): ReactNode {
   return (
     <box>
       <text content="screen:home" />
@@ -27,7 +28,7 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
   );
 };
 
-const DetailScreen = function DetailScreen(): React.ReactNode {
+const DetailScreen = function DetailScreen(): ReactNode {
   const params = useParams(detailSpec);
   return (
     <box>
@@ -36,7 +37,7 @@ const DetailScreen = function DetailScreen(): React.ReactNode {
   );
 };
 
-const SettingsScreen = function SettingsScreen(): React.ReactNode {
+const SettingsScreen = function SettingsScreen(): ReactNode {
   return (
     <box>
       <text content="screen:settings" />
@@ -46,7 +47,7 @@ const SettingsScreen = function SettingsScreen(): React.ReactNode {
 
 // Parent/child for nested outlet tests
 
-const LayoutScreen = function LayoutScreen(): React.ReactNode {
+const LayoutScreen = function LayoutScreen(): ReactNode {
   return (
     <box>
       <text content="layout:" />
@@ -55,7 +56,7 @@ const LayoutScreen = function LayoutScreen(): React.ReactNode {
   );
 };
 
-const NestedChild = function NestedChild(): React.ReactNode {
+const NestedChild = function NestedChild(): ReactNode {
   return (
     <box>
       <text content="nested-child" />
@@ -78,7 +79,7 @@ const nestedRoute = createRoute({
 
 // Test harness that exposes navigation controls via rendered text
 
-const NavHarness = function NavHarness(): React.ReactNode {
+const NavHarness = function NavHarness(): ReactNode {
   const current = useCurrentRoute();
   const canGoBack = useCanGoBack();
 

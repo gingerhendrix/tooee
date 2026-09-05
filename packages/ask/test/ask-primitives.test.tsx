@@ -13,13 +13,14 @@ import { AskOverlay } from "../src/ask-overlay.js";
 import { buildAskHints } from "../src/ask-panel.js";
 import { useAskEditor } from "../src/use-ask-editor.js";
 import type { AskEditorCommandGroup, AskEditorController } from "../src/use-ask-editor.js";
+import type { ReactNode, RefObject } from "react";
 
 const ControllerHost = function ControllerHost(props: {
   multiline?: boolean;
   defaultValue?: string;
   onSubmit?: (value: string) => void;
-  controllerRef: React.RefObject<AskEditorController | null>;
-}): React.ReactNode {
+  controllerRef: RefObject<AskEditorController | null>;
+}): ReactNode {
   return (
     <AskOverlay
       prompt="Question"
@@ -36,7 +37,7 @@ const CopyHost = function CopyHost(props: {
   defaultValue?: string;
   disable?: AskEditorCommandGroup[];
   multiline?: boolean;
-}): React.ReactNode {
+}): ReactNode {
   const { editor } = useAskEditor({
     commandScope: "copy-test",
     defaultValue: props.defaultValue,
@@ -51,11 +52,7 @@ const CopyHost = function CopyHost(props: {
   );
 };
 
-const PickerSurface = function PickerSurface({
-  onClose,
-}: {
-  onClose: () => void;
-}): React.ReactNode {
+const PickerSurface = function PickerSurface({ onClose }: { onClose: () => void }): ReactNode {
   useCommand({
     handler: onClose,
     hotkey: "x",
@@ -73,7 +70,7 @@ const PickerSurface = function PickerSurface({
 const Host = function Host(props: {
   onCancel: () => void;
   onSubmit: (value: string) => void;
-}): React.ReactNode {
+}): ReactNode {
   const [pickerOpen, setPickerOpen] = useState(true);
   const controllerRef = useRef<AskEditorController>(null);
   return (
@@ -118,7 +115,7 @@ afterEach(() => {
   testSetup?.renderer.destroy();
 });
 
-const setup = async function setup(node: React.ReactNode) {
+const setup = async function setup(node: ReactNode) {
   const s = await testRender(<TooeeProvider initialMode="insert">{node}</TooeeProvider>, {
     height: 24,
     kittyKeyboard: true,

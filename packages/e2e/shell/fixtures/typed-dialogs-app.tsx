@@ -5,6 +5,7 @@ import { useCurrentOverlay } from "@tooee/overlays";
 import { useAskDialog } from "@tooee/ask";
 import type { AskEditorController } from "@tooee/ask";
 import { useChooseDialog } from "@tooee/choose";
+import type { ReactNode } from "react";
 
 interface Model {
   id: string;
@@ -17,7 +18,7 @@ const MODELS: Model[] = [
   { id: "large", label: "Large model" },
 ];
 
-const TypedDialogsApp = function TypedDialogsApp(): React.ReactNode {
+const TypedDialogsApp = function TypedDialogsApp(): ReactNode {
   useQuitCommand();
   const current = useCurrentOverlay();
   const ask = useAskDialog();

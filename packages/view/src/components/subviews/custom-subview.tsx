@@ -6,6 +6,7 @@ import type { CustomContent, ContentRenderer } from "../../types.js";
 import { useContentDocument } from "../../hooks/use-content-document.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
+import type { ReactNode } from "react";
 
 interface CustomSubviewProps extends SubviewProps {
   content: CustomContent;
@@ -18,7 +19,7 @@ export const CustomSubview = function CustomSubview({
   actions,
   renderers,
   ...screen
-}: CustomSubviewProps): React.ReactNode {
+}: CustomSubviewProps): ReactNode {
   const textContent = useMemo(() => getTextContent(content), [content]);
   // Fallback rows are source lines; row index is the source line.
   const lineRows = useMemo(() => sourceLines(textContent), [textContent]);

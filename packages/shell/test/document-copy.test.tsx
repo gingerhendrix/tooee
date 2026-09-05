@@ -1,6 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, beforeEach, describe } from "bun:test";
 import { copied } from "../../../test/support/clipboard-mock.ts";
+import type { ReactNode } from "react";
 
 const { TooeeProvider, useDocumentController, Document } = await import("@tooee/shell");
 const { useMode } = await import("@tooee/commands");
@@ -19,7 +20,7 @@ const ROWS: Row[] = [
   { id: "c", label: "gamma" },
 ];
 
-const StateProbe = function StateProbe(): React.ReactNode {
+const StateProbe = function StateProbe(): ReactNode {
   const mode = useMode();
   const { currentToast } = useToast();
   return <text content={`mode:${mode} toast:${currentToast?.message ?? "none"}`} />;
@@ -31,7 +32,7 @@ const Harness = function Harness({
 }: {
   copy?: boolean;
   rows?: Row[];
-}): React.ReactNode {
+}): ReactNode {
   const document = useDocumentController<Row>({
     // Copy must use the same semantic text projection as search.
     adapter: { getKey: (r) => r.id, getText: (r) => `${r.id}\t${r.label}` },
@@ -46,7 +47,7 @@ const Harness = function Harness({
         controller={document}
         showGutter={false}
         style={{ flexGrow: 1 }}
-        renderRow={(r): React.ReactNode => <text content={r.label} />}
+        renderRow={(r): ReactNode => <text content={r.label} />}
       />
       <StateProbe />
     </box>

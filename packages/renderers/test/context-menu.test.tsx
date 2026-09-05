@@ -6,6 +6,7 @@ import { CommandProvider } from "@tooee/commands";
 import { ThemeSwitcherProvider } from "@tooee/themes";
 import { ContextMenu } from "../src/context-menu.js";
 import type { ContextMenuEntry } from "../src/context-menu.js";
+import type { ComponentProps, ReactNode } from "react";
 
 const ENTRIES: ContextMenuEntry[] = [
   { hotkey: "y", id: "copy", title: "Copy row" },
@@ -36,8 +37,8 @@ const lineOf = function lineOf(frame: string, text: string): FramePosition {
 };
 
 const ContextMenuHarness = function ContextMenuHarness(
-  props: React.ComponentProps<typeof ContextMenu>,
-): React.ReactNode {
+  props: ComponentProps<typeof ContextMenu>,
+): ReactNode {
   return (
     <CommandProvider initialMode="insert">
       <ThemeSwitcherProvider>

@@ -16,6 +16,7 @@ import type {
 } from "@tooee/shell";
 import { expectDefined, press, pressTab, pressEscape } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
+import type { ReactNode } from "react";
 
 interface Row {
   id: string;
@@ -61,7 +62,7 @@ type HarnessOptions = Omit<UseDocumentControllerOptions<Row>, "adapter" | "rows"
 const Harness = function Harness({
   rows,
   ...options
-}: HarnessOptions & { rows: readonly Row[] }): React.ReactNode {
+}: HarnessOptions & { rows: readonly Row[] }): ReactNode {
   const document = useDocumentController<Row>({ adapter: ADAPTER, rows, ...options });
   const mode = useMode();
   handle = document;
@@ -76,7 +77,7 @@ const Harness = function Harness({
         controller={document}
         showGutter={false}
         style={{ flexGrow: 1 }}
-        renderRow={(r): React.ReactNode => <text content={r.label} />}
+        renderRow={(r): ReactNode => <text content={r.label} />}
       />
     </box>
   );
@@ -90,7 +91,7 @@ const RecreatedRowsHarness = function RecreatedRowsHarness({
 }: HarnessOptions & {
   initial: readonly Row[];
   onReady: (setRows: (rows: readonly Row[]) => void) => void;
-}): React.ReactNode {
+}): ReactNode {
   const [rowsSource, setRowsSource] = useState(initial);
   onReady(setRowsSource);
   const rows = rowsSource.map((item) => ({ ...item }));
@@ -108,7 +109,7 @@ const RecreatedRowsHarness = function RecreatedRowsHarness({
         controller={document}
         showGutter={false}
         style={{ flexGrow: 1 }}
-        renderRow={(r): React.ReactNode => <text content={r.label} />}
+        renderRow={(r): ReactNode => <text content={r.label} />}
       />
     </box>
   );
@@ -122,7 +123,7 @@ const DynamicHarness = function DynamicHarness({
 }: HarnessOptions & {
   initial: readonly Row[];
   onReady: (setRows: (rows: readonly Row[]) => void) => void;
-}): React.ReactNode {
+}): ReactNode {
   const [rows, setRows] = useState(initial);
   onReady(setRows);
   return <Harness rows={rows} {...options} />;

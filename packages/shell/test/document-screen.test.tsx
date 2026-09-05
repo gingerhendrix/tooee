@@ -6,6 +6,7 @@ import { Document, DocumentScreen, TooeeProvider, useDocumentController } from "
 import type { DocumentCommandContext, DocumentScreenProps } from "@tooee/shell";
 import { expectDefined, press, pressTab } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
+import type { ReactNode } from "react";
 
 interface Row {
   id: string;
@@ -49,7 +50,7 @@ type ScreenOptions = Partial<
 const Harness = function Harness({
   multiSelect = true,
   ...screen
-}: ScreenOptions & { multiSelect?: boolean }): React.ReactNode {
+}: ScreenOptions & { multiSelect?: boolean }): ReactNode {
   const document = useDocumentController<Row>({
     adapter: { getKey: (r) => r.id, getText: (r) => r.label },
     multiSelect,
@@ -63,7 +64,7 @@ const Harness = function Harness({
         controller={document}
         showGutter={false}
         style={{ flexGrow: 1 }}
-        renderRow={(r): React.ReactNode => <text content={r.label} />}
+        renderRow={(r): ReactNode => <text content={r.label} />}
       />
     </DocumentScreen>
   );
@@ -226,7 +227,7 @@ describe("status bar", () => {
   });
 });
 
-const EmptyHarness = function EmptyHarness(): React.ReactNode {
+const EmptyHarness = function EmptyHarness(): ReactNode {
   const document = useDocumentController<Row>({
     adapter: { getKey: (r) => r.id, getText: (r) => r.label },
     rows: [],
@@ -236,7 +237,7 @@ const EmptyHarness = function EmptyHarness(): React.ReactNode {
       <Document
         controller={document}
         showGutter={false}
-        renderRow={(r): React.ReactNode => <text content={r.label} />}
+        renderRow={(r): ReactNode => <text content={r.label} />}
       />
     </DocumentScreen>
   );

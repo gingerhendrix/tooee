@@ -5,6 +5,7 @@ import { createTestRenderer } from "@opentui/core/testing";
 import type { CliRendererConfig } from "@opentui/core";
 import { guardTerminalHealth, launchCli, mountTooee, runCliSession } from "../src/launch.js";
 import type { CliSessionController, TooeeSessionHandle } from "../src/launch.js";
+import type { ReactNode } from "react";
 
 const expectDefined = function expectDefined<T>(value: T | undefined): T {
   if (value === undefined) {
@@ -85,7 +86,7 @@ describe("mountTooee", () => {
 describe("local sessions", () => {
   test("renderer-originated destroy unmounts the owned React tree", async () => {
     let effectCleanupCalls = 0;
-    const ResourceOwner = function ResourceOwner(): React.ReactNode {
+    const ResourceOwner = function ResourceOwner(): ReactNode {
       useEffect(() => {
         const interval = setInterval(() => {
           // Keeps a live timer that the effect cleanup must clear.
@@ -150,7 +151,7 @@ describe("local sessions", () => {
     let rendererDestroyCalls = 0;
 
     const resultPromise = runCliSession<string>(
-      (session): React.ReactNode => {
+      (session): ReactNode => {
         controller = session;
         return <text>settlement</text>;
       },
@@ -174,7 +175,7 @@ describe("local sessions", () => {
   test("runCliSession cancels and converts render failures to null", async () => {
     let controller: CliSessionController<string> | undefined;
     const cancelled = runCliSession<string>(
-      (session): React.ReactNode => {
+      (session): ReactNode => {
         controller = session;
         return <text>cancel</text>;
       },

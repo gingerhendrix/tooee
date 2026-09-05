@@ -1,5 +1,5 @@
-import type React from "react";
 import type { StateCache } from "./state-cache.js";
+import type { ComponentType } from "react";
 
 /**
  * Params attached to a stack entry.
@@ -34,9 +34,9 @@ export interface Codec<T> {
 export interface AnyRoute {
   readonly id: string;
   readonly parent?: AnyRoute;
-  readonly component: React.ComponentType;
-  readonly pendingComponent?: React.ComponentType;
-  readonly errorComponent?: React.ComponentType<{ error: Error }>;
+  readonly component: ComponentType;
+  readonly pendingComponent?: ComponentType;
+  readonly errorComponent?: ComponentType<{ error: Error }>;
   readonly params: Codec<RouteParams>;
   // oxlint-disable-next-line anti-slop/no-unknown-parameters -- the registry decodes a stored stack entry through the route's own codec
   readonly resolveParams: (value: unknown) => RouteParams;
@@ -65,9 +65,9 @@ export interface RouteConfig<
 > {
   id: string;
   parent?: AnyRoute;
-  component: React.ComponentType;
-  pendingComponent?: React.ComponentType;
-  errorComponent?: React.ComponentType<{ error: Error }>;
+  component: ComponentType;
+  pendingComponent?: ComponentType;
+  errorComponent?: ComponentType<{ error: Error }>;
   title?: string | ((opts: { params: TParams }) => string);
   loader?: (opts: { params: TParams }) => Promise<TData>;
   params?: Codec<TParams>;

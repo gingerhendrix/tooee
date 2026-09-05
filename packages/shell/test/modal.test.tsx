@@ -6,6 +6,7 @@ import { useSearch } from "@tooee/search";
 import { useMode } from "@tooee/commands";
 import { press } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
+import type { ReactNode } from "react";
 
 const ModalHarness = function ModalHarness({
   rowCount,
@@ -13,7 +14,7 @@ const ModalHarness = function ModalHarness({
 }: {
   rowCount: number;
   isSelectable?: (index: number) => boolean;
-}): React.ReactNode {
+}): ReactNode {
   const nav = useNavigation({ isSelectable, rowCount, viewportHeight: 10 });
   const mode = useMode();
   const search = useSearch({

@@ -1,6 +1,6 @@
 import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, describe, afterEach } from "bun:test";
-import React, { act } from "react";
+import { act } from "react";
 import {
   createRoute,
   createRouter,
@@ -9,10 +9,11 @@ import {
   useActionResultHandler,
 } from "@tooee/router";
 import type { ActionNavigationResult } from "@tooee/router";
+import type { ReactNode } from "react";
 
 // Screens
 
-const HomeScreen = function HomeScreen(): React.ReactNode {
+const HomeScreen = function HomeScreen(): ReactNode {
   return (
     <box>
       <text content="screen:home" />
@@ -20,7 +21,7 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
   );
 };
 
-const DetailScreen = function DetailScreen(): React.ReactNode {
+const DetailScreen = function DetailScreen(): ReactNode {
   return (
     <box>
       <text content="screen:detail" />

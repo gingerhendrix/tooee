@@ -7,6 +7,7 @@ import { useCommand, useMode } from "@tooee/commands";
 import { useCurrentOverlay, useHasOverlay } from "@tooee/overlays";
 import { press, pressEscape } from "./support/test-helpers.ts";
 import type { TestSession } from "./support/test-helpers.ts";
+import type { ReactNode } from "react";
 
 const LateRegistrant = function LateRegistrant() {
   useCommand({
@@ -18,7 +19,7 @@ const LateRegistrant = function LateRegistrant() {
   return null;
 };
 
-const LateHarness = function LateHarness(): React.ReactNode {
+const LateHarness = function LateHarness(): ReactNode {
   const [showLate, setShowLate] = useState(false);
   const current = useCurrentOverlay();
   useCommand({
@@ -38,7 +39,7 @@ const LateHarness = function LateHarness(): React.ReactNode {
   );
 };
 
-const PaletteHarness = function PaletteHarness(): React.ReactNode {
+const PaletteHarness = function PaletteHarness(): ReactNode {
   const mode = useMode();
   const hasOverlay = useHasOverlay();
 
@@ -150,7 +151,7 @@ const PaletteClickHarness = function PaletteClickHarness({
   onRun,
 }: {
   onRun: (id: string) => void;
-}): React.ReactNode {
+}): ReactNode {
   const mode = useMode();
   const hasOverlay = useHasOverlay();
   const overlay = useCurrentOverlay();

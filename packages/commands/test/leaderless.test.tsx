@@ -2,8 +2,9 @@ import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, describe } from "bun:test";
 import { act, useState } from "react";
 import { CommandProvider, useCommand } from "../src/index.js";
+import type { ReactNode } from "react";
 
-const NoLeaderHarness = function NoLeaderHarness(): React.ReactNode {
+const NoLeaderHarness = function NoLeaderHarness(): ReactNode {
   const [count, setCount] = useState(0);
   useCommand({
     handler: () => {
@@ -16,7 +17,7 @@ const NoLeaderHarness = function NoLeaderHarness(): React.ReactNode {
   return <text content={`count:${count}`} />;
 };
 
-const ConfiguredLeaderHarness = function ConfiguredLeaderHarness(): React.ReactNode {
+const ConfiguredLeaderHarness = function ConfiguredLeaderHarness(): ReactNode {
   const [count, setCount] = useState(0);
   useCommand({
     handler: () => {
