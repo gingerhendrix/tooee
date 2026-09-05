@@ -1,8 +1,9 @@
 import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, describe } from "bun:test";
+import { useRef } from "react";
 import { TooeeProvider } from "@tooee/shell";
 import { useOverlay, useCurrentOverlay, useHasOverlay } from "@tooee/overlays";
-import type { OverlayCloseReason } from "@tooee/overlays";
+import type { OverlayCloseReason, OverlayHandle, OverlayOpenOptions } from "@tooee/overlays";
 import { AppLayout } from "@tooee/layout";
 import { useCommand, useMode } from "@tooee/commands";
 import { press, pressEscape } from "./support/test-helpers.ts";
@@ -11,12 +12,16 @@ import type { ReactNode } from "react";
 
 const BuriedHarness = function BuriedHarness(): ReactNode {
   const overlay = useOverlay();
+  const handles = useRef(new Map<string, OverlayHandle<undefined>>());
   const mode = useMode();
   useCommand({
     handler: () => {
-      overlay.open("under", (): ReactNode => <text content="under-overlay" />, undefined, {
-        mode: "insert",
-      });
+      handles.current.set(
+        "under",
+        overlay.open("under", (): ReactNode => <text content="under-overlay" />, undefined, {
+          mode: "insert",
+        }),
+      );
     },
     hotkey: "u",
     id: "test.open-under",
@@ -25,9 +30,12 @@ const BuriedHarness = function BuriedHarness(): ReactNode {
   });
   useCommand({
     handler: () => {
-      overlay.open("over", (): ReactNode => <text content="over-overlay" />, undefined, {
-        mode: "select",
-      });
+      handles.current.set(
+        "over",
+        overlay.open("over", (): ReactNode => <text content="over-overlay" />, undefined, {
+          mode: "select",
+        }),
+      );
     },
     hotkey: "v",
     id: "test.open-over",
@@ -36,7 +44,7 @@ const BuriedHarness = function BuriedHarness(): ReactNode {
   });
   useCommand({
     handler: () => {
-      overlay.hide("under");
+      handles.current.get("under")?.close();
     },
     hotkey: "w",
     id: "test.close-under",
@@ -45,7 +53,7 @@ const BuriedHarness = function BuriedHarness(): ReactNode {
   });
   useCommand({
     handler: () => {
-      overlay.hide("over");
+      handles.current.get("over")?.close();
     },
     hotkey: "x",
     id: "test.close-over",
@@ -64,12 +72,16 @@ const createAppLayoutOverlay = (): ReactNode => <text content="OVERLAY_CONTENT" 
 
 const OverlayHarness = function OverlayHarness(): ReactNode {
   const overlay = useOverlay();
+  const handles = useRef(new Map<string, OverlayHandle<undefined>>());
   const current = useCurrentOverlay();
   const has = useHasOverlay();
+  const open = (id: string, render: () => ReactNode, options?: OverlayOpenOptions): void => {
+    handles.current.set(id, overlay.open(id, render, undefined, options));
+  };
 
   useCommand({
     handler: () => {
-      overlay.show("a", createOverlayA());
+      open("a", createOverlayA);
     },
     hotkey: "a",
     id: "test.show-a",
@@ -79,7 +91,7 @@ const OverlayHarness = function OverlayHarness(): ReactNode {
 
   useCommand({
     handler: () => {
-      overlay.show("b", createOverlayB());
+      open("b", createOverlayB);
     },
     hotkey: "b",
     id: "test.show-b",
@@ -89,7 +101,7 @@ const OverlayHarness = function OverlayHarness(): ReactNode {
 
   useCommand({
     handler: () => {
-      overlay.hide("a");
+      handles.current.get("a")?.close();
     },
     hotkey: "x",
     id: "test.hide-a",
@@ -99,7 +111,7 @@ const OverlayHarness = function OverlayHarness(): ReactNode {
 
   useCommand({
     handler: () => {
-      overlay.hide("b");
+      handles.current.get("b")?.close();
     },
     hotkey: "y",
     id: "test.hide-b",
@@ -109,7 +121,7 @@ const OverlayHarness = function OverlayHarness(): ReactNode {
 
   useCommand({
     handler: () => {
-      overlay.show("a", createReplacedOverlayA());
+      open("a", createReplacedOverlayA);
     },
     hotkey: "r",
     id: "test.replace-a",
@@ -119,7 +131,7 @@ const OverlayHarness = function OverlayHarness(): ReactNode {
 
   useCommand({
     handler: () => {
-      overlay.show("escape", createEscapeDismissibleOverlay(), { mode: "insert" });
+      open("escape", createEscapeDismissibleOverlay, { mode: "insert" });
     },
     hotkey: "e",
     id: "test.show-escape-dismissible",
@@ -129,7 +141,7 @@ const OverlayHarness = function OverlayHarness(): ReactNode {
 
   useCommand({
     handler: () => {
-      overlay.show("persistent", createEscapePersistentOverlay(), {
+      open("persistent", createEscapePersistentOverlay, {
         dismissOnEscape: false,
         mode: "insert",
       });
@@ -152,10 +164,11 @@ const OverlayHarness = function OverlayHarness(): ReactNode {
 
 const AppLayoutOverlayHarness = function AppLayoutOverlayHarness(): ReactNode {
   const overlay = useOverlay();
+  const handle = useRef<OverlayHandle<null> | null>(null);
 
   useCommand({
     handler: () => {
-      overlay.show("test", createAppLayoutOverlay());
+      handle.current = overlay.open("test", createAppLayoutOverlay, null);
     },
     hotkey: "s",
     id: "test.show-overlay",
@@ -165,7 +178,7 @@ const AppLayoutOverlayHarness = function AppLayoutOverlayHarness(): ReactNode {
 
   useCommand({
     handler: () => {
-      overlay.hide("test");
+      handle.current?.close();
     },
     hotkey: "h",
     id: "test.hide-overlay",

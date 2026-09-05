@@ -3,7 +3,7 @@ import { act, useRef, useState } from "react";
 import { TooeeProvider } from "@tooee/shell";
 import { useCommand } from "@tooee/commands";
 import { useCurrentOverlay, useOverlay, useOverlayState } from "@tooee/overlays";
-import type { OverlayController } from "@tooee/overlays";
+import type { OverlayController, OverlayHandle } from "@tooee/overlays";
 import { testRender } from "../../../test/support/test-render.ts";
 import { expectDefined } from "./support/expect-defined.ts";
 import { useAskDialog } from "../src/use-ask-dialog.js";
@@ -224,8 +224,9 @@ describe("useAskDialog settlement", () => {
     );
 
     const topId = expectDefined(expectDefined(handles.current).stackIds().at(-1));
+    let replacementHandle: OverlayHandle<undefined> | null = null;
     await act(async () => {
-      expectDefined(handles.current).overlay.open(
+      replacementHandle = expectDefined(handles.current).overlay.open(
         topId,
         (): ReactNode => <text content="REPLACEMENT" />,
         undefined,
@@ -245,7 +246,7 @@ describe("useAskDialog settlement", () => {
 
     // Closing the replacement must not settle the dialog again.
     await act(async () => {
-      expectDefined(handles.current).overlay.hide(topId);
+      expectDefined(replacementHandle).close();
       await Promise.resolve();
     });
     await testSetup.renderOnce();
