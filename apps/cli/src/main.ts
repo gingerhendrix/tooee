@@ -122,7 +122,11 @@ switch (command) {
       (a) => a !== "--multiline" && a !== "-m" && a !== "--single-line" && a !== "-s",
     );
     const prompt = filtered.join(" ") || undefined;
-    await launchAsk({ multiline: !singleLine, prompt });
+    const result = await launchAsk({ multiline: !singleLine, prompt });
+    if (result === null) {
+      process.exit(0);
+    }
+    process.stdout.write(`${result}\n`);
     break;
   }
 

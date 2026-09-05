@@ -13,9 +13,8 @@ import { useAskEditor } from "./use-ask-editor.js";
 export interface AskProps extends AskOptions {
   actions?: ActionDefinition[];
   /**
-   * Called with the submitted text. Defaults to writing the value to stdout
-   * and destroying the renderer (the standalone `ask` CLI behaviour). A
-   * `submit` action takes precedence over both.
+   * Called with the submitted text. Without a callback, submission destroys
+   * the renderer. A `submit` action takes precedence over the callback.
    */
   onSubmit?: (value: string) => void;
 }
@@ -34,12 +33,7 @@ export const Ask = function Ask({
 
   const { theme } = useTheme();
   const { name: themeName } = useThemeCommands();
-  useQuitCommand({
-    onQuit: () => {
-      renderer.destroy();
-      process.exit(0);
-    },
-  });
+  useQuitCommand();
 
   // Legacy overlays don't push a command surface; keep blurring the editor
   // under them via the shell's overlay state.
@@ -54,7 +48,6 @@ export const Ask = function Ask({
       onSubmit(text);
       return;
     }
-    process.stdout.write(`${text}\n`);
     renderer.destroy();
   };
 
