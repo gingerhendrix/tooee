@@ -1,14 +1,65 @@
 ---
-title: Tooee documentation
-description: Guides for using Tooee terminal micro-apps from the CLI and TypeScript.
+title: Introduction
+description: What Tooee is and which of its three entry points fits your work.
 ---
 
-Tooee is a set of terminal micro-apps built on OpenTUI. Use it when you want focused, interactive terminal interfaces for viewing content, asking for text, choosing from lists, or composing those pieces into custom tools.
+Tooee is a framework for terminal apps. It runs on Bun and draws with OpenTUI and React. You can use it in three ways.
 
-## Start here
+| Way                    | What you write                                            | Start at                                         |
+| ---------------------- | --------------------------------------------------------- | ------------------------------------------------ |
+| The CLI                | Shell commands: `tooee view`, `tooee ask`, `tooee choose` | [View files and pipes](/docs/cli/view)           |
+| Launch from TypeScript | A Bun script that calls `launch()` with your own data     | [Launch apps from TypeScript](/docs/apps/launch) |
+| Build an app           | React components on the Tooee shell                       | [Your first Tooee app](/docs/build/first-app)    |
 
-- [Getting started with the CLI](/docs/getting-started/cli) — install `@tooee/cli` and try the built-in terminal apps.
+All three share the same screens, keys, themes, and config files. The keys are in [Keyboard basics](/docs/start/keyboard-basics).
 
-## Documentation status
+## The three built-in apps
 
-This is a deliberately small documentation skeleton. Package guides, API references, and worked examples will be added as their public interfaces settle. Until then, the [Tooee repository](https://github.com/gingerhendrix/tooee) is the source of truth.
+Tooee ships three apps. The CLI exposes them as commands. The packages expose them as `launch()` functions and as React components.
+
+| App    | Package         | Job                                                                                          |
+| ------ | --------------- | -------------------------------------------------------------------------------------------- |
+| View   | `@tooee/view`   | Show markdown, code, text, tables, diffs, and images with cursor movement, search, and copy. |
+| Ask    | `@tooee/ask`    | Collect one line or many lines of text.                                                      |
+| Choose | `@tooee/choose` | Filter a list and pick one or more items.                                                    |
+
+## Use the CLI
+
+Install `@tooee/cli` and open a file:
+
+```bash
+tooee view README.md
+```
+
+Tooee picks a renderer from the file extension. Press `j` and `k` to move, `/` to search, and `q` to quit. Pick this way when you read files, patches, and CSV data in the terminal and the data already exists on disk.
+
+## Launch from TypeScript
+
+Add `@tooee/view` to a Bun project and give View your own content:
+
+```ts title="release-notes.ts"
+import { launch } from "@tooee/view";
+
+await launch({
+  contentProvider: {
+    load: () => ({
+      format: "markdown",
+      markdown: "# Release 0.8\n\n- Launch functions return results\n- Choose takes flat props",
+      title: "Release notes",
+    }),
+  },
+});
+```
+
+Run it with `bun release-notes.ts`. A content provider can read a file, run a process, or call an API. Ask and Choose work the same way: `launch()` opens the screen and resolves with the answer. This way suits data that lives in TypeScript and needs a screen without new components.
+
+## Build an app
+
+Add `@tooee/shell` and compose a screen from React components. The shell and its sibling packages give you modes, commands with hotkeys, a document model for rows, layout chrome, overlays, panels, routing, and themes. Take this route when your tool has its own screens or several views.
+
+## Next
+
+- [Install](/docs/start/install)
+- [Keyboard basics](/docs/start/keyboard-basics)
+- [View files and pipes](/docs/cli/view)
+- [Launch apps from TypeScript](/docs/apps/launch)

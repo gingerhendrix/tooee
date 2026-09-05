@@ -1,0 +1,79 @@
+---
+title: Keyboard basics
+description: The three modes and the keys that every Tooee screen shares.
+---
+
+Every Tooee screen runs in one of three modes. The status bar at the bottom shows the current mode next to the theme name.
+
+| Mode   | What keys do                                                                   | How you get there                                                    |
+| ------ | ------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| cursor | Keys run commands: move, search, copy, quit.                                   | The default in View. `Escape` returns here from the other two modes. |
+| insert | Keys type into an input: the search bar, the Choose filter, or the Ask editor. | `/` in View. Ask and Choose start here, and `i` returns to it.       |
+| select | `j` and `k` extend a row range for copy.                                       | `v` in View.                                                         |
+
+## Move
+
+In cursor mode the cursor is the highlighted row.
+
+| Key      | Action         |
+| -------- | -------------- |
+| `j`      | Cursor down    |
+| `k`      | Cursor up      |
+| `ctrl+d` | Half page down |
+| `ctrl+u` | Half page up   |
+| `g g`    | Top            |
+| `G`      | Bottom         |
+
+`g g` is a sequence: press `g` twice. After the first `g`, a hint bar lists the keys that complete the sequence. The same bar appears after `y`.
+
+Click a row to move the cursor there. Drag with the mouse to select text; on Linux, Tooee copies the dragged text to the primary selection.
+
+## Search
+
+| Key      | Mode   | Action                                         |
+| -------- | ------ | ---------------------------------------------- |
+| `/`      | cursor | Open the search bar and switch to insert mode  |
+| `Enter`  | insert | Run the search and return to the previous mode |
+| `n`      | cursor | Next match                                     |
+| `N`      | cursor | Previous match                                 |
+| `Escape` | any    | Clear the search                               |
+
+Matches are highlighted in the rows. The status bar shows the query while a search is open.
+
+## Select and copy
+
+| Key         | Mode           | Action                                                             |
+| ----------- | -------------- | ------------------------------------------------------------------ |
+| `v`         | cursor         | Start a selection at the cursor                                    |
+| `j`, `k`    | select         | Extend the selection                                               |
+| `Tab`       | cursor, select | Toggle the cursor row in a multi-row pick                          |
+| `Shift+Tab` | cursor         | Toggle the cursor row and move up                                  |
+| `Escape`    | select         | Cancel the selection                                               |
+| `y y`       | cursor, select | Copy the cursor row                                                |
+| `y v`       | cursor, select | Copy the selection or the toggled rows, then return to cursor mode |
+| `y g`       | cursor, select | Copy the whole document                                            |
+
+A toast confirms each copy. Copy uses the clipboard tool of your platform; [Troubleshooting](/docs/ship/troubleshooting) lists the tools Tooee looks for.
+
+## Commands and the palette
+
+`:` opens the command palette in cursor or select mode. It lists the commands for the current mode with their hotkeys. Type to filter, move with `up` and `down`, press `Enter` to run the highlighted command, or `Escape` to close.
+
+Apps add commands of their own. A hotkey is a single key such as `q`, a chord such as `ctrl+d`, or a sequence such as `g g`. [Configuration](/docs/customize/configuration) shows how to remap them.
+
+## Themes
+
+`t` opens the theme picker. Type to filter, move with `up` and `down`, and the screen previews each theme as you move. `Enter` keeps the theme and saves it to `~/.config/tooee/config.json`. `Escape` restores the theme you started with. Tooee bundles 34 themes; [Themes](/docs/customize/themes) lists them.
+
+## Quit
+
+`q` quits in cursor mode. `ctrl+c` quits in any mode. In Ask and Choose, `q` in cursor mode cancels the prompt.
+
+`ctrl+shift+j` toggles the OpenTUI debug console.
+
+## Next
+
+- [View files and pipes](/docs/cli/view)
+- [Ask and Choose in shell scripts](/docs/cli/ask-and-choose)
+- [Configuration](/docs/customize/configuration)
+- [Keyboard shortcuts](/docs/reference/keyboard-shortcuts)

@@ -1,0 +1,102 @@
+---
+title: Ask and Choose in shell scripts
+description: Collect text with tooee ask, pick from a list with tooee choose, and read what they print.
+---
+
+```bash
+tooee ask --single-line "Branch name:"
+printf 'alpha\nbeta\ngamma\n' | tooee choose
+```
+
+Ask opens an editor and prints the submitted text. Choose reads lines from stdin, opens a filterable list, and prints the picked lines. Both write to stdout when the screen closes.
+
+## Ask for text
+
+```bash
+tooee ask "Release note:"
+```
+
+The words after `ask` form the prompt. The editor starts in insert mode and accepts many lines: `Enter` adds a line and `Shift+Enter` submits. `--single-line` (`-s`) gives a one-line input where `Enter` submits:
+
+```bash
+tooee ask --single-line "Search for:"
+```
+
+`--multiline` (`-m`) is the default and can be passed for clarity.
+
+On submit, Ask prints the text followed by a newline and exits with code 0. To cancel, press `Escape` to reach cursor mode, then `q`. `ctrl+c` cancels from any mode. A cancelled Ask prints nothing and exits with code 0.
+
+| Key                                                | Mode   | Action                                          |
+| -------------------------------------------------- | ------ | ----------------------------------------------- |
+| `Escape`                                           | insert | Switch to cursor mode                           |
+| `i`                                                | cursor | Insert at the text cursor                       |
+| `a`                                                | cursor | Insert after the text cursor                    |
+| `o`, `O`                                           | cursor | Open a line below or above (multiline)          |
+| `h`, `j`, `k`, `l`, `w`, `b`, `0`, `$`, `g g`, `G` | cursor | Move the text cursor                            |
+| `Enter`, `Shift+Enter`                             | cursor | Submit                                          |
+| `y y`, `y g`, `y v`                                | cursor | Copy the line, the whole text, or the selection |
+| `p`                                                | cursor | Paste from the clipboard                        |
+| `:`                                                | cursor | Open the command palette                        |
+| `q`                                                | cursor | Cancel                                          |
+
+Ask reads keys from stdin. Piping text into `tooee ask` ends the session at once.
+
+## Choose from a list
+
+```bash
+git branch --format='%(refname:short)' | tooee choose --prompt "Base branch"
+```
+
+Choose reads one item per line from stdin and drops empty lines. It starts in insert mode with the filter focused. Type to fuzzy-filter the list. Move with `up` and `down`, or `ctrl+n` and `ctrl+p`. `Enter` confirms the highlighted item. `--prompt <text>` sets the title bar.
+
+When stdin is a pipe, Choose reads keys from the terminal at `/dev/tty`, so the piped list and the keyboard work together.
+
+On confirm, Choose prints the item text followed by a newline and exits with code 0. To cancel, press `Escape` to reach cursor mode, then `q` or `Escape` again. `ctrl+c` cancels from any mode. A cancelled Choose prints nothing and exits with code 1. `Enter` with no item under the filter also cancels.
+
+`--multi` (`-m`) turns on multi-select. `Tab` toggles the highlighted item and moves down; `Shift+Tab` toggles it and moves up. `Enter` prints every toggled item, one per line, in the order you toggled them. With nothing toggled, it prints the highlighted item.
+
+| Key                | Mode           | Action                     |
+| ------------------ | -------------- | -------------------------- |
+| `Escape`           | insert         | Switch to cursor mode      |
+| `j`, `k`           | cursor         | Move                       |
+| `i`, `a`           | cursor         | Back to the filter         |
+| `Enter`            | insert, cursor | Confirm                    |
+| `Tab`, `Shift+Tab` | insert, cursor | Toggle an item (`--multi`) |
+| `q`, `Escape`      | cursor         | Cancel                     |
+
+## Use the result in a script
+
+Tooee 0.8.0 draws the screen on stdout, the same stream that carries the result. A command substitution such as `name=$(tooee ask -s "Name:")` redirects that stream: the terminal stays blank while Ask runs, and the captured value holds the screen bytes in front of the text. Redirecting `tooee choose` to a file has the same effect.
+
+To use the value, keep the flow in one Bun script and call `launch()`. The functions return the answer, or `null` on cancel:
+
+```ts title="new-branch.ts"
+import { $ } from "bun";
+import { launch as launchAsk } from "@tooee/ask";
+import { createStaticProvider, launch as launchChoose } from "@tooee/choose";
+
+const name = await launchAsk({ multiline: false, prompt: "Branch name:" });
+if (name === null) {
+  process.exit(0);
+}
+
+const base = await launchChoose({
+  contentProvider: createStaticProvider([{ text: "main" }, { text: "develop" }]),
+  options: { prompt: "Base branch" },
+});
+if (base === null) {
+  process.exit(1);
+}
+
+const [picked] = base.items;
+await $`git switch -c ${name} ${picked.text}`;
+```
+
+Run it with `bun new-branch.ts`. [Launch apps from TypeScript](/docs/apps/launch) covers the launch options and the content providers for Choose.
+
+## Next
+
+- [CLI reference](/docs/reference/cli)
+- [Launch apps from TypeScript](/docs/apps/launch)
+- [Ask](/docs/apps/ask)
+- [Choose](/docs/apps/choose)

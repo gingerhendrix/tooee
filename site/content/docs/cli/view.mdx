@@ -1,0 +1,86 @@
+---
+title: View files and pipes
+description: Open a file, a directory, or a patch with tooee view, and force a renderer.
+---
+
+```bash
+tooee view README.md
+```
+
+View opens the file, picks a renderer from the extension, and puts the file name in the title bar. Move with `j` and `k`, search with `/`, quit with `q`. The full key list is in [Keyboard basics](/docs/start/keyboard-basics).
+
+## Open a file
+
+The extension picks the renderer:
+
+| Extension                                                                                                                                                                                          | Renderer                            |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| `.md`, `.mdx`, `.markdown`                                                                                                                                                                         | markdown                            |
+| `.csv`, `.tsv`                                                                                                                                                                                     | table                               |
+| `.diff`, `.patch`                                                                                                                                                                                  | diff                                |
+| `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`                                                                                                                                                           | image                               |
+| `.ts`, `.tsx`, `.js`, `.jsx`, `.json`, `.py`, `.rs`, `.go`, `.rb`, `.java`, `.kt`, `.swift`, `.c`, `.h`, `.cpp`, `.hpp`, `.css`, `.html`, `.sql`, `.sh`, `.bash`, `.zsh`, `.toml`, `.yaml`, `.yml` | code, highlighted for that language |
+| anything else                                                                                                                                                                                      | text                                |
+
+A file with another extension that contains a unified patch, with `diff --git` or `---` and `+++` headers and at least one `@@` hunk, opens as a diff.
+
+Markdown files resolve relative image paths from the folder of the file. `L` toggles line numbers. When the cursor is on a wide code block inside markdown, `h` and `l` scroll that block sideways.
+
+## Force a renderer
+
+```bash
+tooee view --renderer text README.md
+tooee view -r table data.txt
+tooee view --renderer=code notes
+```
+
+Values: `markdown`, `code`, `text`, `table`, `diff`. An unknown value prints `Unknown renderer` with the list and exits with code 1. A flag without a value prints `Missing value for --renderer` and exits with code 1.
+
+The `table` renderer accepts a JSON array of objects, TSV when the first line has a tab, or CSV. The first row of CSV or TSV gives the column names.
+
+`tooee table data.csv` is a deprecated alias for `tooee view --renderer table data.csv`. Tooee 0.9.0 removes it.
+
+## Read a diff
+
+```bash
+git diff > changes.diff
+tooee view changes.diff
+```
+
+The diff renderer adds keys of its own:
+
+| Key      | Action                                  |
+| -------- | --------------------------------------- |
+| `s`      | Switch between split and unified layout |
+| `w`      | Toggle line wrapping                    |
+| `]`, `[` | Next and previous file                  |
+| `f`      | Open the file picker                    |
+| `h`, `l` | Pan sideways while wrapping is off      |
+
+## Open a directory
+
+```bash
+tooee view packages/view/src
+```
+
+View lists the files in the directory that it can open, sorted by name, and shows the first one. It skips hidden files and subdirectories. The title bar shows the file name and its position, for example `view.tsx  (5/9)`. In cursor mode, `l` moves to the next file and `h` to the previous one. A directory with no openable files shows `No viewable files in directory`; `q` quits.
+
+`--renderer` and a directory together print an error and exit with code 1.
+
+## Pipe text into View
+
+`tooee --help` lists `cat file.md | tooee view` and `git diff | tooee view --renderer diff`. In Tooee 0.8.0 these forms end as soon as the pipe closes, before the content is drawn, because View treats the end of stdin as a closed terminal. Give View a path instead. In bash and zsh, process substitution keeps the pipeline:
+
+```bash
+tooee view <(git diff)
+tooee view --renderer markdown <(curl -s https://raw.githubusercontent.com/gingerhendrix/tooee/main/README.md)
+```
+
+A process substitution path has no extension, so View renders it as text, or as a diff when the content is a patch. Pass `--renderer` for other formats.
+
+## Next
+
+- [Keyboard basics](/docs/start/keyboard-basics)
+- [Ask and Choose in shell scripts](/docs/cli/ask-and-choose)
+- [CLI reference](/docs/reference/cli)
+- [View: content formats](/docs/apps/view/formats)
