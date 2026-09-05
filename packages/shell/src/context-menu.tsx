@@ -58,7 +58,7 @@ export const useContextMenu = function useContextMenu(): ContextMenuController {
             y,
           }),
         null,
-        { dismissOnEscape: true, mode: "insert" },
+        { dismissOnEscape: true, ownCommands: true, role: "modal", surfaceMode: "insert" },
       );
     },
     [overlay],

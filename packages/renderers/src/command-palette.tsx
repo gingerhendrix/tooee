@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useCommand } from "@tooee/commands";
 import { useTheme, CloseButton } from "@tooee/themes";
-import { fuzzyMatch } from "@tooee/fuzzy";
+import { rankBy } from "@tooee/fuzzy";
 
 export interface CommandPaletteEntry {
   id: string;
@@ -30,15 +30,7 @@ export const CommandPalette = function CommandPalette({
     if (!filter) {
       return commands;
     }
-    const results: { entry: CommandPaletteEntry; score: number }[] = [];
-    for (const entry of commands) {
-      const score = fuzzyMatch(filter, entry.title);
-      if (score !== null) {
-        results.push({ entry, score });
-      }
-    }
-    results.sort((a, b) => b.score - a.score);
-    return results.map((r) => r.entry);
+    return rankBy(commands, filter, (entry) => entry.title).map((match) => match.item);
   }, [commands, filter]);
 
   const handleSelect = useCallback(() => {

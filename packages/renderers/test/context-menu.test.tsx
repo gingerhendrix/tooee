@@ -2,6 +2,7 @@ import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, describe, afterEach } from "bun:test";
 import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
+import { CommandProvider } from "@tooee/commands";
 import { ThemeSwitcherProvider } from "@tooee/themes";
 import { ContextMenu } from "../src/context-menu.js";
 import type { ContextMenuEntry } from "../src/context-menu.js";
@@ -34,12 +35,22 @@ const lineOf = function lineOf(frame: string, text: string): FramePosition {
   return { x: -1, y: -1 };
 };
 
+const ContextMenuHarness = function ContextMenuHarness(
+  props: React.ComponentProps<typeof ContextMenu>,
+): React.ReactNode {
+  return (
+    <CommandProvider initialMode="insert">
+      <ThemeSwitcherProvider>
+        <ContextMenu {...props} />
+      </ThemeSwitcherProvider>
+    </CommandProvider>
+  );
+};
+
 describe("ContextMenu", () => {
   test("renders all entries", async () => {
     testSetup = await testRender(
-      <ThemeSwitcherProvider>
-        <ContextMenu entries={ENTRIES} x={4} y={2} onSelect={() => {}} onClose={() => {}} />
-      </ThemeSwitcherProvider>,
+      <ContextMenuHarness entries={ENTRIES} x={4} y={2} onSelect={() => {}} onClose={() => {}} />,
       { height: 20, width: 50 },
     );
     await testSetup.renderOnce();
@@ -52,17 +63,15 @@ describe("ContextMenu", () => {
   test("click on an entry calls onSelect with its id", async () => {
     const selected: string[] = [];
     testSetup = await testRender(
-      <ThemeSwitcherProvider>
-        <ContextMenu
-          entries={ENTRIES}
-          x={4}
-          y={2}
-          onSelect={(id) => {
-            selected.push(id);
-          }}
-          onClose={() => {}}
-        />
-      </ThemeSwitcherProvider>,
+      <ContextMenuHarness
+        entries={ENTRIES}
+        x={4}
+        y={2}
+        onSelect={(id) => {
+          selected.push(id);
+        }}
+        onClose={() => {}}
+      />,
       { height: 20, width: 50 },
     );
     await testSetup.renderOnce();
@@ -79,17 +88,15 @@ describe("ContextMenu", () => {
   test("j then Enter selects the second entry", async () => {
     const selected: string[] = [];
     testSetup = await testRender(
-      <ThemeSwitcherProvider>
-        <ContextMenu
-          entries={ENTRIES}
-          x={4}
-          y={2}
-          onSelect={(id) => {
-            selected.push(id);
-          }}
-          onClose={() => {}}
-        />
-      </ThemeSwitcherProvider>,
+      <ContextMenuHarness
+        entries={ENTRIES}
+        x={4}
+        y={2}
+        onSelect={(id) => {
+          selected.push(id);
+        }}
+        onClose={() => {}}
+      />,
       { height: 20, width: 50 },
     );
     await testSetup.renderOnce();
@@ -110,17 +117,15 @@ describe("ContextMenu", () => {
   test("clicking the backdrop calls onClose", async () => {
     let closed = 0;
     testSetup = await testRender(
-      <ThemeSwitcherProvider>
-        <ContextMenu
-          entries={ENTRIES}
-          x={4}
-          y={2}
-          onSelect={() => {}}
-          onClose={() => {
-            closed += 1;
-          }}
-        />
-      </ThemeSwitcherProvider>,
+      <ContextMenuHarness
+        entries={ENTRIES}
+        x={4}
+        y={2}
+        onSelect={() => {}}
+        onClose={() => {
+          closed += 1;
+        }}
+      />,
       { height: 20, width: 50 },
     );
     await testSetup.renderOnce();
@@ -134,9 +139,7 @@ describe("ContextMenu", () => {
 
   test("clamps the panel on-screen near the bottom-right corner", async () => {
     testSetup = await testRender(
-      <ThemeSwitcherProvider>
-        <ContextMenu entries={ENTRIES} x={48} y={19} onSelect={() => {}} onClose={() => {}} />
-      </ThemeSwitcherProvider>,
+      <ContextMenuHarness entries={ENTRIES} x={48} y={19} onSelect={() => {}} onClose={() => {}} />,
       { height: 20, width: 50 },
     );
     await testSetup.renderOnce();
