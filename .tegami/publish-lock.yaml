@@ -1,83 +1,140 @@
 core:changelogs:
-  - content: "---\npackages:\n  group:tooee:\n    type: patch\n---\n\n## Add explicit clipboard shortcuts\n\nView documents and Ask editors now use `yy` to copy the current semantic row or\nline, `yg` to copy the whole document, and `yv` to copy the active selection.\n"
-    filename: clipboard-shortcuts.md
+  - content: "---\npackages:\n  group:tooee:\n    type: minor\n---\n\n## Clarify package ownership and compatibility APIs\n\nThe low-level command store APIs now come from `@tooee/commands/store`. This entry owns\n`CommandStoreInstance`, `ContextGetter`, `CreateCommandStoreOptions`, `KeyDispatchResult`,\n`selectSurfaceCommandMap`, `selectGroups`, `ModeProvider`, `ModeProviderProps`,\n`SequenceTracker`, its related sequence types, `createBaseStore`, and `createCommandStore`.\nThese names are no longer exported from the main `@tooee/commands` entry.\n\n`CloseButton` moved from `@tooee/themes` to `@tooee/layout`. The `rankBy` compatibility\nre-export was removed from `@tooee/renderers`; import it from `@tooee/fuzzy`.\n\nThe overlay store event payload types `OverlayClosedEmit`, `OverlayClosedEvent`,\n`OverlayClosedTopEvent`, `OverlayOpenedEvent`, `OverlayStoreEvents`, and `OverlayUpdatedEvent`\nare no longer exported from `@tooee/overlays`. `AnyRoute`, `ScreenFocusProvider`, and\n`getRouteChain` are no longer exported from `@tooee/router`.\n\n`useCommandContext` is deprecated in favor of `useSurfaceInvoke`. The overlay controller\nmethods `show`, `hide`, and `isOpen` are deprecated in favor of the handle returned by `open`\nand overlay state hooks.\n"
+    filename: cross-cutting-hygiene.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/cli\":\n    type: patch\n---\n\n## Schedule removal of the table command alias\n\nThe deprecated `tooee table` command now reports that it will be removed in 0.9.0. Use `tooee view --renderer table` instead.\n"
+    filename: deprecate-table-command.md
+    v: 0.0.0
+  - content: "---\npackages:\n  group:tooee:\n    type: minor\n---\n\n## Align public application contracts\n\nThe Ask, Choose, View, shell, and command-context APIs now use consistent\npublic contracts. See [the 0.8 migration guide](../docs/migration-0.7-to-0.8.md).\n\n### Migration\n\n- Ask launch now returns `string | null`. The CLI host now owns stdout writes\n  and process exit. Choose launch keeps its `ChooseResult | null` result, and\n  View launch resolves with `void` when its session ends.\n- `Choose` accepts `title`, `prompt`, `placeholder`, `multi`, and `emptyMessage`\n  as top-level props. Its `options` prop remains as a deprecated alias for one\n  release. Use `actions` instead of the deprecated `commands` alias.\n- `CommandContext` augmentations such as `ask`, `choose`, `view`, `overlay`, and\n  `toast` are optional. Check that a field is present before use.\n- Deprecated top-level `launchCli` provider aliases and the `tooee table`\n  command remain available until 0.9.0.\n"
+    filename: public-contract-0.8.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/commands\":\n    type: minor\n  \"@tooee/config\":\n    type: minor\n  \"@tooee/search\":\n    type: minor\n  \"@tooee/themes\":\n    type: patch\n---\n\n## Clarify command, color mode, and readonly APIs\n\nCommand consumers can use `useSurfaceInvoke`, `useLatest`, `useLazyRef`, and\n`formatStepKey` from `@tooee/commands`. `useCommandContext` remains available as\na deprecated compatibility alias. Command registry maps and search match arrays\nare now readonly.\n\nColor mode consumers can use `ColorMode` from `@tooee/config`. The old `Mode`\nname remains available as a deprecated alias. Theme defaults now resolve from\nthe bundled Tokyo Night document and the complete fallback map owns the resolved\ntheme key list.\n"
+    filename: commands-themes-api-hygiene.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/fuzzy\":\n    type: minor\n  \"@tooee/shell\":\n    type: minor\n  \"@tooee/themes\":\n    type: minor\n---\n\n## Share fuzzy ranking and move the theme picker to shell\n\n`@tooee/fuzzy` now exports `rankBy`, which returns score-sorted matches with\nsource indices and matched character positions.\n\nTheme picker integration now belongs to `@tooee/shell`. Import\n`useThemePicker` and its public types from shell. `@tooee/themes` now contains\ntheme loading and context APIs without command or fuzzy dependencies.\n"
+    filename: fuzzy-ranking-theme-picker.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/layout\":\n    type: minor\n  \"@tooee/overlays\":\n    type: minor\n---\n\n## Share overlay panels and promise dialog lifecycles\n\n`@tooee/layout` now exports `OverlayPanel`, shared panel inset types, and one `AppLayout.scroll` configuration object. The old `AppLayout` scroll props remain as deprecated aliases.\n\n`@tooee/overlays` now exports `useOverlayDialog` for promise-based modal overlays. The unprovided `OverlayContext` and `OverlayContextValue` exports have been removed. Use the controller and state contexts or the overlay hooks instead.\n"
+    filename: shared-overlay-primitives.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/renderers\":\n    type: patch\n  \"@tooee/router\":\n    type: patch\n  \"@tooee/shell\":\n    type: patch\n  \"@tooee/view\":\n    type: patch\n---\n\n## Add named hook and table formatting contracts\n\nExport named result and option types for router, shell, and view hooks. Export `formatTableCell` as the shared table value formatter. Date cells now use the same ISO text for display, whole-document copy, row copy, and search.\n"
+    filename: export-view-shell-contracts.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/shell\":\n    type: patch\n---\n\n## Schedule removal of top-level launch provider options\n\nThe top-level `leader`, `config`, `initialMode`, and `sequenceTimeoutMs` options on `launchCli` are deprecated. Move these values into `provider` before the aliases are removed in 0.9.0.\n"
+    filename: deprecate-launch-provider-aliases.md
     v: 0.0.0
 core:packages:
   - changelogIds:
-      - clipboard-shortcuts.md
+      - cross-cutting-hygiene.md
+      - deprecate-table-command.md
+      - public-contract-0.8.md
     id: npm:@tooee/cli
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
+      - cross-cutting-hygiene.md
+      - public-contract-0.8.md
     id: npm:@tooee/ask
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
+      - cross-cutting-hygiene.md
+      - public-contract-0.8.md
     id: npm:@tooee/choose
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
+      - cross-cutting-hygiene.md
+      - public-contract-0.8.md
     id: npm:@tooee/clipboard
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
+      - commands-themes-api-hygiene.md
+      - cross-cutting-hygiene.md
+      - public-contract-0.8.md
     id: npm:@tooee/commands
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
+      - commands-themes-api-hygiene.md
+      - cross-cutting-hygiene.md
+      - public-contract-0.8.md
     id: npm:@tooee/config
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
+      - cross-cutting-hygiene.md
+      - public-contract-0.8.md
     id: npm:@tooee/diff
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
+      - cross-cutting-hygiene.md
+      - fuzzy-ranking-theme-picker.md
+      - public-contract-0.8.md
     id: npm:@tooee/fuzzy
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
+      - cross-cutting-hygiene.md
+      - public-contract-0.8.md
+      - shared-overlay-primitives.md
     id: npm:@tooee/layout
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
+      - cross-cutting-hygiene.md
+      - public-contract-0.8.md
     id: npm:@tooee/marks
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
-    id: npm:@tooee/overlays
-    updated: true
-  - changelogIds:
-      - clipboard-shortcuts.md
+      - cross-cutting-hygiene.md
+      - public-contract-0.8.md
     id: npm:@tooee/panels
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
-    id: npm:@tooee/renderers
+      - cross-cutting-hygiene.md
+      - public-contract-0.8.md
+      - shared-overlay-primitives.md
+    id: npm:@tooee/overlays
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
+      - cross-cutting-hygiene.md
+      - export-view-shell-contracts.md
+      - public-contract-0.8.md
     id: npm:@tooee/router
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
-    id: npm:@tooee/search
+      - cross-cutting-hygiene.md
+      - export-view-shell-contracts.md
+      - public-contract-0.8.md
+    id: npm:@tooee/renderers
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
+      - commands-themes-api-hygiene.md
+      - cross-cutting-hygiene.md
+      - public-contract-0.8.md
+    id: npm:@tooee/search
+    updated: true
+  - id: npm:@tooee/test-support
+    updated: false
+  - changelogIds:
+      - cross-cutting-hygiene.md
+      - deprecate-launch-provider-aliases.md
+      - export-view-shell-contracts.md
+      - fuzzy-ranking-theme-picker.md
+      - public-contract-0.8.md
     id: npm:@tooee/shell
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
+      - commands-themes-api-hygiene.md
+      - cross-cutting-hygiene.md
+      - fuzzy-ranking-theme-picker.md
+      - public-contract-0.8.md
     id: npm:@tooee/themes
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
-    id: npm:@tooee/view
+      - cross-cutting-hygiene.md
+      - public-contract-0.8.md
+    id: npm:@tooee/toasts
     updated: true
   - changelogIds:
-      - clipboard-shortcuts.md
-    id: npm:@tooee/toasts
+      - cross-cutting-hygiene.md
+      - export-view-shell-contracts.md
+      - public-contract-0.8.md
+    id: npm:@tooee/view
     updated: true
 npm:packages:
   - id: npm:@tooee/cli
@@ -90,13 +147,14 @@ npm:packages:
   - id: npm:@tooee/fuzzy
   - id: npm:@tooee/layout
   - id: npm:@tooee/marks
-  - id: npm:@tooee/overlays
   - id: npm:@tooee/panels
-  - id: npm:@tooee/renderers
+  - id: npm:@tooee/overlays
   - id: npm:@tooee/router
+  - id: npm:@tooee/renderers
   - id: npm:@tooee/search
+  - id: npm:@tooee/test-support
   - id: npm:@tooee/shell
   - id: npm:@tooee/themes
-  - id: npm:@tooee/view
   - id: npm:@tooee/toasts
+  - id: npm:@tooee/view
   - id: npm:@tooee/examples
