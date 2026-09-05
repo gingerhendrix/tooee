@@ -1,0 +1,374 @@
+---
+title: Documents
+description: Turn a typed row array into a navigable document with search, copy, mouse, and source anchors.
+---
+
+```tsx title="pull-requests.tsx"
+import type { ActionDefinition } from "@tooee/commands";
+import {
+  Document,
+  DocumentScreen,
+  launchCli,
+  useCopyCommand,
+  useDocumentController,
+} from "@tooee/shell";
+import type { DocumentRowAdapter } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
+
+interface PullRequest {
+  number: number;
+  title: string;
+  author: string;
+  draft: boolean;
+}
+
+const pullRequests: PullRequest[] = [
+  { author: "mara", draft: false, number: 412, title: "Add retries to the upload client" },
+  { author: "jon", draft: true, number: 415, title: "Rewrite the config loader" },
+  { author: "mara", draft: false, number: 418, title: "Fix the diff header parser" },
+  { author: "ines", draft: false, number: 420, title: "Bump OpenTUI to 0.5.1" },
+];
+
+const adapter: DocumentRowAdapter<PullRequest> = {
+  getKey: (pr) => pr.number,
+  getText: (pr) => `#${pr.number} ${pr.title} ${pr.author}`,
+};
+
+const actions: ActionDefinition[] = [
+  {
+    handler: (ctx) => {
+      const { document } = ctx;
+      if (document === undefined) {
+        return;
+      }
+      let anchors = document.selectedAnchors;
+      if (anchors.length === 0 && document.activeAnchor !== null) {
+        anchors = [document.activeAnchor];
+      }
+      if (anchors.length === 0) {
+        return;
+      }
+      const numbers = anchors.map((anchor) => `#${String(anchor.key)}`).join(", ");
+      ctx.toast?.toast({ level: "success", message: `Merging ${numbers}` });
+    },
+    hotkey: "m",
+    id: "pr.merge",
+    title: "Merge",
+  },
+];
+
+const PullRequestList = function PullRequestList(): ReactNode {
+  const { theme } = useTheme();
+  const controller = useDocumentController({
+    adapter,
+    contextMenu: actions,
+    multiSelect: true,
+    rows: pullRequests,
+    search: {},
+  });
+  useCopyCommand({
+    getText: () => pullRequests.map((pr, index) => adapter.getText(pr, index)).join("\n"),
+    hotkey: "y g",
+    modes: ["cursor", "select"],
+  });
+
+  return (
+    <DocumentScreen controller={controller} titleBar={{ title: "Pull requests" }} actions={actions}>
+      <Document
+        controller={controller}
+        style={{ flexGrow: 1 }}
+        showLineNumbers={false}
+        signColumnWidth={2}
+        renderRow={(pr): ReactNode => (
+          <text
+            content={`#${pr.number}  ${pr.title.padEnd(34)} ${pr.author}`}
+            fg={pr.draft ? theme.textMuted : theme.text}
+          />
+        )}
+      />
+    </DocumentScreen>
+  );
+};
+
+await launchCli(<PullRequestList />);
+```
+
+Run it with `bun pull-requests.tsx`. `j` and `k` move the cursor, `Tab` toggles a row, and `m` shows a toast with the toggled numbers, or the cursor row when nothing is toggled. Right-click a row for a menu with `Merge` in it. `/` searches the text of every row, `y y` copies the cursor row, and `y g` copies all four.
+
+`useDocumentController` owns the cursor, the selection, the search state, and the copy commands for `rows`. The adapter tells it how to read one row. `DocumentScreen` draws the chrome, registers `actions`, and publishes `ctx.document`. `Document` draws one element per row with your `renderRow`. [Your first Tooee app](/docs/build/first-app#grow-into-a-document) shows the same shape with a string array.
+
+## The row adapter
+
+The adapter projects your row type onto what the document needs:
+
+| Field                      | Meaning                                                                                                                                                                |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `getText(row, index)`      | Required. The plain text of the row. Search matches it, `y y` and `y v` copy it, and anchors carry it as `text`.                                                       |
+| `getKey(row, index)`       | The identity of the row. Defaults to the index. Toggled rows and anchors carry the key, and with `preserveCursorByKey` the cursor follows the key when `rows` changes. |
+| `isSelectable(row, index)` | Return `false` for headers and separators. The cursor skips them and a click on one selects the nearest row that accepts the cursor.                                   |
+| `getSource(row, index)`    | Where the row came from in an original text, as a `DocumentRowSource`. Return `null` for a generated row. See [Source anchors](#source-anchors).                       |
+
+Give `getKey` a value from your domain when rows can be sorted, filtered, or reloaded. Without it, a toggle belongs to a position, so a re-sort moves the toggle onto a different row. `sourceLineAdapter` from `@tooee/renderers` has no `getKey` because the position of a line is its identity.
+
+## Controller options
+
+| Option                | Default | Meaning                                                                                                                                                                     |
+| --------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rows`                |         | The row array. Pass a new array to change the document; the controller reads the latest one.                                                                                |
+| `adapter`             |         | The row adapter above.                                                                                                                                                      |
+| `multiSelect`         | `false` | `true` registers `Tab` and `Shift+Tab` for toggling rows.                                                                                                                   |
+| `search`              |         | `{}` registers `/`, `n`, `N`, and `Escape` with the default matcher. `{ match }` supplies your own. `false` registers no search commands and `controller.search` is `null`. |
+| `copy`                | `true`  | Registers `y y` and `y v`. `false` registers neither.                                                                                                                       |
+| `decorations`         | `[]`    | Extra `DecorationLayer` values painted with the cursor, selection, and search layers. [Marks and decorations](/docs/build/marks) covers the layer contract.                 |
+| `preserveCursorByKey` | `false` | When `rows` changes, keep the cursor on the row with the same key. Otherwise the cursor keeps its index, clamped to the new length.                                         |
+| `onRowPress`          |         | Called after a left click with `{ row, index, key, event }`.                                                                                                                |
+| `contextMenu`         |         | What a right click opens. See [Mouse](#mouse).                                                                                                                              |
+
+When `search` is omitted, the controller still registers the search commands with the default matcher. Pass `search: {}` to make that choice visible, or `search: false` to turn it off.
+
+## Read the controller
+
+The hook returns one object. Read it in your component:
+
+| Member                                                  | Meaning                                                                                                       |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `rows`                                                  | The array you passed.                                                                                         |
+| `activeIndex`, `activeKey`, `activeRow`                 | The cursor row as index, key, and typed row. `null` and `undefined` when the document is empty.               |
+| `activeAnchor`                                          | The cursor row as an anchor: `{ row, index, key, text, source }`.                                             |
+| `selectedRows`, `selectedAnchors`                       | The toggled rows, or the rows in the select-mode range when nothing is toggled, in row order.                 |
+| `toggledIndices`                                        | The set of toggled indices.                                                                                   |
+| `navigation`                                            | `cursor`, `selection` as `{ start, end }` or `null`, `setCursor(index)`, and `toggledIndices`.                |
+| `search`                                                | The search state, or `null` with `search: false`. See [Search](#search).                                      |
+| `getRow(index)`, `getRowKey(index)`, `getAnchor(index)` | Look up any row. `getRow` returns `undefined` and `getAnchor` returns `null` when the index is out of range.  |
+| `getRowAtScreenY(y)`                                    | The row drawn at a terminal row, or `null` for the gap below the last row.                                    |
+| `selectRow(index)`                                      | Move the cursor from a mouse handler of your own. Does nothing while a modal overlay is open.                 |
+| `ref`, `decorations`, `onMouseDown`                     | The bindings a `row-document` element takes. See [Bind a renderer of your own](#bind-a-renderer-of-your-own). |
+
+Command handlers get the same state through `ctx.document`, with rows typed `unknown`. [View: actions and command context](/docs/apps/view/actions#read-the-cursor-row) lists its fields. The `Merge` action above reads `selectedAnchors` and `activeAnchor` from it and uses `key`, which `getKey` set to the pull request number. The `context` prop on `DocumentScreen` adds `kind`, `title`, `reload`, and `extras` to that object.
+
+## Draw the rows
+
+`Document` takes the controller and a `renderRow(row, index)` function. Return one element per row; it becomes the geometry of the row, so a `<box>` with three `<text>` children is a row three lines tall, and a click on any of the three lines lands on that row. The other props go to the `row-document` element:
+
+| Prop              | Default | Meaning                                                                            |
+| ----------------- | ------- | ---------------------------------------------------------------------------------- |
+| `style`           |         | Layout of the document box. `{ flexGrow: 1 }` fills the content area.              |
+| `showGutter`      | `true`  | Draw the gutter on the left.                                                       |
+| `showLineNumbers` | `true`  | Draw a line number per row in the gutter, counting from `lineNumberStart`, or `1`. |
+| `signColumnWidth` | `0`     | Columns for signs. The cursor sign and the search signs need at least `1`.         |
+| `palette`         |         | `{ gutterFg, gutterBg }` colours for the gutter.                                   |
+
+The row document paints the cursor row, the selection, the toggled rows, and the search matches under your rows, follows the cursor when it leaves the viewport, and scrolls with the wheel.
+
+`DocumentScreen` wraps [AppLayout](/docs/build/layout) for a document:
+
+| Prop            | Default | Meaning                                                                                 |
+| --------------- | ------- | --------------------------------------------------------------------------------------- |
+| `controller`    |         | The controller.                                                                         |
+| `titleBar`      |         | `{ title, subtitle }` for the title bar.                                                |
+| `statusItems`   | `[]`    | Your status items, drawn after `Theme:` and before `Mode:`.                             |
+| `actions`       |         | `ActionDefinition` values registered while the screen is mounted.                       |
+| `quit`          | `true`  | Register `q`. `false` removes it; an options object sets `hotkey`, `when`, or `onQuit`. |
+| `themeCommands` | `true`  | Register `t` for the theme picker.                                                      |
+| `context`       |         | `{ kind, title, reload, extras }` merged into `ctx.document`.                           |
+
+The status bar reads `Theme:`, your items, `Mode:`, `Cursor:`, and `Selected:` while rows are selected. While the search bar is open it takes the place of the status bar.
+
+## Search
+
+`/` opens the search bar and switches to insert mode. Each keystroke re-matches and moves the cursor to the first match. `Enter` commits the query and returns to the mode you came from, `n` and `N` step through the matches and wrap at the ends, and `Escape` clears the query. Matches get a highlighted background and a `●` sign when `signColumnWidth` allows one. A committed query re-matches when `rows` changes.
+
+The default matcher lowercases the query and keeps every row whose `getText` contains it. Supply `match(query, rows)` to return the matching indices yourself:
+
+```ts title="author-search.ts"
+import type { DocumentSearchOptions } from "@tooee/shell";
+
+interface PullRequest {
+  number: number;
+  title: string;
+  author: string;
+}
+
+export const authorSearch: DocumentSearchOptions<PullRequest> = {
+  match: (query, rows) =>
+    rows.flatMap((pr, index) => (pr.author.startsWith(query.toLowerCase()) ? [index] : [])),
+};
+```
+
+Pass it as `search: authorSearch`. `controller.search` exposes the state the search bar draws from:
+
+| Field                   | Meaning                                                    |
+| ----------------------- | ---------------------------------------------------------- |
+| `searchActive`          | `true` while the bar is open.                              |
+| `searchQuery`           | The text in the bar, or the committed query after `Enter`. |
+| `matchingLines`         | The matching indices.                                      |
+| `currentMatchIndex`     | Position in `matchingLines` of the match under the cursor. |
+| `setSearchQuery(query)` | Change the query and re-match.                             |
+| `submitSearch()`        | What `Enter` does.                                         |
+
+`findMatchingLines(text, query)` from `@tooee/search` applies the same rule to the lines of one string. [Search and fuzzy filtering](/docs/build/search-and-fuzzy) covers `useSearch` outside a document.
+
+## Copy
+
+`y y` copies `getText` of the cursor row. `y v` copies the toggled rows, or the select-mode range, joined with newlines, then returns to cursor mode. Both work in cursor and select mode and confirm with a toast. `copy: false` registers neither.
+
+`y g` belongs to the screen, not the controller. Register it with `useCopyCommand` from `@tooee/shell`, as the example does, with a `getText` that returns the whole document. Its command id is `copy`, and without `hotkey` it binds `y`.
+
+Copy runs a clipboard tool: `wl-copy` under Wayland, then `xclip`, then `xsel` on Linux; `osascript` on macOS; PowerShell on Windows. With none installed the copy does nothing and the toast still reports success. [Troubleshooting](/docs/ship/troubleshooting) lists the tools.
+
+Dragging with the mouse selects text through OpenTUI. `TooeeProvider` mounts `useCopyOnSelect`, which copies the dragged text to the primary selection on Linux and does nothing on other platforms. `view.copyOnSelect` in the config file changes that: `"clipboard"` copies to the clipboard, `false` turns it off. [Configuration](/docs/customize/configuration) shows the file.
+
+## Mouse
+
+A left click moves the cursor to the row under the pointer and then calls `onRowPress`. Rows are resolved by terminal row, so a click on the second line of a tall row lands on that row, and a click below the last row does nothing. The wheel scrolls the document and leaves the cursor where it is.
+
+A right click selects the row and opens a context menu from `contextMenu`:
+
+| Value                | Menu                                                                                                             |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `ActionDefinition[]` | One entry per action, without the ones marked `hidden` and the ones whose `when` rejects the current context.    |
+| `ContextMenuEntry[]` | `{ id, title, hotkey }` entries, where `id` is a registered command.                                             |
+| `(event) => items`   | Either form, built from `{ row, index, key, event, context }` at click time, for a menu that depends on the row. |
+| `false`              | No menu.                                                                                                         |
+
+Choosing an entry runs that command on the current surface. The menu is an overlay in insert mode at the click position; `Escape` and a click outside close it. Every mouse handler on the document stands down while a modal overlay such as the palette or the theme picker is open. [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) covers `useContextMenu` for menus outside a document.
+
+For markup of your own, `selectRow(index)` and `getRowAtScreenY(y)` give a click handler the same behaviour. [View: custom renderers](/docs/apps/view/custom-renderers#draw-your-own-markup) shows it. [mouse-demo.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/mouse-demo.ts) uses click, right-click, and the close button in a table, and [mouse-choose.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/mouse-choose.ts) clicks rows in Choose.
+
+## Source anchors
+
+An anchor is `{ row, index, key, text, source }`. `source` is `null` for a row with no place in an original text, or `{ primary, related }` where each value is a `SourceSpan`:
+
+| Field      | Meaning                                                                                            |
+| ---------- | -------------------------------------------------------------------------------------------------- |
+| `sourceId` | The id you gave the text, such as a path.                                                          |
+| `start`    | `{ offset, line, column }` of the first character. Lines and columns count from `0`.               |
+| `end`      | The same for the character after the span.                                                         |
+| `lastLine` | The last line the span touches. A span that ends at column `0` of the next line does not touch it. |
+| `text`     | The exact substring of the source.                                                                 |
+| `lineText` | The full lines from `start.line` to `lastLine`.                                                    |
+
+Offsets and columns are UTF-16 code units, and `\r\n` counts as one line break. Two builders in `@tooee/renderers` make source-mapped rows. `sourceLines(text, { sourceId })` returns one row per line with `text` and `source`, and `sourceLineAdapter` reads both; [source-aware-document.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/source-aware-document.tsx) shows it with a `Source:` status item. `flattenMarkdown(markdown, { sourceId })` returns one `FlatBlock` per rendered block, and `MarkdownView` draws the same blocks:
+
+```tsx title="readme-blocks.tsx"
+import type { ActionDefinition } from "@tooee/commands";
+import { MarkdownView, flattenMarkdown, getFlatBlockText } from "@tooee/renderers";
+import type { FlatBlock } from "@tooee/renderers";
+import { DocumentScreen, launchCli, useDocumentController } from "@tooee/shell";
+import type { DocumentRowAdapter } from "@tooee/shell";
+import { useMemo } from "react";
+import type { ReactNode } from "react";
+
+const blockAdapter: DocumentRowAdapter<FlatBlock> = {
+  getSource: (block) => block.source,
+  getText: getFlatBlockText,
+};
+
+const actions: ActionDefinition[] = [
+  {
+    handler: (ctx) => {
+      const span = ctx.document?.activeAnchor?.source?.primary;
+      if (span === undefined) {
+        return;
+      }
+      ctx.toast?.toast({
+        level: "info",
+        message: `README.md lines ${span.start.line + 1} to ${span.lastLine + 1}`,
+      });
+    },
+    hotkey: "return",
+    id: "readme.lines",
+    title: "Show source lines",
+  },
+];
+
+const ReadmeBlocks = function ReadmeBlocks({ markdown }: { markdown: string }): ReactNode {
+  const blocks = useMemo(() => flattenMarkdown(markdown, { sourceId: "README.md" }), [markdown]);
+  const controller = useDocumentController({ adapter: blockAdapter, rows: blocks, search: {} });
+
+  return (
+    <DocumentScreen controller={controller} titleBar={{ title: "README.md" }} actions={actions}>
+      <MarkdownView content={markdown} blocks={blocks} document={controller} />
+    </DocumentScreen>
+  );
+};
+
+await launchCli(<ReadmeBlocks markdown={await Bun.file("README.md").text()} />);
+```
+
+`Enter` on a block shows its line range in the file. Pass the same `blocks` array to the controller and to `MarkdownView`; when `MarkdownView` flattens the text itself, its rows can differ from the controller's. `getFlatBlockText` returns the source of the block, and the bullet text for a list marker that a nested list produces; that row's `source` is the marker.
+
+`SourceIndex` from `@tooee/renderers` builds spans for rows of your own: `new SourceIndex(text, sourceId).span(startOffset, endOffset)`.
+
+## Bind a renderer of your own
+
+`DocumentBindings` is the part of a controller a renderer needs: `ref`, `decorations`, and `onMouseDown`. `Document` passes them to a `row-document` element. Pass them yourself when the element needs children that are not rows, such as a header inside the scroll area:
+
+```tsx title="changelog.tsx"
+import "@tooee/renderers/row-document";
+import { DocumentScreen, launchCli, useDocumentController } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
+
+interface Release {
+  version: string;
+  date: string;
+  note: string;
+}
+
+const releases: Release[] = [
+  { date: "2026-09-01", note: "Align the public launch contracts", version: "0.8.0" },
+  { date: "2026-08-20", note: "Add clipboard shortcuts", version: "0.7.3" },
+  { date: "2026-08-12", note: "Restore the CLI exit behaviour", version: "0.7.2" },
+  { date: "2026-08-05", note: "Ship the compiled diff package", version: "0.7.1" },
+];
+
+const Changelog = function Changelog(): ReactNode {
+  const { theme } = useTheme();
+  const controller = useDocumentController({
+    adapter: {
+      getKey: (release: Release) => release.version,
+      getText: (release: Release) => `${release.version} ${release.note}`,
+    },
+    rows: releases,
+    search: {},
+  });
+  const handleMouseDown = controller.onMouseDown;
+
+  return (
+    <DocumentScreen controller={controller} titleBar={{ title: "Changelog" }}>
+      <row-document
+        ref={controller.ref}
+        decorations={controller.decorations}
+        onMouseDown={handleMouseDown}
+        rowChildOffset={1}
+        showLineNumbers={false}
+        signColumnWidth={2}
+        style={{ flexGrow: 1 }}
+      >
+        <text content="version  date        note" fg={theme.textMuted} />
+        {releases.map(
+          (release): ReactNode => (
+            <text
+              key={release.version}
+              content={`${release.version.padEnd(8)} ${release.date}  ${release.note}`}
+            />
+          ),
+        )}
+      </row-document>
+    </DocumentScreen>
+  );
+};
+
+await launchCli(<Changelog />);
+```
+
+The import of `@tooee/renderers/row-document` registers the element. `rowChildOffset={1}` tells it that the first child is not a row, so the cursor starts on `0.8.0` and the header stays unhighlighted. After the offset, give it one direct child per row in row order. A renderer can also accept a `DocumentBindings` value in place of the whole controller, as `MarkdownView` does with its `document` prop, and stay free of your row type.
+
+## Next
+
+- [Layout and chrome](/docs/build/layout)
+- [View: custom renderers](/docs/apps/view/custom-renderers)
+- [Marks and decorations](/docs/build/marks)
+- [Search and fuzzy filtering](/docs/build/search-and-fuzzy)
