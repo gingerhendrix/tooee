@@ -28,13 +28,13 @@ export interface TooeeMount {
 export type CliStdinPolicy = "process" | "tty-if-piped";
 
 export interface LaunchCliOptions extends TooeeProviderOptions {
-  /** @deprecated Use `provider.leader`. This alias will be removed in 0.8.0. */
+  /** @deprecated Use `provider.leader`. This alias will be removed in 0.9.0. */
   leader?: TooeeProviderOptions["leader"];
-  /** @deprecated Use `provider.config`. This alias will be removed in 0.8.0. */
+  /** @deprecated Use `provider.config`. This alias will be removed in 0.9.0. */
   config?: TooeeProviderOptions["config"];
-  /** @deprecated Use `provider.initialMode`. This alias will be removed in 0.8.0. */
+  /** @deprecated Use `provider.initialMode`. This alias will be removed in 0.9.0. */
   initialMode?: TooeeProviderOptions["initialMode"];
-  /** @deprecated Use `provider.sequenceTimeoutMs`. This alias will be removed in 0.8.0. */
+  /** @deprecated Use `provider.sequenceTimeoutMs`. This alias will be removed in 0.9.0. */
   sequenceTimeoutMs?: TooeeProviderOptions["sequenceTimeoutMs"];
   exitOnCtrlC?: boolean;
   /** Preferred provider options. */
