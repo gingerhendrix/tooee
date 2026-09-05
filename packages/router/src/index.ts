@@ -1,5 +1,4 @@
 export type {
-  AnyRoute,
   Codec,
   RouteParams,
   RouteConfig,
@@ -23,7 +22,7 @@ export { createRouter } from "./create-router.js";
 export { stackReducer } from "./stack.js";
 export { RouterProvider } from "./context.js";
 export type { RouterProviderProps } from "./context.js";
-export { Outlet, getRouteChain } from "./outlet.js";
+export { Outlet } from "./outlet.js";
 export {
   useNavigate,
   useParams,
@@ -35,7 +34,7 @@ export {
   useActionResultHandler,
 } from "./hooks.js";
 export type { NavigateResult, BackResult, ActionNavigationResult } from "./action-types.js";
-export { ScreenFocusProvider, useScreenFocus, useScreenEffect } from "./focus.js";
+export { useScreenFocus, useScreenEffect } from "./focus.js";
 export type { ScreenFocus } from "./focus.js";
 export type { ActionResultHandler, NavigateHandle, ScreenStateHandle } from "./hooks.js";
 export { StateCache, createStateKey } from "./state-cache.js";

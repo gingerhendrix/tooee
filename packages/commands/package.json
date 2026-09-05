@@ -30,6 +30,12 @@
         "@tooee/source": "./src/index.ts",
         "default": "./dist/index.js"
       }
+    },
+    "./store": {
+      "import": {
+        "@tooee/source": "./src/store.ts",
+        "default": "./dist/store.js"
+      }
     }
   },
   "publishConfig": {
