@@ -394,11 +394,6 @@ export const useSurfaceInvoke = function useSurfaceInvoke(): {
 };
 
 /**
- * @deprecated Use `useSurfaceInvoke` instead.
- */
-export const useCommandContext = useSurfaceInvoke;
-
-/**
  * Builds the live command context of the nearest surface — the same value
  * command handlers receive. For callers that must hand a context to something
  * outside the dispatch path (e.g. a context-menu entry resolver).

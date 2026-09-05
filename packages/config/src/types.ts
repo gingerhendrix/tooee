@@ -1,8 +1,5 @@
 export type ColorMode = "dark" | "light";
 
-/** @deprecated Use `ColorMode` instead. */
-export type Mode = ColorMode;
-
 export interface TooeeConfig {
   theme?: {
     name?: string;

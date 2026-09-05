@@ -268,4 +268,4 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
   );
 };
 
-await launchCli(createElement(WhichKeyGroupsDemo), { leader: "space" });
+await launchCli(createElement(WhichKeyGroupsDemo), { provider: { leader: "space" } });

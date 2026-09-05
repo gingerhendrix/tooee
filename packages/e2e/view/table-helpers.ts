@@ -13,7 +13,7 @@ export const launchTable = async function launchTable(fixture: string): Promise<
   const fixturePath = path.resolve(VIEW_FIXTURES, fixture);
   resetTestConfig(CONFIG_NAMESPACE);
   const session = await launchTerminal({
-    args: ["--conditions=@tooee/source", CLI, "table", fixturePath],
+    args: ["--conditions=@tooee/source", CLI, "view", "--renderer", "table", fixturePath],
     cols: 80,
     command: "bun",
     cwd: REPO_ROOT,

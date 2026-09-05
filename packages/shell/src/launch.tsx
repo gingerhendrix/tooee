@@ -27,15 +27,7 @@ export interface TooeeMount {
 
 export type CliStdinPolicy = "process" | "tty-if-piped";
 
-export interface LaunchCliOptions extends TooeeProviderOptions {
-  /** @deprecated Use `provider.leader`. This alias will be removed in 0.9.0. */
-  leader?: TooeeProviderOptions["leader"];
-  /** @deprecated Use `provider.config`. This alias will be removed in 0.9.0. */
-  config?: TooeeProviderOptions["config"];
-  /** @deprecated Use `provider.initialMode`. This alias will be removed in 0.9.0. */
-  initialMode?: TooeeProviderOptions["initialMode"];
-  /** @deprecated Use `provider.sequenceTimeoutMs`. This alias will be removed in 0.9.0. */
-  sequenceTimeoutMs?: TooeeProviderOptions["sequenceTimeoutMs"];
+export interface LaunchCliOptions {
   exitOnCtrlC?: boolean;
   /** Preferred provider options. */
   provider?: TooeeProviderOptions;
@@ -174,27 +166,6 @@ export const mountTooee = function mountTooee(
   };
 };
 
-const resolveProviderOptions = function resolveProviderOptions(
-  options: LaunchCliOptions,
-): TooeeProviderOptions {
-  // oxlint-disable-next-line typescript/no-deprecated -- this compatibility bridge must read the aliases until their scheduled removal
-  const { leader, config, initialMode, sequenceTimeoutMs } = options;
-  const aliases: TooeeProviderOptions = {};
-  if (leader !== undefined) {
-    aliases.leader = leader;
-  }
-  if (config !== undefined) {
-    aliases.config = config;
-  }
-  if (initialMode !== undefined) {
-    aliases.initialMode = initialMode;
-  }
-  if (sequenceTimeoutMs !== undefined) {
-    aliases.sequenceTimeoutMs = sequenceTimeoutMs;
-  }
-  return { ...aliases, ...options.provider };
-};
-
 const openTtyInput = function openTtyInput(policy: CliStdinPolicy): tty.ReadStream | undefined {
   if (policy !== "tty-if-piped" || process.stdin.isTTY) {
     return undefined;
@@ -237,7 +208,7 @@ export const launchCli = async function launchCli(
 
   let mount: TooeeMount;
   try {
-    mount = mountTooee(renderer, node, { provider: resolveProviderOptions(options) });
+    mount = mountTooee(renderer, node, { provider: options.provider });
   } catch (error) {
     try {
       renderer.destroy();

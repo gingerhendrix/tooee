@@ -27,8 +27,6 @@ export {
   useActiveCommandSurface,
   useEffectiveCommands,
   useBuildCommandContext,
-  // oxlint-disable-next-line typescript/no-deprecated -- retained as the documented compatibility alias for useSurfaceInvoke
-  useCommandContext,
   useCommandGroup,
   useCommandRegistry,
   useCommandSequenceState,

@@ -67,9 +67,6 @@ const printUsage = function printUsage(): void {
   console.log("  view [file]    Display markdown, code, text, diffs, or tables");
   console.log("  ask [prompt]   Gather multiline user input");
   console.log("  choose         Select items from a filterable list (stdin)");
-  console.log(
-    "  table [file]   Display tabular data (deprecated; use view --renderer table; removed in 0.9.0)",
-  );
 
   console.log("");
   console.log("View options:");
@@ -87,7 +84,6 @@ const printUsage = function printUsage(): void {
   console.log('  tooee ask --single-line "Search for:"');
   console.log('  echo -e "foo\\nbar\\nbaz" | tooee choose');
   console.log('  echo -e "foo\\nbar\\nbaz" | tooee choose --multi');
-  console.log("  tooee table data.csv");
 };
 
 switch (command) {
@@ -143,17 +139,6 @@ switch (command) {
     } else {
       process.exit(1);
     }
-    break;
-  }
-
-  // Deprecated compatibility command. Remove in 0.9.0.
-  case "table": {
-    const { filePath } = parseViewArgs(args);
-    const contentProvider =
-      filePath !== undefined && filePath !== ""
-        ? createFileProvider(filePath, { renderer: "table" })
-        : createStdinProvider({ renderer: "table" });
-    await launchView({ contentProvider });
     break;
   }
 

@@ -163,21 +163,6 @@ export const OverlayProvider = function OverlayProvider({
     [overlayStore],
   );
 
-  const show = useCallback(
-    (id: OverlayId, content: ReactNode, options?: OverlayOpenOptions) => {
-      // Back-compat: show() defaults to no mode change (unlike open() which defaults to "insert")
-      open(id, (): ReactNode => content, undefined, { mode: null, ...options });
-    },
-    [open],
-  );
-
-  const hide = useCallback(
-    (id: OverlayId) => {
-      removeEntry(id, "close");
-    },
-    [removeEntry],
-  );
-
   const closeTop = useCallback(
     (reason: OverlayCloseReason = "close") => {
       overlayStore.trigger.closedTop({ reason });
@@ -185,41 +170,19 @@ export const OverlayProvider = function OverlayProvider({
     [overlayStore],
   );
 
-  const isOpen = useCallback(
-    (id: OverlayId) =>
-      // Imperative snapshot read (same semantics as the previous ref read).
-      overlayStore.getSnapshot().context.stack.some((e) => e.id === id),
-    [overlayStore],
-  );
-
   const topId = stack.at(-1)?.id ?? null;
 
-  // oxlint-disable typescript/no-deprecated -- the provider implements and exposes the retained compatibility methods
   const controller = useMemo<OverlayController>(
     () => ({
       closeTop,
-      hide,
-      isOpen,
       open,
-      show,
       topId,
       update,
     }),
-    [open, update, show, hide, closeTop, isOpen, topId],
+    [open, update, closeTop, topId],
   );
 
-  useProvideCommandContext(() => ({
-    overlay: {
-      closeTop: controller.closeTop,
-      hide: controller.hide,
-      isOpen: controller.isOpen,
-      open: controller.open,
-      show: controller.show,
-      topId: controller.topId,
-      update: controller.update,
-    },
-  }));
-  // oxlint-enable typescript/no-deprecated
+  useProvideCommandContext(() => ({ overlay: controller }));
 
   useCommand({
     handler: () => {

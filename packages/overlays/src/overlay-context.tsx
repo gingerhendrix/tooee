@@ -85,13 +85,7 @@ export interface OverlayController {
     options?: OverlayOpenOptions,
   ) => OverlayHandle<TPayload>;
   update: <TPayload>(id: OverlayId, next: OverlayUpdate<TPayload>) => void;
-  /** @deprecated Use `open` and close the returned handle. */
-  show: (id: OverlayId, content: ReactNode, options?: OverlayOpenOptions) => void;
-  /** @deprecated Close the handle returned by `open`. */
-  hide: (id: OverlayId) => void;
   closeTop: (reason?: OverlayCloseReason) => void;
-  /** @deprecated Track the handle returned by `open`, or read `useOverlayState`. */
-  isOpen: (id: OverlayId) => boolean;
   topId: OverlayId | null;
 }
 
@@ -114,21 +108,16 @@ const noop = (): void => {
   // Outside an OverlayProvider every overlay operation is a no-op.
 };
 
-// oxlint-disable typescript/no-deprecated -- the fallback implements the retained compatibility methods
 const defaultController: OverlayController = {
   closeTop: noop,
-  hide: noop,
-  isOpen: () => false,
   open: (id) => ({
     close: noop,
     id,
     update: noop,
   }),
-  show: noop,
   topId: null,
   update: noop,
 };
-// oxlint-enable typescript/no-deprecated
 
 const defaultState: OverlayState = {
   current: null,

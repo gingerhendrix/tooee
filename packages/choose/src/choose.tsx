@@ -16,11 +16,7 @@ import type { ChooseController } from "./use-choose.js";
 
 export interface ChooseProps extends ChooseOptions {
   contentProvider: ChooseContentProvider;
-  /** @deprecated Pass chooser options as top-level props. This alias will be removed in 0.9.0. */
-  options?: ChooseOptions;
   actions?: ActionDefinition[];
-  /** @deprecated Use `actions`. This alias will be removed in 0.9.0. */
-  commands?: ActionDefinition[];
   controllerRef?: Ref<ChooseController>;
   renderItem?: ChooseListProps["renderItem"];
   /**
@@ -36,35 +32,19 @@ export interface ChooseProps extends ChooseOptions {
   onCancel?: () => void;
 }
 
-interface ResolvedChooseProps extends ChooseOptions {
-  actions?: ActionDefinition[];
-}
-
-const resolveChooseProps = function resolveChooseProps(props: ChooseProps): ResolvedChooseProps {
-  // oxlint-disable-next-line typescript/no-deprecated -- compatibility alias remains supported until 0.9.0
-  const { options } = props;
-  // oxlint-disable-next-line typescript/no-deprecated -- compatibility alias remains supported until 0.9.0
-  const { commands } = props;
-  return {
-    actions: props.actions ?? commands,
-    emptyMessage: props.emptyMessage ?? options?.emptyMessage,
-    multi: props.multi ?? options?.multi,
-    placeholder: props.placeholder ?? options?.placeholder,
-    prompt: props.prompt ?? options?.prompt,
-    title: props.title ?? options?.title,
-  };
-};
-
-export const Choose = function Choose(props: ChooseProps): ReactNode {
-  const { contentProvider, controllerRef, renderItem, onConfirm, onCancel } = props;
-  const {
-    actions: effectiveActions,
-    emptyMessage,
-    multi = false,
-    placeholder,
-    prompt,
-    title,
-  } = resolveChooseProps(props);
+export const Choose = function Choose({
+  contentProvider,
+  actions,
+  controllerRef,
+  emptyMessage,
+  multi = false,
+  onCancel,
+  onConfirm,
+  placeholder,
+  prompt,
+  renderItem,
+  title,
+}: ChooseProps): ReactNode {
   const { theme } = useTheme();
   const { invoke } = useSurfaceInvoke();
 
@@ -75,13 +55,13 @@ export const Choose = function Choose(props: ChooseProps): ReactNode {
   const hasModalOverlay = useHasModalOverlay();
 
   const choose = useChoose({
-    commands: effectiveActions,
+    commands: actions,
     multi,
     onCancel,
     onSubmit: (result) => {
       // Standalone behaviour: a command named `submit` wins over `onConfirm`, so
       // action-driven CLIs keep their own submit semantics.
-      if (effectiveActions?.some((action) => action.id === "submit") === true) {
+      if (actions?.some((action) => action.id === "submit") === true) {
         invoke("submit");
         return;
       }

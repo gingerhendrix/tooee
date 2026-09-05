@@ -91,4 +91,4 @@ const WhichKeyE2EApp = function WhichKeyE2EApp(): ReactNode {
   );
 };
 
-await launchCli(<WhichKeyE2EApp />, { leader: "space" });
+await launchCli(<WhichKeyE2EApp />, { provider: { leader: "space" } });
