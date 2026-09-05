@@ -1,100 +1,55 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
 import type { ReactNode } from "react";
-import { useCommandRegistry, useCommandSequenceState } from "@tooee/commands";
-import type { CommandSequenceState, ParsedStep } from "@tooee/commands";
+import { formatStepKey, useCommandRegistry, useCommandSequenceState } from "@tooee/commands";
+import type { CommandSequenceState } from "@tooee/commands";
 import { overlayValue, useOverlay } from "@tooee/overlays";
+import type { OverlayHandle } from "@tooee/overlays";
 import { useTheme } from "@tooee/themes";
 
 const OVERLAY_ID = "tooee.which-key";
-
-const formatStep = function formatStep(step: ParsedStep): string {
-  const modifiers = [];
-  if (step.ctrl) {
-    modifiers.push("ctrl");
-  }
-  if (step.meta) {
-    modifiers.push("meta");
-  }
-  if (step.option) {
-    modifiers.push("option");
-  }
-  if (step.shift) {
-    modifiers.push("shift");
-  }
-  modifiers.push(step.key);
-  return modifiers.join("+");
-};
 
 export interface WhichKeyProviderProps {
   children: ReactNode;
   leaderOnly?: boolean;
 }
 
-export const WhichKeyProvider = function WhichKeyProvider({
-  children,
-  leaderOnly,
-}: WhichKeyProviderProps): ReactNode {
-  const sequence = useCommandSequenceState();
-  const { leaderKey } = useCommandRegistry();
-  const overlay = useOverlay();
-  const openRef = useRef(false);
-  const overlayRef = useRef(overlay);
-  overlayRef.current = overlay;
+const fallbackCandidateLabel = function fallbackCandidateLabel(
+  candidate: CommandSequenceState["candidates"][number],
+): string {
+  if (candidate.remainingSteps.length === 1) {
+    return candidate.command.title;
+  }
 
-  const effectiveLeaderOnly = leaderOnly ?? leaderKey !== undefined;
-  const shouldShow =
-    sequence !== null &&
-    sequence.candidates.length > 0 &&
-    (!effectiveLeaderOnly ||
-      leaderKey === undefined ||
-      (sequence.prefix.length > 0 &&
-        sequence.prefix[0] !== undefined &&
-        formatStep(sequence.prefix[0]) === leaderKey));
+  if (candidate.command.group !== undefined && candidate.command.group !== "") {
+    return candidate.command.group;
+  }
+  if (candidate.command.category !== undefined && candidate.command.category !== "") {
+    return candidate.command.category;
+  }
 
-  useLayoutEffect(() => {
-    if (!shouldShow) {
-      if (openRef.current || overlay.isOpen(OVERLAY_ID)) {
-        overlay.hide(OVERLAY_ID);
-        openRef.current = false;
-      }
-      return;
+  const [, step] = candidate.remainingSteps;
+  return step === undefined
+    ? candidate.command.title
+    : `${formatStepKey(step)}… ${candidate.command.title}`;
+};
+
+const summarizeCandidates = function summarizeCandidates(
+  state: CommandSequenceState,
+): { key: string; title: string }[] {
+  const byKey = new Map<string, string[]>();
+  for (const candidate of state.candidates) {
+    const key = formatStepKey(candidate.nextStep);
+    const label = candidate.group?.title ?? fallbackCandidateLabel(candidate);
+    const values = byKey.get(key) ?? [];
+    if (!values.includes(label)) {
+      values.push(label);
     }
+    byKey.set(key, values);
+  }
 
-    if (openRef.current || overlay.isOpen(OVERLAY_ID)) {
-      overlay.update(OVERLAY_ID, overlayValue(sequence));
-      openRef.current = true;
-      return;
-    }
-
-    // Deferred(lint-sweep): preserve the top-down overlay provider composition.
-    // oxlint-disable-next-line no-use-before-define -- overlay component is declared below and evaluated after mount
-    overlay.open(
-      OVERLAY_ID,
-      ({ payload }): ReactNode => (
-        // oxlint-disable-next-line no-use-before-define -- overlay component is declared below and evaluated after mount
-        <WhichKeyOverlay state={payload} />
-      ),
-      sequence,
-      {
-        dismissOnEscape: false,
-        ownCommands: true,
-        role: "passive",
-      },
-    );
-    openRef.current = true;
-  }, [overlay, sequence, shouldShow]);
-
-  useLayoutEffect(
-    () => () => {
-      const currentOverlay = overlayRef.current;
-      if (openRef.current || currentOverlay.isOpen(OVERLAY_ID)) {
-        currentOverlay.hide(OVERLAY_ID);
-      }
-    },
-    [],
-  );
-
-  return children;
+  return [...byKey.entries()]
+    .map(([key, titles]) => ({ key, title: titles.join(" / ") }))
+    .toSorted((a, b) => a.key.localeCompare(b.key));
 };
 
 export const WhichKeyOverlay = function WhichKeyOverlay({
@@ -103,10 +58,8 @@ export const WhichKeyOverlay = function WhichKeyOverlay({
   state: CommandSequenceState;
 }): ReactNode {
   const { theme } = useTheme();
-  // Deferred(lint-sweep): preserve the deliberate top-down component organization.
-  // oxlint-disable-next-line no-use-before-define -- formatter helpers are pure and evaluated after module initialization
   const entries = useMemo(() => summarizeCandidates(state), [state]);
-  const prefix = state.prefix.map(formatStep).join(" ");
+  const prefix = state.prefix.map(formatStepKey).join(" ");
 
   return (
     <box
@@ -137,43 +90,57 @@ export const WhichKeyOverlay = function WhichKeyOverlay({
   );
 };
 
-const summarizeCandidates = function summarizeCandidates(
-  state: CommandSequenceState,
-): { key: string; title: string }[] {
-  const byKey = new Map<string, string[]>();
-  for (const candidate of state.candidates) {
-    const key = formatStep(candidate.nextStep);
-    // Deferred(lint-sweep): preserve the deliberate top-down component organization.
-    // oxlint-disable-next-line no-use-before-define -- fallback is a pure helper evaluated after module initialization
-    const label = candidate.group?.title ?? fallbackCandidateLabel(candidate);
-    const values = byKey.get(key) ?? [];
-    if (!values.includes(label)) {
-      values.push(label);
+export const WhichKeyProvider = function WhichKeyProvider({
+  children,
+  leaderOnly,
+}: WhichKeyProviderProps): ReactNode {
+  const sequence = useCommandSequenceState();
+  const { leaderKey } = useCommandRegistry();
+  const overlay = useOverlay();
+  const handleRef = useRef<OverlayHandle<CommandSequenceState> | null>(null);
+
+  const effectiveLeaderOnly = leaderOnly ?? leaderKey !== undefined;
+  const shouldShow =
+    sequence !== null &&
+    sequence.candidates.length > 0 &&
+    (!effectiveLeaderOnly ||
+      leaderKey === undefined ||
+      (sequence.prefix.length > 0 &&
+        sequence.prefix[0] !== undefined &&
+        formatStepKey(sequence.prefix[0]) === leaderKey));
+
+  useLayoutEffect(() => {
+    if (!shouldShow) {
+      handleRef.current?.close();
+      return;
     }
-    byKey.set(key, values);
-  }
 
-  return [...byKey.entries()]
-    .map(([key, titles]) => ({ key, title: titles.join(" / ") }))
-    .toSorted((a, b) => a.key.localeCompare(b.key));
-};
+    if (handleRef.current !== null) {
+      handleRef.current.update(overlayValue(sequence));
+      return;
+    }
 
-const fallbackCandidateLabel = function fallbackCandidateLabel(
-  candidate: CommandSequenceState["candidates"][number],
-): string {
-  if (candidate.remainingSteps.length === 1) {
-    return candidate.command.title;
-  }
+    handleRef.current = overlay.open(
+      OVERLAY_ID,
+      ({ payload }): ReactNode => <WhichKeyOverlay state={payload} />,
+      sequence,
+      {
+        dismissOnEscape: false,
+        onClose: () => {
+          handleRef.current = null;
+        },
+        ownCommands: true,
+        role: "passive",
+      },
+    );
+  }, [overlay, sequence, shouldShow]);
 
-  if (candidate.command.group !== undefined && candidate.command.group !== "") {
-    return candidate.command.group;
-  }
-  if (candidate.command.category !== undefined && candidate.command.category !== "") {
-    return candidate.command.category;
-  }
+  useLayoutEffect(
+    () => () => {
+      handleRef.current?.close("unmounted");
+    },
+    [],
+  );
 
-  const [, step] = candidate.remainingSteps;
-  return step === undefined
-    ? candidate.command.title
-    : `${formatStep(step)}… ${candidate.command.title}`;
+  return children;
 };

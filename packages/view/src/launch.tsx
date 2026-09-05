@@ -1,9 +1,10 @@
-import { launchCli } from "@tooee/shell";
+import { launchCli, runCliSession } from "@tooee/shell";
 import type { ActionDefinition } from "@tooee/commands";
 import type { CodeBlockRenderer } from "@tooee/renderers";
 import { View } from "./view.js";
 import { DirectoryView } from "./directory-view.js";
 import type { ContentProvider, ContentRenderer } from "./types.js";
+import type { ReactNode } from "react";
 
 export interface ViewLaunchOptions {
   contentProvider: ContentProvider;
@@ -23,13 +24,15 @@ export interface DirectoryLaunchOptions {
 }
 
 export const launch = async function launch(options: ViewLaunchOptions): Promise<void> {
-  await launchCli(
-    <View
-      contentProvider={options.contentProvider}
-      actions={options.actions}
-      renderers={options.renderers}
-      codeBlockRenderers={options.codeBlockRenderers}
-    />,
+  await runCliSession<undefined>(
+    (): ReactNode => (
+      <View
+        contentProvider={options.contentProvider}
+        actions={options.actions}
+        renderers={options.renderers}
+        codeBlockRenderers={options.codeBlockRenderers}
+      />
+    ),
   );
 };
 

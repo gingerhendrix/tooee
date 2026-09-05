@@ -85,9 +85,12 @@ export interface OverlayController {
     options?: OverlayOpenOptions,
   ) => OverlayHandle<TPayload>;
   update: <TPayload>(id: OverlayId, next: OverlayUpdate<TPayload>) => void;
+  /** @deprecated Use `open` and close the returned handle. */
   show: (id: OverlayId, content: ReactNode, options?: OverlayOpenOptions) => void;
+  /** @deprecated Close the handle returned by `open`. */
   hide: (id: OverlayId) => void;
   closeTop: (reason?: OverlayCloseReason) => void;
+  /** @deprecated Track the handle returned by `open`, or read `useOverlayState`. */
   isOpen: (id: OverlayId) => boolean;
   topId: OverlayId | null;
 }
@@ -105,20 +108,13 @@ export interface OverlayState {
   stack: OverlayId[];
 }
 
-// Back-compat type (still exported for existing consumers)
-export interface OverlayContextValue {
-  show: (id: string, content: ReactNode, options?: OverlayOpenOptions) => void;
-  hide: (id: string) => void;
-  current: ReactNode | null;
-  hasOverlay: boolean;
-}
-
 // Contexts
 
 const noop = (): void => {
   // Outside an OverlayProvider every overlay operation is a no-op.
 };
 
+// oxlint-disable typescript/no-deprecated -- the fallback implements the retained compatibility methods
 const defaultController: OverlayController = {
   closeTop: noop,
   hide: noop,
@@ -132,6 +128,7 @@ const defaultController: OverlayController = {
   topId: null,
   update: noop,
 };
+// oxlint-enable typescript/no-deprecated
 
 const defaultState: OverlayState = {
   current: null,
@@ -142,14 +139,6 @@ const defaultState: OverlayState = {
 
 export const OverlayControllerContext = createContext<OverlayController>(defaultController);
 export const OverlayStateContext = createContext<OverlayState>(defaultState);
-
-// Back-compat: OverlayContext that combines both (for existing provider consumers)
-export const OverlayContext = createContext<OverlayContextValue>({
-  current: null,
-  hasOverlay: false,
-  hide: noop,
-  show: noop,
-});
 
 // Hooks
 

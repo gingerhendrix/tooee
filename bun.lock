@@ -10,6 +10,7 @@
         "@oxlint/plugins": "1.78.0",
         "@tooee/renderers": "workspace:*",
         "@tooee/shell": "workspace:*",
+        "@tooee/test-support": "workspace:*",
         "@tooee/view": "workspace:*",
         "@types/bun": "^1.3.10",
         "@types/react": "^19.2.17",
@@ -86,6 +87,7 @@
         "@opentui/core": "^0.5.1",
         "@opentui/react": "^0.5.1",
         "@tooee/choose": "workspace:*",
+        "@tooee/test-support": "workspace:*",
         "@types/bun": "^1.3.10",
         "@types/react": "^19.2.14",
         "typescript": "^5.9.3",
@@ -106,10 +108,13 @@
         "@tooee/overlays": "workspace:*",
         "@tooee/shell": "workspace:*",
         "@tooee/themes": "workspace:*",
+        "@xstate/store": "^4",
+        "@xstate/store-react": "^2",
       },
       "devDependencies": {
         "@opentui/core": "^0.5.1",
         "@opentui/react": "^0.5.1",
+        "@tooee/test-support": "workspace:*",
         "@types/bun": "^1.3.10",
         "@types/react": "^19.2.14",
         "typescript": "^5.9.3",
@@ -138,6 +143,7 @@
       "devDependencies": {
         "@opentui/core": "^0.5.1",
         "@opentui/react": "^0.5.1",
+        "@tooee/test-support": "workspace:*",
         "@types/bun": "^1.3.10",
         "@types/react": "^19.2.14",
         "typescript": "^5.9.3",
@@ -172,6 +178,7 @@
       "devDependencies": {
         "@opentui/core": "^0.5.1",
         "@opentui/react": "^0.5.1",
+        "@tooee/test-support": "workspace:*",
         "@types/bun": "^1.3.10",
         "@types/react": "^19.2.14",
         "typescript": "^5.9.3",
@@ -184,7 +191,7 @@
     },
     "packages/e2e": {
       "name": "@tooee/e2e",
-      "version": "0.4.0",
+      "version": "0.7.3",
       "devDependencies": {
         "@opentui/core": "^0.5.1",
         "@opentui/react": "^0.5.1",
@@ -196,6 +203,7 @@
         "@tooee/panels": "workspace:*",
         "@tooee/router": "workspace:*",
         "@tooee/shell": "workspace:*",
+        "@tooee/test-support": "workspace:*",
         "@tooee/view": "workspace:*",
         "@types/bun": "^1.3.10",
         "@types/react": "^19.2.14",
@@ -208,6 +216,7 @@
       "name": "@tooee/fuzzy",
       "version": "0.7.3",
       "devDependencies": {
+        "@tooee/test-support": "workspace:*",
         "typescript": "^5.9.3",
       },
     },
@@ -224,6 +233,7 @@
       "devDependencies": {
         "@opentui/core": "^0.5.1",
         "@opentui/react": "^0.5.1",
+        "@tooee/test-support": "workspace:*",
         "@types/bun": "^1.3.10",
         "@types/react": "^19.2.14",
         "typescript": "^5.9.3",
@@ -269,6 +279,7 @@
         "@opentui/core": "^0.5.1",
         "@opentui/react": "^0.5.1",
         "@tooee/router": "workspace:*",
+        "@tooee/test-support": "workspace:*",
         "@types/bun": "^1.3.10",
         "@types/react": "^19.2.14",
         "typescript": "^5.9.3",
@@ -285,6 +296,7 @@
       "dependencies": {
         "@tooee/commands": "workspace:*",
         "@tooee/fuzzy": "workspace:*",
+        "@tooee/layout": "workspace:*",
         "@tooee/marks": "workspace:*",
         "@tooee/themes": "workspace:*",
         "beautiful-mermaid": "^1.1.3",
@@ -293,6 +305,7 @@
       "devDependencies": {
         "@opentui/core": "^0.5.1",
         "@opentui/react": "^0.5.1",
+        "@tooee/test-support": "workspace:*",
         "@types/bun": "^1.3.10",
         "@types/react": "^19.2.14",
         "typescript": "^5.9.3",
@@ -310,6 +323,7 @@
         "@opentui/core": "^0.5.1",
         "@opentui/react": "^0.5.1",
         "@tooee/commands": "workspace:*",
+        "@tooee/test-support": "workspace:*",
         "@types/bun": "^1.3.10",
         "@types/react": "^19.2.14",
         "typescript": "^5.9.3",
@@ -350,6 +364,7 @@
         "@tooee/clipboard": "workspace:*",
         "@tooee/commands": "workspace:*",
         "@tooee/config": "workspace:*",
+        "@tooee/fuzzy": "workspace:*",
         "@tooee/layout": "workspace:*",
         "@tooee/overlays": "workspace:*",
         "@tooee/renderers": "workspace:*",
@@ -361,6 +376,7 @@
       "devDependencies": {
         "@opentui/core": "^0.5.1",
         "@opentui/react": "^0.5.1",
+        "@tooee/test-support": "workspace:*",
         "@types/bun": "^1.3.10",
         "@types/react": "^19.2.14",
         "typescript": "^5.9.3",
@@ -371,13 +387,23 @@
         "react": "^18.0.0 || ^19.0.0",
       },
     },
+    "packages/test-support": {
+      "name": "@tooee/test-support",
+      "version": "0.7.3",
+      "devDependencies": {
+        "@opentui/core": "^0.5.1",
+        "@opentui/react": "^0.5.1",
+        "@types/bun": "^1.3.10",
+        "@types/react": "^19.2.14",
+        "react": "^19.2.4",
+        "typescript": "^5.9.3",
+      },
+    },
     "packages/themes": {
       "name": "@tooee/themes",
       "version": "0.7.3",
       "dependencies": {
-        "@tooee/commands": "workspace:*",
         "@tooee/config": "workspace:*",
-        "@tooee/fuzzy": "workspace:*",
       },
       "devDependencies": {
         "@opentui/core": "^0.5.1",
@@ -401,6 +427,7 @@
       "devDependencies": {
         "@opentui/core": "^0.5.1",
         "@opentui/react": "^0.5.1",
+        "@tooee/test-support": "workspace:*",
         "@types/bun": "^1.3.10",
         "@types/react": "^19.2.14",
         "typescript": "^5.9.3",
@@ -432,6 +459,7 @@
       "devDependencies": {
         "@opentui/core": "^0.5.1",
         "@opentui/react": "^0.5.1",
+        "@tooee/test-support": "workspace:*",
         "@types/bun": "^1.3.10",
         "@types/react": "^19.2.14",
         "typescript": "^5.9.3",
@@ -847,6 +875,8 @@
     "@tooee/search": ["@tooee/search@workspace:packages/search"],
 
     "@tooee/shell": ["@tooee/shell@workspace:packages/shell"],
+
+    "@tooee/test-support": ["@tooee/test-support@workspace:packages/test-support"],
 
     "@tooee/themes": ["@tooee/themes@workspace:packages/themes"],
 

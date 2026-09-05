@@ -1,8 +1,7 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, ensureTestConfigHome, resetTestConfig } from "@tooee/test-support";
 import { test, expect, afterEach, describe, beforeEach } from "bun:test";
 import { act } from "react";
 import { TooeeProvider } from "@tooee/shell";
-import { ensureTestConfigHome, resetTestConfig } from "../../../test/support/test-config.js";
 import { Choose } from "../src/choose.js";
 import type { ChooseContentProvider, ChooseResult } from "../src/types.js";
 
@@ -47,7 +46,7 @@ const setup = async function setup(
     <TooeeProvider initialMode="insert">
       <Choose
         contentProvider={makeProvider()}
-        options={{ prompt: "pick" }}
+        prompt="pick"
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />

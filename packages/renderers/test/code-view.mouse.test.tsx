@@ -1,4 +1,4 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
 import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
@@ -6,6 +6,7 @@ import { ThemeSwitcherProvider } from "@tooee/themes";
 import { CodeView } from "../src/code-view.js";
 import { useRowMouseBindings } from "./support/bindings.js";
 import type { RowMouseCallbacks } from "./support/bindings.js";
+import type { ReactNode } from "react";
 
 // The code view is a single `<code>` provider inside a row-document with no
 // header chrome, so the first line renders at viewport y=0. Gutter is line
@@ -13,7 +14,7 @@ import type { RowMouseCallbacks } from "./support/bindings.js";
 const CODE = ["const a = 1", "const b = 2", "const c = 3", "const d = 4", "const e = 5"].join("\n");
 const CONTENT_X = 8;
 
-const CodeHarness = function CodeHarness(callbacks: RowMouseCallbacks): React.ReactNode {
+const CodeHarness = function CodeHarness(callbacks: RowMouseCallbacks): ReactNode {
   return <CodeView content={CODE} document={useRowMouseBindings(callbacks)} />;
 };
 

@@ -1,5 +1,12 @@
 const WORD_BOUNDARY_CHARS = new Set([" ", "-", "_", ".", "/"]);
 
+export interface FuzzyMatch<T> {
+  item: T;
+  originalIndex: number;
+  positions: number[];
+  score: number;
+}
+
 /**
  * Fuzzy match a query against text, returning match positions and a score.
  *
@@ -49,4 +56,29 @@ export const fuzzyMatchPositions = function fuzzyMatchPositions(
 export const fuzzyMatch = function fuzzyMatch(query: string, text: string): number | null {
   const result = fuzzyMatchPositions(query, text);
   return result ? result.score : null;
+};
+
+/** Rank items by a fuzzy match against their projected text. */
+export const rankBy = function rankBy<T>(
+  items: readonly T[],
+  query: string,
+  getText: (item: T) => string,
+): FuzzyMatch<T>[] {
+  if (query === "") {
+    return items.map((item, originalIndex) => ({ item, originalIndex, positions: [], score: 0 }));
+  }
+
+  const matches: FuzzyMatch<T>[] = [];
+  for (let originalIndex = 0; originalIndex < items.length; originalIndex += 1) {
+    const item = items[originalIndex];
+    if (item === undefined) {
+      continue;
+    }
+    const match = fuzzyMatchPositions(query, getText(item));
+    if (match !== null) {
+      matches.push({ item, originalIndex, positions: match.positions, score: match.score });
+    }
+  }
+  matches.sort((left, right) => right.score - left.score);
+  return matches;
 };

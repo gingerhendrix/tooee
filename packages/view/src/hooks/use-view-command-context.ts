@@ -27,7 +27,7 @@ export interface ViewCommandContext {
 
 declare module "@tooee/commands" {
   interface CommandContext {
-    view: ViewCommandContext;
+    view?: ViewCommandContext;
   }
 }
 
@@ -97,7 +97,7 @@ export const createViewCommandContext = function createViewCommandContext({
 
 export const useProvideViewCommandContext = function useProvideViewCommandContext(
   options: ViewCommandContextInput,
-) {
+): void {
   useProvideCommandContextKey("view", () =>
     createViewCommandContext(resolveViewCommandContextOptions(options)),
   );

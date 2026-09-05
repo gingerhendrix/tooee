@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useCallback, useMemo } from "react
 import type { ReactNode } from "react";
 import type { SyntaxStyle } from "@opentui/core";
 import { writeGlobalConfig } from "@tooee/config";
+import type { ColorMode } from "@tooee/config";
 import type { ResolvedTheme } from "./types.js";
 import {
   buildTheme,
@@ -20,7 +21,7 @@ interface ThemeContextValue {
   theme: ResolvedTheme;
   syntax: SyntaxStyle;
   name: string;
-  mode: "dark" | "light";
+  mode: ColorMode;
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
@@ -34,7 +35,7 @@ export interface ThemeProviderProps {
   /** Theme name (e.g. "tokyonight", "catppuccin", "dracula") */
   name?: string;
   /** Color mode */
-  mode?: "dark" | "light";
+  mode?: ColorMode;
   /** Full Theme object (overrides name/mode if provided) */
   theme?: Theme;
   children: ReactNode;
@@ -82,7 +83,7 @@ const ThemeSwitcherContext = createContext<ThemeSwitcherContextValue | null>(nul
 
 export interface ThemeSwitcherProviderProps {
   initialTheme?: string;
-  initialMode?: "dark" | "light";
+  initialMode?: ColorMode;
   children: ReactNode;
 }
 
@@ -93,7 +94,7 @@ export const ThemeSwitcherProvider = function ThemeSwitcherProvider({
 }: ThemeSwitcherProviderProps): ReactNode {
   const allThemes = useMemo(() => getThemeNames(), []);
   const [themeName, setThemeName] = useState(initialTheme ?? DEFAULT_THEME_NAME);
-  const [mode, setMode] = useState<"dark" | "light">(initialMode ?? DEFAULT_MODE);
+  const [mode, setMode] = useState<ColorMode>(initialMode ?? DEFAULT_MODE);
   void setMode;
 
   const theme = useMemo(() => buildTheme(themeName, mode), [themeName, mode]);

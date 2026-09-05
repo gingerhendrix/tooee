@@ -1,4 +1,4 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
 import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
@@ -8,8 +8,9 @@ import { CodeBlockChrome } from "../src/code-blocks.js";
 import type { CodeBlockRenderer } from "../src/code-blocks.js";
 import { useRowMouseBindings } from "./support/bindings.js";
 import type { RowMouseCallbacks } from "./support/bindings.js";
+import type { ReactNode } from "react";
 
-const chartRenderer: CodeBlockRenderer = ({ text, theme, indent }): React.ReactNode => (
+const chartRenderer: CodeBlockRenderer = ({ text, theme, indent }): ReactNode => (
   <CodeBlockChrome theme={theme} indent={indent}>
     <text content={text} style={{ fg: theme.markdownText, height: 3 }} />
   </CodeBlockChrome>
@@ -26,7 +27,7 @@ const MarkdownHarness = function MarkdownHarness({
   content: string;
   codeBlockRenderers?: Record<string, CodeBlockRenderer>;
   onLinkActivate?: (href: string) => boolean;
-}): React.ReactNode {
+}): ReactNode {
   return (
     <MarkdownView
       content={content}

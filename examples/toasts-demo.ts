@@ -52,7 +52,7 @@ let dedupCounter = 0;
 const actions: ActionDefinition[] = [
   {
     handler: (ctx) => {
-      ctx.toast.toast({ level: "info", message: "This is an info message" });
+      ctx.toast?.toast({ level: "info", message: "This is an info message" });
     },
     hotkey: "1",
     id: "toast.info",
@@ -61,7 +61,7 @@ const actions: ActionDefinition[] = [
   },
   {
     handler: (ctx) => {
-      ctx.toast.toast({ level: "success", message: "Operation completed successfully" });
+      ctx.toast?.toast({ level: "success", message: "Operation completed successfully" });
     },
     hotkey: "2",
     id: "toast.success",
@@ -70,7 +70,7 @@ const actions: ActionDefinition[] = [
   },
   {
     handler: (ctx) => {
-      ctx.toast.toast({ level: "warning", message: "Watch out! Something needs attention" });
+      ctx.toast?.toast({ level: "warning", message: "Watch out! Something needs attention" });
     },
     hotkey: "3",
     id: "toast.warning",
@@ -79,7 +79,7 @@ const actions: ActionDefinition[] = [
   },
   {
     handler: (ctx) => {
-      ctx.toast.toast({ level: "error", message: "Something went wrong!" });
+      ctx.toast?.toast({ level: "error", message: "Something went wrong!" });
     },
     hotkey: "4",
     id: "toast.error",
@@ -89,7 +89,7 @@ const actions: ActionDefinition[] = [
   {
     handler: (ctx) => {
       dedupCounter += 1;
-      ctx.toast.toast({
+      ctx.toast?.toast({
         id: "dedup-counter",
         level: "info",
         message: `Pressed ${dedupCounter} time${dedupCounter === 1 ? "" : "s"}`,
@@ -102,7 +102,7 @@ const actions: ActionDefinition[] = [
   },
   {
     handler: (ctx) => {
-      ctx.toast.toast({
+      ctx.toast?.toast({
         duration: 10_000,
         level: "info",
         message: "This toast lasts 10 seconds",

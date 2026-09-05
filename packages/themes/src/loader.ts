@@ -1,6 +1,7 @@
 import type { SyntaxStyle } from "@opentui/core";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import path from "node:path";
+import type { ColorMode } from "@tooee/config";
 import { resolveTheme } from "./types.js";
 import type { ThemeJSON, ResolvedTheme } from "./types.js";
 import { buildSyntaxStyle } from "./syntax-rules.js";
@@ -11,7 +12,7 @@ import { buildSyntaxStyle } from "./syntax-rules.js";
 
 export interface Theme {
   name: string;
-  mode: "dark" | "light";
+  mode: ColorMode;
   colors: ResolvedTheme;
   syntax: SyntaxStyle;
 }
@@ -94,85 +95,38 @@ export const getThemeNames = function getThemeNames(): string[] {
 // ---------------------------------------------------------------------------
 
 export const DEFAULT_THEME_NAME = "tokyonight";
-export const DEFAULT_MODE: "dark" | "light" = "dark";
+export const DEFAULT_MODE: ColorMode = "dark";
 
-const hardcodedDefaultTheme: Theme = (() => {
-  const colors: ResolvedTheme = {
-    accent: "#7dcfff",
-    background: "#1a1b26",
-    backgroundElement: "#222436",
-    backgroundPanel: "#1e2030",
-    border: "#565f89",
-    borderActive: "#737aa2",
-    borderSubtle: "#414868",
-    cursorLine: "#222436",
-    diffAdded: "#4fd6be",
-    diffAddedBg: "#20303b",
-    diffAddedLineNumberBg: "#1b2b34",
-    diffContext: "#828bb8",
-    diffContextBg: "#1e2030",
-    diffHighlightAdded: "#b8db87",
-    diffHighlightRemoved: "#e26a75",
-    diffHunkHeader: "#828bb8",
-    diffLineNumber: "#222436",
-    diffRemoved: "#c53b53",
-    diffRemovedBg: "#37222c",
-    diffRemovedLineNumberBg: "#2d1f26",
-    error: "#f7768e",
-    info: "#7aa2f7",
-    markdownBlockQuote: "#e0af68",
-    markdownCode: "#9ece6a",
-    markdownCodeBlock: "#c0caf5",
-    markdownEmph: "#e0af68",
-    markdownHeading: "#bb9af7",
-    markdownHorizontalRule: "#565f89",
-    markdownImage: "#7aa2f7",
-    markdownImageText: "#7dcfff",
-    markdownLink: "#7aa2f7",
-    markdownLinkText: "#7dcfff",
-    markdownListEnumeration: "#7dcfff",
-    markdownListItem: "#7aa2f7",
-    markdownStrong: "#ff966c",
-    markdownText: "#c0caf5",
-    primary: "#7aa2f7",
-    secondary: "#bb9af7",
-    selection: "#1e2030",
-    success: "#9ece6a",
-    syntaxComment: "#565f89",
-    syntaxFunction: "#7aa2f7",
-    syntaxKeyword: "#bb9af7",
-    syntaxNumber: "#ff9e64",
-    syntaxOperator: "#89ddff",
-    syntaxPunctuation: "#a9b1d6",
-    syntaxString: "#9ece6a",
-    syntaxType: "#2ac3de",
-    syntaxVariable: "#c0caf5",
-    text: "#c0caf5",
-    textMuted: "#565f89",
-    warning: "#e0af68",
-  };
-  return { colors, mode: DEFAULT_MODE, name: DEFAULT_THEME_NAME, syntax: buildSyntaxStyle(colors) };
-})();
+// SAFETY: this package owns the bundled theme document. resolveTheme validates
+// every consumed color and fills every omitted key from FALLBACKS.
+// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- trusted package-owned JSON boundary
+const bundledDefaultThemeJson = JSON.parse(
+  readFileSync(new URL("../themes/tokyonight.json", import.meta.url), "utf-8"),
+) as ThemeJSON;
 
-export const defaultTheme: Theme = hardcodedDefaultTheme;
+const buildBundledDefaultTheme = function buildBundledDefaultTheme(mode: ColorMode): Theme {
+  const colors = resolveTheme(bundledDefaultThemeJson, mode);
+  return { colors, mode, name: DEFAULT_THEME_NAME, syntax: buildSyntaxStyle(colors) };
+};
 
-export const buildTheme = function buildTheme(name: string, mode: "dark" | "light"): Theme {
+export const defaultTheme: Theme = buildBundledDefaultTheme(DEFAULT_MODE);
+
+export const buildTheme = function buildTheme(name: string, mode: ColorMode): Theme {
   const themes = loadThemes();
   const json = themes.get(name);
   if (!json) {
-    // Fall back to tokyonight, then first available, then hardcoded
+    // Fall back to tokyonight, then first available, then the bundled default.
     const fallbackJson = themes.get(DEFAULT_THEME_NAME) ?? themes.values().next().value;
     if (fallbackJson) {
       const resolved = resolveTheme(fallbackJson, mode);
       return { colors: resolved, mode, name, syntax: buildSyntaxStyle(resolved) };
     }
-    // Absolute fallback — hardcoded Tokyo Night colors
-    return hardcodedDefaultTheme;
+    return buildBundledDefaultTheme(mode);
   }
   try {
     const resolved = resolveTheme(json, mode);
     return { colors: resolved, mode, name, syntax: buildSyntaxStyle(resolved) };
   } catch {
-    return hardcodedDefaultTheme;
+    return buildBundledDefaultTheme(mode);
   }
 };

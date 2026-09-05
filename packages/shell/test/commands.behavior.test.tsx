@@ -1,0 +1,79 @@
+import { testRender } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
+import { test, expect, afterEach } from "bun:test";
+import { act } from "react";
+import { TooeeProvider, useThemeCommands, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { useMode } from "@tooee/commands";
+import type { ReactNode } from "react";
+
+const ThemeHarness = function ThemeHarness(): ReactNode {
+  const { picker } = useThemeCommands();
+  const { name: themeName } = useTheme();
+  const mode = useMode();
+  return (
+    <box>
+      <text content={`theme:${themeName}`} />
+      <text content={`open:${picker.isOpen}`} />
+      <text content={`mode:${mode}`} />
+    </box>
+  );
+};
+
+const QuitHarness = function QuitHarness({ onQuit }: { onQuit: () => void }): ReactNode {
+  useQuitCommand({ onQuit });
+  return (
+    <box>
+      <text content="quit-harness" />
+    </box>
+  );
+};
+
+let testSetup: TestSession;
+
+afterEach(() => {
+  testSetup?.renderer.destroy();
+});
+
+test("t opens theme picker", async () => {
+  testSetup = await testRender(
+    <TooeeProvider>
+      <ThemeHarness />
+    </TooeeProvider>,
+    { height: 24, kittyKeyboard: true, width: 60 },
+  );
+  await testSetup.renderOnce();
+  expect(testSetup.captureCharFrame()).toContain("open:false");
+
+  await act(async () => {
+    testSetup.mockInput.pressKey("t");
+    await Promise.resolve();
+  });
+  await testSetup.renderOnce();
+  const frame = testSetup.captureCharFrame();
+  expect(frame).toContain("open:true");
+  expect(frame).toContain("mode:cursor");
+});
+
+test("q calls onQuit handler", async () => {
+  let quitCalled = false;
+  testSetup = await testRender(
+    <TooeeProvider>
+      <QuitHarness
+        onQuit={() => {
+          quitCalled = true;
+        }}
+      />
+    </TooeeProvider>,
+    { height: 24, kittyKeyboard: true, width: 60 },
+  );
+  await testSetup.renderOnce();
+  expect(testSetup.captureCharFrame()).toContain("quit-harness");
+
+  await act(async () => {
+    testSetup.mockInput.pressKey("q");
+    await Promise.resolve();
+  });
+  await testSetup.renderOnce();
+  expect(quitCalled).toBe(true);
+});

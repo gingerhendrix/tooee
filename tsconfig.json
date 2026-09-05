@@ -37,6 +37,7 @@
     { "path": "packages/router" },
     { "path": "packages/choose" },
     { "path": "packages/panels" },
+    { "path": "packages/test-support" },
     { "path": "apps/cli" }
   ]
 }

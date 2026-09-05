@@ -1,19 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useMemo } from "react";
 import type { ReactNode, Ref } from "react";
 import type { ActionDefinition } from "@tooee/commands";
-import { useOverlay } from "@tooee/overlays";
-import type { OverlayHandle } from "@tooee/overlays";
+import { useOverlayDialog } from "@tooee/overlays";
 import { AskOverlay } from "./ask-overlay.js";
 import type { AskPanelProps } from "./ask-panel.js";
 import type { AskEditorController } from "./use-ask-editor.js";
-
-/**
- * Per-open unique overlay id. A module-level sequence guarantees that
- * concurrent dialogs — including dialogs opened from separate providers in the
- * same process — never share an overlay id, so one dialog can never displace
- * another through same-id replacement.
- */
-let askDialogSequence = 0;
 
 export interface AskDialogOptions {
   prompt: string;
@@ -61,96 +52,35 @@ export interface AskDialogHandle {
  * `useCurrentOverlay()`).
  */
 export const useAskDialog = function useAskDialog(): AskDialogHandle {
-  const overlay = useOverlay();
-  const overlayRef = useRef(overlay);
-  overlayRef.current = overlay;
-
-  // Open dialogs by overlay id, so unmounting the owner closes (and thereby
-  // settles) every dialog it opened.
-  const openHandlesRef = useRef(new Map<string, OverlayHandle<undefined>>());
-  const unmountedRef = useRef(false);
-
-  useEffect(() => {
-    unmountedRef.current = false;
-    const handles = openHandlesRef.current;
-    return () => {
-      unmountedRef.current = true;
-      // Map iteration tolerates deletion: settle() removes entries as each
-      // close lands.
-      for (const handle of handles.values()) {
-        handle.close("unmounted");
-      }
-      handles.clear();
-    };
-  }, []);
-
-  // Stable identity so command handlers and effects can capture the handle.
-  const handleRef = useRef<AskDialogHandle | null>(null);
-  handleRef.current ??= {
-    async open(options: AskDialogOptions): Promise<string | null> {
-      const { promise, resolve } = Promise.withResolvers<string | null>();
-      if (unmountedRef.current) {
-        resolve(null);
-        return await promise;
-      }
-
-      askDialogSequence += 1;
-      const id = `ask-dialog-${askDialogSequence}`;
-      let settled = false;
-      const settle = (value: string | null) => {
-        if (settled) {
-          return;
-        }
-        settled = true;
-        openHandlesRef.current.delete(id);
-        resolve(value);
-      };
-
-      const handle = overlayRef.current.open(
-        id,
-        (): ReactNode => (
-          <AskOverlay
-            prompt={options.prompt}
-            title={options.title}
-            multiline={options.multiline}
-            defaultValue={options.defaultValue}
-            placeholder={options.placeholder}
-            commands={options.commands}
-            controllerRef={options.controllerRef}
-            hints={options.hints}
-            statusRight={options.statusRight}
-            footer={options.footer}
-            inset={options.inset}
-            onSubmit={(value) => {
-              if (settled) {
-                return;
-              }
-              settle(value);
-              handle.close("close");
-            }}
-            onCancel={() => {
-              handle.close("escape");
-            }}
-          />
+  const dialog = useOverlayDialog<string>();
+  return useMemo<AskDialogHandle>(
+    () => ({
+      open: async (options) =>
+        await dialog.open(
+          "ask-dialog",
+          (settle): ReactNode => (
+            <AskOverlay
+              prompt={options.prompt}
+              title={options.title}
+              multiline={options.multiline}
+              defaultValue={options.defaultValue}
+              placeholder={options.placeholder}
+              commands={options.commands}
+              controllerRef={options.controllerRef}
+              hints={options.hints}
+              statusRight={options.statusRight}
+              footer={options.footer}
+              inset={options.inset}
+              onSubmit={(value) => {
+                settle(value);
+              }}
+              onCancel={() => {
+                settle(null);
+              }}
+            />
+          ),
         ),
-        undefined,
-        {
-          // Single settlement funnel: every close path (cancel, escape,
-          // replacement, unmount, external closeTop) lands here. Submit
-          // settles first, making this a no-op.
-          onClose: () => {
-            settle(null);
-          },
-          ownCommands: true,
-          role: "modal",
-          surfaceMode: "insert",
-        },
-      );
-      openHandlesRef.current.set(id, handle);
-      const result = await promise;
-      return result;
-    },
-  };
-
-  return handleRef.current;
+    }),
+    [dialog],
+  );
 };

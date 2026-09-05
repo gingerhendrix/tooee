@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { Key } from "react";
 import type { MouseEvent } from "@opentui/core";
-import { useBuildCommandContext, useCommandContext } from "@tooee/commands";
+import { useBuildCommandContext, useSurfaceInvoke } from "@tooee/commands";
 import { useHasModalOverlay } from "@tooee/overlays";
 import type { ContextMenuEntry, DecorationLayer, RowDocumentRenderable } from "@tooee/renderers";
 import { useNavSearchStore, useSearchBindings } from "@tooee/search";
@@ -323,7 +323,7 @@ export const useDocumentController = function useDocumentController<T>(
 
   const contextMenuController = useContextMenu();
   const buildCommandContext = useBuildCommandContext();
-  const { invoke } = useCommandContext();
+  const { invoke } = useSurfaceInvoke();
   const invokeRef = useRef(invoke);
   invokeRef.current = invoke;
 

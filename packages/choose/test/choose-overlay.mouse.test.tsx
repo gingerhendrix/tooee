@@ -1,9 +1,8 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, ensureTestConfigHome, resetTestConfig } from "@tooee/test-support";
 import { test, expect, describe, afterEach, beforeEach } from "bun:test";
 import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
 import { TooeeProvider } from "@tooee/shell";
-import { ensureTestConfigHome, resetTestConfig } from "../../../test/support/test-config.js";
 import { ChooseOverlay } from "../src/choose-overlay.js";
 import type { ChooseItem } from "../src/types.js";
 

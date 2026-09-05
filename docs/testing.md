@@ -14,32 +14,33 @@ bun test packages/view/test/e2e       # E2E tests only
 
 ## Component Tests (testRender)
 
-Use OpenTUI's headless test renderer via `@opentui/react/test-utils`. These are fast, no process spawn required.
+Use the shared `testRender` wrapper from `@tooee/test-support`. It builds on OpenTUI's headless
+test renderer. These tests are fast and do not spawn a process.
 
 **Location**: `packages/layout/test/`, `packages/renderers/test/`, `packages/shell/test/`
 
 ### What's tested
 
-| File                                    | Covers                                                  |
-| --------------------------------------- | ------------------------------------------------------- |
-| `layout/test/title-bar.test.tsx`        | Title and subtitle rendering                            |
-| `layout/test/status-bar.test.tsx`       | Label:value pairs                                       |
-| `layout/test/app-layout.test.tsx`       | Full layout chrome (title bar, status bar, scroll area) |
-| `renderers/test/markdown-view.test.tsx` | Heading, list, code block rendering                     |
-| `renderers/test/code-view.test.tsx`     | Code content and line numbers                           |
-| `renderers/test/table.test.tsx`         | Table rendering                                         |
-| `renderers/test/parsers.test.ts`        | Table parser logic                                      |
-| `shell/test/modal.test.tsx`             | j/k scroll, gg/G jump, ctrl+d/u, mode transitions       |
-| `shell/test/search.test.tsx`            | findMatchingLines, search activation/cancel/navigation  |
-| `shell/test/cursor.test.tsx`            | Cursor/select mode transitions, movement, selection     |
-| `shell/test/command-palette.test.tsx`   | Palette open/close, entry filtering                     |
-| `shell/test/commands.test.tsx`          | Theme cycling (t/T), quit (q)                           |
-| `choose/test/fuzzy.test.ts`             | Fuzzy filter scoring, matching, sorting                 |
+| File                                           | Covers                                                  |
+| ---------------------------------------------- | ------------------------------------------------------- |
+| `layout/test/title.bar.test.tsx`               | Title and subtitle rendering                            |
+| `layout/test/status.bar.test.tsx`              | Label:value pairs                                       |
+| `layout/test/app.layout.test.tsx`              | Full layout chrome (title bar, status bar, scroll area) |
+| `renderers/test/markdown.view.test.tsx`        | Heading, list, code block rendering                     |
+| `renderers/test/code.view.test.tsx`            | Code content and line numbers                           |
+| `renderers/test/table.behavior.test.tsx`       | Table rendering                                         |
+| `renderers/test/parsers.test.ts`               | Table parser logic                                      |
+| `shell/test/modal.behavior.test.tsx`           | j/k scroll, gg/G jump, ctrl+d/u, mode transitions       |
+| `shell/test/search.behavior.test.tsx`          | findMatchingLines, search activation/cancel/navigation  |
+| `shell/test/cursor.behavior.test.tsx`          | Cursor/select mode transitions, movement, selection     |
+| `shell/test/command-palette.behavior.test.tsx` | Palette open/close, entry filtering                     |
+| `shell/test/commands.behavior.test.tsx`        | Theme cycling (t/T), quit (q)                           |
+| `choose/test/fuzzy.behavior.test.ts`           | Fuzzy filter scoring, matching, sorting                 |
 
 ### Pattern
 
 ```tsx
-import { testRender } from "@opentui/react/test-utils";
+import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach } from "bun:test";
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
@@ -156,9 +157,17 @@ E2E tests spawn real processes. Use generous timeouts (20s per test) to account 
 
 ## Adding Tests
 
+Name component tests `<subject>.<facet>.test.tsx`. Name non-JSX tests
+`<subject>.<facet>.test.ts`. Keep a multiword subject hyphenated, for example
+`command-palette.mouse.test.tsx`.
+
+Import shared test utilities from `@tooee/test-support`. It exports `testRender`,
+`expectDefined`, `keyEvent`, the keyboard `press*` helpers, the clipboard mock, and isolated
+test config helpers.
+
 ### New component test
 
-1. Create `packages/<pkg>/test/<Component>.test.tsx`
+1. Create `packages/<pkg>/test/<subject>.<facet>.test.tsx`
 2. Use `testRender` to render the component with providers
 3. Assert on `captureCharFrame()` content or use `toMatchSnapshot()`
 

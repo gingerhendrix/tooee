@@ -28,8 +28,16 @@ export interface TooeeMount {
 export type CliStdinPolicy = "process" | "tty-if-piped";
 
 export interface LaunchCliOptions extends TooeeProviderOptions {
+  /** @deprecated Use `provider.leader`. This alias will be removed in 0.9.0. */
+  leader?: TooeeProviderOptions["leader"];
+  /** @deprecated Use `provider.config`. This alias will be removed in 0.9.0. */
+  config?: TooeeProviderOptions["config"];
+  /** @deprecated Use `provider.initialMode`. This alias will be removed in 0.9.0. */
+  initialMode?: TooeeProviderOptions["initialMode"];
+  /** @deprecated Use `provider.sequenceTimeoutMs`. This alias will be removed in 0.9.0. */
+  sequenceTimeoutMs?: TooeeProviderOptions["sequenceTimeoutMs"];
   exitOnCtrlC?: boolean;
-  /** Preferred provider options. Top-level provider fields remain as compatibility aliases. */
+  /** Preferred provider options. */
   provider?: TooeeProviderOptions;
   /** Additional OpenTUI renderer options. */
   renderer?: Omit<CliRendererConfig, "exitOnCtrlC" | "stdin">;
@@ -78,19 +86,10 @@ export const guardTerminalHealth = function guardTerminalHealth(
   let handled = false;
   let disposed = false;
   const stdin = renderer.stdin ?? process.stdin;
-
-  const dispose = () => {
-    if (disposed) {
-      return;
-    }
-    disposed = true;
-    // Deferred(lint-sweep): retain the paired lifecycle callback closure.
-    // oxlint-disable-next-line no-use-before-define -- callback is declared below and only invoked during disposal
-    stdin.removeListener("end", onTerminalEnd);
-    // Deferred(lint-sweep): retain the paired lifecycle callback closure.
-    // oxlint-disable-next-line no-use-before-define -- callback is declared below and only invoked during disposal
-    stdin.removeListener("close", onTerminalEnd);
-    renderer.removeListener("destroy", dispose);
+  const lifecycle = {
+    dispose: () => {
+      // Replaced before terminal listeners are attached.
+    },
   };
 
   const onTerminalEnd = () => {
@@ -98,7 +97,7 @@ export const guardTerminalHealth = function guardTerminalHealth(
       return;
     }
     handled = true;
-    dispose();
+    lifecycle.dispose();
 
     if (options.destroyRenderer ?? true) {
       try {
@@ -112,6 +111,17 @@ export const guardTerminalHealth = function guardTerminalHealth(
       process.exit(0);
     }
   };
+
+  const dispose = () => {
+    if (disposed) {
+      return;
+    }
+    disposed = true;
+    stdin.removeListener("end", onTerminalEnd);
+    stdin.removeListener("close", onTerminalEnd);
+    renderer.removeListener("destroy", dispose);
+  };
+  lifecycle.dispose = dispose;
 
   stdin.on("end", onTerminalEnd);
   stdin.on("close", onTerminalEnd);
@@ -167,6 +177,7 @@ export const mountTooee = function mountTooee(
 const resolveProviderOptions = function resolveProviderOptions(
   options: LaunchCliOptions,
 ): TooeeProviderOptions {
+  // oxlint-disable-next-line typescript/no-deprecated -- this compatibility bridge must read the aliases until their scheduled removal
   const { leader, config, initialMode, sequenceTimeoutMs } = options;
   const aliases: TooeeProviderOptions = {};
   if (leader !== undefined) {

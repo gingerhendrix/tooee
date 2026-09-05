@@ -67,7 +67,9 @@ const printUsage = function printUsage(): void {
   console.log("  view [file]    Display markdown, code, text, diffs, or tables");
   console.log("  ask [prompt]   Gather multiline user input");
   console.log("  choose         Select items from a filterable list (stdin)");
-  console.log("  table [file]   Display tabular data (deprecated; use view --renderer table)");
+  console.log(
+    "  table [file]   Display tabular data (deprecated; use view --renderer table; removed in 0.9.0)",
+  );
 
   console.log("");
   console.log("View options:");
@@ -120,7 +122,11 @@ switch (command) {
       (a) => a !== "--multiline" && a !== "-m" && a !== "--single-line" && a !== "-s",
     );
     const prompt = filtered.join(" ") || undefined;
-    await launchAsk({ multiline: !singleLine, prompt });
+    const result = await launchAsk({ multiline: !singleLine, prompt });
+    if (result === null) {
+      process.exit(0);
+    }
+    process.stdout.write(`${result}\n`);
     break;
   }
 
@@ -140,6 +146,7 @@ switch (command) {
     break;
   }
 
+  // Deprecated compatibility command. Remove in 0.9.0.
   case "table": {
     const { filePath } = parseViewArgs(args);
     const contentProvider =

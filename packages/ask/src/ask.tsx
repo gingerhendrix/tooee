@@ -3,18 +3,19 @@ import { AppLayout } from "@tooee/layout";
 import { useHasOverlay } from "@tooee/overlays";
 import { useTheme } from "@tooee/themes";
 import { useThemeCommands, useQuitCommand, usePasteCommands } from "@tooee/shell";
-import { useActions, useProvideCommandContext, useCommandContext } from "@tooee/commands";
+import { useActions, useProvideCommandContext, useSurfaceInvoke } from "@tooee/commands";
 import type { ActionDefinition } from "@tooee/commands";
 import type { AskOptions } from "./types.js";
 import { AskEditor } from "./ask-editor.js";
+import { buildAskHints } from "./ask-panel.js";
 import { useAskEditor } from "./use-ask-editor.js";
+import type { ReactNode } from "react";
 
 export interface AskProps extends AskOptions {
   actions?: ActionDefinition[];
   /**
-   * Called with the submitted text. Defaults to writing the value to stdout
-   * and destroying the renderer (the standalone `ask` CLI behaviour). A
-   * `submit` action takes precedence over both.
+   * Called with the submitted text. Without a callback, submission destroys
+   * the renderer. A `submit` action takes precedence over the callback.
    */
   onSubmit?: (value: string) => void;
 }
@@ -27,18 +28,13 @@ export const Ask = function Ask({
   multiline = true,
   actions,
   onSubmit,
-}: AskProps): React.ReactNode {
+}: AskProps): ReactNode {
   const renderer = useRenderer();
-  const { invoke } = useCommandContext();
+  const { invoke } = useSurfaceInvoke();
 
   const { theme } = useTheme();
   const { name: themeName } = useThemeCommands();
-  useQuitCommand({
-    onQuit: () => {
-      renderer.destroy();
-      process.exit(0);
-    },
-  });
+  useQuitCommand();
 
   // Legacy overlays don't push a command surface; keep blurring the editor
   // under them via the shell's overlay state.
@@ -53,7 +49,6 @@ export const Ask = function Ask({
       onSubmit(text);
       return;
     }
-    process.stdout.write(`${text}\n`);
     renderer.destroy();
   };
 
@@ -78,11 +73,7 @@ export const Ask = function Ask({
   usePasteCommands({ getTarget: () => controller });
 
   const { mode } = editor;
-  const submitHint = multiline && mode === "insert" ? "Shift+Enter submit" : "Enter submit";
-  const hintParts =
-    mode === "insert"
-      ? [submitHint, "Esc commands"]
-      : ["i insert", "q quit", ": palette", submitHint];
+  const hintParts = buildAskHints(mode, { cursorExtra: [": palette"], multiline });
 
   return (
     <AppLayout
@@ -94,7 +85,6 @@ export const Ask = function Ask({
           { label: "", value: hintParts.join("  ") },
         ],
       }}
-      scrollProps={{ focused: false }}
     >
       <box
         flexDirection="column"

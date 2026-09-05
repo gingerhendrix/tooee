@@ -44,6 +44,7 @@
     "@oxlint/plugins": "1.78.0",
     "@tooee/renderers": "workspace:*",
     "@tooee/shell": "workspace:*",
+    "@tooee/test-support": "workspace:*",
     "@tooee/view": "workspace:*",
     "@types/bun": "^1.3.10",
     "@types/react": "^19.2.17",

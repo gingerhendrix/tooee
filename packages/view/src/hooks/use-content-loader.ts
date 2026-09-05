@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { useSelector } from "@xstate/store-react";
-import type { ContentProvider } from "../types.js";
+import type { AnyContent, ContentProvider } from "../types.js";
+import type { MarkSet } from "@tooee/marks";
+import type { ContentLoaderStatus } from "../content-loader-store.js";
 import {
   createContentLoaderStore,
   isAsyncIterable,
@@ -13,7 +15,19 @@ import {
   selectStreaming,
 } from "../content-loader-store.js";
 
-export const useContentLoader = function useContentLoader(contentProvider: ContentProvider) {
+/** Reactive state exposed by the content provider loader. */
+export interface ContentLoaderState {
+  content: AnyContent | null;
+  error: string | null;
+  providerMarks: MarkSet[];
+  reload: () => void;
+  status: ContentLoaderStatus;
+  streaming: boolean;
+}
+
+export const useContentLoader = function useContentLoader(
+  contentProvider: ContentProvider,
+): ContentLoaderState {
   const store = useMemo(createContentLoaderStore, []);
   const loadSeq = useSelector(store, (snapshot) => selectLoadSeq(snapshot.context));
 
@@ -37,7 +51,7 @@ export const useContentLoader = function useContentLoader(contentProvider: Conte
       void (async () => {
         try {
           while (true) {
-            // Deferred(lint-sweep): preserve sequential stream consumption for ordered backpressure.
+            // preserve sequential stream consumption for ordered backpressure.
             // oxlint-disable-next-line no-await-in-loop -- each chunk must be consumed in iterator order
             const result = await iterator.next();
             if (result.done === true) {

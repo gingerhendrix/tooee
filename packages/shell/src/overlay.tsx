@@ -31,7 +31,7 @@ import type { Mode } from "@tooee/commands";
 
 declare module "@tooee/commands" {
   interface CommandContext {
-    overlay: OverlayController;
+    overlay?: OverlayController;
   }
 }
 
@@ -194,6 +194,7 @@ export const OverlayProvider = function OverlayProvider({
 
   const topId = stack.at(-1)?.id ?? null;
 
+  // oxlint-disable typescript/no-deprecated -- the provider implements and exposes the retained compatibility methods
   const controller = useMemo<OverlayController>(
     () => ({
       closeTop,
@@ -218,6 +219,7 @@ export const OverlayProvider = function OverlayProvider({
       update: controller.update,
     },
   }));
+  // oxlint-enable typescript/no-deprecated
 
   useCommand({
     handler: () => {

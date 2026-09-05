@@ -18,6 +18,7 @@ import {
   useScreenState,
 } from "@tooee/router";
 import type { Codec } from "@tooee/router";
+import type { ReactNode } from "react";
 
 // Parse CLI args
 const args = process.argv.slice(2);
@@ -75,7 +76,7 @@ const slowSpec = { data: messageData, id: "slow" } as const;
 
 // --- Screen Components ---
 
-const HomeScreen = function HomeScreen(): React.ReactNode {
+const HomeScreen = function HomeScreen(): ReactNode {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
   const nav = useNavigate();
@@ -189,7 +190,7 @@ const HomeScreen = function HomeScreen(): React.ReactNode {
   );
 };
 
-const DetailScreen = function DetailScreen(): React.ReactNode {
+const DetailScreen = function DetailScreen(): ReactNode {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
   const params = useParams(detailSpec);
@@ -247,7 +248,7 @@ const DetailScreen = function DetailScreen(): React.ReactNode {
   );
 };
 
-const SettingsScreen = function SettingsScreen(): React.ReactNode {
+const SettingsScreen = function SettingsScreen(): ReactNode {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
   const nav = useNavigate();
@@ -284,7 +285,7 @@ const SettingsScreen = function SettingsScreen(): React.ReactNode {
   );
 };
 
-const SlowScreen = function SlowScreen(): React.ReactNode {
+const SlowScreen = function SlowScreen(): ReactNode {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
   const data = useRouteData(slowSpec);
@@ -301,7 +302,7 @@ const SlowScreen = function SlowScreen(): React.ReactNode {
   );
 };
 
-const SlowPending = function SlowPending(): React.ReactNode {
+const SlowPending = function SlowPending(): ReactNode {
   return (
     <box>
       <text content="Loading..." />
@@ -309,7 +310,7 @@ const SlowPending = function SlowPending(): React.ReactNode {
   );
 };
 
-const ErrorRouteScreen = function ErrorRouteScreen(): React.ReactNode {
+const ErrorRouteScreen = function ErrorRouteScreen(): ReactNode {
   return (
     <box>
       <text content="Screen:error-route" />
@@ -317,7 +318,7 @@ const ErrorRouteScreen = function ErrorRouteScreen(): React.ReactNode {
   );
 };
 
-const ErrorComponent = function ErrorComponent({ error }: { error: Error }): React.ReactNode {
+const ErrorComponent = function ErrorComponent({ error }: { error: Error }): ReactNode {
   return (
     <box>
       <text content={`Error:${error.message}`} />
@@ -325,7 +326,7 @@ const ErrorComponent = function ErrorComponent({ error }: { error: Error }): Rea
   );
 };
 
-const ParentLayout = function ParentLayout(): React.ReactNode {
+const ParentLayout = function ParentLayout(): ReactNode {
   const { isFocused } = useScreenFocus();
   return (
     <box flexDirection="column">
@@ -335,7 +336,7 @@ const ParentLayout = function ParentLayout(): React.ReactNode {
   );
 };
 
-const ChildScreen = function ChildScreen(): React.ReactNode {
+const ChildScreen = function ChildScreen(): ReactNode {
   useRouterCommands();
   const { isFocused } = useScreenFocus();
   const current = useCurrentRoute();
@@ -394,7 +395,7 @@ await router.start();
 
 // --- Launch ---
 
-const App = function App(): React.ReactNode {
+const App = function App(): ReactNode {
   return (
     <RouterProvider router={router}>
       <Outlet />

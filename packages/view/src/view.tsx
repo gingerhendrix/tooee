@@ -16,6 +16,7 @@ import {
   DiffSubview,
   CustomSubview,
 } from "./components/subviews/index.js";
+import type { ReactNode } from "react";
 
 interface ViewProps {
   contentProvider: ContentProvider;
@@ -36,7 +37,7 @@ export const View = function View({
   renderers,
   codeBlockRenderers,
   onMarkdownLinkActivate,
-}: ViewProps): React.ReactNode {
+}: ViewProps): ReactNode {
   const { theme } = useTheme();
   const { content, streaming, error, providerMarks, reload } = useContentLoader(contentProvider);
 

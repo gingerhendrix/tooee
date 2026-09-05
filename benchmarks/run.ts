@@ -182,7 +182,7 @@ for (const script of scripts) {
 
   for (let sample = 1; sample <= options.samples; sample += 1) {
     console.log(`\n# sample ${sample}/${options.samples}`);
-    // Deferred(lint-sweep): preserve ordered benchmark execution and output aggregation
+    // Preserve ordered benchmark execution and output aggregation.
     // oxlint-disable-next-line no-await-in-loop -- samples must run sequentially
     const metrics = await runScript(script);
 

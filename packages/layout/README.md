@@ -2,6 +2,9 @@
 
 Standard app chrome (title bar, status bar) for Tooee.
 
+Layout is a composition package by design. It combines theme, command,
+overlay, search, and toast primitives into standard application chrome.
+
 Part of the [Tooee](https://github.com/gingerhendrix/tooee) monorepo. See the main repo for documentation.
 
 ## Overlays

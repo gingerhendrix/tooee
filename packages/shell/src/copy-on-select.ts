@@ -5,7 +5,7 @@ import { useConfig } from "@tooee/config";
 import { platform } from "node:os";
 import type { Selection } from "@opentui/core";
 
-export const useCopyOnSelect = function useCopyOnSelect() {
+export const useCopyOnSelect = function useCopyOnSelect(): void {
   const renderer = useRenderer();
   const config = useConfig();
 

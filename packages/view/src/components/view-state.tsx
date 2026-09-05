@@ -1,4 +1,5 @@
 import { useQuitCommand } from "@tooee/shell";
+import type { ReactNode } from "react";
 
 interface ViewStateProps {
   message: string;
@@ -6,7 +7,7 @@ interface ViewStateProps {
 }
 
 /** A non-document view state that preserves the viewer's normal quit command. */
-export const ViewState = function ViewState({ message, color }: ViewStateProps): React.ReactNode {
+export const ViewState = function ViewState({ message, color }: ViewStateProps): ReactNode {
   useQuitCommand();
 
   return (

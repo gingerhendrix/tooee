@@ -1,4 +1,4 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
 import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
@@ -6,6 +6,7 @@ import { ThemeSwitcherProvider } from "@tooee/themes";
 import { Table } from "../src/table.js";
 import { useRowMouseBindings } from "./support/bindings.js";
 import type { RowMouseCallbacks } from "./support/bindings.js";
+import type { ReactNode } from "react";
 
 const cols = function cols(headers: string[]) {
   return headers.map((header, index) => ({ header, key: `col_${index}` }));
@@ -33,7 +34,7 @@ const DATA = rows(COLUMNS, [
 const DATA_TOP_Y = 2;
 const CONTENT_X = 8;
 
-const TableHarness = function TableHarness(callbacks: RowMouseCallbacks): React.ReactNode {
+const TableHarness = function TableHarness(callbacks: RowMouseCallbacks): ReactNode {
   return (
     <Table columns={COLUMNS} rows={DATA} maxWidth={40} document={useRowMouseBindings(callbacks)} />
   );

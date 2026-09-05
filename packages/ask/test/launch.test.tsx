@@ -1,16 +1,18 @@
 import { expect, mock, test } from "bun:test";
 
 const shell = await import("@tooee/shell");
-const launchCli = mock(async () => {
+const runCliSession = mock(async () => {
   await Promise.resolve();
+  return "answer";
 });
-void mock.module("@tooee/shell", () => ({ ...shell, launchCli }));
+void mock.module("@tooee/shell", () => ({ ...shell, runCliSession }));
 
 const { launch } = await import("../src/launch.js");
 
 test("standalone ask inherits the renderer Ctrl+C exit default", async () => {
-  await launch({});
+  const result = await launch({});
 
-  expect(launchCli).toHaveBeenCalledTimes(1);
-  expect(launchCli.mock.calls[0]?.[1]).toEqual({ provider: { initialMode: "insert" } });
+  expect(result).toBe("answer");
+  expect(runCliSession).toHaveBeenCalledTimes(1);
+  expect(runCliSession.mock.calls[0]?.[1]).toEqual({ provider: { initialMode: "insert" } });
 });

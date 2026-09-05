@@ -3,6 +3,7 @@ import type { DocumentBindings } from "./document-bindings.js";
 import { DEFAULT_SIGN_COLUMN_WIDTH } from "./row-document-renderable.js";
 import { useGutterPalette } from "./use-gutter-palette.js";
 import "./row-document.js";
+import type { ReactNode } from "react";
 
 interface CodeViewProps {
   content: string;
@@ -26,7 +27,7 @@ export const CodeView = function CodeView({
   language,
   showLineNumbers = true,
   document,
-}: CodeViewProps): React.ReactNode {
+}: CodeViewProps): ReactNode {
   const { syntax } = useTheme();
   const palette = useGutterPalette();
 

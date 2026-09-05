@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
-import { useKeyboard, useTerminalDimensions } from "@opentui/react";
+import { useTerminalDimensions } from "@opentui/react";
+import { useCommand } from "@tooee/commands";
 import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
 
 export interface ContextMenuEntry {
   id: string;
@@ -35,7 +37,7 @@ export const ContextMenu = function ContextMenu({
   y,
   onSelect,
   onClose,
-}: ContextMenuProps): React.ReactNode {
+}: ContextMenuProps): ReactNode {
   const { theme } = useTheme();
   const { width: termWidth, height: termHeight } = useTerminalDimensions();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -50,18 +52,55 @@ export const ContextMenu = function ContextMenu({
     [entries, onSelect],
   );
 
-  useKeyboard((key) => {
-    if (key.name === "up" || key.raw === "k") {
-      key.preventDefault();
-      setActiveIndex((i) => Math.max(0, i - 1));
-    } else if (key.name === "down" || key.raw === "j") {
-      key.preventDefault();
-      setActiveIndex((i) => Math.min(entries.length - 1, i + 1));
-    } else if (key.name === "return") {
-      key.preventDefault();
-      select(activeIndex);
-    }
-    // Escape is handled by the overlay layer (dismissOnEscape).
+  const moveUp = useCallback(() => {
+    setActiveIndex((index) => Math.max(0, index - 1));
+  }, []);
+  const moveDown = useCallback(() => {
+    setActiveIndex((index) => Math.min(entries.length - 1, index + 1));
+  }, [entries.length]);
+  const selectActive = useCallback(() => {
+    select(activeIndex);
+  }, [activeIndex, select]);
+
+  useCommand({
+    handler: moveUp,
+    hidden: true,
+    hotkey: "up",
+    id: "context-menu:move-up",
+    modes: ["insert", "cursor"],
+    title: "Move up",
+  });
+  useCommand({
+    handler: moveUp,
+    hidden: true,
+    hotkey: "k",
+    id: "context-menu:move-up-vim",
+    modes: ["insert", "cursor"],
+    title: "Move up",
+  });
+  useCommand({
+    handler: moveDown,
+    hidden: true,
+    hotkey: "down",
+    id: "context-menu:move-down",
+    modes: ["insert", "cursor"],
+    title: "Move down",
+  });
+  useCommand({
+    handler: moveDown,
+    hidden: true,
+    hotkey: "j",
+    id: "context-menu:move-down-vim",
+    modes: ["insert", "cursor"],
+    title: "Move down",
+  });
+  useCommand({
+    handler: selectActive,
+    hidden: true,
+    hotkey: "Enter",
+    id: "context-menu:select",
+    modes: ["insert", "cursor"],
+    title: "Select action",
   });
 
   // Size the panel from its contents (terminal cell width, not code units,
@@ -122,7 +161,7 @@ export const ContextMenu = function ContextMenu({
           </box>
         ) : (
           entries.map(
-            (entry, i): React.ReactNode => (
+            (entry, i): ReactNode => (
               <box
                 key={entry.id}
                 flexDirection="row"

@@ -13,7 +13,7 @@ for one keyed slice so the value is checked against the augmented key:
 ```tsx
 declare module "@tooee/commands" {
   interface CommandContext {
-    myApp: { selectedId: string | null };
+    myApp?: { selectedId: string | null };
   }
 }
 
@@ -24,6 +24,21 @@ Key ownership is by convention: Tooee packages use short built-in keys such as
 `view`, `ask`, `choose`, `overlay`, and `toast`; apps and third-party packages
 should use app/package-specific keys to avoid collisions. If multiple providers
 return the same top-level key, the last registered provider wins.
+
+Augmented fields must be optional because their providers are not mounted on
+every command surface. A command handler must check that its domain field is
+present before it reads the field:
+
+```ts
+handler: (ctx) => {
+  const selectedId = ctx.myApp?.selectedId;
+  if (selectedId === undefined) return;
+  openItem(selectedId);
+};
+```
+
+Only the core `mode`, `setMode`, `commands`, and `exit` fields are always
+available.
 
 ## Command surfaces & arbitration
 
@@ -71,6 +86,16 @@ fall-through — the active panel's commands plus non-shadowed root commands, wi
 invocation routed to the owning surface. The shell palette uses the active
 panel's local mode; if opened programmatically during panel insert mode it omits
 root commands, matching the editor-safe dispatch boundary.
+
+Choose the command hook by the question the caller needs to answer:
+
+- Use `useSurfaceCommands()` to render the commands registered on one surface.
+- Use `useEffectiveCommands()` to build a palette that follows panel fall-through
+  and command shadowing.
+- Use `useCommandRegistry()` for integration bridges that need the current
+  surface registry, groups, context sources, or leader key.
+- Use `useSurfaceInvoke()` when a component needs the current surface's command
+  list and its `invoke` function.
 
 ## Raw `useKeyboard` policy
 

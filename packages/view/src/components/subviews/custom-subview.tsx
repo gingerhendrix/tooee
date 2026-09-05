@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 import { CodeView, sourceLines, sourceLineAdapter } from "@tooee/renderers";
 import type { SourceLineRow } from "@tooee/renderers";
-import { useDocumentController } from "@tooee/shell";
 import { getTextContent } from "../../types.js";
 import type { CustomContent, ContentRenderer } from "../../types.js";
-import { useContentCommands } from "../../hooks/use-content-commands.js";
+import { useContentDocument } from "../../hooks/use-content-document.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
+import type { ReactNode } from "react";
 
 interface CustomSubviewProps extends SubviewProps {
   content: CustomContent;
@@ -19,27 +19,17 @@ export const CustomSubview = function CustomSubview({
   actions,
   renderers,
   ...screen
-}: CustomSubviewProps): React.ReactNode {
+}: CustomSubviewProps): ReactNode {
   const textContent = useMemo(() => getTextContent(content), [content]);
   // Fallback rows are source lines; row index is the source line.
   const lineRows = useMemo(() => sourceLines(textContent), [textContent]);
 
-  useContentCommands({ content, textContent });
-
-  // Custom content has no action rows of its own, so no context menu is bound.
-  const document = useDocumentController<SourceLineRow>({
-    adapter: sourceLineAdapter,
-    decorations,
-    multiSelect: true,
-    rows: lineRows,
-  });
-
-  const statusItems = useMemo(
-    () => [
-      { label: "Format:", value: content.format },
-      { label: "Lines:", value: String(lineRows.length) },
-    ],
-    [content.format, lineRows.length],
+  const { document, statusItems } = useContentDocument<SourceLineRow>(
+    lineRows,
+    sourceLineAdapter,
+    { actions, content, decorations, textContent },
+    // Custom content has no action rows of its own, so no context menu is bound.
+    { contextMenu: false, multiSelect: true },
   );
 
   const customRenderer = renderers?.[content.format];

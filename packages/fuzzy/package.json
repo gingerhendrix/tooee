@@ -38,6 +38,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@tooee/test-support": "workspace:*",
     "typescript": "^5.9.3"
   }
 }

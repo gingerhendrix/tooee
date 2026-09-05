@@ -25,7 +25,7 @@ export {
 } from "./code-blocks.js";
 export type { CodeBlockRenderer, CodeBlockRendererProps, CodeBlockHScroll } from "./code-blocks.js";
 export { CodeView } from "./code-view.js";
-export { Table, computeColumnWidths, isNumeric, sampleRows } from "./table.js";
+export { Table, computeColumnWidths, formatTableCell, isNumeric, sampleRows } from "./table.js";
 export type { TableProps, ColumnWidthOptions } from "./table.js";
 export type { ColumnDef, TableRow } from "./table-types.js";
 export { CommandPalette } from "./command-palette.js";

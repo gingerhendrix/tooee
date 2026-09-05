@@ -76,7 +76,7 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
         group: "Stream",
         handler: (ctx) => {
           setLastAction("Opened today's stream");
-          ctx.toast.toast({ level: "success", message: "Opened today's stream" });
+          ctx.toast?.toast({ level: "success", message: "Opened today's stream" });
         },
         hotkey: "space s t",
         icon: "T",
@@ -88,7 +88,7 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
         group: "Stream",
         handler: (ctx) => {
           setLastAction("Created a new stream");
-          ctx.toast.toast({ level: "success", message: "Created a new stream" });
+          ctx.toast?.toast({ level: "success", message: "Created a new stream" });
         },
         hotkey: "space s n",
         icon: "N",
@@ -100,7 +100,7 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
         group: "Stream",
         handler: (ctx) => {
           setLastAction("Dispatched a task to the current stream");
-          ctx.toast.toast({ level: "info", message: "Dispatched task" });
+          ctx.toast?.toast({ level: "info", message: "Dispatched task" });
         },
         hotkey: "space s d",
         icon: "D",
@@ -112,7 +112,7 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
         group: "Artifact",
         handler: (ctx) => {
           setLastAction("Opened the selected artifact");
-          ctx.toast.toast({ level: "success", message: "Opened artifact" });
+          ctx.toast?.toast({ level: "success", message: "Opened artifact" });
         },
         hotkey: "space a o",
         icon: "O",
@@ -124,7 +124,7 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
         group: "Artifact",
         handler: (ctx) => {
           setLastAction("Editing the selected artifact");
-          ctx.toast.toast({ level: "info", message: "Editing artifact" });
+          ctx.toast?.toast({ level: "info", message: "Editing artifact" });
         },
         hotkey: "space a e",
         icon: "E",
@@ -136,7 +136,7 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
         group: "Artifact",
         handler: (ctx) => {
           setLastAction("Revealed the artifact path");
-          ctx.toast.toast({ level: "success", message: "Artifact path copied" });
+          ctx.toast?.toast({ level: "success", message: "Artifact path copied" });
         },
         hotkey: "space a p",
         icon: "P",
@@ -148,7 +148,7 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
         group: "Capture",
         handler: (ctx) => {
           setLastAction("Captured an idea");
-          ctx.toast.toast({ level: "success", message: "Captured idea" });
+          ctx.toast?.toast({ level: "success", message: "Captured idea" });
         },
         hotkey: "space c i",
         icon: "I",
@@ -160,7 +160,7 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
         group: "Capture",
         handler: (ctx) => {
           setLastAction("Captured a task");
-          ctx.toast.toast({ level: "success", message: "Captured task" });
+          ctx.toast?.toast({ level: "success", message: "Captured task" });
         },
         hotkey: "space c t",
         icon: "T",
@@ -172,7 +172,7 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
         group: "Go",
         handler: (ctx) => {
           setLastAction("Navigated to the dashboard");
-          ctx.toast.toast({ level: "info", message: "Dashboard" });
+          ctx.toast?.toast({ level: "info", message: "Dashboard" });
         },
         hotkey: "space g d",
         icon: "D",
@@ -184,7 +184,7 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
         group: "Go",
         handler: (ctx) => {
           setLastAction("Navigated to agents");
-          ctx.toast.toast({ level: "info", message: "Agents" });
+          ctx.toast?.toast({ level: "info", message: "Agents" });
         },
         hotkey: "space g a",
         icon: "A",
@@ -196,7 +196,7 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
         group: "General",
         handler: (ctx) => {
           setLastAction("Refreshed the demo state");
-          ctx.toast.toast({ level: "info", message: "Refreshed" });
+          ctx.toast?.toast({ level: "info", message: "Refreshed" });
         },
         hotkey: "space r",
         icon: "R",

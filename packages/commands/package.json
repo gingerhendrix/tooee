@@ -30,6 +30,12 @@
         "@tooee/source": "./src/index.ts",
         "default": "./dist/index.js"
       }
+    },
+    "./store": {
+      "import": {
+        "@tooee/source": "./src/store.ts",
+        "default": "./dist/store.js"
+      }
     }
   },
   "publishConfig": {
@@ -45,6 +51,7 @@
   "devDependencies": {
     "@opentui/core": "^0.5.1",
     "@opentui/react": "^0.5.1",
+    "@tooee/test-support": "workspace:*",
     "@types/bun": "^1.3.10",
     "@types/react": "^19.2.14",
     "typescript": "^5.9.3"
