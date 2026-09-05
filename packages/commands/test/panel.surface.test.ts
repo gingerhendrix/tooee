@@ -6,7 +6,7 @@ import {
   selectSequence,
 } from "../src/command-store.js";
 import type { SurfaceRecord } from "../src/command-store.js";
-import { createCommandStore } from "../src/command-store-wrapper.js";
+import { createCommandStore } from "@tooee/commands/store";
 import type { CommandStore } from "../src/command-store-wrapper.js";
 import type { Command, CommandContext } from "../src/types.js";
 import type { Mode } from "../src/mode.js";

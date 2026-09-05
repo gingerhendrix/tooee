@@ -1,12 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import type { KeyEvent } from "@opentui/core";
-import {
-  DEFAULT_SEQUENCE_TIMEOUT_MS,
-  SequenceTracker,
-  findPendingMatch,
-  matchesBuffer,
-  pruneBuffer,
-} from "../src/sequence.js";
+import { DEFAULT_SEQUENCE_TIMEOUT_MS, SequenceTracker } from "@tooee/commands/store";
+import { findPendingMatch, matchesBuffer, pruneBuffer } from "../src/sequence.js";
 import type { ParsedHotkey } from "../src/types.js";
 import { keyEvent as key } from "@tooee/test-support";
 

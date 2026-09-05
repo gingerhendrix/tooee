@@ -8,7 +8,7 @@ import {
   stepsKey,
 } from "../src/command-store.js";
 import type { SurfaceRecord } from "../src/command-store.js";
-import { createCommandStore } from "../src/command-store-wrapper.js";
+import { createCommandStore } from "@tooee/commands/store";
 import type { CommandStore } from "../src/command-store-wrapper.js";
 import { parseHotkey } from "../src/parse.js";
 import type { Command, CommandContext, RegisteredCommandGroup } from "../src/types.js";
