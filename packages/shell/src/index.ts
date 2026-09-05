@@ -35,8 +35,9 @@ export type {
 } from "./launch.js";
 export { CommandPaletteProvider } from "./command-palette-provider.js";
 export { WhichKeyOverlay, WhichKeyProvider } from "./which-key-provider.js";
-export { useThemePicker } from "./theme-picker.js";
-export type { ThemePickerState, ThemePickerEntry } from "./theme-picker.js";
+export { useThemePicker } from "./theme-picker/use-theme-picker.js";
+export type { ThemePickerState } from "./theme-picker/use-theme-picker.js";
+export type { ThemePickerEntry } from "./theme-picker/theme-picker.js";
 export { OverlayProvider } from "./overlay.js";
 export { useCopyOnSelect } from "./copy-on-select.js";
 export { actionsToContextMenuEntries, useContextMenu } from "./context-menu.js";

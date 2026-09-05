@@ -30,6 +30,7 @@ export type { TableProps, ColumnWidthOptions } from "./table.js";
 export type { ColumnDef, TableRow } from "./table-types.js";
 export { CommandPalette } from "./command-palette.js";
 export type { CommandPaletteEntry } from "./command-palette.js";
+export { rankBy } from "@tooee/fuzzy";
 export { ContextMenu } from "./context-menu.js";
 export type { ContextMenuEntry } from "./context-menu.js";
 export { parseCSV, parseTSV, parseJSON, parseAuto, detectFormat } from "./parsers.js";

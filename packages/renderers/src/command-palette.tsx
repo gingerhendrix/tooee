@@ -1,7 +1,8 @@
 import { useState, useMemo, useCallback } from "react";
+import type { ReactNode } from "react";
 import { useCommand } from "@tooee/commands";
 import { useTheme, CloseButton } from "@tooee/themes";
-import { fuzzyMatch } from "@tooee/fuzzy";
+import { rankBy } from "@tooee/fuzzy";
 
 export interface CommandPaletteEntry {
   id: string;
@@ -17,6 +18,29 @@ interface CommandPaletteProps {
   onClose: () => void;
 }
 
+const HighlightedTitle = function HighlightedTitle({
+  title,
+  positions,
+}: {
+  title: string;
+  positions: readonly number[];
+}): ReactNode {
+  const { theme } = useTheme();
+  const highlighted = new Set(positions);
+  return (
+    <text fg={theme.text} style={{ flexGrow: 1 }}>
+      {Array.from(
+        title,
+        (character, index): ReactNode => (
+          <span key={index} fg={highlighted.has(index) ? theme.warning : theme.text}>
+            {character}
+          </span>
+        ),
+      )}
+    </text>
+  );
+};
+
 export const CommandPalette = function CommandPalette({
   commands,
   onSelect,
@@ -26,35 +50,25 @@ export const CommandPalette = function CommandPalette({
   const [filter, setFilter] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const filtered = useMemo(() => {
-    if (!filter) {
-      return commands;
-    }
-    const results: { entry: CommandPaletteEntry; score: number }[] = [];
-    for (const entry of commands) {
-      const score = fuzzyMatch(filter, entry.title);
-      if (score !== null) {
-        results.push({ entry, score });
-      }
-    }
-    results.sort((a, b) => b.score - a.score);
-    return results.map((r) => r.entry);
-  }, [commands, filter]);
+  const matches = useMemo(
+    () => rankBy(commands, filter, (entry) => entry.title),
+    [commands, filter],
+  );
 
   const handleSelect = useCallback(() => {
-    const item = filtered[activeIndex];
+    const item = matches[activeIndex]?.item;
     if (item !== undefined) {
       onSelect(item.id);
     }
-  }, [filtered, activeIndex, onSelect]);
+  }, [matches, activeIndex, onSelect]);
 
   const moveUp = useCallback(() => {
     setActiveIndex((i) => Math.max(0, i - 1));
   }, []);
 
   const moveDown = useCallback(() => {
-    setActiveIndex((i) => Math.min(filtered.length - 1, i + 1));
-  }, [filtered.length]);
+    setActiveIndex((i) => Math.min(matches.length - 1, i + 1));
+  }, [matches.length]);
 
   useCommand({
     handler: onClose,
@@ -119,7 +133,7 @@ export const CommandPalette = function CommandPalette({
           cursorColor={theme.accent}
           style={{ flexGrow: 1 }}
         />
-        <text content={` ${filtered.length}`} fg={theme.textMuted} />
+        <text content={` ${matches.length}`} fg={theme.textMuted} />
         <CloseButton onClose={onClose} />
       </box>
 
@@ -128,10 +142,10 @@ export const CommandPalette = function CommandPalette({
 
       {/* Command list */}
       <scrollbox focused={false} style={{ flexGrow: 1 }}>
-        {filtered.map(
-          (entry, i): React.ReactNode => (
+        {matches.map(
+          (match, i): React.ReactNode => (
             <box
-              key={entry.id}
+              key={match.item.id}
               flexDirection="row"
               paddingLeft={1}
               paddingRight={1}
@@ -144,15 +158,15 @@ export const CommandPalette = function CommandPalette({
                 }
                 event.preventDefault();
                 event.stopPropagation();
-                onSelect(entry.id);
+                onSelect(match.item.id);
               }}
             >
-              <text content={entry.title} fg={theme.text} style={{ flexGrow: 1 }} />
-              {(entry.hotkey?.length ?? 0) > 0 && (
-                <text content={entry.hotkey} fg={theme.textMuted} />
+              <HighlightedTitle title={match.item.title} positions={match.positions} />
+              {(match.item.hotkey?.length ?? 0) > 0 && (
+                <text content={match.item.hotkey} fg={theme.textMuted} />
               )}
-              {(entry.category?.length ?? 0) > 0 && (
-                <text content={` ${entry.category}`} fg={theme.textMuted} />
+              {(match.item.category?.length ?? 0) > 0 && (
+                <text content={` ${match.item.category}`} fg={theme.textMuted} />
               )}
             </box>
           ),
