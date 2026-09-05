@@ -75,3 +75,5 @@ export { useCommand } from "./use-command.js";
 export type { UseCommandOptions } from "./use-command.js";
 export { useActions } from "./use-actions.js";
 export type { ActionDefinition } from "./use-actions.js";
+export { useLatest } from "./hooks/use-latest.js";
+export { useLazyRef } from "./hooks/use-lazy-ref.js";

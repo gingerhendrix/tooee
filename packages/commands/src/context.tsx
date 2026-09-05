@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useCallback, useEffect, useMemo } from "react";
+import { createContext, useContext, useCallback, useEffect, useMemo } from "react";
 import type { ReactNode } from "react";
 import { useKeyboard } from "@opentui/react";
 import { useSelector } from "@xstate/store-react";
@@ -26,6 +26,8 @@ import {
 } from "./command-store.js";
 import type { CommandStore, ContextGetter, SurfaceRecord } from "./command-store.js";
 import { buildCommandContext, commandsFromRegistry } from "./build-context.js";
+import { useLatest } from "./hooks/use-latest.js";
+import { useLazyRef } from "./hooks/use-lazy-ref.js";
 
 interface CommandContextValue {
   registry: CommandRegistry;
@@ -101,23 +103,24 @@ export const CommandProvider = function CommandProvider({
   // The store is created here (above the root ModeProvider) so mode changes
   // can be routed into it as transitions; the dispatcher below installs the
   // real root accessors before any key can dispatch.
-  const rootAccessRef = useRef<RootAccess>({
+  const rootAccessRef = useLazyRef<RootAccess>(() => ({
     // Placeholder until CommandDispatcher installs the real accessors on its
     // first render (before any key can dispatch).
     buildCtx: () => placeholderCommandContext(initialMode ?? "cursor"),
     getMode: () => initialMode ?? "cursor",
-  });
+  }));
 
-  const storeRef = useRef<CommandStore | null>(null);
-  storeRef.current ??= createCommandStore({
-    keymap,
-    leader,
-    root: {
-      buildCtx: () => rootAccessRef.current.buildCtx(),
-      getMode: () => rootAccessRef.current.getMode(),
-    },
-    sequenceTimeoutMs,
-  });
+  const storeRef = useLazyRef(() =>
+    createCommandStore({
+      keymap,
+      leader,
+      root: {
+        buildCtx: () => rootAccessRef.current.buildCtx(),
+        getMode: () => rootAccessRef.current.getMode(),
+      },
+      sequenceTimeoutMs,
+    }),
+  );
   const commandStore = storeRef.current;
 
   // Root mode changes are transitions: reset any pending chord synchronously
@@ -161,8 +164,7 @@ const CommandDispatcher = function CommandDispatcher({
   sequenceTimeoutMs?: number;
 }): ReactNode {
   const mode = useMode();
-  const modeRef = useRef(mode);
-  modeRef.current = mode;
+  const modeRef = useLatest(mode);
   const setMode = useSetMode();
 
   const buildCtx = useCallback(
@@ -173,11 +175,10 @@ const CommandDispatcher = function CommandDispatcher({
         mode: modeRef.current,
         setMode,
       }),
-    [commandStore, setMode],
+    [commandStore, modeRef, setMode],
   );
 
-  const buildCtxRef = useRef(buildCtx);
-  buildCtxRef.current = buildCtx;
+  const buildCtxRef = useLatest(buildCtx);
 
   // Install the live root accessors and config (ref writes, same pattern as
   // the previous modeRef mirrors; leader/keymap are read per dispatch).
@@ -300,27 +301,32 @@ const CommandSurfaceInner = function CommandSurfaceInner({
 
   const mode = useMode();
   const setMode = useSetMode();
-  const modeRef = useRef(mode);
-  modeRef.current = mode;
+  const modeRef = useLatest(mode);
 
-  const buildCtx = useCallback((): CommandContext => {
-    // Deferred(lint-sweep): replace this lifecycle ref with an API that models render-time initialization.
-    // oxlint-disable-next-line typescript/no-non-null-assertion, no-use-before-define -- initialized lifecycle ref intentionally captured by closure
-    const registry = commandStore.registryFor(recordRef.current!);
+  const recordRef = useLazyRef<SurfaceRecord>(() => ({
+    // oxlint-disable-next-line no-use-before-define -- buildCtxRef is initialized before this callback can run
+    buildCtx: () => buildCtxRef.current(),
+    depth,
+    getMode: () => modeRef.current,
+    groupId,
+    id,
+    order: 0,
+    role,
+  }));
+
+  const buildCtx = (): CommandContext => {
+    const registry = commandStore.registryFor(recordRef.current);
     return buildCommandContext({
       commands: commandsFromRegistry(registry),
       contributions: commandStore.store.getSnapshot().context.contextSources.values(),
       mode: modeRef.current,
       setMode,
     });
-  }, [commandStore, setMode]);
+  };
 
-  const buildCtxRef = useRef(buildCtx);
-  buildCtxRef.current = buildCtx;
+  const buildCtxRef = useLatest(buildCtx);
 
-  const recordRef = useRef<SurfaceRecord | null>(null);
   if (
-    recordRef.current === null ||
     recordRef.current.id !== id ||
     recordRef.current.role !== role ||
     recordRef.current.depth !== depth ||
@@ -600,8 +606,7 @@ export const useCommandGroup = function useCommandGroup(group: CommandGroup): vo
     throw new Error("useCommandGroup must be used within a CommandProvider");
   }
 
-  const groupRef = useRef(group);
-  groupRef.current = group;
+  const groupRef = useLatest(group);
   const { commandStore, leaderKey } = ctx;
 
   useEffect(() => {
@@ -622,6 +627,7 @@ export const useCommandGroup = function useCommandGroup(group: CommandGroup): vo
     group.description,
     group.icon,
     group.order,
+    groupRef,
     commandStore,
     leaderKey,
   ]);
@@ -637,21 +643,18 @@ export const useProvideCommandContext = function useProvideCommandContext(
     throw new Error("useProvideCommandContext must be used within a CommandProvider");
   }
 
-  const idRef = useRef<string | null>(null);
-  if (idRef.current === null) {
-    idRef.current = `ctx-${nextContextSourceId}`;
+  const idRef = useLazyRef(() => {
+    const id = `ctx-${nextContextSourceId}`;
     nextContextSourceId += 1;
-  }
+    return id;
+  });
 
-  const getterRef = useRef(getter);
-  getterRef.current = getter;
+  const getterRef = useLatest(getter);
 
   const { commandStore } = ctx;
 
   useEffect(() => {
-    // Deferred(lint-sweep): replace nullable ref bookkeeping with an API that returns the initialized id.
-    // oxlint-disable-next-line typescript/no-non-null-assertion -- idRef is initialized in the render immediately above
-    const id = idRef.current!;
+    const id = idRef.current;
     commandStore.store.trigger.contextSourceRegistered({
       getter: () => getterRef.current(),
       id,
@@ -659,7 +662,7 @@ export const useProvideCommandContext = function useProvideCommandContext(
     return () => {
       commandStore.store.trigger.contextSourceUnregistered({ id });
     };
-  }, [commandStore]);
+  }, [commandStore, getterRef, idRef]);
 };
 
 export const useProvideCommandContextKey = function useProvideCommandContextKey<
