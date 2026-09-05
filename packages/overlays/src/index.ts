@@ -31,6 +31,8 @@ export {
   selectStackIds,
   selectTop,
 } from "./overlay-store.js";
+export { useOverlayDialog } from "./use-overlay-dialog.js";
+export type { OverlayDialogHandle, OverlayDialogSettle } from "./use-overlay-dialog.js";
 export type {
   OverlayClosedEmit,
   OverlayClosedEvent,
