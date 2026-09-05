@@ -47,7 +47,7 @@ const setup = async function setup(
     <TooeeProvider initialMode="insert">
       <Choose
         contentProvider={makeProvider()}
-        options={{ prompt: "pick" }}
+        prompt="pick"
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />

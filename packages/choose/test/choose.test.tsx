@@ -59,7 +59,8 @@ const setup = async function setup(
     <TooeeProvider initialMode="insert">
       <Choose
         contentProvider={makeProvider()}
-        options={{ multi: opts.multi, prompt: opts.prompt }}
+        multi={opts.multi}
+        prompt={opts.prompt}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />
@@ -506,7 +507,7 @@ describe("Choose emptyMessage", () => {
       <TooeeProvider initialMode="insert">
         <Choose
           contentProvider={makeProvider(opts.items ?? [])}
-          options={{ emptyMessage: opts.emptyMessage }}
+          emptyMessage={opts.emptyMessage}
           onCancel={handleCancel}
         />
       </TooeeProvider>,

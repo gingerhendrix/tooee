@@ -16,7 +16,11 @@ export const launch = async function launch(
     ({ resolve, cancel }): React.ReactNode => (
       <Choose
         contentProvider={opts.contentProvider}
-        options={opts.options}
+        title={opts.options?.title}
+        prompt={opts.options?.prompt}
+        placeholder={opts.options?.placeholder}
+        multi={opts.options?.multi}
+        emptyMessage={opts.options?.emptyMessage}
         actions={opts.actions}
         onConfirm={resolve}
         onCancel={cancel}
