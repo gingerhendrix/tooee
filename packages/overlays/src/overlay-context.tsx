@@ -105,14 +105,6 @@ export interface OverlayState {
   stack: OverlayId[];
 }
 
-// Back-compat type (still exported for existing consumers)
-export interface OverlayContextValue {
-  show: (id: string, content: ReactNode, options?: OverlayOpenOptions) => void;
-  hide: (id: string) => void;
-  current: ReactNode | null;
-  hasOverlay: boolean;
-}
-
 // Contexts
 
 const noop = (): void => {
@@ -142,14 +134,6 @@ const defaultState: OverlayState = {
 
 export const OverlayControllerContext = createContext<OverlayController>(defaultController);
 export const OverlayStateContext = createContext<OverlayState>(defaultState);
-
-// Back-compat: OverlayContext that combines both (for existing provider consumers)
-export const OverlayContext = createContext<OverlayContextValue>({
-  current: null,
-  hasOverlay: false,
-  hide: noop,
-  show: noop,
-});
 
 // Hooks
 

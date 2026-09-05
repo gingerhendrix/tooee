@@ -125,7 +125,6 @@ export const Choose = function Choose({
           { label: "", value: hints.join("  ") },
         ],
       }}
-      scrollProps={{ focused: false }}
     >
       <box flexDirection="column" style={{ flexGrow: 1 }}>
         <ChooseFilter choose={choose} placeholder={options?.placeholder} />

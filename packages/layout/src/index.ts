@@ -1,5 +1,9 @@
 export { AppLayout } from "./app-layout.js";
-export type { AppLayoutProps } from "./app-layout.js";
+export type { AppLayoutProps, AppLayoutScroll } from "./app-layout.js";
+export { OverlayPanel } from "./overlay-panel.js";
+export type { OverlayPanelProps, PanelInset, PanelInsetValue } from "./overlay-panel.js";
+export { decodeReactContent } from "./react-content.js";
+export type { DecodedReactContent } from "./react-content.js";
 export { StatusBar } from "./status-bar.js";
 export type { StatusBarItem } from "./status-bar.js";
 export { TitleBar } from "./title-bar.js";

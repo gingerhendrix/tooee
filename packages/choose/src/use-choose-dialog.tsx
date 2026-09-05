@@ -1,20 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useMemo } from "react";
 import type { ReactNode } from "react";
 import type { ActionDefinition } from "@tooee/commands";
-import { useOverlay } from "@tooee/overlays";
-import type { OverlayHandle } from "@tooee/overlays";
+import { useOverlayDialog } from "@tooee/overlays";
 import { ChooseOverlay } from "./choose-overlay.js";
 import type { ChooseListProps } from "./choose-list.js";
 import type { ChoosePanelProps } from "./choose-panel.js";
 import type { ChooseItem, ChooseSource } from "./types.js";
-
-/**
- * Per-open unique overlay id. A module-level sequence guarantees that
- * concurrent dialogs — including dialogs opened from separate providers in the
- * same process — never share an overlay id, so one dialog can never displace
- * another through same-id replacement.
- */
-let chooseDialogSequence = 0;
 
 /** Typed item source: a fixed list, or a loader invoked when the dialog opens. */
 export type ChooseDialogItems<T> = readonly T[] | (() => readonly T[] | Promise<readonly T[]>);
@@ -93,53 +84,11 @@ const defaultDialogItem = function defaultDialogItem<T>(item: T): ChooseItem {
  * `useCurrentOverlay()`).
  */
 export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle<T> {
-  const overlay = useOverlay();
-  const overlayRef = useRef(overlay);
-  overlayRef.current = overlay;
-
-  // Open dialogs by overlay id, so unmounting the owner closes (and thereby
-  // settles) every dialog it opened.
-  const openHandlesRef = useRef(new Map<string, OverlayHandle<undefined>>());
-  const unmountedRef = useRef(false);
-
-  useEffect(() => {
-    unmountedRef.current = false;
-    const handles = openHandlesRef.current;
-    return () => {
-      unmountedRef.current = true;
-      // Map iteration tolerates deletion: settle() removes entries as each
-      // close lands.
-      for (const handle of handles.values()) {
-        handle.close("unmounted");
-      }
-      handles.clear();
-    };
-  }, []);
-
-  // Stable identity so command handlers and effects can capture the handle.
-  const handleRef = useRef<ChooseDialogHandle<T> | null>(null);
-  if (handleRef.current === null) {
+  const dialog = useOverlayDialog<T | T[]>();
+  return useMemo<ChooseDialogHandle<T>>(() => {
     const open = async (
       options: ChooseDialogOptionsBase<T> & { toItem?: (item: T) => ChooseItem },
     ): Promise<T | T[] | null> => {
-      const { promise, resolve } = Promise.withResolvers<T | T[] | null>();
-      if (unmountedRef.current) {
-        resolve(null);
-        return null;
-      }
-
-      chooseDialogSequence += 1;
-      const id = `choose-dialog-${chooseDialogSequence}`;
-      let settled = false;
-      const settle = (value: T | T[] | null) => {
-        if (settled) {
-          return;
-        }
-        settled = true;
-        openHandlesRef.current.delete(id);
-        resolve(value);
-      };
-
       // Displayed rows map back to typed items by identity: every mapped
       // row is a fresh object (spread copy), so duplicates in `items` and
       // `toItem` results that share references stay unambiguous.
@@ -181,67 +130,42 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
         statusRight: options.statusRight,
       };
 
-      const handle = overlayRef.current.open(
-        id,
-        (): ReactNode =>
+      return await dialog.open(
+        "choose-dialog",
+        (settle): ReactNode =>
           multi ? (
             <ChooseOverlay
               {...shared}
               multi
               onSubmit={(result) => {
-                if (settled) {
-                  return;
-                }
                 const values = result.items.flatMap((row) => {
                   const value = rowToValue.get(row);
                   return value === undefined ? [] : [value];
                 });
                 settle(values);
-                handle.close("close");
               }}
               onCancel={() => {
-                handle.close("escape");
+                settle(null);
               }}
             />
           ) : (
             <ChooseOverlay
               {...shared}
               onSelect={(row) => {
-                if (settled) {
-                  return;
-                }
                 const value = rowToValue.get(row);
                 settle(value ?? null);
-                handle.close("close");
               }}
               onCancel={() => {
-                handle.close("escape");
+                settle(null);
               }}
             />
           ),
-        undefined,
-        {
-          // Single settlement funnel: every close path (cancel, escape,
-          // replacement, unmount, external closeTop) lands here. Select and
-          // submit settle first, making this a no-op.
-          onClose: () => {
-            settle(null);
-          },
-          ownCommands: true,
-          role: "modal",
-          surfaceMode: "insert",
-        },
       );
-      openHandlesRef.current.set(id, handle);
-      const result = await promise;
-      return result;
     };
 
     // SAFETY: The implementation returns the single or multi result selected by the same options.multi
     // discriminator as the public overloads.
     // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- implementation preserves the public overloaded handle contract
-    handleRef.current = { open: open as ChooseDialogHandle<T>["open"] };
-  }
-
-  return handleRef.current;
+    return { open: open as ChooseDialogHandle<T>["open"] };
+  }, [dialog]);
 };

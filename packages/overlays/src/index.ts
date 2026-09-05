@@ -1,5 +1,4 @@
 export {
-  OverlayContext,
   OverlayControllerContext,
   OverlayStateContext,
   overlayUpdater,
@@ -11,7 +10,6 @@ export {
   useHasModalOverlay,
 } from "./overlay-context.js";
 export type {
-  OverlayContextValue,
   OverlayId,
   OverlayCloseReason,
   OverlayOpenOptions,
@@ -31,6 +29,8 @@ export {
   selectStackIds,
   selectTop,
 } from "./overlay-store.js";
+export { useOverlayDialog } from "./use-overlay-dialog.js";
+export type { OverlayDialogHandle, OverlayDialogSettle } from "./use-overlay-dialog.js";
 export type {
   OverlayClosedEmit,
   OverlayClosedEvent,
