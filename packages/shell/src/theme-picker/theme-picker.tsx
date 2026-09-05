@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useCommand } from "@tooee/commands";
-import { rankBy } from "@tooee/renderers";
+import { rankBy } from "@tooee/fuzzy";
 import { CloseButton } from "@tooee/layout";
 import { useTheme } from "@tooee/themes";
 
