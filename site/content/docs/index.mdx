@@ -1,9 +1,9 @@
 ---
 title: Introduction
-description: What Tooee is and which of its three entry points fits your work.
+description: What is tooee?
 ---
 
-Tooee is a framework for terminal apps. It runs on Bun and draws with OpenTUI and React. You can use it in three ways.
+Tooee is a framework for terminal apps built on Bun and OpenTUI. You can use in three ways:
 
 | Way                    | What you write                                            | Start at                                         |
 | ---------------------- | --------------------------------------------------------- | ------------------------------------------------ |
@@ -13,9 +13,9 @@ Tooee is a framework for terminal apps. It runs on Bun and draws with OpenTUI an
 
 All three share the same screens, keys, themes, and config files. The keys are in [Keyboard basics](/docs/start/keyboard-basics).
 
-## The three built-in apps
+## Built-in apps
 
-Tooee ships three apps. The CLI exposes them as commands. The packages expose them as `launch()` functions and as React components.
+Tooee ships three core apps exposed by the CLI as commands. The packages expose the same apps as `launch()` functions and as React components.
 
 | App    | Package         | Job                                                                                          |
 | ------ | --------------- | -------------------------------------------------------------------------------------------- |
@@ -51,7 +51,7 @@ await launch({
 });
 ```
 
-Run it with `bun release-notes.ts`. A content provider can read a file, run a process, or call an API. Ask and Choose work the same way: `launch()` opens the screen and resolves with the answer. This way suits data that lives in TypeScript and needs a screen without new components.
+Run it with `bun release-notes.ts`. A content provider can read a file, run a process, or call an API. Ask and Choose work the same way: `launch()` opens the screen and resolves with the answer.
 
 ## Build an app
 
