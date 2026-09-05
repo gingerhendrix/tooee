@@ -1,0 +1,474 @@
+---
+title: Panels
+description: Show several regions at once with one active panel that owns the keys and the chrome.
+---
+
+```tsx title="mailbox.tsx"
+import { useCommand } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { Panel, PanelGroup, usePanels } from "@tooee/panels";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+interface Folder {
+  name: string;
+  subjects: string[];
+}
+
+const folders: Folder[] = [
+  { name: "Inbox", subjects: ["Release 1.4.0 is out", "Panel review notes", "Lunch on Friday?"] },
+  { name: "Sent", subjects: ["Re: Panel review notes", "Invoice 0042"] },
+  { name: "Archive", subjects: ["Welcome to the team"] },
+];
+
+const FolderList = function FolderList({
+  cursor,
+  onMove,
+}: {
+  cursor: number;
+  onMove: (index: number) => void;
+}): ReactNode {
+  const { theme } = useTheme();
+  useCommand({
+    handler: () => {
+      onMove(Math.min(cursor + 1, folders.length - 1));
+    },
+    hotkey: "j",
+    id: "folders.down",
+    title: "Next folder",
+  });
+  useCommand({
+    handler: () => {
+      onMove(Math.max(cursor - 1, 0));
+    },
+    hotkey: "k",
+    id: "folders.up",
+    title: "Previous folder",
+  });
+
+  return (
+    <box flexDirection="column" paddingLeft={1}>
+      {folders.map(
+        (folder, index): ReactNode => (
+          <text
+            key={folder.name}
+            content={`${index === cursor ? ">" : " "} ${folder.name}`}
+            fg={index === cursor ? theme.primary : theme.text}
+          />
+        ),
+      )}
+    </box>
+  );
+};
+
+const MessageList = function MessageList({ subjects }: { subjects: string[] }): ReactNode {
+  const { theme } = useTheme();
+  const [cursor, setCursor] = useState(0);
+  useCommand({
+    handler: () => {
+      setCursor((current) => Math.min(current + 1, subjects.length - 1));
+    },
+    hotkey: "j",
+    id: "messages.down",
+    title: "Next message",
+  });
+  useCommand({
+    handler: () => {
+      setCursor((current) => Math.max(current - 1, 0));
+    },
+    hotkey: "k",
+    id: "messages.up",
+    title: "Previous message",
+  });
+
+  return (
+    <box flexDirection="column" paddingLeft={1}>
+      {subjects.map(
+        (subject, index): ReactNode => (
+          <text
+            key={subject}
+            content={`${index === cursor ? ">" : " "} ${subject}`}
+            fg={index === cursor ? theme.primary : theme.text}
+          />
+        ),
+      )}
+    </box>
+  );
+};
+
+const Mailbox = function Mailbox(): ReactNode {
+  const { activePanelId } = usePanels();
+  const [folder, setFolder] = useState(0);
+  const current = folders[folder];
+  useQuitCommand();
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Mail" }}
+      statusBar={{
+        items: [
+          { label: "Active:", value: activePanelId ?? "none" },
+          { label: "", value: "Tab switch  j/k move  q quit" },
+        ],
+      }}
+    >
+      <box flexDirection="row" width="100%" height="100%">
+        <Panel id="folders" title="Folders" style={{ width: 24 }}>
+          <FolderList cursor={folder} onMove={setFolder} />
+        </Panel>
+        <Panel id="messages" title={current.name} style={{ flexGrow: 1 }}>
+          <MessageList key={current.name} subjects={current.subjects} />
+        </Panel>
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(
+  <PanelGroup defaultActivePanelId="folders">
+    <Mailbox />
+  </PanelGroup>,
+);
+```
+
+Run it with `bun mailbox.tsx`. Two bordered panels share the screen. The folders panel starts active: its border is brighter and its title carries a `▸` marker. `j` and `k` move the folder marker and the messages panel follows. `Tab` activates the messages panel, and `j` and `k` now move the message marker instead. A click inside a panel activates it. `q` quits from either panel.
+
+`PanelGroup` from `@tooee/panels` holds the panels and decides which one is active. It draws nothing; the row box is yours. Each `Panel` draws its chrome and mounts a command surface, so the `useCommand` calls inside it dispatch only while that panel is active. Both lists bind `j` and `k` with different ids, and only the active one runs. `usePanels()` reads the group from anywhere below it, so the status bar can show the active id. A key the active panel does not match, such as `q`, falls through to the commands registered outside the group. `<box>` and `<text>` are [OpenTUI](https://opentui.com) elements; [Layout and chrome](/docs/build/layout) covers `AppLayout`.
+
+Panels stay mounted while inactive, so a list keeps its cursor, an editor keeps its text, and a router inside a panel keeps its stack.
+
+## Panel props
+
+| Prop          | Default    | Meaning                                                                                                        |
+| ------------- | ---------- | -------------------------------------------------------------------------------------------------------------- |
+| `id`          |            | Required. Unique in the group. Also the id of the panel's command surface.                                     |
+| `title`       |            | Text in the border. The active panel draws it with a `▸` marker in `theme.borderActive`.                       |
+| `disabled`    | `false`    | Skipped by activation and switching. Drawn with `theme.borderSubtle`. See [Disable a panel](#disable-a-panel). |
+| `initialMode` | `"cursor"` | The panel's local mode when it mounts.                                                                         |
+| `chrome`      | `"border"` | `"border"` draws a themed box. `"none"` draws nothing. See [Draw your own chrome](#draw-your-own-chrome).      |
+| `style`       |            | Layout props for the chrome box, such as `width` and `flexGrow`.                                               |
+
+The border colour is `theme.borderActive` for the active panel and `theme.border` for the others, over `theme.backgroundPanel`. An inactive title draws in `theme.textMuted`.
+
+## Group props
+
+| Prop                   | Default                                  | Meaning                                                                            |
+| ---------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------- |
+| `id`                   | generated                                | Stable group id. Set it when you mount more than one group.                        |
+| `defaultActivePanelId` | first panel                              | The active panel at mount, for an uncontrolled group.                              |
+| `activePanelId`        |                                          | The active panel, for a controlled group. `null` activates none.                   |
+| `onActivePanelChange`  |                                          | Called with a panel id. See [Control the active panel](#control-the-active-panel). |
+| `switchKeys`           | `{ next: "tab", previous: "shift+tab" }` | The switch hotkeys. `null` removes the built-in switch commands.                   |
+| `switchModes`          | `["cursor", "select"]`                   | The local modes in which the switch keys match.                                    |
+| `wrap`                 | `true`                                   | `next` from the last panel goes to the first.                                      |
+| `activateOnMouseDown`  | `true`                                   | A mouse-down inside a panel with the default chrome activates it.                  |
+
+The switch commands are `panels.next` and `panels.previous`. Each panel registers the pair on its own surface, so the pair of the active panel is the one that runs, and a [config](/docs/customize/configuration) file can rebind the ids. Panels cycle in source order. The switch keys stay out of insert mode by default so that `Tab` reaches an editor.
+
+## Control the active panel
+
+`usePanels()` returns `{ panelIds, activePanelId, activate, next, previous }` for the nearest group. `usePanelState()` returns `{ id, title, isActive, activate }` for the nearest panel, and `usePanelActive()` returns `true` inside the active panel or outside any panel.
+
+Pass `activePanelId` to own the active panel yourself. The group then never picks a panel on its own: it calls `onActivePanelChange` with the id that `activate`, `next`, `previous`, or a click asks for, and shows whatever you pass back:
+
+```tsx title="workbench.tsx"
+import { useCommand } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { Panel, PanelGroup } from "@tooee/panels";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const Workbench = function Workbench(): ReactNode {
+  const [active, setActive] = useState<string | null>("editor");
+  useQuitCommand();
+  useCommand({
+    handler: () => {
+      setActive("editor");
+    },
+    hotkey: "1",
+    id: "focus.editor",
+    title: "Focus the editor",
+  });
+  useCommand({
+    handler: () => {
+      setActive("terminal");
+    },
+    hotkey: "2",
+    id: "focus.terminal",
+    title: "Focus the terminal",
+  });
+  useCommand({
+    handler: () => {
+      setActive(null);
+    },
+    hotkey: "Escape",
+    id: "focus.none",
+    title: "Release the panels",
+  });
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Workbench" }}
+      statusBar={{
+        items: [
+          { label: "Active:", value: active ?? "none" },
+          { label: "", value: "1 editor  2 terminal  Escape none  Tab next  q quit" },
+        ],
+      }}
+    >
+      <PanelGroup activePanelId={active} onActivePanelChange={setActive}>
+        <box flexDirection="column" width="100%" height="100%">
+          <Panel id="editor" title="Editor" style={{ flexGrow: 1 }}>
+            <text content=" fn main() {}" />
+          </Panel>
+          <Panel id="terminal" title="Terminal" style={{ height: 8 }}>
+            <text content=" $ bun test" />
+          </Panel>
+        </box>
+      </PanelGroup>
+    </AppLayout>
+  );
+};
+
+await launchCli(<Workbench />);
+```
+
+`1` and `2` are root commands. The active panel has no command on those keys, so they fall through and set the state. `Tab` asks the group for the next panel and the group reports it through `onActivePanelChange`. `Escape` sets `null`: both panels draw inactive, the root owns every key, and `Tab` does nothing until `1` or `2` activates a panel again.
+
+An uncontrolled group calls `onActivePanelChange` with each resolved change, including the first panel it picks at mount. When the active panel unmounts or becomes disabled, an uncontrolled group moves to the next panel in source order, or the previous one when there is none after it. A controlled group is never repaired; an id that is missing or disabled activates no panel. The callback never receives `null`; read `usePanels().activePanelId` for that.
+
+## Draw your own chrome
+
+`chrome="none"` mounts the surface and the children with no box around them. The panel then draws its own state from `usePanelState()`:
+
+```tsx title="counters.tsx"
+import { useCommand } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { Panel, PanelGroup, usePanelState } from "@tooee/panels";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const Counter = function Counter(): ReactNode {
+  const { activate, id, isActive, title } = usePanelState();
+  const { theme } = useTheme();
+  const [count, setCount] = useState(0);
+  useCommand({
+    handler: () => {
+      setCount((current) => current + 1);
+    },
+    hotkey: "a",
+    id: `${id}.add`,
+    title: `Add to ${title ?? id}`,
+  });
+
+  return (
+    <box
+      flexDirection="column"
+      backgroundColor={isActive ? theme.backgroundElement : theme.backgroundPanel}
+      onMouseDown={activate}
+      paddingLeft={1}
+      paddingRight={1}
+      style={{ flexGrow: 1 }}
+    >
+      <text
+        content={`${isActive ? "●" : "○"} ${title ?? id}`}
+        fg={isActive ? theme.accent : theme.textMuted}
+      />
+      <text content={`count: ${count}`} />
+    </box>
+  );
+};
+
+const Counters = function Counters(): ReactNode {
+  useQuitCommand();
+  return (
+    <AppLayout
+      titleBar={{ title: "Counters" }}
+      statusBar={{ items: [{ label: "", value: "Tab switch  a add  click activate  q quit" }] }}
+    >
+      <box flexDirection="row" width="100%" height="100%">
+        <PanelGroup defaultActivePanelId="build">
+          <Panel id="build" title="Build" chrome="none">
+            <Counter />
+          </Panel>
+          <Panel id="test" title="Test" chrome="none">
+            <Counter />
+          </Panel>
+        </PanelGroup>
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<Counters />);
+```
+
+The active counter has a filled marker and a lighter background. `a` adds to the active counter only. A click on a counter activates it, because the box binds `onMouseDown` to `activate`; with `chrome="none"` the group's `activateOnMouseDown` has nothing to bind, so that click handler is yours to add. [panels-custom-chrome.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/panels-custom-chrome.tsx) is the same shape with a border. The [Ask](/docs/apps/ask#embed-the-editor-in-a-panel) and [Choose](/docs/apps/choose#use-the-chooser-inside-a-panel) pages use `chrome="none"` to let `AskPanel` and `ChoosePanel` draw the box instead.
+
+## Disable a panel
+
+A panel with `disabled` stays mounted and visible, draws with the subtle border, and is skipped by `activate`, `next`, `previous`, and clicks. This app also sets `switchKeys={null}` and binds its own keys to the group controls:
+
+```tsx title="pipeline.tsx"
+import { useCommand } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { Panel, PanelGroup, usePanels } from "@tooee/panels";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import type { ReactNode } from "react";
+
+const StageKeys = function StageKeys(): null {
+  const { next, previous } = usePanels();
+  useCommand({
+    handler: previous,
+    hotkey: "h",
+    id: "stages.previous",
+    title: "Previous stage",
+  });
+  useCommand({
+    handler: next,
+    hotkey: "l",
+    id: "stages.next",
+    title: "Next stage",
+  });
+  return null;
+};
+
+const Pipeline = function Pipeline(): ReactNode {
+  useQuitCommand();
+  return (
+    <AppLayout
+      titleBar={{ title: "Pipeline" }}
+      statusBar={{ items: [{ label: "", value: "h/l switch  q quit" }] }}
+    >
+      <PanelGroup defaultActivePanelId="build" switchKeys={null}>
+        <StageKeys />
+        <box flexDirection="row" width="100%" height="100%">
+          <Panel id="build" title="Build" style={{ flexGrow: 1 }}>
+            <text content=" passed in 41 s" />
+          </Panel>
+          <Panel id="test" title="Test" disabled style={{ flexGrow: 1 }}>
+            <text content=" waiting for build" />
+          </Panel>
+          <Panel id="deploy" title="Deploy" style={{ flexGrow: 1 }}>
+            <text content=" not started" />
+          </Panel>
+        </box>
+      </PanelGroup>
+    </AppLayout>
+  );
+};
+
+await launchCli(<Pipeline />);
+```
+
+`l` moves from Build to Deploy over the disabled Test panel, and `h` moves back. `Tab` does nothing. `StageKeys` sits inside the group and outside any panel, so its commands live on the root surface and run whichever panel is active. [panels-disabled.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/panels-disabled.tsx) is the repo's version.
+
+## Modes inside a panel
+
+Each panel has a local mode, started from `initialMode`. `useMode` and `useSetMode` inside the panel read and set that mode, and the root mode stays where it is. In cursor and select mode, a key the panel does not match falls through to the root. In insert mode nothing falls through: typed characters and `Tab` stay with the panel, which is what an editor needs. The [Ask](/docs/apps/ask#embed-the-editor-in-a-panel) page mounts an editor in a panel with `initialMode="insert"`, so typing starts at once and `Escape` returns the panel to cursor mode before `Tab` can switch.
+
+## Screen focus in a panel
+
+A panel wraps its children in a screen scope that is live only while the panel is active. `useScreenFocus()` and `useScreenEffect()` from `@tooee/router` read that scope with or without a router:
+
+```tsx title="log-tail.tsx"
+import { useCommand } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { Panel, PanelGroup } from "@tooee/panels";
+import { useScreenEffect, useScreenFocus } from "@tooee/router";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const services = ["api", "web", "worker"];
+
+const ServiceList = function ServiceList(): ReactNode {
+  const { theme } = useTheme();
+  const [cursor, setCursor] = useState(0);
+  useCommand({
+    handler: () => {
+      setCursor((current) => (current + 1) % services.length);
+    },
+    hotkey: "j",
+    id: "services.next",
+    title: "Next service",
+  });
+
+  return (
+    <box flexDirection="column" paddingLeft={1}>
+      {services.map(
+        (service, index): ReactNode => (
+          <text
+            key={service}
+            content={`${index === cursor ? ">" : " "} ${service}`}
+            fg={index === cursor ? theme.primary : theme.text}
+          />
+        ),
+      )}
+    </box>
+  );
+};
+
+const LogTail = function LogTail(): ReactNode {
+  const { isFocused } = useScreenFocus();
+  const [lines, setLines] = useState(0);
+  useScreenEffect(() => {
+    const timer = setInterval(() => {
+      setLines((current) => current + 1);
+    }, 300);
+    return () => {
+      clearInterval(timer);
+    };
+  });
+
+  return (
+    <box paddingLeft={1}>
+      <text content={`${isFocused ? "tailing" : "paused"}  lines: ${lines}`} />
+    </box>
+  );
+};
+
+const Ops = function Ops(): ReactNode {
+  useQuitCommand();
+  return (
+    <AppLayout
+      titleBar={{ title: "Ops" }}
+      statusBar={{ items: [{ label: "", value: "Tab switch  j next  q quit" }] }}
+    >
+      <box flexDirection="row" width="100%" height="100%">
+        <PanelGroup defaultActivePanelId="log">
+          <Panel id="services" title="Services" style={{ width: 20 }}>
+            <ServiceList />
+          </Panel>
+          <Panel id="log" title="Log" style={{ flexGrow: 1 }}>
+            <LogTail />
+          </Panel>
+        </PanelGroup>
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<Ops />);
+```
+
+The log panel starts active and its line count climbs. `Tab` activates the services panel: the log reads `paused`, the count stops, and `j` moves the service marker. `Tab` again resumes the count where it stopped.
+
+A router mounted inside a panel gets the same scope. Its stack survives switches, its screens receive keys only while the panel is active, and `useScreenEffect` in a leaf pauses with the panel. [Routing](/docs/build/routing#nested-routes-and-screen-focus) covers the hooks, and [panels.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/panels.tsx) runs a panel-local router next to a list, with a modal overlay that suspends both panels.
+
+## Which surface has the keyboard
+
+A panel is a surface with the `panel` role. Key dispatch tries the topmost modal overlay first, then the active panel, then the root. A modal overlay, such as a dialog, the palette, or the theme picker, takes every key while it is open and gives them back to the same panel on close. A panel command with the same hotkey as a root command wins while the panel is active. [Command surfaces](/docs/build/command-surfaces) covers the rules in full, and [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) covers the modal role.
+
+## Next
+
+- [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts)
+- [Routing](/docs/build/routing)
+- [Command surfaces](/docs/build/command-surfaces)
+- [Ask](/docs/apps/ask#embed-the-editor-in-a-panel)
