@@ -3,8 +3,8 @@ import { copyToClipboard, readClipboardText, readPrimaryText } from "@tooee/clip
 import { useCommand } from "@tooee/commands";
 import type { CommandWhen, Mode } from "@tooee/commands";
 import { useToast } from "@tooee/toasts";
-import { useThemePicker } from "./theme-picker.js";
-import type { ThemePickerState } from "./theme-picker.js";
+import { useThemePicker } from "./theme-picker/use-theme-picker.js";
+import type { ThemePickerState } from "./theme-picker/use-theme-picker.js";
 
 export interface UseThemeCommandsOptions {
   when?: CommandWhen;
