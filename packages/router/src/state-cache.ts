@@ -8,6 +8,7 @@ import type { Codec } from "./types.js";
  */
 export interface StateKey<T> {
   readonly name: string;
+  // oxlint-disable-next-line anti-slop/no-unknown-parameters -- the cache stores erased values; the key's codec decodes them back
   readonly parse: (value: unknown) => T;
 }
 

@@ -1,9 +1,32 @@
 import type React from "react";
 import type { StateCache } from "./state-cache.js";
 
+/**
+ * Params attached to a stack entry.
+ *
+ * The router keeps this dictionary open on purpose. Params cross a serialized
+ * boundary: the stack stores them, navigation replays them, and a screen only
+ * ever reads them back through its route's own params codec. The value type is
+ * therefore the input side of a decode, not a contract a caller may trust.
+ *
+ * Naming a JSON-like value type here would satisfy the rule below, and it would
+ * also invalidate apps that keep functions, class instances, or other non-JSON
+ * values in route params. The public `unknown` boundary is kept and documented
+ * instead. Every `RouteParams` and `Codec` exception in this package points back
+ * to this decision.
+ */
+// oxlint-disable-next-line anti-slop/no-unsafe-dictionary-type -- the open value type is the decode boundary; routes parse params through their codec
 export type RouteParams = Record<string, unknown>;
 
+/**
+ * A decoder from an unparsed value to a checked `T`.
+ *
+ * This is the router's single decode boundary. Accepting `unknown` is what
+ * makes `parse` meaningful: a codec that took a domain type would have nothing
+ * left to check.
+ */
 export interface Codec<T> {
+  // oxlint-disable-next-line anti-slop/no-unknown-parameters -- a codec input is unparsed by definition
   parse: (value: unknown) => T;
 }
 
@@ -15,9 +38,11 @@ export interface AnyRoute {
   readonly pendingComponent?: React.ComponentType;
   readonly errorComponent?: React.ComponentType<{ error: Error }>;
   readonly params: Codec<RouteParams>;
+  // oxlint-disable-next-line anti-slop/no-unknown-parameters -- the registry decodes a stored stack entry through the route's own codec
   readonly resolveParams: (value: unknown) => RouteParams;
   readonly data?: Codec<unknown>;
   readonly screenState?: Codec<unknown>;
+  // oxlint-disable-next-line anti-slop/no-unknown-returns -- the registry erases each route's data type; useRouteData decodes it back
   readonly load?: (params: RouteParams) => Promise<unknown>;
   readonly title?: (params: RouteParams) => string;
 }
@@ -60,11 +85,13 @@ export interface RouterState {
   stack: StackEntry[];
 }
 
+/* oxlint-disable anti-slop/no-unsafe-dictionary-type -- a plain `RouteParams` use is re-reported inside a type alias; the decision is recorded at the declaration */
 export type SerializedNavigationIntent =
   | { type: "push"; routeId: string; params?: RouteParams }
   | { type: "replace"; routeId: string; params?: RouteParams }
   | { type: "reset"; routeId: string; params?: RouteParams }
   | { type: "pop" };
+/* oxlint-enable anti-slop/no-unsafe-dictionary-type */
 
 export type RouterAction = SerializedNavigationIntent;
 
@@ -122,6 +149,7 @@ export interface RouterOptions<TContext = undefined> {
   onSubscriberError?: (error: Error) => void;
 }
 
+// oxlint-disable-next-line anti-slop/no-unsafe-dictionary-type -- a plain `RouteParams` use is re-reported inside a type alias; the decision is recorded at the declaration
 type OptionalParams<TParams extends RouteParams> =
   Record<string, never> extends TParams ? [params?: TParams] : [params: TParams];
 
