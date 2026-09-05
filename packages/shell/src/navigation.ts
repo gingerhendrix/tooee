@@ -1,8 +1,8 @@
 import { useCallback, useMemo } from "react";
 import { useTerminalDimensions } from "@opentui/react";
 import { useSelector } from "@xstate/store-react";
-import { useCommand, useMode, useSetMode } from "@tooee/commands";
-import type { Mode } from "@tooee/commands";
+import { useActions, useMode, useSetMode } from "@tooee/commands";
+import type { ActionDefinition, Mode } from "@tooee/commands";
 import {
   deriveSelection,
   selectCursor,
@@ -30,6 +30,12 @@ export interface NavigationState {
   toggledIndices: Set<number>;
 }
 
+type NavigationCommandGroup = "cursor" | "select" | "multi-select";
+
+interface NavigationKeymapDefinition extends Omit<ActionDefinition, "group" | "when"> {
+  group: NavigationCommandGroup;
+}
+
 export const useNavigationBindings = function useNavigationBindings(
   store: NavSearchStore,
   {
@@ -52,128 +58,150 @@ export const useNavigationBindings = function useNavigationBindings(
     [store],
   );
 
-  useCommand({
-    handler: () => {
-      store.trigger.move({ delta: 1 });
-    },
-    hotkey: "j",
-    id: "cursor-down",
-    modes: CURSOR_MODES,
-    title: "Cursor down",
-  });
-  useCommand({
-    handler: () => {
-      store.trigger.move({ delta: -1 });
-    },
-    hotkey: "k",
-    id: "cursor-up",
-    modes: CURSOR_MODES,
-    title: "Cursor up",
-  });
-  useCommand({
-    handler: () => {
-      store.trigger.move({ delta: halfPage });
-    },
-    hotkey: "ctrl+d",
-    id: "cursor-half-down",
-    modes: CURSOR_MODES,
-    title: "Cursor half page down",
-  });
-  useCommand({
-    handler: () => {
-      store.trigger.move({ delta: -halfPage });
-    },
-    hotkey: "ctrl+u",
-    id: "cursor-half-up",
-    modes: CURSOR_MODES,
-    title: "Cursor half page up",
-  });
-  useCommand({
-    handler: () => {
-      store.trigger.jump({ direction: 1, index: 0 });
-    },
-    hotkey: "g g",
-    id: "cursor-top",
-    modes: CURSOR_MODES,
-    title: "Cursor to top",
-  });
-  useCommand({
-    handler: () => {
-      store.trigger.jump({ direction: -1, index: store.getSnapshot().context.rowKeys.length - 1 });
-    },
-    hotkey: "shift+g",
-    id: "cursor-bottom",
-    modes: CURSOR_MODES,
-    title: "Cursor to bottom",
-  });
-  useCommand({
-    handler: () => {
-      store.trigger.enterSelect({});
-      setMode("select");
-    },
-    hotkey: "v",
-    id: "enter-select",
-    modes: CURSOR_MODES,
-    title: "Enter select mode",
-  });
-  useCommand({
-    handler: () => {
-      store.trigger.toggleCurrent({});
-    },
-    hotkey: "tab",
-    id: "cursor-toggle",
-    modes: CURSOR_MODES,
-    title: "Toggle selection",
-    when: () => multiSelect,
-  });
-  useCommand({
-    handler: () => {
-      store.trigger.toggleAndMove({ delta: -1 });
-    },
-    hotkey: "shift+tab",
-    id: "cursor-toggle-up",
-    modes: CURSOR_MODES,
-    title: "Toggle and move up",
-    when: () => multiSelect,
-  });
-  useCommand({
-    handler: () => {
-      store.trigger.move({ delta: 1 });
-    },
-    hotkey: "j",
-    id: "select-down",
-    modes: SELECT_MODES,
-    title: "Extend selection down",
-  });
-  useCommand({
-    handler: () => {
-      store.trigger.move({ delta: -1 });
-    },
-    hotkey: "k",
-    id: "select-up",
-    modes: SELECT_MODES,
-    title: "Extend selection up",
-  });
-  useCommand({
-    handler: () => {
-      store.trigger.toggleCurrent({});
-    },
-    hotkey: "tab",
-    id: "select-toggle",
-    modes: SELECT_MODES,
-    title: "Toggle selection",
-    when: () => multiSelect,
-  });
-  useCommand({
-    handler: () => {
-      store.trigger.cancelSelect({});
-      setMode("cursor");
-    },
-    hotkey: "escape",
-    id: "select-cancel",
-    modes: SELECT_MODES,
-    title: "Cancel selection",
-  });
+  const actions = useMemo<ActionDefinition[]>(() => {
+    const definitions: NavigationKeymapDefinition[] = [
+      {
+        group: "cursor",
+        handler: () => {
+          store.trigger.move({ delta: 1 });
+        },
+        hotkey: "j",
+        id: "cursor-down",
+        modes: CURSOR_MODES,
+        title: "Cursor down",
+      },
+      {
+        group: "cursor",
+        handler: () => {
+          store.trigger.move({ delta: -1 });
+        },
+        hotkey: "k",
+        id: "cursor-up",
+        modes: CURSOR_MODES,
+        title: "Cursor up",
+      },
+      {
+        group: "cursor",
+        handler: () => {
+          store.trigger.move({ delta: halfPage });
+        },
+        hotkey: "ctrl+d",
+        id: "cursor-half-down",
+        modes: CURSOR_MODES,
+        title: "Cursor half page down",
+      },
+      {
+        group: "cursor",
+        handler: () => {
+          store.trigger.move({ delta: -halfPage });
+        },
+        hotkey: "ctrl+u",
+        id: "cursor-half-up",
+        modes: CURSOR_MODES,
+        title: "Cursor half page up",
+      },
+      {
+        group: "cursor",
+        handler: () => {
+          store.trigger.jump({ direction: 1, index: 0 });
+        },
+        hotkey: "g g",
+        id: "cursor-top",
+        modes: CURSOR_MODES,
+        title: "Cursor to top",
+      },
+      {
+        group: "cursor",
+        handler: () => {
+          store.trigger.jump({
+            direction: -1,
+            index: store.getSnapshot().context.rowKeys.length - 1,
+          });
+        },
+        hotkey: "shift+g",
+        id: "cursor-bottom",
+        modes: CURSOR_MODES,
+        title: "Cursor to bottom",
+      },
+      {
+        group: "cursor",
+        handler: () => {
+          store.trigger.enterSelect({});
+          setMode("select");
+        },
+        hotkey: "v",
+        id: "enter-select",
+        modes: CURSOR_MODES,
+        title: "Enter select mode",
+      },
+      {
+        group: "multi-select",
+        handler: () => {
+          store.trigger.toggleCurrent({});
+        },
+        hotkey: "tab",
+        id: "cursor-toggle",
+        modes: CURSOR_MODES,
+        title: "Toggle selection",
+      },
+      {
+        group: "multi-select",
+        handler: () => {
+          store.trigger.toggleAndMove({ delta: -1 });
+        },
+        hotkey: "shift+tab",
+        id: "cursor-toggle-up",
+        modes: CURSOR_MODES,
+        title: "Toggle and move up",
+      },
+      {
+        group: "select",
+        handler: () => {
+          store.trigger.move({ delta: 1 });
+        },
+        hotkey: "j",
+        id: "select-down",
+        modes: SELECT_MODES,
+        title: "Extend selection down",
+      },
+      {
+        group: "select",
+        handler: () => {
+          store.trigger.move({ delta: -1 });
+        },
+        hotkey: "k",
+        id: "select-up",
+        modes: SELECT_MODES,
+        title: "Extend selection up",
+      },
+      {
+        group: "multi-select",
+        handler: () => {
+          store.trigger.toggleCurrent({});
+        },
+        hotkey: "tab",
+        id: "select-toggle",
+        modes: SELECT_MODES,
+        title: "Toggle selection",
+      },
+      {
+        group: "select",
+        handler: () => {
+          store.trigger.cancelSelect({});
+          setMode("cursor");
+        },
+        hotkey: "escape",
+        id: "select-cancel",
+        modes: SELECT_MODES,
+        title: "Cancel selection",
+      },
+    ];
+    return definitions.map(({ group, ...definition }) => ({
+      ...definition,
+      when: group === "multi-select" ? () => multiSelect : undefined,
+    }));
+  }, [halfPage, multiSelect, setMode, store]);
+  useActions(actions);
 
   const { context } = store.getSnapshot();
   const toggledIndices = new Set<number>();
