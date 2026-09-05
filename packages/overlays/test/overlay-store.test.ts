@@ -59,13 +59,9 @@ describe("overlay store — stack transitions", () => {
 
     store.trigger.updated({
       id: "a",
-      next: overlayUpdater((previous: unknown) => {
-        // The store's payloads are `unknown`; this test's payload is a string.
-        if (typeof previous !== "string") {
-          throw new TypeError("Expected string payload");
-        }
-        return `${previous}${previous}`;
-      }),
+      // The store's payloads are `unknown`; the updater derives the next payload
+      // from the string set above, and the assertion below checks the result.
+      next: overlayUpdater((previous) => `${String(previous)}${String(previous)}`),
     });
     expect(expectDefined(selectStack(store.getSnapshot().context)[0]).payload).toBe(
       "payload!payload!",

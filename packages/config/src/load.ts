@@ -9,83 +9,136 @@ const DEFAULTS: TooeeConfig = {
   },
 };
 
-const isRecord = function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
+// ---------------------------------------------------------------------------
+// JSON boundary
+// ---------------------------------------------------------------------------
+
+/** The JSON grammar, exactly as `JSON.parse` produces it without a reviver. */
+type JsonValue = string | number | boolean | null | readonly JsonValue[] | JsonObject;
+
+/** A JSON object. A key that is absent from the document reads as `undefined`. */
+interface JsonObject {
+  readonly [key: string]: JsonValue | undefined;
+}
+
+const parseJsonDocument = function parseJsonDocument(text: string): JsonValue {
+  // SAFETY: `JSON.parse` without a reviver produces only the JSON grammar: strings,
+  // finite numbers, booleans, null, arrays, and plain objects. `JsonValue` is that
+  // grammar, so the assertion restates the parser's own contract and narrows nothing.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- JSON.parse is typed `any`; the SAFETY note above states the invariant
+  return JSON.parse(text) as JsonValue;
 };
 
-const readStringRecord = function readStringRecord(
-  value: unknown,
-): Record<string, string> | undefined {
-  if (!isRecord(value) || Object.values(value).some((entry) => typeof entry !== "string")) {
-    return undefined;
+const isJsonObject = function isJsonObject(value: JsonValue | undefined): value is JsonObject {
+  return value instanceof Object && !Array.isArray(value);
+};
+
+const isJsonString = function isJsonString(value: JsonValue | undefined): value is string {
+  // The config decoder is the one place that inspects a JSON value's representation;
+  // every caller branches on the decoded domain value instead.
+  // oxlint-disable-next-line anti-slop/no-runtime-typeof -- primitive check inside the boundary decoder
+  return typeof value === "string";
+};
+
+// ---------------------------------------------------------------------------
+// Config decoding
+// ---------------------------------------------------------------------------
+
+type ThemeSettings = NonNullable<TooeeConfig["theme"]>;
+type ViewSettings = NonNullable<TooeeConfig["view"]>;
+
+const decodeTheme = function decodeTheme(json: JsonObject): ThemeSettings {
+  const theme: ThemeSettings = {};
+  const { mode, name } = json;
+  if (isJsonString(name)) {
+    theme.name = name;
   }
-  return Object.fromEntries(
-    Object.entries(value).filter(
-      (entry): entry is [string, string] => typeof entry[1] === "string",
-    ),
-  );
+  if (mode === "dark" || mode === "light") {
+    theme.mode = mode;
+  }
+  return theme;
 };
 
-const validateConfig = function validateConfig(value: unknown): Partial<TooeeConfig> {
-  if (!isRecord(value)) {
+/** Every value must be a string; one wrong value rejects the whole map. */
+const decodeKeys = function decodeKeys(json: JsonObject): TooeeConfig["keys"] {
+  const entries: [string, string][] = [];
+  for (const [key, value] of Object.entries(json)) {
+    if (!isJsonString(value)) {
+      return undefined;
+    }
+    entries.push([key, value]);
+  }
+  return Object.fromEntries(entries);
+};
+
+const decodeView = function decodeView(json: JsonObject): ViewSettings {
+  const view: ViewSettings = {};
+  const { copyOnSelect, diffLayout, gutter, wrap } = json;
+  if (wrap === true || wrap === false) {
+    view.wrap = wrap;
+  }
+  if (gutter === true || gutter === false) {
+    view.gutter = gutter;
+  }
+  if (diffLayout === "split" || diffLayout === "stack") {
+    view.diffLayout = diffLayout;
+  }
+  if (
+    copyOnSelect === true ||
+    copyOnSelect === false ||
+    copyOnSelect === "primary" ||
+    copyOnSelect === "clipboard"
+  ) {
+    view.copyOnSelect = copyOnSelect;
+  }
+  return view;
+};
+
+/**
+ * Decode one config document. A section that is present as an object is kept
+ * even when none of its fields decode, so `{ "view": {} }` yields `view: {}`;
+ * a section with the wrong representation is dropped as if it were absent.
+ */
+const decodeConfig = function decodeConfig(json: JsonValue): Partial<TooeeConfig> {
+  if (!isJsonObject(json)) {
     return {};
   }
-
   const config: Partial<TooeeConfig> = {};
-  if (isRecord(value.theme)) {
-    const theme: NonNullable<TooeeConfig["theme"]> = {};
-    if (typeof value.theme.name === "string") {
-      theme.name = value.theme.name;
-    }
-    if (value.theme.mode === "dark" || value.theme.mode === "light") {
-      theme.mode = value.theme.mode;
-    }
-    config.theme = theme;
+  const { keys, theme, view } = json;
+  if (isJsonObject(theme)) {
+    config.theme = decodeTheme(theme);
   }
-  const keys = readStringRecord(value.keys);
-  if (keys !== undefined) {
-    config.keys = keys;
+  if (isJsonObject(keys)) {
+    const decodedKeys = decodeKeys(keys);
+    if (decodedKeys !== undefined) {
+      config.keys = decodedKeys;
+    }
   }
-  if (isRecord(value.view)) {
-    const view: NonNullable<TooeeConfig["view"]> = {};
-    if (typeof value.view.wrap === "boolean") {
-      view.wrap = value.view.wrap;
-    }
-    if (typeof value.view.gutter === "boolean") {
-      view.gutter = value.view.gutter;
-    }
-    if (value.view.diffLayout === "split" || value.view.diffLayout === "stack") {
-      view.diffLayout = value.view.diffLayout;
-    }
-    if (
-      typeof value.view.copyOnSelect === "boolean" ||
-      value.view.copyOnSelect === "primary" ||
-      value.view.copyOnSelect === "clipboard"
-    ) {
-      view.copyOnSelect = value.view.copyOnSelect;
-    }
-    config.view = view;
+  if (isJsonObject(view)) {
+    config.view = decodeView(view);
   }
   return config;
 };
+
+// ---------------------------------------------------------------------------
+// Layering
+// ---------------------------------------------------------------------------
 
 const mergeConfig = function mergeConfig(
   target: Partial<TooeeConfig>,
   source: Partial<TooeeConfig>,
 ): TooeeConfig {
-  return {
-    ...target,
-    ...source,
-    ...(target.theme === undefined && source.theme === undefined
-      ? {}
-      : { theme: { ...target.theme, ...source.theme } }),
-    ...(target.keys === undefined && source.keys === undefined
-      ? {}
-      : { keys: { ...target.keys, ...source.keys } }),
-    ...(target.view === undefined && source.view === undefined
-      ? {}
-      : { view: { ...target.view, ...source.view } }),
-  };
+  const merged: TooeeConfig = { ...target, ...source };
+  if (target.theme !== undefined || source.theme !== undefined) {
+    merged.theme = { ...target.theme, ...source.theme };
+  }
+  if (target.keys !== undefined || source.keys !== undefined) {
+    merged.keys = { ...target.keys, ...source.keys };
+  }
+  if (target.view !== undefined || source.view !== undefined) {
+    merged.view = { ...target.view, ...source.view };
+  }
+  return merged;
 };
 
 const readJsonFile = function readJsonFile(configPath: string): Partial<TooeeConfig> {
@@ -93,8 +146,7 @@ const readJsonFile = function readJsonFile(configPath: string): Partial<TooeeCon
     if (!existsSync(configPath)) {
       return {};
     }
-    const parsed: unknown = JSON.parse(readFileSync(configPath, "utf-8"));
-    return validateConfig(parsed);
+    return decodeConfig(parseJsonDocument(readFileSync(configPath, "utf-8")));
   } catch {
     return {};
   }

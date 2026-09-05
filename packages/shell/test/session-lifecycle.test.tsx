@@ -87,7 +87,9 @@ describe("local sessions", () => {
     let effectCleanupCalls = 0;
     const ResourceOwner = function ResourceOwner(): React.ReactNode {
       useEffect(() => {
-        const interval = setInterval(() => void 0, 1000);
+        const interval = setInterval(() => {
+          // Keeps a live timer that the effect cleanup must clear.
+        }, 1000);
         return () => {
           clearInterval(interval);
           effectCleanupCalls += 1;

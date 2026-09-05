@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { act, useRef, useState } from "react";
+import { act, createRef, useRef, useState } from "react";
+import { isEditBufferRenderable } from "@opentui/core";
+import type { EditBufferRenderable, Renderable } from "@opentui/core";
 import { TooeeProvider } from "@tooee/shell";
 import { CommandSurfaceProvider, useCommand, useMode } from "@tooee/commands";
 import { AppLayout } from "@tooee/layout";
@@ -168,39 +170,14 @@ const typeText = async function typeText(text: string) {
   await testSetup.renderOnce();
 };
 
-interface EditableTestTarget {
-  cursorOffset: number;
-  insertText: (text: string) => void;
-  plainText: string;
-  setSelection: (start: number, end: number) => void;
-}
-
-const hasChildren = function hasChildren(node: object): node is { getChildren: () => unknown[] } {
-  return "getChildren" in node && typeof node.getChildren === "function";
-};
-
-const findEditable = function findEditable(node: unknown): EditableTestTarget | undefined {
-  if (node === null || node === undefined || typeof node !== "object") {
-    return undefined;
-  }
-  if (
-    "plainText" in node &&
-    typeof node.plainText === "string" &&
-    "cursorOffset" in node &&
-    typeof node.cursorOffset === "number" &&
-    "insertText" in node &&
-    typeof node.insertText === "function" &&
-    "setSelection" in node &&
-    typeof node.setSelection === "function"
-  ) {
+const findEditable = function findEditable(node: Renderable): EditBufferRenderable | undefined {
+  if (isEditBufferRenderable(node)) {
     return node;
   }
-  if (hasChildren(node)) {
-    for (const child of node.getChildren()) {
-      const editable = findEditable(child);
-      if (editable) {
-        return editable;
-      }
+  for (const child of node.getChildren()) {
+    const editable = findEditable(child);
+    if (editable) {
+      return editable;
     }
   }
   return undefined;
@@ -297,7 +274,7 @@ describe("AskEditor clipboard commands", () => {
 
 describe("AskEditorController", () => {
   test("setText replaces the single-line value through React state", async () => {
-    const controllerRef = { current: null as AskEditorController | null };
+    const controllerRef = createRef<AskEditorController>();
     let submitted = "";
     testSetup = await setup(
       <ControllerHost
@@ -326,7 +303,7 @@ describe("AskEditorController", () => {
   });
 
   test("setText replaces the multiline buffer and moves the cursor to the end", async () => {
-    const controllerRef = { current: null as AskEditorController | null };
+    const controllerRef = createRef<AskEditorController>();
     let submitted = "";
     testSetup = await setup(
       <ControllerHost
@@ -354,7 +331,7 @@ describe("AskEditorController", () => {
   });
 
   test("insertText inserts at the cursor and submit() submits programmatically", async () => {
-    const controllerRef = { current: null as AskEditorController | null };
+    const controllerRef = createRef<AskEditorController>();
     let submitted = "";
     testSetup = await setup(
       <ControllerHost
@@ -377,7 +354,7 @@ describe("AskEditorController", () => {
   });
 
   test("insertText into the single-line input is readable and submittable synchronously", async () => {
-    const controllerRef = { current: null as AskEditorController | null };
+    const controllerRef = createRef<AskEditorController>();
     let submitted = "";
     testSetup = await setup(
       <ControllerHost
@@ -409,7 +386,7 @@ describe("AskEditorController", () => {
   });
 
   test("mode reads live and setMode switches the local mode", async () => {
-    const controllerRef = { current: null as AskEditorController | null };
+    const controllerRef = createRef<AskEditorController>();
     testSetup = await setup(<ControllerHost defaultValue="hi" controllerRef={controllerRef} />);
 
     expect(expectDefined(controllerRef.current).mode).toBe("insert");

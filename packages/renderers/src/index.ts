@@ -33,13 +33,17 @@ export type { CommandPaletteEntry } from "./command-palette.js";
 export { ContextMenu } from "./context-menu.js";
 export type { ContextMenuEntry } from "./context-menu.js";
 export { parseCSV, parseTSV, parseJSON, parseAuto, detectFormat } from "./parsers.js";
-export type { Format, ParsedTable } from "./parsers.js";
+export type { Format, ParsedTable, TableData } from "./parsers.js";
 export { RowDocumentRenderable } from "./row-document-renderable.js";
 export {
   DEFAULT_SIGN_COLUMN_WIDTH,
   computeRowDocumentGutterWidth,
 } from "./row-document-renderable.js";
-export type { RowDocumentOptions, RowDocumentPalette } from "./row-document-renderable.js";
+export type {
+  RowDocumentOptions,
+  RowDocumentPalette,
+  VisibleRowRange,
+} from "./row-document-renderable.js";
 export type { DecorationLayer, RowDecoration } from "./decoration-layer.js";
 export type { DocumentBindings } from "./document-bindings.js";
 export { useGutterPalette } from "./use-gutter-palette.js";

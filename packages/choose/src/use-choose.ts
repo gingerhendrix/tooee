@@ -9,7 +9,7 @@ import {
   useProvideCommandContext,
   useSetMode,
 } from "@tooee/commands";
-import type { ActionDefinition, Mode } from "@tooee/commands";
+import type { ActionDefinition, CommandContext, Mode } from "@tooee/commands";
 import { fuzzyFilter } from "./fuzzy.js";
 import type { FuzzyMatch } from "./fuzzy.js";
 import { chooseSourceError, loadChooseSource } from "./source.js";
@@ -88,6 +88,11 @@ export interface UseChooseResult {
   controller: ChooseController;
   state: ChooseState;
   view: ChooseViewModel;
+}
+
+interface ChooseCommandContextContribution {
+  choose: CommandContext["choose"];
+  exit?: () => void;
 }
 
 /**
@@ -299,14 +304,19 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     [setMode],
   );
 
-  useProvideCommandContext(() => ({
-    choose: {
-      activeItem: getActiveItem(),
-      filterQuery: filterQueryRef.current,
-      selectedItems: getSelectedItems(),
-    },
-    ...(optionsRef.current.onCancel ? { exit: cancel } : {}),
-  }));
+  useProvideCommandContext(() => {
+    const context: ChooseCommandContextContribution = {
+      choose: {
+        activeItem: getActiveItem(),
+        filterQuery: filterQueryRef.current,
+        selectedItems: getSelectedItems(),
+      },
+    };
+    if (optionsRef.current.onCancel !== undefined) {
+      context.exit = cancel;
+    }
+    return context;
+  });
 
   useActions(options.commands);
 

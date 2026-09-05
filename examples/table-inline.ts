@@ -35,7 +35,7 @@ const columns = headers.map((header, index) => ({
 }));
 
 const tableRows = rows.map((row) => {
-  const record: Record<(typeof columnKeys)[number], string> = {
+  const record = {
     creator: row[2] ?? "",
     language: row[0] ?? "",
     paradigm: row[3] ?? "",

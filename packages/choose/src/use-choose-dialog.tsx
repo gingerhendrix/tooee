@@ -65,6 +65,19 @@ export interface ChooseDialogHandle<T> {
   };
 }
 
+const isDialogItemArray = function isDialogItemArray<T>(
+  items: ChooseDialogItems<T>,
+): items is readonly T[] {
+  return Array.isArray(items);
+};
+
+// oxlint-disable-next-line typescript/no-unnecessary-type-parameters -- T carries the conditional public option evidence for an omitted mapper
+const defaultDialogItem = function defaultDialogItem<T>(item: T): ChooseItem {
+  // SAFETY: ChooseDialogToItem permits an omitted mapper only when T extends ChooseItem.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- conditional public options enforce the ChooseItem arm
+  return item as ChooseItem;
+};
+
 /**
  * Promise-based modal chooser dialog on the overlay stack.
  *
@@ -130,11 +143,7 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
       // Displayed rows map back to typed items by identity: every mapped
       // row is a fresh object (spread copy), so duplicates in `items` and
       // `toItem` results that share references stay unambiguous.
-      // Safe default: `toItem` may only be omitted when T is a ChooseItem
-      // (enforced by ChooseDialogToItem).
-      // Deferred(lint-sweep): replace the conditional generic API boundary with schema-safe overload implementation typing.
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- default mapper is enforced by ChooseDialogToItem's public type
-      const toItem = options.toItem ?? ((item: T) => item as unknown as ChooseItem);
+      const toItem = options.toItem ?? defaultDialogItem;
       const rowToValue = new Map<ChooseItem, T>();
       const mapValues = (values: readonly T[]): ChooseItem[] => {
         rowToValue.clear();
@@ -148,12 +157,10 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
       // Created once per open() so the source identity is stable across
       // overlay re-renders (a fresh source each render would reload forever).
       const { items } = options;
-      const source: ChooseSource = Array.isArray(items)
-        ? mapValues(items as readonly T[])
+      const source: ChooseSource = isDialogItemArray(items)
+        ? mapValues(items)
         : (): ChooseItem[] | Promise<ChooseItem[]> => {
-            // Deferred(lint-sweep): replace the conditional generic API boundary with schema-safe overload implementation typing.
-            // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- implementation narrows the public source union after the branch
-            const loaded = (items as () => readonly T[] | Promise<readonly T[]>)();
+            const loaded = items();
             if (loaded instanceof Promise) {
               return (async () => mapValues(await loaded))();
             }
@@ -230,7 +237,8 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
       return result;
     };
 
-    // Deferred(lint-sweep): replace the conditional generic API boundary with schema-safe overload implementation typing.
+    // SAFETY: The implementation returns the single or multi result selected by the same options.multi
+    // discriminator as the public overloads.
     // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- implementation preserves the public overloaded handle contract
     handleRef.current = { open: open as ChooseDialogHandle<T>["open"] };
   }

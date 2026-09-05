@@ -4,6 +4,7 @@ import type { TableRow } from "@tooee/renderers";
 import { useDocumentController } from "@tooee/shell";
 import { getTextContent } from "../../types.js";
 import type { TableContent } from "../../types.js";
+import { stringifyTableCell } from "../../table-cell.js";
 import { useContentCommands } from "../../hooks/use-content-commands.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
@@ -11,40 +12,6 @@ import type { SubviewProps } from "./types.js";
 interface TableSubviewProps extends SubviewProps {
   content: TableContent;
 }
-
-const stringifyRowCell = function stringifyRowCell(value: unknown): string {
-  if (value === null || value === undefined) {
-    return "";
-  }
-  if (typeof value === "string") {
-    return value;
-  }
-  if (typeof value === "number" || typeof value === "boolean") {
-    return String(value);
-  }
-  if (typeof value === "string") {
-    return value;
-  }
-  if (
-    typeof value === "number" ||
-    typeof value === "bigint" ||
-    typeof value === "boolean" ||
-    typeof value === "symbol"
-  ) {
-    return value.toString();
-  }
-  if (value === null || value === undefined) {
-    return String(value);
-  }
-  if (typeof value === "function") {
-    return Function.prototype.toString.call(value);
-  }
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return Array.isArray(value) ? value.join(",") : Object.prototype.toString.call(value);
-  }
-};
 
 export const TableSubview = function TableSubview({
   content,
@@ -59,7 +26,7 @@ export const TableSubview = function TableSubview({
   const adapter = useMemo(
     () => ({
       getText: (row: TableRow) =>
-        columns.map((column) => stringifyRowCell(row[column.key])).join("\t"),
+        columns.map((column) => stringifyTableCell(row[column.key])).join("\t"),
     }),
     [columns],
   );

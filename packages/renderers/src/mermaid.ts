@@ -24,6 +24,11 @@ export interface MermaidRenderOptions {
   theme?: BeautifulMermaidAsciiTheme;
 }
 
+export interface AnsiStyledText {
+  text: string;
+  content: StyledText;
+}
+
 // beautiful-mermaid's flowchart renderer uses unbounded synchronous A* pathfinding.
 // Dense graphs can therefore block the UI thread and exhaust the process heap when
 // an edge cannot be routed. Keep synchronous work within a conservative budget;
@@ -65,11 +70,11 @@ const appendStyledChunk = function appendStyledChunk(
     return;
   }
 
-  chunks.push({
-    __isChunk: true,
-    text,
-    ...(fg !== undefined && fg !== "" ? { fg: parseColor(fg) } : {}),
-  });
+  const chunk: TextChunk = { __isChunk: true, text };
+  if (fg !== undefined && fg !== "") {
+    chunk.fg = parseColor(fg);
+  }
+  chunks.push(chunk);
 };
 
 const sgrParams = function sgrParams(rawParams: string): number[] {
@@ -118,10 +123,7 @@ const updateAnsiForeground = function updateAnsiForeground(
 };
 
 /** Convert beautiful-mermaid truecolor ANSI output into OpenTUI StyledText. */
-export const ansiToStyledText = function ansiToStyledText(input: string): {
-  text: string;
-  content: StyledText;
-} {
+export const ansiToStyledText = function ansiToStyledText(input: string): AnsiStyledText {
   const chunks: TextChunk[] = [];
   let plainText = "";
   let cursor = 0;

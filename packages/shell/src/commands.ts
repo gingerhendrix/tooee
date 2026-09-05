@@ -20,10 +20,7 @@ export interface UseQuitCommandOptions {
   enabled?: boolean;
 }
 
-export const useThemeCommands = function useThemeCommands(opts?: UseThemeCommandsOptions): {
-  name: string;
-  picker: ThemePickerState;
-} {
+export const useThemeCommands = function useThemeCommands(opts?: UseThemeCommandsOptions) {
   const picker = useThemePicker();
   const { toast } = useToast();
 

@@ -1,19 +1,6 @@
 import { test, expect, describe } from "bun:test";
 import { StateCache, createStateKey } from "@tooee/router";
-import type { Codec } from "@tooee/router";
-
-const scrollState: Codec<{ scrollY: number }> = {
-  parse: (value) => {
-    if (typeof value !== "object" || value === null || !("scrollY" in value)) {
-      throw new TypeError("Expected { scrollY }");
-    }
-    const { scrollY } = value;
-    if (typeof scrollY !== "number") {
-      throw new TypeError("Expected scrollY to be a number");
-    }
-    return { scrollY };
-  },
-};
+import { scrollState } from "./support/codecs.ts";
 
 const homeKey = createStateKey("0:home", scrollState);
 const detailKey = createStateKey("1:detail", scrollState);

@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { act } from "react";
+import { isEditBufferRenderable } from "@opentui/core";
+import type { EditBufferRenderable, Renderable } from "@opentui/core";
 import { TooeeProvider } from "@tooee/shell";
 import { testRender } from "../../../test/support/test-render.ts";
 import { Ask } from "../src/ask.js";
@@ -110,34 +112,18 @@ const cursorIsVisible = function cursorIsVisible(): boolean {
   return cursorState().visible;
 };
 
-const hasChildren = function hasChildren(node: object): node is { getChildren: () => unknown[] } {
-  return "getChildren" in node && typeof node.getChildren === "function";
-};
-
 const findEditableWithText = function findEditableWithText(
-  node: unknown,
+  node: Renderable,
   text: string,
-): { cursorOffset: number } | undefined {
-  if (node === null || node === undefined || typeof node !== "object") {
-    return undefined;
+): EditBufferRenderable | undefined {
+  if (isEditBufferRenderable(node) && node.plainText === text) {
+    return node;
   }
 
-  if (
-    "plainText" in node &&
-    typeof node.plainText === "string" &&
-    node.plainText === text &&
-    "cursorOffset" in node &&
-    typeof node.cursorOffset === "number"
-  ) {
-    return { cursorOffset: node.cursorOffset };
-  }
-
-  if (hasChildren(node)) {
-    for (const child of node.getChildren()) {
-      const match = findEditableWithText(child, text);
-      if (match) {
-        return match;
-      }
+  for (const child of node.getChildren()) {
+    const match = findEditableWithText(child, text);
+    if (match) {
+      return match;
     }
   }
 

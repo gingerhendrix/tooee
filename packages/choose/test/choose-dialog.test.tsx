@@ -74,7 +74,11 @@ interface HarnessHandles {
   stackSize: () => number;
 }
 
-const handles: { current: HarnessHandles | null } = { current: null };
+interface HarnessRef {
+  current: HarnessHandles | null;
+}
+
+const handles: HarnessRef = { current: null };
 let settlements: unknown[] = [];
 
 beforeEach(() => {

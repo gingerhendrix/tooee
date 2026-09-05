@@ -37,6 +37,7 @@ import "./text-table.js";
 // Types
 // ---------------------------------------------------------------------------
 
+// oxlint-disable-next-line anti-slop/no-unknown-returns -- public host callback accepts any ignored result; only literal true marks a handled link
 export type MarkdownLinkHandler = (href: string) => unknown;
 
 export interface InlineLinkPosition {
@@ -48,6 +49,21 @@ export interface InlineLinkPosition {
 const normalizeSoftLineEndings = function normalizeSoftLineEndings(value: string): string {
   return value.replaceAll("\n", " ");
 };
+
+interface MarkedText {
+  text: string;
+}
+
+/** Decode the optional text field on Marked's broad fallback token contract. */
+const hasMarkedText = function hasMarkedText(token: Token): token is Token & MarkedText {
+  if (!("text" in token)) {
+    return false;
+  }
+  // oxlint-disable-next-line anti-slop/no-runtime-typeof -- primitive check stays at the Marked token boundary
+  return typeof token.text === "string";
+};
+
+type CodeBlockRendererRegistry = Record<string, CodeBlockRenderer>;
 
 interface MarkdownViewProps {
   content: string;
@@ -88,7 +104,7 @@ interface MarkdownViewProps {
    * and renderers that return `null` or throw — fall back to the default
    * syntax-highlighted code block.
    */
-  codeBlockRenderers?: Record<string, CodeBlockRenderer>;
+  codeBlockRenderers?: CodeBlockRendererRegistry;
   /**
    * Called when the primary mouse button activates inline Markdown link text.
    * Return `true` when the host handled the href; handled clicks do not bubble
@@ -140,35 +156,41 @@ export const inlineLinkAtPosition = function inlineLinkAtPosition(
       }
       switch (token.type) {
         case "text": {
-          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+          // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
           advanceText(normalizeSoftLineEndings((token as Tokens.Text).text), href);
           break;
         }
         case "link": {
-          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+          // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
           const link = token as Tokens.Link;
           visit(link.tokens, link.href);
           break;
         }
         case "strong": {
-          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+          // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
           visit((token as Tokens.Strong).tokens, href);
           break;
         }
         case "em": {
-          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+          // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
           visit((token as Tokens.Em).tokens, href);
           break;
         }
         case "del": {
           advanceText("~", href);
-          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+          // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
           visit((token as Tokens.Del).tokens, href);
           advanceText("~", href);
           break;
         }
         case "codespan": {
-          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+          // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
           advanceText(` ${(token as Tokens.Codespan).text} `, href);
           break;
         }
@@ -181,7 +203,7 @@ export const inlineLinkAtPosition = function inlineLinkAtPosition(
           break;
         }
         default: {
-          if ("text" in token && typeof token.text === "string") {
+          if (hasMarkedText(token)) {
             advanceText(token.text, href);
           }
         }
@@ -209,7 +231,8 @@ const linkMouseHandler = function linkMouseHandler(
     if (target === null || target === undefined || !("lineInfo" in target)) {
       return;
     }
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- OpenTUI mouse targets are renderables; lineInfo narrows this to a text buffer at the framework boundary
+    // SAFETY: OpenTUI supplies a renderable target, and the lineInfo guard proves this text-buffer member.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: OpenTUI supplies renderable mouse targets, and the lineInfo membership guard above identifies its TextBufferRenderable contract
     const text = target as TextBufferRenderable;
     const visualLine = event.y - text.y;
     const sourceLine = text.lineInfo.lineSources[visualLine];
@@ -274,11 +297,11 @@ export const MarkdownView = function MarkdownView({
   // Merge user renderers over built-in defaults, normalizing keys to
   // lowercase so registration matches fence types case-insensitively.
   const mergedCodeBlockRenderers = useMemo(() => {
-    const merged: Record<string, CodeBlockRenderer> = { ...DEFAULT_CODE_BLOCK_RENDERERS };
+    const entries = new Map(Object.entries(DEFAULT_CODE_BLOCK_RENDERERS));
     for (const [key, renderer] of Object.entries(codeBlockRenderers ?? {})) {
-      merged[key.trim().toLowerCase()] = renderer;
+      entries.set(key.trim().toLowerCase(), renderer);
     }
-    return merged;
+    return Object.fromEntries(entries);
   }, [codeBlockRenderers]);
 
   const blockElements = useMemo(
@@ -348,7 +371,7 @@ const FlatBlockRenderer = function FlatBlockRenderer({
   syntax: SyntaxStyle;
   contentWidth: number;
   hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>;
-  codeBlockRenderers?: Record<string, CodeBlockRenderer>;
+  codeBlockRenderers?: CodeBlockRendererRegistry;
   onLinkActivate?: MarkdownLinkHandler;
   imageBasePath?: string;
 }): ReactNode {
@@ -363,7 +386,8 @@ const FlatBlockRenderer = function FlatBlockRenderer({
   // Regular block token
   switch (token.type) {
     case "heading": {
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+      // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
       const headingToken = token as Tokens.Heading;
       return (
         // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
@@ -376,7 +400,8 @@ const FlatBlockRenderer = function FlatBlockRenderer({
       );
     }
     case "paragraph": {
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+      // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
       const paragraphToken = token as Tokens.Paragraph;
       return (
         // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
@@ -390,7 +415,8 @@ const FlatBlockRenderer = function FlatBlockRenderer({
       );
     }
     case "code": {
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+      // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
       const codeToken = token as Tokens.Code;
       return (
         <CodeBlock
@@ -406,7 +432,8 @@ const FlatBlockRenderer = function FlatBlockRenderer({
       );
     }
     case "blockquote": {
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+      // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
       const blockquoteToken = token as Tokens.Blockquote;
       return (
         // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
@@ -419,7 +446,8 @@ const FlatBlockRenderer = function FlatBlockRenderer({
       );
     }
     case "table": {
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+      // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
       const tableToken = token as Tokens.Table;
       // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
       return <MarkdownTableRenderer token={tableToken} indent={indent} />;
@@ -433,7 +461,7 @@ const FlatBlockRenderer = function FlatBlockRenderer({
       return null;
     }
     default: {
-      if ("text" in token && typeof token.text === "string") {
+      if (hasMarkedText(token)) {
         return (
           <text
             content={token.text}
@@ -472,16 +500,15 @@ const ListLineRenderer = function ListLineRenderer({
   const inlineTokens: Token[] =
     "tokens" in token && Array.isArray(token.tokens) ? token.tokens : [];
 
-  const hasText = "text" in token && typeof token.text === "string" && token.text.length > 0;
-  const hasContent = inlineTokens.length > 0 || hasText;
+  const tokenText = hasMarkedText(token) ? token.text : "";
+  const hasContent = inlineTokens.length > 0 || tokenText.length > 0;
 
   let content: ReactNode = null;
   if (inlineTokens.length > 0) {
     // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
     content = <InlineTokens tokens={inlineTokens} theme={theme} />;
-  } else if (hasText) {
-    const tokenText: unknown = "text" in token ? token.text : "";
-    content = typeof tokenText === "string" ? tokenText : "";
+  } else if (tokenText.length > 0) {
+    content = tokenText;
   }
 
   return (
@@ -519,35 +546,35 @@ const HeadingRenderer = function HeadingRenderer({
   indent: number;
   onLinkActivate?: MarkdownLinkHandler;
 }): ReactNode {
-  const headingColors: Record<number, string> = {
-    1: theme.markdownHeading,
-    2: theme.secondary,
-    3: theme.accent,
-    4: theme.text,
-    5: theme.textMuted,
-    6: theme.textMuted,
-  };
+  const headingColors = new Map<number, string>([
+    [1, theme.markdownHeading],
+    [2, theme.secondary],
+    [3, theme.accent],
+    [4, theme.text],
+    [5, theme.textMuted],
+    [6, theme.textMuted],
+  ]);
 
-  const prefixes: Record<number, string> = {
-    1: "# ",
-    2: "## ",
-    3: "### ",
-    4: "#### ",
-    5: "##### ",
-    6: "###### ",
-  };
+  const prefixes = new Map<number, string>([
+    [1, "# "],
+    [2, "## "],
+    [3, "### "],
+    [4, "#### "],
+    [5, "##### "],
+    [6, "###### "],
+  ]);
 
   return (
     <box style={{ marginBottom: 1, marginLeft: indent, marginTop: 1 }}>
       <text
-        style={{ fg: headingColors[token.depth] || theme.text }}
+        style={{ fg: headingColors.get(token.depth) ?? theme.text }}
         onMouseDown={linkMouseHandler(
           token.tokens,
           onLinkActivate,
-          Bun.stringWidth(prefixes[token.depth] || ""),
+          Bun.stringWidth(prefixes.get(token.depth) ?? ""),
         )}
       >
-        <span fg={theme.textMuted}>{prefixes[token.depth]}</span>
+        <span fg={theme.textMuted}>{prefixes.get(token.depth)}</span>
         <strong>
           {/* oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization */}
           <InlineTokens tokens={token.tokens} theme={theme} />
@@ -659,7 +686,7 @@ const BlockquoteRenderer = function BlockquoteRenderer({
         inlineTokens.push({ raw: "\n", type: "br" });
       }
       inlineTokens.push(...child.tokens);
-    } else if ("text" in child && typeof child.text === "string") {
+    } else if (hasMarkedText(child)) {
       inlineTokens.push(child);
     }
   }
@@ -713,12 +740,14 @@ const MarkdownTableRenderer = function MarkdownTableRenderer({
       row.map((cell) => {
         // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
         const chunks = inlineTokensToChunks(cell.tokens, theme);
-        return chunks.length > 0
-          ? chunks
-          : ([
-              // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
-              { __isChunk: true as const, text: getPlainText(cell.tokens) },
-            ] as TextTableCellContent);
+        if (chunks.length > 0) {
+          return chunks;
+        }
+        const fallbackCell: TextTableCellContent = [
+          // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization
+          { __isChunk: true, text: getPlainText(cell.tokens) },
+        ];
+        return fallbackCell;
       }),
     );
     return [headerRow, ...dataRows];
@@ -776,41 +805,49 @@ const InlineTokens = function InlineTokens({
 
     switch (token.type) {
       case "text": {
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+        // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
         result.push(normalizeSoftLineEndings((token as Tokens.Text).text));
         break;
       }
       case "strong": {
+        // SAFETY: Marked creates a Strong token for the adjacent type branch.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
+        const strongToken = token as Tokens.Strong;
         result.push(
           <strong key={key}>
             {/* oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization */}
-            {/* oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep */}
-            <InlineTokens tokens={(token as Tokens.Strong).tokens} theme={theme} />
+            <InlineTokens tokens={strongToken.tokens} theme={theme} />
           </strong>,
         );
         break;
       }
       case "em": {
+        // SAFETY: Marked creates an Em token for the adjacent type branch.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
+        const emToken = token as Tokens.Em;
         result.push(
           <em key={key}>
             {/* oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization */}
-            {/* oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep */}
-            <InlineTokens tokens={(token as Tokens.Em).tokens} theme={theme} />
+            <InlineTokens tokens={emToken.tokens} theme={theme} />
           </em>,
         );
         break;
       }
       case "codespan": {
+        // SAFETY: Marked creates a Codespan token for the adjacent type branch.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
+        const codespanToken = token as Tokens.Codespan;
         result.push(
           <span key={key} fg={theme.markdownCode} bg={theme.backgroundPanel}>
-            {/* oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep */}
-            {` ${(token as Tokens.Codespan).text} `}
+            {` ${codespanToken.text} `}
           </span>,
         );
         break;
       }
       case "link": {
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+        // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
         const linkToken = token as Tokens.Link;
         result.push(
           <u key={key}>
@@ -823,18 +860,21 @@ const InlineTokens = function InlineTokens({
         break;
       }
       case "del": {
+        // SAFETY: Marked creates a Del token for the adjacent type branch.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
+        const delToken = token as Tokens.Del;
         result.push(
           <span key={key} fg={theme.textMuted}>
             ~
             {/* oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down renderer organization */}
-            {/* oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep */}
-            <InlineTokens tokens={(token as Tokens.Del).tokens} theme={theme} />~
+            <InlineTokens tokens={delToken.tokens} theme={theme} />~
           </span>,
         );
         break;
       }
       case "image": {
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+        // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
         const imgToken = token as Tokens.Image;
         result.push(
           <span key={key} fg={theme.textMuted}>
@@ -848,7 +888,8 @@ const InlineTokens = function InlineTokens({
         break;
       }
       case "escape": {
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+        // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
         result.push((token as Tokens.Escape).text);
         break;
       }
@@ -857,10 +898,8 @@ const InlineTokens = function InlineTokens({
         break;
       }
       default: {
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
-        if ("text" in token && typeof (token as { text?: string }).text === "string") {
-          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
-          result.push((token as { text: string }).text);
+        if (hasMarkedText(token)) {
+          result.push(token.text);
         }
         break;
       }
@@ -883,26 +922,30 @@ const inlineTokensToChunks = function inlineTokensToChunks(
   for (const token of tokens) {
     switch (token.type) {
       case "text": {
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+        // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
         chunks.push({ __isChunk: true as const, text: (token as Tokens.Text).text });
         break;
       }
       case "strong": {
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+        // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
         for (const sub of inlineTokensToChunks((token as Tokens.Strong).tokens, theme)) {
           chunks.push(boldChunk(sub));
         }
         break;
       }
       case "em": {
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+        // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
         for (const sub of inlineTokensToChunks((token as Tokens.Em).tokens, theme)) {
           chunks.push(italicChunk(sub));
         }
         break;
       }
       case "codespan": {
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+        // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
         const codespanToken = token as Tokens.Codespan;
         chunks.push({
           __isChunk: true as const,
@@ -913,7 +956,8 @@ const inlineTokensToChunks = function inlineTokensToChunks(
         break;
       }
       case "link": {
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+        // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
         const linkToken = token as Tokens.Link;
         for (const sub of inlineTokensToChunks(linkToken.tokens, theme)) {
           chunks.push(underlineChunk({ ...sub, fg: parseColor(theme.markdownLink) }));
@@ -921,15 +965,14 @@ const inlineTokensToChunks = function inlineTokensToChunks(
         break;
       }
       case "escape": {
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+        // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
         chunks.push({ __isChunk: true as const, text: (token as Tokens.Escape).text });
         break;
       }
       default: {
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
-        if ("text" in token && typeof (token as { text?: string }).text === "string") {
-          // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
-          chunks.push({ __isChunk: true as const, text: (token as { text: string }).text });
+        if (hasMarkedText(token)) {
+          chunks.push({ __isChunk: true as const, text: token.text });
         }
         break;
       }
@@ -947,19 +990,20 @@ const getPlainText = function getPlainText(tokens: Token[]): string {
   return tokens
     .map((token) => {
       if (token.type === "text") {
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+        // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
         return (token as { text: string }).text;
       }
       if (token.type === "codespan") {
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+        // SAFETY: Marked creates the member selected by the adjacent token.type branch.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- SAFETY: Marked emits the token member selected by the adjacent type branch; its broad Token fallback prevents TypeScript from retaining that discriminator
         return (token as Tokens.Codespan).text;
       }
       if ("tokens" in token && token.tokens) {
         return getPlainText(token.tokens);
       }
-      if ("text" in token) {
-        const tokenText: unknown = token.text;
-        return typeof tokenText === "string" ? tokenText : "";
+      if (hasMarkedText(token)) {
+        return token.text;
       }
       return "";
     })

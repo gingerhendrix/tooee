@@ -285,10 +285,12 @@ const RightDetail = (): ReactNode => <text content="right:detail" />;
 const LeftLeaf = (): ReactNode => <FocusReporter id="left" />;
 const RightLeaf = (): ReactNode => <FocusReporter id="right" />;
 
-const makeStackRouters = function makeStackRouters(): {
+interface StackRouters {
   left: RouterInstance;
   right: RouterInstance;
-} {
+}
+
+const makeStackRouters = function makeStackRouters(): StackRouters {
   const inbox = createRoute({ component: LeftInbox, id: "inbox" });
   const thread = createRoute({ component: LeftThread, id: "thread" });
   const preview = createRoute({ component: RightPreview, id: "preview" });

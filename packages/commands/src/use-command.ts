@@ -36,7 +36,9 @@ export const useCommand = function useCommand(options: UseCommandOptions): void 
 
   useEffect(() => {
     if (options.enabled === false) {
-      return () => void 0;
+      return () => {
+        // A disabled command registers nothing, so there is nothing to unregister.
+      };
     }
 
     const command: Command = {

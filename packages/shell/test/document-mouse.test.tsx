@@ -1,6 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, describe, beforeEach } from "bun:test";
 import { act } from "react";
+import type { Key } from "react";
 import { MouseButtons } from "@opentui/core/testing";
 import type { MouseButton } from "@opentui/core/testing";
 import { useActions } from "@tooee/commands";
@@ -479,7 +480,7 @@ describe("action-backed context menu", () => {
   });
 
   test("a function menu may also return action definitions", async () => {
-    let seenKey: unknown = null;
+    let seenKey: Key | null = null;
 
     const FunctionActionsHarness = function FunctionActionsHarness({
       rows,

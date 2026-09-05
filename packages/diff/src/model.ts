@@ -168,10 +168,12 @@ const narrowToHunk = function narrowToHunk(
   };
 };
 
-const fallbackHunkTexts = function fallbackHunkTexts(patch: string): {
+interface FallbackHunkTexts {
   header: string;
   hunks: string[];
-} {
+}
+
+const fallbackHunkTexts = function fallbackHunkTexts(patch: string): FallbackHunkTexts {
   const header: string[] = [];
   const hunks: string[][] = [];
   let currentHunk: string[] | null = null;

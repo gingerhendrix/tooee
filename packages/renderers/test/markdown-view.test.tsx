@@ -39,6 +39,10 @@ const hScrollRenderer: CodeBlockRenderer = ({ text, theme, indent, hScroll }): R
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
+interface HScrollRegistry {
+  current: Map<number, TextBufferRenderable>;
+}
+
 afterEach(() => {
   testSetup?.renderer.destroy();
 });
@@ -914,7 +918,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
   });
 
   test("horizontal scroll moves diagram content", async () => {
-    const registry: { current: Map<number, TextBufferRenderable> } = { current: new Map() };
+    const registry: HScrollRegistry = { current: new Map() };
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView content={wideMermaid} hScrollableBlocksRef={registry} />
@@ -953,7 +957,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
   });
 
   test("narrow diagram fits without scrolling and renders unchanged", async () => {
-    const registry: { current: Map<number, TextBufferRenderable> } = { current: new Map() };
+    const registry: HScrollRegistry = { current: new Map() };
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView
@@ -1064,7 +1068,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
     // exercised the scissor-clip path, which misplaced style runs at some
     // offsets (arrow/line colors bleeding onto label letters). The viewport
     // path (text scrollX) must keep every glyph's color stable while panning.
-    const registry: { current: Map<number, TextBufferRenderable> } = { current: new Map() };
+    const registry: HScrollRegistry = { current: new Map() };
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView content={wideMermaid} hScrollableBlocksRef={registry} />
@@ -1145,7 +1149,7 @@ describe("wide code block horizontal scrolling", () => {
   });
 
   test("horizontal scroll moves code block content", async () => {
-    const registry: { current: Map<number, TextBufferRenderable> } = { current: new Map() };
+    const registry: HScrollRegistry = { current: new Map() };
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView content={wideCode} hScrollableBlocksRef={registry} />
@@ -1184,7 +1188,7 @@ describe("wide code block horizontal scrolling", () => {
   });
 
   test("narrow code block fits without scrolling and renders unchanged", async () => {
-    const registry: { current: Map<number, TextBufferRenderable> } = { current: new Map() };
+    const registry: HScrollRegistry = { current: new Map() };
     const md = "```\nconst a = 1\nconst b = 2\n```";
     testSetup = await testRender(
       <ThemeSwitcherProvider>
@@ -1278,7 +1282,7 @@ describe("wide code block horizontal scrolling", () => {
     // An invalid mermaid fence falls back to a plain code block showing the
     // source; if that source is wide it must pan like any other code block.
     const wideInvalid = ["```mermaid", `not a diagram ${wideAsciiRow}`, "```"].join("\n");
-    const registry: { current: Map<number, TextBufferRenderable> } = { current: new Map() };
+    const registry: HScrollRegistry = { current: new Map() };
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView content={wideInvalid} hScrollableBlocksRef={registry} />
@@ -1524,7 +1528,7 @@ describe("custom code block renderers", () => {
 
   test("custom renderer can opt into horizontal panning via hScroll", async () => {
     const wideLine = `[Start] ${"─".repeat(100)} [Finish line]`;
-    const registry: { current: Map<number, TextBufferRenderable> } = { current: new Map() };
+    const registry: HScrollRegistry = { current: new Map() };
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView

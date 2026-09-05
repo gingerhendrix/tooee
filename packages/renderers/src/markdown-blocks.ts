@@ -54,7 +54,7 @@ export const checkboxMarker = function checkboxMarker(checked: boolean | undefin
  * search and copy in agreement with the source mapping on synthetic rows.
  */
 export const getFlatBlockText = function getFlatBlockText(block: FlatBlock): string {
-  const raw = "raw" in block.token && typeof block.token.raw === "string" ? block.token.raw : "";
+  const { raw } = block.token;
   if (raw.length > 0) {
     return raw;
   }
@@ -275,7 +275,8 @@ const flattenListItem = function flattenListItem(
       if (!bulletUsed) {
         emitBulletMarker();
       }
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+      // SAFETY: Marked creates a List token for the adjacent token.type branch.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
       flattenList(token as Tokens.List, indent + bullet.length, out, res, itemEnd);
     } else {
       // Block content (code, table, blockquote, hr, etc.).
@@ -308,7 +309,8 @@ const flattenWalk = function flattenWalk(
       continue;
     }
     if (token.type === "list") {
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Deferred(lint-sweep): marked token narrowing; schema-based validation in a later sweep
+      // SAFETY: Marked creates a List token for the adjacent token.type branch.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
       flattenList(token as Tokens.List, indent, out, res, bound);
     } else {
       out.push({ indent, source: res ? res.resolveRaw(token.raw ?? "", bound) : null, token });

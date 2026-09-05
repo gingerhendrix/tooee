@@ -1,7 +1,9 @@
+import type { RouteParams } from "./types.js";
+
 export interface NavigateResult {
   type: "navigate";
   route: string;
-  params?: Record<string, unknown>;
+  params?: RouteParams;
   mode?: "push" | "replace";
 }
 

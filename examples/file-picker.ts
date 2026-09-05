@@ -14,21 +14,21 @@ import type { ChooseItem } from "@tooee/choose";
 
 const getIcon = (path: string): string => {
   const ext = path.split(".").pop()?.toLowerCase();
-  const icons: Record<string, string> = {
-    css: "\u{1F3A8}",
-    go: "\u{1F439}",
-    html: "\u{1F310}",
-    js: "\u{1F7E1}",
-    json: "\u{1F4CB}",
-    jsx: "\u{269B}",
-    md: "\u{1F4DD}",
-    py: "\u{1F40D}",
-    rs: "\u{2699}",
-    sh: "\u{1F4BB}",
-    ts: "\u{1F4DC}",
-    tsx: "\u{269B}",
-  };
-  return icons[ext ?? ""] || "\u{1F4C4}";
+  const icons = new Map([
+    ["css", "\u{1F3A8}"],
+    ["go", "\u{1F439}"],
+    ["html", "\u{1F310}"],
+    ["js", "\u{1F7E1}"],
+    ["json", "\u{1F4CB}"],
+    ["jsx", "\u{269B}"],
+    ["md", "\u{1F4DD}"],
+    ["py", "\u{1F40D}"],
+    ["rs", "\u{2699}"],
+    ["sh", "\u{1F4BB}"],
+    ["ts", "\u{1F4DC}"],
+    ["tsx", "\u{269B}"],
+  ]);
+  return icons.get(ext ?? "") ?? "\u{1F4C4}";
 };
 
 const MAX_FILE_RESULTS = 1000;

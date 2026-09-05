@@ -60,7 +60,12 @@ const typeText = async function typeText(text: string) {
 
 let askSettlements: (string | null)[] = [];
 let chooseSettlements: (string | null)[] = [];
-const nested: { current: NestedHarnessHandles | null } = { current: null };
+
+interface NestedHarnessRef {
+  current: NestedHarnessHandles | null;
+}
+
+const nested: NestedHarnessRef = { current: null };
 
 beforeEach(() => {
   nested.current = null;

@@ -202,10 +202,14 @@ export const mermaidCodeBlockRenderer: CodeBlockRenderer = ({
   );
 };
 
-/** Built-in code block renderers, merged under user-provided entries. */
-export const DEFAULT_CODE_BLOCK_RENDERERS: Record<string, CodeBlockRenderer> = {
+const DEFAULT_CODE_BLOCK_RENDERER_ENTRIES = {
   mermaid: mermaidCodeBlockRenderer,
-};
+} satisfies Record<string, CodeBlockRenderer>;
+
+/** Built-in code block renderers, merged under user-provided entries. */
+// oxlint-disable-next-line anti-slop/no-known-value-widening -- public registry contract permits arbitrary fence-type lookup
+const defaultRendererMap: Record<string, CodeBlockRenderer> = DEFAULT_CODE_BLOCK_RENDERER_ENTRIES;
+export { defaultRendererMap as DEFAULT_CODE_BLOCK_RENDERERS };
 
 // ---------------------------------------------------------------------------
 // Horizontal panning registration

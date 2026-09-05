@@ -2,6 +2,7 @@
 import { marked } from "marked";
 import { computeColumnWidths, flattenMarkdown } from "@tooee/renderers";
 import { FIXTURE_TIERS, makeMarkdownFixture, makeTableFixture } from "./lib/fixtures.ts";
+import type { BenchmarkTableCell } from "./lib/fixtures.ts";
 import { printMetric, printTimedMetric } from "./lib/benchmark-result.ts";
 
 const iterations = Number(process.env.TOOEE_BENCH_DATA_PREP_ITERATIONS ?? 20);
@@ -16,33 +17,19 @@ const median = function median(values: number[]): number {
   return sorted[Math.floor(sorted.length / 2)] ?? 0;
 };
 
-const formatCellValue = function formatCellValue(value: unknown): string {
-  if (value === null || value === undefined) {
+const formatCellValue = function formatCellValue(value: BenchmarkTableCell | undefined): string {
+  if (value === undefined) {
     return "";
   }
-  if (typeof value === "string") {
-    return value;
-  }
-  if (typeof value === "number" || typeof value === "boolean") {
-    return String(value);
-  }
-  if (typeof value === "bigint" || typeof value === "symbol" || typeof value === "function") {
-    return String(value);
-  }
-  if (value instanceof Date) {
-    return value.toISOString();
-  }
-  try {
-    return JSON.stringify(value) ?? "";
-  } catch {
-    return Object.prototype.toString.call(value);
-  }
+  return String(value);
 };
 
-const timeIterations = function timeIterations(operation: () => number): {
+interface TimedIterationResult {
   medianMs: number;
   lastCount: number;
-} {
+}
+
+const timeIterations = function timeIterations(operation: () => number): TimedIterationResult {
   const samples: number[] = [];
   let lastCount = 0;
 

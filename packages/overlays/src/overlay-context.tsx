@@ -115,18 +115,22 @@ export interface OverlayContextValue {
 
 // Contexts
 
+const noop = (): void => {
+  // Outside an OverlayProvider every overlay operation is a no-op.
+};
+
 const defaultController: OverlayController = {
-  closeTop: () => void 0,
-  hide: () => void 0,
+  closeTop: noop,
+  hide: noop,
   isOpen: () => false,
   open: (id) => ({
-    close: () => void 0,
+    close: noop,
     id,
-    update: () => void 0,
+    update: noop,
   }),
-  show: () => void 0,
+  show: noop,
   topId: null,
-  update: () => void 0,
+  update: noop,
 };
 
 const defaultState: OverlayState = {
@@ -143,8 +147,8 @@ export const OverlayStateContext = createContext<OverlayState>(defaultState);
 export const OverlayContext = createContext<OverlayContextValue>({
   current: null,
   hasOverlay: false,
-  hide: () => void 0,
-  show: () => void 0,
+  hide: noop,
+  show: noop,
 });
 
 // Hooks

@@ -47,7 +47,9 @@ const eraseUpdate = function eraseUpdate<TPayload>(next: OverlayUpdate<TPayload>
   }
   return {
     kind: "updater",
+    // oxlint-disable-next-line anti-slop/no-unknown-parameters, anti-slop/no-unknown-returns -- heterogeneous overlay store erases each public generic payload at this adapter boundary
     update: (previous: unknown): unknown =>
+      // SAFETY: The store applies this updater only to the record created from the same typed open call.
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- payload type is erased in the store's stack
       next.update(previous as TPayload),
   };
@@ -76,8 +78,12 @@ export const OverlayProvider = function OverlayProvider({
   // must be cleared here). Subscribed at store creation — before any child
   // effect can open an overlay.
   const bridgeRef = useRef<OverlayBridge>({
-    resetSequence: () => void 0,
-    setMode: () => void 0,
+    resetSequence: () => {
+      // Placeholder until the effect below binds the live command store.
+    },
+    setMode: () => {
+      // Placeholder until the effect below binds the live mode setter.
+    },
   });
   const storeRef = useRef<OverlayStore | null>(null);
   if (storeRef.current === null) {
@@ -126,7 +132,8 @@ export const OverlayProvider = function OverlayProvider({
       }
 
       const record: OverlayRecord<TPayload> = { id, options, payload, prevMode, render };
-      // Deferred(lint-sweep): preserve the store's generic payload type across its closed event API.
+      // SAFETY: The record crosses the package store's documented heterogeneous-stack boundary;
+      // its renderer, payload, and updater remain together in the same record.
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- store records are intentionally erased at this boundary
       overlayStore.trigger.opened({ record: record as OverlayRecord });
 

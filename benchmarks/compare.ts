@@ -76,8 +76,9 @@ const parseArgs = function parseArgs(args: string[]): CompareOptions {
 };
 
 const readRun = function readRun(path: string): BenchmarkRunResult {
-  // Deferred(lint-sweep): add schema-based validation for benchmark result JSON
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- benchmark JSON is validated below until schema validation is added
+  // SAFETY: run.ts is the sole writer of version-1 benchmark files and emits BenchmarkRunResult;
+  // the checks below reject a different version or missing results envelope before comparison.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the runner-owned format and envelope checks establish the version-1 result contract
   const parsed = JSON.parse(readFileSync(path, "utf-8")) as BenchmarkRunResult;
   if (parsed.version !== 1 || !Array.isArray(parsed.results)) {
     throw new Error(`${path} is not a supported Tooee benchmark result file`);

@@ -16,7 +16,9 @@ export const useCopyOnSelect = function useCopyOnSelect() {
     const effective = copyOnSelect ?? platform() === "linux";
 
     if (effective === false) {
-      return () => void 0;
+      return () => {
+        // Copy-on-select is off, so no handler was attached.
+      };
     }
 
     const handler = (selection: Selection) => {

@@ -2,6 +2,7 @@ import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, describe, afterEach } from "bun:test";
 import { act } from "react";
 import { createRoute, createRouter, RouterProvider, Outlet, useRouteData } from "@tooee/router";
+import type { RouteParams } from "@tooee/router";
 import { echoData, messageData } from "./support/codecs.ts";
 
 // Route specs (identity + data codec) declared before the components that read them.
@@ -246,10 +247,12 @@ describe("route loaders", () => {
   });
 
   test("useRouteData returns undefined for routes without loaders", async () => {
-    let capturedData: unknown = "sentinel";
+    // The sentinel is a string, so the hook is read at the same string contract:
+    // a route without a loader must overwrite it with `undefined`.
+    let capturedData: string | undefined = "sentinel";
 
     const NoLoaderScreen = function NoLoaderScreen(): React.ReactNode {
-      capturedData = useRouteData(noLoaderSpec);
+      capturedData = useRouteData<string>(noLoaderSpec);
       return (
         <box>
           <text content="screen:noloader" />
@@ -458,7 +461,7 @@ describe("route loaders", () => {
   });
 
   test("loader receives route params", async () => {
-    let receivedParams: Record<string, unknown> = {};
+    let receivedParams: RouteParams = {};
 
     const homeRoute = createRoute({ component: HomeScreen, id: "home" });
     const paramRoute = createRoute({

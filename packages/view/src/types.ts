@@ -4,6 +4,7 @@ import type { CommandContext } from "@tooee/commands";
 import type { ColumnDef, SourceLineRow, TableRow } from "@tooee/renderers";
 import type { DocumentController } from "@tooee/shell";
 import type { MarkSet } from "@tooee/marks";
+import { stringifyTableCell } from "./table-cell.js";
 
 // === Built-in content types ===
 
@@ -18,6 +19,7 @@ export type Content =
 export type ContentFormat = Content["format"];
 
 /** Handles an inline Markdown link with the View's live command context. */
+// oxlint-disable-next-line anti-slop/no-unknown-returns -- public callback contract preserves the renderer's exact-true link-consumption result and permits legacy return values
 export type MarkdownLinkActivateHandler = (href: string, context: CommandContext) => unknown;
 
 interface BaseContent {
@@ -152,40 +154,6 @@ export const isCustomContent = function isCustomContent(
   return !BUILTIN_FORMATS.has(content.format);
 };
 
-const stringifyCell = function stringifyCell(value: unknown): string {
-  if (value === null || value === undefined) {
-    return "";
-  }
-  if (typeof value === "string") {
-    return value;
-  }
-  if (typeof value === "number" || typeof value === "boolean") {
-    return String(value);
-  }
-  if (typeof value === "string") {
-    return value;
-  }
-  if (
-    typeof value === "number" ||
-    typeof value === "bigint" ||
-    typeof value === "boolean" ||
-    typeof value === "symbol"
-  ) {
-    return value.toString();
-  }
-  if (value === null || value === undefined) {
-    return String(value);
-  }
-  if (typeof value === "function") {
-    return Function.prototype.toString.call(value);
-  }
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return Array.isArray(value) ? value.join(",") : Object.prototype.toString.call(value);
-  }
-};
-
 export const getTextContent = function getTextContent(content: AnyContent): string {
   if (content.getTextContent) {
     return content.getTextContent();
@@ -209,6 +177,7 @@ export const getTextContent = function getTextContent(content: AnyContent): stri
       return content.text;
     }
     case "image": {
+      // oxlint-disable-next-line anti-slop/no-runtime-typeof -- ImageSource is OpenTUI's public string-or-binary union; only its string and URL variants have text content
       if (typeof content.src === "string") {
         return content.src;
       }
@@ -217,7 +186,7 @@ export const getTextContent = function getTextContent(content: AnyContent): stri
     case "table": {
       const headers = content.columns.map((column) => column.header ?? column.key);
       const rowLines = content.rows.map((row) =>
-        content.columns.map((column) => stringifyCell(row[column.key])).join("\t"),
+        content.columns.map((column) => stringifyTableCell(row[column.key])).join("\t"),
       );
       return [headers.join("\t"), ...rowLines].join("\n");
     }

@@ -2,7 +2,7 @@ import { test, expect, describe } from "bun:test";
 import { sourceLines, sourceLineAdapter } from "../src/source.js";
 import { expectDefined } from "./support/expect-defined.js";
 
-interface LineShape {
+interface LineProjection {
   text: string;
   s: number;
   e: number;
@@ -11,7 +11,7 @@ interface LineShape {
   line: string;
 }
 
-const lines = function lines(source: string, sourceId?: string): LineShape[] {
+const lines = function lines(source: string, sourceId?: string): LineProjection[] {
   return sourceLines(source, (sourceId?.length ?? 0) > 0 ? { sourceId } : undefined).map((row) => {
     const p = row.source.primary;
     return {

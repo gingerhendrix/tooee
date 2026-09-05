@@ -7,7 +7,16 @@ export default defineConfig({
   // Tool configs are validated by Ultracite Doctor and their own CLIs. Type-aware
   // lint cannot resolve Oxfmt's config-only type surface through the repo projects.
   // The documentation site is an independent Bun project checked by its own CI step.
-  ignorePatterns: [...core.ignorePatterns, "oxlint.config.ts", "oxfmt.config.ts", "site/**"],
+  // The vendored anti-slop detector implementation is third-party code held byte-identical
+  // to the StreamOS copy; local policy applies to Tooee code, not to the detectors.
+  ignorePatterns: [
+    ...core.ignorePatterns,
+    "oxlint.config.ts",
+    "oxfmt.config.ts",
+    "site/**",
+    "tools/oxlint/anti-slop/**",
+  ],
+  jsPlugins: [{ name: "anti-slop", specifier: "./tools/oxlint/anti-slop/index.ts" }],
   options: {
     typeAware: true,
   },
@@ -55,6 +64,27 @@ export default defineConfig({
     "unicorn/prefer-number-coercion": "error",
     "unicorn/prefer-single-call": "error",
     "unicorn/prefer-spread": "error",
+    // Anti-slop custom policy (vendored plugin under tools/oxlint/anti-slop). The adoption
+    // sweep is closed: all 336 findings are gone and every rule is an error, so the per-rule
+    // debt ratchet that held the remaining warnings has been removed. The router keeps a small
+    // set of local exceptions where an unparsed value is the public contract; each one names
+    // its rule and its reason next to the code, and `packages/router/src/types.ts` records why
+    // that boundary stays `unknown`.
+    "anti-slop/no-chained-type-assertions": "error",
+    "anti-slop/no-conditional-empty-object-spread": "error",
+    "anti-slop/no-known-value-widening": "error",
+    "anti-slop/no-module-mocking": "error",
+    "anti-slop/no-object-parameters": "error",
+    "anti-slop/no-reflect-apply": "error",
+    "anti-slop/no-reflect-get": "error",
+    "anti-slop/no-runtime-typeof": "error",
+    "anti-slop/no-shape-in-symbol-names": "error",
+    "anti-slop/no-unknown-parameters": "error",
+    "anti-slop/no-unknown-returns": "error",
+    "anti-slop/no-unknown-type-aliases": "error",
+    "anti-slop/no-unsafe-dictionary-type": "error",
+    "anti-slop/no-widen-then-assert": "error",
+    "anti-slop/require-safety-comment-for-type-assertion": "error",
     // Permanently off (policy). Tooee renders to a terminal, not the DOM: there is no
     // accessibility tree and no ARIA. `CommandSurfaceProvider.role` is a Tooee command-surface
     // role ("modal" | "passive"), and the rule can only ever produce false positives here.

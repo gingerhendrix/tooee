@@ -37,7 +37,9 @@ export const useActions = function useActions(actions: ActionDefinition[] | unde
   useEffect(() => {
     const { current } = actionsRef;
     if (!current || current.length === 0) {
-      return () => void 0;
+      return () => {
+        // Nothing was registered, so there is nothing to unregister.
+      };
     }
 
     const unregisters = current.map((action, i) => {

@@ -95,8 +95,13 @@ const DiffCodeBlock = function DiffCodeBlock({
 
 export const diffCodeBlockRenderer: CodeBlockRenderer = DiffCodeBlock;
 
-/** Fence types `diffCodeBlockRenderer` is registered for. */
-export const DIFF_CODE_BLOCK_RENDERERS: Record<string, CodeBlockRenderer> = {
+const DIFF_CODE_BLOCK_RENDERER_ENTRIES = {
   diff: diffCodeBlockRenderer,
   patch: diffCodeBlockRenderer,
-};
+} satisfies Record<string, CodeBlockRenderer>;
+
+type DiffCodeBlockRendererMap = Record<string, CodeBlockRenderer>;
+
+/** Fence types `diffCodeBlockRenderer` is registered for. */
+// oxlint-disable-next-line anti-slop/no-known-value-widening -- public registry contract permits arbitrary fence-type lookup
+export const DIFF_CODE_BLOCK_RENDERERS: DiffCodeBlockRendererMap = DIFF_CODE_BLOCK_RENDERER_ENTRIES;

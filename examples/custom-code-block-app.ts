@@ -30,9 +30,33 @@ import type { ReactNode } from "react";
 
 type Theme = CodeBlockRendererProps["theme"];
 
+interface OpenTuiElementStyle {
+  backgroundColor?: string;
+  border?: boolean;
+  borderColor?: string;
+  fg?: string;
+  flexDirection?: "column";
+  height?: number;
+  marginBottom?: number;
+  marginLeft?: number;
+  marginRight?: number;
+  paddingLeft?: number;
+  paddingRight?: number;
+}
+
+interface OpenTuiElementProperties {
+  content?: string;
+  fg?: string;
+  key?: number;
+  onMouseScroll?: CodeBlockRendererProps["hScroll"]["onMouseScroll"];
+  ref?: CodeBlockRendererProps["hScroll"]["register"];
+  style?: OpenTuiElementStyle;
+  wrapMode?: "none";
+}
+
 const h = function h(
   tag: string,
-  props: Record<string, unknown>,
+  props: OpenTuiElementProperties,
   ...children: ReactNode[]
 ): ReactNode {
   return createElement(tag, props, ...children);
@@ -143,13 +167,18 @@ const ProgressRenderer = function ProgressRenderer({
 
 // === callout: admonition box; kind comes from the fence info string ===
 
-const CALLOUT_STYLES: Record<string, { label: string; color: (theme: Theme) => string }> = {
-  error: { color: (theme) => theme.error, label: "ERROR" },
-  info: { color: (theme) => theme.info, label: "INFO" },
-  success: { color: (theme) => theme.success, label: "SUCCESS" },
-  warn: { color: (theme) => theme.warning, label: "WARNING" },
-  warning: { color: (theme) => theme.warning, label: "WARNING" },
-};
+interface CalloutStyle {
+  label: string;
+  color: (theme: Theme) => string;
+}
+
+const CALLOUT_STYLES = new Map<string, CalloutStyle>([
+  ["error", { color: (theme) => theme.error, label: "ERROR" }],
+  ["info", { color: (theme) => theme.info, label: "INFO" }],
+  ["success", { color: (theme) => theme.success, label: "SUCCESS" }],
+  ["warn", { color: (theme) => theme.warning, label: "WARNING" }],
+  ["warning", { color: (theme) => theme.warning, label: "WARNING" }],
+]);
 
 const CalloutRenderer = function CalloutRenderer({
   text,
@@ -159,7 +188,7 @@ const CalloutRenderer = function CalloutRenderer({
 }: CodeBlockRendererProps): ReactNode {
   // ```callout warning — the kind is the second word of the info string
   const kind = info.trim().split(/\s+/u)[1]?.toLowerCase() ?? "info";
-  const style = CALLOUT_STYLES[kind];
+  const style = CALLOUT_STYLES.get(kind);
   if (style === undefined || text.trim() === "") {
     return null;
   }

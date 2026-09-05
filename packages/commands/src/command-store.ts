@@ -537,16 +537,19 @@ export const createCommandStore = function createCommandStore(
     return parsed;
   };
 
+  /** Commands whose hotkey can still match, split by how many key steps they need. */
+  interface HotkeyCandidates {
+    singleStep: { command: Command; parsed: ParsedHotkey }[];
+    multiStep: { command: Command; hotkey: string; parsed: ParsedHotkey }[];
+  }
+
   const collectCandidates = function collectCandidates(
     commands: ReadonlyMap<string, Command> | undefined,
     currentMode: Mode,
     cmdCtx: CommandContext,
-  ): {
-    singleStep: { command: Command; parsed: ParsedHotkey }[];
-    multiStep: { command: Command; hotkey: string; parsed: ParsedHotkey }[];
-  } {
-    const singleStep: { command: Command; parsed: ParsedHotkey }[] = [];
-    const multiStep: { command: Command; hotkey: string; parsed: ParsedHotkey }[] = [];
+  ): HotkeyCandidates {
+    const singleStep: HotkeyCandidates["singleStep"] = [];
+    const multiStep: HotkeyCandidates["multiStep"] = [];
 
     for (const command of commands?.values() ?? []) {
       const commandModes = command.modes ?? DEFAULT_MODES;
@@ -809,8 +812,10 @@ export const createCommandStore = function createCommandStore(
       registry = {
         get commands() {
           const current = store.getSnapshot().context.commandsBySurface.get(record.id);
-          // The registry contract exposes a Map; the store's per-surface maps
-          // are Maps at runtime (readonly-typed). Consumers must not mutate.
+          // SAFETY: the store creates every per-surface map with `new Map(...)` in
+          // its registration transitions and only types it readonly, so the runtime
+          // value is a `Map`. The registry contract keeps the historical mutable
+          // `Map` type; consumers must not mutate it.
           // Deferred(lint-sweep): expose readonly command snapshots through an immutable registry API.
           // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- compatibility facade preserves the existing mutable Map API
           return (current ?? new Map()) as Map<string, Command>;

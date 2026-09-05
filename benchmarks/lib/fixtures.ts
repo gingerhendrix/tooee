@@ -1,9 +1,13 @@
-import type { ColumnDef, TableRow } from "@tooee/renderers";
+import type { ColumnDef } from "@tooee/renderers";
 import type { Content } from "@tooee/view";
 
 type CodeContent = Extract<Content, { format: "code" }>;
 type MarkdownContent = Extract<Content, { format: "markdown" }>;
 type TableContent = Extract<Content, { format: "table" }>;
+
+export type BenchmarkTableCell = string | number;
+export type BenchmarkTableRow = Record<string, BenchmarkTableCell | undefined>;
+type TableFixture = Omit<TableContent, "rows"> & { rows: BenchmarkTableRow[] };
 
 export interface FixtureTier {
   name: "moderate" | "large";
@@ -13,7 +17,7 @@ export interface FixtureTier {
   tableColumns: number;
 }
 
-export const FIXTURE_TIERS: Record<FixtureTier["name"], FixtureTier> = {
+export const FIXTURE_TIERS = {
   large: {
     codeLines: 3500,
     markdownSections: 140,
@@ -28,7 +32,7 @@ export const FIXTURE_TIERS: Record<FixtureTier["name"], FixtureTier> = {
     tableColumns: 8,
     tableRows: 400,
   },
-};
+} satisfies Record<FixtureTier["name"], FixtureTier>;
 
 const WORDS = [
   "atlas",
@@ -124,15 +128,15 @@ export const makeCodeFixture = function makeCodeFixture(
 
 export const makeTableFixture = function makeTableFixture(
   tier: FixtureTier = FIXTURE_TIERS.moderate,
-): TableContent {
+): TableFixture {
   const columns: ColumnDef[] = Array.from({ length: tier.tableColumns }, (_, index) => ({
     align: index % 3 === 0 ? "right" : "left",
     header: `Column ${index}`,
     key: `col${index}`,
   }));
 
-  const rows: TableRow[] = Array.from({ length: tier.tableRows }, (_, rowIndex) => {
-    const row: TableRow = {};
+  const rows: BenchmarkTableRow[] = Array.from({ length: tier.tableRows }, (_, rowIndex) => {
+    const row: BenchmarkTableRow = {};
     for (const [columnIndex, column] of columns.entries()) {
       row[column.key] =
         columnIndex % 3 === 0
