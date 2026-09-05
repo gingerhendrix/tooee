@@ -9,10 +9,21 @@ import { useTheme } from "@tooee/themes";
 import { useCurrentOverlay } from "@tooee/overlays";
 import { ToastContainer } from "@tooee/toasts";
 
+export interface AppLayoutScroll {
+  ref: RefObject<ScrollBoxRenderable | null>;
+  stickyScroll?: boolean;
+  stickyStart?: "bottom" | "top";
+  focused?: boolean;
+}
+
 export interface AppLayoutProps {
   titleBar?: { title: string; subtitle?: string };
   statusBar: { items: StatusBarItem[] };
+  /** Configure the optional scrollbox used for the main content. */
+  scroll?: AppLayoutScroll;
+  /** @deprecated Use `scroll.ref` instead. */
   scrollRef?: RefObject<ScrollBoxRenderable | null>;
+  /** @deprecated Move these options into `scroll`. */
   scrollProps?: {
     stickyScroll?: boolean;
     stickyStart?: "bottom" | "top";
@@ -36,13 +47,18 @@ const hasRenderableOverlay = function hasRenderableOverlay(overlay: ReactNode): 
 export const AppLayout = function AppLayout({
   titleBar,
   statusBar,
+  scroll,
+  // oxlint-disable-next-line typescript/no-deprecated -- compatibility alias remains supported during its deprecation window
   scrollRef,
+  // oxlint-disable-next-line typescript/no-deprecated -- compatibility alias remains supported during its deprecation window
   scrollProps,
   searchBar,
   children,
 }: AppLayoutProps): ReactNode {
   const { theme } = useTheme();
   const contextOverlay = useCurrentOverlay();
+  const resolvedScrollRef = scroll?.ref ?? scrollRef;
+  const resolvedScrollProps = scroll ?? scrollProps;
   const handleSearchQueryChange = (query: string): void => {
     searchBar?.setSearchQuery(query);
   };
@@ -53,13 +69,13 @@ export const AppLayout = function AppLayout({
     <box flexDirection="column" width="100%" height="100%" backgroundColor={theme.background}>
       {titleBar && <TitleBar title={titleBar.title} subtitle={titleBar.subtitle} />}
       <box style={{ flexGrow: 1, position: "relative" }}>
-        {scrollRef ? (
+        {resolvedScrollRef ? (
           <scrollbox
-            ref={scrollRef}
+            ref={resolvedScrollRef}
             style={{ flexGrow: 1 }}
-            stickyScroll={scrollProps?.stickyScroll}
-            stickyStart={scrollProps?.stickyStart}
-            focused={scrollProps?.focused ?? true}
+            stickyScroll={resolvedScrollProps?.stickyScroll}
+            stickyStart={resolvedScrollProps?.stickyStart}
+            focused={resolvedScrollProps?.focused ?? true}
           >
             {children}
           </scrollbox>

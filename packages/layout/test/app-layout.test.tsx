@@ -1,5 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach } from "bun:test";
+import { createRef } from "react";
+import type { ScrollBoxRenderable } from "@opentui/core";
 import { ThemeSwitcherProvider } from "@tooee/themes";
 import { ToastProvider } from "@tooee/toasts";
 import { AppLayout } from "../src/app-layout.js";
@@ -61,6 +63,27 @@ test("renders children in scrollable area", async () => {
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
   expect(frame).toContain("Child Content Here");
+});
+
+test("renders a configured scrollbox through the scroll prop", async () => {
+  const scrollRef = createRef<ScrollBoxRenderable>();
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <ToastProvider>
+        <AppLayout
+          scroll={{ focused: false, ref: scrollRef, stickyScroll: true, stickyStart: "bottom" }}
+          statusBar={{ items: [{ label: "OK" }] }}
+        >
+          <text content="Scrollable content" />
+        </AppLayout>
+      </ToastProvider>
+    </ThemeSwitcherProvider>,
+    { height: 24, width: 80 },
+  );
+  await testSetup.renderOnce();
+
+  expect(scrollRef.current).not.toBeNull();
+  expect(testSetup.captureCharFrame()).toContain("Scrollable content");
 });
 
 test("snapshot full layout", async () => {

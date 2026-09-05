@@ -91,7 +91,6 @@ export const Ask = function Ask({
           { label: "", value: hintParts.join("  ") },
         ],
       }}
-      scrollProps={{ focused: false }}
     >
       <box
         flexDirection="column"
