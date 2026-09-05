@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { formatStepKey, useCommandRegistry, useCommandSequenceState } from "@tooee/commands";
 import type { CommandSequenceState } from "@tooee/commands";
 import { overlayValue, useOverlay } from "@tooee/overlays";
+import type { OverlayHandle } from "@tooee/overlays";
 import { useTheme } from "@tooee/themes";
 
 const OVERLAY_ID = "tooee.which-key";
@@ -96,9 +97,7 @@ export const WhichKeyProvider = function WhichKeyProvider({
   const sequence = useCommandSequenceState();
   const { leaderKey } = useCommandRegistry();
   const overlay = useOverlay();
-  const openRef = useRef(false);
-  const overlayRef = useRef(overlay);
-  overlayRef.current = overlay;
+  const handleRef = useRef<OverlayHandle<CommandSequenceState> | null>(null);
 
   const effectiveLeaderOnly = leaderOnly ?? leaderKey !== undefined;
   const shouldShow =
@@ -112,38 +111,33 @@ export const WhichKeyProvider = function WhichKeyProvider({
 
   useLayoutEffect(() => {
     if (!shouldShow) {
-      if (openRef.current || overlay.isOpen(OVERLAY_ID)) {
-        overlay.hide(OVERLAY_ID);
-        openRef.current = false;
-      }
+      handleRef.current?.close();
       return;
     }
 
-    if (openRef.current || overlay.isOpen(OVERLAY_ID)) {
-      overlay.update(OVERLAY_ID, overlayValue(sequence));
-      openRef.current = true;
+    if (handleRef.current !== null) {
+      handleRef.current.update(overlayValue(sequence));
       return;
     }
 
-    overlay.open(
+    handleRef.current = overlay.open(
       OVERLAY_ID,
       ({ payload }): ReactNode => <WhichKeyOverlay state={payload} />,
       sequence,
       {
         dismissOnEscape: false,
+        onClose: () => {
+          handleRef.current = null;
+        },
         ownCommands: true,
         role: "passive",
       },
     );
-    openRef.current = true;
   }, [overlay, sequence, shouldShow]);
 
   useLayoutEffect(
     () => () => {
-      const currentOverlay = overlayRef.current;
-      if (openRef.current || currentOverlay.isOpen(OVERLAY_ID)) {
-        currentOverlay.hide(OVERLAY_ID);
-      }
+      handleRef.current?.close("unmounted");
     },
     [],
   );

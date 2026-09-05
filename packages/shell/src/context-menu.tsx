@@ -1,6 +1,6 @@
-import { useCallback, createElement } from "react";
+import { useCallback, createElement, useRef } from "react";
 import { useOverlay } from "@tooee/overlays";
-import type { OverlayCloseReason } from "@tooee/overlays";
+import type { OverlayHandle } from "@tooee/overlays";
 import type { ActionDefinition, CommandContext } from "@tooee/commands";
 import { ContextMenu } from "@tooee/renderers";
 import type { ContextMenuEntry } from "@tooee/renderers";
@@ -39,12 +39,13 @@ export const actionsToContextMenuEntries = function actionsToContextMenuEntries(
  */
 export const useContextMenu = function useContextMenu(): ContextMenuController {
   const overlay = useOverlay();
+  const handleRef = useRef<OverlayHandle<null> | null>(null);
 
   const open = useCallback(
     (x: number, y: number, entries: ContextMenuEntry[], onSelect: (id: string) => void) => {
-      overlay.open(
+      handleRef.current = overlay.open(
         OVERLAY_ID,
-        ({ close }: { close: (reason?: OverlayCloseReason) => void }) =>
+        ({ close }) =>
           createElement(ContextMenu, {
             entries,
             onClose: () => {
@@ -58,15 +59,23 @@ export const useContextMenu = function useContextMenu(): ContextMenuController {
             y,
           }),
         null,
-        { dismissOnEscape: true, ownCommands: true, role: "modal", surfaceMode: "insert" },
+        {
+          dismissOnEscape: true,
+          onClose: () => {
+            handleRef.current = null;
+          },
+          ownCommands: true,
+          role: "modal",
+          surfaceMode: "insert",
+        },
       );
     },
     [overlay],
   );
 
   const close = useCallback(() => {
-    overlay.hide(OVERLAY_ID);
-  }, [overlay]);
+    handleRef.current?.close();
+  }, []);
 
   return { close, open };
 };
