@@ -28,8 +28,16 @@ export interface TooeeMount {
 export type CliStdinPolicy = "process" | "tty-if-piped";
 
 export interface LaunchCliOptions extends TooeeProviderOptions {
+  /** @deprecated Use `provider.leader`. This alias will be removed in 0.8.0. */
+  leader?: TooeeProviderOptions["leader"];
+  /** @deprecated Use `provider.config`. This alias will be removed in 0.8.0. */
+  config?: TooeeProviderOptions["config"];
+  /** @deprecated Use `provider.initialMode`. This alias will be removed in 0.8.0. */
+  initialMode?: TooeeProviderOptions["initialMode"];
+  /** @deprecated Use `provider.sequenceTimeoutMs`. This alias will be removed in 0.8.0. */
+  sequenceTimeoutMs?: TooeeProviderOptions["sequenceTimeoutMs"];
   exitOnCtrlC?: boolean;
-  /** Preferred provider options. Top-level provider fields remain as compatibility aliases. */
+  /** Preferred provider options. */
   provider?: TooeeProviderOptions;
   /** Additional OpenTUI renderer options. */
   renderer?: Omit<CliRendererConfig, "exitOnCtrlC" | "stdin">;
@@ -169,6 +177,7 @@ export const mountTooee = function mountTooee(
 const resolveProviderOptions = function resolveProviderOptions(
   options: LaunchCliOptions,
 ): TooeeProviderOptions {
+  // oxlint-disable-next-line typescript/no-deprecated -- this compatibility bridge must read the aliases until their scheduled removal
   const { leader, config, initialMode, sequenceTimeoutMs } = options;
   const aliases: TooeeProviderOptions = {};
   if (leader !== undefined) {
