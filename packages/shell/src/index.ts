@@ -6,7 +6,11 @@ export {
   useToggleLineNumbersCommand,
   useDebugConsoleCommand,
 } from "./commands.js";
-export type { UseQuitCommandOptions, UseThemeCommandsOptions } from "./commands.js";
+export type {
+  ThemeCommandsResult,
+  UseQuitCommandOptions,
+  UseThemeCommandsOptions,
+} from "./commands.js";
 export { useNavigation } from "./navigation.js";
 export type { UseNavigationOptions, NavigationState } from "./navigation.js";
 export { useCopy } from "./copy-hook.js";

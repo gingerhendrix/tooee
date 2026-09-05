@@ -37,7 +37,7 @@ export {
 export type { NavigateResult, BackResult, ActionNavigationResult } from "./action-types.js";
 export { ScreenFocusProvider, useScreenFocus, useScreenEffect } from "./focus.js";
 export type { ScreenFocus } from "./focus.js";
-export type { ScreenStateHandle } from "./hooks.js";
+export type { ActionResultHandler, NavigateHandle, ScreenStateHandle } from "./hooks.js";
 export { StateCache, createStateKey } from "./state-cache.js";
 export type { StateKey } from "./state-cache.js";
 export { useRouterCommands } from "./command-scope.js";

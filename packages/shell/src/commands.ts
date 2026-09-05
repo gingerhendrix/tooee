@@ -20,7 +20,15 @@ export interface UseQuitCommandOptions {
   enabled?: boolean;
 }
 
-export const useThemeCommands = function useThemeCommands(opts?: UseThemeCommandsOptions) {
+/** Live theme state and controls registered by `useThemeCommands`. */
+export interface ThemeCommandsResult {
+  name: string;
+  picker: ThemePickerState;
+}
+
+export const useThemeCommands = function useThemeCommands(
+  opts?: UseThemeCommandsOptions,
+): ThemeCommandsResult {
   const picker = useThemePicker();
   const { toast } = useToast();
 
@@ -47,7 +55,7 @@ export const useThemeCommands = function useThemeCommands(opts?: UseThemeCommand
   return { name: picker.currentTheme, picker: confirmedPicker };
 };
 
-export const useQuitCommand = function useQuitCommand(opts?: UseQuitCommandOptions) {
+export const useQuitCommand = function useQuitCommand(opts?: UseQuitCommandOptions): void {
   const renderer = useRenderer();
 
   useCommand({
