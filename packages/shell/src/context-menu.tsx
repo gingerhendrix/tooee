@@ -61,12 +61,10 @@ export const useContextMenu = function useContextMenu(): ContextMenuController {
         null,
         {
           dismissOnEscape: true,
+          mode: "insert",
           onClose: () => {
             handleRef.current = null;
           },
-          ownCommands: true,
-          role: "modal",
-          surfaceMode: "insert",
         },
       );
     },
