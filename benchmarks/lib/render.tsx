@@ -1,7 +1,7 @@
 import { performance } from "node:perf_hooks";
 import type { ReactNode } from "react";
 import { act } from "react";
-import { testRender } from "../../test/support/test-render.ts";
+import { testRender } from "@tooee/test-support";
 import { percentile, printTimedMetric } from "./benchmark-result.ts";
 
 export interface BenchmarkViewport {
@@ -18,7 +18,7 @@ export const renderPass = async function renderPass(
   passes = 1,
 ): Promise<void> {
   for (let pass = 0; pass < passes; pass += 1) {
-    // Deferred(lint-sweep): preserve ordered render transitions; these passes intentionally run sequentially
+    // Preserve ordered render transitions; these passes intentionally run sequentially.
     // oxlint-disable-next-line no-await-in-loop -- each render pass must complete before the next
     await act(async () => {
       await setup.renderOnce();
@@ -75,7 +75,7 @@ export const measureKeyPressLatencies = async function measureKeyPressLatencies(
 
   for (let press = 0; press < presses; press += 1) {
     const start = performance.now();
-    // Deferred(lint-sweep): preserve ordered input/render transitions for latency measurements
+    // Preserve ordered input/render transitions for latency measurements.
     // oxlint-disable-next-line no-await-in-loop -- each key press is measured after its render
     await act(async () => {
       setup.mockInput.pressKey(key, modifiers);

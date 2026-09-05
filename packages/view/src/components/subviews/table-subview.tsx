@@ -6,6 +6,7 @@ import type { TableContent } from "../../types.js";
 import { useContentDocument } from "../../hooks/use-content-document.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
+import type { ReactNode } from "react";
 
 interface TableSubviewProps extends SubviewProps {
   content: TableContent;
@@ -16,7 +17,7 @@ export const TableSubview = function TableSubview({
   decorations,
   actions,
   ...screen
-}: TableSubviewProps): React.ReactNode {
+}: TableSubviewProps): ReactNode {
   const textContent = useMemo(() => getTextContent(content), [content]);
   const { columns, rows } = content;
   const adapter = useMemo(

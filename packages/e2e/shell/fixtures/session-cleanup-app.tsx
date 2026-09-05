@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { useQuitCommand, launchCli } from "@tooee/shell";
+import type { ReactNode } from "react";
 
 let effectCleanupRan = false;
 
-const SessionCleanupApp = function SessionCleanupApp(): React.ReactNode {
+const SessionCleanupApp = function SessionCleanupApp(): ReactNode {
   useQuitCommand();
   useEffect(() => {
     const interval = setInterval(() => {

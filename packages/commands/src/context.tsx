@@ -147,7 +147,7 @@ export const CommandProvider = function CommandProvider({
   );
 };
 
-// Deferred(lint-sweep): preserve the top-down provider/dispatcher organization.
+// preserve the top-down provider/dispatcher organization.
 // oxlint-disable-next-line no-use-before-define -- provider deliberately renders its dispatcher below
 const CommandDispatcher = function CommandDispatcher({
   children,
@@ -270,7 +270,7 @@ export const CommandSurfaceProvider = function CommandSurfaceProvider({
 
   return (
     <ModeProvider initialMode={initialMode} onModeChange={handleModeChange}>
-      {/* Deferred(lint-sweep): preserve top-down provider/wrapper organization. */}
+      {/* preserve top-down provider/wrapper organization. */}
       {/* oxlint-disable-next-line no-use-before-define -- inner surface is deliberately declared below */}
       <CommandSurfaceInner id={id} role={role} groupId={groupId}>
         {children}
@@ -393,7 +393,9 @@ export const useSurfaceInvoke = function useSurfaceInvoke(): {
   );
 };
 
-/** Deprecated compatibility alias. Use `useSurfaceInvoke` instead. */
+/**
+ * @deprecated Use `useSurfaceInvoke` instead.
+ */
 export const useCommandContext = useSurfaceInvoke;
 
 /**
@@ -672,7 +674,7 @@ export const useProvideCommandContext = function useProvideCommandContext(
 export const useProvideCommandContextKey = function useProvideCommandContextKey<
   K extends keyof CommandContext,
 >(key: K, getter: () => CommandContext[K]): void {
-  // Deferred(lint-sweep): provide a typed augmentation builder instead of asserting computed keys.
+  // provide a typed augmentation builder instead of asserting computed keys.
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- computed key is constrained by K
   useProvideCommandContext(() => ({ [key]: getter() }));
 };

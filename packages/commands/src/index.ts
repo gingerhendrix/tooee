@@ -16,24 +16,18 @@ export type {
   RegisteredCommandGroup,
 } from "./types.js";
 export type { Mode } from "./mode.js";
-export { ModeProvider, useMode, useSetMode } from "./mode.js";
-export type { ModeProviderProps } from "./mode.js";
+export { useMode, useSetMode } from "./mode.js";
 export { parseHotkey } from "./parse.js";
 export { matchStep } from "./match.js";
 export { ScreenScopeProvider, useScreenScope } from "./screen-focus.js";
 export type { ScreenScopeState } from "./screen-focus.js";
-export { DEFAULT_SEQUENCE_TIMEOUT_MS, SequenceTracker } from "./sequence.js";
-export type {
-  SequenceFeedResult,
-  SequencePendingMatch,
-  SequenceTrackerOptions,
-} from "./sequence.js";
 export {
   CommandProvider,
   CommandSurfaceProvider,
   useActiveCommandSurface,
   useEffectiveCommands,
   useBuildCommandContext,
+  // oxlint-disable-next-line typescript/no-deprecated -- retained as the documented compatibility alias for useSurfaceInvoke
   useCommandContext,
   useCommandGroup,
   useCommandRegistry,
@@ -50,25 +44,12 @@ export {
   formatStepKey,
   selectActiveModalSurface,
   selectActivePanelSurface,
-  selectGroups,
   selectKeyboardOwnerSurface,
   selectSequence,
-  selectSurfaceCommandMap,
   selectSurfaceCommands,
 } from "./command-store.js";
-export { createCommandStore } from "./command-store-wrapper.js";
-export type {
-  CommandStoreContext,
-  CommandStoreInstance,
-  ContextGetter,
-  SurfaceRecord,
-} from "./command-store.js";
-export type {
-  CommandStore,
-  CommandStoreConfig,
-  CreateCommandStoreOptions,
-  KeyDispatchResult,
-} from "./command-store-wrapper.js";
+export type { CommandStoreContext, SurfaceRecord } from "./command-store.js";
+export type { CommandStore, CommandStoreConfig } from "./command-store-wrapper.js";
 export type {
   CommandProviderProps,
   CommandSurfaceProviderProps,

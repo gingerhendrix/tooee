@@ -1,4 +1,5 @@
 import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
 
 interface StatusBarProps {
   items: StatusBarItem[];
@@ -9,7 +10,7 @@ export interface StatusBarItem {
   value?: string;
 }
 
-export const StatusBar = function StatusBar({ items }: StatusBarProps): React.ReactNode {
+export const StatusBar = function StatusBar({ items }: StatusBarProps): ReactNode {
   const { theme } = useTheme();
   return (
     <box
@@ -23,7 +24,7 @@ export const StatusBar = function StatusBar({ items }: StatusBarProps): React.Re
       }}
     >
       {items.map(
-        (item, index): React.ReactNode => (
+        (item, index): ReactNode => (
           <box key={index} style={{ flexDirection: "row", marginRight: 2 }}>
             <text content={item.label} style={{ fg: theme.textMuted }} />
             {(item.value?.length ?? 0) > 0 && (

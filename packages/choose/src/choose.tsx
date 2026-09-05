@@ -1,10 +1,10 @@
 import { useImperativeHandle } from "react";
-import type { Ref } from "react";
+import type { ReactNode, Ref } from "react";
 import { AppLayout } from "@tooee/layout";
 import { useHasOverlay, useHasModalOverlay } from "@tooee/overlays";
 import { useTheme } from "@tooee/themes";
 import { useThemeCommands, useQuitCommand } from "@tooee/shell";
-import { useCommandContext } from "@tooee/commands";
+import { useSurfaceInvoke } from "@tooee/commands";
 import type { ActionDefinition } from "@tooee/commands";
 import { ChooseFilter } from "./choose-filter.js";
 import { ChooseList } from "./choose-list.js";
@@ -55,7 +55,7 @@ const resolveChooseProps = function resolveChooseProps(props: ChooseProps): Reso
   };
 };
 
-export const Choose = function Choose(props: ChooseProps): React.ReactNode {
+export const Choose = function Choose(props: ChooseProps): ReactNode {
   const { contentProvider, controllerRef, renderItem, onConfirm, onCancel } = props;
   const {
     actions: effectiveActions,
@@ -66,7 +66,7 @@ export const Choose = function Choose(props: ChooseProps): React.ReactNode {
     title,
   } = resolveChooseProps(props);
   const { theme } = useTheme();
-  const { invoke } = useCommandContext();
+  const { invoke } = useSurfaceInvoke();
 
   const { name: themeName } = useThemeCommands();
   useQuitCommand({ onQuit: () => onCancel?.() });

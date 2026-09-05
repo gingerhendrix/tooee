@@ -2,6 +2,7 @@ import { useTerminalDimensions } from "@opentui/react";
 import { useTheme } from "@tooee/themes";
 import { useToast } from "./toast-provider.js";
 import type { ToastLevel } from "./types.js";
+import type { ReactNode } from "react";
 
 const LEVEL_ICONS = {
   error: "✗",
@@ -34,7 +35,7 @@ const getLevelColor = function getLevelColor(
   }
 };
 
-export const ToastContainer = function ToastContainer(): React.ReactNode {
+export const ToastContainer = function ToastContainer(): ReactNode {
   const { currentToast } = useToast();
   const { theme } = useTheme();
   const { width: termWidth } = useTerminalDimensions();

@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useTerminalDimensions } from "@opentui/react";
 import { useCommand } from "@tooee/commands";
 import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
 
 export interface ContextMenuEntry {
   id: string;
@@ -36,7 +37,7 @@ export const ContextMenu = function ContextMenu({
   y,
   onSelect,
   onClose,
-}: ContextMenuProps): React.ReactNode {
+}: ContextMenuProps): ReactNode {
   const { theme } = useTheme();
   const { width: termWidth, height: termHeight } = useTerminalDimensions();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -160,7 +161,7 @@ export const ContextMenu = function ContextMenu({
           </box>
         ) : (
           entries.map(
-            (entry, i): React.ReactNode => (
+            (entry, i): ReactNode => (
               <box
                 key={entry.id}
                 flexDirection="row"

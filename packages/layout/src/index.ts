@@ -1,5 +1,6 @@
 export { AppLayout } from "./app-layout.js";
 export type { AppLayoutProps, AppLayoutScroll } from "./app-layout.js";
+export { CloseButton } from "./close-button.js";
 export { OverlayPanel } from "./overlay-panel.js";
 export type { OverlayPanelProps, PanelInset, PanelInsetValue } from "./overlay-panel.js";
 export { decodeReactContent } from "./react-content.js";

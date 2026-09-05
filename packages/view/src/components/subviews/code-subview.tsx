@@ -5,6 +5,7 @@ import type { CodeContent, TextContent } from "../../types.js";
 import { useContentDocument } from "../../hooks/use-content-document.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
+import type { ReactNode } from "react";
 
 interface CodeSubviewProps extends SubviewProps {
   content: CodeContent | TextContent;
@@ -15,7 +16,7 @@ export const CodeSubview = function CodeSubview({
   decorations,
   actions,
   ...screen
-}: CodeSubviewProps): React.ReactNode {
+}: CodeSubviewProps): ReactNode {
   const textContent = content.format === "code" ? content.code : content.text;
   // One navigation row per physical source line; row index is the source line.
   const lineRows = useMemo(() => sourceLines(textContent), [textContent]);

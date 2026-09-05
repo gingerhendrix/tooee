@@ -1,0 +1,210 @@
+import { testRender, copied } from "@tooee/test-support";
+import { test, expect, afterEach, beforeEach, describe } from "bun:test";
+import { act } from "react";
+import type { AnyContent, ContentProvider } from "../src/types.js";
+
+const { TooeeProvider } = await import("@tooee/shell");
+const { MarkSetBuilder, MarkPriorities } = await import("@tooee/marks");
+const { View } = await import("../src/view.js");
+
+const staticProvider = function staticProvider(
+  content: AnyContent,
+  marks?: ContentProvider["marks"],
+): ContentProvider {
+  return { format: content.format, load: () => content, marks };
+};
+
+const CODE: AnyContent = {
+  code: ["alpha", "beta", "gamma", "alpha again"].join("\n"),
+  format: "code",
+  language: "text",
+};
+
+const TABLE: AnyContent = {
+  columns: [
+    { header: "Name", key: "name" },
+    { header: "Role", key: "role" },
+  ],
+  format: "table",
+  rows: [
+    { name: "Alice", role: "dev" },
+    { name: "Bob", role: "ops" },
+    { name: "Carol", role: "dev" },
+  ],
+};
+
+const DATE_TEXT = "2026-09-05T12:34:56.000Z";
+const DATE_TABLE: AnyContent = {
+  columns: [{ header: "Created", key: "created" }],
+  format: "table",
+  rows: [{ created: new Date(DATE_TEXT) }],
+};
+
+const MARKDOWN: AnyContent = {
+  format: "markdown",
+  markdown: "First.\n\nSecond.\n\nThird.",
+};
+
+let testSetup: Awaited<ReturnType<typeof testRender>>;
+
+beforeEach(() => {
+  copied.length = 0;
+});
+
+afterEach(() => {
+  testSetup?.renderer.destroy();
+});
+
+const setup = async function setup(provider: ContentProvider) {
+  const s = await testRender(
+    <TooeeProvider>
+      <View contentProvider={provider} />
+    </TooeeProvider>,
+    { height: 24, kittyKeyboard: true, width: 80 },
+  );
+  await s.renderOnce();
+  await act(async () => {
+    await Bun.sleep(100);
+  });
+  await s.renderOnce();
+  return s;
+};
+
+const press = async function press(key: string, modifiers?: { shift?: boolean }) {
+  await act(async () => {
+    testSetup.mockInput.pressKey(key, modifiers);
+    await Promise.resolve();
+  });
+  await testSetup.renderOnce();
+};
+
+const typeQuery = async function typeQuery(query: string) {
+  await press("/");
+  for (const char of query) {
+    // preserve sequential key delivery for deterministic input handling.
+    // oxlint-disable-next-line no-await-in-loop -- each key must be rendered before the next
+    await press(char);
+  }
+  await act(async () => {
+    testSetup.mockInput.pressEnter();
+    await Promise.resolve();
+  });
+  await testSetup.renderOnce();
+};
+
+describe("search over migrated subviews", () => {
+  test("a code View jumps the cursor to the first real match, n cycles", async () => {
+    testSetup = await setup(staticProvider(CODE));
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*0/u);
+
+    await typeQuery("gamma");
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/u);
+
+    await typeQuery("alpha");
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*0/u);
+    await press("n");
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*3/u);
+  });
+
+  test("a table View searches across every column", async () => {
+    testSetup = await setup(staticProvider(TABLE));
+
+    await typeQuery("ops");
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*1/u);
+
+    await typeQuery("carol");
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/u);
+  });
+
+  test("a markdown View searches block source", async () => {
+    testSetup = await setup(staticProvider(MARKDOWN));
+
+    await typeQuery("Third");
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/u);
+  });
+});
+
+describe("copy over migrated subviews", () => {
+  test("yy copies the current semantic code row", async () => {
+    testSetup = await setup(staticProvider(CODE));
+    await press("j");
+    await press("y");
+    await press("y");
+
+    expect(copied).toEqual(["beta"]);
+  });
+
+  test("yg copies the whole View document", async () => {
+    testSetup = await setup(staticProvider(CODE));
+    await press("y");
+    await press("g");
+
+    expect(copied).toEqual([CODE.code]);
+  });
+
+  test("yv copies a selected code line range", async () => {
+    testSetup = await setup(staticProvider(CODE));
+    await press("j");
+    await press("v");
+    await press("j");
+    await press("y");
+    await press("v");
+
+    expect(copied).toEqual(["beta\ngamma"]);
+  });
+
+  test("a table View copies toggled rows as tab-separated cells", async () => {
+    testSetup = await setup(staticProvider(TABLE));
+    await act(async () => {
+      testSetup.mockInput.pressTab();
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
+    await press("j");
+    await press("j");
+    await act(async () => {
+      testSetup.mockInput.pressTab();
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
+
+    await press("y");
+    await press("v");
+
+    expect(copied).toEqual(["Alice\tdev\nCarol\tdev"]);
+  });
+
+  test("a Date table cell has the same display and copy text", async () => {
+    testSetup = await setup(staticProvider(DATE_TABLE));
+    expect(testSetup.captureCharFrame()).toContain(DATE_TEXT);
+
+    await press("y");
+    await press("y");
+
+    expect(copied).toEqual([DATE_TEXT]);
+  });
+
+  test("a pending y sequence resolves only the requested target", async () => {
+    testSetup = await setup(staticProvider(CODE));
+    await press("y");
+    expect(copied).toEqual([]);
+    await press("g");
+
+    expect(copied).toEqual([CODE.code]);
+  });
+});
+
+describe("decoration composition", () => {
+  test("provider marks paint alongside the controller's cursor layer", async () => {
+    const builder = new MarkSetBuilder();
+    builder.addLine(2, { foreground: "#ff0000", signBefore: "■" });
+    const marks = [builder.build("provider:test", MarkPriorities.DIAGNOSTIC)];
+
+    testSetup = await setup(staticProvider(CODE, marks));
+    const frame = testSetup.captureCharFrame();
+
+    // Cursor sign (row 0) from the controller, provider sign (row 2) from the mark set.
+    expect(frame).toContain("▸");
+    expect(frame).toContain("■");
+  });
+});

@@ -1,0 +1,85 @@
+import { describe, test, expect, afterEach } from "bun:test";
+import type { Session } from "tuistory";
+import { launchView } from "./helpers.js";
+
+let session: Session;
+
+afterEach(() => {
+  try {
+    session?.close();
+  } catch {
+    // The session may already have exited or closed.
+  }
+});
+
+describe("marks rendering e2e (code content)", () => {
+  test("code content with cursor shows cursor indicator in gutter", async () => {
+    session = await launchView("long.ts");
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
+    // Cursor should be active — the gutter sign (▸) is rendered via marks
+    const text = await session.text();
+    expect(text).toMatch(/Mode:\s*cursor/u);
+    expect(text).toContain("▸");
+  }, 20_000);
+
+  test("search highlights are visible when searching in code content", async () => {
+    session = await launchView("long.ts");
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
+    // Open search — retry until search bar appears
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      // Retry keystrokes must be delivered one at a time while the UI updates.
+      // oxlint-disable-next-line no-await-in-loop -- Preserve sequential terminal input.
+      await session.press("/");
+      // The retry intentionally waits for the preceding key's render transition.
+      // oxlint-disable-next-line no-await-in-loop -- Preserve sequential render timing.
+      await Bun.sleep(500);
+      // Inspect each frame before deciding whether another retry is needed.
+      // oxlint-disable-next-line no-await-in-loop -- Preserve ordered polling.
+      const check = await session.text();
+      if (!/Mode:\s*cursor/u.test(check)) {
+        break;
+      }
+    }
+    // Type a search query that matches multiple lines
+    await session.type("function");
+    // Submit search
+    await session.press("enter");
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
+    // Move to next match so the first match line shows ● instead of cursor ▸
+    // (cursor sign has higher priority and overrides the search sign)
+    await session.press("n");
+    await Bun.sleep(200);
+    const text = await session.text();
+    expect(text).toMatch(/Mode:\s*cursor/u);
+    // Search match signs (●) should be visible on non-cursor match lines
+    expect(text).toContain("●");
+  }, 20_000);
+
+  test("selection highlighting works in code content", async () => {
+    session = await launchView("long.ts");
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
+    // Enter select mode
+    await session.press("v");
+    await session.waitForText(/Mode:\s*select/u, { timeout: 5000 });
+    // Extend selection down a few lines
+    await session.press("j");
+    await session.press("j");
+    await session.press("j");
+    const text = await session.text();
+    expect(text).toMatch(/Mode:\s*select/u);
+    // Selection should show "Selected:" count in status bar
+    expect(text).toMatch(/Selected:\s*\d+/u);
+  }, 20_000);
+
+  test("cursor moves correctly via marks in code content", async () => {
+    session = await launchView("long.ts");
+    await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
+    await session.waitForText(/Cursor:\s*0/u, { timeout: 5000 });
+    // Move cursor down
+    await session.press("j");
+    await Bun.sleep(200);
+    const text = await session.text();
+    // Cursor should have moved from 0
+    expect(text).toMatch(/Cursor:\s*1/u);
+  }, 20_000);
+});

@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useCommand } from "@tooee/commands";
-import { rankBy } from "@tooee/renderers";
-import { CloseButton, useTheme } from "@tooee/themes";
+import { rankBy } from "@tooee/fuzzy";
+import { CloseButton } from "@tooee/layout";
+import { useTheme } from "@tooee/themes";
 
 export interface ThemePickerEntry {
   id: string;

@@ -10,6 +10,7 @@ import {
 import type { RowDocumentRenderable } from "./row-document-renderable.js";
 import { useGutterPalette } from "./use-gutter-palette.js";
 import "./row-document.js";
+import type { ReactNode } from "react";
 
 export interface TableProps {
   columns: ColumnDef[];
@@ -193,7 +194,7 @@ export const Table = function Table({
   showLineNumbers = true,
   document,
   columnWidthMode = "content",
-}: TableProps): React.ReactNode {
+}: TableProps): ReactNode {
   const { theme } = useTheme();
   const palette = useGutterPalette();
   const { width: terminalWidth } = useTerminalDimensions();
@@ -260,9 +261,9 @@ export const Table = function Table({
   const rowElements = useMemo(
     () =>
       normalizedRows.map(
-        (row, i): React.ReactNode => (
+        (row, i): ReactNode => (
           <box key={i} style={{ flexDirection: "row" }}>
-            {row.map((cell, j): React.ReactNode => {
+            {row.map((cell, j): ReactNode => {
               const contentWidth = colWidths[j] - PADDING * 2;
               const cellWidth = Bun.stringWidth(cell);
               const displayCell =
@@ -302,7 +303,7 @@ export const Table = function Table({
       {/* Fixed header row — outside row-document so it stays visible */}
       <box style={{ flexDirection: "row", flexShrink: 0, paddingLeft: gutterWidth }}>
         {headers.map(
-          (h, i): React.ReactNode => (
+          (h, i): ReactNode => (
             <text
               key={i}
               content={h}
@@ -316,7 +317,7 @@ export const Table = function Table({
       {/* Fixed header underline */}
       <box style={{ flexDirection: "row", flexShrink: 0, paddingLeft: gutterWidth }}>
         {colWidths.map(
-          (w, i): React.ReactNode => (
+          (w, i): ReactNode => (
             <text
               key={i}
               content={"\u2500".repeat(w - PADDING * 2)}

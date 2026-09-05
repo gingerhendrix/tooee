@@ -9,3 +9,8 @@ This directory vendors Dillon Mulroy's `anti-slop` plugin under the MIT license.
 
 The TypeScript implementation is copied from the proven Streamsy vendor snapshot. StreamOS
 owns local rule severity, scoping, remediation, and future adaptations.
+
+Tooee adds one repository-specific rule:
+
+- `no-react-global-namespace` requires an explicit `React` import binding before code uses a
+  `React.X` type. Prefer a named type import such as `import type { ReactNode } from "react"`.

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { MouseEvent } from "@opentui/core";
-import { CloseButton, useTheme } from "@tooee/themes";
+import { useTheme } from "@tooee/themes";
+import { CloseButton } from "./close-button.js";
 import { decodeReactContent } from "./react-content.js";
 import type { DecodedReactContent } from "./react-content.js";
 

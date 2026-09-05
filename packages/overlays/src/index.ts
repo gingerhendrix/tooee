@@ -31,14 +31,4 @@ export {
 } from "./overlay-store.js";
 export { useOverlayDialog } from "./use-overlay-dialog.js";
 export type { OverlayDialogHandle, OverlayDialogSettle } from "./use-overlay-dialog.js";
-export type {
-  OverlayClosedEmit,
-  OverlayClosedEvent,
-  OverlayClosedTopEvent,
-  OverlayOpenedEvent,
-  OverlayRecord,
-  OverlayStore,
-  OverlayStoreContext,
-  OverlayStoreEvents,
-  OverlayUpdatedEvent,
-} from "./overlay-store.js";
+export type { OverlayRecord, OverlayStore, OverlayStoreContext } from "./overlay-store.js";

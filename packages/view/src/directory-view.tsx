@@ -7,6 +7,7 @@ import type { DirectoryEntry } from "./directory-provider.js";
 import type { AnyContent, ContentProvider } from "./types.js";
 import { createFileProvider } from "./default-provider.js";
 import { ViewState } from "./components/view-state.js";
+import type { ReactNode } from "react";
 
 const createDirectoryFileProvider = function createDirectoryFileProvider(
   entry: DirectoryEntry,
@@ -37,7 +38,7 @@ interface DirectoryViewProps {
 export const DirectoryView = function DirectoryView({
   dirPath,
   actions,
-}: DirectoryViewProps): React.ReactNode {
+}: DirectoryViewProps): ReactNode {
   const files = useMemo(() => listDirectoryFiles(dirPath), [dirPath]);
   const [currentIndex, setCurrentIndex] = useState(0);
 

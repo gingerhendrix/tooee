@@ -1,7 +1,7 @@
 import { launchTerminal } from "tuistory";
 import type { Session } from "tuistory";
 import path from "node:path";
-import { ensureTestConfigHome, resetTestConfig } from "../support/test-config.js";
+import { ensureTestConfigHome, resetTestConfig } from "@tooee/test-support";
 
 const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
 const EXAMPLE_APP = path.resolve(REPO_ROOT, "examples/panels.tsx");
