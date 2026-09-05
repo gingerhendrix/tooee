@@ -1,9 +1,8 @@
 import { useMemo } from "react";
-import { Table } from "@tooee/renderers";
+import { Table, formatTableCell } from "@tooee/renderers";
 import type { TableRow } from "@tooee/renderers";
 import { getTextContent } from "../../types.js";
 import type { TableContent } from "../../types.js";
-import { stringifyTableCell } from "../../table-cell.js";
 import { useContentDocument } from "../../hooks/use-content-document.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
@@ -23,7 +22,7 @@ export const TableSubview = function TableSubview({
   const adapter = useMemo(
     () => ({
       getText: (row: TableRow) =>
-        columns.map((column) => stringifyTableCell(row[column.key])).join("\t"),
+        columns.map((column) => formatTableCell(row[column.key])).join("\t"),
     }),
     [columns],
   );
