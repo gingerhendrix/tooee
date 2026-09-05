@@ -1,5 +1,4 @@
 export {
-  OverlayContext,
   OverlayControllerContext,
   OverlayStateContext,
   overlayUpdater,
@@ -11,7 +10,6 @@ export {
   useHasModalOverlay,
 } from "./overlay-context.js";
 export type {
-  OverlayContextValue,
   OverlayId,
   OverlayCloseReason,
   OverlayOpenOptions,
