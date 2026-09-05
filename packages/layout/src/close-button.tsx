@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import type { MouseEvent } from "@opentui/core";
-import { useTheme } from "./context.js";
+import { useTheme } from "@tooee/themes";
 import type { ReactNode } from "react";
 
 interface CloseButtonProps {

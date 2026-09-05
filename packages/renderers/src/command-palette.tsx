@@ -1,7 +1,8 @@
 import { useState, useMemo, useCallback } from "react";
 import type { ReactNode } from "react";
 import { useCommand } from "@tooee/commands";
-import { useTheme, CloseButton } from "@tooee/themes";
+import { CloseButton } from "@tooee/layout";
+import { useTheme } from "@tooee/themes";
 import { rankBy } from "@tooee/fuzzy";
 
 export interface CommandPaletteEntry {

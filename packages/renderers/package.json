@@ -47,6 +47,7 @@
   "dependencies": {
     "@tooee/commands": "workspace:*",
     "@tooee/fuzzy": "workspace:*",
+    "@tooee/layout": "workspace:*",
     "@tooee/marks": "workspace:*",
     "@tooee/themes": "workspace:*",
     "beautiful-mermaid": "^1.1.3",

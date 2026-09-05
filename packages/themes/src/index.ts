@@ -8,5 +8,3 @@ export type { Theme } from "./loader.js";
 
 export { ThemeProvider, ThemeSwitcherProvider, useTheme, useThemeSwitcher } from "./context.js";
 export type { ThemeProviderProps, ThemeSwitcherProviderProps } from "./context.js";
-
-export { CloseButton } from "./close-button.js";
