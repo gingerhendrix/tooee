@@ -64,24 +64,27 @@ export default defineConfig({
     "unicorn/prefer-number-coercion": "error",
     "unicorn/prefer-single-call": "error",
     "unicorn/prefer-spread": "error",
-    // Anti-slop custom policy (vendored plugin under tools/oxlint/anti-slop). Rules with zero
-    // findings at adoption are errors. Rules with existing findings are warnings held by the
-    // per-rule debt ratchet in tools/oxlint/debt.json; a count may only go down.
-    "anti-slop/no-chained-type-assertions": "warn",
-    "anti-slop/no-conditional-empty-object-spread": "warn",
-    "anti-slop/no-known-value-widening": "warn",
+    // Anti-slop custom policy (vendored plugin under tools/oxlint/anti-slop). The adoption
+    // sweep is closed: all 336 findings are gone and every rule is an error, so the per-rule
+    // debt ratchet that held the remaining warnings has been removed. The router keeps a small
+    // set of local exceptions where an unparsed value is the public contract; each one names
+    // its rule and its reason next to the code, and `packages/router/src/types.ts` records why
+    // that boundary stays `unknown`.
+    "anti-slop/no-chained-type-assertions": "error",
+    "anti-slop/no-conditional-empty-object-spread": "error",
+    "anti-slop/no-known-value-widening": "error",
     "anti-slop/no-module-mocking": "error",
-    "anti-slop/no-object-parameters": "warn",
+    "anti-slop/no-object-parameters": "error",
     "anti-slop/no-reflect-apply": "error",
     "anti-slop/no-reflect-get": "error",
-    "anti-slop/no-runtime-typeof": "warn",
-    "anti-slop/no-shape-in-symbol-names": "warn",
-    "anti-slop/no-unknown-parameters": "warn",
-    "anti-slop/no-unknown-returns": "warn",
+    "anti-slop/no-runtime-typeof": "error",
+    "anti-slop/no-shape-in-symbol-names": "error",
+    "anti-slop/no-unknown-parameters": "error",
+    "anti-slop/no-unknown-returns": "error",
     "anti-slop/no-unknown-type-aliases": "error",
-    "anti-slop/no-unsafe-dictionary-type": "warn",
+    "anti-slop/no-unsafe-dictionary-type": "error",
     "anti-slop/no-widen-then-assert": "error",
-    "anti-slop/require-safety-comment-for-type-assertion": "warn",
+    "anti-slop/require-safety-comment-for-type-assertion": "error",
     // Permanently off (policy). Tooee renders to a terminal, not the DOM: there is no
     // accessibility tree and no ARIA. `CommandSurfaceProvider.role` is a Tooee command-surface
     // role ("modal" | "passive"), and the rule can only ever produce false positives here.
