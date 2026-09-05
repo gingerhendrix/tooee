@@ -1,5 +1,5 @@
 import { test, expect, describe } from "bun:test";
-import { fuzzyMatch, fuzzyMatchPositions } from "../src/fuzzy.js";
+import { fuzzyMatch, fuzzyMatchPositions, rankBy } from "../src/fuzzy.js";
 import { expectDefined } from "./support/expect-defined.ts";
 
 describe("fuzzyMatch", () => {
@@ -64,5 +64,28 @@ describe("fuzzyMatchPositions", () => {
     expect(result).not.toBeNull();
     expect(expectDefined(result).score).toBe(0);
     expect(expectDefined(result).positions).toEqual([]);
+  });
+});
+
+describe("rankBy", () => {
+  const items = [
+    { id: "settings", title: "Open settings" },
+    { id: "search", title: "Search files" },
+    { id: "save", title: "Save file" },
+  ];
+
+  test("returns all items in source order for an empty query", () => {
+    expect(rankBy(items, "", (item) => item.title)).toEqual([
+      { item: items[0], originalIndex: 0, positions: [], score: 0 },
+      { item: items[1], originalIndex: 1, positions: [], score: 0 },
+      { item: items[2], originalIndex: 2, positions: [], score: 0 },
+    ]);
+  });
+
+  test("filters, score-sorts, and retains match positions and source indices", () => {
+    expect(rankBy(items, "sf", (item) => item.title)).toEqual([
+      { item: items[1], originalIndex: 1, positions: [0, 7], score: 5 },
+      { item: items[2], originalIndex: 2, positions: [0, 5], score: 5 },
+    ]);
   });
 });
