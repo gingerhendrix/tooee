@@ -31,7 +31,7 @@ import type { Mode } from "@tooee/commands";
 
 declare module "@tooee/commands" {
   interface CommandContext {
-    overlay: OverlayController;
+    overlay?: OverlayController;
   }
 }
 

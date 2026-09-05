@@ -14,14 +14,15 @@ export interface CommandCommands {
  * ```ts
  * declare module "@tooee/commands" {
  *   interface CommandContext {
- *     myDomain: MyDomainContext
+ *     myDomain?: MyDomainContext
  *   }
  * }
  * ```
  *
- * Augmented fields are contributed at runtime by context sources
- * (`useCommandContextSource`), so an augmenting package is responsible for
- * mounting its provider. The core fields are declared here directly: the
+ * Augmented fields must be optional because their providers are not present on
+ * every command surface. They are contributed at runtime by context sources
+ * (`useCommandContextSource`), so handlers must check a field before reading
+ * it. The core fields are declared here directly: the
  * interface is still open for merging, but it is no longer an empty declaration
  * that only inherits its own members.
  */

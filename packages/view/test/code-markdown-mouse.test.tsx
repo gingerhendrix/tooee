@@ -218,7 +218,7 @@ describe("Markdown view mouse selection", () => {
     await testSetup.renderOnce();
 
     expect(activated?.href).toBe("nested/note.md");
-    expect(activated?.context.view.format).toBe("markdown");
+    expect(activated?.context.view?.format).toBe("markdown");
     expect(activated?.context.document.kind).toBe("markdown");
     expect(activated?.context.document.rowCount).toBe(3);
     expect(activated?.context.document.cursor).toBe(1);

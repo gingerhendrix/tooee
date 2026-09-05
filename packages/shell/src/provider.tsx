@@ -14,7 +14,7 @@ import { useDebugConsoleCommand } from "./commands.js";
 
 declare module "@tooee/commands" {
   interface CommandContext {
-    toast: ToastController;
+    toast?: ToastController;
   }
 }
 

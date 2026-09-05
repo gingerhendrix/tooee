@@ -106,9 +106,9 @@ export const useCopyCommand = function useCopyCommand(opts: UseCopyCommandOption
       const text = opts.getText();
       if (text !== undefined && text !== "") {
         void copyToClipboard(text);
-        ctx.toast.toast({ level: "success", message: "Copied to clipboard" });
+        ctx.toast?.toast({ level: "success", message: "Copied to clipboard" });
       } else {
-        ctx.toast.toast({ level: "warning", message: "Nothing to copy" });
+        ctx.toast?.toast({ level: "warning", message: "Nothing to copy" });
       }
     },
     hotkey: opts.hotkey ?? "y",
@@ -130,7 +130,7 @@ export const usePasteCommands = function usePasteCommands(opts: UsePasteCommands
       if (text !== undefined && text !== "") {
         target.insertText(text);
       } else {
-        ctx.toast.toast({ level: "warning", message: "Clipboard empty" });
+        ctx.toast?.toast({ level: "warning", message: "Clipboard empty" });
       }
     },
     hotkey: "p",
@@ -149,7 +149,7 @@ export const usePasteCommands = function usePasteCommands(opts: UsePasteCommands
       if (text !== undefined && text !== "") {
         target.insertText(text);
       } else {
-        ctx.toast.toast({ level: "warning", message: "Selection empty" });
+        ctx.toast?.toast({ level: "warning", message: "Selection empty" });
       }
     },
     id: "paste-primary",
@@ -181,7 +181,7 @@ export const useToggleLineNumbersCommand = function useToggleLineNumbersCommand(
     handler: (ctx) => {
       opts.onToggle();
       const next = !opts.showLineNumbers;
-      ctx.toast.toast({
+      ctx.toast?.toast({
         id: "line-numbers-toggled",
         level: "info",
         message: `Line numbers: ${next ? "on" : "off"}`,

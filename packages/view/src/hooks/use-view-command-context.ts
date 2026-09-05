@@ -27,7 +27,7 @@ export interface ViewCommandContext {
 
 declare module "@tooee/commands" {
   interface CommandContext {
-    view: ViewCommandContext;
+    view?: ViewCommandContext;
   }
 }
 

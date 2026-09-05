@@ -92,7 +92,7 @@ const activeName = function activeName(ctx: CommandContext): string {
 const actions: ActionDefinition[] = [
   {
     handler: (ctx) => {
-      ctx.toast.toast({ level: "info", message: `Open ${activeName(ctx)}` });
+      ctx.toast?.toast({ level: "info", message: `Open ${activeName(ctx)}` });
     },
     hotkey: "o",
     icon: "\u{1F4C2}",
@@ -102,7 +102,7 @@ const actions: ActionDefinition[] = [
   },
   {
     handler: (ctx) => {
-      ctx.toast.toast({ level: "success", message: `Copied "${activeName(ctx)}"` });
+      ctx.toast?.toast({ level: "success", message: `Copied "${activeName(ctx)}"` });
     },
     hotkey: "y",
     icon: "\u{1F4CB}",
@@ -112,7 +112,7 @@ const actions: ActionDefinition[] = [
   },
   {
     handler: (ctx) => {
-      ctx.toast.toast({ level: "success", message: `Marked ${activeName(ctx)} done` });
+      ctx.toast?.toast({ level: "success", message: `Marked ${activeName(ctx)} done` });
     },
     hotkey: "x",
     icon: "\u{2713}",
@@ -122,7 +122,7 @@ const actions: ActionDefinition[] = [
   },
   {
     handler: (ctx) => {
-      ctx.toast.toast({ level: "warning", message: `Delete ${activeName(ctx)} (demo only)` });
+      ctx.toast?.toast({ level: "warning", message: `Delete ${activeName(ctx)} (demo only)` });
     },
     icon: "\u{1F5D1}",
     id: "row.delete",

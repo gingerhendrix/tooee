@@ -331,8 +331,8 @@ describe("shared commands, context, and surfaces", () => {
         commands={[
           {
             handler: (context) => {
-              contextItem = context.choose.activeItem?.text ?? "";
-              contextFilter = context.choose.filterQuery;
+              contextItem = context.choose?.activeItem?.text ?? "";
+              contextFilter = context.choose?.filterQuery ?? "";
             },
             hotkey: "x",
             id: "inspect-choose",
@@ -385,7 +385,7 @@ describe("shared commands, context, and surfaces", () => {
         actions={[
           {
             handler: (context) => {
-              actionItem = context.choose.activeItem?.text ?? "";
+              actionItem = context.choose?.activeItem?.text ?? "";
             },
             id: "submit",
             title: "Submit",

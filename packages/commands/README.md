@@ -13,7 +13,7 @@ for one keyed slice so the value is checked against the augmented key:
 ```tsx
 declare module "@tooee/commands" {
   interface CommandContext {
-    myApp: { selectedId: string | null };
+    myApp?: { selectedId: string | null };
   }
 }
 
@@ -24,6 +24,21 @@ Key ownership is by convention: Tooee packages use short built-in keys such as
 `view`, `ask`, `choose`, `overlay`, and `toast`; apps and third-party packages
 should use app/package-specific keys to avoid collisions. If multiple providers
 return the same top-level key, the last registered provider wins.
+
+Augmented fields must be optional because their providers are not mounted on
+every command surface. A command handler must check that its domain field is
+present before it reads the field:
+
+```ts
+handler: (ctx) => {
+  const selectedId = ctx.myApp?.selectedId;
+  if (selectedId === undefined) return;
+  openItem(selectedId);
+};
+```
+
+Only the core `mode`, `setMode`, `commands`, and `exit` fields are always
+available.
 
 ## Command surfaces & arbitration
 

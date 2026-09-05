@@ -28,7 +28,7 @@ const setupAsk = async function setupAsk(
         defaultValue={opts.defaultValue}
         actions={[
           {
-            handler: (ctx) => opts.onSubmit?.(ctx.ask.value),
+            handler: (ctx) => opts.onSubmit?.(ctx.ask?.value ?? ""),
             id: "submit",
             title: "Submit",
           },
