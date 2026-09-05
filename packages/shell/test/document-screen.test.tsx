@@ -216,7 +216,7 @@ describe("status bar", () => {
   test("Cursor renders a dash when there is no active row", async () => {
     session = await testRender(
       <TooeeProvider>
-        {/* Deferred(lint-sweep): preserve the deliberate harness-before-helper test layout. */}
+        {/* preserve the deliberate harness-before-helper test layout. */}
         {/* oxlint-disable-next-line no-use-before-define -- harness is only evaluated after module initialization */}
         <EmptyHarness />
       </TooeeProvider>,

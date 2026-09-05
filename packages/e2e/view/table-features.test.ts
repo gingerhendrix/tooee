@@ -86,7 +86,7 @@ describe("table sticky header", () => {
     expect(await session.text()).toContain("name");
     // Scroll down significantly
     for (let i = 0; i < 20; i += 1) {
-      // Deferred(lint-sweep): Each key must be delivered in order to advance the cursor.
+      // Each key must be delivered in order to advance the cursor.
       // oxlint-disable-next-line no-await-in-loop -- Preserve sequential terminal input.
       await session.press("j");
     }

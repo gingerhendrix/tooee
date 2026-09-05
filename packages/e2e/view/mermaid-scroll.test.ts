@@ -33,7 +33,7 @@ describe("wide mermaid diagram horizontal scrolling e2e", () => {
 
     // Scroll right until the far end of the diagram is visible
     for (let i = 0; i < 20; i += 1) {
-      // Deferred(lint-sweep): Each key must be delivered in order to advance the viewport.
+      // Each key must be delivered in order to advance the viewport.
       // oxlint-disable-next-line no-await-in-loop -- Preserve sequential terminal input.
       await session.press("l");
     }
@@ -44,7 +44,7 @@ describe("wide mermaid diagram horizontal scrolling e2e", () => {
 
     // Scroll back to the start
     for (let i = 0; i < 20; i += 1) {
-      // Deferred(lint-sweep): Each key must be delivered in order to advance the viewport.
+      // Each key must be delivered in order to advance the viewport.
       // oxlint-disable-next-line no-await-in-loop -- Preserve sequential terminal input.
       await session.press("h");
     }

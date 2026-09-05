@@ -263,7 +263,7 @@ test("ToastContainer renders correct icon per level", async () => {
   ];
   for (const [level, icon] of iconEntries) {
     // These renders must remain ordered: each iteration owns and destroys its renderer.
-    // Deferred(lint-sweep): preserve sequential renderer lifecycle while making the test parallel-safe.
+    // preserve sequential renderer lifecycle while making the test parallel-safe.
     // oxlint-disable-next-line no-await-in-loop -- renderer setup must complete before assertions
     testSetup = await renderWithProviders(
       <>
@@ -271,7 +271,7 @@ test("ToastContainer renders correct icon per level", async () => {
         <ToastContainer />
       </>,
     );
-    // Deferred(lint-sweep): preserve sequential renderer lifecycle while making the test parallel-safe.
+    // preserve sequential renderer lifecycle while making the test parallel-safe.
     // oxlint-disable-next-line no-await-in-loop -- render must complete before inspecting the frame
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();

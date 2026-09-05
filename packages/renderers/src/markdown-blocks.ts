@@ -223,7 +223,7 @@ const flattenList = function flattenList(
       }
     }
 
-    // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down list flattening organization
+    // oxlint-disable-next-line no-use-before-define -- preserve deliberate top-down list flattening organization
     flattenListItem(item, indent, bullet, out, res, itemStart, itemEnd);
 
     if (res && itemStart !== null) {

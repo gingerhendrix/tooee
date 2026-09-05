@@ -81,7 +81,7 @@ const ActiveSurfaceHarness = function ActiveSurfaceHarness(): ReactNode {
       <ActiveProbe />
       <CommandSurfaceProvider id="modal" role="modal" initialMode="cursor">
         <MetadataSurfaceContent>{showExtra && <ExtraCommand />}</MetadataSurfaceContent>
-        {/* Deferred(lint-sweep): preserve deliberate top-down test harness organization. */}
+        {/* preserve deliberate top-down test harness organization. */}
         {/* oxlint-disable-next-line no-use-before-define -- helper is declared below the harness */}
         <ExtraToggle
           onToggle={() => {

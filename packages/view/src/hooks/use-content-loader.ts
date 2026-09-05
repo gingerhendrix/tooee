@@ -51,7 +51,7 @@ export const useContentLoader = function useContentLoader(
       void (async () => {
         try {
           while (true) {
-            // Deferred(lint-sweep): preserve sequential stream consumption for ordered backpressure.
+            // preserve sequential stream consumption for ordered backpressure.
             // oxlint-disable-next-line no-await-in-loop -- each chunk must be consumed in iterator order
             const result = await iterator.next();
             if (result.done === true) {
