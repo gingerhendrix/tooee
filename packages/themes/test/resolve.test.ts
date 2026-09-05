@@ -1,6 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { resolveTheme } from "@tooee/themes";
-import type { ThemeJSON } from "@tooee/themes";
+import { FALLBACKS, RESOLVED_KEYS, resolveTheme } from "@tooee/themes";
+import type { ResolvedTheme, ThemeJSON } from "@tooee/themes";
+
+test("RESOLVED_KEYS covers every ResolvedTheme fallback key", () => {
+  const keys: readonly (keyof ResolvedTheme)[] = RESOLVED_KEYS;
+  expect(keys).toEqual(Object.keys(FALLBACKS));
+});
 
 describe("resolveTheme", () => {
   test("returns the cycle fallback for theme keys that reference each other", () => {

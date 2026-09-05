@@ -80,64 +80,8 @@ export interface ResolvedTheme {
   syntaxPunctuation: string;
 }
 
-// All keys of ResolvedTheme for iteration
-export const RESOLVED_KEYS: (keyof ResolvedTheme)[] = [
-  "primary",
-  "secondary",
-  "accent",
-  "error",
-  "warning",
-  "success",
-  "info",
-  "text",
-  "textMuted",
-  "background",
-  "backgroundPanel",
-  "backgroundElement",
-  "border",
-  "borderActive",
-  "borderSubtle",
-  "cursorLine",
-  "selection",
-  "diffAdded",
-  "diffRemoved",
-  "diffContext",
-  "diffHunkHeader",
-  "diffHighlightAdded",
-  "diffHighlightRemoved",
-  "diffAddedBg",
-  "diffRemovedBg",
-  "diffContextBg",
-  "diffLineNumber",
-  "diffAddedLineNumberBg",
-  "diffRemovedLineNumberBg",
-  "markdownText",
-  "markdownHeading",
-  "markdownLink",
-  "markdownLinkText",
-  "markdownCode",
-  "markdownBlockQuote",
-  "markdownEmph",
-  "markdownStrong",
-  "markdownHorizontalRule",
-  "markdownListItem",
-  "markdownListEnumeration",
-  "markdownImage",
-  "markdownImageText",
-  "markdownCodeBlock",
-  "syntaxComment",
-  "syntaxKeyword",
-  "syntaxFunction",
-  "syntaxVariable",
-  "syntaxString",
-  "syntaxNumber",
-  "syntaxType",
-  "syntaxOperator",
-  "syntaxPunctuation",
-];
-
 // Fallbacks used when a theme key is missing: a complete theme in its own right.
-export const FALLBACKS: ResolvedTheme = {
+export const FALLBACKS = {
   accent: "#808080",
   background: "#1e1e1e",
   backgroundElement: "#1e1e1e",
@@ -190,7 +134,12 @@ export const FALLBACKS: ResolvedTheme = {
   text: "#d4d4d4",
   textMuted: "#808080",
   warning: "#808080",
-};
+} satisfies Record<keyof ResolvedTheme, string>;
+
+export const RESOLVED_KEYS =
+  // SAFETY: FALLBACKS satisfies a complete ResolvedTheme Record, so Object.keys contains only its keys.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Object.keys does not preserve Record key types
+  Object.keys(FALLBACKS) as (keyof ResolvedTheme)[];
 
 // ---------------------------------------------------------------------------
 // Resolution
