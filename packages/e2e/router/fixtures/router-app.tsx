@@ -27,7 +27,11 @@ const loaderDelay =
 
 // --- Codecs ---
 // Route hooks decode what the router actually stores, so each typed shape brings
-// its own codec instead of a caller-asserted generic.
+// its own codec instead of a caller-asserted generic. These three parse bodies
+// are the fixture's decode boundary: the rule below describes code that skips a
+// decode, and a decoder body always trips it, so it is off for this block only.
+
+/* oxlint-disable anti-slop/no-runtime-typeof -- decoder bodies are the boundary this rule protects */
 
 const numberState: Codec<number> = {
   parse: (value) => {
@@ -60,6 +64,8 @@ const messageData: Codec<{ message: string }> = {
     return { message };
   },
 };
+
+/* oxlint-enable anti-slop/no-runtime-typeof */
 
 // --- Route specs (identity + codecs), declared before their components ---
 
