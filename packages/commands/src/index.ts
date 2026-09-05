@@ -47,6 +47,7 @@ export {
 export {
   ROOT_SURFACE_ID,
   createCommandStore,
+  formatStepKey,
   selectActiveModalSurface,
   selectActivePanelSurface,
   selectGroups,

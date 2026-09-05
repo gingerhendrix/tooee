@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   ROOT_SURFACE_ID,
   createCommandStore,
+  formatStepKey,
   selectActiveModalSurface,
   selectSequence,
   selectSurfaceCommands,
@@ -610,4 +611,16 @@ describe("command store — selector discipline", () => {
       expectDefined(before.commandsBySurface.get(ROOT_SURFACE_ID)),
     );
   });
+});
+test("formatStepKey includes the super modifier", () => {
+  expect(
+    formatStepKey({
+      ctrl: false,
+      key: "k",
+      meta: false,
+      option: false,
+      shift: false,
+      super: true,
+    }),
+  ).toBe("super+k");
 });
