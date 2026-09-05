@@ -1,12 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import {
   ROOT_SURFACE_ID,
-  createCommandStore,
   selectActivePanelSurface,
   selectKeyboardOwnerSurface,
   selectSequence,
 } from "../src/command-store.js";
-import type { CommandStore, SurfaceRecord } from "../src/command-store.js";
+import type { SurfaceRecord } from "../src/command-store.js";
+import { createCommandStore } from "../src/command-store-wrapper.js";
+import type { CommandStore } from "../src/command-store-wrapper.js";
 import type { Command, CommandContext } from "../src/types.js";
 import type { Mode } from "../src/mode.js";
 import { keyEvent as key } from "./support/key-event.ts";

@@ -47,7 +47,6 @@ export {
 } from "./context.js";
 export {
   ROOT_SURFACE_ID,
-  createCommandStore,
   formatStepKey,
   selectActiveModalSurface,
   selectActivePanelSurface,
@@ -57,16 +56,19 @@ export {
   selectSurfaceCommandMap,
   selectSurfaceCommands,
 } from "./command-store.js";
+export { createCommandStore } from "./command-store-wrapper.js";
 export type {
-  CommandStore,
-  CommandStoreConfig,
   CommandStoreContext,
   CommandStoreInstance,
   ContextGetter,
-  CreateCommandStoreOptions,
-  KeyDispatchResult,
   SurfaceRecord,
 } from "./command-store.js";
+export type {
+  CommandStore,
+  CommandStoreConfig,
+  CreateCommandStoreOptions,
+  KeyDispatchResult,
+} from "./command-store-wrapper.js";
 export type {
   CommandProviderProps,
   CommandSurfaceProviderProps,

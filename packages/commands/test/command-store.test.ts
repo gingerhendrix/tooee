@@ -1,14 +1,15 @@
 import { describe, expect, test } from "bun:test";
 import {
   ROOT_SURFACE_ID,
-  createCommandStore,
   formatStepKey,
   selectActiveModalSurface,
   selectSequence,
   selectSurfaceCommands,
   stepsKey,
 } from "../src/command-store.js";
-import type { CommandStore, SurfaceRecord } from "../src/command-store.js";
+import type { SurfaceRecord } from "../src/command-store.js";
+import { createCommandStore } from "../src/command-store-wrapper.js";
+import type { CommandStore } from "../src/command-store-wrapper.js";
 import { parseHotkey } from "../src/parse.js";
 import type { Command, CommandContext, RegisteredCommandGroup } from "../src/types.js";
 import type { Mode } from "../src/mode.js";

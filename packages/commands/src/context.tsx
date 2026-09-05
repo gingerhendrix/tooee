@@ -17,14 +17,15 @@ import { ModeProvider, useMode, useSetMode } from "./mode.js";
 import { parseHotkey } from "./parse.js";
 import {
   ROOT_SURFACE_ID,
-  createCommandStore,
   selectActivePanelSurface,
   selectKeyboardOwnerSurface,
   selectSequence,
   selectSurfaceCommandMap,
   stepsKey,
 } from "./command-store.js";
-import type { CommandStore, ContextGetter, SurfaceRecord } from "./command-store.js";
+import type { ContextGetter, SurfaceRecord } from "./command-store.js";
+import { createCommandStore } from "./command-store-wrapper.js";
+import type { CommandStore } from "./command-store-wrapper.js";
 import { buildCommandContext, commandsFromRegistry } from "./build-context.js";
 import { useLatest } from "./hooks/use-latest.js";
 import { useLazyRef } from "./hooks/use-lazy-ref.js";
