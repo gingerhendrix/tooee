@@ -1,15 +1,25 @@
 ---
 title: CLI reference
-description: Every tooee command, flag, stdin rule, output, and exit code in Tooee 0.9.0.
+description: Every Tooee 0.9.0 command, flag, terminal channel, output, and exit code.
 ---
 
 ```text
 tooee <command> [options]
 ```
 
-`tooee`, `tooee help`, `tooee --help`, and `tooee -h` print the usage text to stdout and exit with code 0. An unknown command prints `Unknown command: <name>` to stderr, prints the usage text to stdout, and exits with code 1.
+`tooee`, `tooee help`, `tooee --help`, and `tooee -h` print the usage text to stdout and exit with code 0. An unknown command prints `Unknown command: <name>` to stderr, prints the usage text to stdout, and exits with code 2.
 
-Every command draws its screen on stdout and returns the terminal to its previous state when the screen closes. Redirecting stdout redirects the screen as well; see [Use the result in a script](/docs/cli/ask-and-choose#use-the-result-in-a-script).
+Interactive commands separate terminal traffic from command data:
+
+| Channel                     | Purpose                                            |
+| --------------------------- | -------------------------------------------------- |
+| process stdin               | Piped items or content                             |
+| controlling terminal input  | Keyboard events when stdin is a pipe               |
+| controlling terminal output | Alternate-screen drawing when stdout is redirected |
+| process stdout              | Submitted text and selected values                 |
+| process stderr              | Usage and startup errors                           |
+
+When process stdin or stdout already points at a terminal, Tooee uses that stream directly. Each command restores the terminal when its screen closes. A session that needs `/dev/tty` and cannot open it prints an error to stderr and exits with code 2.
 
 ## tooee view
 
@@ -22,14 +32,14 @@ tooee view [file] [--renderer <name>]
 | `file`                                                | A file or a directory. When omitted, View reads stdin.         |
 | `--renderer <name>`, `-r <name>`, `--renderer=<name>` | Force a renderer: `markdown`, `code`, `text`, `table`, `diff`. |
 
-| Case                       | Behaviour                                                                                                                                                                          |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| File                       | Renderer from the extension; see the table in [View files and pipes](/docs/cli/view#open-a-file). A text file that holds a unified patch opens as a diff.                          |
-| Directory                  | Opens the directory view. `--renderer` with a directory prints `--renderer cannot be used with directory view` and exits with code 1.                                              |
-| stdin                      | Reads all of stdin. Renders it as markdown, or as a diff when it is a patch, unless `--renderer` is set. In 0.9.0 the session ends when stdin closes, before the content is drawn. |
-| Unknown renderer           | Prints `Unknown renderer: <name>` and the list of values. Exit code 1.                                                                                                             |
-| Missing renderer value     | Prints `Missing value for --renderer`. Exit code 1.                                                                                                                                |
-| Second positional argument | Prints `Unexpected argument: <arg>`. Exit code 1.                                                                                                                                  |
+| Case                       | Behaviour                                                                                                                                                       |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| File                       | Renderer from the extension; see the table in [View files and pipes](/docs/cli/view#open-a-file). A text file that holds a unified patch opens as a diff.       |
+| Directory                  | Opens the directory view. `--renderer` with a directory prints `--renderer cannot be used with directory view` and exits with code 2.                           |
+| stdin                      | Reads all of stdin, then remains interactive through the controlling terminal. Renders as markdown or as a diff when it is a patch, unless `--renderer` is set. |
+| Unknown renderer           | Prints `Unknown renderer: <name>` and the list of values. Exit code 2.                                                                                          |
+| Missing renderer value     | Prints `Missing value for --renderer`. Exit code 2.                                                                                                             |
+| Second positional argument | Prints `Unexpected argument: <arg>`. Exit code 2.                                                                                                               |
 
 View exits with code 0 after `q` or `ctrl+c`.
 
@@ -46,11 +56,11 @@ tooee ask [--single-line | --multiline] [prompt...]
 
 Every other argument joins the prompt, separated by spaces. Without arguments, Ask shows the editor with no prompt line.
 
-| Stream or code | Value                                                        |
-| -------------- | ------------------------------------------------------------ |
-| stdin          | Keyboard input. Piped stdin ends the session at once.        |
-| stdout         | The submitted text followed by a newline. Nothing on cancel. |
-| Exit code      | 0 on submit and on cancel.                                   |
+| Stream or code | Value                                                                                        |
+| -------------- | -------------------------------------------------------------------------------------------- |
+| stdin          | Keyboard input when it is a terminal. Piped data is ignored while keys come from `/dev/tty`. |
+| stdout         | The submitted text followed by a newline. Nothing on cancel.                                 |
+| Exit code      | 0 on submit. 1 on cancel.                                                                    |
 
 ## tooee choose
 
@@ -73,10 +83,11 @@ Other arguments are ignored.
 
 ## Exit codes
 
-| Code | When                                                                                                                          |
-| ---- | ----------------------------------------------------------------------------------------------------------------------------- |
-| 0    | Usage text printed; View closed; Ask submitted or cancelled; Choose confirmed.                                                |
-| 1    | Unknown command; unknown or missing `--renderer` value; unexpected argument; `--renderer` with a directory; Choose cancelled. |
+| Code | When                                                                                             |
+| ---- | ------------------------------------------------------------------------------------------------ |
+| 0    | Usage text printed; View closed; Ask submitted; Choose confirmed.                                |
+| 1    | Ask or Choose cancelled without a confirmed result.                                              |
+| 2    | Invalid arguments, an unknown command, no usable controlling terminal, or another startup error. |
 
 ## Next
 

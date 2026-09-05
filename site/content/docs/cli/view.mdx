@@ -38,7 +38,7 @@ tooee view -r table data.txt
 tooee view --renderer=code notes
 ```
 
-Values: `markdown`, `code`, `text`, `table`, `diff`. An unknown value prints `Unknown renderer` with the list and exits with code 1. A flag without a value prints `Missing value for --renderer` and exits with code 1.
+Values: `markdown`, `code`, `text`, `table`, `diff`. An unknown value prints `Unknown renderer` with the list and exits with code 2. A flag without a value prints `Missing value for --renderer` and exits with code 2.
 
 The `table` renderer accepts a JSON array of objects, TSV when the first line has a tab, or CSV. The first row of CSV or TSV gives the column names.
 
@@ -67,18 +67,19 @@ tooee view packages/view/src
 
 View lists the files in the directory that it can open, sorted by name, and shows the first one. It skips hidden files and subdirectories. The title bar shows the file name and its position, for example `view.tsx  (5/9)`. In cursor mode, `l` moves to the next file and `h` to the previous one. A directory with no openable files shows `No viewable files in directory`; `q` quits.
 
-`--renderer` and a directory together print an error and exit with code 1.
+`--renderer` and a directory together print an error and exit with code 2.
 
 ## Pipe text into View
 
-`tooee --help` lists `cat file.md | tooee view` and `git diff | tooee view --renderer diff`. In Tooee 0.9.0 these forms end as soon as the pipe closes, before the content is drawn, because View treats the end of stdin as a closed terminal. Give View a path instead. In bash and zsh, process substitution keeps the pipeline:
+When no path is given, View reads content from stdin and reads keyboard input from the controlling terminal:
 
 ```bash
-tooee view <(git diff)
-tooee view --renderer markdown <(curl -s https://raw.githubusercontent.com/gingerhendrix/tooee/main/README.md)
+git diff | tooee view --renderer diff
+curl -s https://raw.githubusercontent.com/gingerhendrix/tooee/main/README.md | tooee view
+cat data.csv | tooee view --renderer table
 ```
 
-A process substitution path has no extension, so View renders it as text, or as a diff when the content is a patch. Pass `--renderer` for other formats.
+View stays interactive after the content pipe closes. Its screen uses the controlling terminal when stdout is redirected, so alternate-screen bytes do not enter an output file or another pipeline.
 
 ## Next
 
