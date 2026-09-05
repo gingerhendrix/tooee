@@ -445,6 +445,9 @@ describe("AskOverlay chrome extension points", () => {
     expect(buildAskHints("cursor", { extra: ["m model"] }).join("  ")).toBe(
       "i insert  q quit  Enter submit  m model",
     );
+    expect(buildAskHints("cursor", { cursorExtra: [": palette"] }).join("  ")).toBe(
+      "i insert  q quit  : palette  Enter submit",
+    );
   });
 });
 

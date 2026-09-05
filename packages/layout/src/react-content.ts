@@ -16,7 +16,7 @@ interface NodeReactContent {
 
 export type DecodedReactContent = EmptyReactContent | StringReactContent | NodeReactContent;
 
-/** Decode a public React slot once into the chooser's three rendering cases. */
+/** Decode a public React slot once into its three rendering cases. */
 export const decodeReactContent = function decodeReactContent(
   content: ReactNode,
 ): DecodedReactContent {
