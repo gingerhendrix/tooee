@@ -30,8 +30,8 @@ import { buildCommandContext, commandsFromRegistry } from "./build-context.js";
 interface CommandContextValue {
   registry: CommandRegistry;
   leaderKey?: string;
-  contextSources: Map<string, ContextGetter>;
-  groups: Map<string, RegisteredCommandGroup>;
+  contextSources: ReadonlyMap<string, ContextGetter>;
+  groups: ReadonlyMap<string, RegisteredCommandGroup>;
 }
 
 /** Internal provider value: the store plus the surface this subtree registers to. */
@@ -429,16 +429,8 @@ export const useCommandRegistry = function useCommandRegistry(): CommandContextV
 
   return useMemo(
     () => ({
-      // SAFETY: the store builds `contextSources` with `new Map(...)` and only types
-      // it readonly; the runtime value is a `Map`, and this facade only reads it.
-      // Deferred(lint-sweep): expose readonly store maps through an immutable registry API.
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- compatibility facade preserves the existing mutable Map API
-      contextSources: contextSources as Map<string, ContextGetter>,
-      // SAFETY: the store builds `groups` with `new Map(...)` and only types it
-      // readonly; the runtime value is a `Map`, and this facade only reads it.
-      // Deferred(lint-sweep): expose readonly store maps through an immutable registry API.
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- compatibility facade preserves the existing mutable Map API
-      groups: groups as Map<string, RegisteredCommandGroup>,
+      contextSources,
+      groups,
       leaderKey,
       registry,
     }),

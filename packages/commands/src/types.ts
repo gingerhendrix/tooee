@@ -66,7 +66,7 @@ export interface ParsedStep {
 }
 
 export interface CommandRegistry {
-  commands: Map<string, Command>;
+  commands: ReadonlyMap<string, Command>;
   register: (command: Command) => () => void;
   invoke: (id: string) => void;
 }
