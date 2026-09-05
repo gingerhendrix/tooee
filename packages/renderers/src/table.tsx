@@ -141,7 +141,8 @@ const computeColumnWidths = function computeColumnWidths(
   });
 };
 
-const formatCellValue = function formatCellValue(value: TableRow[string]): string {
+/** Convert a public table cell value to the text used for display and document actions. */
+export const formatTableCell = function formatTableCell(value: TableRow[string]): string {
   if (value === null || value === undefined) {
     return "";
   }
@@ -216,7 +217,7 @@ export const Table = function Table({
 
   const headers = useMemo(() => columns.map((column) => column.header ?? column.key), [columns]);
   const normalizedRows = useMemo(
-    () => rows.map((row) => columns.map((column) => formatCellValue(row[column.key]))),
+    () => rows.map((row) => columns.map((column) => formatTableCell(row[column.key]))),
     [columns, rows],
   );
 

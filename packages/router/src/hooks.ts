@@ -14,7 +14,18 @@ export interface ScreenStateHandle<TState> {
   saveState: (state: TState) => void;
 }
 
-export const useNavigate = function useNavigate() {
+/** Stable navigation methods bound to the current router. */
+export interface NavigateHandle {
+  pop: RouterInstance["pop"];
+  push: RouterInstance["push"];
+  replace: RouterInstance["replace"];
+  reset: RouterInstance["reset"];
+}
+
+/** Handle an action result by applying its navigation instruction. */
+export type ActionResultHandler = (result: ActionNavigationResult) => void;
+
+export const useNavigate = function useNavigate(): NavigateHandle {
   const router = useRouterInstance();
   return {
     pop: useCallback<RouterInstance["pop"]>((options) => router.pop(options), [router]),
@@ -100,7 +111,7 @@ export const useRouter = function useRouter(): RouterInstance {
   return useRouterInstance();
 };
 
-export const useActionResultHandler = function useActionResultHandler() {
+export const useActionResultHandler = function useActionResultHandler(): ActionResultHandler {
   const router = useRouterInstance();
   return useCallback(
     (result: ActionNavigationResult) => {

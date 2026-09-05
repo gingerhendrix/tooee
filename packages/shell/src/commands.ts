@@ -20,7 +20,41 @@ export interface UseQuitCommandOptions {
   enabled?: boolean;
 }
 
-export const useThemeCommands = function useThemeCommands(opts?: UseThemeCommandsOptions) {
+/** Live theme state and controls registered by `useThemeCommands`. */
+export interface ThemeCommandsResult {
+  name: string;
+  picker: ThemePickerState;
+}
+
+/** Options for the whole-document copy command. */
+export interface UseCopyCommandOptions {
+  getText: () => string | undefined;
+  hotkey?: string;
+  modes?: Mode[];
+  when?: CommandWhen;
+}
+
+/** Options for clipboard and primary-selection paste commands. */
+export interface UsePasteCommandsOptions {
+  getTarget: () => { insertText: (text: string) => void } | null;
+  when?: CommandWhen;
+}
+
+/** Options for the debug-console command. */
+export interface UseDebugConsoleCommandOptions {
+  when?: CommandWhen;
+}
+
+/** Options for the line-number visibility command. */
+export interface UseToggleLineNumbersCommandOptions {
+  showLineNumbers: boolean;
+  onToggle: () => void;
+  when?: CommandWhen;
+}
+
+export const useThemeCommands = function useThemeCommands(
+  opts?: UseThemeCommandsOptions,
+): ThemeCommandsResult {
   const picker = useThemePicker();
   const { toast } = useToast();
 
@@ -47,7 +81,7 @@ export const useThemeCommands = function useThemeCommands(opts?: UseThemeCommand
   return { name: picker.currentTheme, picker: confirmedPicker };
 };
 
-export const useQuitCommand = function useQuitCommand(opts?: UseQuitCommandOptions) {
+export const useQuitCommand = function useQuitCommand(opts?: UseQuitCommandOptions): void {
   const renderer = useRenderer();
 
   useCommand({
@@ -66,12 +100,7 @@ export const useQuitCommand = function useQuitCommand(opts?: UseQuitCommandOptio
   });
 };
 
-export const useCopyCommand = function useCopyCommand(opts: {
-  getText: () => string | undefined;
-  hotkey?: string;
-  modes?: Mode[];
-  when?: CommandWhen;
-}) {
+export const useCopyCommand = function useCopyCommand(opts: UseCopyCommandOptions): void {
   useCommand({
     handler: (ctx) => {
       const text = opts.getText();
@@ -90,10 +119,7 @@ export const useCopyCommand = function useCopyCommand(opts: {
   });
 };
 
-export const usePasteCommands = function usePasteCommands(opts: {
-  getTarget: () => { insertText: (text: string) => void } | null;
-  when?: CommandWhen;
-}) {
+export const usePasteCommands = function usePasteCommands(opts: UsePasteCommandsOptions): void {
   useCommand({
     handler: async (ctx) => {
       const target = opts.getTarget();
@@ -132,9 +158,9 @@ export const usePasteCommands = function usePasteCommands(opts: {
   });
 };
 
-export const useDebugConsoleCommand = function useDebugConsoleCommand(opts?: {
-  when?: CommandWhen;
-}) {
+export const useDebugConsoleCommand = function useDebugConsoleCommand(
+  opts?: UseDebugConsoleCommandOptions,
+): void {
   const renderer = useRenderer();
 
   useCommand({
@@ -148,11 +174,9 @@ export const useDebugConsoleCommand = function useDebugConsoleCommand(opts?: {
   });
 };
 
-export const useToggleLineNumbersCommand = function useToggleLineNumbersCommand(opts: {
-  showLineNumbers: boolean;
-  onToggle: () => void;
-  when?: CommandWhen;
-}) {
+export const useToggleLineNumbersCommand = function useToggleLineNumbersCommand(
+  opts: UseToggleLineNumbersCommandOptions,
+): void {
   useCommand({
     handler: (ctx) => {
       opts.onToggle();

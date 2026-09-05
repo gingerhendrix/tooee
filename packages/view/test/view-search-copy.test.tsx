@@ -34,6 +34,13 @@ const TABLE: AnyContent = {
   ],
 };
 
+const DATE_TEXT = "2026-09-05T12:34:56.000Z";
+const DATE_TABLE: AnyContent = {
+  columns: [{ header: "Created", key: "created" }],
+  format: "table",
+  rows: [{ created: new Date(DATE_TEXT) }],
+};
+
 const MARKDOWN: AnyContent = {
   format: "markdown",
   markdown: "First.\n\nSecond.\n\nThird.",
@@ -166,6 +173,16 @@ describe("copy over migrated subviews", () => {
     await press("v");
 
     expect(copied).toEqual(["Alice\tdev\nCarol\tdev"]);
+  });
+
+  test("a Date table cell has the same display and copy text", async () => {
+    testSetup = await setup(staticProvider(DATE_TABLE));
+    expect(testSetup.captureCharFrame()).toContain(DATE_TEXT);
+
+    await press("y");
+    await press("y");
+
+    expect(copied).toEqual([DATE_TEXT]);
   });
 
   test("a pending y sequence resolves only the requested target", async () => {

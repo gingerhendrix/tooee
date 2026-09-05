@@ -8,6 +8,11 @@ interface UseContentCommandsParams {
   textContent: string;
 }
 
+/** View display state controlled by content-level commands. */
+export interface ContentCommandsResult {
+  showLineNumbers: boolean;
+}
+
 /**
  * The commands a content viewer owns on top of `DocumentScreen`: copying the
  * whole document and toggling the line-number gutter. Theme, quit, actions and
@@ -16,7 +21,7 @@ interface UseContentCommandsParams {
 export const useContentCommands = function useContentCommands({
   content,
   textContent,
-}: UseContentCommandsParams) {
+}: UseContentCommandsParams): ContentCommandsResult {
   const config = useConfig();
   const [showLineNumbers, setShowLineNumbers] = useState(config.view?.gutter ?? true);
 

@@ -97,7 +97,7 @@ export const createViewCommandContext = function createViewCommandContext({
 
 export const useProvideViewCommandContext = function useProvideViewCommandContext(
   options: ViewCommandContextInput,
-) {
+): void {
   useProvideCommandContextKey("view", () =>
     createViewCommandContext(resolveViewCommandContextOptions(options)),
   );

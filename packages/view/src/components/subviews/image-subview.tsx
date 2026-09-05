@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { sourceLineAdapter, sourceLines } from "@tooee/renderers";
-import { useDocumentController } from "@tooee/shell";
 import type { SourceLineRow } from "@tooee/renderers";
 import type { ImageContent } from "../../types.js";
 import { getTextContent } from "../../types.js";
-import { useContentCommands } from "../../hooks/use-content-commands.js";
+import { useContentDocument } from "../../hooks/use-content-document.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
 
@@ -26,21 +25,22 @@ export const ImageSubview = function ImageSubview({
     setError(false);
   }, [content.src]);
 
-  useContentCommands({ content, textContent });
-  const document = useDocumentController<SourceLineRow>({
-    adapter: sourceLineAdapter,
-    contextMenu: actions,
-    decorations,
-    multiSelect: false,
+  const { document, statusItems } = useContentDocument<SourceLineRow>(
     rows,
-  });
+    sourceLineAdapter,
+    { actions, content, decorations, textContent },
+    {
+      multiSelect: false,
+      statusItems: [{ label: "Format:", value: content.format }],
+    },
+  );
 
   return (
     <ViewScreen
       content={content}
       controller={document}
       actions={actions}
-      statusItems={[{ label: "Format:", value: content.format }]}
+      statusItems={statusItems}
       {...screen}
     >
       <box style={{ flexDirection: "column", flexGrow: 1 }}>

@@ -3,10 +3,9 @@ import type { TextBufferRenderable } from "@opentui/core";
 import { MarkdownView, flattenMarkdown, getFlatBlockText } from "@tooee/renderers";
 import type { CodeBlockRenderer, FlatBlock } from "@tooee/renderers";
 import { useBuildCommandContext, useCommand } from "@tooee/commands";
-import { useDocumentController } from "@tooee/shell";
 import type { DocumentRowAdapter } from "@tooee/shell";
 import type { MarkdownContent, MarkdownLinkActivateHandler } from "../../types.js";
-import { useContentCommands } from "../../hooks/use-content-commands.js";
+import { useContentDocument } from "../../hooks/use-content-document.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
 
@@ -41,20 +40,22 @@ export const MarkdownSubview = function MarkdownSubview({
   const lineCount = useMemo(() => textContent.split("\n").length, [textContent]);
   const blocks = useMemo(() => flattenMarkdown(content.markdown), [content.markdown]);
 
-  const { showLineNumbers } = useContentCommands({ content, textContent });
+  const { document, showLineNumbers, statusItems } = useContentDocument<FlatBlock>(
+    blocks,
+    MARKDOWN_BLOCK_ADAPTER,
+    { actions, content, decorations, textContent },
+    {
+      multiSelect: true,
+      statusItems: [
+        { label: "Format:", value: content.format },
+        { label: "Lines:", value: String(lineCount) },
+      ],
+    },
+  );
   const buildCommandContext = useBuildCommandContext();
   const handleLinkActivate = onLinkActivate
     ? (href: string) => onLinkActivate(href, buildCommandContext())
     : undefined;
-
-  const document = useDocumentController<FlatBlock>({
-    adapter: MARKDOWN_BLOCK_ADAPTER,
-    // The controller projects the screen's actions onto menu entries at open time.
-    contextMenu: actions,
-    decorations,
-    multiSelect: true,
-    rows: blocks,
-  });
 
   const hScrollableBlocksRef = useRef<Map<number, TextBufferRenderable>>(new Map());
   const cursorScrollable = () =>
@@ -87,14 +88,6 @@ export const MarkdownSubview = function MarkdownSubview({
     title: "Scroll block right",
     when: () => cursorScrollable() !== undefined,
   });
-
-  const statusItems = useMemo(
-    () => [
-      { label: "Format:", value: content.format },
-      { label: "Lines:", value: String(lineCount) },
-    ],
-    [content.format, lineCount],
-  );
 
   return (
     <ViewScreen

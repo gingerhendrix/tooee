@@ -5,10 +5,9 @@ import { useCommand } from "@tooee/commands";
 import { useConfig } from "@tooee/config";
 import { useOverlay } from "@tooee/overlays";
 import type { OverlayCloseReason } from "@tooee/overlays";
-import { useDocumentController } from "@tooee/shell";
 import type { DocumentRowAdapter } from "@tooee/shell";
 import type { DiffContent } from "../../types.js";
-import { useContentCommands } from "../../hooks/use-content-commands.js";
+import { useContentDocument } from "../../hooks/use-content-document.js";
 import { ViewScreen } from "../view-screen.js";
 import { DiffFilePickerOverlay } from "../diff-file-picker.js";
 import type { SubviewProps } from "./types.js";
@@ -53,17 +52,38 @@ export const DiffSubview = function DiffSubview({
   const [wrapLines, setWrapLines] = useState(config.view?.wrap ?? false);
   const [horizontalOffset, setHorizontalOffset] = useState(0);
 
-  const { showLineNumbers } = useContentCommands({ content, textContent });
-
-  const document = useDocumentController<DiffRow>({
-    adapter: DIFF_ROW_ADAPTER,
-    // The controller projects the screen's actions onto menu entries at open time.
-    contextMenu: actions,
-    decorations,
-    multiSelect: true,
-    preserveCursorByKey: true,
-    rows: model.rows,
-  });
+  const { document, showLineNumbers, statusItems } = useContentDocument<DiffRow>(
+    model.rows,
+    DIFF_ROW_ADAPTER,
+    { actions, content, decorations, textContent },
+    {
+      buildStatusItems: (currentDocument) => {
+        const activeRow =
+          currentDocument.activeIndex === null
+            ? undefined
+            : model.rows[currentDocument.activeIndex];
+        return [
+          { label: "Format:", value: content.format },
+          { label: "Files:", value: String(model.files.length) },
+          { label: "Changes:", value: `+${model.stats.additions} -${model.stats.deletions}` },
+          { label: "Layout:", value: layout },
+          ...(activeRow
+            ? [
+                {
+                  label: "At:",
+                  value:
+                    activeRow.hunkIndex >= 0
+                      ? `${activeRow.parent.path ?? activeRow.fileId}:${activeRow.hunkIndex + 1}`
+                      : (activeRow.parent.path ?? activeRow.fileId),
+                },
+              ]
+            : []),
+        ];
+      },
+      multiSelect: true,
+      preserveCursorByKey: true,
+    },
+  );
 
   const { activeIndex } = document;
   // `setCursor` rather than `selectRow`: the latter stands down while a modal
@@ -177,35 +197,6 @@ export const DiffSubview = function DiffSubview({
     modes: ["cursor", "select"],
     title: "Go to file",
   });
-
-  const activeRow = activeIndex === null ? undefined : model.rows[activeIndex];
-  const statusItems = useMemo(
-    () => [
-      { label: "Format:", value: content.format },
-      { label: "Files:", value: String(model.files.length) },
-      { label: "Changes:", value: `+${model.stats.additions} -${model.stats.deletions}` },
-      { label: "Layout:", value: layout },
-      ...(activeRow
-        ? [
-            {
-              label: "At:",
-              value:
-                activeRow.hunkIndex >= 0
-                  ? `${activeRow.parent.path ?? activeRow.fileId}:${activeRow.hunkIndex + 1}`
-                  : (activeRow.parent.path ?? activeRow.fileId),
-            },
-          ]
-        : []),
-    ],
-    [
-      activeRow,
-      content.format,
-      layout,
-      model.files.length,
-      model.stats.additions,
-      model.stats.deletions,
-    ],
-  );
 
   return (
     <ViewScreen

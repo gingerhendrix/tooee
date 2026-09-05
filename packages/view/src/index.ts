@@ -20,6 +20,8 @@ export type {
   ProvideViewCommandContextOptions,
   ViewCommandContext,
 } from "./hooks/use-view-command-context.js";
+export type { ContentLoaderState } from "./hooks/use-content-loader.js";
+export type { ContentCommandsResult } from "./hooks/use-content-commands.js";
 export type {
   AnyContent,
   Content,

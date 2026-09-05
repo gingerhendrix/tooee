@@ -67,7 +67,9 @@ const printUsage = function printUsage(): void {
   console.log("  view [file]    Display markdown, code, text, diffs, or tables");
   console.log("  ask [prompt]   Gather multiline user input");
   console.log("  choose         Select items from a filterable list (stdin)");
-  console.log("  table [file]   Display tabular data (deprecated; use view --renderer table)");
+  console.log(
+    "  table [file]   Display tabular data (deprecated; use view --renderer table; removed in 0.8.0)",
+  );
 
   console.log("");
   console.log("View options:");
@@ -140,6 +142,7 @@ switch (command) {
     break;
   }
 
+  // Deprecated compatibility command. Remove in 0.8.0.
   case "table": {
     const { filePath } = parseViewArgs(args);
     const contentProvider =
