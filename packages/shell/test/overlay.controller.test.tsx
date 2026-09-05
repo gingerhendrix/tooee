@@ -1,4 +1,5 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, press, pressEscape } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
 import { useRef } from "react";
 import { TooeeProvider } from "@tooee/shell";
@@ -6,8 +7,6 @@ import { useOverlay, useCurrentOverlay, useHasOverlay } from "@tooee/overlays";
 import type { OverlayCloseReason, OverlayHandle, OverlayOpenOptions } from "@tooee/overlays";
 import { AppLayout } from "@tooee/layout";
 import { useCommand, useMode } from "@tooee/commands";
-import { press, pressEscape } from "./support/test-helpers.ts";
-import type { TestSession } from "./support/test-helpers.ts";
 import type { ReactNode } from "react";
 
 const BuriedHarness = function BuriedHarness(): ReactNode {

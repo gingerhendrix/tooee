@@ -1,4 +1,4 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach } from "bun:test";
 import { createRef } from "react";
 import type { ScrollBoxRenderable } from "@opentui/core";

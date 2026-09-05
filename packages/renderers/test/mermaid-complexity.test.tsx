@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import { ThemeSwitcherProvider } from "@tooee/themes";
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender } from "@tooee/test-support";
 import { MarkdownView } from "../src/markdown-view.js";
 import { renderMermaidForTerminal } from "../src/mermaid.js";
 

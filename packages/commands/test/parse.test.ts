@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { parseHotkey } from "../src/parse.js";
 import { matchStep } from "../src/match.js";
-import { keyEvent as key } from "./support/key-event.ts";
+import { keyEvent as key } from "@tooee/test-support";
 
 describe("parseHotkey super modifier (R-06)", () => {
   test("super is tracked in the parsed step", () => {

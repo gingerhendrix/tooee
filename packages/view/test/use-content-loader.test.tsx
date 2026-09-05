@@ -1,9 +1,8 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, expectDefined } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
 import { act, useState } from "react";
 import { useContentLoader } from "../src/hooks/use-content-loader.js";
 import type { ContentChunk, ContentProvider } from "../src/types.js";
-import { expectDefined } from "./support/expect-defined.ts";
 import type { ReactNode } from "react";
 
 const failing = async function* failing(): AsyncIterable<ContentChunk> {

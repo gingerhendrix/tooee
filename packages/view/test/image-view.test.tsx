@@ -1,6 +1,6 @@
 import { act } from "react";
 import { afterEach, describe, expect, test } from "bun:test";
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender } from "@tooee/test-support";
 import { TooeeProvider } from "@tooee/shell";
 import { View } from "../src/view.js";
 import type { ContentProvider } from "../src/types.js";

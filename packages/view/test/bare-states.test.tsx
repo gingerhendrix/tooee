@@ -5,7 +5,7 @@ import path from "node:path";
 import { act } from "react";
 import { useSurfaceInvoke } from "@tooee/commands";
 import { TooeeProvider } from "@tooee/shell";
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender } from "@tooee/test-support";
 import { DirectoryView } from "../src/directory-view.js";
 import { View } from "../src/view.js";
 import type { ContentProvider } from "../src/types.js";

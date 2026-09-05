@@ -1,10 +1,9 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, expectDefined } from "@tooee/test-support";
 import { test, expect, afterEach } from "bun:test";
 import { act, useEffect } from "react";
 import { ThemeSwitcherProvider } from "@tooee/themes";
 import { ToastProvider, useToast, ToastContainer } from "@tooee/toasts";
 import type { ToastLevel } from "@tooee/toasts";
-import { expectDefined } from "./support/expect-defined.ts";
 import type { ReactNode } from "react";
 
 const LEVELS: readonly ToastLevel[] = ["info", "success", "warning", "error"];

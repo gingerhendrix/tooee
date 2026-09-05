@@ -8,7 +8,7 @@ import {
   pruneBuffer,
 } from "../src/sequence.js";
 import type { ParsedHotkey } from "../src/types.js";
-import { keyEvent as key } from "./support/key-event.ts";
+import { keyEvent as key } from "@tooee/test-support";
 
 const sleep = async function sleep(ms: number): Promise<void> {
   await Bun.sleep(ms);

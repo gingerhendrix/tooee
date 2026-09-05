@@ -1,10 +1,10 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach } from "bun:test";
 import { act } from "react";
 import { TooeeProvider } from "@tooee/shell";
 import { useCommand } from "@tooee/commands";
 import { useToast } from "@tooee/toasts";
-import type { TestSession } from "./support/test-helpers.ts";
 import type { ReactNode } from "react";
 
 const ToastContextHarness = function ToastContextHarness(): ReactNode {

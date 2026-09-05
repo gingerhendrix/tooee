@@ -1,4 +1,13 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import {
+  testRender,
+  ensureTestConfigHome,
+  resetTestConfig,
+  press,
+  pressArrow,
+  pressEnter,
+  pressEscape,
+} from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, describe, beforeEach } from "bun:test";
 import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
@@ -6,9 +15,6 @@ import { TooeeProvider, useThemeCommands } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
 import { useCurrentOverlay } from "@tooee/overlays";
 import { useMode } from "@tooee/commands";
-import { ensureTestConfigHome, resetTestConfig } from "../../../test/support/test-config.js";
-import { press, pressArrow, pressEnter, pressEscape } from "./support/test-helpers.ts";
-import type { TestSession } from "./support/test-helpers.ts";
 import type { ReactNode } from "react";
 
 const CONFIG_NAMESPACE = "shell-theme-picker";

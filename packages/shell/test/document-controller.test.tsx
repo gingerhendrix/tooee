@@ -1,4 +1,5 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, expectDefined, press, pressTab, pressEscape } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
 import { act, useState } from "react";
 import { useMode } from "@tooee/commands";
@@ -14,8 +15,6 @@ import type {
   DocumentSearchOptions,
   UseDocumentControllerOptions,
 } from "@tooee/shell";
-import { expectDefined, press, pressTab, pressEscape } from "./support/test-helpers.ts";
-import type { TestSession } from "./support/test-helpers.ts";
 import type { ReactNode } from "react";
 
 interface Row {

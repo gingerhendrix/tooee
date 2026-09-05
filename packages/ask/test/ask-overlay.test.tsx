@@ -3,7 +3,7 @@ import { act } from "react";
 import { isEditBufferRenderable } from "@opentui/core";
 import type { EditBufferRenderable, Renderable } from "@opentui/core";
 import { TooeeProvider } from "@tooee/shell";
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender } from "@tooee/test-support";
 import { Ask } from "../src/ask.js";
 import { AskOverlay } from "../src/ask-overlay.js";
 

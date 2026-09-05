@@ -2,7 +2,7 @@ import { describe, test, expect, afterEach } from "bun:test";
 import { launchTerminal } from "tuistory";
 import type { Session } from "tuistory";
 import path from "node:path";
-import { ensureTestConfigHome, resetTestConfig } from "../support/test-config.js";
+import { ensureTestConfigHome, resetTestConfig } from "@tooee/test-support";
 import { VIEW_FIXTURES } from "./helpers.js";
 
 const REPO_ROOT = path.resolve(import.meta.dir, "../../..");

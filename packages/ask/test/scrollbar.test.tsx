@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { act } from "react";
 import { TooeeProvider } from "@tooee/shell";
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender } from "@tooee/test-support";
 import { Ask } from "../src/ask.js";
 import { AskOverlay } from "../src/ask-overlay.js";
 

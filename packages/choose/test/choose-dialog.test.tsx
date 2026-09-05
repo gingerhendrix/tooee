@@ -2,11 +2,10 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { act, useRef, useState } from "react";
 import { TooeeProvider } from "@tooee/shell";
 import { useCurrentOverlay, useOverlayState } from "@tooee/overlays";
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, expectDefined } from "@tooee/test-support";
 import type { ChooseItem } from "../src/types.js";
 import { useChooseDialog } from "../src/use-choose-dialog.js";
 import type { ChooseDialogHandle } from "../src/use-choose-dialog.js";
-import { expectDefined } from "./support/expect-defined.ts";
 import type { ReactNode } from "react";
 
 interface Fruit {

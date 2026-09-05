@@ -1,9 +1,8 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, press, pressTab, pressEscape } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
 import { TooeeProvider, useNavigation } from "@tooee/shell";
 import { useMode } from "@tooee/commands";
-import { press, pressTab, pressEscape } from "./support/test-helpers.ts";
-import type { TestSession } from "./support/test-helpers.ts";
 import type { ReactNode } from "react";
 
 const CursorHarness = function CursorHarness({ rowCount }: { rowCount: number }): ReactNode {

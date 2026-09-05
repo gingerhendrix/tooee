@@ -13,8 +13,7 @@ import type { CommandStore } from "../src/command-store-wrapper.js";
 import { parseHotkey } from "../src/parse.js";
 import type { Command, CommandContext, RegisteredCommandGroup } from "../src/types.js";
 import type { Mode } from "../src/mode.js";
-import { keyEvent as key } from "./support/key-event.ts";
-import { expectDefined } from "./support/expect-defined.ts";
+import { keyEvent as key, expectDefined } from "@tooee/test-support";
 
 const cursorMode: Mode = "cursor";
 const cursorContextGetter = () => ({ mode: cursorMode });

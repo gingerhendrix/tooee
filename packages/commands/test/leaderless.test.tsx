@@ -1,4 +1,4 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
 import { act, useState } from "react";
 import { CommandProvider, useCommand } from "../src/index.js";

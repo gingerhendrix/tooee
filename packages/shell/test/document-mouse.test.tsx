@@ -1,4 +1,5 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, expectDefined, press, pressEnter } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, describe, beforeEach } from "bun:test";
 import { act } from "react";
 import type { Key, ReactNode } from "react";
@@ -10,8 +11,6 @@ import { AppLayout } from "@tooee/layout";
 import type { ContextMenuEntry } from "@tooee/renderers";
 import { Document, TooeeProvider, useDocumentController, useThemeCommands } from "@tooee/shell";
 import type { DocumentContextMenuEvent, DocumentController, DocumentRowEvent } from "@tooee/shell";
-import { expectDefined, press, pressEnter } from "./support/test-helpers.ts";
-import type { TestSession } from "./support/test-helpers.ts";
 
 interface Row {
   id: string;

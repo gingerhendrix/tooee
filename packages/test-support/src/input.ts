@@ -1,14 +1,7 @@
-import type { testRender } from "../../../../test/support/test-render.ts";
+import type { testRender } from "./test-render.js";
 import { act } from "react";
 
 export type TestSession = Awaited<ReturnType<typeof testRender>>;
-
-export const expectDefined = function expectDefined<T>(value: T | undefined): T {
-  if (value === undefined) {
-    throw new Error("Expected test value to be defined");
-  }
-  return value;
-};
 
 export const press = async function press(
   session: TestSession,

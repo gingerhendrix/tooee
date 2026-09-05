@@ -10,7 +10,7 @@ import { createCommandStore } from "../src/command-store-wrapper.js";
 import type { CommandStore } from "../src/command-store-wrapper.js";
 import type { Command, CommandContext } from "../src/types.js";
 import type { Mode } from "../src/mode.js";
-import { keyEvent as key } from "./support/key-event.ts";
+import { keyEvent as key } from "@tooee/test-support";
 
 const fakeCtx = function fakeCtx(mode: Mode): CommandContext {
   return {

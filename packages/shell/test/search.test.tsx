@@ -1,12 +1,11 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, expectDefined, press, pressEscape } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
 import { act, useState } from "react";
 import { TooeeProvider, useNavigation } from "@tooee/shell";
 import { findMatchingLines, useSearch } from "@tooee/search";
 import type { SearchState } from "@tooee/search";
 import { useMode } from "@tooee/commands";
-import { expectDefined, press, pressEscape } from "./support/test-helpers.ts";
-import type { TestSession } from "./support/test-helpers.ts";
 import type { ReactNode } from "react";
 
 describe("findMatchingLines", () => {

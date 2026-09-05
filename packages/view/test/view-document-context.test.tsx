@@ -1,4 +1,4 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, expectDefined } from "@tooee/test-support";
 import { test, expect, afterEach, beforeEach, describe } from "bun:test";
 import { act } from "react";
 import { useSurfaceInvoke } from "@tooee/commands";
@@ -8,7 +8,6 @@ import type { DocumentCommandContext } from "@tooee/shell";
 import { View } from "../src/view.js";
 import type { ViewCommandContext } from "../src/hooks/use-view-command-context.js";
 import type { AnyContent, ContentProvider } from "../src/types.js";
-import { expectDefined } from "./support/expect-defined.ts";
 
 const staticProvider = function staticProvider(content: AnyContent): ContentProvider {
   return { format: content.format, load: () => content };

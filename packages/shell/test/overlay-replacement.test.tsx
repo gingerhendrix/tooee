@@ -1,12 +1,11 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, expectDefined, press } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
 import { useRef } from "react";
 import { TooeeProvider } from "@tooee/shell";
 import { useCommand, useCommandSequenceState } from "@tooee/commands";
 import { useOverlay, useCurrentOverlay } from "@tooee/overlays";
 import type { OverlayController } from "@tooee/overlays";
-import { expectDefined, press } from "./support/test-helpers.ts";
-import type { TestSession } from "./support/test-helpers.ts";
 import type { ReactNode } from "react";
 
 let testSetup: TestSession;

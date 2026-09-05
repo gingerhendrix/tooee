@@ -1,4 +1,4 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
 import type { TextBufferRenderable } from "@opentui/core";
 import { ThemeSwitcherProvider } from "@tooee/themes";

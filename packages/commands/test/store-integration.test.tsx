@@ -1,4 +1,4 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, expectDefined } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
 import { act, useState } from "react";
 import type { ReactNode } from "react";
@@ -13,7 +13,6 @@ import {
   useSurfaceCommands,
 } from "../src/index.js";
 import type { Mode } from "../src/index.js";
-import { expectDefined } from "./support/expect-defined.ts";
 
 const LateRegistrant = function LateRegistrant() {
   useCommand({ handler: () => {}, hotkey: "l", id: "late", title: "Late" });

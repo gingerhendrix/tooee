@@ -1,11 +1,10 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, expectDefined, press, pressTab } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, beforeEach, describe } from "bun:test";
 import { useSurfaceInvoke } from "@tooee/commands";
 import type { ActionDefinition, CommandContext } from "@tooee/commands";
 import { Document, DocumentScreen, TooeeProvider, useDocumentController } from "@tooee/shell";
 import type { DocumentCommandContext, DocumentScreenProps } from "@tooee/shell";
-import { expectDefined, press, pressTab } from "./support/test-helpers.ts";
-import type { TestSession } from "./support/test-helpers.ts";
 import type { ReactNode } from "react";
 
 interface Row {

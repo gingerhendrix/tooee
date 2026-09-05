@@ -4,6 +4,10 @@ import { act } from "react";
 import type { ReactNode } from "react";
 import { createRoot } from "@opentui/react";
 
+declare global {
+  var IS_REACT_ACT_ENVIRONMENT: boolean;
+}
+
 const setIsReactActEnvironment = function setIsReactActEnvironment(isReactActEnvironment: boolean) {
   globalThis.IS_REACT_ACT_ENVIRONMENT = isReactActEnvironment;
 };

@@ -1,11 +1,10 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, press } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
 import { TooeeProvider, WhichKeyOverlay } from "@tooee/shell";
 import { useActions, useCommand, useCommandGroup, useCommandSequenceState } from "@tooee/commands";
 import type { CommandSequenceState, ParsedStep } from "@tooee/commands";
 import { useCurrentOverlay, useHasOverlay } from "@tooee/overlays";
-import { press } from "./support/test-helpers.ts";
-import type { TestSession } from "./support/test-helpers.ts";
 import type { ReactNode } from "react";
 
 const step = function step(key: string): ParsedStep {

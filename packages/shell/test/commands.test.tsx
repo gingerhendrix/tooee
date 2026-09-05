@@ -1,10 +1,10 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach } from "bun:test";
 import { act } from "react";
 import { TooeeProvider, useThemeCommands, useQuitCommand } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
 import { useMode } from "@tooee/commands";
-import type { TestSession } from "./support/test-helpers.ts";
 import type { ReactNode } from "react";
 
 const ThemeHarness = function ThemeHarness(): ReactNode {

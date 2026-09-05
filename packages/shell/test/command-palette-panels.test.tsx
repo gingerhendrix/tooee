@@ -1,12 +1,11 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, press } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
 import { afterEach, describe, expect, test } from "bun:test";
 import { useEffect } from "react";
 import type { ReactNode } from "react";
 import { CommandSurfaceProvider, useCommand, useCommandStore } from "@tooee/commands";
 import { useCurrentOverlay } from "@tooee/overlays";
 import { TooeeProvider } from "@tooee/shell";
-import { press } from "./support/test-helpers.ts";
-import type { TestSession } from "./support/test-helpers.ts";
 
 // A stand-in for @tooee/panels' Panel: a "panel"-role command surface plus a
 // helper that publishes it as the group's active panel. Keeps this shell test

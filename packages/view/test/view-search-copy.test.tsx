@@ -1,7 +1,6 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, copied } from "@tooee/test-support";
 import { test, expect, afterEach, beforeEach, describe } from "bun:test";
 import { act } from "react";
-import { copied } from "../../../test/support/clipboard-mock.ts";
 import type { AnyContent, ContentProvider } from "../src/types.js";
 
 const { TooeeProvider } = await import("@tooee/shell");

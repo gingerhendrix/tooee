@@ -2,13 +2,12 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { act, createRef, useState } from "react";
 import { CommandSurfaceProvider, useCommand } from "@tooee/commands";
 import { TooeeProvider } from "@tooee/shell";
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, expectDefined } from "@tooee/test-support";
 import { Choose } from "../src/choose.js";
 import { ChooseOverlay } from "../src/choose-overlay.js";
 import { buildChooseHints } from "../src/choose-panel.js";
 import type { ChooseContentProvider, ChooseItem, ChooseSource } from "../src/types.js";
 import type { ChooseController } from "../src/use-choose.js";
-import { expectDefined } from "./support/expect-defined.ts";
 import type { ReactNode } from "react";
 
 const ChildSurface = function ChildSurface({ close }: { close: () => void }): ReactNode {

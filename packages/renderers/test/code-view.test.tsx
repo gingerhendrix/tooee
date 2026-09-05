@@ -1,4 +1,4 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach } from "bun:test";
 import { ThemeSwitcherProvider } from "@tooee/themes";
 import { CodeView } from "../src/code-view.js";

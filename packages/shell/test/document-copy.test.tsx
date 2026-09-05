@@ -1,12 +1,11 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, copied } from "@tooee/test-support";
 import { test, expect, afterEach, beforeEach, describe } from "bun:test";
-import { copied } from "../../../test/support/clipboard-mock.ts";
 import type { ReactNode } from "react";
 
 const { TooeeProvider, useDocumentController, Document } = await import("@tooee/shell");
 const { useMode } = await import("@tooee/commands");
 const { useToast } = await import("@tooee/toasts");
-const { press, pressTab } = await import("./support/test-helpers.ts");
+const { press, pressTab } = await import("@tooee/test-support");
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
 interface Row {

@@ -1,6 +1,6 @@
 import { test, expect, describe } from "bun:test";
 import { flattenMarkdown, getFlatBlockText } from "../src/markdown-blocks.js";
-import { expectDefined } from "./support/expect-defined.js";
+import { expectDefined } from "@tooee/test-support";
 import type { FlatBlock } from "../src/markdown-blocks.js";
 
 /** Compact per-row projection: order, kind, bullet/checkbox, semantic text, and exact source. */

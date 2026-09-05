@@ -1,9 +1,8 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, expectDefined } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
 import { act, useState } from "react";
 import { CommandProvider, useCommand, useCommandGroup, useCommandRegistry } from "../src/index.js";
 import type { RegisteredCommandGroup } from "../src/index.js";
-import { expectDefined } from "./support/expect-defined.ts";
 import type { ReactNode } from "react";
 
 const CommandRegistrant = function CommandRegistrant({ onFire }: { onFire: () => void }) {

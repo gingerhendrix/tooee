@@ -1,12 +1,11 @@
-import { testRender } from "../../../test/support/test-render.ts";
+import { testRender, press, pressEnter, pressEscape } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
 import { useState } from "react";
 import { TooeeProvider, useQuitCommand } from "@tooee/shell";
 import { useCommand, useMode, useSetMode, useActiveCommandSurface } from "@tooee/commands";
 import { useOverlay, useCurrentOverlay } from "@tooee/overlays";
 import type { OverlayCloseReason } from "@tooee/overlays";
-import { press, pressEnter, pressEscape } from "./support/test-helpers.ts";
-import type { TestSession } from "./support/test-helpers.ts";
 import type { ReactNode } from "react";
 
 const AskSurface = function AskSurface({
