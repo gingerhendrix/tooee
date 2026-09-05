@@ -15,4 +15,8 @@ test("standalone view waits for its CLI session", async () => {
   });
 
   expect(runCliSession).toHaveBeenCalledTimes(1);
+  expect(runCliSession.mock.calls[0]?.[1]).toEqual({
+    stdinPolicy: "tty-if-piped",
+    stdoutPolicy: "tty-if-redirected",
+  });
 });

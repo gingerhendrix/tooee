@@ -131,6 +131,8 @@ describe("local sessions", () => {
 
     sessionHandle = await launchCli(<text>local session</text>, {
       renderer: rendererOptions,
+      stdinPolicy: "tty-if-piped",
+      stdoutPolicy: "tty-if-redirected",
     });
 
     expect(sessionHandle.ownership).toBe("local");
@@ -172,7 +174,7 @@ describe("local sessions", () => {
     expect(rendererDestroyCalls).toBe(1);
   });
 
-  test("runCliSession cancels and converts render failures to null", async () => {
+  test("runCliSession reserves null for cancellation and rejects render failures", async () => {
     let controller: CliSessionController<string> | undefined;
     const cancelled = runCliSession<string>(
       (session): ReactNode => {
@@ -187,10 +189,17 @@ describe("local sessions", () => {
     expectDefined(controller).resolve("late");
     expect(await cancelled).toBeNull();
 
-    const failed = await runCliSession<string>(() => {
-      throw new Error("render factory failed");
-    });
-    expect(failed).toBeNull();
+    let failure: Error | undefined;
+    try {
+      await runCliSession<string>(() => {
+        throw new Error("render factory failed");
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        failure = error;
+      }
+    }
+    expect(failure?.message).toBe("render factory failed");
   });
 });
 

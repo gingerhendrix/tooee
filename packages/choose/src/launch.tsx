@@ -30,6 +30,7 @@ export const launch = async function launch(
     {
       provider: { initialMode: "insert" },
       stdinPolicy: "tty-if-piped",
+      stdoutPolicy: "tty-if-redirected",
     },
   );
   return result;

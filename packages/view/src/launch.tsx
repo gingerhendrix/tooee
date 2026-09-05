@@ -33,11 +33,17 @@ export const launch = async function launch(options: ViewLaunchOptions): Promise
         codeBlockRenderers={options.codeBlockRenderers}
       />
     ),
+    {
+      stdinPolicy: "tty-if-piped",
+      stdoutPolicy: "tty-if-redirected",
+    },
   );
 };
 
 export const launchDirectory = async function launchDirectory(
   options: DirectoryLaunchOptions,
 ): Promise<void> {
-  await launchCli(<DirectoryView dirPath={options.dirPath} actions={options.actions} />);
+  await launchCli(<DirectoryView dirPath={options.dirPath} actions={options.actions} />, {
+    stdoutPolicy: "tty-if-redirected",
+  });
 };

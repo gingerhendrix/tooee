@@ -26,6 +26,10 @@ export const launch = async function launch(options: AskLaunchOptions): Promise<
         }}
       />
     ),
-    { provider: { initialMode: "insert" } },
+    {
+      provider: { initialMode: "insert" },
+      stdinPolicy: "tty-if-piped",
+      stdoutPolicy: "tty-if-redirected",
+    },
   );
 };

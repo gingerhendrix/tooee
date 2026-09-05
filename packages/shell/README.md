@@ -20,7 +20,7 @@ mount.unmount();
 
 Use `launchCli` for a locally owned renderer, or `runCliSession` when the UI
 settles one result. Local handles own renderer destruction, terminal-health
-listeners, and any `/dev/tty` stream opened by `stdinPolicy: "tty-if-piped"`.
+listeners, and any `/dev/tty` streams opened by the input and output policies.
 
 ```tsx
 const result = await runCliSession<string>(
@@ -28,9 +28,11 @@ const result = await runCliSession<string>(
   {
     provider: { initialMode: "insert" },
     stdinPolicy: "tty-if-piped",
+    stdoutPolicy: "tty-if-redirected",
   },
 );
 ```
 
 Repeated `unmount`, `destroy`, `resolve`, and `cancel` calls are safe. A session
-returns `null` on cancellation or initialization/render failure.
+returns `null` on cancellation. Initialization and render failures reject the
+promise.

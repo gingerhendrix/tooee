@@ -14,5 +14,9 @@ test("standalone ask inherits the renderer Ctrl+C exit default", async () => {
 
   expect(result).toBe("answer");
   expect(runCliSession).toHaveBeenCalledTimes(1);
-  expect(runCliSession.mock.calls[0]?.[1]).toEqual({ provider: { initialMode: "insert" } });
+  expect(runCliSession.mock.calls[0]?.[1]).toEqual({
+    provider: { initialMode: "insert" },
+    stdinPolicy: "tty-if-piped",
+    stdoutPolicy: "tty-if-redirected",
+  });
 });

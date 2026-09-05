@@ -16,5 +16,6 @@ test("standalone choose inherits the renderer Ctrl+C exit default", async () => 
   expect(runCliSession.mock.calls[0]?.[1]).toEqual({
     provider: { initialMode: "insert" },
     stdinPolicy: "tty-if-piped",
+    stdoutPolicy: "tty-if-redirected",
   });
 });

@@ -22,13 +22,13 @@ interface ViewArgs {
 const parseRenderer = function parseRenderer(value: string | undefined): ContentFormat | undefined {
   if (value === undefined || value === "") {
     console.error("Missing value for --renderer");
-    process.exit(1);
+    process.exit(2);
   }
   const renderer = RENDERERS.find((candidate) => candidate === value);
   if (renderer === undefined) {
     console.error(`Unknown renderer: ${value}`);
     console.error(`Expected one of: ${RENDERERS.join(", ")}`);
-    process.exit(1);
+    process.exit(2);
   }
   return renderer;
 };
@@ -54,7 +54,7 @@ const parseViewArgs = function parseViewArgs(rawArgs: string[]): ViewArgs {
     }
 
     console.error(`Unexpected argument: ${arg}`);
-    process.exit(1);
+    process.exit(2);
   }
 
   return { filePath, renderer };
@@ -86,73 +86,79 @@ const printUsage = function printUsage(): void {
   console.log('  echo -e "foo\\nbar\\nbaz" | tooee choose --multi');
 };
 
-switch (command) {
-  case "view": {
-    const { filePath, renderer } = parseViewArgs(args);
-    if (filePath !== undefined && filePath !== "") {
-      try {
-        const stat = statSync(filePath);
-        if (stat.isDirectory()) {
-          if (renderer) {
-            console.error("--renderer cannot be used with directory view");
-            process.exit(1);
+try {
+  switch (command) {
+    case "view": {
+      const { filePath, renderer } = parseViewArgs(args);
+      if (filePath !== undefined && filePath !== "") {
+        try {
+          const stat = statSync(filePath);
+          if (stat.isDirectory()) {
+            if (renderer) {
+              console.error("--renderer cannot be used with directory view");
+              process.exit(2);
+            }
+            await launchDirectory({ dirPath: filePath });
+            break;
           }
-          await launchDirectory({ dirPath: filePath });
-          break;
+        } catch {
+          // Fall through to file provider which will show its own error
         }
-      } catch {
-        // Fall through to file provider which will show its own error
       }
+      const contentProvider =
+        filePath !== undefined && filePath !== ""
+          ? createFileProvider(filePath, { renderer })
+          : createStdinProvider({ renderer });
+      await launchView({ contentProvider });
+      break;
     }
-    const contentProvider =
-      filePath !== undefined && filePath !== ""
-        ? createFileProvider(filePath, { renderer })
-        : createStdinProvider({ renderer });
-    await launchView({ contentProvider });
-    break;
-  }
 
-  case "ask": {
-    const singleLine = args.includes("--single-line") || args.includes("-s");
-    const filtered = args.filter(
-      (a) => a !== "--multiline" && a !== "-m" && a !== "--single-line" && a !== "-s",
-    );
-    const prompt = filtered.join(" ") || undefined;
-    const result = await launchAsk({ multiline: !singleLine, prompt });
-    if (result === null) {
-      process.exit(0);
-    }
-    process.stdout.write(`${result}\n`);
-    break;
-  }
-
-  case "choose": {
-    const multi = args.includes("--multi") || args.includes("-m");
-    const promptIdx = args.indexOf("--prompt");
-    const prompt = promptIdx === -1 ? undefined : args[promptIdx + 1];
-    const contentProvider = createStdinChooseProvider();
-    const result = await launchChoose({ contentProvider, options: { multi, prompt } });
-    if (result) {
-      for (const item of result.items) {
-        process.stdout.write(`${item.value ?? item.text}\n`);
+    case "ask": {
+      const singleLine = args.includes("--single-line") || args.includes("-s");
+      const filtered = args.filter(
+        (a) => a !== "--multiline" && a !== "-m" && a !== "--single-line" && a !== "-s",
+      );
+      const prompt = filtered.join(" ") || undefined;
+      const result = await launchAsk({ multiline: !singleLine, prompt });
+      if (result === null) {
+        process.exit(1);
       }
-    } else {
-      process.exit(1);
+      process.stdout.write(`${result}\n`);
+      break;
     }
-    break;
-  }
 
-  case "help":
-  case "--help":
-  case "-h":
-  case undefined: {
-    printUsage();
-    break;
-  }
+    case "choose": {
+      const multi = args.includes("--multi") || args.includes("-m");
+      const promptIdx = args.indexOf("--prompt");
+      const prompt = promptIdx === -1 ? undefined : args[promptIdx + 1];
+      const contentProvider = createStdinChooseProvider();
+      const result = await launchChoose({ contentProvider, options: { multi, prompt } });
+      if (result) {
+        for (const item of result.items) {
+          process.stdout.write(`${item.value ?? item.text}\n`);
+        }
+      } else {
+        process.exit(1);
+      }
+      break;
+    }
 
-  default: {
-    console.error(`Unknown command: ${command}`);
-    printUsage();
-    process.exit(1);
+    case "help":
+    case "--help":
+    case "-h":
+    case undefined: {
+      printUsage();
+      break;
+    }
+
+    default: {
+      console.error(`Unknown command: ${command}`);
+      printUsage();
+      process.exit(2);
+    }
   }
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  console.error(`Unable to start Tooee: ${message}`);
+  process.exit(2);
 }

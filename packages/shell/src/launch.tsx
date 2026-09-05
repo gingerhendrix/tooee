@@ -26,15 +26,18 @@ export interface TooeeMount {
 }
 
 export type CliStdinPolicy = "process" | "tty-if-piped";
+export type CliStdoutPolicy = "process" | "tty-if-redirected";
 
 export interface LaunchCliOptions {
   exitOnCtrlC?: boolean;
   /** Preferred provider options. */
   provider?: TooeeProviderOptions;
   /** Additional OpenTUI renderer options. */
-  renderer?: Omit<CliRendererConfig, "exitOnCtrlC" | "stdin">;
+  renderer?: Omit<CliRendererConfig, "exitOnCtrlC">;
   /** Select keyboard input without consuming piped process stdin. */
   stdinPolicy?: CliStdinPolicy;
+  /** Keep renderer output visible without mixing it into redirected process stdout. */
+  stdoutPolicy?: CliStdoutPolicy;
   /** Install local terminal end/close listeners. Defaults to true. */
   terminalHealth?: boolean;
 }
@@ -57,6 +60,10 @@ export interface CliSessionController<T> {
 }
 
 export type CliSessionRender<T> = (session: CliSessionController<T>) => ReactNode;
+
+interface SessionHandleRef {
+  current: TooeeSessionHandle | undefined;
+}
 
 export interface TerminalHealthGuardOptions {
   /** Called once when renderer stdin ends or closes. */
@@ -179,6 +186,19 @@ const openTtyInput = function openTtyInput(policy: CliStdinPolicy): tty.ReadStre
   }
 };
 
+const openTtyOutput = function openTtyOutput(policy: CliStdoutPolicy): tty.WriteStream | undefined {
+  if (policy !== "tty-if-redirected" || process.stdout.isTTY) {
+    return undefined;
+  }
+  const fd = fs.openSync("/dev/tty", "w");
+  try {
+    return new tty.WriteStream(fd);
+  } catch (error) {
+    fs.closeSync(fd);
+    throw error;
+  }
+};
+
 const noop: () => void = () => {
   // Default health-guard remover until a guard is installed.
 };
@@ -189,10 +209,16 @@ export const launchCli = async function launchCli(
   options: LaunchCliOptions = {},
 ): Promise<TooeeSessionHandle> {
   let ttyInput: tty.ReadStream | undefined;
+  let ttyOutput: tty.WriteStream | undefined;
   let renderer: CliRenderer | undefined;
 
   try {
-    ttyInput = openTtyInput(options.stdinPolicy ?? "process");
+    if (options.renderer?.stdin === undefined) {
+      ttyInput = openTtyInput(options.stdinPolicy ?? "process");
+    }
+    if (options.renderer?.stdout === undefined) {
+      ttyOutput = openTtyOutput(options.stdoutPolicy ?? "process");
+    }
     const rendererOptions: CliRendererConfig = {
       ...options.renderer,
       exitOnCtrlC: options.exitOnCtrlC ?? true,
@@ -200,9 +226,13 @@ export const launchCli = async function launchCli(
     if (ttyInput !== undefined) {
       rendererOptions.stdin = ttyInput;
     }
+    if (ttyOutput !== undefined) {
+      rendererOptions.stdout = ttyOutput;
+    }
     renderer = await createCliRenderer(rendererOptions);
   } catch (error) {
     ttyInput?.destroy();
+    ttyOutput?.destroy();
     throw error;
   }
 
@@ -214,6 +244,7 @@ export const launchCli = async function launchCli(
       renderer.destroy();
     } finally {
       ttyInput?.destroy();
+      ttyOutput?.destroy();
     }
     throw error;
   }
@@ -238,6 +269,7 @@ export const launchCli = async function launchCli(
     destroyed = true;
     removeHealthGuard();
     ttyInput?.destroy();
+    ttyOutput?.destroy();
   };
 
   const onRendererDestroyed = () => {
@@ -285,7 +317,7 @@ export const runCliSession = async function runCliSession<T>(
 ): Promise<T | null> {
   const { promise, resolve } = Promise.withResolvers<T | null>();
   let settled = false;
-  let handle: TooeeSessionHandle | undefined;
+  const handle: SessionHandleRef = { current: undefined };
 
   const settle = (result: T | null) => {
     if (settled) {
@@ -293,41 +325,31 @@ export const runCliSession = async function runCliSession<T>(
     }
     settled = true;
     try {
-      handle?.destroy();
+      handle.current?.destroy();
     } finally {
       resolve(result);
     }
   };
 
-  let node: ReactNode;
-  try {
-    node = render({
-      cancel: () => {
-        settle(null);
-      },
-      resolve: (value) => {
-        settle(value);
-      },
-    });
-  } catch {
-    settle(null);
-    return await promise;
-  }
+  const node = render({
+    cancel: () => {
+      settle(null);
+    },
+    resolve: (value) => {
+      settle(value);
+    },
+  });
 
   if (settled) {
     return await promise;
   }
 
-  try {
-    handle = await launchCli(node, options);
-    handle.renderer.once("destroy", () => {
-      settle(null);
-    });
-    if (settled) {
-      handle.destroy();
-    }
-  } catch {
+  handle.current = await launchCli(node, options);
+  handle.current.renderer.once("destroy", () => {
     settle(null);
+  });
+  if (settled) {
+    handle.current.destroy();
   }
 
   return await promise;

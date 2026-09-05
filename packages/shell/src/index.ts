@@ -26,6 +26,7 @@ export type {
   CliSessionController,
   CliSessionRender,
   CliStdinPolicy,
+  CliStdoutPolicy,
   LaunchCliOptions,
   MountTooeeOptions,
   TerminalHealthGuardOptions,
