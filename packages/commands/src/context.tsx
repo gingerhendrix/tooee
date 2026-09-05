@@ -393,7 +393,9 @@ export const useSurfaceInvoke = function useSurfaceInvoke(): {
   );
 };
 
-/** Deprecated compatibility alias. Use `useSurfaceInvoke` instead. */
+/**
+ * @deprecated Use `useSurfaceInvoke` instead.
+ */
 export const useCommandContext = useSurfaceInvoke;
 
 /**

@@ -8,7 +8,7 @@ import {
   Outlet,
   useRouterCommands,
 } from "@tooee/router";
-import { CommandProvider, useCommandContext, useCommand } from "@tooee/commands";
+import { CommandProvider, useSurfaceInvoke, useCommand } from "@tooee/commands";
 import type { ReactNode } from "react";
 
 const expectDefined = function expectDefined<T>(value: T | undefined): T {
@@ -114,10 +114,10 @@ describe("useRouterCommands", () => {
     });
     await router.start();
 
-    let ctx: ReturnType<typeof useCommandContext>;
+    let ctx: ReturnType<typeof useSurfaceInvoke>;
 
     const CtxCapture = function CtxCapture() {
-      ctx = useCommandContext();
+      ctx = useSurfaceInvoke();
       return null;
     };
 
@@ -146,10 +146,10 @@ describe("useRouterCommands", () => {
     });
     await router.start();
 
-    let ctx: ReturnType<typeof useCommandContext>;
+    let ctx: ReturnType<typeof useSurfaceInvoke>;
 
     const CtxCapture = function CtxCapture() {
-      ctx = useCommandContext();
+      ctx = useSurfaceInvoke();
       return null;
     };
 
@@ -176,10 +176,10 @@ describe("useRouterCommands", () => {
     });
     await router.start();
 
-    let ctx: ReturnType<typeof useCommandContext>;
+    let ctx: ReturnType<typeof useSurfaceInvoke>;
 
     const CtxCapture = function CtxCapture() {
-      ctx = useCommandContext();
+      ctx = useSurfaceInvoke();
       return null;
     };
 
@@ -212,10 +212,10 @@ describe("useRouterCommands", () => {
     });
     await router.start();
 
-    let ctx: ReturnType<typeof useCommandContext>;
+    let ctx: ReturnType<typeof useSurfaceInvoke>;
 
     const CtxCapture = function CtxCapture() {
-      ctx = useCommandContext();
+      ctx = useSurfaceInvoke();
       return null;
     };
 
@@ -264,10 +264,10 @@ describe("natural command scoping via unmount", () => {
     });
     await router.start();
 
-    let ctx: ReturnType<typeof useCommandContext>;
+    let ctx: ReturnType<typeof useSurfaceInvoke>;
 
     const CtxCapture = function CtxCapture() {
-      ctx = useCommandContext();
+      ctx = useSurfaceInvoke();
       return null;
     };
 
@@ -313,10 +313,10 @@ describe("natural command scoping via unmount", () => {
     });
     await router.start();
 
-    let ctx: ReturnType<typeof useCommandContext>;
+    let ctx: ReturnType<typeof useSurfaceInvoke>;
 
     const CtxCapture = function CtxCapture() {
-      ctx = useCommandContext();
+      ctx = useSurfaceInvoke();
       return null;
     };
 

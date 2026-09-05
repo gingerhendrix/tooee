@@ -4,7 +4,7 @@ import { AppLayout } from "@tooee/layout";
 import { useHasOverlay, useHasModalOverlay } from "@tooee/overlays";
 import { useTheme } from "@tooee/themes";
 import { useThemeCommands, useQuitCommand } from "@tooee/shell";
-import { useCommandContext } from "@tooee/commands";
+import { useSurfaceInvoke } from "@tooee/commands";
 import type { ActionDefinition } from "@tooee/commands";
 import { ChooseFilter } from "./choose-filter.js";
 import { ChooseList } from "./choose-list.js";
@@ -66,7 +66,7 @@ export const Choose = function Choose(props: ChooseProps): ReactNode {
     title,
   } = resolveChooseProps(props);
   const { theme } = useTheme();
-  const { invoke } = useCommandContext();
+  const { invoke } = useSurfaceInvoke();
 
   const { name: themeName } = useThemeCommands();
   useQuitCommand({ onQuit: () => onCancel?.() });

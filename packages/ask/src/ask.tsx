@@ -3,7 +3,7 @@ import { AppLayout } from "@tooee/layout";
 import { useHasOverlay } from "@tooee/overlays";
 import { useTheme } from "@tooee/themes";
 import { useThemeCommands, useQuitCommand, usePasteCommands } from "@tooee/shell";
-import { useActions, useProvideCommandContext, useCommandContext } from "@tooee/commands";
+import { useActions, useProvideCommandContext, useSurfaceInvoke } from "@tooee/commands";
 import type { ActionDefinition } from "@tooee/commands";
 import type { AskOptions } from "./types.js";
 import { AskEditor } from "./ask-editor.js";
@@ -30,7 +30,7 @@ export const Ask = function Ask({
   onSubmit,
 }: AskProps): ReactNode {
   const renderer = useRenderer();
-  const { invoke } = useCommandContext();
+  const { invoke } = useSurfaceInvoke();
 
   const { theme } = useTheme();
   const { name: themeName } = useThemeCommands();

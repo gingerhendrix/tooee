@@ -1,7 +1,7 @@
 import { testRender } from "../../../test/support/test-render.ts";
 import { test, expect, afterEach, beforeEach, describe } from "bun:test";
 import { act } from "react";
-import { useCommandContext } from "@tooee/commands";
+import { useSurfaceInvoke } from "@tooee/commands";
 import type { ActionDefinition, CommandContext } from "@tooee/commands";
 import { TooeeProvider } from "@tooee/shell";
 import type { DocumentCommandContext } from "@tooee/shell";
@@ -53,7 +53,7 @@ const ACTIONS: ActionDefinition[] = [
 
 /** Reports the commands registered on the surface the View renders into. */
 const CommandProbe = function CommandProbe() {
-  const { commands } = useCommandContext();
+  const { commands } = useSurfaceInvoke();
   commandIds = commands.map((command) => command.id);
   return null;
 };

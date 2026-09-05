@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { act } from "react";
-import { useCommandContext } from "@tooee/commands";
+import { useSurfaceInvoke } from "@tooee/commands";
 import { TooeeProvider } from "@tooee/shell";
 import { testRender } from "../../../test/support/test-render.ts";
 import { DirectoryView } from "../src/directory-view.js";
@@ -15,7 +15,7 @@ let commandIds: string[] = [];
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
 const CommandProbe = function CommandProbe(): null {
-  const { commands } = useCommandContext();
+  const { commands } = useSurfaceInvoke();
   commandIds = commands.map((command) => command.id);
   return null;
 };
