@@ -13,14 +13,14 @@ View opens the file, picks a renderer from the extension, and puts the file name
 
 The extension picks the renderer:
 
-| Extension                                                                                                                                                                                          | Renderer                            |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
-| `.md`, `.mdx`, `.markdown`                                                                                                                                                                         | markdown                            |
-| `.csv`, `.tsv`                                                                                                                                                                                     | table                               |
-| `.diff`, `.patch`                                                                                                                                                                                  | diff                                |
-| `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`                                                                                                                                                           | image                               |
-| `.ts`, `.tsx`, `.js`, `.jsx`, `.json`, `.py`, `.rs`, `.go`, `.rb`, `.java`, `.kt`, `.swift`, `.c`, `.h`, `.cpp`, `.hpp`, `.css`, `.html`, `.sql`, `.sh`, `.bash`, `.zsh`, `.toml`, `.yaml`, `.yml` | code, highlighted for that language |
-| anything else                                                                                                                                                                                      | text                                |
+| Extension                                                                                                                                                                                          | Renderer                                                   |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `.md`, `.mdx`, `.markdown`                                                                                                                                                                         | markdown                                                   |
+| `.csv`, `.tsv`                                                                                                                                                                                     | table                                                      |
+| `.diff`, `.patch`                                                                                                                                                                                  | diff                                                       |
+| `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`                                                                                                                                                           | image                                                      |
+| `.ts`, `.tsx`, `.js`, `.jsx`, `.json`, `.py`, `.rs`, `.go`, `.rb`, `.java`, `.kt`, `.swift`, `.c`, `.h`, `.cpp`, `.hpp`, `.css`, `.html`, `.sql`, `.sh`, `.bash`, `.zsh`, `.toml`, `.yaml`, `.yml` | code, with syntax colours for `.ts`, `.tsx`, `.js`, `.jsx` |
+| anything else                                                                                                                                                                                      | text                                                       |
 
 A file with another extension that contains a unified patch, with `diff --git` or `---` and `+++` headers and at least one `@@` hunk, opens as a diff.
 

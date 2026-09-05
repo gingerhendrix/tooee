@@ -101,7 +101,7 @@ The fence stays one Markdown block. The cursor lands on the whole block, search 
 
 `@tooee/diff` exports the pieces View composes. `buildDiffModel(patch)` returns `{ files, rows, stats, patch }`. `diffRowAdapter` is the row adapter for `useDocumentController`. `DiffView` draws the rows; it takes the controller as `document`, plus `activeIndex`, `layout`, `wrapLines`, `showHunkLineNumbers`, `horizontalOffset`, `highlight`, `tabWidth`, and `theme`. `diffCodeBlockRenderer` is the fence renderer for `MarkdownView`. [Documents](/docs/build/documents) explains the controller these plug into.
 
-`@tooee/view` depends on `@tooee/diff`, which pins `hunkdiff@0.18.0`. Hunk declares `@opentui/core` and `@opentui/react` `^0.4.3` as peers and ships a Bun binary and a CLI binary that Tooee does not use, so a fresh install of `@tooee/diff` on its own may print a peer warning and adds around 580 MB to the Bun store. [Troubleshooting](/docs/ship/troubleshooting) covers both.
+`@tooee/view` depends on `@tooee/diff`, which pins `hunkdiff@0.18.0`. Hunk declares `@opentui/core` and `@opentui/react` `^0.4.3` as peers and ships a Bun binary and a CLI binary that Tooee does not use, so a fresh project that adds `@tooee/view` or `@tooee/diff` gets a 445 MB `node_modules`, most of it the Hunk binary and its bundled Bun. The install prints peer warnings for `@opentui/core@0.5.10`, `@opentui/react@0.5.10`, and `typescript@7.0.2`; all three are safe to ignore. [Troubleshooting](/docs/ship/troubleshooting#install-and-typecheck) covers both.
 
 ## Next
 
