@@ -26,27 +26,21 @@ export interface TooeeProviderProps {
   sequenceTimeoutMs?: number;
 }
 
-export const TooeeProvider = function TooeeProvider({
+const ToastContextBridge = function ToastContextBridge({
   children,
-  leader,
-  config: configOverrides,
-  initialMode,
-  sequenceTimeoutMs,
-}: TooeeProviderProps): ReactNode {
-  return (
-    <ConfigProvider overrides={configOverrides}>
-      {/* Deferred(lint-sweep): preserve the deliberate top-down provider composition. */}
-      {/* oxlint-disable-next-line no-use-before-define -- inner provider is a lifecycle wrapper declared below */}
-      <TooeeProviderInner
-        leader={leader}
-        initialMode={initialMode}
-        sequenceTimeoutMs={sequenceTimeoutMs}
-      >
-        {children}
-        {/* oxlint-disable-next-line no-use-before-define -- inner provider is a lifecycle wrapper declared below */}
-      </TooeeProviderInner>
-    </ConfigProvider>
-  );
+}: {
+  children: ReactNode;
+}): ReactNode {
+  const toastController = useToast();
+
+  useProvideCommandContext(() => ({
+    toast: toastController,
+  }));
+
+  useCopyOnSelect();
+  useDebugConsoleCommand();
+
+  return children;
 };
 
 const TooeeProviderInner = function TooeeProviderInner({
@@ -70,15 +64,12 @@ const TooeeProviderInner = function TooeeProviderInner({
         sequenceTimeoutMs={sequenceTimeoutMs}
       >
         <ToastProvider>
-          {/* Deferred(lint-sweep): preserve the deliberate top-down provider composition. */}
-          {/* oxlint-disable-next-line no-use-before-define -- bridge is part of the wrapper's lifecycle composition */}
           <ToastContextBridge>
             <OverlayProvider>
               <WhichKeyProvider>
                 <CommandPaletteProvider>{children}</CommandPaletteProvider>
               </WhichKeyProvider>
             </OverlayProvider>
-            {/* oxlint-disable-next-line no-use-before-define -- bridge is part of the wrapper's lifecycle composition */}
           </ToastContextBridge>
         </ToastProvider>
       </CommandProvider>
@@ -86,19 +77,22 @@ const TooeeProviderInner = function TooeeProviderInner({
   );
 };
 
-const ToastContextBridge = function ToastContextBridge({
+export const TooeeProvider = function TooeeProvider({
   children,
-}: {
-  children: ReactNode;
-}): ReactNode {
-  const toastController = useToast();
-
-  useProvideCommandContext(() => ({
-    toast: toastController,
-  }));
-
-  useCopyOnSelect();
-  useDebugConsoleCommand();
-
-  return children;
+  leader,
+  config: configOverrides,
+  initialMode,
+  sequenceTimeoutMs,
+}: TooeeProviderProps): ReactNode {
+  return (
+    <ConfigProvider overrides={configOverrides}>
+      <TooeeProviderInner
+        leader={leader}
+        initialMode={initialMode}
+        sequenceTimeoutMs={sequenceTimeoutMs}
+      >
+        {children}
+      </TooeeProviderInner>
+    </ConfigProvider>
+  );
 };

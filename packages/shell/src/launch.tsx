@@ -78,19 +78,10 @@ export const guardTerminalHealth = function guardTerminalHealth(
   let handled = false;
   let disposed = false;
   const stdin = renderer.stdin ?? process.stdin;
-
-  const dispose = () => {
-    if (disposed) {
-      return;
-    }
-    disposed = true;
-    // Deferred(lint-sweep): retain the paired lifecycle callback closure.
-    // oxlint-disable-next-line no-use-before-define -- callback is declared below and only invoked during disposal
-    stdin.removeListener("end", onTerminalEnd);
-    // Deferred(lint-sweep): retain the paired lifecycle callback closure.
-    // oxlint-disable-next-line no-use-before-define -- callback is declared below and only invoked during disposal
-    stdin.removeListener("close", onTerminalEnd);
-    renderer.removeListener("destroy", dispose);
+  const lifecycle = {
+    dispose: () => {
+      // Replaced before terminal listeners are attached.
+    },
   };
 
   const onTerminalEnd = () => {
@@ -98,7 +89,7 @@ export const guardTerminalHealth = function guardTerminalHealth(
       return;
     }
     handled = true;
-    dispose();
+    lifecycle.dispose();
 
     if (options.destroyRenderer ?? true) {
       try {
@@ -112,6 +103,17 @@ export const guardTerminalHealth = function guardTerminalHealth(
       process.exit(0);
     }
   };
+
+  const dispose = () => {
+    if (disposed) {
+      return;
+    }
+    disposed = true;
+    stdin.removeListener("end", onTerminalEnd);
+    stdin.removeListener("close", onTerminalEnd);
+    renderer.removeListener("destroy", dispose);
+  };
+  lifecycle.dispose = dispose;
 
   stdin.on("end", onTerminalEnd);
   stdin.on("close", onTerminalEnd);
