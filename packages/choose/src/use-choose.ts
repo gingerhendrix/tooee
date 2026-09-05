@@ -1,16 +1,28 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { InputRenderable, KeyEvent } from "@opentui/core";
+import { useSelector } from "@xstate/store-react";
 import {
   useActiveCommandSurface,
   useActions,
-  useCommand,
   useCommandSurfaceId,
+  useLatest,
+  useLazyRef,
   useMode,
   useProvideCommandContext,
   useSetMode,
 } from "@tooee/commands";
 import type { ActionDefinition, CommandContext, Mode } from "@tooee/commands";
-import { fuzzyFilter } from "./fuzzy.js";
+import {
+  createChooseStore,
+  selectActiveIndex,
+  selectError,
+  selectFilterQuery,
+  selectItems,
+  selectLoading,
+  selectMatches,
+  selectReloadRevision,
+  selectSelectedOriginalIndices,
+} from "./choose-store.js";
 import type { FuzzyMatch } from "./fuzzy.js";
 import { chooseSourceError, loadChooseSource } from "./source.js";
 import type { ChooseItem, ChooseResult, ChooseSource } from "./types.js";
@@ -95,6 +107,11 @@ interface ChooseCommandContextContribution {
   exit?: () => void;
 }
 
+interface ChooseKeymapDefinition extends Omit<ActionDefinition, "group" | "when"> {
+  group: () => ChooseCommandGroup;
+  when?: () => boolean;
+}
+
 /**
  * Shared headless chooser: source lifecycle, fuzzy matches, selection,
  * command context, controller, and all built-in keyboard commands.
@@ -102,20 +119,29 @@ interface ChooseCommandContextContribution {
 export const useChoose = function useChoose(options: UseChooseOptions): UseChooseResult {
   const { source, multi = false, initialFilter = "", commandScope = "choose" } = options;
   const initialItems = Array.isArray(source) ? source : [];
-
-  const [items, setItems] = useState<ChooseItem[]>(initialItems);
-  const [filterQuery, setFilterQuery] = useState(initialFilter);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [selectedOriginalIndices, setSelectedOriginalIndices] = useState<Set<number>>(new Set());
-  const [loading, setLoading] = useState(!Array.isArray(source));
-  const [error, setError] = useState<string | null>(null);
-  const [reloadRevision, setReloadRevision] = useState(0);
+  const store = useLazyRef(() =>
+    createChooseStore({
+      initialFilter,
+      items: initialItems,
+      loading: !Array.isArray(source),
+    }),
+  ).current;
   const filterRef = useRef<InputRenderable>(null);
-  const requestIdRef = useRef(0);
-  const initialArraySourceRef = useRef<ChooseItem[] | null>(Array.isArray(source) ? source : null);
+  const initialArraySourceRef = useLazyRef<ChooseItem[] | null>(() =>
+    Array.isArray(source) ? source : null,
+  );
   const didHandleInitialSourceRef = useRef(false);
 
-  const matches = useMemo(() => fuzzyFilter(items, filterQuery), [items, filterQuery]);
+  const items = useSelector(store, (snapshot) => selectItems(snapshot.context));
+  const matches = useSelector(store, (snapshot) => selectMatches(snapshot.context));
+  const filterQuery = useSelector(store, (snapshot) => selectFilterQuery(snapshot.context));
+  const activeIndex = useSelector(store, (snapshot) => selectActiveIndex(snapshot.context));
+  const selectedOriginalIndices = useSelector(store, (snapshot) =>
+    selectSelectedOriginalIndices(snapshot.context),
+  );
+  const loading = useSelector(store, (snapshot) => selectLoading(snapshot.context));
+  const error = useSelector(store, (snapshot) => selectError(snapshot.context));
+  const reloadRevision = useSelector(store, (snapshot) => selectReloadRevision(snapshot.context));
   const activeItem = matches[activeIndex]?.item;
   const selectedItems = useMemo(() => {
     if (!multi) {
@@ -133,170 +159,108 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
 
   const mode = useMode();
   const setMode = useSetMode();
-
-  // Stable controller methods read live values through refs, including when
-  // multiple imperative operations happen before React renders again.
-  const optionsRef = useRef(options);
-  optionsRef.current = options;
-  const itemsRef = useRef(items);
-  itemsRef.current = items;
-  const matchesRef = useRef(matches);
-  matchesRef.current = matches;
-  const filterQueryRef = useRef(filterQuery);
-  filterQueryRef.current = filterQuery;
-  const activeIndexRef = useRef(activeIndex);
-  activeIndexRef.current = activeIndex;
-  const selectedRef = useRef(selectedOriginalIndices);
-  selectedRef.current = selectedOriginalIndices;
-  const multiRef = useRef(multi);
-  multiRef.current = multi;
-  const modeRef = useRef(mode);
-  modeRef.current = mode;
-
-  const replaceItems = useCallback((nextItems: ChooseItem[]) => {
-    itemsRef.current = nextItems;
-    matchesRef.current = fuzzyFilter(nextItems, filterQueryRef.current);
-    activeIndexRef.current = 0;
-    selectedRef.current = new Set();
-    setItems(nextItems);
-    setActiveIndex(0);
-    setSelectedOriginalIndices(selectedRef.current);
-  }, []);
+  const optionsRef = useLatest(options);
+  const multiRef = useLatest(multi);
+  const modeRef = useLatest(mode);
 
   useEffect(() => {
-    requestIdRef.current += 1;
-    const requestId = requestIdRef.current;
     let active = true;
     const deactivate = () => {
       active = false;
     };
-    let result: ChooseItem[] | Promise<ChooseItem[]>;
 
-    // Direct arrays seed state during the first render. Avoid a redundant
-    // post-mount reset that could overwrite immediate controller operations.
+    // Direct arrays seed the store before the first render. Avoid replacing
+    // state after mount, which could overwrite immediate controller calls.
     if (
       !didHandleInitialSourceRef.current &&
       Array.isArray(source) &&
       source === initialArraySourceRef.current
     ) {
       didHandleInitialSourceRef.current = true;
-      setLoading(false);
       return deactivate;
     }
     didHandleInitialSourceRef.current = true;
 
-    setError(null);
+    store.trigger.requestStarted({});
+    const { requestId } = store.getSnapshot().context;
+    let result: ChooseItem[] | Promise<ChooseItem[]>;
     try {
       result = loadChooseSource(source);
     } catch (loadError) {
-      if (requestId !== requestIdRef.current) {
-        return deactivate;
-      }
-      replaceItems([]);
-      setError(chooseSourceError(loadError));
-      setLoading(false);
+      store.trigger.loadFailed({ error: chooseSourceError(loadError), requestId });
       return deactivate;
     }
 
     if (result instanceof Promise) {
-      setLoading(true);
+      store.trigger.loadingStarted({ requestId });
       void (async () => {
         try {
           const loaded = await result;
-          if (!active || requestId !== requestIdRef.current) {
-            return;
+          if (active) {
+            store.trigger.loadSucceeded({ items: loaded, requestId });
           }
-          replaceItems(loaded);
-          setError(null);
-          setLoading(false);
         } catch (loadError) {
-          if (!active || requestId !== requestIdRef.current) {
-            return;
+          if (active) {
+            store.trigger.loadFailed({ error: chooseSourceError(loadError), requestId });
           }
-          replaceItems([]);
-          setError(chooseSourceError(loadError));
-          setLoading(false);
         }
       })();
       return deactivate;
     }
 
-    replaceItems(result);
-    setLoading(false);
+    store.trigger.loadSucceeded({ items: result, requestId });
     return deactivate;
-  }, [source, reloadRevision, replaceItems]);
+  }, [source, reloadRevision, store, initialArraySourceRef]);
 
-  const setFilter = useCallback((query: string) => {
-    // Controlled OpenTUI inputs may echo a programmatic `value` update through
-    // onInput. Only a real query change resets navigation.
-    if (query === filterQueryRef.current) {
-      setFilterQuery(query);
-      return;
-    }
-    filterQueryRef.current = query;
-    matchesRef.current = fuzzyFilter(itemsRef.current, query);
-    activeIndexRef.current = 0;
-    setFilterQuery(query);
-    setActiveIndex(0);
-  }, []);
-
-  const updateActiveIndex = useCallback((index: number) => {
-    const lastIndex = Math.max(0, matchesRef.current.length - 1);
-    const next = Math.min(lastIndex, Math.max(0, index));
-    activeIndexRef.current = next;
-    setActiveIndex(next);
-  }, []);
-
+  const setFilter = useCallback(
+    (query: string) => {
+      store.trigger.filterChanged({ query });
+    },
+    [store],
+  );
+  const updateActiveIndex = useCallback(
+    (index: number) => {
+      store.trigger.activeIndexSet({ index });
+    },
+    [store],
+  );
   const moveUp = useCallback(() => {
-    updateActiveIndex(activeIndexRef.current - 1);
-  }, [updateActiveIndex]);
+    store.trigger.moved({ delta: -1 });
+  }, [store]);
   const moveDown = useCallback(() => {
-    updateActiveIndex(activeIndexRef.current + 1);
-  }, [updateActiveIndex]);
-
-  const getActiveItem = useCallback(() => matchesRef.current[activeIndexRef.current]?.item, []);
-
+    store.trigger.moved({ delta: 1 });
+  }, [store]);
+  const getActiveItem = useCallback(() => {
+    const { context } = store.getSnapshot();
+    return context.matches[context.activeIndex]?.item;
+  }, [store]);
   const getSelectedItems = useCallback((): ChooseItem[] => {
-    const active = getActiveItem();
+    const { context } = store.getSnapshot();
+    const active = context.matches[context.activeIndex]?.item;
     if (!multiRef.current) {
       return active === undefined ? [] : [active];
     }
-    const selected = [...selectedRef.current].flatMap((index) => {
-      const item = itemsRef.current[index];
+    const selected = [...context.selectedOriginalIndices].flatMap((index) => {
+      const item = context.items[index];
       return item === undefined ? [] : [item];
     });
     if (selected.length > 0) {
       return selected;
     }
     return active === undefined ? [] : [active];
-  }, [getActiveItem]);
-
+  }, [multiRef, store]);
   const toggleActive = useCallback(() => {
-    if (!multiRef.current) {
-      return;
+    if (multiRef.current) {
+      store.trigger.activeToggled({});
     }
-    const originalIndex = matchesRef.current[activeIndexRef.current]?.originalIndex;
-    if (originalIndex === undefined) {
-      return;
-    }
-    const next = new Set(selectedRef.current);
-    if (next.has(originalIndex)) {
-      next.delete(originalIndex);
-    } else {
-      next.add(originalIndex);
-    }
-    selectedRef.current = next;
-    setSelectedOriginalIndices(next);
-  }, []);
-
+  }, [multiRef, store]);
   const submit = useCallback(() => {
     void optionsRef.current.onSubmit({ items: getSelectedItems() });
-  }, [getSelectedItems]);
-
-  const cancel = useCallback(() => optionsRef.current.onCancel?.(), []);
+  }, [getSelectedItems, optionsRef]);
+  const cancel = useCallback(() => optionsRef.current.onCancel?.(), [optionsRef]);
   const reload = useCallback(() => {
-    setReloadRevision((revision) => revision + 1);
-  }, []);
+    store.trigger.reloadRequested({});
+  }, [store]);
   const setModeExternal = useCallback(
     (nextMode: Mode) => {
       setMode(nextMode);
@@ -308,7 +272,7 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     const context: ChooseCommandContextContribution = {
       choose: {
         activeItem: getActiveItem(),
-        filterQuery: filterQueryRef.current,
+        filterQuery: store.getSnapshot().context.filterQuery,
         selectedItems: getSelectedItems(),
       },
     };
@@ -322,145 +286,167 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
 
   const enabled = useCallback(
     (group: ChooseCommandGroup) => !(optionsRef.current.disable?.includes(group) ?? false),
-    [],
+    [optionsRef],
   );
-
-  useCommand({
-    handler: () => {
-      if (modeRef.current === "insert") {
-        setMode("cursor");
-      } else {
-        cancel();
-      }
-    },
-    hidden: true,
-    hotkey: "Escape",
-    id: `${commandScope}:escape`,
-    modes: ["insert", "cursor"],
-    title: "Back / cancel",
-    when: () =>
-      modeRef.current === "insert"
-        ? enabled("mode")
-        : enabled("cancel") && optionsRef.current.onCancel !== undefined,
-  });
-  useCommand({
-    handler: cancel,
-    hidden: true,
-    hotkey: "q",
-    id: `${commandScope}:cancel`,
-    modes: ["cursor"],
-    title: "Cancel",
-    when: () => enabled("cancel") && optionsRef.current.onCancel !== undefined,
-  });
-  useCommand({
-    handler: () => {
-      setMode("insert");
-    },
-    hidden: true,
-    hotkey: "i",
-    id: `${commandScope}:insert-mode-i`,
-    modes: ["cursor"],
-    title: "Insert mode",
-    when: () => enabled("mode"),
-  });
-  useCommand({
-    handler: () => {
-      setMode("insert");
-    },
-    hidden: true,
-    hotkey: "a",
-    id: `${commandScope}:insert-mode-a`,
-    modes: ["cursor"],
-    title: "Insert mode",
-    when: () => enabled("mode"),
-  });
-  useCommand({
-    handler: moveDown,
-    hidden: true,
-    hotkey: "j",
-    id: `${commandScope}:move-down-vim`,
-    modes: ["cursor"],
-    title: "Move down",
-    when: () => enabled("navigation"),
-  });
-  useCommand({
-    handler: moveUp,
-    hidden: true,
-    hotkey: "k",
-    id: `${commandScope}:move-up-vim`,
-    modes: ["cursor"],
-    title: "Move up",
-    when: () => enabled("navigation"),
-  });
-  useCommand({
-    handler: submit,
-    hidden: true,
-    hotkey: "Enter",
-    id: `${commandScope}:confirm`,
-    modes: ["insert", "cursor"],
-    title: "Confirm",
-    when: () => enabled("submit"),
-  });
-  useCommand({
-    handler: moveUp,
-    hidden: true,
-    hotkey: "up",
-    id: `${commandScope}:move-up`,
-    modes: ["insert", "cursor"],
-    title: "Move up",
-    when: () => enabled("navigation"),
-  });
-  useCommand({
-    handler: moveUp,
-    hidden: true,
-    hotkey: "ctrl+p",
-    id: `${commandScope}:move-up-ctrl-p`,
-    modes: ["insert", "cursor"],
-    title: "Move up",
-    when: () => enabled("navigation"),
-  });
-  useCommand({
-    handler: moveDown,
-    hidden: true,
-    hotkey: "down",
-    id: `${commandScope}:move-down`,
-    modes: ["insert", "cursor"],
-    title: "Move down",
-    when: () => enabled("navigation"),
-  });
-  useCommand({
-    handler: moveDown,
-    hidden: true,
-    hotkey: "ctrl+n",
-    id: `${commandScope}:move-down-ctrl-n`,
-    modes: ["insert", "cursor"],
-    title: "Move down",
-    when: () => enabled("navigation"),
-  });
-  useCommand({
-    handler: () => {
-      toggleActive();
-      moveDown();
-    },
-    hidden: true,
-    hotkey: "Tab",
-    id: `${commandScope}:toggle-next`,
-    modes: ["insert", "cursor"],
-    title: "Toggle selection and move down",
-    when: () => enabled("multi-select") && multiRef.current,
-  });
-  useCommand({
-    handler: () => {
-      toggleActive();
-      moveUp();
-    },
-    hidden: true,
-    hotkey: "shift+Tab",
-    id: `${commandScope}:toggle-previous`,
-    modes: ["insert", "cursor"],
-    title: "Toggle selection and move up",
-    when: () => enabled("multi-select") && multiRef.current,
-  });
+  const builtInActions = useMemo<ActionDefinition[]>(() => {
+    const definitions: ChooseKeymapDefinition[] = [
+      {
+        group: () => (modeRef.current === "insert" ? "mode" : "cancel"),
+        handler: () => {
+          if (modeRef.current === "insert") {
+            setMode("cursor");
+          } else {
+            cancel();
+          }
+        },
+        hidden: true,
+        hotkey: "Escape",
+        id: `${commandScope}:escape`,
+        modes: ["insert", "cursor"],
+        title: "Back / cancel",
+        when: () =>
+          modeRef.current === "insert" ? true : optionsRef.current.onCancel !== undefined,
+      },
+      {
+        group: () => "cancel",
+        handler: cancel,
+        hidden: true,
+        hotkey: "q",
+        id: `${commandScope}:cancel`,
+        modes: ["cursor"],
+        title: "Cancel",
+        when: () => optionsRef.current.onCancel !== undefined,
+      },
+      {
+        group: () => "mode",
+        handler: () => {
+          setMode("insert");
+        },
+        hidden: true,
+        hotkey: "i",
+        id: `${commandScope}:insert-mode-i`,
+        modes: ["cursor"],
+        title: "Insert mode",
+      },
+      {
+        group: () => "mode",
+        handler: () => {
+          setMode("insert");
+        },
+        hidden: true,
+        hotkey: "a",
+        id: `${commandScope}:insert-mode-a`,
+        modes: ["cursor"],
+        title: "Insert mode",
+      },
+      {
+        group: () => "navigation",
+        handler: moveDown,
+        hidden: true,
+        hotkey: "j",
+        id: `${commandScope}:move-down-vim`,
+        modes: ["cursor"],
+        title: "Move down",
+      },
+      {
+        group: () => "navigation",
+        handler: moveUp,
+        hidden: true,
+        hotkey: "k",
+        id: `${commandScope}:move-up-vim`,
+        modes: ["cursor"],
+        title: "Move up",
+      },
+      {
+        group: () => "submit",
+        handler: submit,
+        hidden: true,
+        hotkey: "Enter",
+        id: `${commandScope}:confirm`,
+        modes: ["insert", "cursor"],
+        title: "Confirm",
+      },
+      {
+        group: () => "navigation",
+        handler: moveUp,
+        hidden: true,
+        hotkey: "up",
+        id: `${commandScope}:move-up`,
+        modes: ["insert", "cursor"],
+        title: "Move up",
+      },
+      {
+        group: () => "navigation",
+        handler: moveUp,
+        hidden: true,
+        hotkey: "ctrl+p",
+        id: `${commandScope}:move-up-ctrl-p`,
+        modes: ["insert", "cursor"],
+        title: "Move up",
+      },
+      {
+        group: () => "navigation",
+        handler: moveDown,
+        hidden: true,
+        hotkey: "down",
+        id: `${commandScope}:move-down`,
+        modes: ["insert", "cursor"],
+        title: "Move down",
+      },
+      {
+        group: () => "navigation",
+        handler: moveDown,
+        hidden: true,
+        hotkey: "ctrl+n",
+        id: `${commandScope}:move-down-ctrl-n`,
+        modes: ["insert", "cursor"],
+        title: "Move down",
+      },
+      {
+        group: () => "multi-select",
+        handler: () => {
+          toggleActive();
+          moveDown();
+        },
+        hidden: true,
+        hotkey: "Tab",
+        id: `${commandScope}:toggle-next`,
+        modes: ["insert", "cursor"],
+        title: "Toggle selection and move down",
+        when: () => multiRef.current,
+      },
+      {
+        group: () => "multi-select",
+        handler: () => {
+          toggleActive();
+          moveUp();
+        },
+        hidden: true,
+        hotkey: "shift+Tab",
+        id: `${commandScope}:toggle-previous`,
+        modes: ["insert", "cursor"],
+        title: "Toggle selection and move up",
+        when: () => multiRef.current,
+      },
+    ];
+    return definitions.map(({ group, when, ...definition }) => ({
+      ...definition,
+      when: () => enabled(group()) && (when?.() ?? true),
+    }));
+  }, [
+    cancel,
+    commandScope,
+    enabled,
+    modeRef,
+    moveDown,
+    moveUp,
+    multiRef,
+    optionsRef,
+    setMode,
+    submit,
+    toggleActive,
+  ]);
+  useActions(builtInActions);
 
   const surfaceId = useCommandSurfaceId();
   const activeSurface = useActiveCommandSurface();
@@ -485,17 +471,16 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
         moveDown();
       }
     },
-    [enabled, moveDown, moveUp, toggleActive],
+    [enabled, modeRef, moveDown, moveUp, multiRef, toggleActive],
   );
 
-  const controllerRef = useRef<ChooseController | null>(null);
-  controllerRef.current ??= {
+  const controller = useLazyRef<ChooseController>(() => ({
     cancel,
     clearFilter: () => {
       setFilter("");
     },
     getActiveItem,
-    getFilter: () => filterQueryRef.current,
+    getFilter: () => store.getSnapshot().context.filterQuery,
     getSelectedItems,
     get mode() {
       return modeRef.current;
@@ -508,10 +493,10 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     setMode: setModeExternal,
     submit,
     toggleActive,
-  };
+  })).current;
 
   return {
-    controller: controllerRef.current,
+    controller,
     state: {
       activeIndex,
       activeItem,

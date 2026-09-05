@@ -106,6 +106,8 @@
         "@tooee/overlays": "workspace:*",
         "@tooee/shell": "workspace:*",
         "@tooee/themes": "workspace:*",
+        "@xstate/store": "^4",
+        "@xstate/store-react": "^2",
       },
       "devDependencies": {
         "@opentui/core": "^0.5.1",
