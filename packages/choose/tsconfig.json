@@ -7,7 +7,6 @@
   },
   "include": ["./src"],
   "references": [
-    { "path": "../fuzzy" },
     { "path": "../themes" },
     { "path": "../layout" },
     { "path": "../overlays" },
