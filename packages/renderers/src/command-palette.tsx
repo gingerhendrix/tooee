@@ -1,9 +1,9 @@
-import { useState, useMemo, useCallback } from "react";
+import { useMemo } from "react";
 import type { ReactNode } from "react";
-import { useCommand } from "@tooee/commands";
-import { CloseButton } from "@tooee/layout";
 import { useTheme } from "@tooee/themes";
-import { rankBy } from "@tooee/fuzzy";
+import { Chooser } from "./chooser/chooser.js";
+import { ChooseHighlightedText } from "./chooser/choose-highlighted-text.js";
+import type { ChooseItem } from "./chooser/types.js";
 
 export interface CommandPaletteEntry {
   id: string;
@@ -19,160 +19,57 @@ interface CommandPaletteProps {
   onClose: () => void;
 }
 
-const HighlightedTitle = function HighlightedTitle({
-  title,
-  positions,
-}: {
-  title: string;
-  positions: readonly number[];
-}): ReactNode {
-  const { theme } = useTheme();
-  const highlighted = new Set(positions);
-  return (
-    <text fg={theme.text} style={{ flexGrow: 1 }}>
-      {Array.from(
-        title,
-        (character, index): ReactNode => (
-          <span key={index} fg={highlighted.has(index) ? theme.warning : theme.text}>
-            {character}
-          </span>
-        ),
-      )}
-    </text>
-  );
-};
-
 export const CommandPalette = function CommandPalette({
   commands,
   onSelect,
   onClose,
 }: CommandPaletteProps): ReactNode {
   const { theme } = useTheme();
-  const [filter, setFilter] = useState("");
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  const matches = useMemo(
-    () => rankBy(commands, filter, (entry) => entry.title),
-    [commands, filter],
+  const entriesById = useMemo(
+    () => new Map(commands.map((entry) => [entry.id, entry])),
+    [commands],
   );
-
-  const handleSelect = useCallback(() => {
-    const item = matches[activeIndex]?.item;
-    if (item !== undefined) {
-      onSelect(item.id);
+  const items = useMemo<ChooseItem[]>(
+    () => commands.map((entry) => ({ text: entry.title, value: entry.id })),
+    [commands],
+  );
+  const handleSelect = (item: ChooseItem): void => {
+    if (item.value !== undefined) {
+      onSelect(item.value);
     }
-  }, [matches, activeIndex, onSelect]);
-
-  const moveUp = useCallback(() => {
-    setActiveIndex((i) => Math.max(0, i - 1));
-  }, []);
-
-  const moveDown = useCallback(() => {
-    setActiveIndex((i) => Math.min(matches.length - 1, i + 1));
-  }, [matches.length]);
-
-  useCommand({
-    handler: onClose,
-    hidden: true,
-    hotkey: "Escape",
-    id: "command-palette:close",
-    modes: ["insert", "cursor"],
-    title: "Close command palette",
-  });
-  useCommand({
-    handler: handleSelect,
-    hidden: true,
-    hotkey: "Enter",
-    id: "command-palette:select",
-    modes: ["insert", "cursor"],
-    title: "Run selected command",
-  });
-  useCommand({
-    handler: moveUp,
-    hidden: true,
-    hotkey: "up",
-    id: "command-palette:move-up",
-    modes: ["insert", "cursor"],
-    title: "Move up",
-  });
-  useCommand({
-    handler: moveDown,
-    hidden: true,
-    hotkey: "down",
-    id: "command-palette:move-down",
-    modes: ["insert", "cursor"],
-    title: "Move down",
-  });
+  };
 
   return (
-    <box
-      position="absolute"
-      left="20%"
-      right="20%"
-      top={2}
-      maxHeight="60%"
-      flexDirection="column"
-      backgroundColor={theme.backgroundPanel}
-      border
-      borderColor={theme.border}
-    >
-      {/* Filter row */}
-      <box flexDirection="row" paddingLeft={1} paddingRight={1} height={1}>
-        <text content=":" fg={theme.accent} />
-        <input
-          focused
-          placeholder="Filter commands..."
-          onSubmit={handleSelect}
-          onInput={(value: string) => {
-            setFilter(value);
-            setActiveIndex(0);
-          }}
-          backgroundColor="transparent"
-          focusedBackgroundColor="transparent"
-          textColor={theme.text}
-          placeholderColor={theme.textMuted}
-          cursorColor={theme.accent}
-          style={{ flexGrow: 1 }}
-        />
-        <text content={` ${matches.length}`} fg={theme.textMuted} />
-        <CloseButton onClose={onClose} />
-      </box>
-
-      {/* Separator */}
-      <box height={1} width="100%" backgroundColor={theme.border} />
-
-      {/* Command list */}
-      <scrollbox focused={false} style={{ flexGrow: 1 }}>
-        {matches.map(
-          (match, i): ReactNode => (
-            <box
-              key={match.item.id}
-              flexDirection="row"
-              paddingLeft={1}
-              paddingRight={1}
-              height={1}
-              backgroundColor={i === activeIndex ? theme.backgroundElement : undefined}
-              onMouseDown={(event) => {
-                // Left-click runs the entry — same code path as Enter.
-                if (event.button !== 0) {
-                  return;
-                }
-                event.preventDefault();
-                event.stopPropagation();
-                onSelect(match.item.id);
-              }}
-            >
-              <HighlightedTitle title={match.item.title} positions={match.positions} />
-              {(match.item.hotkey?.length ?? 0) > 0 && (
-                <text content={match.item.hotkey} fg={theme.textMuted} />
+    <Chooser
+      items={items}
+      commandScope="command-palette"
+      prompt={<text content=":" fg={theme.accent} />}
+      placeholder="Filter commands..."
+      onCancel={onClose}
+      onSelect={handleSelect}
+      renderItem={({ item, positions }): ReactNode => {
+        const entry = item.value === undefined ? undefined : entriesById.get(item.value);
+        return (
+          <>
+            <text fg={theme.text} style={{ flexGrow: 1 }}>
+              {(entry?.icon?.length ?? 0) > 0 && (
+                <span fg={theme.textMuted}>{`${entry?.icon} `}</span>
               )}
-              {(match.item.category?.length ?? 0) > 0 && (
-                <text content={` ${match.item.category}`} fg={theme.textMuted} />
-              )}
-            </box>
-          ),
-        )}
-      </scrollbox>
-    </box>
+              <ChooseHighlightedText
+                text={item.text}
+                positions={positions}
+                highlightColor={theme.warning}
+              />
+            </text>
+            {(entry?.hotkey?.length ?? 0) > 0 && (
+              <text content={entry?.hotkey} fg={theme.textMuted} />
+            )}
+            {(entry?.category?.length ?? 0) > 0 && (
+              <text content={` ${entry?.category}`} fg={theme.textMuted} />
+            )}
+          </>
+        );
+      }}
+    />
   );
 };

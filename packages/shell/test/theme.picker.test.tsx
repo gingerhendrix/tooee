@@ -113,13 +113,28 @@ describe("theme picker", () => {
     expect(frame).toContain(`active:${previewedTheme}`);
   });
 
+  test("Enter without navigation confirms the initially active current theme", async () => {
+    testSetup = await setup();
+    const initialTheme = /active:(?<theme>\S+)/u.exec(testSetup.captureCharFrame())?.groups?.theme;
+    await press(testSetup, "t");
+    await pressEnter(testSetup);
+
+    const frame = testSetup.captureCharFrame();
+    expect(frame).toContain("open:false");
+    expect(frame).toContain(`active:${initialTheme}`);
+  });
+
   test("picker shows theme entries", async () => {
     testSetup = await setup();
     await press(testSetup, "t");
     const openFrame = testSetup.captureCharFrame();
     expect(openFrame).toContain("open:true");
-    // Should show at least the first theme in the list
-    expect(openFrame).toContain("aura");
+    const currentTheme = /theme:(?<theme>\S+)/u.exec(openFrame)?.groups?.theme;
+    if (currentTheme === undefined) {
+      throw new Error("expected the current theme in the harness frame");
+    }
+    // The shared chooser opens on the current theme and scrolls it into view.
+    expect(openFrame).toContain(currentTheme);
     // Should show filter count
     expect(openFrame).toMatch(/\d+/u);
   });

@@ -12,6 +12,7 @@
     { "path": "../layout" },
     { "path": "../overlays" },
     { "path": "../commands" },
+    { "path": "../renderers" },
     { "path": "../shell" }
   ]
 }

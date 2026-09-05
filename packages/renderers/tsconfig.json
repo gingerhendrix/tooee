@@ -9,6 +9,7 @@
   "references": [
     { "path": "../commands" },
     { "path": "../fuzzy" },
+    { "path": "../layout" },
     { "path": "../marks" },
     { "path": "../themes" }
   ]

@@ -44,6 +44,7 @@
     "@tooee/fuzzy": "workspace:*",
     "@tooee/layout": "workspace:*",
     "@tooee/overlays": "workspace:*",
+    "@tooee/renderers": "workspace:*",
     "@tooee/shell": "workspace:*",
     "@tooee/themes": "workspace:*",
     "@xstate/store": "^4",

@@ -1,4 +1,4 @@
-import { testRender, press, pressEscape } from "@tooee/test-support";
+import { testRender, press, pressEnter, pressEscape } from "@tooee/test-support";
 import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
 import { act, useState } from "react";
@@ -202,6 +202,23 @@ const setupClick = async function setupClick(onRun: (id: string) => void) {
 };
 
 describe("command palette mouse", () => {
+  test("filtering and Enter run the shared active row and close the palette", async () => {
+    const ran: string[] = [];
+    testSetup = await setupClick((id) => {
+      ran.push(id);
+    });
+
+    await press(testSetup, ":");
+    for (const key of "clickable") {
+      // oxlint-disable-next-line no-await-in-loop -- each key must render before the next
+      await press(testSetup, key);
+    }
+    await pressEnter(testSetup);
+
+    expect(ran).toEqual(["test.clickable"]);
+    expect(testSetup.captureCharFrame()).toContain("open:false");
+  });
+
   test("left-click on a palette row runs the command and closes the palette", async () => {
     const ran: string[] = [];
     testSetup = await setupClick((id) => {
