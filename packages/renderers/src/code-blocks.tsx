@@ -270,6 +270,27 @@ const useHScrollableBlock = function useHScrollableBlock(
 // ---------------------------------------------------------------------------
 
 /**
+ * Invokes a custom renderer, falling back to the default code block when it
+ * returns `null` or throws. Isolated in its own component so renderer hooks
+ * have a stable home that remounts when the fence type changes.
+ */
+const CustomCodeBlock = function CustomCodeBlock({
+  renderer,
+  rendererProps,
+}: {
+  renderer: CodeBlockRenderer;
+  rendererProps: CodeBlockRendererProps;
+}): ReactNode {
+  let node: ReactNode = null;
+  try {
+    node = renderer(rendererProps);
+  } catch {
+    node = null;
+  }
+  return node ?? defaultCodeBlockRenderer(rendererProps);
+};
+
+/**
  * Renders a fenced code block, dispatching to a registered custom renderer
  * for the fence type when one exists, and falling back to the default
  * syntax-highlighted code block when there is no match, the renderer
@@ -310,36 +331,13 @@ export const CodeBlock = function CodeBlock({
   };
 
   const custom = rendererProps.lang === "" ? undefined : renderers?.[rendererProps.lang];
-  // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down custom renderer organization
   if (custom && custom !== defaultCodeBlockRenderer) {
     // Keyed by fence type so a type change remounts the custom renderer
     // (renderers may use hooks; see CodeBlockRenderer docs).
     return (
-      // oxlint-disable-next-line no-use-before-define -- Deferred(lint-sweep): preserve deliberate top-down custom renderer organization
       <CustomCodeBlock key={rendererProps.lang} renderer={custom} rendererProps={rendererProps} />
     );
   }
 
   return defaultCodeBlockRenderer(rendererProps);
-};
-
-/**
- * Invokes a custom renderer, falling back to the default code block when it
- * returns `null` or throws. Isolated in its own component so renderer hooks
- * have a stable home that remounts when the fence type changes.
- */
-const CustomCodeBlock = function CustomCodeBlock({
-  renderer,
-  rendererProps,
-}: {
-  renderer: CodeBlockRenderer;
-  rendererProps: CodeBlockRendererProps;
-}): ReactNode {
-  let node: ReactNode = null;
-  try {
-    node = renderer(rendererProps);
-  } catch {
-    node = null;
-  }
-  return node ?? defaultCodeBlockRenderer(rendererProps);
 };
