@@ -43,6 +43,7 @@ export {
   useProvideCommandContext,
   useProvideCommandContextKey,
   useSurfaceCommands,
+  useSurfaceInvoke,
 } from "./context.js";
 export {
   ROOT_SURFACE_ID,

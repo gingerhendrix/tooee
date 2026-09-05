@@ -366,13 +366,13 @@ const CommandSurfaceInner = function CommandSurfaceInner({
   );
 };
 
-export const useCommandContext = function useCommandContext(): {
+export const useSurfaceInvoke = function useSurfaceInvoke(): {
   commands: Command[];
   invoke: (id: string) => void;
 } {
   const ctx = useContext(CommandContext);
   if (!ctx) {
-    throw new Error("useCommandContext must be used within a CommandProvider");
+    throw new Error("useSurfaceInvoke must be used within a CommandProvider");
   }
   const { commandStore, surface } = ctx;
 
@@ -391,6 +391,9 @@ export const useCommandContext = function useCommandContext(): {
     [commandMap, registry],
   );
 };
+
+/** Deprecated compatibility alias. Use `useSurfaceInvoke` instead. */
+export const useCommandContext = useSurfaceInvoke;
 
 /**
  * Builds the live command context of the nearest surface — the same value
@@ -415,7 +418,7 @@ export const useBuildCommandContext = function useBuildCommandContext(): () => C
 export const useSurfaceRegistry = function useSurfaceRegistry(): CommandRegistry {
   const ctx = useContext(CommandContext);
   if (!ctx) {
-    throw new Error("useCommandRegistry must be used within a CommandProvider");
+    throw new Error("useSurfaceRegistry must be used within a CommandProvider");
   }
   return ctx.commandStore.registryFor(ctx.surface);
 };

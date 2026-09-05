@@ -7,7 +7,7 @@ import {
   CommandSurfaceProvider,
   useActiveCommandSurface,
   useCommand,
-  useCommandContext,
+  useSurfaceInvoke,
   useCommandSequenceState,
   useSetMode,
   useSurfaceCommands,
@@ -21,7 +21,7 @@ const LateRegistrant = function LateRegistrant() {
 };
 
 const CommandCount = function CommandCount(): ReactNode {
-  const { commands } = useCommandContext();
+  const { commands } = useSurfaceInvoke();
   return <text content={`count:${commands.length}`} />;
 };
 
@@ -305,7 +305,7 @@ describe("F-09: surface replacement resets a pending chord", () => {
 });
 
 describe("reactive registry", () => {
-  test("useCommandContext().commands updates when a sibling registers post-mount", async () => {
+  test("useSurfaceInvoke().commands updates when a sibling registers post-mount", async () => {
     testSetup = await testRender(
       <CommandProvider>
         <LateRegistryHarness />
