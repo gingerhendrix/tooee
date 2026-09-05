@@ -41,7 +41,7 @@ A file that fails to parse is skipped. A key Tooee does not know is dropped, so 
 | `view.diffLayout`   | `split`, `stack`                            | The first diff layout. Default `stack`. `s` toggles it.                                                                            |
 | `view.copyOnSelect` | `true`, `false`, `"primary"`, `"clipboard"` | Where text dragged with the mouse goes. Default: the primary selection on Linux, off on other platforms. `true` means `"primary"`. |
 
-`TooeeConfig` from `@tooee/config` is the type of the merged result. `ColorMode` is the type of `theme.mode`; `Mode` is its deprecated alias from 0.7.
+`TooeeConfig` from `@tooee/config` is the type of the merged result. `ColorMode` is the type of `theme.mode`.
 
 ## Remap keys
 
@@ -67,7 +67,7 @@ Every command has an id. `keys` maps an id to a new hotkey in the grammar from [
 
 Commands of your own remap by the id you gave them. The deploy console on [Commands and modes](/docs/build/commands-and-modes#hotkeys) registers `deploy.run` on `d`, and `{ "keys": { "deploy.run": "shift+d" } }` moves it to `D`.
 
-The remap changes the key that runs the command. The palette and the which-key bar keep showing the default hotkey in Tooee 0.8.0, so build your own hints from the config when a remap matters, as the next example does.
+The remap changes the key that runs the command. The palette and the which-key bar keep showing the default hotkey in Tooee 0.9.0, so build your own hints from the config when a remap matters, as the next example does.
 
 ## Read the config in your app
 

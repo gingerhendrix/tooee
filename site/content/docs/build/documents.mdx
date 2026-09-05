@@ -318,7 +318,7 @@ interface Release {
 }
 
 const releases: Release[] = [
-  { date: "2026-09-01", note: "Align the public launch contracts", version: "0.8.0" },
+  { date: "2026-09-06", note: "Remove the compatibility APIs", version: "0.9.0" },
   { date: "2026-08-20", note: "Add clipboard shortcuts", version: "0.7.3" },
   { date: "2026-08-12", note: "Restore the CLI exit behaviour", version: "0.7.2" },
   { date: "2026-08-05", note: "Ship the compiled diff package", version: "0.7.1" },
@@ -364,7 +364,7 @@ const Changelog = function Changelog(): ReactNode {
 await launchCli(<Changelog />);
 ```
 
-The import of `@tooee/renderers/row-document` registers the element. `rowChildOffset={1}` tells it that the first child is not a row, so the cursor starts on `0.8.0` and the header stays unhighlighted. After the offset, give it one direct child per row in row order. A renderer can also accept a `DocumentBindings` value in place of the whole controller, as `MarkdownView` does with its `document` prop, and stay free of your row type.
+The import of `@tooee/renderers/row-document` registers the element. `rowChildOffset={1}` tells it that the first child is not a row, so the cursor starts on `0.9.0` and the header stays unhighlighted. After the offset, give it one direct child per row in row order. A renderer can also accept a `DocumentBindings` value in place of the whole controller, as `MarkdownView` does with its `document` prop, and stay free of your row type.
 
 ## Next
 

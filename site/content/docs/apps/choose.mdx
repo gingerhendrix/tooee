@@ -262,7 +262,7 @@ await launchCli(<Streams />);
 
 The picker panel starts in insert mode with the filter focused. `Enter` submits the highlighted row, `Escape` switches that panel to cursor mode, and `Tab` then moves to the detail panel. Only the active panel's commands run. `chrome="none"` leaves the drawing to `ChoosePanel`; a zero `inset` makes it fill the wrapper box. [Panels](/docs/build/panels) explains panel groups and their chrome.
 
-`source` accepts an item array, a content provider, or a function that returns items or a promise of them. Keep the array identity stable across renders, as the module-level `streams` array is here; a new array on every render reloads on every render. `useChoose` also takes `multi`, `initialFilter`, `onCancel`, `commands`, `commandScope`, `disable`, and `suspended`, and returns a `controller` with `setFilter`, `moveUp`, `moveDown`, `toggleActive`, `submit`, `cancel`, and `reload`.
+`source` accepts an item array, a content provider, or a function that returns items or a promise of them. Keep the array identity stable across renders, as the module-level `streams` array is here; a new array on every render reloads on every render. `useChoose` also takes `multi`, `initialFilter`, `onCancel`, `commands`, `commandScope`, `disable`, and `suspended`, and returns a `controller` with `setFilter`, `moveUp`, `moveDown`, `toggleActive`, `submit`, `cancel`, and `reload`. Tooee 0.9 also exports the reusable chooser primitives from `@tooee/renderers`; the shell uses them for the command palette and theme picker.
 
 ## Next
 

@@ -1,9 +1,9 @@
 ---
 title: Troubleshooting
-description: Symptoms you can meet with Tooee 0.8.0, what causes each one, and what to do.
+description: Symptoms you can meet with Tooee 0.9.0, what causes each one, and what to do.
 ---
 
-Each section starts with a symptom as you see it, gives the cause, and names what to do. The versions are Tooee 0.8.0, OpenTUI 0.5, and Bun 1.4.
+Each section starts with a symptom as you see it, gives the cause, and names what to do. The versions are Tooee 0.9.0, OpenTUI 0.5, and Bun 1.4.
 
 ## Install and typecheck
 
@@ -51,7 +51,7 @@ await runCliSession((): ReactNode => <View contentProvider={createStdinProvider(
 
 **`ctx.exit()` in a handler leaves the app open.** The shell installs no `exit` in the command context; Ask and Choose supply their own, and View and `launchCli` apps do not. Quit with `useQuitCommand`, and for a View action store what the handler learned and act after `launch()` resolves. [View: actions and command context](/docs/apps/view/actions) shows the pattern.
 
-**A key from `keys` in the config runs the command, but the palette still lists the old key.** The palette and the which-key bar show the default hotkey in 0.8.0. The remap works; only the hint is stale. [Configuration](/docs/customize/configuration#remap-keys) shows how to build hints from the config.
+**A key from `keys` in the config runs the command, but the palette still lists the old key.** The palette and the which-key bar show the default hotkey in 0.9.0. The remap works; only the hint is stale. [Configuration](/docs/customize/configuration#remap-keys) shows how to build hints from the config.
 
 ## Copy and paste
 

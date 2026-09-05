@@ -1,6 +1,6 @@
 ---
 title: CLI reference
-description: Every tooee command, flag, stdin rule, output, and exit code in Tooee 0.8.0.
+description: Every tooee command, flag, stdin rule, output, and exit code in Tooee 0.9.0.
 ---
 
 ```text
@@ -26,7 +26,7 @@ tooee view [file] [--renderer <name>]
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | File                       | Renderer from the extension; see the table in [View files and pipes](/docs/cli/view#open-a-file). A text file that holds a unified patch opens as a diff.                          |
 | Directory                  | Opens the directory view. `--renderer` with a directory prints `--renderer cannot be used with directory view` and exits with code 1.                                              |
-| stdin                      | Reads all of stdin. Renders it as markdown, or as a diff when it is a patch, unless `--renderer` is set. In 0.8.0 the session ends when stdin closes, before the content is drawn. |
+| stdin                      | Reads all of stdin. Renders it as markdown, or as a diff when it is a patch, unless `--renderer` is set. In 0.9.0 the session ends when stdin closes, before the content is drawn. |
 | Unknown renderer           | Prints `Unknown renderer: <name>` and the list of values. Exit code 1.                                                                                                             |
 | Missing renderer value     | Prints `Missing value for --renderer`. Exit code 1.                                                                                                                                |
 | Second positional argument | Prints `Unexpected argument: <arg>`. Exit code 1.                                                                                                                                  |
@@ -70,14 +70,6 @@ Other arguments are ignored.
 | stdin          | One item per line. Empty lines are dropped. Choose expects a pipe and reads keys from `/dev/tty` while stdin is piped.          |
 | stdout         | One line per picked item, in the order the items were toggled, or the highlighted item when none is toggled. Nothing on cancel. |
 | Exit code      | 0 on confirm. 1 on cancel.                                                                                                      |
-
-## tooee table
-
-```text
-tooee table [file]
-```
-
-Deprecated. Behaves as `tooee view --renderer table [file]` and shares its stdin rule. Tooee 0.9.0 removes the command.
 
 ## Exit codes
 

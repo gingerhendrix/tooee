@@ -38,8 +38,6 @@ Values: `markdown`, `code`, `text`, `table`, `diff`. An unknown value prints `Un
 
 The `table` renderer accepts a JSON array of objects, TSV when the first line has a tab, or CSV. The first row of CSV or TSV gives the column names.
 
-`tooee table data.csv` is a deprecated alias for `tooee view --renderer table data.csv`. Tooee 0.9.0 removes it.
-
 ## Read a diff
 
 ```bash
@@ -69,7 +67,7 @@ View lists the files in the directory that it can open, sorted by name, and show
 
 ## Pipe text into View
 
-`tooee --help` lists `cat file.md | tooee view` and `git diff | tooee view --renderer diff`. In Tooee 0.8.0 these forms end as soon as the pipe closes, before the content is drawn, because View treats the end of stdin as a closed terminal. Give View a path instead. In bash and zsh, process substitution keeps the pipeline:
+`tooee --help` lists `cat file.md | tooee view` and `git diff | tooee view --renderer diff`. In Tooee 0.9.0 these forms end as soon as the pipe closes, before the content is drawn, because View treats the end of stdin as a closed terminal. Give View a path instead. In bash and zsh, process substitution keeps the pipeline:
 
 ```bash
 tooee view <(git diff)

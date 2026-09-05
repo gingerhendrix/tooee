@@ -64,7 +64,7 @@ The first session opens the file. When the reader quits, the second session open
 
 The promise stays pending for the whole session. Work that must happen while the screen is open runs before the `await`.
 
-View reads keys from the process stdin. When stdin is a pipe, the session ends as soon as the pipe closes, so `launch()` cannot show piped input in Tooee 0.8.0. [Run your own session](#run-your-own-session) shows the `stdinPolicy` option that reads keys from the terminal instead.
+View reads keys from the process stdin. When stdin is a pipe, the session ends as soon as the pipe closes, so `launch()` cannot show piped input in Tooee 0.9.0. [Run your own session](#run-your-own-session) shows the `stdinPolicy` option that reads keys from the terminal instead.
 
 ## Launch Ask
 
@@ -130,7 +130,7 @@ await $`git switch ${picked.items[0].text}`;
 | `options`         | `ChooseOptions`         | `title`, `prompt`, `placeholder`, `multi`, and `emptyMessage`.             |
 | `actions`         | `ActionDefinition[]`    | Commands added to the screen. See [Choose](/docs/apps/choose#add-actions). |
 
-The launch options keep `title`, `prompt`, and the rest nested under `options` in Tooee 0.8. The `Choose` component takes the same fields as flat props.
+The `launch()` options keep `title`, `prompt`, and the rest nested under `options`. The `Choose` component takes the same fields as flat props.
 
 Choose starts in insert mode with the filter focused. `Enter` confirms, `Escape` switches to cursor mode, and `q` in cursor mode cancels. With `multi: true`, `Tab` toggles items and `items` holds every toggled item in toggle order. When stdin is a pipe, Choose reads keys from `/dev/tty`, so a script can take its list from the pipe with `createStdinChooseProvider()`. [Choose](/docs/apps/choose) covers items, filtering, and the dialog form.
 
@@ -183,7 +183,7 @@ await runCliSession(() => <View contentProvider={createStdinProvider()} />, {
 git diff | bun pipe-view.tsx
 ```
 
-`initialMode`, `leader`, `config`, and `sequenceTimeoutMs` are also accepted at the top level of the options in 0.8. That form is deprecated; put them under `provider`.
+Put `initialMode`, `leader`, `config`, and `sequenceTimeoutMs` under `provider`. Tooee 0.9 no longer accepts these settings at the top level.
 
 ## Next
 

@@ -66,7 +66,7 @@ On confirm, Choose prints the item text followed by a newline and exits with cod
 
 ## Use the result in a script
 
-Tooee 0.8.0 draws the screen on stdout, the same stream that carries the result. A command substitution such as `name=$(tooee ask -s "Name:")` redirects that stream: the terminal stays blank while Ask runs, and the captured value holds the screen bytes in front of the text. Redirecting `tooee choose` to a file has the same effect.
+Tooee 0.9.0 draws the screen on stdout, the same stream that carries the result. A command substitution such as `name=$(tooee ask -s "Name:")` redirects that stream: the terminal stays blank while Ask runs, and the captured value holds the screen bytes in front of the text. Redirecting `tooee choose` to a file has the same effect.
 
 To use the value, keep the flow in one Bun script and call `launch()`. The functions return the answer, or `null` on cancel:
 

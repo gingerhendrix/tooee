@@ -1,0 +1,107 @@
+---
+title: Upgrade to 0.9
+description: Move a Tooee 0.8 app to the retained 0.9 APIs.
+---
+
+Tooee 0.9 removes the compatibility APIs that were deprecated in 0.8. Update these calls before you install the new release.
+
+## Pass direct props to Choose
+
+The `Choose` component now accepts chooser options as top-level props. Pass action definitions through `actions`:
+
+```tsx
+<Choose contentProvider={provider} prompt="Pick" multi actions={actions} />
+```
+
+The `launch()` function still takes its chooser fields under `options`. Lower-level chooser primitives still use `commands` for their extra actions.
+
+## Nest launchCli provider settings
+
+Put provider settings under `provider` when you call `launchCli` or `runCliSession`:
+
+```tsx
+await launchCli(<App />, {
+  provider: {
+    config,
+    initialMode: "insert",
+    leader: "space",
+    sequenceTimeoutMs: 500,
+  },
+});
+```
+
+The top-level aliases for `config`, `initialMode`, `leader`, and `sequenceTimeoutMs` have been removed.
+
+## Select the table renderer through View
+
+The `tooee table` command has been removed. Use the View renderer option:
+
+```bash
+tooee view --renderer table data.csv
+```
+
+## Put AppLayout scrolling in one object
+
+`AppLayout` now accepts its scrollbox ref and settings through `scroll`:
+
+```tsx
+<AppLayout
+  scroll={{ ref: scrollRef, focused: false, stickyScroll: true, stickyStart: "bottom" }}
+  statusBar={{ items: [] }}
+>
+  {content}
+</AppLayout>
+```
+
+The separate `scrollRef` and `scrollProps` props have been removed.
+
+## Import ColorMode from config
+
+Replace the removed config `Mode` alias with `ColorMode`:
+
+```ts
+import type { ColorMode } from "@tooee/config";
+```
+
+The command input type named `Mode` remains available from `@tooee/commands`.
+
+## Read commands with useSurfaceInvoke
+
+Replace `useCommandContext()` with `useSurfaceInvoke()`:
+
+```ts
+const { commands, invoke } = useSurfaceInvoke();
+```
+
+It reads the commands and invocation function for the nearest command surface.
+
+## Keep overlay handles
+
+Overlay controllers now use `open`, handles, and state hooks. Keep the handle returned by `open()` so you can close or update that entry:
+
+```tsx
+import { overlayValue, useOverlay } from "@tooee/overlays";
+
+const overlay = useOverlay();
+const handle = overlay.open(
+  "details",
+  ({ payload }) => <text content={payload} />,
+  "Initial details",
+  { mode: null },
+);
+handle.update(overlayValue("Updated details"));
+handle.close();
+```
+
+Use `useOverlayState().stack.includes(id)` when a component needs to know whether a named overlay is open. Use `useHasOverlay()` when it only needs to know whether the stack has an entry. The controller still has `update(id, next)` and `closeTop()`.
+
+## Reuse chooser behavior
+
+`@tooee/renderers` now exports the chooser controller, store, source, filter, list, highlighting, and fuzzy-match primitives. The command palette and theme picker use these primitives, so their filtering, navigation, input, and selection behavior matches `@tooee/choose`.
+
+## Next
+
+- [Configuration](/docs/customize/configuration)
+- [Commands and modes](/docs/build/commands-and-modes)
+- [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts)
+- [CLI reference](/docs/reference/cli)

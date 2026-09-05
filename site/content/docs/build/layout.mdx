@@ -122,7 +122,7 @@ await launchCli(<BuildLog />);
 
 The log grows five lines a second and the view stays on the newest line. The wheel scrolls it, and the `Lines:` count keeps rising in the status bar.
 
-Tooee 0.8 merged the older `scrollRef` and `scrollProps` props into `scroll`. Both still work and are deprecated. Leave `scroll` unset when the content is a `Document` or a `MarkdownView`: the row document is a scrollbox of its own and follows the cursor.
+`AppLayout` takes its scrollbox ref and options through the `scroll` prop. Leave `scroll` unset when the content is a `Document` or a `MarkdownView`: the row document is a scrollbox of its own and follows the cursor.
 
 ## Search bar
 
@@ -135,7 +135,7 @@ A layout of your own mounts `SearchBar` with these props:
 | `query`         | The text in the input.                                                                                      |
 | `onQueryChange` | Called with the new text on every keystroke.                                                                |
 | `onSubmit`      | Called on `Enter`.                                                                                          |
-| `onCancel`      | Accepted for the interface. In 0.8.0 the bar does not call it; `Escape` cancels through the search command. |
+| `onCancel`      | Accepted for the interface. In 0.9.0 the bar does not call it; `Escape` cancels through the search command. |
 | `matchCount`    | Number of matches. `0` with a non-empty query draws `No matches`.                                           |
 | `currentMatch`  | Index of the current match, drawn one-based.                                                                |
 
@@ -143,7 +143,7 @@ A layout of your own mounts `SearchBar` with these props:
 
 `AppLayout` calls `useCurrentOverlay()` from `@tooee/overlays` and draws the result in a box the size of the content area, above the content. The command palette, the which-key bar, the theme picker, the context menu, the Ask and Choose dialogs, and any overlay you open with `useOverlay().open` land there. `ToastContainer` from `@tooee/toasts` sits in the bottom right corner of the same area and draws the toast that `ctx.toast?.toast(...)` sends.
 
-`AppLayout` has no `overlay` prop in 0.8.0. The `@tooee/layout` README still describes one as deprecated; code that passed an element to it opens the overlay through the store instead. [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) covers `open`, roles, and dialogs.
+`AppLayout` has no `overlay` prop in 0.9.0. The `@tooee/layout` README still describes one as deprecated; code that passed an element to it opens the overlay through the store instead. [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) covers `open`, roles, and dialogs.
 
 A layout of your own has to mount both. This one keeps the title bar and the status bar from `@tooee/layout`, adds the search bar, and draws the overlay and the toasts over a document:
 

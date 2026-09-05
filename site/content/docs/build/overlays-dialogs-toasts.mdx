@@ -300,9 +300,7 @@ A modal surface swallows every key, so the host's `Escape` command cannot reach 
 | `hasModalOverlay` | `true` while an entry other than a passive owned surface is open. `useHasModalOverlay()` returns it alone. |
 | `stack`           | The ids in stack order.                                                                                    |
 
-Use `hasModalOverlay` to stand down mouse handlers and raw `useKeyboard` listeners while a modal is up, and `stack.includes(id)` to know whether one of your entries is open. The controller is also on the command context as `ctx.overlay`, an optional field in 0.8.
-
-The controller's `show`, `hide`, and `isOpen` are deprecated in 0.8. `show` opened an overlay with no mode change and no handle; use `open` with `mode: null`, keep the handle, and close it. Read `useOverlayState().stack` in place of `isOpen`.
+Use `hasModalOverlay` to stand down mouse handlers and raw `useKeyboard` listeners while a modal is up, and `stack.includes(id)` to know whether one of your entries is open. The controller is also available on the command context as the optional `ctx.overlay` field.
 
 ## Promise dialogs
 
@@ -480,7 +478,7 @@ Right-click a host: a two-entry menu opens at the pointer. `j`, `k`, and the arr
 
 ## Toasts
 
-`useToast()` from `@tooee/toasts` returns `{ toast, dismiss, currentToast }`. The same controller is on the command context as `ctx.toast`, optional in 0.8:
+`useToast()` from `@tooee/toasts` returns `{ toast, dismiss, currentToast }`. The same controller is available on the command context as the optional `ctx.toast` field:
 
 ```tsx title="sync-toasts.tsx"
 import { useCommand } from "@tooee/commands";
