@@ -237,7 +237,7 @@ const actions: ActionDefinition[] = [
       } else {
         userBookmarks.add(line);
       }
-      ctx.view.marks.setMarkSet(rebuildUserBookmarks());
+      ctx.view?.marks.setMarkSet(rebuildUserBookmarks());
       ctx.toast?.toast({
         id: "bookmark-toggle",
         level: "info",
@@ -263,7 +263,7 @@ const actions: ActionDefinition[] = [
       } else {
         userDiagnostics.add(line);
       }
-      ctx.view.marks.setMarkSet(rebuildUserDiagnostics());
+      ctx.view?.marks.setMarkSet(rebuildUserDiagnostics());
       ctx.toast?.toast({
         id: "diagnostic-toggle",
         level: "warning",
@@ -280,7 +280,7 @@ const actions: ActionDefinition[] = [
   {
     handler: (ctx) => {
       userDiagnostics.clear();
-      ctx.view.marks.clearNamespace("user:diagnostics");
+      ctx.view?.marks.clearNamespace("user:diagnostics");
       ctx.toast?.toast({ level: "info", message: "All user diagnostics cleared" });
     },
     hotkey: "D",
@@ -291,7 +291,7 @@ const actions: ActionDefinition[] = [
   {
     handler: (ctx) => {
       userBookmarks.clear();
-      ctx.view.marks.clearNamespace("user:bookmarks");
+      ctx.view?.marks.clearNamespace("user:bookmarks");
       ctx.toast?.toast({ level: "info", message: "All user bookmarks cleared" });
     },
     hotkey: "B",
@@ -303,7 +303,7 @@ const actions: ActionDefinition[] = [
     handler: (ctx) => {
       userBookmarks.clear();
       userDiagnostics.clear();
-      ctx.view.marks.clearAll();
+      ctx.view?.marks.clearAll();
       ctx.toast?.toast({ level: "info", message: "All user marks cleared" });
     },
     hotkey: "x",

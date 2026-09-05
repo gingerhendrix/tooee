@@ -30,7 +30,7 @@ import type { ChooseItem, ChooseResult, ChooseSource } from "./types.js";
 declare module "@tooee/commands" {
   interface CommandContext {
     /** Contributed by chooser primitives: current filtering and selection state. */
-    choose: {
+    choose?: {
       activeItem: ChooseItem | undefined;
       selectedItems: ChooseItem[];
       filterQuery: string;

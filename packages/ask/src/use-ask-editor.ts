@@ -24,7 +24,7 @@ import type { VimMotionState } from "./vim-motions.js";
 declare module "@tooee/commands" {
   interface CommandContext {
     /** Contributed by ask editors: the current input value. */
-    ask: { value: string };
+    ask?: { value: string };
   }
 }
 
@@ -216,11 +216,11 @@ export const useAskEditor = function useAskEditor(
   const copyText = useCallback(
     (text: string, emptyMessage: string, successMessage: string, ctx: CommandContext) => {
       if (text === "") {
-        ctx.toast.toast({ level: "warning", message: emptyMessage });
+        ctx.toast?.toast({ level: "warning", message: emptyMessage });
         return;
       }
       void copyToClipboard(text);
-      ctx.toast.toast({ level: "success", message: successMessage });
+      ctx.toast?.toast({ level: "success", message: successMessage });
     },
     [],
   );

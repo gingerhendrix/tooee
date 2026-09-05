@@ -32,18 +32,9 @@ export const commandsFromRegistry = function commandsFromRegistry(
  * dispatcher, every command surface, and the pre-dispatch placeholder.
  *
  * The core fields are built as a concrete, typed `CommandContextBase`: no
- * `Record<string, any>` staging object. Domain packages (overlay, toast, ask,
- * choose, view) add their own required fields to `CommandContext` by
- * declaration merging, and supply the values at runtime through a context
- * source registered by that package's provider.
- *
- * Registration is the readiness contract: a domain's commands are registered by
- * that domain's components, and those components mount the domain's context
- * source. A handler therefore always observes the fields its own package
- * declared. TypeScript cannot express that relationship (the merged interface
- * demands every domain's fields everywhere, including in packages that cannot
- * see the providers), so it is enforced by construction and narrowed exactly
- * once here, rather than being asserted or `any`-typed at every consumer.
+ * `Record<string, any>` staging object. Domain packages add optional fields to
+ * `CommandContext` by declaration merging, then supply values at runtime
+ * through context sources registered by their providers.
  */
 export const buildCommandContext = function buildCommandContext(
   input: BuildCommandContextInput,
@@ -59,12 +50,5 @@ export const buildCommandContext = function buildCommandContext(
   for (const getter of input.contributions ?? []) {
     Object.assign(base, getter());
   }
-  // SAFETY: a domain's commands are registered by the same components that mount
-  // that domain's context source, so every field a handler can read has been
-  // merged into `base` by the loop above before that handler runs (see the
-  // readiness contract in the doc comment). The assertion is required by the
-  // whole-program build (where every domain's augmentation is visible) and is
-  // redundant in the package-local program, hence both suppressions.
-  // oxlint-disable-next-line typescript/no-unnecessary-type-assertion, typescript/no-unsafe-type-assertion -- single documented augmentation boundary (see above)
-  return base as CommandContext;
+  return base;
 };

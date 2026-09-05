@@ -59,6 +59,10 @@ const row = ctx.document?.activeRow;
 const anchor = ctx.document?.activeAnchor;
 ```
 
+`document` is an optional command-context augmentation because not every
+command surface mounts a document provider. Check it before use, as shown
+above. The same rule applies to all package and application augmentations.
+
 Keep content-specific state in its owning context. For example, a View action may still read `ctx.view.content`, while row identity and source provenance come from `ctx.document`.
 
 In component code, prefer the typed `controller.activeRow` and `controller.activeAnchor`. Command context rows are `unknown` by design.

@@ -25,9 +25,9 @@ export const useCopy = function useCopy({
       const text = cursor === null ? "" : getRowText(cursor);
       if (text) {
         void copyToClipboard(text);
-        ctx.toast.toast({ level: "success", message: "Copied line to clipboard" });
+        ctx.toast?.toast({ level: "success", message: "Copied line to clipboard" });
       } else {
-        ctx.toast.toast({ level: "warning", message: "Nothing to copy" });
+        ctx.toast?.toast({ level: "warning", message: "Nothing to copy" });
       }
     },
     hotkey: "y y",
@@ -56,9 +56,9 @@ export const useCopy = function useCopy({
 
       if (text) {
         void copyToClipboard(text);
-        ctx.toast.toast({ level: "success", message: "Copied selection to clipboard" });
+        ctx.toast?.toast({ level: "success", message: "Copied selection to clipboard" });
       } else {
-        ctx.toast.toast({ level: "warning", message: "Nothing selected" });
+        ctx.toast?.toast({ level: "warning", message: "Nothing selected" });
       }
 
       setMode("cursor");

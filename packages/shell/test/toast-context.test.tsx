@@ -11,7 +11,7 @@ const ToastContextHarness = function ToastContextHarness(): React.ReactNode {
 
   useCommand({
     handler: (ctx) => {
-      ctx.toast.toast({ level: "success", message: "from context" });
+      ctx.toast?.toast({ level: "success", message: "from context" });
     },
     hotkey: "1",
     id: "test.toast-via-ctx",
@@ -21,7 +21,7 @@ const ToastContextHarness = function ToastContextHarness(): React.ReactNode {
 
   useCommand({
     handler: (ctx) => {
-      ctx.toast.dismiss();
+      ctx.toast?.dismiss();
     },
     hotkey: "2",
     id: "test.dismiss-via-ctx",
