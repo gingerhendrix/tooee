@@ -1,11 +1,10 @@
 import { useMemo } from "react";
 import { Table } from "@tooee/renderers";
 import type { TableRow } from "@tooee/renderers";
-import { useDocumentController } from "@tooee/shell";
 import { getTextContent } from "../../types.js";
 import type { TableContent } from "../../types.js";
 import { stringifyTableCell } from "../../table-cell.js";
-import { useContentCommands } from "../../hooks/use-content-commands.js";
+import { useContentDocument } from "../../hooks/use-content-document.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
 
@@ -20,8 +19,6 @@ export const TableSubview = function TableSubview({
   ...screen
 }: TableSubviewProps): React.ReactNode {
   const textContent = useMemo(() => getTextContent(content), [content]);
-  const { showLineNumbers } = useContentCommands({ content, textContent });
-
   const { columns, rows } = content;
   const adapter = useMemo(
     () => ({
@@ -30,22 +27,18 @@ export const TableSubview = function TableSubview({
     }),
     [columns],
   );
-  const document = useDocumentController<TableRow>({
-    adapter,
-    // The controller projects the screen's actions onto menu entries at open time.
-    contextMenu: actions,
-    decorations,
-    multiSelect: true,
+  const { document, showLineNumbers, statusItems } = useContentDocument<TableRow>(
     rows,
-  });
-
-  const statusItems = useMemo(
-    () => [
-      { label: "Format:", value: content.format },
-      { label: "Rows:", value: String(rows.length) },
-      { label: "Cols:", value: String(columns.length) },
-    ],
-    [content.format, rows.length, columns.length],
+    adapter,
+    { actions, content, decorations, textContent },
+    {
+      multiSelect: true,
+      statusItems: [
+        { label: "Format:", value: content.format },
+        { label: "Rows:", value: String(rows.length) },
+        { label: "Cols:", value: String(columns.length) },
+      ],
+    },
   );
 
   return (
