@@ -1,0 +1,88 @@
+---
+title: Troubleshooting
+description: Symptoms you can meet with Tooee 0.8.0, what causes each one, and what to do.
+---
+
+Each section starts with a symptom as you see it, gives the cause, and names what to do. The versions are Tooee 0.8.0, OpenTUI 0.5, and Bun 1.4.
+
+## Install and typecheck
+
+**`bun add` prints `warn: incorrect peer dependency "@opentui/core@0.5.10"`, and the same line for `@opentui/react`.** Every `@tooee/*` package declares `^0.5.1` for both, which 0.5.10 satisfies; Bun 1.4 prints the warning anyway. The install completes and the packages run. A third line, `incorrect peer dependency "typescript@7.0.2"`, comes from `bun-ffi-structs`, a dependency of OpenTUI that declares `typescript@^5`; TypeScript 7 typechecks Tooee projects. Ignore all three.
+
+**`tsc` reports `error TS17004: Cannot use JSX unless the '--jsx' flag is provided.`** The file holds a component and `tsconfig.json` has no `jsx` option. Add `"jsx": "react-jsx"`.
+
+**`tsc` reports `Property 'content' does not exist on type 'SVGTextElementAttributes<SVGTextElement>'`.** TypeScript resolved `<text>` to the SVG element from the DOM types because `jsxImportSource` is missing. Add `"jsxImportSource": "@opentui/react"` next to `jsx`. [Install](/docs/start/install#set-the-jsx-options) shows the full file.
+
+**`node_modules` is 445 MB after `bun add @tooee/view`.** `@tooee/view` depends on `@tooee/diff`, which pins `hunkdiff@0.18.0`. Hunk installs a binary for your platform, 134 MB on Linux x64, and a copy of the `bun` package, 76 MB, for a command-line tool that Tooee never runs. Hunk also declares `@opentui/core` and `@opentui/react` `^0.4.3` as peers and runs with the 0.5 versions Tooee installs. The size is disk only; there is no setting to change.
+
+## Pipes and stdin
+
+**`cat notes.md | tooee view` exits at once and draws nothing.** View reads keys from the process stdin, and `guardTerminalHealth` in `@tooee/shell` ends the session when that stream closes, which a pipe does as soon as its content is delivered. Give View a path instead. In bash and zsh, process substitution keeps the pipeline:
+
+```bash
+tooee view <(git diff)
+```
+
+In a script of your own, mount `View` with `runCliSession` and the `tty-if-piped` policy. The renderer then reads keys from `/dev/tty` and leaves stdin to the content provider:
+
+```tsx title="view-stdin.tsx"
+import { runCliSession } from "@tooee/shell";
+import { View, createStdinProvider } from "@tooee/view";
+import type { ReactNode } from "react";
+
+await runCliSession((): ReactNode => <View contentProvider={createStdinProvider()} />, {
+  stdinPolicy: "tty-if-piped",
+});
+```
+
+`git diff | bun view-stdin.tsx` draws the patch and `q` quits. `tooee choose` uses the same policy, so `printf 'a\nb\n' | tooee choose` works as `--help` says.
+
+**`echo hi | tooee ask` exits at once.** Same cause. Ask has no stdin content to read, so run it with the terminal on stdin and pass the text as the prompt or through `defaultValue` in `launch()`.
+
+**`name=$(tooee ask -s "Name:")` leaves the terminal blank and `$name` holds escape sequences.** The CLI draws the screen on stdout, the stream the substitution captures. Keep the flow in one Bun script and call `launch()`, which returns the value; [Use the result in a script](/docs/cli/ask-and-choose#use-the-result-in-a-script) shows it.
+
+## Keys
+
+**`Escape` does nothing under a test harness.** OpenTUI enables the kitty keyboard protocol, under which a terminal sends `Escape` as `\u001B[27u`, and OpenTUI 0.5.1 reads the bare `0x1b` byte as `Escape` too. The checks for this page left select mode with the bare byte in a scripted PTY and under tuistory 0.0.16. A harness that still drops the key can send the encoded form with `writeRaw`, as [Testing](/docs/ship/testing#test-end-to-end-with-tuistory) shows.
+
+**A command with `hotkey: "+"` never fires.** The hotkey parser splits each step on `+` to find modifiers, so `"+"` parses to an empty key. Write `"plus"`.
+
+**A `<leader>` hotkey never fires.** No leader is set. Tooee logs `[tooee/commands] Hotkey "<leader>l" uses <leader> but no leader key is configured; the hotkey is disabled.` once, and the renderer routes console output to the OpenTUI debug console, so press `ctrl+shift+j` to read it. Pass `provider: { leader: "space" }` to `launchCli` or `runCliSession`; [The leader key](/docs/build/commands-and-modes#the-leader-key) covers it.
+
+**`ctx.exit()` in a handler leaves the app open.** The shell installs no `exit` in the command context; Ask and Choose supply their own, and View and `launchCli` apps do not. Quit with `useQuitCommand`, and for a View action store what the handler learned and act after `launch()` resolves. [View: actions and command context](/docs/apps/view/actions) shows the pattern.
+
+**A key from `keys` in the config runs the command, but the palette still lists the old key.** The palette and the which-key bar show the default hotkey in 0.8.0. The remap works; only the hint is stale. [Configuration](/docs/customize/configuration#remap-keys) shows how to build hints from the config.
+
+## Copy and paste
+
+**The toast says `Copied` but the clipboard is unchanged.** Tooee found no clipboard tool on `PATH` and the copy was a silent no-op; the toast reports success either way. Install one of the tools it looks for:
+
+| Platform      | Copy                                          | Paste and primary selection                          |
+| ------------- | --------------------------------------------- | ---------------------------------------------------- |
+| Linux Wayland | `wl-copy`, used when `WAYLAND_DISPLAY` is set | `wl-paste`                                           |
+| Linux X11     | `xclip`, then `xsel`                          | `xclip`, then `xsel`                                 |
+| macOS         | `osascript`                                   | `pbpaste`; the primary selection reads the clipboard |
+| Windows       | `powershell` with `Set-Clipboard`             | `powershell` with `Get-Clipboard`                    |
+
+The tools are looked up with `Bun.which` on the `PATH` of the Tooee process, so a launcher that starts Bun with a reduced `PATH` loses the clipboard as well. The order in each row is the order Tooee tries. [Keyboard basics](/docs/start/keyboard-basics#select-and-copy) lists the copy keys.
+
+**Dragging with the mouse selects text but copies nothing on macOS or Windows.** Copy on select is on for Linux only, where it fills the primary selection. Set `view.copyOnSelect` to `"clipboard"` in the config to copy dragged text to the clipboard on any platform.
+
+## Images
+
+**An image draws as coloured blocks instead of pixels.** OpenTUI picks the protocol from what the terminal reports: kitty graphics when the terminal supports it, sixel when it is supported and the cell size in pixels is known, and half-block characters otherwise. Inside tmux the answer is blocks. A terminal that answers no capability query, such as a scripted PTY, gets blocks too. Open the file in Kitty, Ghostty, or WezTerm outside tmux, or set `protocol: "kitty"` on the image content to force the protocol. [Image](/docs/apps/view/formats#image) lists the fields.
+
+## Syntax colours
+
+**A code file opens without colours.** OpenTUI 0.5 bundles grammars for `typescript`, `javascript`, `markdown`, and `zig`. `createFileProvider` assigns a language to 25 extensions, and the other 21 draw as plain text with a gutter. Files with a diff extension, or piped patches, open in the diff format, which Hunk colours on its own. [Code and text](/docs/apps/view/formats#code-and-text) covers the rule.
+
+## Terminal
+
+**After the session, `git log` or another pager prints `'unknown': I need something more specific.`** `TERM` is unset in the environment that ran the script, so `less` has no terminal description. Tooee neither sets nor clears `TERM`; the message appears in that environment with or without a Tooee session before the pager. Export `TERM`, for example `TERM=xterm-256color`, in the shell, the CI job, or the agent harness that runs the script.
+
+## Next
+
+- [Install](/docs/start/install)
+- [Keyboard basics](/docs/start/keyboard-basics)
+- [Testing](/docs/ship/testing)
+- [CLI reference](/docs/reference/cli)

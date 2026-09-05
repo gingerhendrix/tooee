@@ -1,0 +1,222 @@
+---
+title: Testing
+description: Test a Tooee screen headlessly with testRender, and end to end in a real terminal with tuistory.
+---
+
+```tsx title="test/release-checklist.test.tsx"
+import { testRender } from "@opentui/react/test-utils";
+import { TooeeProvider } from "@tooee/shell";
+import { afterEach, expect, test } from "bun:test";
+import { act } from "react";
+import { ReleaseChecklist } from "../src/release-checklist.js";
+
+let session: Awaited<ReturnType<typeof testRender>>;
+
+afterEach(() => {
+  act(() => {
+    session?.renderer.destroy();
+  });
+});
+
+const press = async function press(key: string): Promise<void> {
+  await act(async () => {
+    session.mockInput.pressKey(key);
+    await Promise.resolve();
+  });
+  await session.renderOnce();
+};
+
+test("x marks the cursor step as done", async () => {
+  session = await testRender(
+    <TooeeProvider>
+      <ReleaseChecklist />
+    </TooeeProvider>,
+    { height: 10, kittyKeyboard: true, width: 40 },
+  );
+  await session.renderOnce();
+  expect(session.captureCharFrame()).toContain("Done: 0/3");
+
+  await press("j");
+  await press("x");
+
+  const frame = session.captureCharFrame();
+  expect(frame).toContain("> [x] Bump the version");
+  expect(frame).toContain("Done: 1/3");
+});
+```
+
+Run it with `bun test`. The test renders the screen into a headless OpenTUI renderer, presses two keys, and reads the frame as text. No process is spawned and no terminal is touched, so a file of these tests runs in well under a second.
+
+The screen under test is a component that exports itself instead of calling `launchCli`:
+
+```tsx title="src/release-checklist.tsx"
+import { useCommand } from "@tooee/commands";
+import { useNavigation } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const steps = ["Run the tests", "Bump the version", "Tag the release"];
+
+export const ReleaseChecklist = function ReleaseChecklist(): ReactNode {
+  const [done, setDone] = useState<ReadonlySet<number>>(new Set());
+  const { cursor } = useNavigation({ rowCount: steps.length });
+  const { theme } = useTheme();
+
+  useCommand({
+    handler: () => {
+      if (cursor === null) {
+        return;
+      }
+      setDone((current) => {
+        const next = new Set(current);
+        if (next.has(cursor)) {
+          next.delete(cursor);
+        } else {
+          next.add(cursor);
+        }
+        return next;
+      });
+    },
+    hotkey: "x",
+    id: "checklist.toggle",
+    title: "Toggle done",
+  });
+
+  return (
+    <box flexDirection="column">
+      {steps.map(
+        (step, index): ReactNode => (
+          <text
+            key={step}
+            content={`${index === cursor ? ">" : " "} [${done.has(index) ? "x" : " "}] ${step}`}
+            fg={index === cursor ? theme.primary : theme.text}
+          />
+        ),
+      )}
+      <text content={`Done: ${done.size}/${steps.length}`} />
+    </box>
+  );
+};
+```
+
+[Your first Tooee app](/docs/build/first-app) builds this screen step by step. Keep `launchCli` in a separate entry file so both the test and the app can import the component.
+
+## Render a screen headlessly
+
+`testRender(node, options)` from `@opentui/react/test-utils` creates a test renderer from `@opentui/core/testing`, mounts `node` inside React's `act`, and returns the renderer setup:
+
+| Member                                                                                               | Use                                                                                                                               |
+| ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `renderOnce()`                                                                                       | Draw one frame. Call it after every input.                                                                                        |
+| `captureCharFrame()`                                                                                 | The frame as one string, one line per terminal row. Assert on it with `toContain` or `toMatchSnapshot`.                           |
+| `mockInput.pressKey(key, modifiers?)`                                                                | One key, with `{ ctrl, shift, meta }` when needed. Named keys such as `"ESCAPE"` come from `KeyCodes` in `@opentui/core/testing`. |
+| `mockInput.pressEnter()`, `pressEscape()`, `pressTab()`, `pressBackspace()`, `pressArrow(direction)` | The named keys.                                                                                                                   |
+| `mockInput.typeText(text)`                                                                           | A string, key by key, for an input in insert mode.                                                                                |
+| `mockMouse`                                                                                          | Clicks and wheel events at a cell.                                                                                                |
+| `waitForFrame(predicate)`                                                                            | Render until a frame satisfies the predicate, for content that arrives from a promise.                                            |
+| `resize(width, height)`                                                                              | Change the terminal size.                                                                                                         |
+| `renderer.destroy()`                                                                                 | Release the renderer. Call it in `afterEach`.                                                                                     |
+
+Wrap each key press in `act` so React flushes the state that the command handler set, then call `renderOnce()` to draw it. The `press` helper at the top of the page does both. Wrap `renderer.destroy()` in `act` as well: it unmounts the tree, and an unmount outside `act` makes React print a warning about an update to `Root`.
+
+Pass `kittyKeyboard: true`. The mock input then encodes keys the way a terminal with the kitty keyboard protocol does, and without it `pressEscape()` reaches no `Escape` command: a probe for this page stayed in select mode after `v` and `pressEscape()` until the option was set. `width` and `height` set the terminal size; keep them small so frames are short to read.
+
+Mount the screen inside `TooeeProvider`. It supplies the command registry, the mode, the theme, the config, the toasts, and the overlay stack, which is what `launchCli` mounts around your app. Read state from the frame: draw the values you want to assert as text, as `Done:` above, and keep the assertions on `captureCharFrame()`. The status bar of `DocumentScreen` and `AppLayout` already draws `Mode:` and `Theme:`.
+
+Two side effects leave the headless renderer. The theme picker and `useThemeSwitcher` write `~/.config/tooee/config.json`; point `XDG_CONFIG_HOME` at a folder under your project before the first render to keep a test away from your real config. `y y` and the other copy commands run the clipboard tool of the platform; mock `@tooee/clipboard` with `mock.module` from `bun:test` in a preload file when a test copies.
+
+## Test end to end with tuistory
+
+```tsx title="test/e2e/fixtures/checklist-app.tsx"
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import type { ReactNode } from "react";
+import { ReleaseChecklist } from "../../../src/release-checklist.js";
+
+const App = function App(): ReactNode {
+  useQuitCommand();
+  return <ReleaseChecklist />;
+};
+
+await launchCli(<App />);
+```
+
+```ts title="test/e2e/checklist.test.ts"
+import { afterEach, expect, test } from "bun:test";
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { launchTerminal } from "tuistory";
+import type { Session } from "tuistory";
+
+const app = path.resolve(import.meta.dir, "fixtures/checklist-app.tsx");
+let session: Session;
+
+afterEach(() => {
+  session?.close();
+});
+
+test("x marks the cursor step as done", async () => {
+  session = await launchTerminal({
+    args: [app],
+    cols: 80,
+    command: "bun",
+    env: { ...process.env, XDG_CONFIG_HOME: mkdtempSync(path.join(tmpdir(), "tooee-e2e-")) },
+    rows: 24,
+  });
+  await session.waitForText("Done: 0/3", { timeout: 15_000 });
+
+  await session.press("j");
+  await session.press("x");
+  await session.waitForText("Done: 1/3", { timeout: 5000 });
+
+  expect(await session.text()).toContain("> [x] Bump the version");
+}, 20_000);
+```
+
+[tuistory](https://github.com/remorses/tuistory) starts the fixture with `bun` inside a terminal emulator, so the test covers the real renderer, the real key parsing, and the process exit. Add it with `bun add -d tuistory`. The fixture is an entry file that mounts the same component the headless test used.
+
+| Method                                                    | Use                                                                                                                                              |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `launchTerminal({ command, args, cols, rows, cwd, env })` | Start the process and return a `Session`.                                                                                                        |
+| `waitForText(pattern, { timeout })`                       | Wait until the screen contains a string or matches a regular expression. Use it before the first key and after each one that changes the screen. |
+| `press(key)`                                              | One key by name: `"j"`, `"enter"`, `"backspace"`, `"down"`, or a chord such as `["ctrl", "d"]`.                                                  |
+| `type(text)`                                              | A string, for an input in insert mode.                                                                                                           |
+| `writeRaw(bytes)`                                         | Bytes as they are, for keys `press` cannot encode.                                                                                               |
+| `text()`                                                  | The screen as text.                                                                                                                              |
+| `captureFrames(key, { frameCount, intervalMs })`          | Several frames after a key, for a bar or an overlay that shows for a moment.                                                                     |
+| `click(pattern)`, `clickAt(x, y)`                         | A left click on text or on a cell.                                                                                                               |
+| `close()`                                                 | End the session. Call it in `afterEach`.                                                                                                         |
+
+Give each test 20 seconds: the first frame waits for Bun to start and for the renderer to draw. A test that presses `q` should then wait for the process to exit before it reads the screen, or wrap the app in a shell command that prints a marker after it exits.
+
+`press("escape")` sends the bare `0x1b` byte. OpenTUI enables the kitty keyboard protocol, under which a terminal sends `Escape` as `\u001B[27u`, and OpenTUI 0.5.1 accepts the bare byte as well: the run for this page left select mode with `press("escape")` under tuistory 0.0.16. Several of the repository's end-to-end tests send the encoded form instead, which works in both cases:
+
+```ts
+session.writeRaw("\u001B[27u");
+```
+
+Use `writeRaw` for any key `press` cannot name, such as a chord with `shift` on a special key.
+
+## Run the tests
+
+```bash
+bun test
+bun test test/release-checklist.test.tsx
+bun test --update-snapshots
+```
+
+`bun test` runs every `*.test.ts` and `*.test.tsx` file under the project. Name a file to run it alone. `--update-snapshots` rewrites the snapshots a `toMatchSnapshot` assertion compares against.
+
+Inside the Tooee repository, run one file with `bun --conditions=@tooee/source test <file>`. The condition resolves each `@tooee/*` import to the package source instead of its build. The repository's `packages/test-support` holds a private `@tooee/test-support` package with a `testRender` wrapper, `press`, `pressEscape`, `pressEnter`, `pressTab`, `pressArrow`, a clipboard mock, and `ensureTestConfigHome` for an isolated `XDG_CONFIG_HOME`; `packages/e2e` holds the tuistory tests and their fixture apps. [Contributing](/docs/reference/contributing) covers the repository layout.
+
+## Test a routed app
+
+A router keeps state that a frame does not show, so a routed fixture draws it. [router-app.tsx](https://github.com/gingerhendrix/tooee/blob/main/packages/e2e/router/fixtures/router-app.tsx) prints a line such as `Route:home | Stack:1 | Back:false | Focus:true` on each screen, binds a digit to each `push`, `r` to `replace`, `x` to `reset`, and `Backspace` to the back command. [helpers.ts](https://github.com/gingerhendrix/tooee/blob/main/packages/e2e/router/helpers.ts) next to it wraps `launchTerminal` in a `launchRouter` function that waits for `Route:` before it returns the session. The tests then press a key and wait for the next `Route:` line. Start from the same shape for a screen stack of your own; [Routing](/docs/build/routing) explains the router.
+
+## Next
+
+- [Your first Tooee app](/docs/build/first-app)
+- [Routing](/docs/build/routing)
+- [Troubleshooting](/docs/ship/troubleshooting)
+- [Contributing](/docs/reference/contributing)
