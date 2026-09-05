@@ -1,0 +1,16 @@
+{
+  "title": "Build apps",
+  "pages": [
+    "first-app",
+    "shell-and-sessions",
+    "commands-and-modes",
+    "command-surfaces",
+    "documents",
+    "routing",
+    "panels",
+    "layout",
+    "overlays-dialogs-toasts",
+    "marks",
+    "search-and-fuzzy"
+  ]
+}
