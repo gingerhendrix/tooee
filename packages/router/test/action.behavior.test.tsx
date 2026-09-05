@@ -1,6 +1,6 @@
 import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
-import { act } from "react";
+import { act, useState } from "react";
 import {
   createRoute,
   createRouter,
@@ -199,7 +199,7 @@ describe("useActionResultHandler", () => {
     let forceUpdate: () => void;
 
     const HandlerCapture = function HandlerCapture() {
-      const [, setState] = React.useState(0);
+      const [, setState] = useState(0);
       forceUpdate = () => {
         setState((n) => n + 1);
       };

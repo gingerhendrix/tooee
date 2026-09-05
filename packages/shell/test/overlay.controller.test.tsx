@@ -75,7 +75,7 @@ const OverlayHarness = function OverlayHarness(): ReactNode {
   const current = useCurrentOverlay();
   const has = useHasOverlay();
   const open = (id: string, render: () => ReactNode, options?: OverlayOpenOptions): void => {
-    handles.current.set(id, overlay.open(id, render, undefined, options));
+    handles.current.set(id, overlay.open(id, render, undefined, { mode: null, ...options }));
   };
 
   useCommand({
@@ -167,7 +167,7 @@ const AppLayoutOverlayHarness = function AppLayoutOverlayHarness(): ReactNode {
 
   useCommand({
     handler: () => {
-      handle.current = overlay.open("test", createAppLayoutOverlay, null);
+      handle.current = overlay.open("test", createAppLayoutOverlay, null, { mode: null });
     },
     hotkey: "s",
     id: "test.show-overlay",

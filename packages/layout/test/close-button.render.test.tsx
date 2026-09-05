@@ -2,7 +2,7 @@ import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach } from "bun:test";
 import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
-import { ThemeSwitcherProvider } from "../src/context.js";
+import { ThemeSwitcherProvider } from "@tooee/themes";
 import { CloseButton } from "../src/close-button.js";
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
