@@ -1,6 +1,7 @@
 import type { SyntaxStyle } from "@opentui/core";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import path from "node:path";
+import type { ColorMode } from "@tooee/config";
 import { resolveTheme } from "./types.js";
 import type { ThemeJSON, ResolvedTheme } from "./types.js";
 import { buildSyntaxStyle } from "./syntax-rules.js";
@@ -11,7 +12,7 @@ import { buildSyntaxStyle } from "./syntax-rules.js";
 
 export interface Theme {
   name: string;
-  mode: "dark" | "light";
+  mode: ColorMode;
   colors: ResolvedTheme;
   syntax: SyntaxStyle;
 }

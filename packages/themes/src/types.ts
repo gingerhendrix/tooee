@@ -1,3 +1,5 @@
+import type { ColorMode } from "@tooee/config";
+
 // ---------------------------------------------------------------------------
 // Theme JSON format (OpenCode-compatible)
 // ---------------------------------------------------------------------------
@@ -199,10 +201,7 @@ const isVariant = function isVariant(value: ColorValue): value is Variant {
   return value instanceof Object;
 };
 
-export const resolveTheme = function resolveTheme(
-  json: ThemeJSON,
-  mode: "dark" | "light",
-): ResolvedTheme {
+export const resolveTheme = function resolveTheme(json: ThemeJSON, mode: ColorMode): ResolvedTheme {
   const defs = json.defs ?? {};
 
   const resolveColor = function resolveColor(c: ColorValue, seen = new Set<string>()): string {

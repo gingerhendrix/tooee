@@ -1,9 +1,12 @@
-export type Mode = "dark" | "light";
+export type ColorMode = "dark" | "light";
+
+/** @deprecated Use `ColorMode` instead. */
+export type Mode = ColorMode;
 
 export interface TooeeConfig {
   theme?: {
     name?: string;
-    mode?: Mode;
+    mode?: ColorMode;
   };
   keys?: Record<string, string>;
   view?: {
