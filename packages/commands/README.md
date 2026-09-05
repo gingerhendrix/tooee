@@ -72,6 +72,16 @@ invocation routed to the owning surface. The shell palette uses the active
 panel's local mode; if opened programmatically during panel insert mode it omits
 root commands, matching the editor-safe dispatch boundary.
 
+Choose the command hook by the question the caller needs to answer:
+
+- Use `useSurfaceCommands()` to render the commands registered on one surface.
+- Use `useEffectiveCommands()` to build a palette that follows panel fall-through
+  and command shadowing.
+- Use `useCommandRegistry()` for integration bridges that need the current
+  surface registry, groups, context sources, or leader key.
+- Use `useSurfaceInvoke()` when a component needs the current surface's command
+  list and its `invoke` function.
+
 ## Raw `useKeyboard` policy
 
 App-level `useKeyboard` handlers MUST guard against active overlays — either

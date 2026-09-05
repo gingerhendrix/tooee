@@ -1,4 +1,4 @@
-export { resolveTheme } from "./types.js";
+export { FALLBACKS, RESOLVED_KEYS, resolveTheme } from "./types.js";
 export type { ThemeJSON, ResolvedTheme } from "./types.js";
 
 export { buildSyntaxStyle } from "./syntax-rules.js";

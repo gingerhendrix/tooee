@@ -43,10 +43,11 @@ export {
   useProvideCommandContext,
   useProvideCommandContextKey,
   useSurfaceCommands,
+  useSurfaceInvoke,
 } from "./context.js";
 export {
   ROOT_SURFACE_ID,
-  createCommandStore,
+  formatStepKey,
   selectActiveModalSurface,
   selectActivePanelSurface,
   selectGroups,
@@ -55,16 +56,19 @@ export {
   selectSurfaceCommandMap,
   selectSurfaceCommands,
 } from "./command-store.js";
+export { createCommandStore } from "./command-store-wrapper.js";
 export type {
-  CommandStore,
-  CommandStoreConfig,
   CommandStoreContext,
   CommandStoreInstance,
   ContextGetter,
-  CreateCommandStoreOptions,
-  KeyDispatchResult,
   SurfaceRecord,
 } from "./command-store.js";
+export type {
+  CommandStore,
+  CommandStoreConfig,
+  CreateCommandStoreOptions,
+  KeyDispatchResult,
+} from "./command-store-wrapper.js";
 export type {
   CommandProviderProps,
   CommandSurfaceProviderProps,
@@ -74,3 +78,5 @@ export { useCommand } from "./use-command.js";
 export type { UseCommandOptions } from "./use-command.js";
 export { useActions } from "./use-actions.js";
 export type { ActionDefinition } from "./use-actions.js";
+export { useLatest } from "./hooks/use-latest.js";
+export { useLazyRef } from "./hooks/use-lazy-ref.js";

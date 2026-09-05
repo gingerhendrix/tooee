@@ -22,7 +22,7 @@ export interface SearchState {
   searchQuery: string;
   searchActive: boolean;
   setSearchQuery: (query: string) => void;
-  matchingLines: number[];
+  matchingLines: readonly number[];
   currentMatchIndex: number;
   submitSearch: () => void;
 }
@@ -89,13 +89,7 @@ export const useSearchBindings = function useSearchBindings(
 
   const searchQuery = useSelector(store, (snapshot) => selectSearchQuery(snapshot.context));
   const searchActive = useSelector(store, (snapshot) => selectSearchActive(snapshot.context));
-  const selectedMatches = useSelector(store, (snapshot) => selectMatches(snapshot.context));
-  // SAFETY: `selectMatches` returns the store's own `matches` array. The store
-  // replaces that array on every change and never mutates it in place, and this
-  // hook only reads it. The public SearchState keeps the historical mutable type.
-  // Deferred(lint-sweep): redesign the public selector result as readonly (separate stream)
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- preserve the existing mutable public SearchState type
-  const matchingLines = selectedMatches as number[];
+  const matchingLines = useSelector(store, (snapshot) => selectMatches(snapshot.context));
   const currentMatchIndex = useSelector(store, (snapshot) =>
     selectCurrentMatchIndex(snapshot.context),
   );
