@@ -11,7 +11,7 @@
     },
     {
       "rule": "anti-slop/no-known-value-widening",
-      "maximum": 2
+      "maximum": 1
     },
     {
       "rule": "anti-slop/no-object-parameters",
@@ -35,7 +35,7 @@
     },
     {
       "rule": "anti-slop/no-unsafe-dictionary-type",
-      "maximum": 10
+      "maximum": 8
     },
     {
       "rule": "anti-slop/require-safety-comment-for-type-assertion",
