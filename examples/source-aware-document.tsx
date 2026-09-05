@@ -6,6 +6,7 @@
  *   bun --conditions=@tooee/source examples/source-aware-document.tsx
  */
 import { useMemo } from "react";
+import type { ReactNode } from "react";
 import { sourceLines, sourceLineAdapter } from "@tooee/renderers";
 import { Document, DocumentScreen, launchCli, useDocumentController } from "@tooee/shell";
 
@@ -19,7 +20,7 @@ const SourceAwareDocument = function SourceAwareDocument({
   content,
 }: {
   content: string;
-}): React.ReactNode {
+}): ReactNode {
   const rows = useMemo(() => sourceLines(content, { sourceId: "release-notes.txt" }), [content]);
 
   const controller = useDocumentController({
@@ -50,7 +51,7 @@ const SourceAwareDocument = function SourceAwareDocument({
       <Document
         controller={controller}
         style={{ flexGrow: 1 }}
-        renderRow={(row): React.ReactNode => <text content={row.text || " "} />}
+        renderRow={(row): ReactNode => <text content={row.text || " "} />}
       />
     </DocumentScreen>
   );

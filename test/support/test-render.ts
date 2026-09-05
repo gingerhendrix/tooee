@@ -1,6 +1,7 @@
 import { createTestRenderer } from "@opentui/core/testing";
 import type { TestRendererOptions } from "@opentui/core/testing";
 import { act } from "react";
+import type { ReactNode } from "react";
 import { createRoot } from "@opentui/react";
 
 const setIsReactActEnvironment = function setIsReactActEnvironment(isReactActEnvironment: boolean) {
@@ -8,7 +9,7 @@ const setIsReactActEnvironment = function setIsReactActEnvironment(isReactActEnv
 };
 
 export const testRender = async function testRender(
-  node: React.ReactNode,
+  node: ReactNode,
   testRendererOptions: TestRendererOptions,
 ) {
   let root: ReturnType<typeof createRoot> | null = null;
@@ -21,10 +22,10 @@ export const testRender = async function testRender(
     },
   });
   root = createRoot(testSetup.renderer);
-  const render = (nextNode: React.ReactNode) => {
+  const render = (nextNode: ReactNode) => {
     root?.render(nextNode);
   };
-  const rerender = async (nextNode: React.ReactNode) => {
+  const rerender = async (nextNode: ReactNode) => {
     await act(async () => {
       render(nextNode);
       await Promise.resolve();
