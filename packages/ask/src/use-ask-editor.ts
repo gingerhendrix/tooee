@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   InputRenderable,
   KeyEvent,
@@ -9,13 +9,15 @@ import type {
 import { copyToClipboard, readPrimaryText } from "@tooee/clipboard";
 import {
   useActiveCommandSurface,
-  useCommand,
+  useActions,
   useCommandSurfaceId,
+  useLatest,
+  useLazyRef,
   useMode,
   useProvideCommandContext,
   useSetMode,
 } from "@tooee/commands";
-import type { CommandContext, Mode } from "@tooee/commands";
+import type { ActionDefinition, CommandContext, Mode } from "@tooee/commands";
 import { appendAtCursor, openLineAtCursor } from "./vim-motions.js";
 import type { VimMotionState } from "./vim-motions.js";
 
@@ -107,6 +109,11 @@ export interface UseAskEditorResult {
   editor: AskEditorViewModel;
 }
 
+interface AskEditorKeymapDefinition extends Omit<ActionDefinition, "group" | "when"> {
+  group: AskEditorCommandGroup;
+  when?: () => boolean;
+}
+
 /**
  * Headless ask editor core: owns editor state and registers all editing
  * commands (vim motions, insert entries, submit/cancel/escape) on the nearest
@@ -133,14 +140,10 @@ export const useAskEditor = function useAskEditor(
     setScrollRevision((r) => r + 1);
   }, []);
 
-  const optionsRef = useRef(options);
-  optionsRef.current = options;
-  const modeRef = useRef(mode);
-  modeRef.current = mode;
-  const multilineRef = useRef(multiline);
-  multilineRef.current = multiline;
-  const valueRef = useRef(value);
-  valueRef.current = value;
+  const optionsRef = useLatest(options);
+  const modeRef = useLatest(mode);
+  const multilineRef = useLatest(multiline);
+  const valueRef = useLatest(value);
 
   // Suspension: while a modal command surface other than our own is topmost,
   // our commands are already suspended by the surface stack; this mirrors that
@@ -152,11 +155,14 @@ export const useAskEditor = function useAskEditor(
 
   const focused = (mode === "insert" || mode === "cursor") && !suspended;
 
-  const preventCursorModeEditorInput = useCallback((event: KeyEvent | PasteEvent) => {
-    if (modeRef.current === "cursor") {
-      event.preventDefault();
-    }
-  }, []);
+  const preventCursorModeEditorInput = useCallback(
+    (event: KeyEvent | PasteEvent) => {
+      if (modeRef.current === "cursor") {
+        event.preventDefault();
+      }
+    },
+    [modeRef],
+  );
 
   useEffect(() => {
     if (didPositionInitialCursorRef.current || (defaultValue?.length ?? 0) === 0) {
@@ -179,7 +185,7 @@ export const useAskEditor = function useAskEditor(
 
   const getTarget = useCallback(
     () => (multilineRef.current ? textareaRef.current : inputRef.current),
-    [],
+    [multilineRef],
   );
 
   // Controller mutations must be observable before React state synchronizes.
@@ -188,18 +194,18 @@ export const useAskEditor = function useAskEditor(
       multilineRef.current
         ? (textareaRef.current?.plainText ?? "")
         : (inputRef.current?.plainText ?? valueRef.current),
-    [],
+    [multilineRef, valueRef],
   );
 
   const submit = useCallback(() => {
     void optionsRef.current.onSubmit?.(getText());
-  }, [getText]);
+  }, [getText, optionsRef]);
 
   useProvideCommandContext(() => ({ ask: { value: getText() } }));
 
   const enabled = useCallback(
     (group: AskEditorCommandGroup) => !(optionsRef.current.disable?.includes(group) ?? false),
-    [],
+    [optionsRef],
   );
 
   const resolveSubmitKey = useCallback((): AskSubmitKey => {
@@ -219,8 +225,8 @@ export const useAskEditor = function useAskEditor(
     [],
   );
 
-  useCommand({
-    handler: (ctx) => {
+  const copyLine = useCallback(
+    (ctx: CommandContext) => {
       const target = getTarget();
       if (!target) {
         copyText("", "Nothing to copy", "Copied line to clipboard", ctx);
@@ -233,37 +239,22 @@ export const useAskEditor = function useAskEditor(
       const end = nextNewline === -1 ? text.length : nextNewline;
       copyText(text.slice(start, end), "Nothing to copy", "Copied line to clipboard", ctx);
     },
-    hidden: true,
-    hotkey: "y y",
-    id: `${commandScope}:copy-line`,
-    modes: ["cursor"],
-    title: "Copy current line",
-    when: () => enabled("copy"),
-  });
-  useCommand({
-    handler: (ctx) => {
+    [copyText, getTarget],
+  );
+  const copyDocument = useCallback(
+    (ctx: CommandContext) => {
       copyText(getText(), "Nothing to copy", "Copied document to clipboard", ctx);
     },
-    hidden: true,
-    hotkey: "y g",
-    id: `${commandScope}:copy-document`,
-    modes: ["cursor"],
-    title: "Copy document",
-    when: () => enabled("copy"),
-  });
-  useCommand({
-    handler: (ctx) => {
+    [copyText, getText],
+  );
+  const copySelection = useCallback(
+    (ctx: CommandContext) => {
       const target = getTarget();
       const text = target?.hasSelection() === true ? target.getSelectedText() : "";
       copyText(text, "Nothing selected", "Copied selection to clipboard", ctx);
     },
-    hidden: true,
-    hotkey: "y v",
-    id: `${commandScope}:copy-selection`,
-    modes: ["cursor"],
-    title: "Copy selection",
-    when: () => enabled("copy"),
-  });
+    [copyText, getTarget],
+  );
 
   const enterInsertMode = useCallback(() => {
     vimMotionStateRef.current.pendingG = false;
@@ -283,7 +274,7 @@ export const useAskEditor = function useAskEditor(
     vimMotionStateRef.current.pendingG = false;
     openLineAtCursor(textareaRef.current, "above");
     setMode("insert");
-  }, [setMode]);
+  }, [multilineRef, setMode]);
 
   const openLineBelow = useCallback(() => {
     if (!multilineRef.current) {
@@ -292,98 +283,12 @@ export const useAskEditor = function useAskEditor(
     vimMotionStateRef.current.pendingG = false;
     openLineAtCursor(textareaRef.current, "below");
     setMode("insert");
-  }, [setMode]);
+  }, [multilineRef, setMode]);
 
   const leaveInsertMode = useCallback(() => {
     vimMotionStateRef.current.pendingG = false;
     setMode("cursor");
   }, [setMode]);
-
-  useCommand({
-    handler: leaveInsertMode,
-    hidden: true,
-    hotkey: "Escape",
-    id: `${commandScope}:leave-insert-mode`,
-    modes: ["insert"],
-    title: "Command mode",
-    when: () => enabled("escape"),
-  });
-  useCommand({
-    handler: () => optionsRef.current.onCancel?.(),
-    hidden: true,
-    hotkey: "q",
-    id: `${commandScope}:cancel`,
-    modes: ["cursor"],
-    title: "Cancel",
-    when: () => enabled("cancel") && optionsRef.current.onCancel !== undefined,
-  });
-  useCommand({
-    handler: enterInsertMode,
-    hidden: true,
-    hotkey: "i",
-    id: `${commandScope}:insert-mode-i`,
-    modes: ["cursor"],
-    title: "Insert mode",
-    when: () => enabled("insert-commands"),
-  });
-  useCommand({
-    handler: appendAndEnterInsertMode,
-    hidden: true,
-    hotkey: "a",
-    id: `${commandScope}:insert-mode-a`,
-    modes: ["cursor"],
-    title: "Append",
-    when: () => enabled("insert-commands"),
-  });
-  useCommand({
-    handler: openLineAbove,
-    hidden: true,
-    hotkey: "shift+o",
-    id: `${commandScope}:open-line-above`,
-    modes: ["cursor"],
-    title: "Open line above",
-    when: () => enabled("insert-commands") && multilineRef.current,
-  });
-  useCommand({
-    handler: openLineBelow,
-    hidden: true,
-    hotkey: "o",
-    id: `${commandScope}:open-line-below`,
-    modes: ["cursor"],
-    title: "Open line below",
-    when: () => enabled("insert-commands") && multilineRef.current,
-  });
-  useCommand({
-    handler: submit,
-    hidden: true,
-    hotkey: "Enter",
-    id: `${commandScope}:submit-insert`,
-    modes: ["insert"],
-    title: "Submit",
-    when: () => enabled("submit") && resolveSubmitKey() === "enter",
-  });
-  useCommand({
-    handler: submit,
-    hidden: true,
-    hotkey: "Enter",
-    id: `${commandScope}:submit-cursor`,
-    modes: ["cursor"],
-    title: "Submit",
-    // Command mode has no newline entry, so plain Enter always submits unless
-    // the consumer disabled the built-in submit command group.
-    when: () => enabled("submit") && resolveSubmitKey() !== "none",
-  });
-  useCommand({
-    handler: submit,
-    hidden: true,
-    hotkey: "shift+Enter",
-    id: `${commandScope}:submit-multiline`,
-    modes: ["insert", "cursor"],
-    title: "Submit",
-    // Shift+Enter remains available for multiline insert mode and for
-    // compatibility in cursor mode.
-    when: () => enabled("submit") && resolveSubmitKey() !== "none",
-  });
 
   const motion = useCallback(
     (run: (target: TextareaRenderable | InputRenderable) => void) => {
@@ -397,214 +302,209 @@ export const useAskEditor = function useAskEditor(
     [getTarget, bumpScroll],
   );
 
-  useCommand({
-    handler: () => {
-      motion((target) => {
+  const builtInActions = useMemo<ActionDefinition[]>(() => {
+    const motionAction = (
+      id: string,
+      hotkey: string,
+      title: string,
+      run: (target: TextareaRenderable | InputRenderable) => void,
+    ): AskEditorKeymapDefinition => ({
+      group: "motions",
+      handler: () => {
+        motion(run);
+      },
+      hidden: true,
+      hotkey,
+      id: `${commandScope}:${id}`,
+      modes: ["cursor"],
+      title,
+    });
+    const definitions: AskEditorKeymapDefinition[] = [
+      {
+        group: "copy",
+        handler: copyLine,
+        hidden: true,
+        hotkey: "y y",
+        id: `${commandScope}:copy-line`,
+        modes: ["cursor"],
+        title: "Copy current line",
+      },
+      {
+        group: "copy",
+        handler: copyDocument,
+        hidden: true,
+        hotkey: "y g",
+        id: `${commandScope}:copy-document`,
+        modes: ["cursor"],
+        title: "Copy document",
+      },
+      {
+        group: "copy",
+        handler: copySelection,
+        hidden: true,
+        hotkey: "y v",
+        id: `${commandScope}:copy-selection`,
+        modes: ["cursor"],
+        title: "Copy selection",
+      },
+      {
+        group: "escape",
+        handler: leaveInsertMode,
+        hidden: true,
+        hotkey: "Escape",
+        id: `${commandScope}:leave-insert-mode`,
+        modes: ["insert"],
+        title: "Command mode",
+      },
+      {
+        group: "cancel",
+        handler: () => optionsRef.current.onCancel?.(),
+        hidden: true,
+        hotkey: "q",
+        id: `${commandScope}:cancel`,
+        modes: ["cursor"],
+        title: "Cancel",
+        when: () => optionsRef.current.onCancel !== undefined,
+      },
+      {
+        group: "insert-commands",
+        handler: enterInsertMode,
+        hidden: true,
+        hotkey: "i",
+        id: `${commandScope}:insert-mode-i`,
+        modes: ["cursor"],
+        title: "Insert mode",
+      },
+      {
+        group: "insert-commands",
+        handler: appendAndEnterInsertMode,
+        hidden: true,
+        hotkey: "a",
+        id: `${commandScope}:insert-mode-a`,
+        modes: ["cursor"],
+        title: "Append",
+      },
+      {
+        group: "insert-commands",
+        handler: openLineAbove,
+        hidden: true,
+        hotkey: "shift+o",
+        id: `${commandScope}:open-line-above`,
+        modes: ["cursor"],
+        title: "Open line above",
+        when: () => multilineRef.current,
+      },
+      {
+        group: "insert-commands",
+        handler: openLineBelow,
+        hidden: true,
+        hotkey: "o",
+        id: `${commandScope}:open-line-below`,
+        modes: ["cursor"],
+        title: "Open line below",
+        when: () => multilineRef.current,
+      },
+      {
+        group: "submit",
+        handler: submit,
+        hidden: true,
+        hotkey: "Enter",
+        id: `${commandScope}:submit-insert`,
+        modes: ["insert"],
+        title: "Submit",
+        when: () => resolveSubmitKey() === "enter",
+      },
+      {
+        group: "submit",
+        handler: submit,
+        hidden: true,
+        hotkey: "Enter",
+        id: `${commandScope}:submit-cursor`,
+        modes: ["cursor"],
+        title: "Submit",
+        when: () => resolveSubmitKey() !== "none",
+      },
+      {
+        group: "submit",
+        handler: submit,
+        hidden: true,
+        hotkey: "shift+Enter",
+        id: `${commandScope}:submit-multiline`,
+        modes: ["insert", "cursor"],
+        title: "Submit",
+        when: () => resolveSubmitKey() !== "none",
+      },
+      motionAction("move-left", "h", "Move left", (target) => {
         target.moveCursorLeft();
-      });
-    },
-    hidden: true,
-    hotkey: "h",
-    id: `${commandScope}:move-left`,
-    modes: ["cursor"],
-    title: "Move left",
-    when: () => enabled("motions"),
-  });
-  useCommand({
-    handler: () => {
-      motion((target) => {
+      }),
+      motionAction("move-left-arrow", "left", "Move left", (target) => {
         target.moveCursorLeft();
-      });
-    },
-    hidden: true,
-    hotkey: "left",
-    id: `${commandScope}:move-left-arrow`,
-    modes: ["cursor"],
-    title: "Move left",
-    when: () => enabled("motions"),
-  });
-  useCommand({
-    handler: () => {
-      motion((target) => {
+      }),
+      motionAction("move-right", "l", "Move right", (target) => {
         target.moveCursorRight();
-      });
-    },
-    hidden: true,
-    hotkey: "l",
-    id: `${commandScope}:move-right`,
-    modes: ["cursor"],
-    title: "Move right",
-    when: () => enabled("motions"),
-  });
-  useCommand({
-    handler: () => {
-      motion((target) => {
+      }),
+      motionAction("move-right-arrow", "right", "Move right", (target) => {
         target.moveCursorRight();
-      });
-    },
-    hidden: true,
-    hotkey: "right",
-    id: `${commandScope}:move-right-arrow`,
-    modes: ["cursor"],
-    title: "Move right",
-    when: () => enabled("motions"),
-  });
-  useCommand({
-    handler: () => {
-      motion((target) => {
+      }),
+      motionAction("move-down", "j", "Move down", (target) => {
         target.moveCursorDown();
-      });
-    },
-    hidden: true,
-    hotkey: "j",
-    id: `${commandScope}:move-down`,
-    modes: ["cursor"],
-    title: "Move down",
-    when: () => enabled("motions"),
-  });
-  useCommand({
-    handler: () => {
-      motion((target) => {
+      }),
+      motionAction("move-down-arrow", "down", "Move down", (target) => {
         target.moveCursorDown();
-      });
-    },
-    hidden: true,
-    hotkey: "down",
-    id: `${commandScope}:move-down-arrow`,
-    modes: ["cursor"],
-    title: "Move down",
-    when: () => enabled("motions"),
-  });
-  useCommand({
-    handler: () => {
-      motion((target) => {
+      }),
+      motionAction("move-up", "k", "Move up", (target) => {
         target.moveCursorUp();
-      });
-    },
-    hidden: true,
-    hotkey: "k",
-    id: `${commandScope}:move-up`,
-    modes: ["cursor"],
-    title: "Move up",
-    when: () => enabled("motions"),
-  });
-  useCommand({
-    handler: () => {
-      motion((target) => {
+      }),
+      motionAction("move-up-arrow", "up", "Move up", (target) => {
         target.moveCursorUp();
-      });
-    },
-    hidden: true,
-    hotkey: "up",
-    id: `${commandScope}:move-up-arrow`,
-    modes: ["cursor"],
-    title: "Move up",
-    when: () => enabled("motions"),
-  });
-  useCommand({
-    handler: () => {
-      motion((target) => {
+      }),
+      motionAction("line-home", "0", "Line home", (target) => {
         target.gotoLineHome();
-      });
-    },
-    hidden: true,
-    hotkey: "0",
-    id: `${commandScope}:line-home`,
-    modes: ["cursor"],
-    title: "Line home",
-    when: () => enabled("motions"),
-  });
-  useCommand({
-    handler: () => {
-      motion((target) => {
+      }),
+      motionAction("line-home-key", "home", "Line home", (target) => {
         target.gotoLineHome();
-      });
-    },
-    hidden: true,
-    hotkey: "home",
-    id: `${commandScope}:line-home-key`,
-    modes: ["cursor"],
-    title: "Line home",
-    when: () => enabled("motions"),
-  });
-  useCommand({
-    handler: () => {
-      motion((target) => {
+      }),
+      motionAction("line-end", "shift+4", "Line end", (target) => {
         target.gotoLineEnd();
-      });
-    },
-    hidden: true,
-    hotkey: "shift+4",
-    id: `${commandScope}:line-end`,
-    modes: ["cursor"],
-    title: "Line end",
-    when: () => enabled("motions"),
-  });
-  useCommand({
-    handler: () => {
-      motion((target) => {
+      }),
+      motionAction("line-end-key", "end", "Line end", (target) => {
         target.gotoLineEnd();
-      });
-    },
-    hidden: true,
-    hotkey: "end",
-    id: `${commandScope}:line-end-key`,
-    modes: ["cursor"],
-    title: "Line end",
-    when: () => enabled("motions"),
-  });
-  useCommand({
-    handler: () => {
-      motion((target) => {
+      }),
+      motionAction("word-forward", "w", "Word forward", (target) => {
         target.moveWordForward();
-      });
-    },
-    hidden: true,
-    hotkey: "w",
-    id: `${commandScope}:word-forward`,
-    modes: ["cursor"],
-    title: "Word forward",
-    when: () => enabled("motions"),
-  });
-  useCommand({
-    handler: () => {
-      motion((target) => {
+      }),
+      motionAction("word-backward", "b", "Word backward", (target) => {
         target.moveWordBackward();
-      });
-    },
-    hidden: true,
-    hotkey: "b",
-    id: `${commandScope}:word-backward`,
-    modes: ["cursor"],
-    title: "Word backward",
-    when: () => enabled("motions"),
-  });
-  useCommand({
-    handler: () => {
-      motion((target) => {
+      }),
+      motionAction("buffer-home", "g g", "Buffer home", (target) => {
         target.gotoBufferHome();
-      });
-    },
-    hidden: true,
-    hotkey: "g g",
-    id: `${commandScope}:buffer-home`,
-    modes: ["cursor"],
-    title: "Buffer home",
-    when: () => enabled("motions"),
-  });
-  useCommand({
-    handler: () => {
-      motion((target) => {
+      }),
+      motionAction("buffer-end", "shift+g", "Buffer end", (target) => {
         target.gotoBufferEnd();
-      });
-    },
-    hidden: true,
-    hotkey: "shift+g",
-    id: `${commandScope}:buffer-end`,
-    modes: ["cursor"],
-    title: "Buffer end",
-    when: () => enabled("motions"),
-  });
+      }),
+    ];
+    return definitions.map(({ group, when, ...definition }) => ({
+      ...definition,
+      when: () => enabled(group) && (when?.() ?? true),
+    }));
+  }, [
+    appendAndEnterInsertMode,
+    commandScope,
+    copyDocument,
+    copyLine,
+    copySelection,
+    enabled,
+    enterInsertMode,
+    leaveInsertMode,
+    motion,
+    multilineRef,
+    openLineAbove,
+    openLineBelow,
+    optionsRef,
+    resolveSubmitKey,
+    submit,
+  ]);
+  useActions(builtInActions);
 
   // Middle-click paste from primary selection
   const handleMouseDown = useCallback(
@@ -651,7 +551,7 @@ export const useAskEditor = function useAskEditor(
       }
       bumpScroll();
     },
-    [bumpScroll],
+    [bumpScroll, multilineRef],
   );
 
   const insertText = useCallback(
@@ -681,8 +581,7 @@ export const useAskEditor = function useAskEditor(
 
   // Stable identity so composites can capture it in refs/effects; `mode` reads
   // live through the getter.
-  const controllerRef = useRef<AskEditorController | null>(null);
-  controllerRef.current ??= {
+  const controller = useLazyRef<AskEditorController>(() => ({
     getText,
     insertText,
     get mode() {
@@ -692,10 +591,10 @@ export const useAskEditor = function useAskEditor(
     setMode: setModeExternal,
     setText,
     submit,
-  };
+  })).current;
 
   return {
-    controller: controllerRef.current,
+    controller,
     editor: {
       bumpScroll,
       defaultValue,
