@@ -7,6 +7,7 @@ import { useActions, useProvideCommandContext, useCommandContext } from "@tooee/
 import type { ActionDefinition } from "@tooee/commands";
 import type { AskOptions } from "./types.js";
 import { AskEditor } from "./ask-editor.js";
+import { buildAskHints } from "./ask-panel.js";
 import { useAskEditor } from "./use-ask-editor.js";
 
 export interface AskProps extends AskOptions {
@@ -78,11 +79,7 @@ export const Ask = function Ask({
   usePasteCommands({ getTarget: () => controller });
 
   const { mode } = editor;
-  const submitHint = multiline && mode === "insert" ? "Shift+Enter submit" : "Enter submit";
-  const hintParts =
-    mode === "insert"
-      ? [submitHint, "Esc commands"]
-      : ["i insert", "q quit", ": palette", submitHint];
+  const hintParts = buildAskHints(mode, { cursorExtra: [": palette"], multiline });
 
   return (
     <AppLayout
