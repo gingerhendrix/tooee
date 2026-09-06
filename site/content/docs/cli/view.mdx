@@ -1,5 +1,5 @@
 ---
-title: View files and pipes
+title: View
 description: Open a file, a directory, or a patch with tooee view, and force a renderer.
 ---
 
@@ -69,21 +69,20 @@ View lists the files in the directory that it can open, sorted by name, and show
 
 `--renderer` and a directory together print an error and exit with code 2.
 
-## Pipe text into View
+## Pipe into View
 
-When no path is given, View reads content from stdin and reads keyboard input from the controlling terminal:
+With no path, View reads the content from stdin:
 
 ```bash
 git diff | tooee view --renderer diff
-curl -s https://raw.githubusercontent.com/gingerhendrix/tooee/main/README.md | tooee view
 cat data.csv | tooee view --renderer table
 ```
 
-View stays interactive after the content pipe closes. Its screen uses the controlling terminal when stdout is redirected, so alternate-screen bytes do not enter an output file or another pipeline.
+Keys come from the controlling terminal, so the screen stays interactive after the pipe closes. [CLI reference](/docs/reference/cli) lists the terminal channels and exit codes.
 
 ## Next
 
-- [Keyboard basics](/docs/start/keyboard-basics)
-- [Ask and Choose in shell scripts](/docs/cli/ask-and-choose)
+- [Ask](/docs/cli/ask)
+- [Choose](/docs/cli/choose)
 - [CLI reference](/docs/reference/cli)
-- [View: content formats](/docs/apps/view/formats)
+- [View from TypeScript](/docs/apps/view)

@@ -34,7 +34,7 @@ tooee view [file] [--renderer <name>]
 
 | Case                       | Behaviour                                                                                                                                                       |
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| File                       | Renderer from the extension; see the table in [View files and pipes](/docs/cli/view#open-a-file). A text file that holds a unified patch opens as a diff.       |
+| File                       | Renderer from the extension; see the table in [View](/docs/cli/view#open-a-file). A text file that holds a unified patch opens as a diff.                       |
 | Directory                  | Opens the directory view. `--renderer` with a directory prints `--renderer cannot be used with directory view` and exits with code 2.                           |
 | stdin                      | Reads all of stdin, then remains interactive through the controlling terminal. Renders as markdown or as a diff when it is a patch, unless `--renderer` is set. |
 | Unknown renderer           | Prints `Unknown renderer: <name>` and the list of values. Exit code 2.                                                                                          |
@@ -91,6 +91,7 @@ Other arguments are ignored.
 
 ## Next
 
-- [View files and pipes](/docs/cli/view)
-- [Ask and Choose in shell scripts](/docs/cli/ask-and-choose)
+- [View](/docs/cli/view)
+- [Ask](/docs/cli/ask)
+- [Choose](/docs/cli/choose)
 - [Keyboard shortcuts](/docs/reference/keyboard-shortcuts)

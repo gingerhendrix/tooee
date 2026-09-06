@@ -1,0 +1,60 @@
+---
+title: Choose
+description: Pick one or more items from a list with tooee choose, and read what it prints.
+---
+
+```bash
+git branch --format='%(refname:short)' | tooee choose --prompt "Base branch"
+```
+
+Choose reads one item per line from stdin and drops empty lines. It starts in insert mode with the filter focused. Type to fuzzy-filter the list. Move with `up` and `down`, or `ctrl+n` and `ctrl+p`. `Enter` confirms the highlighted item. `--prompt <text>` sets the title bar.
+
+On confirm, Choose prints the item text followed by a newline and exits with code 0. To cancel, press `Escape` to reach cursor mode, then `q` or `Escape` again. `ctrl+c` cancels from any mode. A cancelled Choose prints nothing and exits with code 1. `Enter` with no item under the filter also cancels.
+
+## Pick several items
+
+`--multi` (`-m`) turns on multi-select:
+
+```bash
+printf 'lint\ntest\nbuild\n' | tooee choose --multi --prompt "Tasks"
+```
+
+`Tab` toggles the highlighted item and moves down; `Shift+Tab` toggles it and moves up. `Enter` prints every toggled item, one per line, in the order you toggled them. With nothing toggled, it prints the highlighted item.
+
+## Keys
+
+| Key                | Mode           | Action                     |
+| ------------------ | -------------- | -------------------------- |
+| `Escape`           | insert         | Switch to cursor mode      |
+| `j`, `k`           | cursor         | Move                       |
+| `i`, `a`           | cursor         | Back to the filter         |
+| `Enter`            | insert, cursor | Confirm                    |
+| `Tab`, `Shift+Tab` | insert, cursor | Toggle an item (`--multi`) |
+| `q`, `Escape`      | cursor         | Cancel                     |
+
+## Use the result in a script
+
+Choose draws its screen on the controlling terminal and prints the picked items on stdout. Command substitution captures the items alone:
+
+```bash
+branch=$(printf 'main\ndevelop\n' | tooee choose --prompt "Base branch") || exit
+name=$(tooee ask --single-line "Branch name:") || exit
+git switch -c "$name" "$branch"
+```
+
+Redirection keeps screen bytes out of the result file in the same way:
+
+```bash
+printf 'alpha\nbeta\n' | tooee choose >selection.txt
+```
+
+The piped list stays on stdin and the keyboard uses the terminal. [CLI reference](/docs/reference/cli) lists the terminal channels and exit codes.
+
+Call `launch()` from `@tooee/choose` when a script needs typed items, descriptions, or its own commands. [Choose from TypeScript](/docs/apps/choose) covers that path.
+
+## Next
+
+- [Ask](/docs/cli/ask)
+- [View](/docs/cli/view)
+- [CLI reference](/docs/reference/cli)
+- [Choose from TypeScript](/docs/apps/choose)

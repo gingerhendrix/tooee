@@ -1,0 +1,111 @@
+---
+title: Write a launcher
+description: Call launch() from @tooee/view, @tooee/ask, and @tooee/choose in a Bun script and use what comes back.
+---
+
+```ts title="release.ts"
+import { launch as launchAsk } from "@tooee/ask";
+import { createStaticProvider, launch as launchChoose } from "@tooee/choose";
+import { launch as launchView } from "@tooee/view";
+
+const level = await launchChoose({
+  contentProvider: createStaticProvider([{ text: "patch" }, { text: "minor" }, { text: "major" }]),
+  options: { prompt: "Release type" },
+});
+if (level === null) {
+  process.exit(1);
+}
+
+const notes = await launchAsk({ prompt: "Release notes:", multiline: true });
+if (notes === null) {
+  process.exit(1);
+}
+
+await launchView({
+  contentProvider: {
+    load: () => ({
+      format: "markdown",
+      markdown: `# ${level.items[0].text} release\n\n${notes}`,
+      title: "Preview",
+    }),
+  },
+});
+```
+
+Run it with `bun release.ts`. Each `launch()` opens one screen, waits until the session ends, restores the terminal, and resolves. The value depends on the app:
+
+| Package         | Resolves with                                               |
+| --------------- | ----------------------------------------------------------- |
+| `@tooee/view`   | `void`, after the reader quits with `q` or `ctrl+c`         |
+| `@tooee/ask`    | The submitted text as a `string`, or `null` on cancel       |
+| `@tooee/choose` | `ChooseResult` with the picked `items`, or `null` on cancel |
+
+[Install](/docs/start/install) covers adding the packages to a project. Each launcher draws on process stdout when it is a terminal, and on the controlling terminal when stdout is redirected. Text that you write after the `await` goes to normal process stdout.
+
+Each app has its own guide:
+
+| Guide                       | What it covers                                                                         |
+| --------------------------- | -------------------------------------------------------------------------------------- |
+| [View](/docs/apps/view)     | Launch options, content providers, formats, diffs, actions, and custom renderers       |
+| [Ask](/docs/apps/ask)       | Launch options, editing, actions, the dialog form, and the editor in a panel           |
+| [Choose](/docs/apps/choose) | Launch options, items, filtering, actions, the dialog form, and the chooser in a panel |
+
+## Run your own session
+
+The three `launch()` functions call `runCliSession` from `@tooee/shell`. Call it yourself to open any Tooee component with the same lifecycle and resolve a value of your own type:
+
+```tsx title="confirm-delete.tsx"
+import { $ } from "bun";
+import { useCommand } from "@tooee/commands";
+import { runCliSession } from "@tooee/shell";
+import type { ReactNode } from "react";
+
+const Confirm = function Confirm({ onAnswer }: { onAnswer: (yes: boolean) => void }): ReactNode {
+  useCommand({ handler: () => onAnswer(true), hotkey: "y", id: "yes", title: "Yes" });
+  useCommand({ handler: () => onAnswer(false), hotkey: "n", id: "no", title: "No" });
+  return <text content="Delete the dist folder? y / n" />;
+};
+
+const yes = await runCliSession<boolean>(({ resolve }) => <Confirm onAnswer={resolve} />);
+if (yes === true) {
+  await $`rm -rf dist`;
+}
+```
+
+`runCliSession<T>(render, options)` calls `render` with `{ resolve, cancel }` and returns `T | null`. `resolve(value)` ends the session with the value. `cancel()`, `ctrl+c`, or a destroyed renderer ends it with `null`. Renderer creation and render factory errors reject the promise, so callers can distinguish startup failure from cancellation. The component tree needs the JSX options from [Install](/docs/start/install#set-the-jsx-options).
+
+The second argument configures the session:
+
+| Option           | Default     | Meaning                                                                                                                       |
+| ---------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `provider`       | `{}`        | Options for the Tooee provider tree: `initialMode`, `leader`, `config`, `sequenceTimeoutMs`.                                  |
+| `stdinPolicy`    | `"process"` | `"tty-if-piped"` reads keys from `/dev/tty` when process stdin is a pipe.                                                     |
+| `stdoutPolicy`   | `"process"` | `"tty-if-redirected"` draws on `/dev/tty` when process stdout is redirected.                                                  |
+| `exitOnCtrlC`    | `true`      | `ctrl+c` ends the process.                                                                                                    |
+| `terminalHealth` | `true`      | When the key stream ends or closes, destroy the renderer and exit with code 0.                                                |
+| `renderer`       | `{}`        | Extra options for OpenTUI's `createCliRenderer`, except `exitOnCtrlC`. Explicit streams take priority over terminal policies. |
+
+Ask, Choose, and View set both terminal policies. Directory View sets the output policy. A custom session can opt in to either policy:
+
+```tsx title="pipe-view.tsx"
+import { runCliSession } from "@tooee/shell";
+import { View, createStdinProvider } from "@tooee/view";
+
+await runCliSession(() => <View contentProvider={createStdinProvider()} />, {
+  stdinPolicy: "tty-if-piped",
+  stdoutPolicy: "tty-if-redirected",
+});
+```
+
+```bash
+git diff | bun pipe-view.tsx
+```
+
+Put `initialMode`, `leader`, `config`, and `sequenceTimeoutMs` under `provider`. Tooee 0.9 no longer accepts these settings at the top level.
+
+## Next
+
+- [View](/docs/apps/view)
+- [Ask](/docs/apps/ask)
+- [Choose](/docs/apps/choose)
+- [Your first Tooee app](/docs/build/first-app)

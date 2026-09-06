@@ -15,11 +15,23 @@ if (name === null || name === current) {
 await $`git branch -m ${name}`;
 ```
 
-Ask opens an editor with the prompt above it and resolves with the submitted text, or `null` when the reader cancels. The options are listed on [Launch apps from TypeScript](/docs/apps/launch#launch-ask).
+Ask opens an editor with the prompt above it and resolves with the submitted text, or `null` when the reader cancels.
+
+## Launch options
+
+| Option         | Type                      | Meaning                                                                |
+| -------------- | ------------------------- | ---------------------------------------------------------------------- |
+| `title`        | `string`                  | Title bar text. No title bar when omitted.                             |
+| `prompt`       | `string`                  | Bold line above the editor.                                            |
+| `placeholder`  | `string`                  | Muted text shown while the editor is empty.                            |
+| `defaultValue` | `string`                  | Initial text. The cursor starts at its end.                            |
+| `multiline`    | `boolean`                 | `true` gives a textarea, `false` a one-line input. Defaults to `true`. |
+| `actions`      | `ActionDefinition[]`      | Commands added to the screen. See [Add actions](#add-actions).         |
+| `onSubmit`     | `(value: string) => void` | Runs with the submitted text before the promise resolves.              |
 
 ## How editing works
 
-The editor has two modes. Ask starts in insert mode, where keys type into the editor. `Escape` switches to cursor mode, where keys move the text cursor with vim motions: `h`, `j`, `k`, `l`, `w`, `b`, `0`, `$`, `g g`, and `G`. `i` and `a` return to insert mode at or after the cursor. In the multiline editor, `o` and `O` open a line below or above. The key table is on [Ask and Choose in shell scripts](/docs/cli/ask-and-choose#ask-for-text).
+The editor has two modes. Ask starts in insert mode, where keys type into the editor. `Escape` switches to cursor mode, where keys move the text cursor with vim motions: `h`, `j`, `k`, `l`, `w`, `b`, `0`, `$`, `g g`, and `G`. `i` and `a` return to insert mode at or after the cursor. In the multiline editor, `o` and `O` open a line below or above. The key table is on [Ask](/docs/cli/ask#keys) in the CLI section.
 
 The submit key follows `multiline`:
 
@@ -211,6 +223,6 @@ The `controller` has `getText`, `setText`, `insertText`, `setCursorToEnd`, `subm
 ## Next
 
 - [Choose](/docs/apps/choose)
-- [Launch apps from TypeScript](/docs/apps/launch)
+- [Write a launcher](/docs/apps)
 - [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts)
 - [Panels](/docs/build/panels)

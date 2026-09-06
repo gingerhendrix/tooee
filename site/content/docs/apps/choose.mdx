@@ -19,7 +19,7 @@ if (picked === null) {
 process.stdout.write(`${picked.items[0].value}\n`);
 ```
 
-Choose shows a filter line and a list, and resolves with `{ items }` when the reader confirms, or `null` on cancel. The launch options are listed on [Launch apps from TypeScript](/docs/apps/launch#launch-choose).
+Choose shows a filter line and a list, and resolves with `{ items }` when the reader confirms, or `null` on cancel.
 
 <video
   aria-label="Screen recording of Tooee Choose filtering five colors to Blue and confirming the selected value."
@@ -30,6 +30,16 @@ Choose shows a filter line and a list, and resolves with `{ items }` when the re
 />
 
 _The filter narrows five colors to Blue. Enter confirms it, and the app prints `You chose: Blue (blue)`._
+
+## Launch options
+
+| Option            | Type                    | Meaning                                                             |
+| ----------------- | ----------------------- | ------------------------------------------------------------------- |
+| `contentProvider` | `ChooseContentProvider` | An object whose `load()` returns `ChooseItem[]` or a promise of it. |
+| `options`         | `ChooseOptions`         | `title`, `prompt`, `placeholder`, `multi`, and `emptyMessage`.      |
+| `actions`         | `ActionDefinition[]`    | Commands added to the screen. See [Add actions](#add-actions).      |
+
+The `launch()` options keep `title`, `prompt`, and the rest nested under `options`. The `Choose` component takes the same fields as flat props.
 
 ## Give Choose a list
 
@@ -83,7 +93,7 @@ Typing in insert mode filters the list. Choose ranks items with `rankBy` from `@
 
 In single mode, `Enter` confirms the highlighted item and `items` holds that one item. `Enter` with nothing under the filter cancels.
 
-Pass `options: { multi: true }` to pick several. `Tab` toggles the highlighted item and moves down, `Shift+Tab` toggles it and moves up, and a `✓` marks toggled rows. `Enter` returns the toggled items in the order they were toggled. With nothing toggled, it returns the highlighted item. The status bar adds a `Selected:` count. The key table is on [Ask and Choose in shell scripts](/docs/cli/ask-and-choose#choose-from-a-list).
+Pass `options: { multi: true }` to pick several. `Tab` toggles the highlighted item and moves down, `Shift+Tab` toggles it and moves up, and a `✓` marks toggled rows. `Enter` returns the toggled items in the order they were toggled. With nothing toggled, it returns the highlighted item. The status bar adds a `Selected:` count. The key table is on [Choose](/docs/cli/choose#keys) in the CLI section.
 
 ## Add actions
 
@@ -277,6 +287,6 @@ The picker panel starts in insert mode with the filter focused. `Enter` submits 
 ## Next
 
 - [Ask](/docs/apps/ask)
-- [Launch apps from TypeScript](/docs/apps/launch)
+- [Write a launcher](/docs/apps)
 - [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts)
 - [Panels](/docs/build/panels)

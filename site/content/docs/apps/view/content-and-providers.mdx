@@ -1,5 +1,5 @@
 ---
-title: "View: content and providers"
+title: Content and providers
 description: Give View content through a provider that returns it at once, resolves it later, or streams it in chunks.
 ---
 
@@ -27,7 +27,7 @@ A content provider is an object with a `load` method. View calls `load()` once w
 | `load`   | Returns content, a promise of content, or an async iterable of `ContentChunk` values.                |
 | `format` | Format of the empty content View shows while a stream has sent no chunk yet. Defaults to `markdown`. |
 | `title`  | Title of that empty content.                                                                         |
-| `marks`  | Mark sets to draw over the rows. The mark model has its own guide in the Build apps section.         |
+| `marks`  | Mark sets to draw over the rows. The mark model has its own guide in the Build a custom app section. |
 
 `format` and `title` on the provider only matter for streams. Returned content carries its own `title`.
 
@@ -81,9 +81,9 @@ import { createFileProvider, launch } from "@tooee/view";
 await launch({ contentProvider: createFileProvider("notes.txt", { renderer: "markdown" }) });
 ```
 
-`createFileProvider(path, options)` reads the file when View mounts. It picks the format from the extension with the table in [View files and pipes](/docs/cli/view#open-a-file), opens a text file that holds a unified patch as a diff, sets `title` to the file name, and gives markdown an `imageBasePath` of the file's folder. `options.renderer` forces a format.
+`createFileProvider(path, options)` reads the file when View mounts. It picks the format from the extension with the table in [View](/docs/cli/view#open-a-file) in the CLI section, opens a text file that holds a unified patch as a diff, sets `title` to the file name, and gives markdown an `imageBasePath` of the file's folder. `options.renderer` forces a format.
 
-`createStdinProvider(options)` reads all of stdin and renders it as markdown, or as a diff when it is a patch. With `launch()` from `@tooee/view` the session ends when the pipe closes, before the content is drawn, because View reads keys from the same stdin. [Run your own session](/docs/apps/launch#run-your-own-session) shows how `runCliSession` with `stdinPolicy: "tty-if-piped"` makes the piped form work.
+`createStdinProvider(options)` reads all of stdin and renders it as markdown, or as a diff when it is a patch. With `launch()` from `@tooee/view` the session ends when the pipe closes, before the content is drawn, because View reads keys from the same stdin. [Run your own session](/docs/apps#run-your-own-session) shows how `runCliSession` with `stdinPolicy: "tty-if-piped"` makes the piped form work.
 
 `createTableFileProvider(path)` and `createTableStdinProvider()` are the same providers with `renderer: "table"`.
 
@@ -134,4 +134,4 @@ View starts with empty content of the provider's `format` and `title`, then appl
 - [View: content formats](/docs/apps/view/formats)
 - [View: diffs](/docs/apps/view/diffs)
 - [View: actions and command context](/docs/apps/view/actions)
-- [Launch apps from TypeScript](/docs/apps/launch)
+- [Write a launcher](/docs/apps)

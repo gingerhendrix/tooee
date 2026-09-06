@@ -1,5 +1,5 @@
 ---
-title: "View: content formats"
+title: Content formats
 description: What the markdown, code, text, table, and image formats accept, and how View draws each one.
 ---
 
@@ -60,13 +60,13 @@ await runCliSession(
 );
 ```
 
-Return `true` to mark the click as handled, so it does not move the cursor. `launch()` has no option for the handler in Tooee 0.9.0, so mount `View` with `runCliSession` from [Launch apps from TypeScript](/docs/apps/launch#run-your-own-session).
+Return `true` to mark the click as handled, so it does not move the cursor. `launch()` has no option for the handler in Tooee 0.9.0, so mount `View` with `runCliSession` from [Write a launcher](/docs/apps#run-your-own-session).
 
 ## Code and text
 
 `code` takes `code` and an optional `language`. `text` takes `text`. Both draw one row per line with line numbers in the gutter; `L` toggles them. Search matches one line, `y y` copies the line under the cursor, and `v` with `j` or `k` selects lines for `y v`. `Cursor:` in the status bar is the zero-based line index.
 
-`language` picks the tree-sitter grammar for the colours. OpenTUI 0.5 bundles grammars for `typescript`, `javascript`, `markdown`, and `zig`. Any other value draws plain text. [View files and pipes](/docs/cli/view#open-a-file) lists the extensions `createFileProvider` maps to a language. The text format is the code renderer without a language.
+`language` picks the tree-sitter grammar for the colours. OpenTUI 0.5 bundles grammars for `typescript`, `javascript`, `markdown`, and `zig`. Any other value draws plain text. [View](/docs/cli/view#open-a-file) in the CLI section lists the extensions `createFileProvider` maps to a language. The text format is the code renderer without a language.
 
 ## Table
 
@@ -132,4 +132,4 @@ The image fills the content area. The document behind it has one row that holds 
 - [View: content and providers](/docs/apps/view/content-and-providers)
 - [View: diffs](/docs/apps/view/diffs)
 - [View: custom renderers](/docs/apps/view/custom-renderers)
-- [View files and pipes](/docs/cli/view)
+- [View in the CLI](/docs/cli/view)

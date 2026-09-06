@@ -39,7 +39,7 @@ await runCliSession((): ReactNode => <View contentProvider={createStdinProvider(
 
 **`echo hi | tooee ask` exits at once.** Same cause. Ask has no stdin content to read, so run it with the terminal on stdin and pass the text as the prompt or through `defaultValue` in `launch()`.
 
-**`name=$(tooee ask -s "Name:")` leaves the terminal blank and `$name` holds escape sequences.** The CLI draws the screen on stdout, the stream the substitution captures. Keep the flow in one Bun script and call `launch()`, which returns the value; [Use the result in a script](/docs/cli/ask-and-choose#use-the-result-in-a-script) shows it.
+**`name=$(tooee ask -s "Name:")` leaves the terminal blank and `$name` holds escape sequences.** The CLI draws the screen on stdout, the stream the substitution captures. Keep the flow in one Bun script and call `launch()`, which returns the value; [Use the result in a script](/docs/cli/ask#use-the-result-in-a-script) shows it.
 
 ## Keys
 

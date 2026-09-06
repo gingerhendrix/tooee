@@ -1,4 +1,4 @@
 {
-  "title": "Built-in apps",
-  "pages": ["launch", "view", "ask", "choose"]
+  "title": "Write a launcher",
+  "pages": ["view", "ask", "choose"]
 }
