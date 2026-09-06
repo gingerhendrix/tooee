@@ -21,6 +21,16 @@ process.stdout.write(`${picked.items[0].value}\n`);
 
 Choose shows a filter line and a list, and resolves with `{ items }` when the reader confirms, or `null` on cancel. The launch options are listed on [Launch apps from TypeScript](/docs/apps/launch#launch-choose).
 
+<video
+  aria-label="Screen recording of Tooee Choose filtering five colors to Blue and confirming the selected value."
+  controls
+  poster="/docs-media/tooee-choose-filtered.png"
+  preload="metadata"
+  src="/docs-media/tooee-choose-filter-selection.mp4"
+/>
+
+_The filter narrows five colors to Blue. Enter confirms it, and the app prints `You chose: Blue (blue)`._
+
 ## Give Choose a list
 
 Each row is a `ChooseItem`:
