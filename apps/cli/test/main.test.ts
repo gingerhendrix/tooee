@@ -32,7 +32,8 @@ describe("tooee command surface", () => {
   test("table is no longer a command", () => {
     const result = runCli("table");
 
-    expect(result.exitCode).toBe(1);
+    // Unknown commands exit 2, the same status as invalid input and startup errors.
+    expect(result.exitCode).toBe(2);
     expect(result.stderr).toContain("Unknown command: table");
     expect(result.stdout).not.toContain("table [file]");
   });
