@@ -1,6 +1,7 @@
 /* oxlint-disable no-use-before-define -- the screen closes over the route initialized before router startup */
 import { useMemo } from "react";
 import type { ReactNode } from "react";
+import { useChooseDialog } from "@tooee/choose";
 import { useCommand } from "@tooee/commands";
 import type { CommandContext } from "@tooee/commands";
 import {
@@ -15,7 +16,8 @@ import type { Codec, RouteDefinition, RouterInstance } from "@tooee/router";
 import path from "node:path";
 import { createFileProvider } from "./default-provider.js";
 import { runLinkHandlers } from "./link-handlers.js";
-import { firstMarkdownLink } from "./markdown-links.js";
+import { markdownLinks } from "./markdown-links.js";
+import type { MarkdownLink } from "./markdown-links.js";
 import { getTextContent } from "./types.js";
 import type { ViewLaunchOptions } from "./launch.js";
 import { View } from "./view.js";
@@ -50,6 +52,7 @@ export const createStandaloneRouter = function createStandaloneRouter(
     const { path: documentPath } = useParams(documentRoute);
     const navigate = useNavigate();
     const { stack } = useRouter();
+    const chooseLink = useChooseDialog<MarkdownLink>();
     const provider = useMemo(
       () =>
         documentPath === undefined ? options.contentProvider : createFileProvider(documentPath),
@@ -68,16 +71,25 @@ export const createStandaloneRouter = function createStandaloneRouter(
       );
     };
     useCommand({
-      handler: (context) => {
+      handler: async (context) => {
         // Source positions are zero-based, unlike the displayed line numbers.
         const line = context.document?.activeAnchor?.source?.primary?.start.line;
         const content = context.view?.content;
         if (line === undefined || content === undefined) {
           return;
         }
-        const href = firstMarkdownLink(getTextContent(content).split("\n")[line] ?? "");
-        if (href !== null) {
-          activate(href, context);
+        const links = markdownLinks(getTextContent(content).split("\n")[line] ?? "");
+        // One link follows directly; several open a chooser so none is silently preferred.
+        const link =
+          links.length > 1
+            ? await chooseLink.open({
+                items: links,
+                prompt: "Follow link",
+                toItem: (item) => ({ description: item.href, text: item.text }),
+              })
+            : (links[0] ?? null);
+        if (link !== null) {
+          activate(link.href, context);
         }
       },
       hotkey: "enter",

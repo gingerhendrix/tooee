@@ -3,7 +3,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { firstMarkdownLink, resolveMarkdownLink } from "../src/markdown-links.js";
+import { markdownLinks, resolveMarkdownLink } from "../src/markdown-links.js";
 
 let root: string;
 let current: string;
@@ -51,14 +51,17 @@ test.each([
   expect(resolveMarkdownLink(href, root, current)).toEqual({ status: "unsupported" });
 });
 
-test("finds the first ordinary link while skipping images and code", () => {
+test("collects ordinary links in source order while skipping images and code", () => {
   expect(
-    firstMarkdownLink('![image](image.png) **[First](<a b.md> "title")** [Second](next.md)'),
-  ).toBe("a b.md");
-  expect(firstMarkdownLink("`[code](code.md)` ![image](image.png) [Real](a(b).md)")).toBe(
-    "a(b).md",
-  );
-  expect(firstMarkdownLink("![image](image.png)")).toBeNull();
+    markdownLinks('![image](image.png) **[First](<a b.md> "title")** [Second](next.md)'),
+  ).toEqual([
+    { href: "a b.md", text: "First" },
+    { href: "next.md", text: "Second" },
+  ]);
+  expect(markdownLinks("`[code](code.md)` ![image](image.png) [Real](a(b).md)")).toEqual([
+    { href: "a(b).md", text: "Real" },
+  ]);
+  expect(markdownLinks("![image](image.png)")).toEqual([]);
 });
 
 test("distinguishes missing files from directories", () => {

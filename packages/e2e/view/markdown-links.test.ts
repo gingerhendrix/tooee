@@ -36,4 +36,17 @@ test("standalone links navigate in one PTY, with Back and cursor Enter", async (
   await session.press("enter");
   await session.waitForText("Link source");
   expect(await session.text()).toMatch(/Mode:\s*cursor/u);
+  await session.press(["shift", "g"]);
+  await session.press("enter");
+  await session.waitForText("Follow link");
+  expect(await session.text()).toContain("Journey end");
+  await session.press("escape");
+  await session.press("escape");
+  await session.waitForText("Link source");
+  expect(await session.text()).not.toContain("Follow link");
+  await session.press("enter");
+  await session.waitForText("Follow link");
+  await session.type("Journey");
+  await session.press("enter");
+  await session.waitForText("Journey complete");
 }, 30_000);

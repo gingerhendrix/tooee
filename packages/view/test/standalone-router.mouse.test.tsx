@@ -2,7 +2,7 @@ import { afterEach, expect, mock, test } from "bun:test";
 import { act } from "react";
 import { MouseButtons } from "@opentui/core/testing";
 import { TooeeProvider } from "@tooee/shell";
-import { keyEvent, testRender } from "@tooee/test-support";
+import { keyEvent, press, pressEnter, pressEscape, testRender } from "@tooee/test-support";
 import { Outlet, RouterProvider } from "@tooee/router";
 import { createStandaloneRouter } from "../src/standalone-router.js";
 import { createFileProvider } from "../src/default-provider.js";
@@ -58,6 +58,44 @@ test("real mouse links replace the provider and resolve against the current file
   });
   await settle();
   expect(setup.captureCharFrame()).toContain("Navigation target");
+});
+
+test("cursor Enter on a line with several links opens a chooser instead of taking the first", async () => {
+  const filePath = `${import.meta.dir}/fixtures/links/start.md`;
+  const { router } = createStandaloneRouter({
+    contentProvider: createFileProvider(filePath),
+    filePath,
+  });
+  await router.start();
+  setup = await testRender(
+    <TooeeProvider initialMode="cursor">
+      <RouterProvider router={router}>
+        <Outlet />
+      </RouterProvider>
+    </TooeeProvider>,
+    { height: 24, kittyKeyboard: true, width: 80 },
+  );
+  await settle();
+  await press(setup, "g", { shift: true });
+  await pressEnter(setup);
+  await settle();
+  expect(setup.captureCharFrame()).toContain("Follow link");
+  expect(setup.captureCharFrame()).toContain("Nested target");
+  expect(setup.captureCharFrame()).toContain("Journey end");
+  // The chooser opens in insert mode: the first Escape leaves it, the second cancels.
+  await pressEscape(setup);
+  await pressEscape(setup);
+  await settle();
+  expect(setup.captureCharFrame()).not.toContain("Follow link");
+  expect(setup.captureCharFrame()).toContain("Link source");
+  expect(router.stack).toHaveLength(1);
+  await pressEnter(setup);
+  await settle();
+  await press(setup, "n", { ctrl: true });
+  await pressEnter(setup);
+  await settle();
+  expect(setup.captureCharFrame()).toContain("Journey complete");
+  expect(router.stack).toHaveLength(2);
 });
 
 test("stdin consumes links with an info toast without running custom handlers", async () => {

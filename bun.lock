@@ -442,6 +442,7 @@
       "name": "@tooee/view",
       "version": "0.8.0",
       "dependencies": {
+        "@tooee/choose": "workspace:*",
         "@tooee/commands": "workspace:*",
         "@tooee/config": "workspace:*",
         "@tooee/diff": "workspace:*",

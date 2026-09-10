@@ -16,6 +16,7 @@
     { "path": "../layout" },
     { "path": "../search" },
     { "path": "../router" },
+    { "path": "../choose" },
     { "path": "../commands" },
     { "path": "../shell" }
   ]

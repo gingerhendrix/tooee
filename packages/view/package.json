@@ -40,6 +40,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@tooee/choose": "workspace:*",
     "@tooee/commands": "workspace:*",
     "@tooee/config": "workspace:*",
     "@tooee/diff": "workspace:*",

@@ -62,23 +62,27 @@ export const resolveMarkdownLink = function resolveMarkdownLink(
   }
 };
 
-/** First ordinary inline link, skipping images and code spans. */
-const visit = (tokens: Token[]): string | null => {
+export interface MarkdownLink {
+  /** Link text as written in the source. */
+  text: string;
+  href: string;
+}
+
+/** Ordinary inline links in source order, skipping images and code spans. */
+const collect = (tokens: Token[], links: MarkdownLink[]): void => {
   for (const token of tokens) {
     if (token.type === "link" && "href" in token) {
       // SAFETY: Marked's Generic token prevents discriminator narrowing.
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- checked Marked link discriminator
-      return (token as Tokens.Link).href;
-    }
-    if (["strong", "em", "del"].includes(token.type) && "tokens" in token && token.tokens) {
-      const href = visit(token.tokens);
-      if (href !== null) {
-        return href;
-      }
+      const { href, text } = token as Tokens.Link;
+      links.push({ href, text });
+    } else if (["strong", "em", "del"].includes(token.type) && "tokens" in token && token.tokens) {
+      collect(token.tokens, links);
     }
   }
-  return null;
 };
-export const firstMarkdownLink = function firstMarkdownLink(line: string): string | null {
-  return visit(Lexer.lexInline(line));
+export const markdownLinks = function markdownLinks(line: string): MarkdownLink[] {
+  const links: MarkdownLink[] = [];
+  collect(Lexer.lexInline(line), links);
+  return links;
 };
