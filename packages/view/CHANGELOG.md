@@ -1,3 +1,26 @@
+## @tooee/view@0.9.0
+
+### Keep terminal UI output out of shell results
+
+Ask, Choose, and View now use the controlling terminal for interactive input and screen output when process streams carry piped or redirected data. Command substitution and pipelines receive clean result text. Piped View sessions remain interactive after stdin closes.
+
+### Follow local Markdown links in standalone view
+
+Click a local Markdown link or press Enter on its source line in cursor mode to open the linked file in the same session. When the line holds several links, Enter opens a chooser listing them by text and destination. Use Backspace in cursor mode or Go back in the command palette to return. Fragments open at the file top; missing files, directories, and unsupported links show toasts. Launchers can register synchronous `linkHandlers` before the built-in local file handler. Links from stdin show an informational toast because navigation needs a source file.
+
+### Remove the 0.8 compatibility APIs
+
+Tooee 0.9 removes the compatibility forms deprecated in 0.8. `Choose` now
+accepts only direct chooser props and `actions`; `launchCli` provider settings
+must be nested under `provider`; and `AppLayout` scrolling must use `scroll`.
+
+The config color type is now only `ColorMode`, command surfaces use
+`useSurfaceInvoke`, and overlays use handles plus state hooks instead of
+`show`, `hide`, and `isOpen`. The `tooee table` command has also been removed;
+use `tooee view --renderer table`.
+
+See [the 0.9 migration guide](../docs/migration-0.8-to-0.9.md) for replacements.
+
 ## @tooee/view@0.8.0
 
 ### Clarify package ownership and compatibility APIs
