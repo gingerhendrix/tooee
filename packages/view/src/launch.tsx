@@ -1,13 +1,15 @@
 import { launchCli, runCliSession } from "@tooee/shell";
 import type { ActionDefinition } from "@tooee/commands";
 import type { CodeBlockRenderer } from "@tooee/renderers";
-import { View } from "./view.js";
+import { StandaloneView } from "./standalone-view.js";
 import { DirectoryView } from "./directory-view.js";
 import type { ContentProvider, ContentRenderer } from "./types.js";
 import type { ReactNode } from "react";
 
 export interface ViewLaunchOptions {
   contentProvider: ContentProvider;
+  /** Source file for standalone local Markdown navigation; omitted for stdin. */
+  filePath?: string;
   actions?: ActionDefinition[];
   renderers?: Record<string, ContentRenderer>;
   /**
@@ -26,7 +28,8 @@ export interface DirectoryLaunchOptions {
 export const launch = async function launch(options: ViewLaunchOptions): Promise<void> {
   await runCliSession<undefined>(
     (): ReactNode => (
-      <View
+      <StandaloneView
+        filePath={options.filePath}
         contentProvider={options.contentProvider}
         actions={options.actions}
         renderers={options.renderers}

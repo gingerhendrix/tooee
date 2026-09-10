@@ -109,7 +109,7 @@ try {
         filePath !== undefined && filePath !== ""
           ? createFileProvider(filePath, { renderer })
           : createStdinProvider({ renderer });
-      await launchView({ contentProvider });
+      await launchView({ contentProvider, filePath });
       break;
     }
 
