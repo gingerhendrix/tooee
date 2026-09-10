@@ -21,15 +21,13 @@ afterEach(() => {
 test("resolves relative, absolute and file URLs, including fragments", () => {
   const target = path.join(root, "a b.md");
   for (const href of ["./a%20b.md", target, pathToFileURL(target).href, "a%20b.md#heading"]) {
-    expect(resolveMarkdownLink(href, current)).toBe(target);
+    expect(resolveMarkdownLink(href, root, current)).toEqual({ path: target, status: "file" });
   }
-  expect(resolveMarkdownLink("#heading", current)).toBe(current);
+  expect(resolveMarkdownLink("#heading", root, current)).toEqual({ path: current, status: "file" });
 });
 
 test.each([
   "",
-  "missing.md",
-  "directory",
   "https://example.com",
   "http://example.com",
   "mailto:a@b.com",
@@ -50,7 +48,7 @@ test.each([
   "a\\b.md",
   "file:///tmp/a?query",
 ])("leaves invalid or unsupported target unhandled: %s", (href) => {
-  expect(resolveMarkdownLink(href, current)).toBeNull();
+  expect(resolveMarkdownLink(href, root, current)).toEqual({ status: "unsupported" });
 });
 
 test("finds the first ordinary link while skipping images and code", () => {
@@ -61,4 +59,15 @@ test("finds the first ordinary link while skipping images and code", () => {
     "a(b).md",
   );
   expect(firstMarkdownLink("![image](image.png)")).toBeNull();
+});
+
+test("distinguishes missing files from directories", () => {
+  expect(resolveMarkdownLink("missing.md", root)).toEqual({
+    path: path.join(root, "missing.md"),
+    status: "missing",
+  });
+  expect(resolveMarkdownLink("directory", root)).toEqual({
+    path: path.join(root, "directory"),
+    status: "directory",
+  });
 });

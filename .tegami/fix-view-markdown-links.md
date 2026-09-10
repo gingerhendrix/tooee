@@ -6,4 +6,4 @@ packages:
 
 ## Follow local Markdown links in standalone view
 
-Click a local Markdown link or press Enter on its source line in cursor mode to open the linked file in the same session. Use Ctrl+O or Back to previous file in the command palette to return. Fragments open at the file top; directory links remain unhandled.
+Click a local Markdown link or press Enter on its source line in cursor mode to open the linked file in the same session. Use Backspace in cursor mode or Go back in the command palette to return. Fragments open at the file top; missing files, directories, and unsupported links show toasts. Launchers can register synchronous `linkHandlers` before the built-in local file handler. Links from stdin show an informational toast because navigation needs a source file.

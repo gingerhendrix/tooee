@@ -46,3 +46,5 @@ export type {
 export { getTextContent, isBuiltinContent, isCustomContent } from "./types.js";
 export { CodeBlockChrome } from "@tooee/renderers";
 export type { CodeBlockRenderer, CodeBlockRendererProps, CodeBlockHScroll } from "@tooee/renderers";
+export { localFileLinkHandler } from "./link-handlers.js";
+export type { LinkHandler, LinkHandlerContext, LinkTarget } from "./link-handlers.js";

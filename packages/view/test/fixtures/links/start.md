@@ -3,3 +3,5 @@
 [Open linked document](nested/target.md#details)
 
 [External website](https://example.com)
+
+[Missing document](missing.md)

@@ -15,6 +15,7 @@
     { "path": "../renderers" },
     { "path": "../layout" },
     { "path": "../search" },
+    { "path": "../router" },
     { "path": "../commands" },
     { "path": "../shell" }
   ]

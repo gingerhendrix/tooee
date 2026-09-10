@@ -1,7 +1,9 @@
 import { launchCli, runCliSession } from "@tooee/shell";
 import type { ActionDefinition } from "@tooee/commands";
 import type { CodeBlockRenderer } from "@tooee/renderers";
-import { StandaloneView } from "./standalone-view.js";
+import { Outlet, RouterProvider } from "@tooee/router";
+import { createStandaloneRouter } from "./standalone-router.js";
+import type { LinkHandler } from "./link-handlers.js";
 import { DirectoryView } from "./directory-view.js";
 import type { ContentProvider, ContentRenderer } from "./types.js";
 import type { ReactNode } from "react";
@@ -10,6 +12,8 @@ export interface ViewLaunchOptions {
   contentProvider: ContentProvider;
   /** Source file for standalone local Markdown navigation; omitted for stdin. */
   filePath?: string;
+  /** Synchronous handlers tried before local file navigation. */
+  linkHandlers?: readonly LinkHandler[];
   actions?: ActionDefinition[];
   renderers?: Record<string, ContentRenderer>;
   /**
@@ -26,15 +30,16 @@ export interface DirectoryLaunchOptions {
 }
 
 export const launch = async function launch(options: ViewLaunchOptions): Promise<void> {
+  const { router } = createStandaloneRouter(options);
+  const startup = await router.start();
+  if (startup.status !== "committed") {
+    throw new Error(`View router startup ${startup.status}`);
+  }
   await runCliSession<undefined>(
     (): ReactNode => (
-      <StandaloneView
-        filePath={options.filePath}
-        contentProvider={options.contentProvider}
-        actions={options.actions}
-        renderers={options.renderers}
-        codeBlockRenderers={options.codeBlockRenderers}
-      />
+      <RouterProvider router={router}>
+        <Outlet />
+      </RouterProvider>
     ),
     {
       stdinPolicy: "tty-if-piped",
