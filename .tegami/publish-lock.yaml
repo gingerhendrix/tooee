@@ -1,116 +1,49 @@
 core:changelogs:
-  - content: "---\npackages:\n  group:tooee:\n    type: patch\n---\n\n## Keep terminal UI output out of shell results\n\nAsk, Choose, and View now use the controlling terminal for interactive input and screen output when process streams carry piped or redirected data. Command substitution and pipelines receive clean result text. Piped View sessions remain interactive after stdin closes.\n"
-    filename: fix-cli-terminal-io.md
-    v: 0.0.0
-  - content: "---\npackages:\n  \"@tooee/view\":\n    type: patch\n  \"@tooee/cli\":\n    type: patch\n---\n\n## Follow local Markdown links in standalone view\n\nClick a local Markdown link or press Enter on its source line in cursor mode to open the linked file in the same session. When the line holds several links, Enter opens a chooser listing them by text and destination. Use Backspace in cursor mode or Go back in the command palette to return. Fragments open at the file top; missing files, directories, and unsupported links show toasts. Launchers can register synchronous `linkHandlers` before the built-in local file handler. Links from stdin show an informational toast because navigation needs a source file.\n"
-    filename: fix-view-markdown-links.md
-    v: 0.0.0
-  - content: "---\npackages:\n  group:tooee:\n    type: minor\n---\n\n## Remove the 0.8 compatibility APIs\n\nTooee 0.9 removes the compatibility forms deprecated in 0.8. `Choose` now\naccepts only direct chooser props and `actions`; `launchCli` provider settings\nmust be nested under `provider`; and `AppLayout` scrolling must use `scroll`.\n\nThe config color type is now only `ColorMode`, command surfaces use\n`useSurfaceInvoke`, and overlays use handles plus state hooks instead of\n`show`, `hide`, and `isOpen`. The `tooee table` command has also been removed;\nuse `tooee view --renderer table`.\n\nSee [the 0.9 migration guide](../docs/migration-0.8-to-0.9.md) for replacements.\n"
-    filename: remove-0-8-deprecations.md
-    v: 0.0.0
-  - content: "---\npackages:\n  \"@tooee/renderers\":\n    type: patch\n---\n\n## Share chooser behavior across shell pickers\n\nTheme and command pickers now use the same filtering, navigation, input, selection, and list\nbehavior as `@tooee/choose`. `@tooee/renderers` also exports the reusable chooser primitives.\n"
-    filename: shared-chooser-list.md
+  - content: "---\npackages:\n  \"@tooee/renderers\":\n    type: patch\n---\n\n## Keep small cyclic Mermaid graphs responsive\n\nMermaid flowcharts with cyclic fan-in and fan-out topology now show their source instead of blocking the terminal UI during synchronous edge routing. Ordinary Mermaid diagrams continue to render as terminal diagrams.\n"
+    filename: fix-mermaid-cyclic-fan-topology.md
     v: 0.0.0
 core:packages:
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - fix-view-markdown-links.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/cli
+  - id: npm:@tooee/cli
+    updated: true
+  - id: npm:@tooee/ask
+    updated: true
+  - id: npm:@tooee/choose
+    updated: true
+  - id: npm:@tooee/clipboard
+    updated: true
+  - id: npm:@tooee/commands
+    updated: true
+  - id: npm:@tooee/config
+    updated: true
+  - id: npm:@tooee/diff
+    updated: true
+  - id: npm:@tooee/fuzzy
+    updated: true
+  - id: npm:@tooee/marks
+    updated: true
+  - id: npm:@tooee/overlays
+    updated: true
+  - id: npm:@tooee/layout
+    updated: true
+  - id: npm:@tooee/panels
     updated: true
   - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/ask
-    updated: true
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/choose
-    updated: true
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/clipboard
-    updated: true
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/commands
-    updated: true
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/config
-    updated: true
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/diff
-    updated: true
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/fuzzy
-    updated: true
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/layout
-    updated: true
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/marks
-    updated: true
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/overlays
-    updated: true
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/panels
-    updated: true
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-      - shared-chooser-list.md
+      - fix-mermaid-cyclic-fan-topology.md
     id: npm:@tooee/renderers
     updated: true
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/search
+  - id: npm:@tooee/router
     updated: true
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/router
+  - id: npm:@tooee/search
     updated: true
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/shell
+  - id: npm:@tooee/shell
     updated: true
   - id: npm:@tooee/test-support
     updated: false
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/themes
+  - id: npm:@tooee/themes
     updated: true
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/toasts
+  - id: npm:@tooee/view
     updated: true
-  - changelogIds:
-      - fix-cli-terminal-io.md
-      - fix-view-markdown-links.md
-      - remove-0-8-deprecations.md
-    id: npm:@tooee/view
+  - id: npm:@tooee/toasts
     updated: true
 npm:packages:
   - id: npm:@tooee/cli
@@ -121,16 +54,16 @@ npm:packages:
   - id: npm:@tooee/config
   - id: npm:@tooee/diff
   - id: npm:@tooee/fuzzy
-  - id: npm:@tooee/layout
   - id: npm:@tooee/marks
   - id: npm:@tooee/overlays
+  - id: npm:@tooee/layout
   - id: npm:@tooee/panels
   - id: npm:@tooee/renderers
-  - id: npm:@tooee/search
   - id: npm:@tooee/router
+  - id: npm:@tooee/search
   - id: npm:@tooee/shell
   - id: npm:@tooee/test-support
   - id: npm:@tooee/themes
-  - id: npm:@tooee/toasts
   - id: npm:@tooee/view
+  - id: npm:@tooee/toasts
   - id: npm:@tooee/examples
