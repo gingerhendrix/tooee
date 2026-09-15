@@ -36,6 +36,7 @@ export interface AnsiStyledText {
 const MAX_SOURCE_LENGTH = 20_000;
 const MAX_SOURCE_LINES = 300;
 const MAX_FLOWCHART_EDGES = 32;
+const MIN_UNSAFE_CYCLIC_FAN_DEGREE = 3;
 
 // oxlint-disable-next-line no-control-regex -- ANSI SGR sequences start with the ESC control character
 const SGR_SEQUENCE = /\u001B\[(?<params>[0-9;]*)m/gu;
@@ -48,6 +49,63 @@ export const isMermaidFence = function isMermaidFence(lang?: string): boolean {
   return (lang ?? "").trim().split(/\s+/u)[0]?.toLowerCase() === "mermaid";
 };
 
+const hasDirectedPath = function hasDirectedPath(
+  adjacency: Map<string, Set<string>>,
+  source: string,
+  target: string,
+): boolean {
+  const pending = [...(adjacency.get(source) ?? [])];
+  const visited = new Set<string>([source]);
+
+  while (pending.length > 0) {
+    const node = pending.pop();
+    if (node === undefined) {
+      continue;
+    }
+    if (node === target) {
+      return true;
+    }
+    if (visited.has(node)) {
+      continue;
+    }
+
+    visited.add(node);
+    pending.push(...(adjacency.get(node) ?? []));
+  }
+
+  return false;
+};
+
+const hasUnsafeCyclicFanTopology = function hasUnsafeCyclicFanTopology(
+  edges: ReturnType<typeof parseMermaid>["edges"],
+): boolean {
+  const adjacency = new Map<string, Set<string>>();
+  const incomingDegree = new Map<string, number>();
+  const outgoingDegree = new Map<string, number>();
+
+  for (const edge of edges) {
+    const targets = adjacency.get(edge.source) ?? new Set<string>();
+    targets.add(edge.target);
+    adjacency.set(edge.source, targets);
+    incomingDegree.set(edge.target, (incomingDegree.get(edge.target) ?? 0) + 1);
+    outgoingDegree.set(edge.source, (outgoingDegree.get(edge.source) ?? 0) + 1);
+  }
+
+  const fanInNodes = [...incomingDegree]
+    .filter(([, degree]) => degree >= MIN_UNSAFE_CYCLIC_FAN_DEGREE)
+    .map(([node]) => node);
+  const fanOutNodes = [...outgoingDegree]
+    .filter(([, degree]) => degree >= MIN_UNSAFE_CYCLIC_FAN_DEGREE)
+    .map(([node]) => node);
+
+  return fanInNodes.some((fanIn) =>
+    fanOutNodes.some(
+      (fanOut) =>
+        hasDirectedPath(adjacency, fanIn, fanOut) && hasDirectedPath(adjacency, fanOut, fanIn),
+    ),
+  );
+};
+
 const exceedsSynchronousRenderBudget = function exceedsSynchronousRenderBudget(
   source: string,
 ): boolean {
@@ -58,7 +116,12 @@ const exceedsSynchronousRenderBudget = function exceedsSynchronousRenderBudget(
   const firstLine = source.trimStart().split(/[;\n]/u)[0]?.trim().toLowerCase() ?? "";
   const isFlowchart = /^(?:flowchart|graph|statediagram(?:-v2)?)\b/u.test(firstLine);
 
-  return isFlowchart && parseMermaid(source).edges.length > MAX_FLOWCHART_EDGES;
+  if (!isFlowchart) {
+    return false;
+  }
+
+  const { edges } = parseMermaid(source);
+  return edges.length > MAX_FLOWCHART_EDGES || hasUnsafeCyclicFanTopology(edges);
 };
 
 const appendStyledChunk = function appendStyledChunk(

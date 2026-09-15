@@ -1,0 +1,12 @@
+flowchart TD
+  H[Human UI] --> CMD[Application command service]
+  W[WebMCP callback] --> CMD
+  M[MCP adapter] --> CMD
+  A[A2A worker] --> CMD
+  CMD --> POL[Current policy and preconditions]
+  POL --> STATE[Authoritative state]
+  STATE --> PROJ[Principal-specific projection]
+  PROJ --> H
+  PROJ --> W
+  PROJ --> M
+  STATE --> EVT[Correlated completion or task event]
