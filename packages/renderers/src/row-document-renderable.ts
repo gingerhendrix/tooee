@@ -274,6 +274,14 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     };
   }
 
+  /**
+   * True when the viewport shows the end of the content. Content that fits the
+   * viewport counts as scrolled to the bottom.
+   */
+  isScrolledToBottom(): boolean {
+    return this.scrollTop >= Math.max(0, this.scrollHeight - this.viewport.height);
+  }
+
   // -----------------------------------------------------------------------
   // scrollToRow
   // -----------------------------------------------------------------------

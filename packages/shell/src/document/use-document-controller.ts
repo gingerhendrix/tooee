@@ -24,6 +24,19 @@ const EMPTY_MATCHES: readonly number[] = [];
 const EMPTY_ROWS: readonly never[] = [];
 const EMPTY_ANCHORS: readonly never[] = [];
 
+/** The last row that accepts the cursor, or `null` when none does. */
+const lastSelectableIndex = function lastSelectableIndex(
+  count: number,
+  isSelectable: (index: number) => boolean,
+): number | null {
+  for (let index = count - 1; index >= 0; index -= 1) {
+    if (isSelectable(index)) {
+      return index;
+    }
+  }
+  return null;
+};
+
 const rowKey = function rowKey<T>(
   adapter: DocumentRowAdapter<T>,
   row: T | undefined,
@@ -107,6 +120,7 @@ export const useDocumentController = function useDocumentController<T>(
     copy = true,
     decorations: externalDecorations = EMPTY_LAYERS,
     preserveCursorByKey = false,
+    followTail = false,
     onRowPress,
     contextMenu: contextMenuOptions,
   } = options;
@@ -320,6 +334,40 @@ export const useDocumentController = function useDocumentController<T>(
     };
   }, [cursor, activeKey]);
 
+  // -- Tail follow ----------------------------------------------------------
+
+  // With `followTail`, `Document` turns on the scroll box's sticky-bottom
+  // scroll, so the viewport stays pinned while it is at the bottom. This
+  // effect keeps the cursor on the tail: when the rows change, a cursor that
+  // was on the last row moves to the new last row, but only while the view is
+  // still at the bottom. A wheel-scrolled view or a cursor the user moved up
+  // stays put. The initial state counts as "at the tail", so a followed
+  // document opens on its last row.
+  const tailRef = useRef<{ keys: readonly Key[] | null; atTail: boolean }>({
+    atTail: true,
+    keys: null,
+  });
+  useEffect(() => {
+    if (!followTail) {
+      return;
+    }
+    const tail = tailRef.current;
+    const last = lastSelectableIndex(rowKeys.length, isSelectable);
+    if (rowKeys !== tail.keys) {
+      tail.keys = rowKeys;
+      const pinned = ref.current?.isScrolledToBottom() ?? true;
+      if (tail.atTail && pinned && last !== null) {
+        // Read the store: its own rows reconciliation has already run this
+        // commit, so the rendered cursor may be stale.
+        if (navSearchStore.getSnapshot().context.cursor !== last) {
+          setCursor(last);
+        }
+        return;
+      }
+    }
+    tail.atTail = cursor === null || cursor === last;
+  }, [followTail, rowKeys, cursor, isSelectable, navSearchStore, setCursor]);
+
   // -- Mouse ----------------------------------------------------------------
 
   const hasModalOverlay = useHasModalOverlay();
@@ -414,6 +462,7 @@ export const useDocumentController = function useDocumentController<T>(
       activeKey,
       activeRow,
       decorations,
+      followTail,
       getAnchor,
       getRow,
       getRowAtScreenY,
@@ -440,6 +489,7 @@ export const useDocumentController = function useDocumentController<T>(
       selectedAnchors,
       toggledIndices,
       decorations,
+      followTail,
       getRow,
       getRowKey,
       getAnchor,

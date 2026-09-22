@@ -97,6 +97,14 @@ export interface UseDocumentControllerOptions<T> {
   /** Reconcile the cursor (and toggled rows) to their prior keys when `rows` changes. */
   preserveCursorByKey?: boolean;
 
+  /**
+   * Sticky-bottom follow for streamed rows (default false). The document opens
+   * at the last row. While the viewport is at the bottom it stays pinned there
+   * as rows arrive, and a cursor on the last row moves to the new last row.
+   * Scrolling up releases the pin; scrolling back to the bottom restores it.
+   */
+  followTail?: boolean;
+
   onRowPress?: (event: DocumentRowEvent<T>) => void;
 
   /**
@@ -117,6 +125,9 @@ export interface DocumentController<T> extends RendererDocumentBindings {
   readonly rows: readonly T[];
   readonly navigation: NavigationState;
   readonly search: SearchState | null;
+
+  /** Whether sticky-bottom follow is on; `Document` pins its viewport to the bottom when it is. */
+  readonly followTail: boolean;
 
   readonly activeIndex: number | null;
   readonly activeKey: Key | null;

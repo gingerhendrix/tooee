@@ -86,9 +86,23 @@ Important options are:
 - `copy?: boolean` controls the select-mode copy command; the default is `true`.
 - `decorations?: readonly DecorationLayer[]` adds application layers to the controller's cursor, selection, toggle, and search layers.
 - `preserveCursorByKey?: boolean` opts into key-based cursor reconciliation.
+- `followTail?: boolean` turns on sticky-bottom follow for streamed rows. See [Scroll follow](#scroll-follow).
 - `onRowPress` and `contextMenu` configure mouse behavior.
 
 The controller exposes `rows`, `navigation`, optional `search`, `activeIndex`, `activeKey`, `activeRow`, `selectedRows`, `toggledIndices`, anchors, renderer bindings, and row helpers. `getRow(index)` returns `undefined` out of range; `getAnchor(index)` returns `null` out of range.
+
+## Scroll follow
+
+The viewport follows the cursor when the cursor moves. A new `rows` array on its own does not move the viewport, so a wheel-scrolled document keeps its place while rows stream in.
+
+Set `followTail: true` for logs, traces, and other views that grow at the end:
+
+- The document opens on its last row, with the viewport at the bottom.
+- While the viewport is at the bottom, it stays there as rows arrive. `Document` turns on the scroll box's `stickyScroll` with `stickyStart: "bottom"` for this.
+- A cursor on the last row moves to the new last row. A cursor that the user moved up stays on its row.
+- Scroll up to stop following. Scroll back to the bottom to follow again.
+
+Renderers that do not use `Document` must set `stickyScroll` and `stickyStart: "bottom"` on their `row-document` themselves.
 
 ## `Document` and `DocumentScreen`
 

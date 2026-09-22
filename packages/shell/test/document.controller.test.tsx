@@ -574,3 +574,106 @@ describe("scroll follow", () => {
     expect(session.captureCharFrame()).toContain("row-40");
   });
 });
+
+describe("tail follow", () => {
+  const MANY = Array.from({ length: 40 }, (_, i) => row(`r${i}`, `row-${i}`));
+  const MORE = [...MANY, row("r40", "row-40"), row("r41", "row-41")];
+  const FOLLOW = { followTail: true } as const;
+
+  const wheel = async function wheel(direction: "up" | "down"): Promise<void> {
+    await act(async () => {
+      await session.mockMouse.scroll(10, 10, direction);
+    });
+    await session.renderOnce();
+  };
+
+  const document = function document() {
+    return expectDefined(controller().ref.current);
+  };
+
+  test("opens on the last row with the viewport at the bottom", async () => {
+    await setup(MANY, FOLLOW);
+
+    expect(active()).toBe("r39/39");
+    expect(document().isScrolledToBottom()).toBe(true);
+    const frame = session.captureCharFrame();
+    expect(frame).toContain("row-39");
+    expect(frame).not.toMatch(/^row-0\s*$/mu);
+  });
+
+  test("appended rows keep a pinned viewport at the bottom and move the tail cursor", async () => {
+    const setRows = await setupDynamic(MANY, FOLLOW);
+
+    await setRows(MORE);
+
+    expect(active()).toBe("r41/41");
+    expect(document().isScrolledToBottom()).toBe(true);
+    expect(session.captureCharFrame()).toContain("row-41");
+  });
+
+  test("rows that stream into an empty document are followed past the fold", async () => {
+    const setRows = await setupDynamic([], FOLLOW);
+
+    await setRows(MANY.slice(0, 10));
+    await setRows(MANY.slice(0, 25));
+    await setRows(MANY);
+
+    expect(active()).toBe("r39/39");
+    expect(document().isScrolledToBottom()).toBe(true);
+    const frame = session.captureCharFrame();
+    expect(frame).toContain("row-39");
+    expect(frame).not.toMatch(/^row-0\s*$/mu);
+  });
+
+  test("scrolling up releases the pin", async () => {
+    const setRows = await setupDynamic(MANY, FOLLOW);
+    await wheel("up");
+    await wheel("up");
+    const { scrollTop } = document();
+    expect(document().isScrolledToBottom()).toBe(false);
+
+    await setRows(MORE);
+
+    expect(active()).toBe("r39/39");
+    expect(document().scrollTop).toBe(scrollTop);
+    expect(session.captureCharFrame()).not.toContain("row-41");
+  });
+
+  test("scrolling back to the bottom restores the pin", async () => {
+    const setRows = await setupDynamic(MANY, FOLLOW);
+    await wheel("up");
+    await wheel("up");
+    await wheel("down");
+    await wheel("down");
+    expect(document().isScrolledToBottom()).toBe(true);
+
+    await setRows(MORE);
+
+    expect(active()).toBe("r41/41");
+    expect(document().isScrolledToBottom()).toBe(true);
+    expect(session.captureCharFrame()).toContain("row-41");
+  });
+
+  test("a cursor moved off the tail stays on its row while the viewport follows", async () => {
+    const setRows = await setupDynamic(MANY, FOLLOW);
+    await press(session, "k");
+    expect(active()).toBe("r38/38");
+
+    await setRows(MORE);
+
+    expect(active()).toBe("r38/38");
+    expect(document().isScrolledToBottom()).toBe(true);
+    expect(session.captureCharFrame()).toContain("row-41");
+  });
+
+  test("without followTail, appended rows do not move a bottom viewport", async () => {
+    const setRows = await setupDynamic(MANY);
+    await press(session, "g", { shift: true });
+    expect(active()).toBe("r39/39");
+
+    await setRows(MORE);
+
+    expect(active()).toBe("r39/39");
+    expect(session.captureCharFrame()).not.toContain("row-41");
+  });
+});
