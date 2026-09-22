@@ -45,6 +45,34 @@ describe("rows and cursor invariants", () => {
     store.trigger.move({ delta: -1 });
     expect(context(store).cursor).toBe(0);
   });
+
+  test("jump emits the landing row, also when the cursor is already there", () => {
+    const deps = { isSelectable: (index: number) => index !== 3 };
+    const store = createNavSearchStore({ deps, keys: [0, 1, 2, 3] });
+    const jumped: number[] = [];
+    store.on("jumped", ({ index }) => {
+      jumped.push(index);
+    });
+
+    store.trigger.jump({ direction: -1, index: 3 });
+    store.trigger.jump({ direction: -1, index: 3 });
+
+    expect(context(store).cursor).toBe(2);
+    expect(jumped).toEqual([2, 2]);
+  });
+
+  test("jump emits nothing when no row accepts the cursor", () => {
+    const store = createNavSearchStore();
+    const jumped: number[] = [];
+    store.on("jumped", ({ index }) => {
+      jumped.push(index);
+    });
+
+    store.trigger.jump({ direction: 1, index: 0 });
+
+    expect(context(store).cursor).toBeNull();
+    expect(jumped).toEqual([]);
+  });
 });
 
 describe("selection and toggles", () => {

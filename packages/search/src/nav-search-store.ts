@@ -150,10 +150,20 @@ export const createNavSearchStore = function createNavSearchStore(
       cancelSelect: (ctx) =>
         ctx.selectionAnchor === null ? ctx : { ...ctx, selectionAnchor: null },
       enterSelect: (ctx) => ({ ...ctx, selectionAnchor: ctx.cursor }),
-      jump: (ctx, event) => ({
-        ...ctx,
-        cursor: resolveIndex(event.index, event.direction, ctx.rowKeys.length, deps.isSelectable),
-      }),
+      jump: (ctx, event, enqueue) => {
+        const cursor = resolveIndex(
+          event.index,
+          event.direction,
+          ctx.rowKeys.length,
+          deps.isSelectable,
+        );
+        // Emit even when the cursor is already on the target row, so a view
+        // can reveal a row the user scrolled away from.
+        if (cursor !== null) {
+          enqueue.emit.jumped({ index: cursor });
+        }
+        return { ...ctx, cursor };
+      },
       move: (ctx, event) => {
         if (ctx.cursor === null) {
           return ctx;

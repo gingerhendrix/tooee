@@ -334,6 +334,22 @@ export const useDocumentController = function useDocumentController<T>(
     };
   }, [cursor, activeKey]);
 
+  // An explicit jump (`g g`, `G`, a search match) reveals its row even when
+  // the cursor is already on it, so it brings back a row the user scrolled
+  // away from. A jump that moves the cursor also runs the follow above; both
+  // scroll to the same row.
+  useEffect(() => {
+    const subscription = navSearchStore.on("jumped", ({ index }) => {
+      const document = ref.current;
+      if (document?.getRowMetrics(index)) {
+        document.scrollToRow(index, "nearest");
+      }
+    });
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navSearchStore]);
+
   // -- Tail follow ----------------------------------------------------------
 
   // With `followTail`, `Document` turns on the scroll box's sticky-bottom

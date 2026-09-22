@@ -573,6 +573,34 @@ describe("scroll follow", () => {
     expect(active()).toBe("r40/40");
     expect(session.captureCharFrame()).toContain("row-40");
   });
+
+  test("g g brings back the first row when the cursor is already on it", async () => {
+    await setup(MANY);
+    await wheelAway();
+
+    await press(session, "g");
+    await press(session, "g");
+
+    expect(active()).toBe("r0/0");
+    expect(expectDefined(controller().ref.current).scrollTop).toBe(0);
+    expect(session.captureCharFrame()).toContain("row-0");
+  });
+
+  test("G brings back the last row when the cursor is already on it", async () => {
+    await setup(MANY);
+    await press(session, "g", { shift: true });
+    expect(active()).toBe("r39/39");
+    await act(async () => {
+      await session.mockMouse.scroll(10, 10, "up");
+    });
+    await session.renderOnce();
+    expect(session.captureCharFrame()).not.toContain("row-39");
+
+    await press(session, "g", { shift: true });
+
+    expect(active()).toBe("r39/39");
+    expect(session.captureCharFrame()).toContain("row-39");
+  });
 });
 
 describe("tail follow", () => {
@@ -645,6 +673,22 @@ describe("tail follow", () => {
     await wheel("up");
     await wheel("down");
     await wheel("down");
+    expect(document().isScrolledToBottom()).toBe(true);
+
+    await setRows(MORE);
+
+    expect(active()).toBe("r41/41");
+    expect(document().isScrolledToBottom()).toBe(true);
+    expect(session.captureCharFrame()).toContain("row-41");
+  });
+
+  test("G after scrolling up restores the pin", async () => {
+    const setRows = await setupDynamic(MANY, FOLLOW);
+    await wheel("up");
+    await wheel("up");
+    expect(document().isScrolledToBottom()).toBe(false);
+
+    await press(session, "g", { shift: true });
     expect(document().isScrolledToBottom()).toBe(true);
 
     await setRows(MORE);
