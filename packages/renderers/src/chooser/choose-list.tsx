@@ -135,7 +135,9 @@ export const ChooseList = function ChooseList({
             flexDirection="row"
             height={rowHeight}
             backgroundColor={isActive ? theme.backgroundElement : undefined}
-            style={{ paddingLeft: 1, paddingRight: 1 }}
+            // OpenTUI lays wrapped row text out one column wider than the padded row
+            // once the scrollbar appears, so two columns keep a gap before the scrollbar.
+            style={{ paddingLeft: 1, paddingRight: 2 }}
             onMouseDown={(event) => {
               if (interactionSuspended || event.button !== 0 || rowClick === "none") {
                 return;
