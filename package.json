@@ -49,14 +49,14 @@
     "@types/bun": "^1.4.2",
     "@types/react": "^19.3.0",
     "ghostty-opentui": "^1.4.5",
-    "lefthook": "2.1.10",
+    "lefthook": "2.1.14",
     "marked": "^18.0.14",
     "oxfmt": "0.70.0",
     "oxlint": "1.85.0",
     "oxlint-tsgolint": "7.0.2002",
     "react": "^19.3.0",
-    "react-doctor": "0.7.4",
-    "tegami": "1.2.6",
+    "react-doctor": "0.9.14",
+    "tegami": "1.5.0",
     "tuistory": "^0.0.16",
     "ultracite": "7.12.0"
   }
