@@ -519,4 +519,58 @@ describe("scroll follow", () => {
     expect(frame).toContain("row-30");
     expect(frame).not.toMatch(/^row-0\s*$/mu);
   });
+
+  const wheelDown = async function wheelDown(): Promise<void> {
+    await act(async () => {
+      await session.mockMouse.scroll(10, 10, "down");
+    });
+    await session.renderOnce();
+  };
+
+  /** Wheel-scrolls the document down, which moves the viewport and leaves the cursor alone. */
+  const wheelAway = async function wheelAway(): Promise<number> {
+    await wheelDown();
+    await wheelDown();
+    await wheelDown();
+    const { scrollTop } = expectDefined(controller().ref.current);
+    expect(scrollTop).toBeGreaterThan(0);
+    expect(active()).toBe("r0/0");
+    expect(session.captureCharFrame()).not.toMatch(/^row-0\s*$/mu);
+    return scrollTop;
+  };
+
+  test("appending rows keeps a wheel-scrolled viewport in place", async () => {
+    const setRows = await setupDynamic(MANY);
+    const scrollTop = await wheelAway();
+
+    await setRows([...MANY, row("r40", "row-40"), row("r41", "row-41")]);
+
+    expect(active()).toBe("r0/0");
+    expect(expectDefined(controller().ref.current).scrollTop).toBe(scrollTop);
+    expect(session.captureCharFrame()).not.toMatch(/^row-0\s*$/mu);
+  });
+
+  test("changing row text in place keeps a wheel-scrolled viewport in place", async () => {
+    const setRows = await setupDynamic(MANY);
+    const scrollTop = await wheelAway();
+
+    await setRows(MANY.map((r) => ({ ...r, label: `${r.label} updated` })));
+
+    expect(active()).toBe("r0/0");
+    expect(expectDefined(controller().ref.current).scrollTop).toBe(scrollTop);
+    const frame = session.captureCharFrame();
+    expect(frame).toContain("updated");
+    expect(frame).not.toMatch(/^row-0 updated\s*$/mu);
+  });
+
+  test("moving the cursor after a rows update still follows it", async () => {
+    const setRows = await setupDynamic(MANY);
+    await wheelAway();
+    await setRows([...MANY, row("r40", "row-40")]);
+
+    await press(session, "g", { shift: true });
+
+    expect(active()).toBe("r40/40");
+    expect(session.captureCharFrame()).toContain("row-40");
+  });
 });

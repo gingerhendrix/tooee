@@ -287,6 +287,10 @@ export const useDocumentController = function useDocumentController<T>(
 
   // -- Scroll follow --------------------------------------------------------
 
+  // Follow the cursor only when the cursor moves: its index changes, or a
+  // different row becomes active. A rows-only update (streamed rows, text
+  // edits) keeps the viewport where it is, so a wheel-scrolled view is not
+  // pulled back to the cursor row.
   const { cursor } = navigation;
   useEffect(() => {
     const document = ref.current;
@@ -303,8 +307,9 @@ export const useDocumentController = function useDocumentController<T>(
       };
     }
 
-    // Geometry is computed during render, so the first cursor effect after a
-    // mount or a row change finds no metrics. Follow once it exists.
+    // Geometry is computed during render, so a cursor that moves before its
+    // row has been laid out (the first frame after a mount, or a move onto a
+    // just-added row) finds no metrics. Follow once it exists.
     const onGeometry = () => {
       document.off("row-geometry-change", onGeometry);
       document.scrollToRow(cursor, "nearest");
@@ -313,7 +318,7 @@ export const useDocumentController = function useDocumentController<T>(
     return () => {
       document.off("row-geometry-change", onGeometry);
     };
-  }, [cursor, rows]);
+  }, [cursor, activeKey]);
 
   // -- Mouse ----------------------------------------------------------------
 
