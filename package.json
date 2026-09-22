@@ -57,7 +57,7 @@
     "react": "^19.3.0",
     "react-doctor": "0.9.14",
     "tegami": "1.5.0",
-    "tuistory": "^0.0.16",
+    "tuistory": "^0.11.0",
     "ultracite": "7.12.0"
   }
 }
