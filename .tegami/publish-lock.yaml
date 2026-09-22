@@ -1,6 +1,9 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/renderers\":\n    type: patch\n---\n\n## Keep small cyclic Mermaid graphs responsive\n\nMermaid flowcharts with cyclic fan-in and fan-out topology now show their source instead of blocking the terminal UI during synchronous edge routing. Ordinary Mermaid diagrams continue to render as terminal diagrams.\n"
-    filename: fix-mermaid-cyclic-fan-topology.md
+  - content: "---\npackages:\n  \"@tooee/shell\":\n    type: minor\n  \"@tooee/renderers\":\n    type: minor\n---\n\n## Sticky-bottom follow for documents\n\n`useDocumentController` takes a new `followTail` option for streamed rows. A followed document opens on its last row. While the viewport is at the bottom, it stays pinned there as rows arrive, and a cursor on the last row moves to the new last row. Scroll up to stop following. Scroll back to the bottom to follow again. `Document` turns on the scroll box's sticky-bottom scroll for you.\n\n`RowDocumentRenderable` has a new `isScrolledToBottom()` method.\n"
+    filename: document-follow-tail.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/shell\":\n    type: patch\n---\n\n## Keep the scroll position when document rows update\n\nDocuments built on `useDocumentController` no longer jump back to the cursor row when their rows change. Streamed rows and in-place text updates now keep a wheel-scrolled viewport where it is. The view still follows the cursor when the cursor moves.\n"
+    filename: fix-preserve-scroll-on-rows-change.md
     v: 0.0.0
 core:packages:
   - id: npm:@tooee/cli
@@ -11,52 +14,55 @@ core:packages:
     updated: true
   - id: npm:@tooee/clipboard
     updated: true
-  - id: npm:@tooee/commands
-    updated: true
   - id: npm:@tooee/config
+    updated: true
+  - id: npm:@tooee/commands
     updated: true
   - id: npm:@tooee/diff
     updated: true
   - id: npm:@tooee/fuzzy
     updated: true
+  - id: npm:@tooee/layout
+    updated: true
   - id: npm:@tooee/marks
     updated: true
   - id: npm:@tooee/overlays
     updated: true
-  - id: npm:@tooee/layout
-    updated: true
   - id: npm:@tooee/panels
     updated: true
   - changelogIds:
-      - fix-mermaid-cyclic-fan-topology.md
+      - document-follow-tail.md
     id: npm:@tooee/renderers
     updated: true
   - id: npm:@tooee/router
     updated: true
   - id: npm:@tooee/search
     updated: true
-  - id: npm:@tooee/shell
+  - changelogIds:
+      - document-follow-tail.md
+      - fix-preserve-scroll-on-rows-change.md
+    id: npm:@tooee/shell
     updated: true
   - id: npm:@tooee/test-support
     updated: false
   - id: npm:@tooee/themes
     updated: true
-  - id: npm:@tooee/view
-    updated: true
   - id: npm:@tooee/toasts
+    updated: true
+  - id: npm:@tooee/view
     updated: true
 npm:packages:
   - id: npm:@tooee/cli
   - id: npm:@tooee/ask
   - id: npm:@tooee/choose
   - id: npm:@tooee/clipboard
-  - id: npm:@tooee/commands
   - id: npm:@tooee/config
+  - id: npm:@tooee/commands
   - id: npm:@tooee/diff
   - id: npm:@tooee/fuzzy
+  - id: npm:@tooee/layout
   - id: npm:@tooee/marks
   - id: npm:@tooee/overlays
-  - id: npm:@tooee/layout
   - id: npm:@tooee/panels
   - id: npm:@tooee/renderers
   - id: npm:@tooee/router
@@ -64,6 +70,6 @@ npm:packages:
   - id: npm:@tooee/shell
   - id: npm:@tooee/test-support
   - id: npm:@tooee/themes
-  - id: npm:@tooee/view
   - id: npm:@tooee/toasts
+  - id: npm:@tooee/view
   - id: npm:@tooee/examples
