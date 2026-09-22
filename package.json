@@ -17,7 +17,7 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "bunx tsc -b",
+    "build": "tsc -b",
     "clean": "rm -rf packages/*/dist apps/*/dist",
     "test": "find . -path '*/node_modules' -prune -o \\( -name '*.test.ts' -o -name '*.test.tsx' \\) -print0 | xargs -0 -P4 -n1 bun --conditions=@tooee/source test",
     "test:parallel": "find . -path '*/node_modules' -prune -o \\( -name '*.test.ts' -o -name '*.test.tsx' \\) -print0 | xargs -0 -P4 -n1 bun --conditions=@tooee/source test",
@@ -28,7 +28,7 @@
     "bench:heavy:interaction": "bun --conditions=@tooee/source benchmarks/heavy-interaction.tsx",
     "bench:data-prep": "bun --conditions=@tooee/source benchmarks/data-prep.ts",
     "bench:compare": "bun --conditions=@tooee/source benchmarks/compare.ts",
-    "check": "bunx tsc -b && bunx tsc -p examples",
+    "check": "tsc -b && tsc -p examples",
     "lint": "ultracite fix",
     "lint:check": "ultracite check --no-error-on-unmatched-pattern",
     "lint:staged": "bun run lint:check",
@@ -58,6 +58,7 @@
     "react-doctor": "0.9.14",
     "tegami": "1.5.0",
     "tuistory": "^0.11.0",
+    "typescript": "^7.0.2",
     "ultracite": "7.12.0"
   }
 }
