@@ -1,6 +1,8 @@
 import { test, expect, describe } from "bun:test";
-import { sourceLines, sourceLineAdapter } from "../src/source.js";
+
 import { expectDefined } from "@tooee/test-support";
+
+import { sourceLines, sourceLineAdapter } from "../src/source.js";
 
 interface LineProjection {
   text: string;

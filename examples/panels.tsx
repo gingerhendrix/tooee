@@ -28,9 +28,9 @@
  * stack) is preserved across switches and across opening/closing the modal.
  */
 
-import { createContext, useContext, useState } from "react";
-import type { ReactNode } from "react";
 import { CommandSurfaceProvider, useCommand } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { Panel, PanelGroup } from "@tooee/panels";
 import {
   Outlet,
   RouterProvider,
@@ -39,10 +39,10 @@ import {
   useNavigate,
   useRouterCommands,
 } from "@tooee/router";
-import { Panel, PanelGroup } from "@tooee/panels";
-import { AppLayout } from "@tooee/layout";
 import { launchCli, useQuitCommand, useThemeCommands } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
+import { createContext, useContext, useState } from "react";
+import type { ReactNode } from "react";
 
 const STREAMS = ["alpha", "beta", "gamma", "delta"];
 
@@ -77,15 +77,13 @@ const StreamList = function StreamList({
 
   return (
     <box flexDirection="column" paddingLeft={1} paddingRight={1}>
-      {STREAMS.map(
-        (name, index): ReactNode => (
-          <text
-            key={name}
-            content={`${index === selected ? "▸ " : "  "}${name}`}
-            fg={index === selected ? theme.text : theme.textMuted}
-          />
-        ),
-      )}
+      {STREAMS.map((name, index): ReactNode => (
+        <text
+          key={name}
+          content={`${index === selected ? "▸ " : "  "}${name}`}
+          fg={index === selected ? theme.text : theme.textMuted}
+        />
+      ))}
     </box>
   );
 };

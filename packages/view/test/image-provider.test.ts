@@ -1,5 +1,6 @@
-import path from "node:path";
 import { describe, expect, test } from "bun:test";
+import path from "node:path";
+
 import { createFileProvider } from "../src/default-provider.js";
 
 describe("createFileProvider image support", () => {

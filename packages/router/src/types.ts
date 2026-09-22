@@ -1,5 +1,6 @@
-import type { StateCache } from "./state-cache.js";
 import type { ComponentType } from "react";
+
+import type { StateCache } from "./state-cache.js";
 
 /**
  * Params attached to a stack entry.
@@ -127,7 +128,7 @@ export type NavigationGuardResult =
 
 export type NavigationGuard<TContext> = (
   navigation: ResolvedNavigation,
-  context: TContext,
+  context: TContext
 ) => NavigationGuardResult | Promise<NavigationGuardResult>;
 
 export type NavigationEvent =
@@ -158,7 +159,7 @@ export interface RouterInstance<TContext = undefined> {
   readonly started: boolean;
   navigate: (
     intent: SerializedNavigationIntent,
-    options?: { signal?: AbortSignal },
+    options?: { signal?: AbortSignal }
   ) => Promise<NavigationResult>;
   push: <TParams extends RouteParams>(
     route: RouteDefinition<TParams>,

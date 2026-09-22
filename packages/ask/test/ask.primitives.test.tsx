@@ -1,17 +1,19 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { act, createRef, useRef, useState } from "react";
+
 import { isEditBufferRenderable } from "@opentui/core";
 import type { EditBufferRenderable, Renderable } from "@opentui/core";
-import { TooeeProvider } from "@tooee/shell";
 import { CommandSurfaceProvider, useCommand, useMode } from "@tooee/commands";
 import { AppLayout } from "@tooee/layout";
+import { TooeeProvider } from "@tooee/shell";
 import { testRender, copied, expectDefined } from "@tooee/test-support";
+import { act, createRef, useRef, useState } from "react";
+import type { ReactNode, RefObject } from "react";
+
 import { AskEditor } from "../src/ask-editor.js";
 import { AskOverlay } from "../src/ask-overlay.js";
 import { buildAskHints } from "../src/ask-panel.js";
 import { useAskEditor } from "../src/use-ask-editor.js";
 import type { AskEditorCommandGroup, AskEditorController } from "../src/use-ask-editor.js";
-import type { ReactNode, RefObject } from "react";
 
 const ControllerHost = function ControllerHost(props: {
   multiline?: boolean;
@@ -275,7 +277,7 @@ describe("AskEditorController", () => {
         onSubmit={(value) => {
           submitted = value;
         }}
-      />,
+      />
     );
 
     expect(controllerRef.current).not.toBeNull();
@@ -305,7 +307,7 @@ describe("AskEditorController", () => {
         onSubmit={(value) => {
           submitted = value;
         }}
-      />,
+      />
     );
 
     await act(async () => {
@@ -333,7 +335,7 @@ describe("AskEditorController", () => {
         onSubmit={(value) => {
           submitted = value;
         }}
-      />,
+      />
     );
 
     await act(async () => {
@@ -355,7 +357,7 @@ describe("AskEditorController", () => {
         onSubmit={(value) => {
           submitted = value;
         }}
-      />,
+      />
     );
 
     await act(async () => {
@@ -403,7 +405,7 @@ describe("AskOverlay chrome extension points", () => {
         onCancel={() => {}}
         hints={({ defaults }) => [...defaults, "m model"].join("  ")}
         statusRight="REC"
-      />,
+      />
     );
 
     const frame = testSetup.captureCharFrame();
@@ -418,7 +420,7 @@ describe("AskOverlay chrome extension points", () => {
         prompt="Enter a message"
         onSubmit={() => {}}
         onCancel={() => {}}
-      />,
+      />
     );
 
     const frame = testSetup.captureCharFrame();
@@ -428,17 +430,17 @@ describe("AskOverlay chrome extension points", () => {
 
   test("buildAskHints matches the shipped hint strings", () => {
     expect(buildAskHints("insert", { multiline: true }).join("  ")).toBe(
-      "Shift+Enter submit  Esc commands",
+      "Shift+Enter submit  Esc commands"
     );
     expect(buildAskHints("cursor", {}).join("  ")).toBe("i insert  q quit  Enter submit");
     expect(buildAskHints("cursor", { multiline: true }).join("  ")).toBe(
-      "i insert  q quit  Enter submit",
+      "i insert  q quit  Enter submit"
     );
     expect(buildAskHints("cursor", { extra: ["m model"] }).join("  ")).toBe(
-      "i insert  q quit  Enter submit  m model",
+      "i insert  q quit  Enter submit  m model"
     );
     expect(buildAskHints("cursor", { cursorExtra: [": palette"] }).join("  ")).toBe(
-      "i insert  q quit  : palette  Enter submit",
+      "i insert  q quit  : palette  Enter submit"
     );
   });
 });
@@ -452,7 +454,7 @@ describe("AskOverlay nested modal surfaces", () => {
           cancelCount += 1;
         }}
         onSubmit={() => {}}
-      />,
+      />
     );
 
     expect(testSetup.captureCharFrame()).toContain("PICKER");

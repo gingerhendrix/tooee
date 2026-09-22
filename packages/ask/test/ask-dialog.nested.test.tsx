@@ -1,12 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { act, useRef } from "react";
-import { TooeeProvider } from "@tooee/shell";
-import { useCurrentOverlay } from "@tooee/overlays";
+
 import { useChooseDialog } from "@tooee/choose";
+import { useCurrentOverlay } from "@tooee/overlays";
+import { TooeeProvider } from "@tooee/shell";
 import { testRender, expectDefined } from "@tooee/test-support";
+import { act, useRef } from "react";
+import type { ReactNode } from "react";
+
 import { useAskDialog } from "../src/use-ask-dialog.js";
 import type { AskEditorController } from "../src/use-ask-editor.js";
-import type { ReactNode } from "react";
 
 interface Model {
   id: string;
@@ -133,7 +135,7 @@ const setupNested = async function setupNested() {
     <TooeeProvider>
       <NestedHarness />
     </TooeeProvider>,
-    { height: 30, kittyKeyboard: true, width: 80 },
+    { height: 30, kittyKeyboard: true, width: 80 }
   );
   await session.renderOnce();
   return session;

@@ -1,5 +1,6 @@
 import { useProvideCommandContextKey } from "@tooee/commands";
 import type { MarkSet } from "@tooee/marks";
+
 import type { AnyContent } from "../types.js";
 
 /**
@@ -56,7 +57,7 @@ type ViewCommandContextInput =
 
 /** Resolve the hook's public eager-or-lazy option union at its boundary. */
 const resolveViewCommandContextOptions = function resolveViewCommandContextOptions(
-  options: ViewCommandContextInput,
+  options: ViewCommandContextInput
 ): ProvideViewCommandContextOptions {
   // oxlint-disable-next-line anti-slop/no-runtime-typeof -- public hook boundary distinguishes the documented lazy options callback from eager options
   return typeof options === "function" ? options() : options;
@@ -96,9 +97,9 @@ export const createViewCommandContext = function createViewCommandContext({
 };
 
 export const useProvideViewCommandContext = function useProvideViewCommandContext(
-  options: ViewCommandContextInput,
+  options: ViewCommandContextInput
 ): void {
   useProvideCommandContextKey("view", () =>
-    createViewCommandContext(resolveViewCommandContextOptions(options)),
+    createViewCommandContext(resolveViewCommandContextOptions(options))
   );
 };

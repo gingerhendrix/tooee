@@ -1,11 +1,13 @@
 import { afterEach, expect, mock, test } from "bun:test";
-import { act } from "react";
+
 import { MouseButtons } from "@opentui/core/testing";
+import { Outlet, RouterProvider } from "@tooee/router";
 import { TooeeProvider } from "@tooee/shell";
 import { keyEvent, press, pressEnter, pressEscape, testRender } from "@tooee/test-support";
-import { Outlet, RouterProvider } from "@tooee/router";
-import { createStandaloneRouter } from "../src/standalone-router.js";
+import { act } from "react";
+
 import { createFileProvider } from "../src/default-provider.js";
+import { createStandaloneRouter } from "../src/standalone-router.js";
 
 let setup: Awaited<ReturnType<typeof testRender>>;
 afterEach(() => {
@@ -41,7 +43,7 @@ test("real mouse links replace the provider and resolve against the current file
         <Outlet />
       </RouterProvider>
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await settle();
   await click("Missing document");
@@ -73,7 +75,7 @@ test("cursor Enter on a line with several links opens a chooser instead of takin
         <Outlet />
       </RouterProvider>
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await settle();
   await press(setup, "g", { shift: true });
@@ -113,7 +115,7 @@ test("stdin consumes links with an info toast without running custom handlers", 
         <Outlet />
       </RouterProvider>
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await settle();
   await click("Local document");

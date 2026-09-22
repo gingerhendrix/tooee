@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
 import type { ResolvedTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
 
 export const HorizontalRule = function HorizontalRule({
   theme,

@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { act } from "react";
+
 import { TooeeProvider } from "@tooee/shell";
 import { testRender } from "@tooee/test-support";
-import { Ask } from "../src/ask.js";
+import { act } from "react";
+
 import { AskOverlay } from "../src/ask-overlay.js";
+import { Ask } from "../src/ask.js";
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
@@ -16,7 +18,7 @@ const TRACK = "░";
 
 // 30 uniquely-identifiable lines, far taller than the boxes used below.
 const tallValue = Array.from({ length: 30 }, (_, i) => `L${String(i + 1).padStart(2, "0")}`).join(
-  "\n",
+  "\n"
 );
 
 const setupAsk = async function setupAsk(value: string, width = 40, height = 14) {
@@ -24,7 +26,7 @@ const setupAsk = async function setupAsk(value: string, width = 40, height = 14)
     <TooeeProvider initialMode="insert">
       <Ask prompt="Q" multiline defaultValue={value} />
     </TooeeProvider>,
-    { height, kittyKeyboard: true, width },
+    { height, kittyKeyboard: true, width }
   );
   await s.renderOnce();
   return s;
@@ -41,7 +43,7 @@ const setupOverlay = async function setupOverlay(value: string, width = 60, heig
         onCancel={() => {}}
       />
     </TooeeProvider>,
-    { height, kittyKeyboard: true, width },
+    { height, kittyKeyboard: true, width }
   );
   await s.renderOnce();
   return s;

@@ -1,6 +1,5 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
-import { act, useEffect } from "react";
+
 import {
   createRoute,
   createRouter,
@@ -9,8 +8,11 @@ import {
   Outlet,
   useScreenState,
 } from "@tooee/router";
-import { counterState, valueState } from "./support/codecs.ts";
+import { testRender } from "@tooee/test-support";
+import { act, useEffect } from "react";
 import type { ReactNode } from "react";
+
+import { counterState, valueState } from "./support/codecs.ts";
 
 // Route specs (identity + screen-state codec) declared before their components.
 const screenASpec = { id: "screenA", screenState: valueState } as const;
@@ -81,7 +83,7 @@ describe("useScreenState", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -125,7 +127,7 @@ describe("useScreenState", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -159,7 +161,7 @@ describe("useScreenState", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -212,7 +214,7 @@ describe("useScreenState", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -232,7 +234,7 @@ describe("useScreenState", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 

@@ -1,8 +1,9 @@
-import { runCliSession } from "@tooee/shell";
 import type { ActionDefinition } from "@tooee/commands";
+import { runCliSession } from "@tooee/shell";
+import type { ReactNode } from "react";
+
 import { Ask } from "./ask.js";
 import type { AskOptions } from "./types.js";
-import type { ReactNode } from "react";
 
 export interface AskLaunchOptions extends AskOptions {
   actions?: ActionDefinition[];
@@ -30,6 +31,6 @@ export const launch = async function launch(options: AskLaunchOptions): Promise<
       provider: { initialMode: "insert" },
       stdinPolicy: "tty-if-piped",
       stdoutPolicy: "tty-if-redirected",
-    },
+    }
   );
 };

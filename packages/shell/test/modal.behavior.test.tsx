@@ -1,10 +1,11 @@
+import { test, expect, afterEach, describe } from "bun:test";
+
+import { useMode } from "@tooee/commands";
+import { useSearch } from "@tooee/search";
+import { TooeeProvider, useNavigation } from "@tooee/shell";
 import { testRender, press } from "@tooee/test-support";
 import type { TestSession } from "@tooee/test-support";
-import { test, expect, afterEach, describe } from "bun:test";
 import { act } from "react";
-import { TooeeProvider, useNavigation } from "@tooee/shell";
-import { useSearch } from "@tooee/search";
-import { useMode } from "@tooee/commands";
 import type { ReactNode } from "react";
 
 const ModalHarness = function ModalHarness({
@@ -35,7 +36,7 @@ const setup = async function setup(rowCount = 100, isSelectable?: (index: number
     <TooeeProvider>
       <ModalHarness rowCount={rowCount} isSelectable={isSelectable} />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 60 },
+    { height: 24, kittyKeyboard: true, width: 60 }
   );
   await session.renderOnce();
   return session;

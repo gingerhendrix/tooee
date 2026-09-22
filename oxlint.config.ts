@@ -91,6 +91,31 @@ export default defineConfig({
     // role ("modal" | "passive"), and the rule can only ever produce false positives here.
     "jsx-a11y/aria-role": "off",
     // Tooee does not use React Compiler, so compiler-adoption guidance is not applicable.
-    "react/react-compiler": "off",
+    // Oxlint 1.79 split the former `react/react-compiler` rule into these categories.
+    "react/capitalized-calls": "off",
+    "react/error-boundaries": "off",
+    "react/exhaustive-effect-dependencies": "off",
+    "react/globals": "off",
+    "react/hooks": "off",
+    "react/immutability": "off",
+    "react/incompatible-library": "off",
+    "react/invariant": "off",
+    "react/memo-dependencies": "off",
+    "react/no-deriving-state-in-effects": "off",
+    "react/preserve-manual-memoization": "off",
+    "react/purity": "off",
+    "react/refs": "off",
+    "react/rule-suppression": "off",
+    "react/set-state-in-effect": "off",
+    "react/set-state-in-render": "off",
+    "react/static-components": "off",
+    "react/syntax": "off",
+    "react/todo": "off",
+    "react/unsupported-syntax": "off",
+    "react/use-memo": "off",
+    "react/void-use-memo": "off",
+    // Components are named function expressions (`const View = function View() {}`), which
+    // keep a stable display name and match the rest of the codebase.
+    "react/function-component-definition": ["error", { namedComponents: "function-expression" }],
   },
 });

@@ -1,6 +1,8 @@
 import { test, expect, describe } from "bun:test";
-import { fuzzyMatch, fuzzyMatchPositions, rankBy } from "../src/fuzzy.js";
+
 import { expectDefined } from "@tooee/test-support";
+
+import { fuzzyMatch, fuzzyMatchPositions, rankBy } from "../src/fuzzy.js";
 
 describe("fuzzyMatch", () => {
   test("returns null for non-matching text", () => {

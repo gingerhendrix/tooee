@@ -1,10 +1,10 @@
-import { useLayoutEffect, useMemo, useRef } from "react";
-import type { ReactNode } from "react";
 import { formatStepKey, useCommandRegistry, useCommandSequenceState } from "@tooee/commands";
 import type { CommandSequenceState } from "@tooee/commands";
 import { overlayValue, useOverlay } from "@tooee/overlays";
 import type { OverlayHandle } from "@tooee/overlays";
 import { useTheme } from "@tooee/themes";
+import { useLayoutEffect, useMemo, useRef } from "react";
+import type { ReactNode } from "react";
 
 const OVERLAY_ID = "tooee.which-key";
 
@@ -14,7 +14,7 @@ export interface WhichKeyProviderProps {
 }
 
 const fallbackCandidateLabel = function fallbackCandidateLabel(
-  candidate: CommandSequenceState["candidates"][number],
+  candidate: CommandSequenceState["candidates"][number]
 ): string {
   if (candidate.remainingSteps.length === 1) {
     return candidate.command.title;
@@ -34,7 +34,7 @@ const fallbackCandidateLabel = function fallbackCandidateLabel(
 };
 
 const summarizeCandidates = function summarizeCandidates(
-  state: CommandSequenceState,
+  state: CommandSequenceState
 ): { key: string; title: string }[] {
   const byKey = new Map<string, string[]>();
   for (const candidate of state.candidates) {
@@ -76,15 +76,13 @@ export const WhichKeyOverlay = function WhichKeyOverlay({
     >
       <text fg={theme.textMuted} content={`which-key: ${prefix}`} />
       <box flexDirection="row" flexWrap="wrap" gap={1}>
-        {entries.map(
-          (entry): ReactNode => (
-            <box key={entry.key} flexDirection="row" marginRight={2}>
-              <text fg={theme.accent} content={entry.key} />
-              <text fg={theme.textMuted} content=" → " />
-              <text content={entry.title} />
-            </box>
-          ),
-        )}
+        {entries.map((entry): ReactNode => (
+          <box key={entry.key} flexDirection="row" marginRight={2}>
+            <text fg={theme.accent} content={entry.key} />
+            <text fg={theme.textMuted} content=" → " />
+            <text content={entry.title} />
+          </box>
+        ))}
       </box>
     </box>
   );
@@ -131,7 +129,7 @@ export const WhichKeyProvider = function WhichKeyProvider({
         },
         ownCommands: true,
         role: "passive",
-      },
+      }
     );
   }, [overlay, sequence, shouldShow]);
 
@@ -139,7 +137,7 @@ export const WhichKeyProvider = function WhichKeyProvider({
     () => () => {
       handleRef.current?.close("unmounted");
     },
-    [],
+    []
   );
 
   return children;

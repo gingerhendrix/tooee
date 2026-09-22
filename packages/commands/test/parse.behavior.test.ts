@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { parseHotkey } from "../src/parse.js";
-import { matchStep } from "../src/match.js";
+
 import { keyEvent as key } from "@tooee/test-support";
+
+import { matchStep } from "../src/match.js";
+import { parseHotkey } from "../src/parse.js";
 
 describe("parseHotkey super modifier (R-06)", () => {
   test("super is tracked in the parsed step", () => {
@@ -29,7 +31,7 @@ describe("parseHotkey super modifier (R-06)", () => {
   test("steps without an explicit super field still match plain keypresses", () => {
     // Back-compat: ParsedStep.super is optional
     expect(
-      matchStep(key("q"), { ctrl: false, key: "q", meta: false, option: false, shift: false }),
+      matchStep(key("q"), { ctrl: false, key: "q", meta: false, option: false, shift: false })
     ).toBe(true);
   });
 });

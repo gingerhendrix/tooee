@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+
 import {
   DEFAULT_SIGN_COLUMN_WIDTH,
   computeRowDocumentGutterWidth,
@@ -12,7 +13,7 @@ describe("row document gutter", () => {
         rowCount: 12,
         showLineNumbers: true,
         signColumnWidth: DEFAULT_SIGN_COLUMN_WIDTH,
-      }),
+      })
     ).toBe(6);
   });
 });

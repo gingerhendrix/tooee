@@ -1,11 +1,13 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { PassThrough } from "node:stream";
-import { useEffect } from "react";
-import { createTestRenderer } from "@opentui/core/testing";
+
 import type { CliRendererConfig } from "@opentui/core";
+import { createTestRenderer } from "@opentui/core/testing";
+import { useEffect } from "react";
+import type { ReactNode } from "react";
+
 import { guardTerminalHealth, launchCli, mountTooee, runCliSession } from "../src/launch.js";
 import type { CliSessionController, TooeeSessionHandle } from "../src/launch.js";
-import type { ReactNode } from "react";
 
 const expectDefined = function expectDefined<T>(value: T | undefined): T {
   if (value === undefined) {
@@ -25,7 +27,7 @@ afterEach(() => {
 });
 
 const remoteRendererOptions = function remoteRendererOptions(
-  onDestroy?: () => void,
+  onDestroy?: () => void
 ): CliRendererConfig {
   const stdin = new PassThrough();
   stdin.isTTY = true;
@@ -162,7 +164,7 @@ describe("local sessions", () => {
           rendererDestroyCalls += 1;
         }),
         terminalHealth: false,
-      },
+      }
     );
 
     await Bun.sleep(20);
@@ -181,7 +183,7 @@ describe("local sessions", () => {
         controller = session;
         return <text>cancel</text>;
       },
-      { renderer: remoteRendererOptions(), terminalHealth: false },
+      { renderer: remoteRendererOptions(), terminalHealth: false }
     );
 
     await Bun.sleep(20);

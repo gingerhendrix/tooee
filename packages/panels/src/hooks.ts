@@ -1,4 +1,5 @@
 import { useContext, useMemo } from "react";
+
 import { PanelContext, useOptionalPanelGroupContext, usePanelGroupContext } from "./context.js";
 
 export interface PanelState {
@@ -29,7 +30,7 @@ export const usePanelState = function usePanelState(): PanelState {
       isActive,
       title,
     }),
-    [activate, id, title, isActive],
+    [activate, id, title, isActive]
   );
 };
 
@@ -47,7 +48,7 @@ export const usePanels = function usePanels(): PanelsControls {
   const { panelIds, activeId, activate, next, previous } = group;
   return useMemo<PanelsControls>(
     () => ({ activate, activePanelId: activeId, next, panelIds, previous }),
-    [panelIds, activeId, activate, next, previous],
+    [panelIds, activeId, activate, next, previous]
   );
 };
 

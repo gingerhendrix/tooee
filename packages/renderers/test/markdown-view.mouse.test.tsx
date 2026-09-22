@@ -1,14 +1,16 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
-import { act } from "react";
+
 import { MouseButtons } from "@opentui/core/testing";
+import { testRender } from "@tooee/test-support";
 import { ThemeSwitcherProvider } from "@tooee/themes";
-import { MarkdownView } from "../src/markdown-view.js";
+import { act } from "react";
+import type { ReactNode } from "react";
+
 import { CodeBlockChrome } from "../src/code-blocks.js";
 import type { CodeBlockRenderer } from "../src/code-blocks.js";
+import { MarkdownView } from "../src/markdown-view.js";
 import { useRowMouseBindings } from "./support/bindings.js";
 import type { RowMouseCallbacks } from "./support/bindings.js";
-import type { ReactNode } from "react";
 
 const chartRenderer: CodeBlockRenderer = ({ text, theme, indent }): ReactNode => (
   <CodeBlockChrome theme={theme} indent={indent}>
@@ -61,7 +63,7 @@ describe("MarkdownView mouse interaction", () => {
           }}
         />
       </ThemeSwitcherProvider>,
-      { height: 20, width: 40 },
+      { height: 20, width: 40 }
     );
     await testSetup.renderOnce();
 
@@ -89,7 +91,7 @@ describe("MarkdownView mouse interaction", () => {
           }}
         />
       </ThemeSwitcherProvider>,
-      { height: 20, width: 40 },
+      { height: 20, width: 40 }
     );
     await testSetup.renderOnce();
 
@@ -123,7 +125,7 @@ describe("MarkdownView mouse interaction", () => {
           }}
         />
       </ThemeSwitcherProvider>,
-      { height: 20, width: 40 },
+      { height: 20, width: 40 }
     );
     await testSetup.renderOnce();
 
@@ -157,7 +159,7 @@ describe("MarkdownView inline links", () => {
           }}
         />
       </ThemeSwitcherProvider>,
-      { height: 10, width: 60 },
+      { height: 10, width: 60 }
     );
     await testSetup.renderOnce();
     await act(async () => {
@@ -184,7 +186,7 @@ describe("MarkdownView inline links", () => {
           }}
         />
       </ThemeSwitcherProvider>,
-      { height: 10, width: 60 },
+      { height: 10, width: 60 }
     );
     await testSetup.renderOnce();
     await act(async () => {
@@ -206,7 +208,7 @@ describe("MarkdownView inline links", () => {
           }}
         />
       </ThemeSwitcherProvider>,
-      { height: 10, width: 60 },
+      { height: 10, width: 60 }
     );
     await testSetup.renderOnce();
     await act(async () => {

@@ -1,9 +1,10 @@
-import type { Tokens } from "marked";
-import { useMemo } from "react";
-import type { ReactNode } from "react";
 import { bold as boldChunk } from "@opentui/core";
 import type { TextTableCellContent, TextTableContent } from "@opentui/core";
 import { useTheme } from "@tooee/themes";
+import type { Tokens } from "marked";
+import { useMemo } from "react";
+import type { ReactNode } from "react";
+
 import { inlineTokensToChunks } from "../chunks.js";
 import { getPlainText } from "../plain-text.js";
 
@@ -33,7 +34,7 @@ export const MarkdownTableRenderer = function MarkdownTableRenderer({
           { __isChunk: true, text: getPlainText(cell.tokens) },
         ];
         return fallbackCell;
-      }),
+      })
     );
     return [headerRow, ...dataRows];
   }, [token, theme]);

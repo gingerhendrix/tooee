@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
 import { sourceLineAdapter, sourceLines } from "@tooee/renderers";
 import type { SourceLineRow } from "@tooee/renderers";
+import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
+
+import { useContentDocument } from "../../hooks/use-content-document.js";
 import type { ImageContent } from "../../types.js";
 import { getTextContent } from "../../types.js";
-import { useContentDocument } from "../../hooks/use-content-document.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
-import type { ReactNode } from "react";
 
 interface ImageSubviewProps extends SubviewProps {
   content: ImageContent;
@@ -33,7 +34,7 @@ export const ImageSubview = function ImageSubview({
     {
       multiSelect: false,
       statusItems: [{ label: "Format:", value: content.format }],
-    },
+    }
   );
 
   return (

@@ -1,8 +1,10 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
-import { act } from "react";
+
 import { MouseButtons } from "@opentui/core/testing";
 import { TooeeProvider } from "@tooee/shell";
+import { testRender } from "@tooee/test-support";
+import { act } from "react";
+
 import { Choose } from "../src/choose.js";
 import type { ChooseContentProvider, ChooseResult } from "../src/types.js";
 
@@ -51,7 +53,7 @@ const setup = async function setup(
     onConfirm?: (result: ChooseResult) => void;
     onCancel?: () => void;
     kittyKeyboard?: boolean;
-  } = {},
+  } = {}
 ) {
   const handleConfirm = opts.onConfirm;
   const handleCancel = opts.onCancel;
@@ -65,7 +67,7 @@ const setup = async function setup(
         onCancel={handleCancel}
       />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: opts.kittyKeyboard ?? true, width: 60 },
+    { height: 24, kittyKeyboard: opts.kittyKeyboard ?? true, width: 60 }
   );
   await s.renderOnce();
   return s;
@@ -74,7 +76,7 @@ const setup = async function setup(
 const press = async function press(
   s: Awaited<ReturnType<typeof testRender>>,
   key: string,
-  modifiers?: { ctrl?: boolean; shift?: boolean },
+  modifiers?: { ctrl?: boolean; shift?: boolean }
 ) {
   await act(async () => {
     s.mockInput.pressKey(key, modifiers);
@@ -85,7 +87,7 @@ const press = async function press(
 
 const pressArrow = async function pressArrow(
   s: Awaited<ReturnType<typeof testRender>>,
-  direction: "up" | "down" | "left" | "right",
+  direction: "up" | "down" | "left" | "right"
 ) {
   await act(async () => {
     s.mockInput.pressArrow(direction);
@@ -494,29 +496,29 @@ describe("Choose mouse interaction", () => {
   });
 });
 
-describe("Choose emptyMessage", () => {
-  const setupEmpty = async function setupEmpty(
-    opts: {
-      items?: typeof ITEMS;
-      emptyMessage?: string;
-      onCancel?: () => void;
-    } = {},
-  ) {
-    const handleCancel = opts.onCancel;
-    const s = await testRender(
-      <TooeeProvider initialMode="insert">
-        <Choose
-          contentProvider={makeProvider(opts.items ?? [])}
-          emptyMessage={opts.emptyMessage}
-          onCancel={handleCancel}
-        />
-      </TooeeProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
-    );
-    await s.renderOnce();
-    return s;
-  };
+const setupEmpty = async function setupEmpty(
+  opts: {
+    items?: typeof ITEMS;
+    emptyMessage?: string;
+    onCancel?: () => void;
+  } = {}
+) {
+  const handleCancel = opts.onCancel;
+  const s = await testRender(
+    <TooeeProvider initialMode="insert">
+      <Choose
+        contentProvider={makeProvider(opts.items ?? [])}
+        emptyMessage={opts.emptyMessage}
+        onCancel={handleCancel}
+      />
+    </TooeeProvider>,
+    { height: 24, kittyKeyboard: true, width: 60 }
+  );
+  await s.renderOnce();
+  return s;
+};
 
+describe("Choose emptyMessage", () => {
   test("shows emptyMessage when items list is empty", async () => {
     testSetup = await setupEmpty({ emptyMessage: "No items available." });
     const frame = testSetup.captureCharFrame();

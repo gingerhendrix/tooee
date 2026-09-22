@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+
 import { loadConfig } from "../src/load.js";
 
 const originalCwd = process.cwd();
@@ -48,7 +49,7 @@ describe("view.diffLayout config loading", () => {
     const project = path.join(tempRoot, "project");
     writeConfigText(
       path.join(project, ".tooee", "config.json"),
-      JSON.stringify({ view: { diffLayout: "stack" } }),
+      JSON.stringify({ view: { diffLayout: "stack" } })
     );
     process.chdir(project);
 
@@ -58,7 +59,7 @@ describe("view.diffLayout config loading", () => {
   test("ignores invalid persisted layouts", () => {
     writeConfigText(
       globalConfigPath(),
-      JSON.stringify({ view: { diffLayout: "sideways", gutter: true } }),
+      JSON.stringify({ view: { diffLayout: "sideways", gutter: true } })
     );
     process.chdir(tempRoot);
 
@@ -74,7 +75,7 @@ describe("config document decoding", () => {
         keys: { "view.quit": "q", "view.search": "/" },
         theme: { mode: "light", name: "gruvbox" },
         view: { copyOnSelect: "primary", diffLayout: "split", gutter: false, wrap: true },
-      }),
+      })
     );
     process.chdir(tempRoot);
 
@@ -109,7 +110,7 @@ describe("config document decoding", () => {
       JSON.stringify({
         theme: { mode: "blue", name: 5 },
         view: { copyOnSelect: "sometimes", diffLayout: 1, gutter: "yes", wrap: null },
-      }),
+      })
     );
     process.chdir(tempRoot);
 
@@ -121,7 +122,7 @@ describe("config document decoding", () => {
   test("drops a section that is not an object", () => {
     writeConfigText(
       globalConfigPath(),
-      JSON.stringify({ keys: ["q"], theme: "gruvbox", view: null }),
+      JSON.stringify({ keys: ["q"], theme: "gruvbox", view: null })
     );
     process.chdir(tempRoot);
 
@@ -134,7 +135,7 @@ describe("config document decoding", () => {
   test("rejects the whole keys map when one value is not a string", () => {
     writeConfigText(
       globalConfigPath(),
-      JSON.stringify({ keys: { "view.quit": "q", "view.search": 1 } }),
+      JSON.stringify({ keys: { "view.quit": "q", "view.search": 1 } })
     );
     process.chdir(tempRoot);
 
@@ -144,12 +145,12 @@ describe("config document decoding", () => {
   test("merges theme fields across layers instead of replacing the section", () => {
     writeConfigText(
       globalConfigPath(),
-      JSON.stringify({ theme: { mode: "light", name: "gruvbox" } }),
+      JSON.stringify({ theme: { mode: "light", name: "gruvbox" } })
     );
     const project = path.join(tempRoot, "project");
     writeConfigText(
       path.join(project, ".tooee", "config.json"),
-      JSON.stringify({ theme: { mode: "dark" } }),
+      JSON.stringify({ theme: { mode: "dark" } })
     );
     process.chdir(project);
 

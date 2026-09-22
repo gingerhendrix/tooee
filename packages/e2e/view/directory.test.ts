@@ -1,7 +1,8 @@
 import { describe, test, expect, afterEach } from "bun:test";
+import path from "node:path";
+
 import { launchTerminal } from "tuistory";
 import type { Session } from "tuistory";
-import path from "node:path";
 
 const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
 const CLI = path.resolve(REPO_ROOT, "apps/cli/src/main.ts");

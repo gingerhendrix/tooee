@@ -1,9 +1,11 @@
-import { testRender, expectDefined } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
+
+import { testRender, expectDefined } from "@tooee/test-support";
 import { act, useState } from "react";
+import type { ReactNode } from "react";
+
 import { useContentLoader } from "../src/hooks/use-content-loader.js";
 import type { ContentChunk, ContentProvider } from "../src/types.js";
-import type { ReactNode } from "react";
 
 const failing = async function* failing(): AsyncIterable<ContentChunk> {
   yield { data: "partial", format: "text", type: "append" };

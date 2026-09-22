@@ -1,12 +1,13 @@
-import { useMemo } from "react";
 import { Table, formatTableCell } from "@tooee/renderers";
 import type { TableRow } from "@tooee/renderers";
+import { useMemo } from "react";
+import type { ReactNode } from "react";
+
+import { useContentDocument } from "../../hooks/use-content-document.js";
 import { getTextContent } from "../../types.js";
 import type { TableContent } from "../../types.js";
-import { useContentDocument } from "../../hooks/use-content-document.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
-import type { ReactNode } from "react";
 
 interface TableSubviewProps extends SubviewProps {
   content: TableContent;
@@ -25,7 +26,7 @@ export const TableSubview = function TableSubview({
       getText: (row: TableRow) =>
         columns.map((column) => formatTableCell(row[column.key])).join("\t"),
     }),
-    [columns],
+    [columns]
   );
   const { document, showLineNumbers, statusItems } = useContentDocument<TableRow>(
     rows,
@@ -38,7 +39,7 @@ export const TableSubview = function TableSubview({
         { label: "Rows:", value: String(rows.length) },
         { label: "Cols:", value: String(columns.length) },
       ],
-    },
+    }
   );
 
   return (

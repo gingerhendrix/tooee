@@ -1,7 +1,8 @@
 import { expect, mock, test } from "bun:test";
-import { createStandaloneRouter } from "../src/standalone-router.js";
+
 import { runLinkHandlers } from "../src/link-handlers.js";
 import type { LinkHandlerContext } from "../src/link-handlers.js";
+import { createStandaloneRouter } from "../src/standalone-router.js";
 
 test("custom handlers consume synchronously or fall through to local navigation", async () => {
   const filePath = `${import.meta.dir}/fixtures/links/start.md`;

@@ -1,12 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { act, useRef, useState } from "react";
-import { TooeeProvider } from "@tooee/shell";
+
 import { useCurrentOverlay, useOverlayState } from "@tooee/overlays";
+import { TooeeProvider } from "@tooee/shell";
 import { testRender, expectDefined } from "@tooee/test-support";
+import { act, useRef, useState } from "react";
+import type { ReactNode } from "react";
+
 import type { ChooseItem } from "../src/types.js";
 import { useChooseDialog } from "../src/use-choose-dialog.js";
 import type { ChooseDialogHandle } from "../src/use-choose-dialog.js";
-import type { ReactNode } from "react";
 
 interface Fruit {
   id: number;
@@ -132,7 +134,7 @@ const setup = async function setup() {
     <TooeeProvider>
       <Harness />
     </TooeeProvider>,
-    { height: 30, kittyKeyboard: true, width: 80 },
+    { height: 30, kittyKeyboard: true, width: 80 }
   );
   await session.renderOnce();
   return session;

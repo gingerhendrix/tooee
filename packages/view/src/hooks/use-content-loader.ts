@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo } from "react";
-import { useSelector } from "@xstate/store-react";
-import type { AnyContent, ContentProvider } from "../types.js";
 import type { MarkSet } from "@tooee/marks";
+import { useSelector } from "@xstate/store-react";
+import { useCallback, useEffect, useMemo } from "react";
+
 import type { ContentLoaderStatus } from "../content-loader-store.js";
 import {
   createContentLoaderStore,
@@ -14,6 +14,7 @@ import {
   selectStatus,
   selectStreaming,
 } from "../content-loader-store.js";
+import type { AnyContent, ContentProvider } from "../types.js";
 
 /** Reactive state exposed by the content provider loader. */
 export interface ContentLoaderState {
@@ -26,7 +27,7 @@ export interface ContentLoaderState {
 }
 
 export const useContentLoader = function useContentLoader(
-  contentProvider: ContentProvider,
+  contentProvider: ContentProvider
 ): ContentLoaderState {
   const store = useMemo(createContentLoaderStore, []);
   const loadSeq = useSelector(store, (snapshot) => selectLoadSeq(snapshot.context));

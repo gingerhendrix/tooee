@@ -1,4 +1,9 @@
 import { describe, expect, test } from "bun:test";
+
+import { createCommandStore } from "@tooee/commands/store";
+import { keyEvent as key } from "@tooee/test-support";
+
+import type { CommandStore } from "../src/command-store-wrapper.js";
 import {
   ROOT_SURFACE_ID,
   selectActivePanelSurface,
@@ -6,11 +11,8 @@ import {
   selectSequence,
 } from "../src/command-store.js";
 import type { SurfaceRecord } from "../src/command-store.js";
-import { createCommandStore } from "@tooee/commands/store";
-import type { CommandStore } from "../src/command-store-wrapper.js";
-import type { Command, CommandContext } from "../src/types.js";
 import type { Mode } from "../src/mode.js";
-import { keyEvent as key } from "@tooee/test-support";
+import type { Command, CommandContext } from "../src/types.js";
 
 const fakeCtx = function fakeCtx(mode: Mode): CommandContext {
   return {
@@ -58,7 +60,7 @@ const makePanel = function makePanel(id: string, groupId: string, depth: number)
 const command = function command(
   id: string,
   hotkey: string,
-  overrides?: Partial<Command>,
+  overrides?: Partial<Command>
 ): Command {
   return { defaultHotkey: hotkey, handler: () => {}, id, title: id, ...overrides };
 };
@@ -137,7 +139,7 @@ describe("panel surfaces — dispatch precedence", () => {
     let panelFired = 0;
     let modalFired = 0;
     cs.registryFor(cs.rootRecord).register(
-      command("root.a", "a", { handler: () => (rootFired += 1) }),
+      command("root.a", "a", { handler: () => (rootFired += 1) })
     );
     const panel = makePanel("list", "g", 1);
     cs.registryFor(panel).register(command("list.a", "a", { handler: () => (panelFired += 1) }));
@@ -166,7 +168,7 @@ describe("panel surfaces — dispatch precedence", () => {
     let rootFired = 0;
     let panelFired = 0;
     cs.registryFor(cs.rootRecord).register(
-      command("root.a", "a", { handler: () => (rootFired += 1) }),
+      command("root.a", "a", { handler: () => (rootFired += 1) })
     );
     const panel = makePanel("list", "g", 1);
     cs.registryFor(panel).register(command("list.a", "a", { handler: () => (panelFired += 1) }));
@@ -187,7 +189,7 @@ describe("panel surfaces — dispatch precedence", () => {
     const detail = makePanel("detail", "g", 1);
     cs.registryFor(list).register(command("list.j", "j", { handler: () => (listFired += 1) }));
     cs.registryFor(detail).register(
-      command("detail.k", "k", { handler: () => (detailFired += 1) }),
+      command("detail.k", "k", { handler: () => (detailFired += 1) })
     );
     cs.pushSurface(list);
     cs.pushSurface(detail);
@@ -209,7 +211,7 @@ describe("panel surfaces — fall-through & shadowing", () => {
     const cs = makeStore();
     let quitFired = 0;
     cs.registryFor(cs.rootRecord).register(
-      command("quit", "q", { handler: () => (quitFired += 1) }),
+      command("quit", "q", { handler: () => (quitFired += 1) })
     );
     const panel = makePanel("list", "g", 1);
     cs.registryFor(panel).register(command("list.j", "j", { handler: () => {} }));
@@ -228,7 +230,7 @@ describe("panel surfaces — fall-through & shadowing", () => {
     let rootFired = 0;
     let panelFired = 0;
     cs.registryFor(cs.rootRecord).register(
-      command("root.a", "a", { handler: () => (rootFired += 1) }),
+      command("root.a", "a", { handler: () => (rootFired += 1) })
     );
     const panel = makePanel("list", "g", 1);
     cs.registryFor(panel).register(command("list.a", "a", { handler: () => (panelFired += 1) }));
@@ -269,7 +271,7 @@ describe("panel surfaces — fall-through & shadowing", () => {
     const cs = makeStore();
     let rootChord = 0;
     cs.registryFor(cs.rootRecord).register(
-      command("root.gg", "g g", { handler: () => (rootChord += 1) }),
+      command("root.gg", "g g", { handler: () => (rootChord += 1) })
     );
     const panel = makePanel("list", "g", 1);
     // Panel has an unrelated command, so `g` misses on the panel and falls through.
@@ -291,7 +293,7 @@ describe("panel surfaces — fall-through & shadowing", () => {
     const cs = makeStore();
     let rootChord = 0;
     cs.registryFor(cs.rootRecord).register(
-      command("root.gg", "g g", { handler: () => (rootChord += 1) }),
+      command("root.gg", "g g", { handler: () => (rootChord += 1) })
     );
     const panel = makePanel("list", "g", 1);
     cs.registryFor(panel).register(command("list.jj", "j j"));
@@ -314,7 +316,7 @@ describe("panel surfaces — fall-through & shadowing", () => {
     const cs = makeStore();
     let rootChord = 0;
     cs.registryFor(cs.rootRecord).register(
-      command("root.qg", "q g", { handler: () => (rootChord += 1) }),
+      command("root.qg", "q g", { handler: () => (rootChord += 1) })
     );
     const panel = makePanel("list", "g", 1);
     cs.registryFor(panel).register(command("list.jj", "j j"));
@@ -333,7 +335,7 @@ describe("panel surfaces — fall-through & shadowing", () => {
     const cs = makeStore({ sequenceTimeoutMs: 20 });
     let rootChord = 0;
     cs.registryFor(cs.rootRecord).register(
-      command("root.qg", "q g", { handler: () => (rootChord += 1) }),
+      command("root.qg", "q g", { handler: () => (rootChord += 1) })
     );
     const panel = makePanel("list", "g", 1);
     cs.registryFor(panel).register(command("list.jj", "j j"));
@@ -356,13 +358,13 @@ describe("panel surfaces — fall-through & shadowing", () => {
     let quit = 0;
     let switched = 0;
     cs.registryFor(cs.rootRecord).register(
-      command("quit", "q", { handler: () => (quit += 1), modes: ["cursor"] }),
+      command("quit", "q", { handler: () => (quit += 1), modes: ["cursor"] })
     );
     cs.registryFor(cs.rootRecord).register(
       command("panels.next", "tab", {
         handler: () => (switched += 1),
         modes: ["cursor", "select"],
-      }),
+      })
     );
     const panel: SurfaceRecord = {
       buildCtx: () => fakeCtx("insert"),

@@ -1,6 +1,5 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
-import { act } from "react";
+
 import {
   createRoute,
   createRouter,
@@ -10,8 +9,11 @@ import {
   useCurrentRoute,
   useCanGoBack,
 } from "@tooee/router";
-import { idParams } from "./support/codecs.ts";
+import { testRender } from "@tooee/test-support";
+import { act } from "react";
 import type { ReactNode } from "react";
+
+import { idParams } from "./support/codecs.ts";
 
 // Route specs: identity + codecs, declared before the components that read them
 // (a component cannot reference its own route object before it exists).
@@ -123,7 +125,7 @@ describe("RouterProvider + Outlet", () => {
       <RouterProvider router={router}>
         <NavHarness />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -144,7 +146,7 @@ describe("RouterProvider + Outlet", () => {
       <RouterProvider router={router}>
         <NavHarness />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -171,7 +173,7 @@ describe("RouterProvider + Outlet", () => {
       <RouterProvider router={router}>
         <NavHarness />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -204,7 +206,7 @@ describe("RouterProvider + Outlet", () => {
       <RouterProvider router={router}>
         <NavHarness />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -231,7 +233,7 @@ describe("RouterProvider + Outlet", () => {
       <RouterProvider router={router}>
         <NavHarness />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -268,7 +270,7 @@ describe("RouterProvider + Outlet", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 

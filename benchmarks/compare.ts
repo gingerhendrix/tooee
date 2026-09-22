@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
 import { readFileSync } from "node:fs";
+
 import type {
   BenchmarkMetricResult,
   BenchmarkRunResult,
@@ -121,7 +122,7 @@ const formatDelta = function formatDelta(value: number, unit: BenchmarkUnit): st
 const compareRuns = function compareRuns(
   baseline: BenchmarkRunResult,
   candidate: BenchmarkRunResult,
-  onlyComparable: boolean,
+  onlyComparable: boolean
 ): MetricComparison[] {
   const candidateByName = new Map(candidate.results.map((result) => [result.name, result]));
   const comparisons: MetricComparison[] = [];
@@ -147,7 +148,7 @@ const compareRuns = function compareRuns(
       baselineMetric.comparable &&
       threshold &&
       delta > threshold.minAbsoluteRegression &&
-      ratio > threshold.maxRegressionRatio,
+      ratio > threshold.maxRegressionRatio
     );
 
     comparisons.push({
@@ -173,11 +174,11 @@ const compareRuns = function compareRuns(
 const printRunHeader = function printRunHeader(
   label: string,
   path: string,
-  run: BenchmarkRunResult,
+  run: BenchmarkRunResult
 ): void {
   console.log(`${label}: ${path}`);
   console.log(
-    `  sha=${run.gitSha ?? "unknown"} generated=${run.generatedAt} samples=${run.samplesPerBenchmark}`,
+    `  sha=${run.gitSha ?? "unknown"} generated=${run.generatedAt} samples=${run.samplesPerBenchmark}`
   );
   console.log(`  scripts=${run.scripts.join(", ")}`);
 };
@@ -193,7 +194,7 @@ const printComparisons = function printComparisons(comparisons: MetricComparison
       status = "better";
     }
     console.log(
-      `| ${comparison.name} | ${formatValue(comparison.baseline.median, comparison.unit)} | ${formatValue(comparison.candidate.median, comparison.unit)} | ${formatDelta(comparison.delta, comparison.unit)} | ${comparison.percent >= 0 ? "+" : ""}${comparison.percent.toFixed(1)}% | ${status} |`,
+      `| ${comparison.name} | ${formatValue(comparison.baseline.median, comparison.unit)} | ${formatValue(comparison.candidate.median, comparison.unit)} | ${formatDelta(comparison.delta, comparison.unit)} | ${comparison.percent >= 0 ? "+" : ""}${comparison.percent.toFixed(1)}% | ${status} |`
     );
   }
 };
@@ -208,7 +209,7 @@ printRunHeader("Baseline", options.baselinePath, baseline);
 printRunHeader("Candidate", options.candidatePath, candidate);
 printComparisons(comparisons);
 console.log(
-  `\nCompared ${comparisons.length} metric(s); ${regressions.length} threshold regression(s).`,
+  `\nCompared ${comparisons.length} metric(s); ${regressions.length} threshold regression(s).`
 );
 
 if (options.failOnRegression && regressions.length > 0) {

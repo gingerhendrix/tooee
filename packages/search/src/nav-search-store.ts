@@ -1,5 +1,5 @@
-import { createStore } from "@xstate/store";
 import type { Mode } from "@tooee/commands";
+import { createStore } from "@xstate/store";
 
 export type RowKey = string | number | bigint;
 export type SearchStatus = "idle" | "editing" | "committed";
@@ -55,7 +55,7 @@ export const resolveIndex = function resolveIndex(
   target: number,
   direction: 1 | -1,
   rowCount: number,
-  isSelectable: (index: number) => boolean,
+  isSelectable: (index: number) => boolean
 ): number | null {
   if (rowCount <= 0) {
     return null;
@@ -65,20 +65,12 @@ export const resolveIndex = function resolveIndex(
   if (isSelectable(clamped)) {
     return clamped;
   }
-  for (
-    let index = clamped + direction;
-    direction === 1 ? index <= max : index >= 0;
-    index += direction
-  ) {
+  for (let index = clamped + direction; index >= 0 && index <= max; index += direction) {
     if (isSelectable(index)) {
       return index;
     }
   }
-  for (
-    let index = clamped - direction;
-    direction === 1 ? index >= 0 : index <= max;
-    index -= direction
-  ) {
+  for (let index = clamped - direction; index >= 0 && index <= max; index -= direction) {
     if (isSelectable(index)) {
       return index;
     }
@@ -106,7 +98,7 @@ const toggle = function toggle(ctx: NavSearchContext): NavSearchContext {
 const searchStep = function searchStep(
   ctx: NavSearchContext,
   delta: 1 | -1,
-  enqueue: { emit: { jumped: (event: { index: number }) => void } },
+  enqueue: { emit: { jumped: (event: { index: number }) => void } }
 ): NavSearchContext {
   if (ctx.search.matches.length === 0) {
     return ctx;
@@ -124,7 +116,7 @@ export const createNavSearchStore = function createNavSearchStore(
   options: {
     keys?: readonly RowKey[];
     deps?: NavSearchDeps;
-  } = {},
+  } = {}
 ) {
   const deps = options.deps ?? { isSelectable: () => true };
   const keys = options.keys ?? EMPTY_KEYS;
@@ -155,7 +147,7 @@ export const createNavSearchStore = function createNavSearchStore(
           event.index,
           event.direction,
           ctx.rowKeys.length,
-          deps.isSelectable,
+          deps.isSelectable
         );
         // Emit even when the cursor is already on the target row, so a view
         // can reveal a row the user scrolled away from.
@@ -173,7 +165,7 @@ export const createNavSearchStore = function createNavSearchStore(
           ctx.cursor + event.delta,
           direction,
           ctx.rowKeys.length,
-          deps.isSelectable,
+          deps.isSelectable
         );
         return cursor === null || cursor === ctx.cursor ? ctx : { ...ctx, cursor };
       },
@@ -195,7 +187,7 @@ export const createNavSearchStore = function createNavSearchStore(
                   Math.min(previousCursor, event.keys.length - 1),
                   1,
                   event.keys.length,
-                  deps.isSelectable,
+                  deps.isSelectable
                 )
               : resolveIndex(preserved, 1, event.keys.length, deps.isSelectable);
         } else if (cursor === null || cursor >= event.keys.length) {
@@ -203,7 +195,7 @@ export const createNavSearchStore = function createNavSearchStore(
             cursor === null ? 0 : event.keys.length - 1,
             cursor === null ? 1 : -1,
             event.keys.length,
-            deps.isSelectable,
+            deps.isSelectable
           );
         } else if (!deps.isSelectable(cursor)) {
           cursor = resolveIndex(cursor, 1, event.keys.length, deps.isSelectable);
@@ -301,7 +293,7 @@ export const createNavSearchStore = function createNavSearchStore(
           toggled.cursor + event.delta,
           direction,
           toggled.rowKeys.length,
-          deps.isSelectable,
+          deps.isSelectable
         );
         return cursor === null ? toggled : { ...toggled, cursor };
       },

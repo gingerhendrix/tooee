@@ -1,10 +1,11 @@
 import { useCallback, useMemo } from "react";
-import type { AnyRoute, Codec, RouterInstance, StackEntry } from "./types.js";
+
 import type { ActionNavigationResult } from "./action-types.js";
 import { useRouterInstance, useRouterStack, useStackEntryIndex } from "./context.js";
 import { useRouteDataContext } from "./loader.js";
 import type { RouteDataSource } from "./loader.js";
 import { createStateKey } from "./state-cache.js";
+import type { AnyRoute, Codec, RouterInstance, StackEntry } from "./types.js";
 
 /* oxlint-disable typescript/promise-function-async -- navigation callbacks preserve synchronous programmer errors */
 
@@ -31,15 +32,15 @@ export const useNavigate = function useNavigate(): NavigateHandle {
     pop: useCallback<RouterInstance["pop"]>((options) => router.pop(options), [router]),
     push: useCallback<RouterInstance["push"]>(
       (route, ...params) => router.push(route, ...params),
-      [router],
+      [router]
     ),
     replace: useCallback<RouterInstance["replace"]>(
       (route, ...params) => router.replace(route, ...params),
-      [router],
+      [router]
     ),
     reset: useCallback<RouterInstance["reset"]>(
       (route, ...params) => router.reset(route, ...params),
-      [router],
+      [router]
     ),
   };
 };
@@ -50,7 +51,7 @@ export const useNavigate = function useNavigate(): NavigateHandle {
 const isActiveRoute = function isActiveRoute(
   router: RouterInstance,
   activeRouteId: string,
-  routeId: string,
+  routeId: string
 ): boolean {
   let current: AnyRoute | undefined = router.getRouteDefinition(activeRouteId);
   while (current !== undefined) {
@@ -88,7 +89,7 @@ export const useParams = function useParams<TParams>(route: {
 
 /** The loader data for `route`, decoded by that route's `data` codec. */
 export const useRouteData = function useRouteData<TData>(
-  route: RouteDataSource<TData>,
+  route: RouteDataSource<TData>
 ): TData | undefined {
   return useRouteDataContext(route);
 };
@@ -125,7 +126,7 @@ export const useActionResultHandler = function useActionResultHandler(): ActionR
         void router.pop();
       }
     },
-    [router],
+    [router]
   );
 };
 
@@ -148,13 +149,13 @@ export const useScreenState = function useScreenState<TState>(route: {
   const { screenState } = route;
   if (screenState === undefined) {
     throw new Error(
-      `Route "${route.id}" has no \`screenState\` codec, so its screen state cannot be typed. Add \`screenState\` to the route to use useScreenState().`,
+      `Route "${route.id}" has no \`screenState\` codec, so its screen state cannot be typed. Add \`screenState\` to the route to use useScreenState().`
     );
   }
 
   const key = useMemo(
     () => createStateKey(`${stackIndex}:${entry.routeId}`, screenState),
-    [stackIndex, entry.routeId, screenState],
+    [stackIndex, entry.routeId, screenState]
   );
 
   return {
@@ -162,7 +163,7 @@ export const useScreenState = function useScreenState<TState>(route: {
       (state: TState) => {
         router.stateCache.save(key, state);
       },
-      [router.stateCache, key],
+      [router.stateCache, key]
     ),
     savedState: router.stateCache.restore(key),
   };

@@ -1,10 +1,11 @@
+import { test, expect, afterEach } from "bun:test";
+
+import { useCommand } from "@tooee/commands";
+import { TooeeProvider } from "@tooee/shell";
 import { testRender } from "@tooee/test-support";
 import type { TestSession } from "@tooee/test-support";
-import { test, expect, afterEach } from "bun:test";
-import { act } from "react";
-import { TooeeProvider } from "@tooee/shell";
-import { useCommand } from "@tooee/commands";
 import { useToast } from "@tooee/toasts";
+import { act } from "react";
 import type { ReactNode } from "react";
 
 const ToastContextHarness = function ToastContextHarness(): ReactNode {
@@ -54,7 +55,7 @@ test("ctx.toast is available in command handlers", async () => {
     <TooeeProvider>
       <ToastContextHarness />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 60 },
+    { height: 24, kittyKeyboard: true, width: 60 }
   );
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("ctx-toast:none");
@@ -73,7 +74,7 @@ test("ctx.toast.dismiss works from command handler", async () => {
     <TooeeProvider>
       <ToastContextHarness />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 60 },
+    { height: 24, kittyKeyboard: true, width: 60 }
   );
   await testSetup.renderOnce();
 

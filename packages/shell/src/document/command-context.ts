@@ -1,6 +1,7 @@
-import type { Key } from "react";
 import { useProvideCommandContextKey } from "@tooee/commands";
 import type { DocumentRowAnchor } from "@tooee/renderers";
+import type { Key } from "react";
+
 import type { DocumentController } from "./types.js";
 
 /** The `document` field contributed to the command context (see augmentation below). */
@@ -50,7 +51,7 @@ export interface ProvideDocumentCommandContextOptions {
  */
 export const useProvideDocumentCommandContext = function useProvideDocumentCommandContext<T>(
   controller: DocumentController<T>,
-  options: ProvideDocumentCommandContextOptions = {},
+  options: ProvideDocumentCommandContextOptions = {}
 ): void {
   useProvideCommandContextKey("document", () => ({
     ...options.extras,

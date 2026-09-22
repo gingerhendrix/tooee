@@ -1,4 +1,5 @@
 import { test, expect, describe } from "bun:test";
+
 import { fuzzyFilter } from "../src/fuzzy.js";
 import type { ChooseItem } from "../src/types.js";
 

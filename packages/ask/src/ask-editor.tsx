@@ -1,8 +1,9 @@
 import type { CursorStyleOptions } from "@opentui/core";
 import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
+
 import { EditorScrollbar } from "./editor-scrollbar.js";
 import type { AskEditorViewModel } from "./use-ask-editor.js";
-import type { ReactNode } from "react";
 
 export interface AskEditorProps {
   editor: AskEditorViewModel;

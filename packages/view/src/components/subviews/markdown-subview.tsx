@@ -1,14 +1,15 @@
-import { useMemo, useRef } from "react";
 import type { TextBufferRenderable } from "@opentui/core";
+import { useBuildCommandContext, useCommand } from "@tooee/commands";
 import { MarkdownView, flattenMarkdown, getFlatBlockText } from "@tooee/renderers";
 import type { CodeBlockRenderer, FlatBlock } from "@tooee/renderers";
-import { useBuildCommandContext, useCommand } from "@tooee/commands";
 import type { DocumentRowAdapter } from "@tooee/shell";
-import type { MarkdownContent, MarkdownLinkActivateHandler } from "../../types.js";
+import { useMemo, useRef } from "react";
+import type { ReactNode } from "react";
+
 import { useContentDocument } from "../../hooks/use-content-document.js";
+import type { MarkdownContent, MarkdownLinkActivateHandler } from "../../types.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
-import type { ReactNode } from "react";
 
 interface MarkdownSubviewProps extends SubviewProps {
   content: MarkdownContent;
@@ -51,7 +52,7 @@ export const MarkdownSubview = function MarkdownSubview({
         { label: "Format:", value: content.format },
         { label: "Lines:", value: String(lineCount) },
       ],
-    },
+    }
   );
   const buildCommandContext = useBuildCommandContext();
   const handleLinkActivate = onLinkActivate

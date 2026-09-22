@@ -15,9 +15,9 @@
     "@tooee/themes": "workspace:*",
     "@tooee/toasts": "workspace:*",
     "@tooee/view": "workspace:*",
-    "react": "^19.2.4"
+    "react": "^19.3.0"
   },
   "devDependencies": {
-    "@types/react": "^19.2.14"
+    "@types/react": "^19.3.0"
   }
 }

@@ -1,12 +1,14 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
-import { act } from "react";
+
 import { MouseButtons } from "@opentui/core/testing";
 import { CommandProvider } from "@tooee/commands";
+import { testRender } from "@tooee/test-support";
 import { ThemeSwitcherProvider } from "@tooee/themes";
+import { act } from "react";
+import type { ComponentProps, ReactNode } from "react";
+
 import { ContextMenu } from "../src/context-menu.js";
 import type { ContextMenuEntry } from "../src/context-menu.js";
-import type { ComponentProps, ReactNode } from "react";
 
 const ENTRIES: ContextMenuEntry[] = [
   { hotkey: "y", id: "copy", title: "Copy row" },
@@ -37,7 +39,7 @@ const lineOf = function lineOf(frame: string, text: string): FramePosition {
 };
 
 const ContextMenuHarness = function ContextMenuHarness(
-  props: ComponentProps<typeof ContextMenu>,
+  props: ComponentProps<typeof ContextMenu>
 ): ReactNode {
   return (
     <CommandProvider initialMode="insert">
@@ -52,7 +54,7 @@ describe("ContextMenu", () => {
   test("renders all entries", async () => {
     testSetup = await testRender(
       <ContextMenuHarness entries={ENTRIES} x={4} y={2} onSelect={() => {}} onClose={() => {}} />,
-      { height: 20, width: 50 },
+      { height: 20, width: 50 }
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -73,7 +75,7 @@ describe("ContextMenu", () => {
         }}
         onClose={() => {}}
       />,
-      { height: 20, width: 50 },
+      { height: 20, width: 50 }
     );
     await testSetup.renderOnce();
     const pos = lineOf(testSetup.captureCharFrame(), "Delete");
@@ -98,7 +100,7 @@ describe("ContextMenu", () => {
         }}
         onClose={() => {}}
       />,
-      { height: 20, width: 50 },
+      { height: 20, width: 50 }
     );
     await testSetup.renderOnce();
 
@@ -127,7 +129,7 @@ describe("ContextMenu", () => {
           closed += 1;
         }}
       />,
-      { height: 20, width: 50 },
+      { height: 20, width: 50 }
     );
     await testSetup.renderOnce();
     // Click far from the menu panel (bottom-right corner) → backdrop.
@@ -141,7 +143,7 @@ describe("ContextMenu", () => {
   test("clamps the panel on-screen near the bottom-right corner", async () => {
     testSetup = await testRender(
       <ContextMenuHarness entries={ENTRIES} x={48} y={19} onSelect={() => {}} onClose={() => {}} />,
-      { height: 20, width: 50 },
+      { height: 20, width: 50 }
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();

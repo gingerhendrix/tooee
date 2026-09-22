@@ -1,8 +1,10 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach } from "bun:test";
-import { act } from "react";
+
 import { MouseButtons } from "@opentui/core/testing";
+import { testRender } from "@tooee/test-support";
 import { ThemeSwitcherProvider } from "@tooee/themes";
+import { act } from "react";
+
 import { CloseButton } from "../src/close-button.js";
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
@@ -16,7 +18,7 @@ test("renders the close glyph", async () => {
     <ThemeSwitcherProvider>
       <CloseButton onClose={() => {}} />
     </ThemeSwitcherProvider>,
-    { height: 5, width: 20 },
+    { height: 5, width: 20 }
   );
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("✕");
@@ -34,7 +36,7 @@ test("left-click invokes onClose", async () => {
         />
       </box>
     </ThemeSwitcherProvider>,
-    { height: 5, width: 20 },
+    { height: 5, width: 20 }
   );
   await testSetup.renderOnce();
 
@@ -58,7 +60,7 @@ test("right-click does not invoke onClose", async () => {
         />
       </box>
     </ThemeSwitcherProvider>,
-    { height: 5, width: 20 },
+    { height: 5, width: 20 }
   );
   await testSetup.renderOnce();
   await act(async () => {

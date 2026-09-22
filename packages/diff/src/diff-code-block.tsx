@@ -1,11 +1,12 @@
-import { useMemo } from "react";
-import type { ReactNode } from "react";
-import type { HunkDiffLayout } from "hunkdiff/opentui";
 import { CodeBlockChrome } from "@tooee/renderers";
 import type { CodeBlockRenderer, CodeBlockRendererProps } from "@tooee/renderers";
 import { useTheme } from "@tooee/themes";
-import { buildDiffModel } from "./model.js";
+import type { HunkDiffLayout } from "hunkdiff/opentui";
+import { useMemo } from "react";
+import type { ReactNode } from "react";
+
 import { DiffRowView, effectiveLayout } from "./diff-view.js";
+import { buildDiffModel } from "./model.js";
 import { resolveHunkDiffTheme } from "./theme-map.js";
 
 /** Options a fence info string can carry after the fence type. */
@@ -22,14 +23,14 @@ export interface DiffFenceOptions {
  * render.
  */
 export const parseDiffFenceOptions = function parseDiffFenceOptions(
-  info: string,
+  info: string
 ): DiffFenceOptions {
   const words = new Set(
     info
       .trim()
       .split(/\s+/u)
       .slice(1)
-      .map((word) => word.toLowerCase()),
+      .map((word) => word.toLowerCase())
   );
   return {
     layout: words.has("split") ? "split" : "stack",
@@ -76,19 +77,17 @@ const DiffCodeBlock = function DiffCodeBlock({
 
   return (
     <CodeBlockChrome theme={theme} indent={indent}>
-      {rows.map(
-        (row): ReactNode => (
-          <DiffRowView
-            key={row.key}
-            row={row}
-            width={blockWidth}
-            theme={hunkTheme}
-            layout={effectiveLayout(options.layout, blockWidth)}
-            showHunkLineNumbers={options.showLineNumbers}
-            wrapLines={options.wrapLines}
-          />
-        ),
-      )}
+      {rows.map((row): ReactNode => (
+        <DiffRowView
+          key={row.key}
+          row={row}
+          width={blockWidth}
+          theme={hunkTheme}
+          layout={effectiveLayout(options.layout, blockWidth)}
+          showHunkLineNumbers={options.showLineNumbers}
+          wrapLines={options.wrapLines}
+        />
+      ))}
     </CodeBlockChrome>
   );
 };

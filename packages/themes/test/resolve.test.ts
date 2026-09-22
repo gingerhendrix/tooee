@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+
 import { FALLBACKS, RESOLVED_KEYS, resolveTheme } from "@tooee/themes";
 import type { ResolvedTheme, ThemeJSON } from "@tooee/themes";
 

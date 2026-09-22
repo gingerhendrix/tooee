@@ -16,9 +16,9 @@
  * Controls: j/k scroll, c enter cursor mode, q quit, t theme picker
  */
 
-import { createElement } from "react";
 import { launch, CodeBlockChrome } from "@tooee/view";
 import type { ContentProvider, CodeBlockRendererProps } from "@tooee/view";
+import { createElement } from "react";
 import type { ReactNode } from "react";
 
 // === Markdown content with a custom fence type ===
@@ -111,9 +111,9 @@ const ChartRenderer = function ChartRenderer({
         { key: i, style: { height: 1 } },
         h("span", { fg: theme.textMuted }, `${label} `),
         h("span", { fg: theme.accent }, "█".repeat(barLength)),
-        h("span", { fg: theme.text }, ` ${row.value}`),
+        h("span", { fg: theme.text }, ` ${row.value}`)
       );
-    }),
+    })
   );
 };
 

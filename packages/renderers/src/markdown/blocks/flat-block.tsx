@@ -1,17 +1,18 @@
-import type { ReactNode, RefObject } from "react";
 import type { SyntaxStyle, TextBufferRenderable } from "@opentui/core";
 import type { ResolvedTheme } from "@tooee/themes";
+import type { ReactNode, RefObject } from "react";
+
 import { CodeBlock } from "../../code-blocks.js";
 import type { CodeBlockRenderer } from "../../code-blocks.js";
 import type { FlatBlock } from "../../markdown-blocks.js";
+import type { MarkdownLinkHandler } from "../links.js";
+import { hasMarkedText, narrowToken } from "../tokens.js";
 import { BlockquoteRenderer } from "./blockquote.js";
 import { HeadingRenderer } from "./heading.js";
 import { HorizontalRule } from "./horizontal-rule.js";
 import { ListLineRenderer } from "./list-line.js";
 import { ParagraphRenderer } from "./paragraph.js";
 import { MarkdownTableRenderer } from "./table.js";
-import type { MarkdownLinkHandler } from "../links.js";
-import { hasMarkedText, narrowToken } from "../tokens.js";
 
 type CodeBlockRendererRegistry = Record<string, CodeBlockRenderer>;
 

@@ -1,10 +1,12 @@
 import * as fs from "node:fs";
 import * as tty from "node:tty";
-import type { ReactNode } from "react";
+
 import { createCliRenderer } from "@opentui/core";
 import type { CliRenderer, CliRendererConfig } from "@opentui/core";
 import { createRoot } from "@opentui/react";
 import type { Root } from "@opentui/react";
+import type { ReactNode } from "react";
+
 import { TooeeProvider } from "./provider.js";
 import type { TooeeProviderProps } from "./provider.js";
 
@@ -80,7 +82,7 @@ export interface TerminalHealthGuardOptions {
  */
 export const guardTerminalHealth = function guardTerminalHealth(
   renderer: CliRenderer,
-  options: TerminalHealthGuardOptions = {},
+  options: TerminalHealthGuardOptions = {}
 ): () => void {
   let handled = false;
   let disposed = false;
@@ -132,7 +134,7 @@ export const guardTerminalHealth = function guardTerminalHealth(
 export const mountTooee = function mountTooee(
   renderer: CliRenderer,
   node: ReactNode,
-  options: MountTooeeOptions = {},
+  options: MountTooeeOptions = {}
 ): TooeeMount {
   const root = createRoot(renderer);
   let unmounted = false;
@@ -206,7 +208,7 @@ const noop: () => void = () => {
 /** Create, mount, and return a locally owned Tooee renderer session. */
 export const launchCli = async function launchCli(
   node: ReactNode,
-  options: LaunchCliOptions = {},
+  options: LaunchCliOptions = {}
 ): Promise<TooeeSessionHandle> {
   let ttyInput: tty.ReadStream | undefined;
   let ttyOutput: tty.WriteStream | undefined;
@@ -313,7 +315,7 @@ export const launchCli = async function launchCli(
 /** Run one locally owned CLI session and settle its result at most once. */
 export const runCliSession = async function runCliSession<T>(
   render: CliSessionRender<T>,
-  options: LaunchCliOptions = {},
+  options: LaunchCliOptions = {}
 ): Promise<T | null> {
   const { promise, resolve } = Promise.withResolvers<T | null>();
   let settled = false;

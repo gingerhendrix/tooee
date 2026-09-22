@@ -1,6 +1,8 @@
 import { test, expect, describe } from "bun:test";
-import { HUNK_DIFF_THEME_NAMES } from "hunkdiff/opentui";
+
 import { loadThemes, resolveTheme } from "@tooee/themes";
+import { HUNK_DIFF_THEME_NAMES } from "hunkdiff/opentui";
+
 import { HUNK_THEME_MAP, isLightBackground, resolveHunkDiffTheme } from "../src/theme-map.js";
 
 const BUNDLED = new Set<string>(HUNK_DIFF_THEME_NAMES);
@@ -39,20 +41,20 @@ describe("resolveHunkDiffTheme", () => {
   test("unmapped themes fall back to GitHub on the matching side", () => {
     const dark = colorsFor("tokyonight");
     expect(resolveHunkDiffTheme("some-user-theme", { ...dark, background: "#101014" })).toBe(
-      "github-dark",
+      "github-dark"
     );
     expect(resolveHunkDiffTheme("some-user-theme", { ...dark, background: "#fdfdfd" })).toBe(
-      "github-light",
+      "github-light"
     );
   });
 
   test("the resolved background decides between a theme's light and dark palettes", () => {
     const colors = colorsFor("github");
     expect(resolveHunkDiffTheme("github", { ...colors, background: "#0d1117" })).toBe(
-      "github-dark",
+      "github-dark"
     );
     expect(resolveHunkDiffTheme("github", { ...colors, background: "#ffffff" })).toBe(
-      "github-light",
+      "github-light"
     );
   });
 });

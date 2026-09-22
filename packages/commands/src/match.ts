@@ -1,4 +1,5 @@
 import type { KeyEvent } from "@opentui/core";
+
 import type { ParsedStep } from "./types.js";
 
 /**

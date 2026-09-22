@@ -1,4 +1,5 @@
 import { describe, test, expect } from "bun:test";
+
 import { parseCSV, parseTSV, parseJSON, detectFormat, parseAuto } from "../src/parsers.js";
 
 describe("parseCSV", () => {
@@ -13,7 +14,7 @@ describe("parseCSV", () => {
 
   test("quoted fields", () => {
     const result = parseCSV(
-      'name,bio\nAlice,"Likes ""coding"" and tea"\nBob,"Lives in Paris, France"',
+      'name,bio\nAlice,"Likes ""coding"" and tea"\nBob,"Lives in Paris, France"'
     );
     expect(result.columns.map((column) => column.header)).toEqual(["name", "bio"]);
     expect(result.rows[0]).toEqual({ bio: 'Likes "coding" and tea', name: "Alice" });

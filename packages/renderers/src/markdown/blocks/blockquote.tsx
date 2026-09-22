@@ -1,6 +1,7 @@
+import type { ResolvedTheme } from "@tooee/themes";
 import type { Token, Tokens } from "marked";
 import type { ReactNode } from "react";
-import type { ResolvedTheme } from "@tooee/themes";
+
 import { InlineTokens } from "../inline.js";
 import { linkMouseHandler } from "../links.js";
 import type { MarkdownLinkHandler } from "../links.js";

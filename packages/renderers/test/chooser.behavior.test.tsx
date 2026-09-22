@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, test } from "bun:test";
+
+import { CommandProvider } from "@tooee/commands";
+import { testRender } from "@tooee/test-support";
+import { ThemeSwitcherProvider } from "@tooee/themes";
 import { act } from "react";
 import type { ReactNode } from "react";
-import { CommandProvider } from "@tooee/commands";
-import { ThemeSwitcherProvider } from "@tooee/themes";
-import { testRender } from "@tooee/test-support";
+
 import { Chooser } from "../src/chooser/chooser.js";
 
 const ITEMS = [{ text: "alpha" }, { text: "beta" }, { text: "gamma" }];
@@ -57,7 +59,7 @@ describe("Chooser", () => {
           selected.push(text);
         }}
       />,
-      { height: 20, kittyKeyboard: true, width: 60 },
+      { height: 20, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -82,7 +84,7 @@ describe("Chooser", () => {
         }}
         onSelect={() => {}}
       />,
-      { height: 20, kittyKeyboard: true, width: 60 },
+      { height: 20, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 

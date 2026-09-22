@@ -1,4 +1,5 @@
 import path from "node:path";
+
 import type { Token, Tokens } from "marked";
 
 const OBSIDIAN_IMAGE_EMBED = /!\[\[(?<target>[^\]|]+)(?:\|(?<display>[^\]]+))?\]\]/gu;
@@ -18,7 +19,7 @@ export type MarkdownInlineSegment =
 
 const obsidianEmbed = function obsidianEmbed(
   target: string,
-  display: string | undefined,
+  display: string | undefined
 ): MarkdownImageEmbed {
   const source = target.trim();
   const dimensions = display?.trim().match(IMAGE_DIMENSIONS);
@@ -35,7 +36,7 @@ const obsidianEmbed = function obsidianEmbed(
 
 /** Parse a complete Obsidian image embed such as `![[cover.png|40x12]]`. */
 export const parseObsidianImageEmbed = function parseObsidianImageEmbed(
-  value: string,
+  value: string
 ): MarkdownImageEmbed | null {
   const match = /^!\[\[(?<target>[^\]|]+)(?:\|(?<display>[^\]]+))?\]\]$/u.exec(value.trim());
   if (match?.groups?.target === undefined) {
@@ -80,7 +81,7 @@ const splitTextToken = function splitTextToken(text: string): MarkdownInlineSegm
 
 /** Split paragraph tokens into text and native-image render segments. */
 export const splitMarkdownImages = function splitMarkdownImages(
-  tokens: readonly Token[],
+  tokens: readonly Token[]
 ): MarkdownInlineSegment[] {
   const result: MarkdownInlineSegment[] = [];
   let pendingText: Token[] = [];
@@ -129,7 +130,7 @@ export const splitMarkdownImages = function splitMarkdownImages(
 /** Resolve relative image links against the Markdown document directory. */
 export const resolveMarkdownImageSource = function resolveMarkdownImageSource(
   source: string,
-  basePath?: string,
+  basePath?: string
 ): string {
   if (path.isAbsolute(source) || URL_SCHEME.test(source)) {
     return source;

@@ -1,16 +1,17 @@
-import { useMemo } from "react";
-import type { ReactNode } from "react";
 import { useTerminalDimensions } from "@opentui/react";
-import { HunkDiffBody, HunkDiffFileHeader } from "hunkdiff/opentui";
-import type { HunkDiffLayout, HunkDiffThemeName } from "hunkdiff/opentui";
-import { useTheme } from "@tooee/themes";
 import {
   DEFAULT_SIGN_COLUMN_WIDTH,
   computeRowDocumentGutterWidth,
   useGutterPalette,
 } from "@tooee/renderers";
 import type { DocumentBindings } from "@tooee/renderers";
+import { useTheme } from "@tooee/themes";
+import { HunkDiffBody, HunkDiffFileHeader } from "hunkdiff/opentui";
+import type { HunkDiffLayout, HunkDiffThemeName } from "hunkdiff/opentui";
+import { useMemo } from "react";
+import type { ReactNode } from "react";
 import "@tooee/renderers/row-document";
+
 import type { DiffRow } from "./model.js";
 import { resolveHunkDiffTheme } from "./theme-map.js";
 
@@ -49,7 +50,7 @@ export interface DiffRowViewProps extends DiffRenderOptions {
 /** Split falls back to stack when the content area is too narrow for two columns. */
 export const effectiveLayout = function effectiveLayout(
   layout: HunkDiffLayout | undefined,
-  width: number,
+  width: number
 ): HunkDiffLayout {
   return layout === "split" && width < MIN_SPLIT_WIDTH ? "stack" : (layout ?? "stack");
 };
@@ -132,7 +133,7 @@ export const DiffView = function DiffView({
         showLineNumbers,
         signColumnWidth: DEFAULT_SIGN_COLUMN_WIDTH,
       }),
-    [rows.length, showLineNumbers],
+    [rows.length, showLineNumbers]
   );
   const contentWidth = Math.max(1, width ?? terminalWidth - gutterWidth - SCROLLBAR_RESERVE);
 
@@ -148,19 +149,17 @@ export const DiffView = function DiffView({
       style={{ flexGrow: 1 }}
       onMouseDown={document?.onMouseDown}
     >
-      {rows.map(
-        (row, index): ReactNode => (
-          <box key={row.key}>
-            <DiffRowView
-              {...render}
-              row={row}
-              width={contentWidth}
-              theme={hunkTheme}
-              active={index === activeIndex}
-            />
-          </box>
-        ),
-      )}
+      {rows.map((row, index): ReactNode => (
+        <box key={row.key}>
+          <DiffRowView
+            {...render}
+            row={row}
+            width={contentWidth}
+            theme={hunkTheme}
+            active={index === activeIndex}
+          />
+        </box>
+      ))}
     </row-document>
   );
 };

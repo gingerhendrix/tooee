@@ -1,6 +1,7 @@
 import { statSync } from "node:fs";
 import nodePath from "node:path";
 import { fileURLToPath } from "node:url";
+
 import { Lexer } from "marked";
 import type { Token, Tokens } from "marked";
 
@@ -14,7 +15,7 @@ export type LinkResolution =
 export const resolveMarkdownLink = function resolveMarkdownLink(
   href: string,
   baseDir: string,
-  currentPath?: string,
+  currentPath?: string
 ): LinkResolution {
   try {
     const decoded = decodeURIComponent(href);

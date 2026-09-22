@@ -1,17 +1,18 @@
-import { createElement, useCallback, useMemo, useState } from "react";
-import { DiffView, buildDiffModel, diffRowAdapter } from "@tooee/diff";
-import type { DiffRow } from "@tooee/diff";
 import { useCommand } from "@tooee/commands";
 import { useConfig } from "@tooee/config";
+import { DiffView, buildDiffModel, diffRowAdapter } from "@tooee/diff";
+import type { DiffRow } from "@tooee/diff";
 import { useOverlay } from "@tooee/overlays";
 import type { OverlayCloseReason } from "@tooee/overlays";
 import type { DocumentRowAdapter } from "@tooee/shell";
-import type { DiffContent } from "../../types.js";
-import { useContentDocument } from "../../hooks/use-content-document.js";
-import { ViewScreen } from "../view-screen.js";
-import { DiffFilePickerOverlay } from "../diff-file-picker.js";
-import type { SubviewProps } from "./types.js";
+import { createElement, useCallback, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+
+import { useContentDocument } from "../../hooks/use-content-document.js";
+import type { DiffContent } from "../../types.js";
+import { DiffFilePickerOverlay } from "../diff-file-picker.js";
+import { ViewScreen } from "../view-screen.js";
+import type { SubviewProps } from "./types.js";
 
 interface DiffSubviewProps extends SubviewProps {
   content: DiffContent;
@@ -48,7 +49,7 @@ export const DiffSubview = function DiffSubview({
   const model = useMemo(() => buildDiffModel(content.patch), [content.patch]);
 
   const [layout, setLayout] = useState<"split" | "stack">(
-    content.layout ?? config.view?.diffLayout ?? "stack",
+    content.layout ?? config.view?.diffLayout ?? "stack"
   );
   const [wrapLines, setWrapLines] = useState(config.view?.wrap ?? false);
   const [horizontalOffset, setHorizontalOffset] = useState(0);
@@ -83,7 +84,7 @@ export const DiffSubview = function DiffSubview({
       },
       multiSelect: true,
       preserveCursorByKey: true,
-    },
+    }
   );
 
   const { activeIndex } = document;
@@ -95,11 +96,11 @@ export const DiffSubview = function DiffSubview({
   const fileRowIndex = useCallback(
     (fileIndex: number): number | null => {
       const index = model.rows.findIndex(
-        (row) => row.kind === "file" && row.fileIndex === fileIndex,
+        (row) => row.kind === "file" && row.fileIndex === fileIndex
       );
       return index === -1 ? null : index;
     },
-    [model.rows],
+    [model.rows]
   );
 
   const jumpFile = useCallback(
@@ -112,7 +113,7 @@ export const DiffSubview = function DiffSubview({
         setCursor(index);
       }
     },
-    [activeIndex, fileRowIndex, model.files.length, model.rows, setCursor],
+    [activeIndex, fileRowIndex, model.files.length, model.rows, setCursor]
   );
 
   useCommand({
@@ -190,7 +191,7 @@ export const DiffSubview = function DiffSubview({
             },
           }),
         null,
-        { ownCommands: true, role: "modal", surfaceMode: "insert" },
+        { ownCommands: true, role: "modal", surfaceMode: "insert" }
       );
     },
     hotkey: "f",

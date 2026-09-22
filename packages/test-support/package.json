@@ -13,11 +13,11 @@
     }
   },
   "devDependencies": {
-    "@opentui/core": "^0.5.1",
-    "@opentui/react": "^0.5.1",
-    "@types/bun": "^1.3.10",
-    "@types/react": "^19.2.14",
-    "react": "^19.2.4",
-    "typescript": "^5.9.3"
+    "@opentui/core": "^0.5.12",
+    "@opentui/react": "^0.5.12",
+    "@types/bun": "^1.4.2",
+    "@types/react": "^19.3.0",
+    "react": "^19.3.0",
+    "typescript": "^7.0.2"
   }
 }

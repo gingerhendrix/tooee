@@ -1,11 +1,11 @@
+import type { ContextGetter } from "./command-store.js";
+import type { Mode } from "./mode.js";
 import type {
   CommandCommands,
   CommandContext,
   CommandContextBase,
   CommandRegistry,
 } from "./types.js";
-import type { ContextGetter } from "./command-store.js";
-import type { Mode } from "./mode.js";
 
 export interface BuildCommandContextInput {
   commands: CommandCommands;
@@ -17,7 +17,7 @@ export interface BuildCommandContextInput {
 
 /** The `commands` slice of a context, backed by a live surface registry. */
 export const commandsFromRegistry = function commandsFromRegistry(
-  registry: CommandRegistry,
+  registry: CommandRegistry
 ): CommandCommands {
   return {
     invoke: (id: string) => {
@@ -37,7 +37,7 @@ export const commandsFromRegistry = function commandsFromRegistry(
  * through context sources registered by their providers.
  */
 export const buildCommandContext = function buildCommandContext(
-  input: BuildCommandContextInput,
+  input: BuildCommandContextInput
 ): CommandContext {
   const base: CommandContextBase = {
     commands: input.commands,

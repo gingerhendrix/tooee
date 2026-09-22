@@ -1,14 +1,16 @@
 import { afterEach, expect, test } from "bun:test";
-import { ThemeSwitcherProvider } from "@tooee/themes";
+
 import { testRender } from "@tooee/test-support";
+import { ThemeSwitcherProvider } from "@tooee/themes";
+
 import { MarkdownView } from "../src/markdown-view.js";
 import { renderMermaidForTerminal } from "../src/mermaid.js";
 
 const deploymentTopology = await Bun.file(
-  new URL("fixtures/deployment-topology.mmd", import.meta.url),
+  new URL("fixtures/deployment-topology.mmd", import.meta.url)
 ).text();
 const semanticApplicationInterface = await Bun.file(
-  new URL("fixtures/semantic-application-interface.mmd", import.meta.url),
+  new URL("fixtures/semantic-application-interface.mmd", import.meta.url)
 ).text();
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
@@ -36,7 +38,7 @@ test("promptly falls back for a deployment topology that exhausts the Mermaid la
     <ThemeSwitcherProvider>
       <MarkdownView content={`\`\`\`mermaid\n${deploymentTopology}\`\`\``} />
     </ThemeSwitcherProvider>,
-    { height: 24, width: 80 },
+    { height: 24, width: 80 }
   );
   await testSetup.renderOnce();
 
@@ -63,7 +65,7 @@ test("promptly falls back for a small cyclic fan-in and fan-out graph", async ()
     <ThemeSwitcherProvider>
       <MarkdownView content={`\`\`\`mermaid\n${semanticApplicationInterface}\`\`\``} />
     </ThemeSwitcherProvider>,
-    { height: 24, width: 80 },
+    { height: 24, width: 80 }
   );
   await testSetup.renderOnce();
 

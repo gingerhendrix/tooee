@@ -1,9 +1,9 @@
-import { useCallback, createElement, useRef } from "react";
+import type { ActionDefinition, CommandContext } from "@tooee/commands";
 import { useOverlay } from "@tooee/overlays";
 import type { OverlayHandle } from "@tooee/overlays";
-import type { ActionDefinition, CommandContext } from "@tooee/commands";
 import { ContextMenu } from "@tooee/renderers";
 import type { ContextMenuEntry } from "@tooee/renderers";
+import { useCallback, createElement, useRef } from "react";
 
 const OVERLAY_ID = "context-menu";
 
@@ -22,11 +22,11 @@ export interface ContextMenuController {
  */
 export const actionsToContextMenuEntries = function actionsToContextMenuEntries(
   actions: readonly ActionDefinition[] | undefined,
-  context?: CommandContext,
+  context?: CommandContext
 ): ContextMenuEntry[] {
   return (actions ?? [])
     .filter(
-      (action) => action.hidden !== true && (!context || !action.when || action.when(context)),
+      (action) => action.hidden !== true && (!context || !action.when || action.when(context))
     )
     .map((action) => ({ hotkey: action.hotkey, id: action.id, title: action.title }));
 };
@@ -65,10 +65,10 @@ export const useContextMenu = function useContextMenu(): ContextMenuController {
           onClose: () => {
             handleRef.current = null;
           },
-        },
+        }
       );
     },
-    [overlay],
+    [overlay]
   );
 
   const close = useCallback(() => {

@@ -1,6 +1,7 @@
-import type { ReactNode } from "react";
 import { CloseButton, decodeReactContent } from "@tooee/layout";
 import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
+
 import type { UseChooseResult } from "./use-choose.js";
 
 export interface ChooseFilterProps {

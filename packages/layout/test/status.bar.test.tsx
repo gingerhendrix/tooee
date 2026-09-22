@@ -1,6 +1,8 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach } from "bun:test";
+
+import { testRender } from "@tooee/test-support";
 import { ThemeSwitcherProvider } from "@tooee/themes";
+
 import { StatusBar } from "../src/status-bar.js";
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
@@ -14,7 +16,7 @@ test("renders label:value pairs", async () => {
     <ThemeSwitcherProvider>
       <StatusBar items={[{ label: "Mode", value: "cursor" }]} />
     </ThemeSwitcherProvider>,
-    { height: 24, width: 80 },
+    { height: 24, width: 80 }
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -32,7 +34,7 @@ test("renders multiple items", async () => {
         ]}
       />
     </ThemeSwitcherProvider>,
-    { height: 24, width: 80 },
+    { height: 24, width: 80 }
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -47,7 +49,7 @@ test("renders label without value", async () => {
     <ThemeSwitcherProvider>
       <StatusBar items={[{ label: "Ready" }]} />
     </ThemeSwitcherProvider>,
-    { height: 24, width: 80 },
+    { height: 24, width: 80 }
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -64,7 +66,7 @@ test("snapshot", async () => {
         ]}
       />
     </ThemeSwitcherProvider>,
-    { height: 3, width: 60 },
+    { height: 3, width: 60 }
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();

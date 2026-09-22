@@ -1,8 +1,9 @@
-import { useCallback, useMemo, useRef } from "react";
-import type { ReactNode } from "react";
 import { useOverlay, useOverlayState } from "@tooee/overlays";
 import type { OverlayHandle } from "@tooee/overlays";
 import { useThemeSwitcher } from "@tooee/themes";
+import { useCallback, useMemo, useRef } from "react";
+import type { ReactNode } from "react";
+
 import { ThemePickerOverlay } from "./theme-picker-overlay.js";
 import type { ThemePickerEntry } from "./theme-picker.js";
 
@@ -27,7 +28,7 @@ export const useThemePicker = function useThemePicker(): ThemePickerState {
   const handleRef = useRef<OverlayHandle<null> | null>(null);
   const entries = useMemo<ThemePickerEntry[]>(
     () => allThemes.map((name) => ({ id: name, title: name })),
-    [allThemes],
+    [allThemes]
   );
 
   const close = useCallback(() => {
@@ -42,14 +43,14 @@ export const useThemePicker = function useThemePicker(): ThemePickerState {
       handleRef.current?.close();
       handleRef.current = null;
     },
-    [setTheme],
+    [setTheme]
   );
 
   const preview = useCallback(
     (name: string) => {
       setTheme(name);
     },
-    [setTheme],
+    [setTheme]
   );
 
   const open = useCallback(() => {
@@ -81,7 +82,7 @@ export const useThemePicker = function useThemePicker(): ThemePickerState {
         ownCommands: true,
         role: "modal",
         surfaceMode: "insert",
-      },
+      }
     );
   }, [currentTheme, entries, overlay, setTheme]);
 

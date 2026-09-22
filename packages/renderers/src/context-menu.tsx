@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
 import { useTerminalDimensions } from "@opentui/react";
 import { useCommand } from "@tooee/commands";
 import { useTheme } from "@tooee/themes";
+import { useState, useCallback } from "react";
 import type { ReactNode } from "react";
 
 export interface ContextMenuEntry {
@@ -49,7 +49,7 @@ export const ContextMenu = function ContextMenu({
         onSelect(entry.id);
       }
     },
-    [entries, onSelect],
+    [entries, onSelect]
   );
 
   const moveUp = useCallback(() => {
@@ -160,35 +160,33 @@ export const ContextMenu = function ContextMenu({
             <text content="No actions" fg={theme.textMuted} />
           </box>
         ) : (
-          entries.map(
-            (entry, i): ReactNode => (
-              <box
-                key={entry.id}
-                flexDirection="row"
-                height={1}
-                paddingLeft={1}
-                paddingRight={1}
-                backgroundColor={i === activeIndex ? theme.backgroundElement : undefined}
-                onMouseDown={(event) => {
-                  if (event.button !== 0) {
-                    return;
-                  }
-                  event.preventDefault();
-                  event.stopPropagation();
-                  onSelect(entry.id);
-                }}
-              >
-                <text
-                  content={entry.title}
-                  fg={i === activeIndex ? theme.primary : theme.text}
-                  style={{ flexGrow: 1 }}
-                />
-                {(entry.hotkey?.length ?? 0) > 0 && (
-                  <text content={` ${entry.hotkey}`} fg={theme.textMuted} />
-                )}
-              </box>
-            ),
-          )
+          entries.map((entry, i): ReactNode => (
+            <box
+              key={entry.id}
+              flexDirection="row"
+              height={1}
+              paddingLeft={1}
+              paddingRight={1}
+              backgroundColor={i === activeIndex ? theme.backgroundElement : undefined}
+              onMouseDown={(event) => {
+                if (event.button !== 0) {
+                  return;
+                }
+                event.preventDefault();
+                event.stopPropagation();
+                onSelect(entry.id);
+              }}
+            >
+              <text
+                content={entry.title}
+                fg={i === activeIndex ? theme.primary : theme.text}
+                style={{ flexGrow: 1 }}
+              />
+              {(entry.hotkey?.length ?? 0) > 0 && (
+                <text content={` ${entry.hotkey}`} fg={theme.textMuted} />
+              )}
+            </box>
+          ))
         )}
       </box>
     </box>

@@ -22,11 +22,11 @@
  *   t/T     — cycle themes
  */
 
+import type { ActionDefinition } from "@tooee/commands";
+import { MarkSetBuilder, MarkPriorities } from "@tooee/marks";
+import type { MarkSet } from "@tooee/marks";
 import { launch } from "@tooee/view";
 import type { ContentProvider, ContentChunk } from "@tooee/view";
-import { MarkSetBuilder, MarkPriorities } from "@tooee/marks";
-import type { ActionDefinition } from "@tooee/commands";
-import type { MarkSet } from "@tooee/marks";
 
 // === Sample source code to annotate ===
 
@@ -96,7 +96,7 @@ const buildDiagnosticMarks = function buildDiagnosticMarks(): MarkSet {
       background: "#4a3800",
       signBefore: "W",
     },
-    { message: "maxConnections is declared but never used", severity: "warning" },
+    { message: "maxConnections is declared but never used", severity: "warning" }
   );
 
   // Error on line 30 (0-indexed line 29): null assignment
@@ -106,7 +106,7 @@ const buildDiagnosticMarks = function buildDiagnosticMarks(): MarkSet {
       background: "#4a0000",
       signBefore: "E",
     },
-    { message: "Variable 'users' should not be null — use an empty array", severity: "error" },
+    { message: "Variable 'users' should not be null — use an empty array", severity: "error" }
   );
 
   // Info on line 34 (0-indexed line 33): exposes config
@@ -116,7 +116,7 @@ const buildDiagnosticMarks = function buildDiagnosticMarks(): MarkSet {
       background: "#003040",
       signBefore: "I",
     },
-    { message: "This endpoint exposes internal configuration", severity: "info" },
+    { message: "This endpoint exposes internal configuration", severity: "info" }
   );
 
   // Hint on line 38 (0-indexed line 37): 404 handler
@@ -126,7 +126,7 @@ const buildDiagnosticMarks = function buildDiagnosticMarks(): MarkSet {
       background: "#1a3a1a",
       signBefore: "H",
     },
-    { message: "Consider adding a helpful 404 page", severity: "hint" },
+    { message: "Consider adding a helpful 404 page", severity: "hint" }
   );
 
   return builder.build("diagnostics", MarkPriorities.DIAGNOSTIC);
@@ -164,7 +164,7 @@ const streamContent = async function* streamContent(): AsyncIterable<ContentChun
     { line: 17 },
     { line: 39 },
     { gutterBackground: "#2a2a00" },
-    { analysis: "hot path — called on every request" },
+    { analysis: "hot path — called on every request" }
   );
   yield {
     set: hotPathBuilder.build("analysis:hotpath", 50),
@@ -180,7 +180,7 @@ const streamContent = async function* streamContent(): AsyncIterable<ContentChun
     { line: 27 },
     { line: 31 },
     { gutterBackground: "#3a0000", signBefore: "\u00D7" },
-    { covered: false },
+    { covered: false }
   );
   // Mark well-covered lines
   coverageBuilder.addLine(20, { signBefore: "\u2713" }, { covered: true, hits: 1200 });

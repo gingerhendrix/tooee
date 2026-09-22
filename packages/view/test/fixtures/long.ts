@@ -33,7 +33,7 @@ const categorize = function categorize(value: number): string {
 const createDataPoint = function createDataPoint(
   id: number,
   name: string,
-  value: number,
+  value: number
 ): DataPoint {
   return {
     category: categorize(value),
@@ -74,7 +74,7 @@ const processData = function processData(points: DataPoint[]): ProcessingResult 
 
 const filterByCategory = function filterByCategory(
   points: DataPoint[],
-  category: string,
+  category: string
 ): DataPoint[] {
   return points.filter((p) => p.category === category);
 };
@@ -133,7 +133,7 @@ const validateDataPoint = function validateDataPoint(point: DataPoint): boolean 
 
 const mergeResults = function mergeResults(
   a: ProcessingResult,
-  b: ProcessingResult,
+  b: ProcessingResult
 ): ProcessingResult {
   return {
     average: (a.total + b.total) / (a.count + b.count),

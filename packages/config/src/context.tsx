@@ -1,7 +1,8 @@
 import { createContext, useContext, useMemo } from "react";
 import type { ReactNode } from "react";
-import type { TooeeConfig } from "./types.js";
+
 import { loadConfig } from "./load.js";
+import type { TooeeConfig } from "./types.js";
 
 const DEFAULTS: TooeeConfig = {
   theme: {

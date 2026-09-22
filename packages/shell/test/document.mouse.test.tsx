@@ -1,8 +1,5 @@
-import { testRender, expectDefined, press, pressEnter } from "@tooee/test-support";
-import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, describe, beforeEach } from "bun:test";
-import { act } from "react";
-import type { Key, ReactNode } from "react";
+
 import { MouseButtons } from "@opentui/core/testing";
 import type { MouseButton } from "@opentui/core/testing";
 import { useActions } from "@tooee/commands";
@@ -11,6 +8,10 @@ import { AppLayout } from "@tooee/layout";
 import type { ContextMenuEntry } from "@tooee/renderers";
 import { Document, TooeeProvider, useDocumentController, useThemeCommands } from "@tooee/shell";
 import type { DocumentContextMenuEvent, DocumentController, DocumentRowEvent } from "@tooee/shell";
+import { testRender, expectDefined, press, pressEnter } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
+import { act } from "react";
+import type { Key, ReactNode } from "react";
 
 interface Row {
   id: string;
@@ -80,13 +81,13 @@ afterEach(() => {
 
 const setup = async function setup(
   rows: readonly Row[],
-  options: { gap?: boolean; height?: number } = {},
+  options: { gap?: boolean; height?: number } = {}
 ) {
   session = await testRender(
     <TooeeProvider>
       <Harness rows={rows} gap={options.gap} />
     </TooeeProvider>,
-    { height: options.height ?? 12, kittyKeyboard: true, width: 40 },
+    { height: options.height ?? 12, kittyKeyboard: true, width: 40 }
   );
   await session.renderOnce();
   return session;
@@ -215,12 +216,9 @@ describe("variable-height rows", () => {
           style={{ flexGrow: 1 }}
           renderRow={(r): ReactNode => (
             <box style={{ flexDirection: "column" }}>
-              {Array.from(
-                { length: r.lines },
-                (_, line): ReactNode => (
-                  <text key={line} content={`${r.label}:${line}`} />
-                ),
-              )}
+              {Array.from({ length: r.lines }, (_, line): ReactNode => (
+                <text key={line} content={`${r.label}:${line}`} />
+              ))}
             </box>
           )}
         />
@@ -241,7 +239,7 @@ describe("variable-height rows", () => {
       <TooeeProvider>
         <TallHarness rows={rows} />
       </TooeeProvider>,
-      { height, kittyKeyboard: true, width: 40 },
+      { height, kittyKeyboard: true, width: 40 }
     );
     await session.renderOnce();
     return session;
@@ -351,7 +349,7 @@ describe("non-selectable rows", () => {
           ]}
         />
       </TooeeProvider>,
-      { height: 12, kittyKeyboard: true, width: 40 },
+      { height: 12, kittyKeyboard: true, width: 40 }
     );
     await session.renderOnce();
     expect(expectDefined(sectionHandle).activeIndex).toBe(1);
@@ -432,12 +430,13 @@ describe("action-backed context menu", () => {
     invoked = [];
   });
 
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- it renders the describe-scoped ActionsHarness; the rule ignores JSX references
   const setupActions = async function setupActions() {
     session = await testRender(
       <TooeeProvider>
         <ActionsHarness rows={THREE} />
       </TooeeProvider>,
-      { height: 12, kittyKeyboard: true, width: 40 },
+      { height: 12, kittyKeyboard: true, width: 40 }
     );
     await session.renderOnce();
     return session;
@@ -501,7 +500,7 @@ describe("action-backed context menu", () => {
       <TooeeProvider>
         <FunctionActionsHarness rows={THREE} />
       </TooeeProvider>,
-      { height: 12, kittyKeyboard: true, width: 40 },
+      { height: 12, kittyKeyboard: true, width: 40 }
     );
     await session.renderOnce();
 

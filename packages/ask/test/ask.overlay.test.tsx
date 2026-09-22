@@ -1,11 +1,13 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { act } from "react";
+
 import { isEditBufferRenderable } from "@opentui/core";
 import type { EditBufferRenderable, Renderable } from "@opentui/core";
 import { TooeeProvider } from "@tooee/shell";
 import { testRender } from "@tooee/test-support";
-import { Ask } from "../src/ask.js";
+import { act } from "react";
+
 import { AskOverlay } from "../src/ask-overlay.js";
+import { Ask } from "../src/ask.js";
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
@@ -18,7 +20,7 @@ const setupAsk = async function setupAsk(
     multiline?: boolean;
     defaultValue?: string;
     onSubmit?: (value: string) => void;
-  } = {},
+  } = {}
 ) {
   const s = await testRender(
     <TooeeProvider initialMode="insert">
@@ -35,7 +37,7 @@ const setupAsk = async function setupAsk(
         ]}
       />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await s.renderOnce();
   return s;
@@ -47,7 +49,7 @@ const setup = async function setup(
     defaultValue?: string;
     onSubmit?: (value: string) => void;
     onCancel?: () => void;
-  } = {},
+  } = {}
 ) {
   const s = await testRender(
     <TooeeProvider initialMode="insert">
@@ -59,7 +61,7 @@ const setup = async function setup(
         onCancel={opts.onCancel ?? (() => {})}
       />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await s.renderOnce();
   return s;
@@ -114,7 +116,7 @@ const cursorIsVisible = function cursorIsVisible(): boolean {
 
 const findEditableWithText = function findEditableWithText(
   node: Renderable,
-  text: string,
+  text: string
 ): EditBufferRenderable | undefined {
   if (isEditBufferRenderable(node) && node.plainText === text) {
     return node;

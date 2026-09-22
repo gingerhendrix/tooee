@@ -28,7 +28,7 @@ export interface MarkedText {
  */
 export const narrowToken = function narrowToken<Type extends keyof KnownTokenByType>(
   token: Token,
-  type: Type,
+  type: Type
 ): KnownTokenByType[Type] | null {
   if (token.type !== type) {
     return null;

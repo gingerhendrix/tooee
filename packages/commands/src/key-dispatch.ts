@@ -1,7 +1,5 @@
 import type { KeyEvent } from "@opentui/core";
-import type { Mode } from "./mode.js";
-import { matchStep } from "./match.js";
-import { parseHotkey } from "./parse.js";
+
 import {
   ROOT_SURFACE_ID,
   selectActiveModalSurface,
@@ -9,6 +7,9 @@ import {
   stepsKey,
 } from "./command-store.js";
 import type { CommandStoreContext, CommandStoreInstance, SurfaceRecord } from "./command-store.js";
+import { matchStep } from "./match.js";
+import type { Mode } from "./mode.js";
+import { parseHotkey } from "./parse.js";
 import {
   DEFAULT_SEQUENCE_TIMEOUT_MS,
   findPendingMatch,
@@ -57,7 +58,7 @@ const collectCandidates = function collectCandidates(
   currentMode: Mode,
   cmdCtx: CommandContext,
   config: KeyDispatchConfig,
-  getParsedHotkey: (hotkey: string) => ParsedHotkey,
+  getParsedHotkey: (hotkey: string) => ParsedHotkey
 ): HotkeyCandidates {
   const singleStep: HotkeyCandidates["singleStep"] = [];
   const multiStep: HotkeyCandidates["multiStep"] = [];
@@ -92,7 +93,7 @@ const runSurface = function runSurface(
   environment: DispatchEnvironment,
   getParsedHotkey: (hotkey: string) => ParsedHotkey,
   armTimer: () => void,
-  clearBufferAndTimer: () => void,
+  clearBufferAndTimer: () => void
 ): SurfaceDispatch {
   const cmdCtx = record.buildCtx();
   const candidates = collectCandidates(
@@ -100,7 +101,7 @@ const runSurface = function runSurface(
     record.getMode(),
     cmdCtx,
     environment.getConfig(),
-    getParsedHotkey,
+    getParsedHotkey
   );
 
   if (candidates.multiStep.length > 0) {
@@ -167,7 +168,7 @@ const runSurface = function runSurface(
 const finishDispatch = function finishDispatch(
   dispatch: SurfaceDispatch,
   ownerId: string,
-  state: DispatchState,
+  state: DispatchState
 ): KeyDispatchResult {
   if (dispatch.outcome === "pending") {
     state.sequenceOwnerId = ownerId;
@@ -186,7 +187,7 @@ export interface KeyDispatcher {
 }
 
 export const createKeyDispatcher = function createKeyDispatcher(
-  environment: DispatchEnvironment,
+  environment: DispatchEnvironment
 ): KeyDispatcher {
   const state: DispatchState = { buffer: [], sequenceOwnerId: null, timer: null };
   const parseCache = new Map<string, ParsedHotkey>();
@@ -210,7 +211,7 @@ export const createKeyDispatcher = function createKeyDispatcher(
     clearTimer();
     state.timer = setTimeout(
       reset,
-      environment.getConfig().sequenceTimeoutMs ?? DEFAULT_SEQUENCE_TIMEOUT_MS,
+      environment.getConfig().sequenceTimeoutMs ?? DEFAULT_SEQUENCE_TIMEOUT_MS
     );
   };
   const getParsedHotkey = (hotkey: string): ParsedHotkey => {
@@ -226,7 +227,7 @@ export const createKeyDispatcher = function createKeyDispatcher(
   const dispatchTo = (
     record: SurfaceRecord,
     event: KeyEvent,
-    ctx: CommandStoreContext,
+    ctx: CommandStoreContext
   ): SurfaceDispatch =>
     runSurface(
       record,
@@ -236,7 +237,7 @@ export const createKeyDispatcher = function createKeyDispatcher(
       environment,
       getParsedHotkey,
       armTimer,
-      clearBufferAndTimer,
+      clearBufferAndTimer
     );
   const finish = (dispatch: SurfaceDispatch, ownerId: string): KeyDispatchResult =>
     finishDispatch(dispatch, ownerId, state);

@@ -1,5 +1,7 @@
 import { describe, test, expect, afterEach } from "bun:test";
+
 import type { Session } from "tuistory";
+
 import { launchView } from "./helpers.js";
 
 const ESCAPE_SEQUENCE = "\u001B[27u";

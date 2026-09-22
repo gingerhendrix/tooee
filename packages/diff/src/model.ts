@@ -1,7 +1,7 @@
-import { createHunkDiffFilesFromPatch } from "hunkdiff/opentui";
-import type { HunkDiffFile, HunkDiffFileInput, HunkDiffStats } from "hunkdiff/opentui";
 import { SourceIndex } from "@tooee/renderers";
 import type { DocumentRowSource } from "@tooee/renderers";
+import { createHunkDiffFilesFromPatch } from "hunkdiff/opentui";
+import type { HunkDiffFile, HunkDiffFileInput, HunkDiffStats } from "hunkdiff/opentui";
 
 /**
  * What a navigation row stands for.
@@ -140,7 +140,7 @@ const HUNK_HEADER_CONTEXT_SEPARATOR = " @@ ";
  * hunk model for drawing.
  */
 const normalizeHunkHeaderForRender = function normalizeHunkHeaderForRender(
-  hunk: HunkDiffFile["metadata"]["hunks"][number],
+  hunk: HunkDiffFile["metadata"]["hunks"][number]
 ): HunkDiffFile["metadata"]["hunks"][number] {
   const { hunkContext, hunkSpecs } = hunk;
   if (
@@ -158,7 +158,7 @@ const normalizeHunkHeaderForRender = function normalizeHunkHeaderForRender(
 /** Narrow a file to a single hunk while keeping its whole-file line arrays. */
 const narrowToHunk = function narrowToHunk(
   file: HunkDiffFile,
-  hunkIndex: number,
+  hunkIndex: number
 ): HunkDiffFileInput {
   const hunk = normalizeHunkHeaderForRender(file.metadata.hunks[hunkIndex]);
   return {

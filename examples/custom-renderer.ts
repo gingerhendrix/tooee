@@ -12,10 +12,10 @@
  * Controls: j/k scroll, c enter cursor mode, q quit, t theme picker
  */
 
-import { createElement } from "react";
+import { useTheme } from "@tooee/themes";
 import { launch } from "@tooee/view";
 import type { ContentProvider, CustomContent, ContentRendererProps } from "@tooee/view";
-import { useTheme } from "@tooee/themes";
+import { createElement } from "react";
 import type { ReactNode } from "react";
 
 // === Custom data types ===
@@ -178,7 +178,7 @@ const KanbanRenderer = function KanbanRenderer({ content }: ContentRendererProps
         const card = col.cards[cardIdx];
         const inner = padRight(
           ` ${truncateText(card.title, CARD_INNER_WIDTH - 2)} `,
-          CARD_INNER_WIDTH,
+          CARD_INNER_WIDTH
         );
         return `\u2502${inner}\u2502`;
       })
@@ -219,9 +219,9 @@ const KanbanRenderer = function KanbanRenderer({ content }: ContentRendererProps
   return h(
     "box",
     { style: { flexDirection: "column", marginLeft: 1, marginTop: 1 } },
-    ...lines.map(
-      (line, i): ReactNode => h("text", { content: line.text, fg: line.fg ?? theme.text, key: i }),
-    ),
+    ...lines.map((line, i): ReactNode =>
+      h("text", { content: line.text, fg: line.fg ?? theme.text, key: i })
+    )
   );
 };
 
@@ -239,7 +239,7 @@ const contentProvider: ContentProvider = {
           const cards = col.cards
             .map(
               (card) =>
-                `  ${card.id}: ${card.title} [${card.priority}]${(card.assignee?.length ?? 0) > 0 ? ` @${card.assignee}` : ""}`,
+                `  ${card.id}: ${card.title} [${card.priority}]${(card.assignee?.length ?? 0) > 0 ? ` @${card.assignee}` : ""}`
             )
             .join("\n");
           return `${header}\n${cards}`;

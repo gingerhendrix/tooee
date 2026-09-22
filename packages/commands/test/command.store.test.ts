@@ -1,4 +1,9 @@
 import { describe, expect, test } from "bun:test";
+
+import { createCommandStore } from "@tooee/commands/store";
+import { keyEvent as key, expectDefined } from "@tooee/test-support";
+
+import type { CommandStore } from "../src/command-store-wrapper.js";
 import {
   ROOT_SURFACE_ID,
   formatStepKey,
@@ -8,12 +13,9 @@ import {
   stepsKey,
 } from "../src/command-store.js";
 import type { SurfaceRecord } from "../src/command-store.js";
-import { createCommandStore } from "@tooee/commands/store";
-import type { CommandStore } from "../src/command-store-wrapper.js";
+import type { Mode } from "../src/mode.js";
 import { parseHotkey } from "../src/parse.js";
 import type { Command, CommandContext, RegisteredCommandGroup } from "../src/types.js";
-import type { Mode } from "../src/mode.js";
-import { keyEvent as key, expectDefined } from "@tooee/test-support";
 
 const cursorMode: Mode = "cursor";
 const cursorContextGetter = () => ({ mode: cursorMode });
@@ -46,7 +48,7 @@ const makeSurface = function makeSurface(
   id: string,
   role: "modal" | "passive",
   depth: number,
-  mode: () => Mode = () => "cursor",
+  mode: () => Mode = () => "cursor"
 ): SurfaceRecord {
   return {
     buildCtx: () => fakeCtx(mode()),
@@ -61,7 +63,7 @@ const makeSurface = function makeSurface(
 const command = function command(
   id: string,
   hotkey: string,
-  overrides?: Partial<Command>,
+  overrides?: Partial<Command>
 ): Command {
   return { defaultHotkey: hotkey, handler: () => {}, id, title: id, ...overrides };
 };
@@ -69,7 +71,7 @@ const command = function command(
 const group = function group(
   prefix: string,
   title: string,
-  leader?: string,
+  leader?: string
 ): RegisteredCommandGroup {
   return {
     id: `group-${title}`,
@@ -221,7 +223,7 @@ describe("command store — registration", () => {
         handler: (ctx) => {
           seen.push(ctx.mode);
         },
-      }),
+      })
     );
     registry.register(
       command("no", "n", {
@@ -229,7 +231,7 @@ describe("command store — registration", () => {
           blocked += 1;
         },
         when: () => false,
-      }),
+      })
     );
 
     registry.invoke("go");
@@ -283,7 +285,7 @@ describe("command store — key dispatch", () => {
         handler: () => {
           fired += 1;
         },
-      }),
+      })
     );
 
     const result = cs.key(key("a"));
@@ -306,7 +308,7 @@ describe("command store — key dispatch", () => {
           fired += 1;
         },
         modes: ["insert"],
-      }),
+      })
     );
     registry.register(
       command("gated", "g", {
@@ -314,7 +316,7 @@ describe("command store — key dispatch", () => {
           gated += 1;
         },
         when: () => false,
-      }),
+      })
     );
 
     expect(cs.key(key("i")).handled).toBe(false);
@@ -337,7 +339,7 @@ describe("command store — key dispatch", () => {
         handler: () => {
           fired += 1;
         },
-      }),
+      })
     );
     const g = group("g g", "Goto");
     cs.store.trigger.groupRegistered({ group: g });
@@ -391,7 +393,7 @@ describe("command store — key dispatch", () => {
         handler: () => {
           fired += 1;
         },
-      }),
+      })
     );
 
     cs.key(key("g"));
@@ -429,7 +431,7 @@ describe("command store — key dispatch", () => {
         handler: () => {
           onFirst += 1;
         },
-      }),
+      })
     );
     cs.pushSurface(first);
 
@@ -464,7 +466,7 @@ describe("command store — key dispatch", () => {
         handler: () => {
           fired += 1;
         },
-      }),
+      })
     );
     const result = cs.key(key("g"));
     expect(result.handled).toBe(true);
@@ -479,7 +481,7 @@ describe("command store — key dispatch", () => {
         handler: () => {
           rootFired += 1;
         },
-      }),
+      })
     );
     const surface = makeSurface("s1", "modal", 1);
     cs.registryFor(surface).register(
@@ -487,7 +489,7 @@ describe("command store — key dispatch", () => {
         handler: () => {
           surfaceFired += 1;
         },
-      }),
+      })
     );
     cs.pushSurface(surface);
 
@@ -508,7 +510,7 @@ describe("command store — key dispatch", () => {
         handler: () => {
           fired += 1;
         },
-      }),
+      })
     );
 
     cs.key(key("g"));
@@ -543,7 +545,7 @@ describe("command store — key dispatch", () => {
         handler: () => {
           fired += 1;
         },
-      }),
+      })
     );
 
     expect(cs.key(key("s")).handled).toBe(false);
@@ -561,7 +563,7 @@ describe("command store — key dispatch", () => {
         handler: () => {
           fired += 1;
         },
-      }),
+      })
     );
     withLeader.key(key("space"));
     const result = withLeader.key(key("n"));
@@ -576,7 +578,7 @@ describe("command store — key dispatch", () => {
         handler: () => {
           ghost += 1;
         },
-      }),
+      })
     );
     expect(without.key(key("x", { ctrl: true })).handled).toBe(false);
     expect(without.key(key("n")).handled).toBe(false);
@@ -608,7 +610,7 @@ describe("command store — selector discipline", () => {
     const after = cs.store.getSnapshot().context;
 
     expect(after.commandsBySurface.get(ROOT_SURFACE_ID)).toBe(
-      expectDefined(before.commandsBySurface.get(ROOT_SURFACE_ID)),
+      expectDefined(before.commandsBySurface.get(ROOT_SURFACE_ID))
     );
   });
 });
@@ -621,6 +623,6 @@ test("formatStepKey includes the super modifier", () => {
       option: false,
       shift: false,
       super: true,
-    }),
+    })
   ).toBe("super+k");
 });

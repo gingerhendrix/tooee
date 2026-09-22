@@ -12,12 +12,12 @@
  *   q      quit
  */
 
-import type { ReactNode } from "react";
 import { useCommand } from "@tooee/commands";
 import { AppLayout } from "@tooee/layout";
 import { Panel, PanelGroup, usePanels } from "@tooee/panels";
 import { launchCli, useQuitCommand } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
 
 const CustomSwitches = function CustomSwitches(): ReactNode {
   const { activePanelId, next, panelIds, previous } = usePanels();

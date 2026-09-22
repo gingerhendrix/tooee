@@ -39,14 +39,14 @@
  *   Escape   closes the passive overlay
  */
 
-import { createElement, useMemo, useState } from "react";
-import type { ComponentType, ReactNode } from "react";
 import { useCommand, useActiveCommandSurface, useMode, useSetMode } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
 import { useOverlay } from "@tooee/overlays";
 import type { OverlayRenderArgs } from "@tooee/overlays";
-import { AppLayout } from "@tooee/layout";
 import { launchCli, useQuitCommand } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
+import { createElement, useMemo, useState } from "react";
+import type { ComponentType, ReactNode } from "react";
 
 const h = function h<Props extends object>(
   tag: string | ComponentType<Props>,
@@ -154,27 +154,26 @@ const ModelPickerBody = function ModelPickerBody({
     h(
       "box",
       { backgroundColor: theme.backgroundElement, paddingLeft: 1, paddingRight: 1 },
-      h("text", { attributes: 1, content: "MODEL_PICKER · nested modal", fg: theme.accent }),
+      h("text", { attributes: 1, content: "MODEL_PICKER · nested modal", fg: theme.accent })
     ),
     // Body
     h(
       "box",
       { flexDirection: "column", paddingBottom: 1, paddingLeft: 2, paddingRight: 2, paddingTop: 1 },
-      ...MODELS.map(
-        (model, i): ReactNode =>
-          h("text", {
-            attributes: i === index ? 1 : 0,
-            content: `${i === index ? "> " : "  "}${model}`,
-            fg: i === index ? theme.primary : theme.text,
-            key: model,
-          }),
+      ...MODELS.map((model, i): ReactNode =>
+        h("text", {
+          attributes: i === index ? 1 : 0,
+          content: `${i === index ? "> " : "  "}${model}`,
+          fg: i === index ? theme.primary : theme.text,
+          key: model,
+        })
       ),
       h("text", { content: "" }),
       h("text", {
         content: "j/k or up/down move · Enter select · Escape close",
         fg: theme.textMuted,
-      }),
-    ),
+      })
+    )
   );
 };
 
@@ -218,7 +217,7 @@ const AskOverlayBody = function AskOverlayBody({
         ({ close: closePicker }: OverlayRenderArgs<null>): ReactNode =>
           h(ModelPickerBody, { close: closePicker, onSelectModel: actions.onSelectModel }),
         null,
-        { ownCommands: true, role: "modal", surfaceMode: "cursor" },
+        { ownCommands: true, role: "modal", surfaceMode: "cursor" }
       );
     },
     hotkey: "m",
@@ -269,7 +268,7 @@ const AskOverlayBody = function AskOverlayBody({
         attributes: 1,
         content: "ASK_OVERLAY · modal · owns input",
         fg: theme.primary,
-      }),
+      })
     ),
     // Body
     h(
@@ -284,8 +283,8 @@ const AskOverlayBody = function AskOverlayBody({
       h("text", {
         content: "r and q do nothing here — root commands are suspended.",
         fg: theme.textMuted,
-      }),
-    ),
+      })
+    )
   );
 };
 
@@ -328,7 +327,7 @@ const PassiveHelpBody = function PassiveHelpBody({ actions }: { actions: DemoAct
         attributes: 1,
         content: "PASSIVE_HELP · passive · never owns input",
         fg: theme.textMuted,
-      }),
+      })
     ),
     // Body
     h(
@@ -338,8 +337,8 @@ const PassiveHelpBody = function PassiveHelpBody({ actions }: { actions: DemoAct
         content: "Press r: the ROOT counter increments (not this panel).",
         fg: theme.text,
       }),
-      h("text", { content: "Press Escape to close this passive overlay.", fg: theme.text }),
-    ),
+      h("text", { content: "Press Escape to close this passive overlay.", fg: theme.text })
+    )
   );
 };
 
@@ -370,7 +369,7 @@ export const OverlayCommandSurfacesDemo = function OverlayCommandSurfacesDemo():
         setLastSubmit(text);
       },
     }),
-    [],
+    []
   );
 
   useCommand({
@@ -388,7 +387,7 @@ export const OverlayCommandSurfacesDemo = function OverlayCommandSurfacesDemo():
         "ask",
         ({ close }: OverlayRenderArgs<null>): ReactNode => h(AskOverlayBody, { actions, close }),
         null,
-        { ownCommands: true, role: "modal", surfaceMode: "cursor" },
+        { ownCommands: true, role: "modal", surfaceMode: "cursor" }
       );
     },
     hotkey: "o",
@@ -428,8 +427,8 @@ export const OverlayCommandSurfacesDemo = function OverlayCommandSurfacesDemo():
     { style: { flexDirection: "column", paddingLeft: 2, paddingTop: 1 } },
     h("text", { attributes: 1, content: "Overlay Command Surfaces", fg: theme.primary }),
     h("text", { content: "" }),
-    ...help.map(
-      (line, i): ReactNode => h("text", { content: line, fg: theme.textMuted, key: `help-${i}` }),
+    ...help.map((line, i): ReactNode =>
+      h("text", { content: line, fg: theme.textMuted, key: `help-${i}` })
     ),
     h("text", { content: "" }),
     h(
@@ -443,11 +442,11 @@ export const OverlayCommandSurfacesDemo = function OverlayCommandSurfacesDemo():
           paddingRight: 2,
         },
       },
-      ...stateLines.map(
-        (line, i): ReactNode => h("text", { content: line, fg: theme.text, key: `state-${i}` }),
-      ),
+      ...stateLines.map((line, i): ReactNode =>
+        h("text", { content: line, fg: theme.text, key: `state-${i}` })
+      )
     ),
-    (overlay.topId?.length ?? 0) > 0 ? null : h("text", { content: "" }),
+    (overlay.topId?.length ?? 0) > 0 ? null : h("text", { content: "" })
   );
 
   return h(
@@ -462,7 +461,7 @@ export const OverlayCommandSurfacesDemo = function OverlayCommandSurfacesDemo():
       },
       titleBar: { title: "Overlay Command Surfaces" },
     },
-    content,
+    content
   );
 };
 

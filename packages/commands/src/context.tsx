@@ -1,7 +1,25 @@
-import { createContext, useContext, useCallback, useEffect, useMemo } from "react";
-import type { ReactNode } from "react";
 import { useKeyboard } from "@opentui/react";
 import { useSelector } from "@xstate/store-react";
+import { createContext, useContext, useCallback, useEffect, useMemo } from "react";
+import type { ReactNode } from "react";
+
+import { buildCommandContext, commandsFromRegistry } from "./build-context.js";
+import { createCommandStore } from "./command-store-wrapper.js";
+import type { CommandStore } from "./command-store-wrapper.js";
+import {
+  ROOT_SURFACE_ID,
+  selectActivePanelSurface,
+  selectKeyboardOwnerSurface,
+  selectSequence,
+  selectSurfaceCommandMap,
+  stepsKey,
+} from "./command-store.js";
+import type { ContextGetter, SurfaceRecord } from "./command-store.js";
+import { useLatest } from "./hooks/use-latest.js";
+import { useLazyRef } from "./hooks/use-lazy-ref.js";
+import type { Mode } from "./mode.js";
+import { ModeProvider, useMode, useSetMode } from "./mode.js";
+import { parseHotkey } from "./parse.js";
 import type {
   ActiveCommandSurface,
   Command,
@@ -12,23 +30,6 @@ import type {
   CommandSurfaceRole,
   RegisteredCommandGroup,
 } from "./types.js";
-import type { Mode } from "./mode.js";
-import { ModeProvider, useMode, useSetMode } from "./mode.js";
-import { parseHotkey } from "./parse.js";
-import {
-  ROOT_SURFACE_ID,
-  selectActivePanelSurface,
-  selectKeyboardOwnerSurface,
-  selectSequence,
-  selectSurfaceCommandMap,
-  stepsKey,
-} from "./command-store.js";
-import type { ContextGetter, SurfaceRecord } from "./command-store.js";
-import { createCommandStore } from "./command-store-wrapper.js";
-import type { CommandStore } from "./command-store-wrapper.js";
-import { buildCommandContext, commandsFromRegistry } from "./build-context.js";
-import { useLatest } from "./hooks/use-latest.js";
-import { useLazyRef } from "./hooks/use-lazy-ref.js";
 
 interface CommandContextValue {
   registry: CommandRegistry;
@@ -45,7 +46,7 @@ interface CommandStoreContextValue {
   leaderKey?: string;
 }
 
-const CommandContext = createContext<CommandStoreContextValue | null>(null);
+const CommandStoreReactContext = createContext<CommandStoreContextValue | null>(null);
 const CommandSequenceContext = createContext<CommandSequenceState | null>(null);
 /** Nesting depth of the nearest command surface (0 at the root app). */
 const CommandSurfaceDepthContext = createContext(0);
@@ -120,7 +121,7 @@ export const CommandProvider = function CommandProvider({
         getMode: () => rootAccessRef.current.getMode(),
       },
       sequenceTimeoutMs,
-    }),
+    })
   );
   const commandStore = storeRef.current;
 
@@ -176,7 +177,7 @@ const CommandDispatcher = function CommandDispatcher({
         mode: modeRef.current,
         setMode,
       }),
-    [commandStore, modeRef, setMode],
+    [commandStore, modeRef, setMode]
   );
 
   const buildCtxRef = useLatest(buildCtx);
@@ -204,7 +205,7 @@ const CommandDispatcher = function CommandDispatcher({
     () => () => {
       commandStore.dispose();
     },
-    [commandStore],
+    [commandStore]
   );
 
   const sequenceState = useSelector(commandStore.store, (s) => selectSequence(s.context));
@@ -215,13 +216,13 @@ const CommandDispatcher = function CommandDispatcher({
       leaderKey: leader,
       surface: commandStore.rootRecord,
     }),
-    [commandStore, leader],
+    [commandStore, leader]
   );
 
   return (
-    <CommandContext.Provider value={ctxValue}>
+    <CommandStoreReactContext.Provider value={ctxValue}>
       <CommandSequenceContext value={sequenceState}>{children}</CommandSequenceContext>
-    </CommandContext.Provider>
+    </CommandStoreReactContext.Provider>
   );
 };
 
@@ -256,7 +257,7 @@ export const CommandSurfaceProvider = function CommandSurfaceProvider({
   groupId,
   initialMode = "cursor",
 }: CommandSurfaceProviderProps): ReactNode {
-  const parent = useContext(CommandContext);
+  const parent = useContext(CommandStoreReactContext);
   if (!parent) {
     throw new Error("CommandSurfaceProvider must be used within a CommandProvider");
   }
@@ -291,7 +292,7 @@ const CommandSurfaceInner = function CommandSurfaceInner({
   role: CommandSurfaceRole;
   groupId?: string;
 }): ReactNode {
-  const parent = useContext(CommandContext);
+  const parent = useContext(CommandStoreReactContext);
   if (!parent) {
     throw new Error("CommandSurfaceProvider must be used within a CommandProvider");
   }
@@ -355,15 +356,15 @@ const CommandSurfaceInner = function CommandSurfaceInner({
       leaderKey: parent.leaderKey,
       surface: record,
     }),
-    [commandStore, record, parent.leaderKey],
+    [commandStore, record, parent.leaderKey]
   );
 
   return (
-    <CommandContext.Provider value={ctxValue}>
+    <CommandStoreReactContext.Provider value={ctxValue}>
       <CommandSurfaceDepthContext.Provider value={depth}>
         {children}
       </CommandSurfaceDepthContext.Provider>
-    </CommandContext.Provider>
+    </CommandStoreReactContext.Provider>
   );
 };
 
@@ -371,7 +372,7 @@ export const useSurfaceInvoke = function useSurfaceInvoke(): {
   commands: Command[];
   invoke: (id: string) => void;
 } {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useSurfaceInvoke must be used within a CommandProvider");
   }
@@ -380,7 +381,7 @@ export const useSurfaceInvoke = function useSurfaceInvoke(): {
   // Reactive: consumers re-render when a command registers or unregisters on
   // this surface (the per-surface map is identity-stable otherwise).
   const commandMap = useSelector(commandStore.store, (s) =>
-    selectSurfaceCommandMap(s.context, surface.id),
+    selectSurfaceCommandMap(s.context, surface.id)
   );
   const registry = commandStore.registryFor(surface);
 
@@ -389,7 +390,7 @@ export const useSurfaceInvoke = function useSurfaceInvoke(): {
       commands: commandMap ? [...commandMap.values()] : [],
       invoke: registry.invoke,
     }),
-    [commandMap, registry],
+    [commandMap, registry]
   );
 };
 
@@ -399,7 +400,7 @@ export const useSurfaceInvoke = function useSurfaceInvoke(): {
  * outside the dispatch path (e.g. a context-menu entry resolver).
  */
 export const useBuildCommandContext = function useBuildCommandContext(): () => CommandContext {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useBuildCommandContext must be used within a CommandProvider");
   }
@@ -414,7 +415,7 @@ export const useBuildCommandContext = function useBuildCommandContext(): () => C
  * on unrelated group/context-source registrations.
  */
 export const useSurfaceRegistry = function useSurfaceRegistry(): CommandRegistry {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useSurfaceRegistry must be used within a CommandProvider");
   }
@@ -422,7 +423,7 @@ export const useSurfaceRegistry = function useSurfaceRegistry(): CommandRegistry
 };
 
 export const useCommandRegistry = function useCommandRegistry(): CommandContextValue {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useCommandRegistry must be used within a CommandProvider");
   }
@@ -441,7 +442,7 @@ export const useCommandRegistry = function useCommandRegistry(): CommandContextV
       leaderKey,
       registry,
     }),
-    [registry, leaderKey, contextSources, groups],
+    [registry, leaderKey, contextSources, groups]
   );
 };
 
@@ -457,7 +458,7 @@ export const useCommandSequenceState =
  * modal surface currently owns keyboard input above this subtree.
  */
 export const useCommandSurfaceId = function useCommandSurfaceId(): string {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useCommandSurfaceId must be used within a CommandProvider");
   }
@@ -473,7 +474,7 @@ export const useCommandSurfaceId = function useCommandSurfaceId(): string {
  */
 export const useActiveCommandSurface =
   function useActiveCommandSurface(): ActiveCommandSurface | null {
-    const ctx = useContext(CommandContext);
+    const ctx = useContext(CommandStoreReactContext);
     const { store } = ctx?.commandStore ?? FALLBACK_COMMAND_STORE;
 
     const record = useSelector(store, (s) => selectKeyboardOwnerSurface(s.context));
@@ -503,9 +504,9 @@ export const useActiveCommandSurface =
  * when none is active.
  */
 export const useSurfaceCommands = function useSurfaceCommands(
-  surfaceId?: string,
+  surfaceId?: string
 ): readonly Command[] {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   const { store } = ctx?.commandStore ?? FALLBACK_COMMAND_STORE;
 
   const commandMap = useSelector(store, (s) => {
@@ -535,7 +536,7 @@ export interface EffectiveCommands {
  * edge; dispatch itself shadows correctly via the store).
  */
 export const useEffectiveCommands = function useEffectiveCommands(): EffectiveCommands {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useEffectiveCommands must be used within a CommandProvider");
   }
@@ -563,14 +564,14 @@ export const useEffectiveCommands = function useEffectiveCommands(): EffectiveCo
     const shadowed = new Set(
       panelCommands
         .map((command) => command.defaultHotkey)
-        .filter((hotkey): hotkey is string => hotkey !== undefined && hotkey !== ""),
+        .filter((hotkey): hotkey is string => hotkey !== undefined && hotkey !== "")
     );
     const effectiveRoot = rootCommands
       .filter((command) => !panelIds.has(command.id))
       .map((command) =>
         command.defaultHotkey !== undefined && shadowed.has(command.defaultHotkey)
           ? { ...command, defaultHotkey: undefined }
-          : command,
+          : command
       );
 
     const invoke = (id: string): void => {
@@ -594,7 +595,7 @@ export const useEffectiveCommands = function useEffectiveCommands(): EffectiveCo
  * (e.g. the shell's overlay-replacement sequence reset).
  */
 export const useCommandStore = function useCommandStore(): CommandStore {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useCommandStore must be used within a CommandProvider");
   }
@@ -602,7 +603,7 @@ export const useCommandStore = function useCommandStore(): CommandStore {
 };
 
 export const useCommandGroup = function useCommandGroup(group: CommandGroup): void {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useCommandGroup must be used within a CommandProvider");
   }
@@ -637,9 +638,9 @@ export const useCommandGroup = function useCommandGroup(group: CommandGroup): vo
 let nextContextSourceId = 0;
 
 export const useProvideCommandContext = function useProvideCommandContext(
-  getter: () => Partial<CommandContext>,
+  getter: () => Partial<CommandContext>
 ): void {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useProvideCommandContext must be used within a CommandProvider");
   }

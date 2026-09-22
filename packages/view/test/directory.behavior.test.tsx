@@ -1,12 +1,14 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
-import { act } from "react";
-import path from "node:path";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
+import path from "node:path";
+
 import { TooeeProvider } from "@tooee/shell";
-import { DirectoryView } from "../src/directory-view.js";
+import { testRender } from "@tooee/test-support";
+import { act } from "react";
+
 import { listDirectoryFiles } from "../src/directory-provider.js";
+import { DirectoryView } from "../src/directory-view.js";
 
 const TEST_DIR = path.resolve(import.meta.dir, "fixtures/test-dir");
 
@@ -57,7 +59,7 @@ const setup = async function setup() {
     <TooeeProvider>
       <DirectoryView dirPath={TEST_DIR} />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await s.renderOnce();
   // Allow async content load
@@ -71,7 +73,7 @@ const setup = async function setup() {
 const press = async function press(
   s: Awaited<ReturnType<typeof testRender>>,
   key: string,
-  modifiers?: { ctrl?: boolean; shift?: boolean },
+  modifiers?: { ctrl?: boolean; shift?: boolean }
 ) {
   await act(async () => {
     s.mockInput.pressKey(key, modifiers);

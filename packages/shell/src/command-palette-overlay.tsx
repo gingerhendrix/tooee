@@ -1,7 +1,7 @@
-import { createElement, useMemo } from "react";
-import type { ReactNode } from "react";
 import type { Command, Mode } from "@tooee/commands";
 import { CommandPalette } from "@tooee/renderers";
+import { createElement, useMemo } from "react";
+import type { ReactNode } from "react";
 
 const DEFAULT_MODES: Mode[] = ["cursor"];
 
@@ -31,7 +31,7 @@ export const CommandPaletteOverlay = function CommandPaletteOverlay({
           id: cmd.id,
           title: cmd.title,
         })),
-    [commands, launchMode],
+    [commands, launchMode]
   );
 
   return createElement(CommandPalette, {

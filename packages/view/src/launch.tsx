@@ -1,12 +1,13 @@
-import { launchCli, runCliSession } from "@tooee/shell";
 import type { ActionDefinition } from "@tooee/commands";
 import type { CodeBlockRenderer } from "@tooee/renderers";
 import { Outlet, RouterProvider } from "@tooee/router";
-import { createStandaloneRouter } from "./standalone-router.js";
-import type { LinkHandler } from "./link-handlers.js";
-import { DirectoryView } from "./directory-view.js";
-import type { ContentProvider, ContentRenderer } from "./types.js";
+import { launchCli, runCliSession } from "@tooee/shell";
 import type { ReactNode } from "react";
+
+import { DirectoryView } from "./directory-view.js";
+import type { LinkHandler } from "./link-handlers.js";
+import { createStandaloneRouter } from "./standalone-router.js";
+import type { ContentProvider, ContentRenderer } from "./types.js";
 
 export interface ViewLaunchOptions {
   contentProvider: ContentProvider;
@@ -44,12 +45,12 @@ export const launch = async function launch(options: ViewLaunchOptions): Promise
     {
       stdinPolicy: "tty-if-piped",
       stdoutPolicy: "tty-if-redirected",
-    },
+    }
   );
 };
 
 export const launchDirectory = async function launchDirectory(
-  options: DirectoryLaunchOptions,
+  options: DirectoryLaunchOptions
 ): Promise<void> {
   await launchCli(<DirectoryView dirPath={options.dirPath} actions={options.actions} />, {
     stdoutPolicy: "tty-if-redirected",

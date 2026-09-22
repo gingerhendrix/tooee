@@ -1,5 +1,6 @@
-import { MarkSet } from "../../marks/src/index.js";
 import { describe, expect, test } from "bun:test";
+
+import { MarkSet } from "../../marks/src/index.js";
 import {
   createContentLoaderStore,
   normalizeError,

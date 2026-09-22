@@ -1,6 +1,7 @@
+import type { ResolvedTheme } from "@tooee/themes";
 import type { Tokens } from "marked";
 import type { ReactNode } from "react";
-import type { ResolvedTheme } from "@tooee/themes";
+
 import { InlineTokens } from "../inline.js";
 import { linkMouseHandler } from "../links.js";
 import type { MarkdownLinkHandler } from "../links.js";
@@ -40,7 +41,7 @@ export const HeadingRenderer = function HeadingRenderer({
         onMouseDown={linkMouseHandler(
           token.tokens,
           onLinkActivate,
-          Bun.stringWidth(prefixes.get(token.depth) ?? ""),
+          Bun.stringWidth(prefixes.get(token.depth) ?? "")
         )}
       >
         <span fg={theme.textMuted}>{prefixes.get(token.depth)}</span>

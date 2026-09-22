@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   InputRenderable,
   KeyEvent,
@@ -18,6 +17,8 @@ import {
   useSetMode,
 } from "@tooee/commands";
 import type { ActionDefinition, CommandContext, Mode } from "@tooee/commands";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import { appendAtCursor, openLineAtCursor } from "./vim-motions.js";
 import type { VimMotionState } from "./vim-motions.js";
 
@@ -121,7 +122,7 @@ interface AskEditorKeymapDefinition extends Omit<ActionDefinition, "group" | "wh
  * `ownCommands` overlay, or under any `CommandSurfaceProvider`.
  */
 export const useAskEditor = function useAskEditor(
-  options: UseAskEditorOptions = {},
+  options: UseAskEditorOptions = {}
 ): UseAskEditorResult {
   const { multiline = false, defaultValue, placeholder, commandScope = "ask" } = options;
 
@@ -161,7 +162,7 @@ export const useAskEditor = function useAskEditor(
         event.preventDefault();
       }
     },
-    [modeRef],
+    [modeRef]
   );
 
   useEffect(() => {
@@ -185,7 +186,7 @@ export const useAskEditor = function useAskEditor(
 
   const getTarget = useCallback(
     () => (multilineRef.current ? textareaRef.current : inputRef.current),
-    [multilineRef],
+    [multilineRef]
   );
 
   // Controller mutations must be observable before React state synchronizes.
@@ -194,7 +195,7 @@ export const useAskEditor = function useAskEditor(
       multilineRef.current
         ? (textareaRef.current?.plainText ?? "")
         : (inputRef.current?.plainText ?? valueRef.current),
-    [multilineRef, valueRef],
+    [multilineRef, valueRef]
   );
 
   const submit = useCallback(() => {
@@ -205,13 +206,13 @@ export const useAskEditor = function useAskEditor(
 
   const enabled = useCallback(
     (group: AskEditorCommandGroup) => !(optionsRef.current.disable?.includes(group) ?? false),
-    [optionsRef],
+    [optionsRef]
   );
 
   const resolveSubmitKey = useCallback((): AskSubmitKey => {
     const { current } = optionsRef;
     return current.submitKey ?? (current.multiline === true ? "shift+enter" : "enter");
-  }, []);
+  }, [optionsRef]);
 
   const copyText = useCallback(
     (text: string, emptyMessage: string, successMessage: string, ctx: CommandContext) => {
@@ -222,7 +223,7 @@ export const useAskEditor = function useAskEditor(
       void copyToClipboard(text);
       ctx.toast?.toast({ level: "success", message: successMessage });
     },
-    [],
+    []
   );
 
   const copyLine = useCallback(
@@ -239,13 +240,13 @@ export const useAskEditor = function useAskEditor(
       const end = nextNewline === -1 ? text.length : nextNewline;
       copyText(text.slice(start, end), "Nothing to copy", "Copied line to clipboard", ctx);
     },
-    [copyText, getTarget],
+    [copyText, getTarget]
   );
   const copyDocument = useCallback(
     (ctx: CommandContext) => {
       copyText(getText(), "Nothing to copy", "Copied document to clipboard", ctx);
     },
-    [copyText, getText],
+    [copyText, getText]
   );
   const copySelection = useCallback(
     (ctx: CommandContext) => {
@@ -253,7 +254,7 @@ export const useAskEditor = function useAskEditor(
       const text = target?.hasSelection() === true ? target.getSelectedText() : "";
       copyText(text, "Nothing selected", "Copied selection to clipboard", ctx);
     },
-    [copyText, getTarget],
+    [copyText, getTarget]
   );
 
   const enterInsertMode = useCallback(() => {
@@ -299,7 +300,7 @@ export const useAskEditor = function useAskEditor(
       vimMotionStateRef.current.pendingG = false;
       bumpScroll();
     },
-    [getTarget, bumpScroll],
+    [getTarget, bumpScroll]
   );
 
   const builtInActions = useMemo<ActionDefinition[]>(() => {
@@ -307,7 +308,7 @@ export const useAskEditor = function useAskEditor(
       id: string,
       hotkey: string,
       title: string,
-      run: (target: TextareaRenderable | InputRenderable) => void,
+      run: (target: TextareaRenderable | InputRenderable) => void
     ): AskEditorKeymapDefinition => ({
       group: "motions",
       handler: () => {
@@ -520,7 +521,7 @@ export const useAskEditor = function useAskEditor(
         })();
       }
     },
-    [getTarget],
+    [getTarget]
   );
 
   const setText = useCallback(
@@ -551,7 +552,7 @@ export const useAskEditor = function useAskEditor(
       }
       bumpScroll();
     },
-    [bumpScroll, multilineRef],
+    [bumpScroll, multilineRef]
   );
 
   const insertText = useCallback(
@@ -559,7 +560,7 @@ export const useAskEditor = function useAskEditor(
       getTarget()?.insertText(text);
       bumpScroll();
     },
-    [getTarget, bumpScroll],
+    [getTarget, bumpScroll]
   );
 
   const setCursorToEnd = useCallback(() => {
@@ -576,7 +577,7 @@ export const useAskEditor = function useAskEditor(
       vimMotionStateRef.current.pendingG = false;
       setMode(next);
     },
-    [setMode],
+    [setMode]
   );
 
   // Stable identity so composites can capture it in refs/effects; `mode` reads

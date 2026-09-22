@@ -6,6 +6,7 @@ import type {
   OptimizedBuffer,
   Renderable,
 } from "@opentui/core";
+
 import type { DecorationLayer, RowDecoration } from "./decoration-layer.js";
 
 // ---------------------------------------------------------------------------
@@ -49,7 +50,7 @@ export interface RowDocumentOptions extends ScrollBoxOptions {
 // ---------------------------------------------------------------------------
 
 const isRowContentProvider = function isRowContentProvider(
-  renderable: Renderable,
+  renderable: Renderable
 ): renderable is Renderable & LineInfoProvider {
   return "lineInfo" in renderable && "lineCount" in renderable && "virtualLineCount" in renderable;
 };
@@ -70,7 +71,7 @@ const cachedColor = function cachedColor(hex: string): RGBA {
 };
 
 const normalizePalette = function normalizePalette(
-  palette: RowDocumentPalette = {},
+  palette: RowDocumentPalette = {}
 ): Required<RowDocumentPalette> {
   return {
     gutterBg: palette.gutterBg ?? "#0d1117",
@@ -79,7 +80,7 @@ const normalizePalette = function normalizePalette(
 };
 
 const normalizeDecorationLayers = function normalizeDecorationLayers(
-  layers: readonly DecorationLayer[] | undefined,
+  layers: readonly DecorationLayer[] | undefined
 ): readonly DecorationLayer[] {
   if (!layers || layers.length === 0) {
     return [];
@@ -433,7 +434,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
       rowVirtualHeights,
       virtualRowToRow,
       virtualRowWraps,
-      rowCount,
+      rowCount
     );
   }
 
@@ -485,7 +486,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
       rowVirtualHeights,
       virtualRowToRow,
       virtualRowWraps,
-      rowCount,
+      rowCount
     );
   }
 
@@ -494,7 +495,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     rowVirtualHeights: number[],
     virtualRowToRow: number[],
     virtualRowWraps: number[],
-    rowCount: number,
+    rowCount: number
   ): void {
     let contentVirtualEnd = 0;
     for (let row = 0; row < rowCount; row += 1) {
@@ -669,7 +670,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
             drawX + col,
             vpY + screenY,
             signFg,
-            effectiveGutterBg,
+            effectiveGutterBg
           );
         }
       }

@@ -1,4 +1,3 @@
-import type { Token } from "marked";
 import {
   bold as boldChunk,
   italic as italicChunk,
@@ -7,6 +6,8 @@ import {
 } from "@opentui/core";
 import type { TextChunk } from "@opentui/core";
 import type { ResolvedTheme } from "@tooee/themes";
+import type { Token } from "marked";
+
 import { hasMarkedText } from "./tokens.js";
 import { visitInline } from "./visit-inline.js";
 
@@ -16,7 +17,7 @@ const chunk = function chunk(text: string): TextChunk {
 
 export const inlineTokensToChunks = function inlineTokensToChunks(
   tokens: readonly Token[],
-  theme: ResolvedTheme,
+  theme: ResolvedTheme
 ): TextChunk[] {
   return visitInline<TextChunk>(tokens, {
     br: () => [],

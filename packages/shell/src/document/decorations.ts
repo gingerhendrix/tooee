@@ -1,5 +1,6 @@
 import type { DecorationLayer, RowDecoration } from "@tooee/renderers";
 import type { ResolvedTheme } from "@tooee/themes";
+
 import { DocumentDecorationPriorities } from "./types.js";
 
 const SEARCH_SIGN = "●";
@@ -8,7 +9,7 @@ const CURSOR_SIGN = "▸";
 /** A decoration layer backed by an explicit row → decoration map. */
 const rowLayer = function rowLayer(
   priority: number,
-  rows: Map<number, Omit<RowDecoration, "row">>,
+  rows: Map<number, Omit<RowDecoration, "row">>
 ): DecorationLayer {
   return {
     *forVisibleRows(from: number, to: number): Generator<RowDecoration> {
@@ -26,7 +27,7 @@ const rowLayer = function rowLayer(
 const singleRowLayer = function singleRowLayer(
   priority: number,
   row: number,
-  decoration: Omit<RowDecoration, "row">,
+  decoration: Omit<RowDecoration, "row">
 ): DecorationLayer {
   return rowLayer(priority, new Map([[row, decoration]]));
 };
@@ -88,7 +89,7 @@ export const buildInteractionDecorations = function buildInteractionDecorations(
       singleRowLayer(DocumentDecorationPriorities.CURRENT_MATCH, currentMatch, {
         background: theme.primary,
         sign: { fg: theme.primary, text: SEARCH_SIGN },
-      }),
+      })
     );
   }
 
@@ -97,7 +98,7 @@ export const buildInteractionDecorations = function buildInteractionDecorations(
       singleRowLayer(DocumentDecorationPriorities.CURSOR, cursor, {
         background: theme.cursorLine,
         sign: { fg: theme.primary, text: CURSOR_SIGN },
-      }),
+      })
     );
   }
 

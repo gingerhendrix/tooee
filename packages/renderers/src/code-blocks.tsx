@@ -1,8 +1,9 @@
+import type { MouseEvent, SyntaxStyle, TextBufferRenderable } from "@opentui/core";
+import type { ResolvedTheme } from "@tooee/themes";
+import type { Tokens } from "marked";
 import { useCallback, useRef } from "react";
 import type { ReactNode, RefObject } from "react";
-import type { ResolvedTheme } from "@tooee/themes";
-import type { MouseEvent, SyntaxStyle, TextBufferRenderable } from "@opentui/core";
-import type { Tokens } from "marked";
+
 import { renderMermaidForTerminal } from "./mermaid.js";
 
 // ---------------------------------------------------------------------------
@@ -230,7 +231,7 @@ export { defaultRendererMap as DEFAULT_CODE_BLOCK_RENDERERS };
  */
 const useHScrollableBlock = function useHScrollableBlock(
   blockIndex: number,
-  hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>,
+  hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>
 ) {
   const nodeRef = useRef<TextBufferRenderable | null>(null);
   const register = useCallback(
@@ -246,7 +247,7 @@ const useHScrollableBlock = function useHScrollableBlock(
         map.delete(blockIndex);
       }
     },
-    [hScrollableBlocksRef, blockIndex],
+    [hScrollableBlocksRef, blockIndex]
   );
 
   const handleMouseScroll = useCallback((event: MouseEvent) => {

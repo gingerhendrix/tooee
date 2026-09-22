@@ -61,14 +61,14 @@ const markdownTable = function markdownTable(section: number): string {
   const rows = ["| Metric | Value | Notes |", "| --- | ---: | --- |"];
   for (let row = 0; row < 6; row += 1) {
     rows.push(
-      `| item-${section}-${row} | ${section * 100 + row} | ${sentence(section + row, 7)} |`,
+      `| item-${section}-${row} | ${section * 100 + row} | ${sentence(section + row, 7)} |`
     );
   }
   return rows.join("\n");
 };
 
 export const makeMarkdownFixture = function makeMarkdownFixture(
-  tier: FixtureTier = FIXTURE_TIERS.moderate,
+  tier: FixtureTier = FIXTURE_TIERS.moderate
 ): MarkdownContent {
   const sections: string[] = ["# Tooee synthetic markdown benchmark", ""];
 
@@ -80,7 +80,7 @@ export const makeMarkdownFixture = function makeMarkdownFixture(
       "- first deterministic list entry",
       "- second deterministic list entry",
       "- nested benchmark note",
-      "",
+      ""
     );
 
     if (section % 4 === 0) {
@@ -90,7 +90,7 @@ export const makeMarkdownFixture = function makeMarkdownFixture(
         `  return input + ${section}`,
         "}",
         "```",
-        "",
+        ""
       );
     }
 
@@ -108,13 +108,13 @@ export const makeMarkdownFixture = function makeMarkdownFixture(
 };
 
 export const makeCodeFixture = function makeCodeFixture(
-  tier: FixtureTier = FIXTURE_TIERS.moderate,
+  tier: FixtureTier = FIXTURE_TIERS.moderate
 ): CodeContent {
   const lines: string[] = [];
   for (let line = 0; line < tier.codeLines; line += 1) {
     const label = WORDS[line % WORDS.length];
     lines.push(
-      `export const value${line} = { id: ${line}, label: "${label}", score: ${(line * 13) % 997} }`,
+      `export const value${line} = { id: ${line}, label: "${label}", score: ${(line * 13) % 997} }`
     );
   }
 
@@ -127,7 +127,7 @@ export const makeCodeFixture = function makeCodeFixture(
 };
 
 export const makeTableFixture = function makeTableFixture(
-  tier: FixtureTier = FIXTURE_TIERS.moderate,
+  tier: FixtureTier = FIXTURE_TIERS.moderate
 ): TableFixture {
   const columns: ColumnDef[] = Array.from({ length: tier.tableColumns }, (_, index) => ({
     align: index % 3 === 0 ? "right" : "left",

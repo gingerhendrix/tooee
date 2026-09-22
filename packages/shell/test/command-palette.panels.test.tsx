@@ -1,11 +1,12 @@
-import { testRender, press } from "@tooee/test-support";
-import type { TestSession } from "@tooee/test-support";
 import { afterEach, describe, expect, test } from "bun:test";
-import { useEffect } from "react";
-import type { ReactNode } from "react";
+
 import { CommandSurfaceProvider, useCommand, useCommandStore } from "@tooee/commands";
 import { useCurrentOverlay } from "@tooee/overlays";
 import { TooeeProvider } from "@tooee/shell";
+import { testRender, press } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
+import { useEffect } from "react";
+import type { ReactNode } from "react";
 
 // A stand-in for @tooee/panels' Panel: a "panel"-role command surface plus a
 // helper that publishes it as the group's active panel. Keeps this shell test
@@ -126,7 +127,7 @@ const setup = async function setup(): Promise<TestSession> {
     <TooeeProvider>
       <PanelHarness />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await session.renderOnce();
   return session;
@@ -137,7 +138,7 @@ const setupInsertPanel = async function setupInsertPanel(): Promise<TestSession>
     <TooeeProvider>
       <InsertPanelHarness />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await session.renderOnce();
   return session;

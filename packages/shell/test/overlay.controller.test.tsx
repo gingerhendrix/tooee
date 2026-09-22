@@ -1,12 +1,13 @@
-import { testRender, press, pressEscape } from "@tooee/test-support";
-import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
-import { useRef } from "react";
-import { TooeeProvider } from "@tooee/shell";
+
+import { useCommand, useMode } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
 import { useOverlay, useCurrentOverlay, useHasOverlay } from "@tooee/overlays";
 import type { OverlayCloseReason, OverlayHandle, OverlayOpenOptions } from "@tooee/overlays";
-import { AppLayout } from "@tooee/layout";
-import { useCommand, useMode } from "@tooee/commands";
+import { TooeeProvider } from "@tooee/shell";
+import { testRender, press, pressEscape } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
+import { useRef } from "react";
 import type { ReactNode } from "react";
 
 const BuriedHarness = function BuriedHarness(): ReactNode {
@@ -19,7 +20,7 @@ const BuriedHarness = function BuriedHarness(): ReactNode {
         "under",
         overlay.open("under", (): ReactNode => <text content="under-overlay" />, undefined, {
           mode: "insert",
-        }),
+        })
       );
     },
     hotkey: "u",
@@ -33,7 +34,7 @@ const BuriedHarness = function BuriedHarness(): ReactNode {
         "over",
         overlay.open("over", (): ReactNode => <text content="over-overlay" />, undefined, {
           mode: "select",
-        }),
+        })
       );
     },
     hotkey: "v",

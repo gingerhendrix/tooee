@@ -1,6 +1,4 @@
-import { useCallback, useMemo } from "react";
 import { useTerminalDimensions } from "@opentui/react";
-import { useSelector } from "@xstate/store-react";
 import { useActions, useMode, useSetMode } from "@tooee/commands";
 import type { ActionDefinition, Mode } from "@tooee/commands";
 import {
@@ -12,6 +10,8 @@ import {
   useNavSearchStore,
 } from "@tooee/search";
 import type { NavSearchStore } from "@tooee/search";
+import { useSelector } from "@xstate/store-react";
+import { useCallback, useMemo } from "react";
 
 const CURSOR_MODES: Mode[] = ["cursor"];
 const SELECT_MODES: Mode[] = ["select"];
@@ -41,7 +41,7 @@ export const useNavigationBindings = function useNavigationBindings(
   {
     viewportHeight,
     multiSelect = false,
-  }: Pick<UseNavigationOptions, "viewportHeight" | "multiSelect">,
+  }: Pick<UseNavigationOptions, "viewportHeight" | "multiSelect">
 ): NavigationState {
   const { height } = useTerminalDimensions();
   const halfPage = Math.floor((viewportHeight ?? Math.max(1, height - 2)) / 2) || 1;
@@ -55,7 +55,7 @@ export const useNavigationBindings = function useNavigationBindings(
     (index: number) => {
       store.trigger.setCursor({ index });
     },
-    [store],
+    [store]
   );
 
   const actions = useMemo<ActionDefinition[]>(() => {
@@ -218,11 +218,11 @@ export const useNavigationBindings = function useNavigationBindings(
 };
 
 export const useNavigation = function useNavigation(
-  options: UseNavigationOptions,
+  options: UseNavigationOptions
 ): NavigationState {
   const keys = useMemo(
     () => Array.from({ length: options.rowCount }, (_, index) => index),
-    [options.rowCount],
+    [options.rowCount]
   );
   const store = useNavSearchStore({ isSelectable: options.isSelectable, keys });
   return useNavigationBindings(store, options);

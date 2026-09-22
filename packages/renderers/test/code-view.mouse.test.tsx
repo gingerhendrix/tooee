@@ -1,12 +1,14 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
-import { act } from "react";
+
 import { MouseButtons } from "@opentui/core/testing";
+import { testRender } from "@tooee/test-support";
 import { ThemeSwitcherProvider } from "@tooee/themes";
+import { act } from "react";
+import type { ReactNode } from "react";
+
 import { CodeView } from "../src/code-view.js";
 import { useRowMouseBindings } from "./support/bindings.js";
 import type { RowMouseCallbacks } from "./support/bindings.js";
-import type { ReactNode } from "react";
 
 // The code view is a single `<code>` provider inside a row-document with no
 // header chrome, so the first line renders at viewport y=0. Gutter is line
@@ -35,7 +37,7 @@ describe("CodeView mouse interaction", () => {
           }}
         />
       </ThemeSwitcherProvider>,
-      { height: 15, width: 40 },
+      { height: 15, width: 40 }
     );
     await testSetup.renderOnce();
 
@@ -60,7 +62,7 @@ describe("CodeView mouse interaction", () => {
           }}
         />
       </ThemeSwitcherProvider>,
-      { height: 15, width: 40 },
+      { height: 15, width: 40 }
     );
     await testSetup.renderOnce();
 
@@ -82,7 +84,7 @@ describe("CodeView mouse interaction", () => {
           }}
         />
       </ThemeSwitcherProvider>,
-      { height: 15, width: 40 },
+      { height: 15, width: 40 }
     );
     await testSetup.renderOnce();
 
@@ -111,7 +113,7 @@ describe("CodeView mouse interaction", () => {
           }}
         />
       </ThemeSwitcherProvider>,
-      { height: 15, width: 40 },
+      { height: 15, width: 40 }
     );
     await testSetup.renderOnce();
 

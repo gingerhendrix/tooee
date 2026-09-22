@@ -1,8 +1,9 @@
-import type { ReactNode } from "react";
 import { useActions, useMode } from "@tooee/commands";
 import type { ActionDefinition } from "@tooee/commands";
 import { AppLayout } from "@tooee/layout";
 import type { AppLayoutProps, StatusBarItem } from "@tooee/layout";
+import type { ReactNode } from "react";
+
 import { useQuitCommand, useThemeCommands } from "../commands.js";
 import type { UseQuitCommandOptions } from "../commands.js";
 import { useProvideDocumentCommandContext } from "./command-context.js";

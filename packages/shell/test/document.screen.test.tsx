@@ -1,10 +1,11 @@
-import { testRender, expectDefined, press, pressTab } from "@tooee/test-support";
-import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, beforeEach, describe } from "bun:test";
+
 import { useSurfaceInvoke } from "@tooee/commands";
 import type { ActionDefinition, CommandContext } from "@tooee/commands";
 import { Document, DocumentScreen, TooeeProvider, useDocumentController } from "@tooee/shell";
 import type { DocumentCommandContext, DocumentScreenProps } from "@tooee/shell";
+import { testRender, expectDefined, press, pressTab } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
 import type { ReactNode } from "react";
 
 interface Row {
@@ -86,7 +87,7 @@ const setup = async function setup(props: ScreenOptions & { multiSelect?: boolea
     <TooeeProvider>
       <Harness {...props} />
     </TooeeProvider>,
-    { height: 16, kittyKeyboard: true, width: 90 },
+    { height: 16, kittyKeyboard: true, width: 90 }
   );
   await session.renderOnce();
   return session;
@@ -219,7 +220,7 @@ describe("status bar", () => {
         {/* oxlint-disable-next-line no-use-before-define -- harness is only evaluated after module initialization */}
         <EmptyHarness />
       </TooeeProvider>,
-      { height: 16, kittyKeyboard: true, width: 90 },
+      { height: 16, kittyKeyboard: true, width: 90 }
     );
     await session.renderOnce();
     expect(statusLine()).toMatch(/Cursor:\s*-/u);

@@ -1,7 +1,9 @@
-import { testRender } from "@tooee/test-support";
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+
+import { testRender } from "@tooee/test-support";
 import { act, useEffect } from "react";
 import type { ReactNode } from "react";
+
 import {
   CommandProvider,
   CommandSurfaceProvider,
@@ -135,7 +137,7 @@ describe("useEffectiveCommands", () => {
         <RootCommands />
         <Probe />
       </CommandProvider>,
-      { height: 8, kittyKeyboard: true, width: 120 },
+      { height: 8, kittyKeyboard: true, width: 120 }
     );
     await session.renderOnce();
     const text = frame();

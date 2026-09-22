@@ -1,4 +1,5 @@
 import { rankBy } from "@tooee/fuzzy";
+
 import type { ChooseItem } from "./types.js";
 
 export interface FuzzyMatch {

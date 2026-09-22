@@ -1,9 +1,11 @@
-import { testRender, expectDefined } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
+
+import { testRender, expectDefined } from "@tooee/test-support";
 import { act, useState } from "react";
+import type { ReactNode } from "react";
+
 import { CommandProvider, useCommand, useCommandGroup, useCommandRegistry } from "../src/index.js";
 import type { RegisteredCommandGroup } from "../src/index.js";
-import type { ReactNode } from "react";
 
 const CommandRegistrant = function CommandRegistrant({ onFire }: { onFire: () => void }) {
   useCommand({ handler: onFire, hotkey: "d", id: "dup", title: "Dup" });
@@ -92,7 +94,7 @@ describe("registry unregister guards (R-05)", () => {
       <CommandProvider>
         <CommandIdentityHarness />
       </CommandProvider>,
-      { height: 10, kittyKeyboard: true, width: 60 },
+      { height: 10, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -130,7 +132,7 @@ describe("registry unregister guards (R-05)", () => {
       <CommandProvider>
         <GroupIdentityHarness ProbeComponent={Probe} />
       </CommandProvider>,
-      { height: 10, kittyKeyboard: true, width: 60 },
+      { height: 10, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 

@@ -1,6 +1,5 @@
-/* oxlint-disable no-use-before-define -- the screen closes over the route initialized before router startup */
-import { useMemo } from "react";
-import type { ReactNode } from "react";
+import path from "node:path";
+
 import { useChooseDialog } from "@tooee/choose";
 import { useCommand } from "@tooee/commands";
 import type { CommandContext } from "@tooee/commands";
@@ -13,13 +12,16 @@ import {
   useRouterCommands,
 } from "@tooee/router";
 import type { Codec, RouteDefinition, RouterInstance } from "@tooee/router";
-import path from "node:path";
+/* oxlint-disable no-use-before-define -- the screen closes over the route initialized before router startup */
+import { useMemo } from "react";
+import type { ReactNode } from "react";
+
 import { createFileProvider } from "./default-provider.js";
+import type { ViewLaunchOptions } from "./launch.js";
 import { runLinkHandlers } from "./link-handlers.js";
 import { markdownLinks } from "./markdown-links.js";
 import type { MarkdownLink } from "./markdown-links.js";
 import { getTextContent } from "./types.js";
-import type { ViewLaunchOptions } from "./launch.js";
 import { View } from "./view.js";
 
 const documentParams: Codec<{ path?: string }> = {
@@ -45,7 +47,7 @@ interface StandaloneRouter {
 }
 
 export const createStandaloneRouter = function createStandaloneRouter(
-  options: ViewLaunchOptions,
+  options: ViewLaunchOptions
 ): StandaloneRouter {
   const DocumentScreen = function DocumentScreen(): ReactNode {
     useRouterCommands();
@@ -56,7 +58,7 @@ export const createStandaloneRouter = function createStandaloneRouter(
     const provider = useMemo(
       () =>
         documentPath === undefined ? options.contentProvider : createFileProvider(documentPath),
-      [documentPath],
+      [documentPath]
     );
     const activate = (href: string, command: CommandContext): boolean => {
       if (options.filePath === undefined) {
@@ -67,7 +69,7 @@ export const createStandaloneRouter = function createStandaloneRouter(
       return runLinkHandlers(
         options.linkHandlers ?? [],
         { baseDir: path.dirname(currentPath), currentPath, href },
-        { command, documentRoute, navigate },
+        { command, documentRoute, navigate }
       );
     };
     useCommand({

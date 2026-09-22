@@ -44,13 +44,13 @@ export const percentile = function percentile(values: number[], percentileValue:
   const sorted = values.toSorted((left, right) => left - right);
   const index = Math.min(
     sorted.length - 1,
-    Math.max(0, Math.ceil((percentileValue / 100) * sorted.length) - 1),
+    Math.max(0, Math.ceil((percentileValue / 100) * sorted.length) - 1)
   );
   return sorted[index] ?? 0;
 };
 
 export const classifyMetric = function classifyMetric(
-  metric: string,
+  metric: string
 ): Pick<BenchmarkMetricResult, "unit" | "comparable" | "threshold"> {
   if (metric.endsWith("_ms")) {
     return {
@@ -82,7 +82,7 @@ export const classifyMetric = function classifyMetric(
 export const aggregateMetric = function aggregateMetric(
   source: string,
   metric: string,
-  samples: number[],
+  samples: number[]
 ): BenchmarkMetricResult {
   const sorted = samples.toSorted((left, right) => left - right);
   const classification = classifyMetric(metric);

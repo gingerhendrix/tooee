@@ -1,12 +1,14 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
-import { act } from "react";
 import path from "node:path";
+
 import { MouseButtons } from "@opentui/core/testing";
-import { TooeeProvider } from "@tooee/shell";
 import type { ActionDefinition } from "@tooee/commands";
-import { View } from "../src/view.js";
+import { TooeeProvider } from "@tooee/shell";
+import { testRender } from "@tooee/test-support";
+import { act } from "react";
+
 import { createTableFileProvider } from "../src/default-provider.js";
+import { View } from "../src/view.js";
 
 const CSV = path.resolve(import.meta.dir, "fixtures/data.csv");
 
@@ -26,7 +28,7 @@ const setup = async function setup() {
     <TooeeProvider>
       <View contentProvider={createTableFileProvider(CSV)} actions={ACTIONS} />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await s.renderOnce();
   await act(async () => {

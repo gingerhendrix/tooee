@@ -1,4 +1,5 @@
 import { mock } from "bun:test";
+
 import { clipboardStub } from "../packages/test-support/src/clipboard-mock.ts";
 
 // Register before any test can load @tooee/shell, whose copy command keeps its

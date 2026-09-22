@@ -3,6 +3,7 @@ import { copyToClipboard, readClipboardText, readPrimaryText } from "@tooee/clip
 import { useCommand } from "@tooee/commands";
 import type { CommandWhen, Mode } from "@tooee/commands";
 import { useToast } from "@tooee/toasts";
+
 import { useThemePicker } from "./theme-picker/use-theme-picker.js";
 import type { ThemePickerState } from "./theme-picker/use-theme-picker.js";
 
@@ -53,7 +54,7 @@ export interface UseToggleLineNumbersCommandOptions {
 }
 
 export const useThemeCommands = function useThemeCommands(
-  opts?: UseThemeCommandsOptions,
+  opts?: UseThemeCommandsOptions
 ): ThemeCommandsResult {
   const picker = useThemePicker();
   const { toast } = useToast();
@@ -159,7 +160,7 @@ export const usePasteCommands = function usePasteCommands(opts: UsePasteCommands
 };
 
 export const useDebugConsoleCommand = function useDebugConsoleCommand(
-  opts?: UseDebugConsoleCommandOptions,
+  opts?: UseDebugConsoleCommandOptions
 ): void {
   const renderer = useRenderer();
 
@@ -175,7 +176,7 @@ export const useDebugConsoleCommand = function useDebugConsoleCommand(
 };
 
 export const useToggleLineNumbersCommand = function useToggleLineNumbersCommand(
-  opts: UseToggleLineNumbersCommandOptions,
+  opts: UseToggleLineNumbersCommandOptions
 ): void {
   useCommand({
     handler: (ctx) => {

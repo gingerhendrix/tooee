@@ -1,11 +1,12 @@
-import { testRender, expectDefined, press } from "@tooee/test-support";
-import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
-import { useRef } from "react";
-import { TooeeProvider } from "@tooee/shell";
+
 import { useCommand, useCommandSequenceState } from "@tooee/commands";
 import { useOverlay, useCurrentOverlay } from "@tooee/overlays";
 import type { OverlayController } from "@tooee/overlays";
+import { TooeeProvider } from "@tooee/shell";
+import { testRender, expectDefined, press } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
+import { useRef } from "react";
 import type { ReactNode } from "react";
 
 let testSetup: TestSession;
@@ -47,7 +48,7 @@ const Harness = function Harness({ onChord }: { onChord: () => void }): ReactNod
       "chord-overlay",
       (): ReactNode => <ChordSurface generation={generation} onChord={onChord} />,
       null,
-      { ownCommands: true, role: "modal", surfaceMode: "cursor" },
+      { ownCommands: true, role: "modal", surfaceMode: "cursor" }
     );
   };
 
@@ -87,7 +88,7 @@ describe("F-09: same-id overlay replacement resets a pending chord (shell bridge
           }}
         />
       </TooeeProvider>,
-      { height: 24, kittyKeyboard: true, width: 80 },
+      { height: 24, kittyKeyboard: true, width: 80 }
     );
     await testSetup.renderOnce();
 
@@ -114,7 +115,7 @@ describe("F-09: same-id overlay replacement resets a pending chord (shell bridge
           />
         ),
         null,
-        { ownCommands: true, role: "modal", surfaceMode: "cursor" },
+        { ownCommands: true, role: "modal", surfaceMode: "cursor" }
       );
       await Promise.resolve();
     });

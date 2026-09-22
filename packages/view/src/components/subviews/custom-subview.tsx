@@ -1,12 +1,13 @@
-import { useMemo } from "react";
 import { CodeView, sourceLines, sourceLineAdapter } from "@tooee/renderers";
 import type { SourceLineRow } from "@tooee/renderers";
+import { useMemo } from "react";
+import type { ReactNode } from "react";
+
+import { useContentDocument } from "../../hooks/use-content-document.js";
 import { getTextContent } from "../../types.js";
 import type { CustomContent, ContentRenderer } from "../../types.js";
-import { useContentDocument } from "../../hooks/use-content-document.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
-import type { ReactNode } from "react";
 
 interface CustomSubviewProps extends SubviewProps {
   content: CustomContent;
@@ -29,7 +30,7 @@ export const CustomSubview = function CustomSubview({
     sourceLineAdapter,
     { actions, content, decorations, textContent },
     // Custom content has no action rows of its own, so no context menu is bound.
-    { contextMenu: false, multiSelect: true },
+    { contextMenu: false, multiSelect: true }
   );
 
   const customRenderer = renderers?.[content.format];

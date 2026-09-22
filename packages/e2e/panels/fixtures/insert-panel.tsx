@@ -1,11 +1,11 @@
 #!/usr/bin/env bun
 
-import { useRef, useState } from "react";
-import type { ReactNode } from "react";
 import type { TextareaRenderable } from "@opentui/core";
 import { useCommand } from "@tooee/commands";
 import { Panel, PanelGroup } from "@tooee/panels";
 import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useRef, useState } from "react";
+import type { ReactNode } from "react";
 
 const InsertPanelFixture = function InsertPanelFixture(): ReactNode {
   const editorRef = useRef<TextareaRenderable>(null);

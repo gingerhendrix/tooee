@@ -31,10 +31,7 @@ Part of the [Tooee](https://github.com/gingerhendrix/tooee) monorepo. See the ma
 
 A `View` screen publishes two command-context slices.
 
-`ctx.document` is the generic row-document contract from `@tooee/shell`, owned by
-the document controller: `rowCount`, `cursor`, `activeKey`, `activeRow`,
-`selection`, `selectedRows` and `toggledIndices`. Every row document has it, so
-row actions read the cursor from there:
+`ctx.document` is the generic row-document contract from `@tooee/shell`, owned by the document controller: `rowCount`, `cursor`, `activeKey`, `activeRow`, `selection`, `selectedRows` and `toggledIndices`. Every row document has it, so row actions read the cursor from there:
 
 ```ts
 handler: (ctx) => open(ctx.document?.activeRow);
@@ -61,8 +58,7 @@ interface ViewCommandContext {
 
 ## Headless view command context
 
-Custom surfaces that behave like a view, but do not render the built-in `View`
-component, can publish the `ctx.view` slice with `useProvideViewCommandContext`:
+Custom surfaces that behave like a view, but do not render the built-in `View` component, can publish the `ctx.view` slice with `useProvideViewCommandContext`:
 
 ```tsx
 import { useProvideViewCommandContext } from "@tooee/view";
@@ -74,18 +70,13 @@ useProvideViewCommandContext({
 });
 ```
 
-The hook fills safe defaults for headless surfaces: synthetic custom content,
-empty marks, and a no-op reload. Row state comes from `useDocumentController`,
-whose `DocumentScreen` provides `ctx.document` — do not synthesize it here.
+The hook fills safe defaults for headless surfaces: synthetic custom content, empty marks, and a no-op reload. Row state comes from `useDocumentController`, whose `DocumentScreen` provides `ctx.document` — do not synthesize it here.
 
-For tests or non-React integrations, `createViewCommandContext({ ... })` creates
-the same object shape directly.
+For tests or non-React integrations, `createViewCommandContext({ ... })` creates the same object shape directly.
 
 ## Custom renderers
 
-A custom renderer receives the content and the host's document controller. Its
-rows are the content's plain-text lines — the unit navigation, search and copy
-work in.
+A custom renderer receives the content and the host's document controller. Its rows are the content's plain-text lines — the unit navigation, search and copy work in.
 
 ```tsx
 const KanbanRenderer: ContentRenderer = ({ content, document }) => (
@@ -95,9 +86,7 @@ const KanbanRenderer: ContentRenderer = ({ content, document }) => (
 );
 ```
 
-A renderer that owns a `<row-document>` binds the controller directly — it
-satisfies `DocumentBindings`, the same `{ ref, decorations, onMouseDown }` the
-built-in `CodeView`, `MarkdownView` and `Table` renderers take:
+A renderer that owns a `<row-document>` binds the controller directly — it satisfies `DocumentBindings`, the same `{ ref, decorations, onMouseDown }` the built-in `CodeView`, `MarkdownView` and `Table` renderers take:
 
 ```tsx
 <row-document
@@ -107,5 +96,4 @@ built-in `CodeView`, `MarkdownView` and `Table` renderers take:
 >
 ```
 
-`selectRow` stands down while a modal overlay is open, so it can be wired
-unconditionally.
+`selectRow` stands down while a modal overlay is open, so it can be wired unconditionally.

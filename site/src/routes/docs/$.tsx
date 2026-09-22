@@ -1,13 +1,14 @@
 import { createFileRoute, getRouteApi, notFound } from "@tanstack/react-router";
-import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import { createServerFn } from "@tanstack/react-start";
-import { source } from "#/lib/source";
 import browserCollections from "collections/browser";
-import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/layouts/docs/page";
-import { baseOptions } from "#/lib/layout.shared";
 import { useFumadocsLoader } from "fumadocs-core/source/client";
+import { DocsLayout } from "fumadocs-ui/layouts/docs";
+import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/layouts/docs/page";
 import { Suspense } from "react";
+
 import { getMDXComponents } from "#/components/mdx";
+import { baseOptions } from "#/lib/layout.shared";
+import { source } from "#/lib/source";
 
 const throwNotFound = (): never => {
   notFound({ throw: true });

@@ -1,5 +1,6 @@
-import type { Token } from "marked";
 import type { MouseEvent, TextBufferRenderable } from "@opentui/core";
+import type { Token } from "marked";
+
 import { hasMarkedText, narrowToken, normalizeSoftLineEndings } from "./tokens.js";
 
 // oxlint-disable-next-line anti-slop/no-unknown-returns -- public host callback accepts any ignored result; only literal true marks a handled link
@@ -14,7 +15,7 @@ export interface InlineLinkPosition {
 export const inlineLinkAtPosition = function inlineLinkAtPosition(
   tokens: readonly Token[],
   position: InlineLinkPosition,
-  initialColumn = 0,
+  initialColumn = 0
 ): string | null {
   let line = 0;
   let column = initialColumn;
@@ -94,7 +95,7 @@ export const inlineLinkAtPosition = function inlineLinkAtPosition(
 export const linkMouseHandler = function linkMouseHandler(
   tokens: readonly Token[],
   onLinkActivate: MarkdownLinkHandler | undefined,
-  initialColumn = 0,
+  initialColumn = 0
 ): ((event: MouseEvent) => void) | undefined {
   if (onLinkActivate === undefined) {
     return undefined;
@@ -122,7 +123,7 @@ export const linkMouseHandler = function linkMouseHandler(
         column: startColumn + event.x - text.x,
         line: sourceLine,
       },
-      initialColumn,
+      initialColumn
     );
     if (href === null || onLinkActivate(href) !== true) {
       return;

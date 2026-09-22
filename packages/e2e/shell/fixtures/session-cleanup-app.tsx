@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import { useQuitCommand, launchCli } from "@tooee/shell";
+import { useEffect } from "react";
 import type { ReactNode } from "react";
 
 let effectCleanupRan = false;
@@ -32,5 +32,5 @@ await Bun.sleep(20);
 const endListeners = process.stdin.listenerCount("end") - beforeEnd;
 const closeListeners = process.stdin.listenerCount("close") - beforeClose;
 process.stdout.write(
-  `session cleanup complete raw=${String(process.stdin.isRaw)} end=${endListeners} close=${closeListeners} effect=${String(effectCleanupRan)}\n`,
+  `session cleanup complete raw=${String(process.stdin.isRaw)} end=${endListeners} close=${closeListeners} effect=${String(effectCleanupRan)}\n`
 );

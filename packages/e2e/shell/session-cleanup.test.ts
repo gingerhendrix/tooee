@@ -1,5 +1,7 @@
 import { afterEach, expect, test } from "bun:test";
+
 import type { Session } from "tuistory";
+
 import { launchShellFixture } from "./helpers.js";
 
 let session: Session;

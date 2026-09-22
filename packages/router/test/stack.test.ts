@@ -1,4 +1,5 @@
 import { test, expect, describe } from "bun:test";
+
 import { stackReducer } from "@tooee/router";
 import type { RouterState } from "@tooee/router";
 

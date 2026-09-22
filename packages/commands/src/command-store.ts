@@ -1,4 +1,6 @@
 import { createStore } from "@xstate/store";
+
+import type { Mode } from "./mode.js";
 import type {
   Command,
   CommandContext,
@@ -7,7 +9,6 @@ import type {
   ParsedStep,
   RegisteredCommandGroup,
 } from "./types.js";
-import type { Mode } from "./mode.js";
 
 export const ROOT_SURFACE_ID = "__root";
 
@@ -67,7 +68,7 @@ export interface CommandStoreContext {
  * Passive surfaces and the root never win.
  */
 export const selectActiveModalSurface = function selectActiveModalSurface(
-  ctx: CommandStoreContext,
+  ctx: CommandStoreContext
 ): SurfaceRecord | null {
   let best: SurfaceRecord | null = null;
   for (const record of ctx.surfaces) {
@@ -99,7 +100,7 @@ export const selectActiveModalSurface = function selectActiveModalSurface(
  * arbitration is a separate, earlier step (I-5).
  */
 export const selectActivePanelSurface = function selectActivePanelSurface(
-  ctx: CommandStoreContext,
+  ctx: CommandStoreContext
 ): SurfaceRecord | null {
   let best: SurfaceRecord | null = null;
   for (const record of ctx.surfaces) {
@@ -127,7 +128,7 @@ export const selectActivePanelSurface = function selectActivePanelSurface(
  * across ownership changes and to back the surface-aware hooks.
  */
 export const selectKeyboardOwnerSurface = function selectKeyboardOwnerSurface(
-  ctx: CommandStoreContext,
+  ctx: CommandStoreContext
 ): SurfaceRecord | null {
   return selectActiveModalSurface(ctx) ?? selectActivePanelSurface(ctx);
 };
@@ -138,7 +139,7 @@ export const selectKeyboardOwnerSurface = function selectKeyboardOwnerSurface(
  */
 export const selectSurfaceCommands = function selectSurfaceCommands(
   ctx: CommandStoreContext,
-  surfaceId: string,
+  surfaceId: string
 ): readonly Command[] {
   const commands = ctx.commandsBySurface.get(surfaceId);
   return commands ? [...commands.values()] : [];
@@ -147,19 +148,19 @@ export const selectSurfaceCommands = function selectSurfaceCommands(
 /** Identity-stable per-surface command map (undefined when none registered). */
 export const selectSurfaceCommandMap = function selectSurfaceCommandMap(
   ctx: CommandStoreContext,
-  surfaceId: string,
+  surfaceId: string
 ): ReadonlyMap<string, Command> | undefined {
   return ctx.commandsBySurface.get(surfaceId);
 };
 
 export const selectSequence = function selectSequence(
-  ctx: CommandStoreContext,
+  ctx: CommandStoreContext
 ): CommandSequenceState | null {
   return ctx.sequence;
 };
 
 export const selectGroups = function selectGroups(
-  ctx: CommandStoreContext,
+  ctx: CommandStoreContext
 ): ReadonlyMap<string, RegisteredCommandGroup> {
   return ctx.groups;
 };
@@ -206,7 +207,7 @@ export const stepsKey = function stepsKey(steps: readonly ParsedStep[]): string 
 const sequenceAfterStackChange = function sequenceAfterStackChange(
   before: SurfaceRecord | null,
   after: SurfaceRecord | null,
-  sequence: CommandSequenceState | null,
+  sequence: CommandSequenceState | null
 ): CommandSequenceState | null {
   return before === after ? sequence : null;
 };
@@ -217,7 +218,7 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
     on: {
       commandRegistered: (
         ctx: CommandStoreContext,
-        event: { surfaceId: string; command: Command },
+        event: { surfaceId: string; command: Command }
       ): CommandStoreContext => {
         const existing = ctx.commandsBySurface.get(event.surfaceId);
         // Map construction replays entries in order, so a re-registered id keeps its
@@ -232,7 +233,7 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
       },
       commandUnregistered: (
         ctx: CommandStoreContext,
-        event: { surfaceId: string; command: Command },
+        event: { surfaceId: string; command: Command }
       ): CommandStoreContext => {
         // Identity-guarded (R-05): with duplicate ids the map holds the last
         // writer, and the first registrant's unmount must not delete the
@@ -253,14 +254,14 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
       },
       contextSourceRegistered: (
         ctx: CommandStoreContext,
-        event: { id: string; getter: ContextGetter },
+        event: { id: string; getter: ContextGetter }
       ): CommandStoreContext => {
         const contextSources = new Map([...ctx.contextSources, [event.id, event.getter] as const]);
         return { ...ctx, contextSources };
       },
       contextSourceUnregistered: (
         ctx: CommandStoreContext,
-        event: { id: string },
+        event: { id: string }
       ): CommandStoreContext => {
         if (!ctx.contextSources.has(event.id)) {
           return ctx;
@@ -271,14 +272,14 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
       },
       groupRegistered: (
         ctx: CommandStoreContext,
-        event: { group: RegisteredCommandGroup },
+        event: { group: RegisteredCommandGroup }
       ): CommandStoreContext => {
         const groups = new Map([...ctx.groups, [event.group.prefixKey, event.group] as const]);
         return { ...ctx, groups };
       },
       groupUnregistered: (
         ctx: CommandStoreContext,
-        event: { group: RegisteredCommandGroup },
+        event: { group: RegisteredCommandGroup }
       ): CommandStoreContext => {
         // Identity-guarded, as for commands.
         if (ctx.groups.get(event.group.prefixKey) !== event.group) {
@@ -288,13 +289,16 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
         groups.delete(event.group.prefixKey);
         return { ...ctx, groups };
       },
-      modeChanged: (ctx: CommandStoreContext, _event: { surfaceId: string }): CommandStoreContext =>
+      modeChanged: (
+        ctx: CommandStoreContext,
+        _event: { surfaceId: string }
+      ): CommandStoreContext =>
         // A mode change is a transition, not a post-render repair: any pending
         // chord is invalidated (F-08 — including surface-local mode changes).
         ctx.sequence === null ? ctx : { ...ctx, sequence: null },
       panelActivated: (
         ctx: CommandStoreContext,
-        event: { groupId: string; panelId: string },
+        event: { groupId: string; panelId: string }
       ): CommandStoreContext => {
         if (ctx.activePanels.get(event.groupId) === event.panelId) {
           return ctx;
@@ -313,7 +317,7 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
       },
       panelGroupRemoved: (
         ctx: CommandStoreContext,
-        event: { groupId: string },
+        event: { groupId: string }
       ): CommandStoreContext => {
         if (!ctx.activePanels.has(event.groupId)) {
           return ctx;
@@ -330,13 +334,13 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
       },
       sequencePending: (
         ctx: CommandStoreContext,
-        event: { state: CommandSequenceState },
+        event: { state: CommandSequenceState }
       ): CommandStoreContext => ({ ...ctx, sequence: event.state }),
       sequenceReset: (ctx: CommandStoreContext): CommandStoreContext =>
         ctx.sequence === null ? ctx : { ...ctx, sequence: null },
       surfacePopped: (
         ctx: CommandStoreContext,
-        event: { surface: SurfaceRecord },
+        event: { surface: SurfaceRecord }
       ): CommandStoreContext => {
         // Identity-based removal: only the exact pushed record is removed.
         const surfaces = ctx.surfaces.filter((record) => record !== event.surface);
@@ -353,7 +357,7 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
       },
       surfacePushed: (
         ctx: CommandStoreContext,
-        event: { surface: SurfaceRecord },
+        event: { surface: SurfaceRecord }
       ): CommandStoreContext => {
         const before = selectKeyboardOwnerSurface(ctx);
         const surfaces = [...ctx.surfaces, event.surface];

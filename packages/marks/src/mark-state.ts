@@ -1,5 +1,5 @@
-import type { Mark, MarkStyle } from "./types.js";
 import type { MarkSet } from "./mark-set.js";
+import type { Mark, MarkStyle } from "./types.js";
 
 export interface MarkState {
   readonly sets: readonly MarkSet[];
@@ -50,7 +50,7 @@ export const createMarkState = function createMarkState(sets: MarkSet[]): MarkSt
 export const updateMarkState = function updateMarkState(
   state: MarkState,
   namespace: string,
-  newSet: MarkSet | null,
+  newSet: MarkSet | null
 ): MarkState {
   if (newSet && newSet.namespace !== namespace) {
     throw new Error(`Namespace mismatch: expected "${namespace}", got "${newSet.namespace}"`);

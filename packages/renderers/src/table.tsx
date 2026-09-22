@@ -1,16 +1,17 @@
 import { useTerminalDimensions } from "@opentui/react";
 import { useTheme } from "@tooee/themes";
 import { useMemo, useRef } from "react";
+import type { ReactNode } from "react";
+
 import type { DocumentBindings } from "./document-bindings.js";
-import type { ColumnDef, TableRow } from "./table-types.js";
 import {
   DEFAULT_SIGN_COLUMN_WIDTH,
   computeRowDocumentGutterWidth,
 } from "./row-document-renderable.js";
 import type { RowDocumentRenderable } from "./row-document-renderable.js";
-import { useGutterPalette } from "./use-gutter-palette.js";
+import type { ColumnDef, TableRow } from "./table-types.js";
 import "./row-document.js";
-import type { ReactNode } from "react";
+import { useGutterPalette } from "./use-gutter-palette.js";
 
 export interface TableProps {
   columns: ColumnDef[];
@@ -70,7 +71,7 @@ const computeColumnWidths = function computeColumnWidths(
   headers: string[],
   rows: string[][],
   maxWidth: number,
-  options: ColumnWidthOptions,
+  options: ColumnWidthOptions
 ): number[] {
   const { minColumnWidth, maxColumnWidth, sampleSize } = options;
   const colCount = headers.length;
@@ -116,7 +117,7 @@ const computeColumnWidths = function computeColumnWidths(
   // Extreme case: not even minimum widths fit
   if (maxWidth <= colCount * minColWidthWithPadding) {
     return naturalWidths.map(() =>
-      Math.max(minColWidthWithPadding, Math.floor(available / colCount)),
+      Math.max(minColWidthWithPadding, Math.floor(available / colCount))
     );
   }
 
@@ -130,7 +131,7 @@ const computeColumnWidths = function computeColumnWidths(
     // All compact or no space left -- distribute evenly
     const total = naturalWidths.reduce((a, b) => a + b, 0);
     return naturalWidths.map((w) =>
-      Math.max(minColWidthWithPadding, Math.floor((w / total) * available)),
+      Math.max(minColWidthWithPadding, Math.floor((w / total) * available))
     );
   }
 
@@ -209,17 +210,17 @@ export const Table = function Table({
         showLineNumbers,
         signColumnWidth: DEFAULT_SIGN_COLUMN_WIDTH,
       }),
-    [showLineNumbers, rows.length],
+    [showLineNumbers, rows.length]
   );
   const effectiveMaxWidth = Math.max(
     0,
-    (maxWidth ?? terminalWidth) - TABLE_MARGIN * 2 - gutterWidth,
+    (maxWidth ?? terminalWidth) - TABLE_MARGIN * 2 - gutterWidth
   );
 
   const headers = useMemo(() => columns.map((column) => column.header ?? column.key), [columns]);
   const normalizedRows = useMemo(
     () => rows.map((row) => columns.map((column) => formatTableCell(row[column.key]))),
-    [columns, rows],
+    [columns, rows]
   );
 
   const colWidths = useMemo(
@@ -238,7 +239,7 @@ export const Table = function Table({
       maxColumnWidth,
       sampleSize,
       columnWidthMode,
-    ],
+    ]
   );
 
   // Detect right-aligned columns: explicit align prop or auto-detect numeric
@@ -255,39 +256,37 @@ export const Table = function Table({
         const numericCount = sampleValues.filter(isNumeric).length;
         return numericCount > sampleValues.length / 2;
       }),
-    [columns, normalizedRows],
+    [columns, normalizedRows]
   );
 
   const rowElements = useMemo(
     () =>
-      normalizedRows.map(
-        (row, i): ReactNode => (
-          <box key={i} style={{ flexDirection: "row" }}>
-            {row.map((cell, j): ReactNode => {
-              const contentWidth = colWidths[j] - PADDING * 2;
-              const cellWidth = Bun.stringWidth(cell);
-              const displayCell =
-                alignments[j] && cellWidth <= contentWidth
-                  ? " ".repeat(contentWidth - cellWidth) + cell
-                  : cell;
-              return (
-                <text
-                  key={j}
-                  content={displayCell}
-                  wrapMode="word"
-                  style={{
-                    paddingLeft: PADDING,
-                    paddingRight: PADDING,
-                    width: colWidths[j],
-                  }}
-                  fg={theme.text}
-                />
-              );
-            })}
-          </box>
-        ),
-      ),
-    [normalizedRows, colWidths, alignments, theme.text],
+      normalizedRows.map((row, i): ReactNode => (
+        <box key={i} style={{ flexDirection: "row" }}>
+          {row.map((cell, j): ReactNode => {
+            const contentWidth = colWidths[j] - PADDING * 2;
+            const cellWidth = Bun.stringWidth(cell);
+            const displayCell =
+              alignments[j] && cellWidth <= contentWidth
+                ? " ".repeat(contentWidth - cellWidth) + cell
+                : cell;
+            return (
+              <text
+                key={j}
+                content={displayCell}
+                wrapMode="word"
+                style={{
+                  paddingLeft: PADDING,
+                  paddingRight: PADDING,
+                  width: colWidths[j],
+                }}
+                fg={theme.text}
+              />
+            );
+          })}
+        </box>
+      )),
+    [normalizedRows, colWidths, alignments, theme.text]
   );
 
   return (
@@ -302,30 +301,26 @@ export const Table = function Table({
     >
       {/* Fixed header row — outside row-document so it stays visible */}
       <box style={{ flexDirection: "row", flexShrink: 0, paddingLeft: gutterWidth }}>
-        {headers.map(
-          (h, i): ReactNode => (
-            <text
-              key={i}
-              content={h}
-              style={{ paddingLeft: PADDING, paddingRight: PADDING, width: colWidths[i] }}
-              fg={theme.primary}
-            />
-          ),
-        )}
+        {headers.map((h, i): ReactNode => (
+          <text
+            key={i}
+            content={h}
+            style={{ paddingLeft: PADDING, paddingRight: PADDING, width: colWidths[i] }}
+            fg={theme.primary}
+          />
+        ))}
       </box>
 
       {/* Fixed header underline */}
       <box style={{ flexDirection: "row", flexShrink: 0, paddingLeft: gutterWidth }}>
-        {colWidths.map(
-          (w, i): ReactNode => (
-            <text
-              key={i}
-              content={"\u2500".repeat(w - PADDING * 2)}
-              style={{ paddingLeft: PADDING, paddingRight: PADDING, width: w }}
-              fg={theme.border}
-            />
-          ),
-        )}
+        {colWidths.map((w, i): ReactNode => (
+          <text
+            key={i}
+            content={"\u2500".repeat(w - PADDING * 2)}
+            style={{ paddingLeft: PADDING, paddingRight: PADDING, width: w }}
+            fg={theme.border}
+          />
+        ))}
       </box>
 
       {/* Scrollable data rows */}

@@ -1,4 +1,5 @@
 import type { Token, Tokens } from "marked";
+
 import { narrowToken } from "./tokens.js";
 
 export interface InlineVisitorSink<Result> {
@@ -19,7 +20,7 @@ export interface InlineVisitorSink<Result> {
 export const visitInline = function visitInline<Result>(
   tokens: readonly Token[],
   sink: InlineVisitorSink<Result>,
-  keyPrefix = "",
+  keyPrefix = ""
 ): Result[] {
   const result: Result[] = [];
 

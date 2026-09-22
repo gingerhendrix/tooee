@@ -41,7 +41,7 @@ export const ModeProvider = function ModeProvider({
 
   const value = useMemo<ModeContextValue>(
     () => ({ mode, setMode: changeMode }),
-    [mode, changeMode],
+    [mode, changeMode]
   );
 
   return <ModeContext.Provider value={value}>{children}</ModeContext.Provider>;

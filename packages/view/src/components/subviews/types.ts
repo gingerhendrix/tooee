@@ -1,6 +1,7 @@
-import type { MarkSet } from "@tooee/marks";
 import type { ActionDefinition } from "@tooee/commands";
+import type { MarkSet } from "@tooee/marks";
 import type { DecorationLayer } from "@tooee/renderers";
+
 import type { AnyContent } from "../../types.js";
 
 export interface SubviewProps {

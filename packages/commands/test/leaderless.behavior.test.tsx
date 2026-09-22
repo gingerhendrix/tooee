@@ -1,8 +1,10 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
+
+import { testRender } from "@tooee/test-support";
 import { act, useState } from "react";
-import { CommandProvider, useCommand } from "../src/index.js";
 import type { ReactNode } from "react";
+
+import { CommandProvider, useCommand } from "../src/index.js";
 
 const NoLeaderHarness = function NoLeaderHarness(): ReactNode {
   const [count, setCount] = useState(0);
@@ -41,7 +43,7 @@ afterEach(() => {
 const press = async function press(
   session: TestSession,
   key: string,
-  modifiers?: { ctrl?: boolean },
+  modifiers?: { ctrl?: boolean }
 ) {
   await act(async () => {
     session.mockInput.pressKey(key, modifiers);
@@ -57,7 +59,7 @@ describe("leaderless <leader> hotkeys (R-06)", () => {
       <CommandProvider>
         <NoLeaderHarness />
       </CommandProvider>,
-      { height: 10, kittyKeyboard: true, width: 60 },
+      { height: 10, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -74,7 +76,7 @@ describe("leaderless <leader> hotkeys (R-06)", () => {
       <CommandProvider leader="space">
         <ConfiguredLeaderHarness />
       </CommandProvider>,
-      { height: 10, kittyKeyboard: true, width: 60 },
+      { height: 10, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 

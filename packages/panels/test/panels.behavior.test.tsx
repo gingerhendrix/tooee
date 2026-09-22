@@ -1,7 +1,5 @@
-import { testRender } from "@tooee/test-support";
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { act, useState } from "react";
-import type { ReactNode } from "react";
+
 import { CommandProvider, useCommand } from "@tooee/commands";
 import {
   Outlet,
@@ -13,6 +11,10 @@ import {
   useScreenEffect,
 } from "@tooee/router";
 import type { RouterInstance } from "@tooee/router";
+import { testRender } from "@tooee/test-support";
+import { act, useState } from "react";
+import type { ReactNode } from "react";
+
 import { Panel, PanelGroup, usePanelState, usePanels } from "../src/index.js";
 
 type TestSession = Awaited<ReturnType<typeof testRender>>;
@@ -29,7 +31,7 @@ const settle = async function settle(current: TestSession): Promise<void> {
 const pressKey = async function pressKey(
   current: TestSession,
   key: string,
-  modifiers?: { ctrl?: boolean; shift?: boolean },
+  modifiers?: { ctrl?: boolean; shift?: boolean }
 ): Promise<void> {
   await act(async () => {
     current.mockInput.pressKey(key, modifiers);
@@ -40,7 +42,7 @@ const pressKey = async function pressKey(
 
 const pressTab = async function pressTab(
   current: TestSession,
-  modifiers?: { shift?: boolean },
+  modifiers?: { shift?: boolean }
 ): Promise<void> {
   await act(async () => {
     current.mockInput.pressTab(modifiers);
@@ -278,12 +280,24 @@ const FocusReporter = function FocusReporter({ id }: { id: string }): ReactNode 
   return <text content={`route:${id}`} />;
 };
 
-const LeftInbox = (): ReactNode => <text content="left:inbox" />;
-const LeftThread = (): ReactNode => <text content="left:thread" />;
-const RightPreview = (): ReactNode => <text content="right:preview" />;
-const RightDetail = (): ReactNode => <text content="right:detail" />;
-const LeftLeaf = (): ReactNode => <FocusReporter id="left" />;
-const RightLeaf = (): ReactNode => <FocusReporter id="right" />;
+const LeftInbox = function LeftInbox(): ReactNode {
+  return <text content="left:inbox" />;
+};
+const LeftThread = function LeftThread(): ReactNode {
+  return <text content="left:thread" />;
+};
+const RightPreview = function RightPreview(): ReactNode {
+  return <text content="right:preview" />;
+};
+const RightDetail = function RightDetail(): ReactNode {
+  return <text content="right:detail" />;
+};
+const LeftLeaf = function LeftLeaf(): ReactNode {
+  return <FocusReporter id="left" />;
+};
+const RightLeaf = function RightLeaf(): ReactNode {
+  return <FocusReporter id="right" />;
+};
 
 interface StackRouters {
   left: RouterInstance;
@@ -405,7 +419,7 @@ describe("controlled activation", () => {
           </Panel>
         </PanelGroup>
       </CommandProvider>,
-      RENDER_OPTIONS,
+      RENDER_OPTIONS
     );
     await settle(session);
 
@@ -426,7 +440,7 @@ describe("controlled activation", () => {
           <text content="EMPTY GROUP" />
         </PanelGroup>
       </CommandProvider>,
-      RENDER_OPTIONS,
+      RENDER_OPTIONS
     );
     await settle(session);
 
@@ -528,7 +542,7 @@ describe("state preservation & chrome", () => {
           </PanelGroup>
         </box>
       </CommandProvider>,
-      RENDER_OPTIONS,
+      RENDER_OPTIONS
     );
     await settle(session);
 
@@ -561,7 +575,7 @@ describe("state preservation & chrome", () => {
           </Panel>
         </PanelGroup>
       </CommandProvider>,
-      RENDER_OPTIONS,
+      RENDER_OPTIONS
     );
     await settle(session);
     await pressTab(session);
@@ -590,7 +604,7 @@ describe("router composition inside panels", () => {
           </Panel>
         </PanelGroup>
       </CommandProvider>,
-      RENDER_OPTIONS,
+      RENDER_OPTIONS
     );
     await settle(session);
 
@@ -627,7 +641,7 @@ describe("router composition inside panels", () => {
           </Panel>
         </PanelGroup>
       </CommandProvider>,
-      RENDER_OPTIONS,
+      RENDER_OPTIONS
     );
     await settle(session);
 
@@ -668,7 +682,7 @@ describe("screen focus composition", () => {
           </Panel>
         </PanelGroup>
       </CommandProvider>,
-      RENDER_OPTIONS,
+      RENDER_OPTIONS
     );
     await settle(session);
     // Only the active panel's effect runs.
@@ -710,7 +724,7 @@ describe("screen focus composition", () => {
           </Panel>
         </PanelGroup>
       </CommandProvider>,
-      RENDER_OPTIONS,
+      RENDER_OPTIONS
     );
     await settle(session);
     // The active panel's leaf is focused (scope AND route-leaf); the inactive one is not.

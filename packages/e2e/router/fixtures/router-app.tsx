@@ -1,7 +1,4 @@
 #!/usr/bin/env bun
-/* oxlint-disable no-use-before-define -- command handlers close over route objects initialized before the app launches */
-import { useState, useEffect } from "react";
-import { launchCli } from "@tooee/shell";
 import { useCommand } from "@tooee/commands";
 import {
   createRoute,
@@ -18,6 +15,9 @@ import {
   useScreenState,
 } from "@tooee/router";
 import type { Codec } from "@tooee/router";
+import { launchCli } from "@tooee/shell";
+/* oxlint-disable no-use-before-define -- command handlers close over route objects initialized before the app launches */
+import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
 
 // Parse CLI args

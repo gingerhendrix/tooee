@@ -8,6 +8,7 @@ import {
   useMemo,
 } from "react";
 import type { ReactNode } from "react";
+
 import type { ToastOptions, ToastEntry, ToastController, ToastLevel } from "./types.js";
 
 const DEFAULT_DURATIONS = {
@@ -66,7 +67,7 @@ export const ToastProvider = function ToastProvider({
         timerRef.current = null;
       }, duration);
     },
-    [clearTimer],
+    [clearTimer]
   );
 
   // Cleanup on unmount
@@ -74,7 +75,7 @@ export const ToastProvider = function ToastProvider({
     () => () => {
       clearTimer();
     },
-    [clearTimer],
+    [clearTimer]
   );
 
   const controller = useMemo<ToastController>(
@@ -83,7 +84,7 @@ export const ToastProvider = function ToastProvider({
       dismiss,
       toast,
     }),
-    [toast, dismiss, currentToast],
+    [toast, dismiss, currentToast]
   );
 
   return <ToastContext.Provider value={controller}>{children}</ToastContext.Provider>;

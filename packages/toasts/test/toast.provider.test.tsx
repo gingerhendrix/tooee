@@ -1,9 +1,10 @@
-import { testRender, expectDefined } from "@tooee/test-support";
 import { test, expect, afterEach } from "bun:test";
-import { act, useEffect } from "react";
+
+import { testRender, expectDefined } from "@tooee/test-support";
 import { ThemeSwitcherProvider } from "@tooee/themes";
 import { ToastProvider, useToast, ToastContainer } from "@tooee/toasts";
 import type { ToastLevel } from "@tooee/toasts";
+import { act, useEffect } from "react";
 import type { ReactNode } from "react";
 
 const LEVELS: readonly ToastLevel[] = ["info", "success", "warning", "error"];
@@ -84,7 +85,7 @@ const renderWithProviders = async function renderWithProviders(children: ReactNo
     <ThemeSwitcherProvider>
       <ToastProvider>{children}</ToastProvider>
     </ThemeSwitcherProvider>,
-    { height: 24, width: 60 },
+    { height: 24, width: 60 }
   );
   return result;
 };
@@ -94,7 +95,7 @@ test("toast appears with correct level and message", async () => {
     <>
       <ToastTrigger level="info" message="Hello world" />
       <ToastHarness />
-    </>,
+    </>
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -134,7 +135,7 @@ test("auto-dismisses after duration", async () => {
     <>
       <ToastTrigger level="info" message="auto dismiss" duration={100} />
       <ToastHarness />
-    </>,
+    </>
   );
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("toast:info:auto dismiss");
@@ -238,7 +239,7 @@ test("ToastContainer renders icon and message", async () => {
     <>
       <ToastTrigger level="success" message="Saved!" />
       <ToastContainer />
-    </>,
+    </>
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -268,7 +269,7 @@ test("ToastContainer renders correct icon per level", async () => {
       <>
         <ToastTrigger level={level} message={`${level} msg`} />
         <ToastContainer />
-      </>,
+      </>
     );
     // preserve sequential renderer lifecycle while making the test parallel-safe.
     // oxlint-disable-next-line no-await-in-loop -- render must complete before inspecting the frame
@@ -285,7 +286,7 @@ test("ToastContainer renders nothing when no toast", async () => {
     <>
       <text content="visible content" />
       <ToastContainer />
-    </>,
+    </>
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();

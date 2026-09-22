@@ -13,13 +13,13 @@
  *   q                quit
  */
 
-import { useState } from "react";
-import type { ReactNode } from "react";
 import { useCommand } from "@tooee/commands";
 import { AppLayout } from "@tooee/layout";
 import { Panel, PanelGroup, usePanels } from "@tooee/panels";
 import { launchCli, useQuitCommand } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
+import { useState } from "react";
+import type { ReactNode } from "react";
 
 const PANEL_IDS = ["one", "two", "three"] as const;
 
@@ -74,15 +74,13 @@ const ControlledPanelsDemo = function ControlledPanelsDemo(): ReactNode {
         <PanelGroup activePanelId={activePanelId} onActivePanelChange={setActivePanelId}>
           <PanelControls />
           <box flexDirection="row" style={{ flexGrow: 1 }}>
-            {PANEL_IDS.map(
-              (id, index): ReactNode => (
-                <Panel key={id} id={id} title={`Panel ${index + 1}`} style={{ flexGrow: 1 }}>
-                  <box paddingLeft={1} paddingRight={1}>
-                    <text content={`Parent-controlled content for “${id}”`} />
-                  </box>
-                </Panel>
-              ),
-            )}
+            {PANEL_IDS.map((id, index): ReactNode => (
+              <Panel key={id} id={id} title={`Panel ${index + 1}`} style={{ flexGrow: 1 }}>
+                <box paddingLeft={1} paddingRight={1}>
+                  <text content={`Parent-controlled content for “${id}”`} />
+                </box>
+              </Panel>
+            ))}
           </box>
         </PanelGroup>
       </box>

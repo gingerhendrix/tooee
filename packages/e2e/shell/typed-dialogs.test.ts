@@ -1,5 +1,7 @@
 import { afterEach, test } from "bun:test";
+
 import type { Session } from "tuistory";
+
 import { launchShellFixture } from "./helpers.js";
 
 let session: Session;
@@ -18,7 +20,7 @@ const KITTY_ESCAPE = "\u001B[27u";
 const launch = async function launch(): Promise<Session> {
   const launchedSession = await launchShellFixture(
     "typed-dialogs-app.tsx",
-    "typed dialogs e2e ready",
+    "typed dialogs e2e ready"
   );
   return launchedSession;
 };

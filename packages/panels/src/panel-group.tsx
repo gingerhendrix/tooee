@@ -1,6 +1,7 @@
+import { useCommandStore } from "@tooee/commands";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { useCommandStore } from "@tooee/commands";
+
 import {
   PanelGroupContext,
   useOptionalPanelContext,
@@ -50,7 +51,7 @@ export const PanelGroup = function PanelGroup({
   const [registrations, setRegistrations] = useState<readonly Registration[]>([]);
   const orderCounterRef = useRef(0);
   const [uncontrolledActive, setUncontrolledActive] = useState<string | null>(
-    defaultActivePanelId ?? null,
+    defaultActivePanelId ?? null
   );
   // Order of the last resolved active panel, so removal repair can pick the
   // next-in-order (else previous) panel rather than always jumping to the first.
@@ -62,7 +63,7 @@ export const PanelGroup = function PanelGroup({
     setRegistrations((prev) =>
       prev.some((entry) => entry.id === panelId)
         ? prev
-        : [...prev, { disabled: false, id: panelId, order }],
+        : [...prev, { disabled: false, id: panelId, order }]
     );
     return () => {
       setRegistrations((prev) => prev.filter((entry) => entry.id !== panelId));
@@ -83,7 +84,7 @@ export const PanelGroup = function PanelGroup({
 
   const activatable = useMemo(
     () => registrations.filter((entry) => !entry.disabled).toSorted((a, b) => a.order - b.order),
-    [registrations],
+    [registrations]
   );
 
   const requestedId = isControlled ? (activePanelId ?? null) : uncontrolledActive;
@@ -158,7 +159,7 @@ export const PanelGroup = function PanelGroup({
     () => () => {
       commandStore.removePanelGroup(groupId);
     },
-    [commandStore, groupId],
+    [commandStore, groupId]
   );
 
   const activate = useCallback(
@@ -172,7 +173,7 @@ export const PanelGroup = function PanelGroup({
         setUncontrolledActive(panelId);
       }
     },
-    [isControlled],
+    [isControlled]
   );
 
   const step = useCallback(
@@ -190,7 +191,7 @@ export const PanelGroup = function PanelGroup({
       }
       activate(list[nextIndex].id);
     },
-    [activate, wrapEnabled],
+    [activate, wrapEnabled]
   );
 
   const next = useCallback(() => {
@@ -207,7 +208,7 @@ export const PanelGroup = function PanelGroup({
 
   const panelIds = useMemo(
     () => [...registrations].toSorted((a, b) => a.order - b.order).map((entry) => entry.id),
-    [registrations],
+    [registrations]
   );
 
   const contextValue = useMemo<PanelGroupContextValue>(
@@ -240,7 +241,7 @@ export const PanelGroup = function PanelGroup({
       setDisabled,
       switchEnabled,
       resolvedSwitchModes,
-    ],
+    ]
   );
 
   return <PanelGroupContext value={contextValue}>{children}</PanelGroupContext>;

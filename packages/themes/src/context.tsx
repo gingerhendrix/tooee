@@ -1,9 +1,9 @@
-import { createContext, useContext, useState, useCallback, useMemo } from "react";
-import type { ReactNode } from "react";
 import type { SyntaxStyle } from "@opentui/core";
 import { writeGlobalConfig } from "@tooee/config";
 import type { ColorMode } from "@tooee/config";
-import type { ResolvedTheme } from "./types.js";
+import { createContext, useContext, useState, useCallback, useMemo } from "react";
+import type { ReactNode } from "react";
+
 import {
   buildTheme,
   getThemeNames,
@@ -12,6 +12,7 @@ import {
   DEFAULT_MODE,
 } from "./loader.js";
 import type { Theme } from "./loader.js";
+import type { ResolvedTheme } from "./types.js";
 
 // ---------------------------------------------------------------------------
 // Context
@@ -120,7 +121,7 @@ export const ThemeSwitcherProvider = function ThemeSwitcherProvider({
         writeGlobalConfig({ theme: { mode, name } });
       }
     },
-    [mode],
+    [mode]
   );
 
   const value = useMemo<ThemeSwitcherContextValue>(
@@ -134,12 +135,12 @@ export const ThemeSwitcherProvider = function ThemeSwitcherProvider({
       syntax: theme.syntax,
       theme: theme.colors,
     }),
-    [theme, mode, nextTheme, prevTheme, setThemeByName, allThemes],
+    [theme, mode, nextTheme, prevTheme, setThemeByName, allThemes]
   );
 
   const themeValue = useMemo<ThemeContextValue>(
     () => ({ mode, name: theme.name, syntax: theme.syntax, theme: theme.colors }),
-    [theme, mode],
+    [theme, mode]
   );
 
   return (

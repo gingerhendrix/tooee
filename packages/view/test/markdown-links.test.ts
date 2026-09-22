@@ -3,6 +3,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+
 import { markdownLinks, resolveMarkdownLink } from "../src/markdown-links.js";
 
 let root: string;
@@ -53,7 +54,7 @@ test.each([
 
 test("collects ordinary links in source order while skipping images and code", () => {
   expect(
-    markdownLinks('![image](image.png) **[First](<a b.md> "title")** [Second](next.md)'),
+    markdownLinks('![image](image.png) **[First](<a b.md> "title")** [Second](next.md)')
   ).toEqual([
     { href: "a b.md", text: "First" },
     { href: "next.md", text: "Second" },

@@ -6,7 +6,7 @@ Terminal micro-apps built on OpenTUI, published under the `@tooee` npm org.
 
 ```bash
 bun install          # Install dependencies
-bunx tsc -b          # Type check all packages
+bun run check        # Type check packages and examples (TypeScript 7, local tsc)
 bun test             # Run tests
 bun run lint         # Lint with oxlint
 ```
@@ -19,7 +19,7 @@ User-facing changes should include a Tegami release note. See [docs/releasing.md
 
 - **Runtime**: Bun
 - **UI**: OpenTUI (`@opentui/core`, `@opentui/react`) — Zig native TUI renderer with React reconciler
-- **Language**: TypeScript (strict, `noEmit`, `allowImportingTsExtensions`)
+- **Language**: TypeScript 7 native compiler (strict, `noEmit`, `allowImportingTsExtensions`). Editors need TypeScript 7 language support; the package ships no `tsserver`.
 - **JSX**: `react-jsx` with `jsxImportSource: @opentui/react`
 
 ## Key Conventions

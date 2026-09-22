@@ -18,7 +18,7 @@ const decodeChooseSource = function decodeChooseSource(source: ChooseSource): De
 
 /** Resolve every public Choose source shape through one compatibility boundary. */
 export const loadChooseSource = function loadChooseSource(
-  source: ChooseSource,
+  source: ChooseSource
 ): ChooseItem[] | Promise<ChooseItem[]> {
   const decoded = decodeChooseSource(source);
   if (decoded.kind === "items") {

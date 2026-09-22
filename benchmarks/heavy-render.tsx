@@ -1,6 +1,8 @@
 #!/usr/bin/env bun
 import { CodeView, MarkdownView, Table } from "@tooee/renderers";
 import { TooeeProvider } from "@tooee/shell";
+
+import { printMetric } from "./lib/benchmark-result.ts";
 import {
   countLines,
   FIXTURE_TIERS,
@@ -8,7 +10,6 @@ import {
   makeMarkdownFixture,
   makeTableFixture,
 } from "./lib/fixtures.ts";
-import { printMetric } from "./lib/benchmark-result.ts";
 import { DEFAULT_VIEWPORT, measureFirstFrame, printMemoryMetrics } from "./lib/render.tsx";
 
 const tier = FIXTURE_TIERS.large;
@@ -25,7 +26,7 @@ await measureFirstFrame(
   "markdown_large",
   <TooeeProvider initialMode="cursor">
     <MarkdownView content={markdown.markdown} />
-  </TooeeProvider>,
+  </TooeeProvider>
 );
 printMemoryMetrics("markdown_large_after_first_frame");
 
@@ -33,7 +34,7 @@ await measureFirstFrame(
   "code_large",
   <TooeeProvider initialMode="cursor">
     <CodeView content={code.code} language={code.language} />
-  </TooeeProvider>,
+  </TooeeProvider>
 );
 printMemoryMetrics("code_large_after_first_frame");
 
@@ -41,6 +42,6 @@ await measureFirstFrame(
   "table_large",
   <TooeeProvider initialMode="cursor">
     <Table columns={table.columns} rows={table.rows} maxWidth={DEFAULT_VIEWPORT.width} />
-  </TooeeProvider>,
+  </TooeeProvider>
 );
 printMemoryMetrics("table_large_after_first_frame");

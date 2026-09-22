@@ -1,9 +1,10 @@
 #!/usr/bin/env bun
-import { marked } from "marked";
 import { computeColumnWidths, flattenMarkdown } from "@tooee/renderers";
+import { marked } from "marked";
+
+import { printMetric, printTimedMetric } from "./lib/benchmark-result.ts";
 import { FIXTURE_TIERS, makeMarkdownFixture, makeTableFixture } from "./lib/fixtures.ts";
 import type { BenchmarkTableCell } from "./lib/fixtures.ts";
-import { printMetric, printTimedMetric } from "./lib/benchmark-result.ts";
 
 const iterations = Number(process.env.TOOEE_BENCH_DATA_PREP_ITERATIONS ?? 20);
 const maxWidth = Number(process.env.TOOEE_BENCH_TABLE_MAX_WIDTH ?? 120);
@@ -61,7 +62,7 @@ for (const tier of [FIXTURE_TIERS.moderate, FIXTURE_TIERS.large]) {
 
   const normalize = timeIterations(() => {
     const normalizedRows = table.rows.map((row) =>
-      table.columns.map((column) => formatCellValue(row[column.key])),
+      table.columns.map((column) => formatCellValue(row[column.key]))
     );
     return normalizedRows.length * (normalizedRows[0]?.length ?? 0);
   });
@@ -70,7 +71,7 @@ for (const tier of [FIXTURE_TIERS.moderate, FIXTURE_TIERS.large]) {
   const width = timeIterations(() => {
     const headers = table.columns.map((column) => column.header ?? column.key);
     const normalizedRows = table.rows.map((row) =>
-      table.columns.map((column) => formatCellValue(row[column.key])),
+      table.columns.map((column) => formatCellValue(row[column.key]))
     );
     const widths = computeColumnWidths(headers, normalizedRows, maxWidth, {
       columnWidthMode: "content",

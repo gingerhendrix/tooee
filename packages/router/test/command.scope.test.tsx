@@ -1,6 +1,6 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
-import { act } from "react";
+
+import { CommandProvider, useSurfaceInvoke, useCommand } from "@tooee/commands";
 import {
   createRoute,
   createRouter,
@@ -8,7 +8,8 @@ import {
   Outlet,
   useRouterCommands,
 } from "@tooee/router";
-import { CommandProvider, useSurfaceInvoke, useCommand } from "@tooee/commands";
+import { testRender } from "@tooee/test-support";
+import { act } from "react";
 import type { ReactNode } from "react";
 
 const expectDefined = function expectDefined<T>(value: T | undefined): T {
@@ -128,7 +129,7 @@ describe("useRouterCommands", () => {
           <CtxCapture />
         </RouterProvider>
       </CommandProvider>,
-      { height: 24, kittyKeyboard: true, width: 80 },
+      { height: 24, kittyKeyboard: true, width: 80 }
     );
     await testSetup.renderOnce();
 
@@ -160,7 +161,7 @@ describe("useRouterCommands", () => {
           <CtxCapture />
         </RouterProvider>
       </CommandProvider>,
-      { height: 24, kittyKeyboard: true, width: 80 },
+      { height: 24, kittyKeyboard: true, width: 80 }
     );
     await testSetup.renderOnce();
 
@@ -190,7 +191,7 @@ describe("useRouterCommands", () => {
           <CtxCapture />
         </RouterProvider>
       </CommandProvider>,
-      { height: 24, kittyKeyboard: true, width: 80 },
+      { height: 24, kittyKeyboard: true, width: 80 }
     );
     await testSetup.renderOnce();
 
@@ -226,7 +227,7 @@ describe("useRouterCommands", () => {
           <CtxCapture />
         </RouterProvider>
       </CommandProvider>,
-      { height: 24, kittyKeyboard: true, width: 80 },
+      { height: 24, kittyKeyboard: true, width: 80 }
     );
     await testSetup.renderOnce();
 
@@ -278,7 +279,7 @@ describe("natural command scoping via unmount", () => {
           <CtxCapture />
         </RouterProvider>
       </CommandProvider>,
-      { height: 24, kittyKeyboard: true, width: 80 },
+      { height: 24, kittyKeyboard: true, width: 80 }
     );
     await testSetup.renderOnce();
 
@@ -327,7 +328,7 @@ describe("natural command scoping via unmount", () => {
           <CtxCapture />
         </RouterProvider>
       </CommandProvider>,
-      { height: 24, kittyKeyboard: true, width: 80 },
+      { height: 24, kittyKeyboard: true, width: 80 }
     );
     await testSetup.renderOnce();
 

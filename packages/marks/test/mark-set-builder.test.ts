@@ -1,4 +1,5 @@
 import { test, expect, describe } from "bun:test";
+
 import { MarkSetBuilder } from "@tooee/marks";
 
 describe("MarkSetBuilder", () => {

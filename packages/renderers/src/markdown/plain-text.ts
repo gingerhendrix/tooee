@@ -1,4 +1,5 @@
 import type { Token } from "marked";
+
 import { hasMarkedText, narrowToken } from "./tokens.js";
 
 /** Extract unstyled inline text for table-cell fallback content. */

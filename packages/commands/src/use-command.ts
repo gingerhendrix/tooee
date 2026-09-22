@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
-import type { Command, CommandHandler, CommandWhen } from "./types.js";
-import type { Mode } from "./mode.js";
+
 import { useSurfaceRegistry } from "./context.js";
+import type { Mode } from "./mode.js";
+import type { Command, CommandHandler, CommandWhen } from "./types.js";
 
 export interface UseCommandOptions {
   id: string;
