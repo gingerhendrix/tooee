@@ -41,7 +41,7 @@
   "devDependencies": {
     "@opentui/core": "^0.5.12",
     "@opentui/react": "^0.5.12",
-    "@oxlint/plugins": "1.78.0",
+    "@oxlint/plugins": "1.85.0",
     "@tooee/renderers": "workspace:*",
     "@tooee/shell": "workspace:*",
     "@tooee/test-support": "workspace:*",
@@ -52,12 +52,12 @@
     "lefthook": "2.1.10",
     "marked": "^18.0.14",
     "oxfmt": "0.36.0",
-    "oxlint": "1.78.0",
-    "oxlint-tsgolint": "0.24.0",
+    "oxlint": "1.85.0",
+    "oxlint-tsgolint": "7.0.2002",
     "react": "^19.3.0",
     "react-doctor": "0.7.4",
     "tegami": "1.2.6",
     "tuistory": "^0.0.16",
-    "ultracite": "7.9.3"
+    "ultracite": "7.12.0"
   }
 }
