@@ -76,6 +76,30 @@ const cancellationResult = function cancellationResult(request: Request): Naviga
   };
 };
 
+const nextFor = function nextFor(
+  intent: SerializedNavigationIntent,
+  from: readonly Readonly<StackEntry>[],
+  target: StackEntry,
+): StackEntry[] {
+  switch (intent.type) {
+    case "push": {
+      return [...from.map(cloneEntry), cloneEntry(target)];
+    }
+    case "replace": {
+      return [...from.slice(0, -1).map(cloneEntry), cloneEntry(target)];
+    }
+    case "reset": {
+      return [cloneEntry(target)];
+    }
+    case "pop": {
+      return [...from.slice(0, -2).map(cloneEntry), cloneEntry(target)];
+    }
+    default: {
+      throw new Error("Unsupported navigation intent");
+    }
+  }
+};
+
 export const createRouter = function createRouter<TContext = undefined>(
   options: RouterOptions<TContext>,
 ): RouterInstance<TContext> {
@@ -191,30 +215,6 @@ export const createRouter = function createRouter<TContext = undefined>(
       throw new Error(`Route "${entry.routeId}" not found`);
     }
     return { params: route.resolveParams(entry.params), routeId: route.id };
-  };
-
-  const nextFor = function nextFor(
-    intent: SerializedNavigationIntent,
-    from: readonly Readonly<StackEntry>[],
-    target: StackEntry,
-  ): StackEntry[] {
-    switch (intent.type) {
-      case "push": {
-        return [...from.map(cloneEntry), cloneEntry(target)];
-      }
-      case "replace": {
-        return [...from.slice(0, -1).map(cloneEntry), cloneEntry(target)];
-      }
-      case "reset": {
-        return [cloneEntry(target)];
-      }
-      case "pop": {
-        return [...from.slice(0, -2).map(cloneEntry), cloneEntry(target)];
-      }
-      default: {
-        throw new Error("Unsupported navigation intent");
-      }
-    }
   };
 
   const navigationFor = function navigationFor(

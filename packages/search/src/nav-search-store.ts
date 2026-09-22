@@ -65,20 +65,12 @@ export const resolveIndex = function resolveIndex(
   if (isSelectable(clamped)) {
     return clamped;
   }
-  for (
-    let index = clamped + direction;
-    direction === 1 ? index <= max : index >= 0;
-    index += direction
-  ) {
+  for (let index = clamped + direction; index >= 0 && index <= max; index += direction) {
     if (isSelectable(index)) {
       return index;
     }
   }
-  for (
-    let index = clamped - direction;
-    direction === 1 ? index >= 0 : index <= max;
-    index -= direction
-  ) {
+  for (let index = clamped - direction; index >= 0 && index <= max; index -= direction) {
     if (isSelectable(index)) {
       return index;
     }

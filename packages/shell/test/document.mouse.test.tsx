@@ -432,6 +432,7 @@ describe("action-backed context menu", () => {
     invoked = [];
   });
 
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- it renders the describe-scoped ActionsHarness; the rule ignores JSX references
   const setupActions = async function setupActions() {
     session = await testRender(
       <TooeeProvider>

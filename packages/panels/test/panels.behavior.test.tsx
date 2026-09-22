@@ -278,12 +278,24 @@ const FocusReporter = function FocusReporter({ id }: { id: string }): ReactNode 
   return <text content={`route:${id}`} />;
 };
 
-const LeftInbox = (): ReactNode => <text content="left:inbox" />;
-const LeftThread = (): ReactNode => <text content="left:thread" />;
-const RightPreview = (): ReactNode => <text content="right:preview" />;
-const RightDetail = (): ReactNode => <text content="right:detail" />;
-const LeftLeaf = (): ReactNode => <FocusReporter id="left" />;
-const RightLeaf = (): ReactNode => <FocusReporter id="right" />;
+const LeftInbox = function LeftInbox(): ReactNode {
+  return <text content="left:inbox" />;
+};
+const LeftThread = function LeftThread(): ReactNode {
+  return <text content="left:thread" />;
+};
+const RightPreview = function RightPreview(): ReactNode {
+  return <text content="right:preview" />;
+};
+const RightDetail = function RightDetail(): ReactNode {
+  return <text content="right:detail" />;
+};
+const LeftLeaf = function LeftLeaf(): ReactNode {
+  return <FocusReporter id="left" />;
+};
+const RightLeaf = function RightLeaf(): ReactNode {
+  return <FocusReporter id="right" />;
+};
 
 interface StackRouters {
   left: RouterInstance;

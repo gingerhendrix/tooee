@@ -351,17 +351,17 @@ describe("selection", () => {
   });
 });
 
+const query = async function query(text: string) {
+  await press(session, "/");
+  await act(async () => {
+    expectDefined(controller().search).setSearchQuery(text);
+    await Promise.resolve();
+  });
+  await session.renderOnce();
+};
+
 describe("search", () => {
   const ROWS = [row("a", "alpha"), row("b", "beta"), row("c", "gamma"), row("d", "Alphabet")];
-
-  const query = async function query(text: string) {
-    await press(session, "/");
-    await act(async () => {
-      expectDefined(controller().search).setSearchQuery(text);
-      await Promise.resolve();
-    });
-    await session.renderOnce();
-  };
 
   test("the default matcher searches adapter text case-insensitively", async () => {
     await setup(ROWS);
@@ -495,6 +495,24 @@ describe("decorations", () => {
   });
 });
 
+const wheelDown = async function wheelDown(): Promise<void> {
+  await act(async () => {
+    await session.mockMouse.scroll(10, 10, "down");
+  });
+  await session.renderOnce();
+};
+
+const wheelAway = async function wheelAway(): Promise<number> {
+  await wheelDown();
+  await wheelDown();
+  await wheelDown();
+  const { scrollTop } = expectDefined(controller().ref.current);
+  expect(scrollTop).toBeGreaterThan(0);
+  expect(active()).toBe("r0/0");
+  expect(session.captureCharFrame()).not.toMatch(/^row-0\s*$/mu);
+  return scrollTop;
+};
+
 describe("scroll follow", () => {
   const MANY = Array.from({ length: 40 }, (_, i) => row(`r${i}`, `row-${i}`));
 
@@ -520,25 +538,7 @@ describe("scroll follow", () => {
     expect(frame).not.toMatch(/^row-0\s*$/mu);
   });
 
-  const wheelDown = async function wheelDown(): Promise<void> {
-    await act(async () => {
-      await session.mockMouse.scroll(10, 10, "down");
-    });
-    await session.renderOnce();
-  };
-
   /** Wheel-scrolls the document down, which moves the viewport and leaves the cursor alone. */
-  const wheelAway = async function wheelAway(): Promise<number> {
-    await wheelDown();
-    await wheelDown();
-    await wheelDown();
-    const { scrollTop } = expectDefined(controller().ref.current);
-    expect(scrollTop).toBeGreaterThan(0);
-    expect(active()).toBe("r0/0");
-    expect(session.captureCharFrame()).not.toMatch(/^row-0\s*$/mu);
-    return scrollTop;
-  };
-
   test("appending rows keeps a wheel-scrolled viewport in place", async () => {
     const setRows = await setupDynamic(MANY);
     const scrollTop = await wheelAway();
@@ -603,21 +603,21 @@ describe("scroll follow", () => {
   });
 });
 
+const wheel = async function wheel(direction: "up" | "down"): Promise<void> {
+  await act(async () => {
+    await session.mockMouse.scroll(10, 10, direction);
+  });
+  await session.renderOnce();
+};
+
+const document = function document() {
+  return expectDefined(controller().ref.current);
+};
+
 describe("tail follow", () => {
   const MANY = Array.from({ length: 40 }, (_, i) => row(`r${i}`, `row-${i}`));
   const MORE = [...MANY, row("r40", "row-40"), row("r41", "row-41")];
   const FOLLOW = { followTail: true } as const;
-
-  const wheel = async function wheel(direction: "up" | "down"): Promise<void> {
-    await act(async () => {
-      await session.mockMouse.scroll(10, 10, direction);
-    });
-    await session.renderOnce();
-  };
-
-  const document = function document() {
-    return expectDefined(controller().ref.current);
-  };
 
   test("opens on the last row with the viewport at the bottom", async () => {
     await setup(MANY, FOLLOW);

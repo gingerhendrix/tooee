@@ -17,23 +17,27 @@ const PROVIDER: ContentProvider = { format: "chart", load: () => CONTENT };
 
 // A renderer with its own markup: it resolves its own row and asks the
 // controller to select it.
-const RENDERER: ContentRenderer = ({ document }): ReactNode => (
-  <box
-    onMouseDown={() => {
-      document.selectRow(2);
-    }}
-  >
-    <text content="CUSTOM-BODY" />
-  </box>
-);
+const Renderer: ContentRenderer = function Renderer({ document }): ReactNode {
+  return (
+    <box
+      onMouseDown={() => {
+        document.selectRow(2);
+      }}
+    >
+      <text content="CUSTOM-BODY" />
+    </box>
+  );
+};
 
 // A renderer that reads controller state rather than a bag of cursor numbers.
-const STATE_RENDERER: ContentRenderer = ({ document }): ReactNode => (
-  <box>
-    <text content={`active:${document.activeIndex}`} />
-    <text content={`rows:${document.rows.length}`} />
-  </box>
-);
+const StateRenderer: ContentRenderer = function StateRenderer({ document }): ReactNode {
+  return (
+    <box>
+      <text content={`active:${document.activeIndex}`} />
+      <text content={`rows:${document.rows.length}`} />
+    </box>
+  );
+};
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
@@ -74,7 +78,7 @@ const setup = async function setup(renderer: ContentRenderer) {
 
 describe("Custom renderer document bindings", () => {
   test("a custom renderer can select a row via document.selectRow", async () => {
-    testSetup = await setup(RENDERER);
+    testSetup = await setup(Renderer);
 
     const frame0 = testSetup.captureCharFrame();
     expect(frame0).toMatch(/Cursor:\s*0/u);
@@ -90,7 +94,7 @@ describe("Custom renderer document bindings", () => {
   });
 
   test("selectRow stands down while a modal overlay is open", async () => {
-    testSetup = await setup(RENDERER);
+    testSetup = await setup(Renderer);
     const pos = lineOf(testSetup.captureCharFrame(), "CUSTOM-BODY");
 
     await act(async () => {
@@ -117,7 +121,7 @@ describe("Custom renderer document bindings", () => {
   });
 
   test("a custom renderer reads cursor and rows from the controller", async () => {
-    testSetup = await setup(STATE_RENDERER);
+    testSetup = await setup(StateRenderer);
     expect(testSetup.captureCharFrame()).toContain("rows:4");
     expect(testSetup.captureCharFrame()).toContain("active:0");
 

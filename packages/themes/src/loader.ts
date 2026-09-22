@@ -97,12 +97,14 @@ export const getThemeNames = function getThemeNames(): string[] {
 export const DEFAULT_THEME_NAME = "tokyonight";
 export const DEFAULT_MODE: ColorMode = "dark";
 
+const bundledDefaultThemeText = readFileSync(
+  new URL("../themes/tokyonight.json", import.meta.url),
+  "utf-8",
+);
 // SAFETY: this package owns the bundled theme document. resolveTheme validates
 // every consumed color and fills every omitted key from FALLBACKS.
 // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- trusted package-owned JSON boundary
-const bundledDefaultThemeJson = JSON.parse(
-  readFileSync(new URL("../themes/tokyonight.json", import.meta.url), "utf-8"),
-) as ThemeJSON;
+const bundledDefaultThemeJson = JSON.parse(bundledDefaultThemeText) as ThemeJSON;
 
 const buildBundledDefaultTheme = function buildBundledDefaultTheme(mode: ColorMode): Theme {
   const colors = resolveTheme(bundledDefaultThemeJson, mode);

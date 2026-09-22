@@ -494,29 +494,29 @@ describe("Choose mouse interaction", () => {
   });
 });
 
-describe("Choose emptyMessage", () => {
-  const setupEmpty = async function setupEmpty(
-    opts: {
-      items?: typeof ITEMS;
-      emptyMessage?: string;
-      onCancel?: () => void;
-    } = {},
-  ) {
-    const handleCancel = opts.onCancel;
-    const s = await testRender(
-      <TooeeProvider initialMode="insert">
-        <Choose
-          contentProvider={makeProvider(opts.items ?? [])}
-          emptyMessage={opts.emptyMessage}
-          onCancel={handleCancel}
-        />
-      </TooeeProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
-    );
-    await s.renderOnce();
-    return s;
-  };
+const setupEmpty = async function setupEmpty(
+  opts: {
+    items?: typeof ITEMS;
+    emptyMessage?: string;
+    onCancel?: () => void;
+  } = {},
+) {
+  const handleCancel = opts.onCancel;
+  const s = await testRender(
+    <TooeeProvider initialMode="insert">
+      <Choose
+        contentProvider={makeProvider(opts.items ?? [])}
+        emptyMessage={opts.emptyMessage}
+        onCancel={handleCancel}
+      />
+    </TooeeProvider>,
+    { height: 24, kittyKeyboard: true, width: 60 },
+  );
+  await s.renderOnce();
+  return s;
+};
 
+describe("Choose emptyMessage", () => {
   test("shows emptyMessage when items list is empty", async () => {
     testSetup = await setupEmpty({ emptyMessage: "No items available." });
     const frame = testSetup.captureCharFrame();

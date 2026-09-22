@@ -45,7 +45,7 @@ interface CommandStoreContextValue {
   leaderKey?: string;
 }
 
-const CommandContext = createContext<CommandStoreContextValue | null>(null);
+const CommandStoreReactContext = createContext<CommandStoreContextValue | null>(null);
 const CommandSequenceContext = createContext<CommandSequenceState | null>(null);
 /** Nesting depth of the nearest command surface (0 at the root app). */
 const CommandSurfaceDepthContext = createContext(0);
@@ -219,9 +219,9 @@ const CommandDispatcher = function CommandDispatcher({
   );
 
   return (
-    <CommandContext.Provider value={ctxValue}>
+    <CommandStoreReactContext.Provider value={ctxValue}>
       <CommandSequenceContext value={sequenceState}>{children}</CommandSequenceContext>
-    </CommandContext.Provider>
+    </CommandStoreReactContext.Provider>
   );
 };
 
@@ -256,7 +256,7 @@ export const CommandSurfaceProvider = function CommandSurfaceProvider({
   groupId,
   initialMode = "cursor",
 }: CommandSurfaceProviderProps): ReactNode {
-  const parent = useContext(CommandContext);
+  const parent = useContext(CommandStoreReactContext);
   if (!parent) {
     throw new Error("CommandSurfaceProvider must be used within a CommandProvider");
   }
@@ -291,7 +291,7 @@ const CommandSurfaceInner = function CommandSurfaceInner({
   role: CommandSurfaceRole;
   groupId?: string;
 }): ReactNode {
-  const parent = useContext(CommandContext);
+  const parent = useContext(CommandStoreReactContext);
   if (!parent) {
     throw new Error("CommandSurfaceProvider must be used within a CommandProvider");
   }
@@ -359,11 +359,11 @@ const CommandSurfaceInner = function CommandSurfaceInner({
   );
 
   return (
-    <CommandContext.Provider value={ctxValue}>
+    <CommandStoreReactContext.Provider value={ctxValue}>
       <CommandSurfaceDepthContext.Provider value={depth}>
         {children}
       </CommandSurfaceDepthContext.Provider>
-    </CommandContext.Provider>
+    </CommandStoreReactContext.Provider>
   );
 };
 
@@ -371,7 +371,7 @@ export const useSurfaceInvoke = function useSurfaceInvoke(): {
   commands: Command[];
   invoke: (id: string) => void;
 } {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useSurfaceInvoke must be used within a CommandProvider");
   }
@@ -399,7 +399,7 @@ export const useSurfaceInvoke = function useSurfaceInvoke(): {
  * outside the dispatch path (e.g. a context-menu entry resolver).
  */
 export const useBuildCommandContext = function useBuildCommandContext(): () => CommandContext {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useBuildCommandContext must be used within a CommandProvider");
   }
@@ -414,7 +414,7 @@ export const useBuildCommandContext = function useBuildCommandContext(): () => C
  * on unrelated group/context-source registrations.
  */
 export const useSurfaceRegistry = function useSurfaceRegistry(): CommandRegistry {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useSurfaceRegistry must be used within a CommandProvider");
   }
@@ -422,7 +422,7 @@ export const useSurfaceRegistry = function useSurfaceRegistry(): CommandRegistry
 };
 
 export const useCommandRegistry = function useCommandRegistry(): CommandContextValue {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useCommandRegistry must be used within a CommandProvider");
   }
@@ -457,7 +457,7 @@ export const useCommandSequenceState =
  * modal surface currently owns keyboard input above this subtree.
  */
 export const useCommandSurfaceId = function useCommandSurfaceId(): string {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useCommandSurfaceId must be used within a CommandProvider");
   }
@@ -473,7 +473,7 @@ export const useCommandSurfaceId = function useCommandSurfaceId(): string {
  */
 export const useActiveCommandSurface =
   function useActiveCommandSurface(): ActiveCommandSurface | null {
-    const ctx = useContext(CommandContext);
+    const ctx = useContext(CommandStoreReactContext);
     const { store } = ctx?.commandStore ?? FALLBACK_COMMAND_STORE;
 
     const record = useSelector(store, (s) => selectKeyboardOwnerSurface(s.context));
@@ -505,7 +505,7 @@ export const useActiveCommandSurface =
 export const useSurfaceCommands = function useSurfaceCommands(
   surfaceId?: string,
 ): readonly Command[] {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   const { store } = ctx?.commandStore ?? FALLBACK_COMMAND_STORE;
 
   const commandMap = useSelector(store, (s) => {
@@ -535,7 +535,7 @@ export interface EffectiveCommands {
  * edge; dispatch itself shadows correctly via the store).
  */
 export const useEffectiveCommands = function useEffectiveCommands(): EffectiveCommands {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useEffectiveCommands must be used within a CommandProvider");
   }
@@ -594,7 +594,7 @@ export const useEffectiveCommands = function useEffectiveCommands(): EffectiveCo
  * (e.g. the shell's overlay-replacement sequence reset).
  */
 export const useCommandStore = function useCommandStore(): CommandStore {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useCommandStore must be used within a CommandProvider");
   }
@@ -602,7 +602,7 @@ export const useCommandStore = function useCommandStore(): CommandStore {
 };
 
 export const useCommandGroup = function useCommandGroup(group: CommandGroup): void {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useCommandGroup must be used within a CommandProvider");
   }
@@ -639,7 +639,7 @@ let nextContextSourceId = 0;
 export const useProvideCommandContext = function useProvideCommandContext(
   getter: () => Partial<CommandContext>,
 ): void {
-  const ctx = useContext(CommandContext);
+  const ctx = useContext(CommandStoreReactContext);
   if (!ctx) {
     throw new Error("useProvideCommandContext must be used within a CommandProvider");
   }
