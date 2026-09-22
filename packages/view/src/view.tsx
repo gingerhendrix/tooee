@@ -1,13 +1,11 @@
-import { useCallback, useMemo, useState } from "react";
-import { useTheme } from "@tooee/themes";
 import type { ActionDefinition } from "@tooee/commands";
+import { DIFF_CODE_BLOCK_RENDERERS } from "@tooee/diff";
 import type { MarkSet } from "@tooee/marks";
 import type { CodeBlockRenderer } from "@tooee/renderers";
-import { DIFF_CODE_BLOCK_RENDERERS } from "@tooee/diff";
-import { isCustomContent } from "./types.js";
-import type { ContentProvider, ContentRenderer, MarkdownLinkActivateHandler } from "./types.js";
-import { useContentLoader } from "./hooks/use-content-loader.js";
-import { ViewState } from "./components/view-state.js";
+import { useTheme } from "@tooee/themes";
+import { useCallback, useMemo, useState } from "react";
+import type { ReactNode } from "react";
+
 import {
   MarkdownSubview,
   CodeSubview,
@@ -16,7 +14,10 @@ import {
   DiffSubview,
   CustomSubview,
 } from "./components/subviews/index.js";
-import type { ReactNode } from "react";
+import { ViewState } from "./components/view-state.js";
+import { useContentLoader } from "./hooks/use-content-loader.js";
+import { isCustomContent } from "./types.js";
+import type { ContentProvider, ContentRenderer, MarkdownLinkActivateHandler } from "./types.js";
 
 interface ViewProps {
   contentProvider: ContentProvider;
@@ -66,7 +67,7 @@ export const View = function View({
   // registers its own renderer for those types.
   const mergedCodeBlockRenderers = useMemo(
     () => ({ ...DIFF_CODE_BLOCK_RENDERERS, ...codeBlockRenderers }),
-    [codeBlockRenderers],
+    [codeBlockRenderers]
   );
 
   if ((error?.length ?? 0) > 0) {

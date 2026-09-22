@@ -1,6 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { InputRenderable, KeyEvent } from "@opentui/core";
-import { useSelector } from "@xstate/store-react";
 import {
   useActiveCommandSurface,
   useActions,
@@ -12,6 +10,9 @@ import {
   useSetMode,
 } from "@tooee/commands";
 import type { ActionDefinition, CommandContext, Mode } from "@tooee/commands";
+import { useSelector } from "@xstate/store-react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+
 import {
   createChooseStore,
   selectActiveIndex,
@@ -136,11 +137,11 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
       initialFilter,
       items: initialItems,
       loading: !Array.isArray(source),
-    }),
+    })
   ).current;
   const filterRef = useRef<InputRenderable>(null);
   const initialArraySourceRef = useLazyRef<ChooseItem[] | null>(() =>
-    Array.isArray(source) ? source : null,
+    Array.isArray(source) ? source : null
   );
   const didHandleInitialSourceRef = useRef(false);
 
@@ -149,7 +150,7 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
   const filterQuery = useSelector(store, (snapshot) => selectFilterQuery(snapshot.context));
   const activeIndex = useSelector(store, (snapshot) => selectActiveIndex(snapshot.context));
   const selectedOriginalIndices = useSelector(store, (snapshot) =>
-    selectSelectedOriginalIndices(snapshot.context),
+    selectSelectedOriginalIndices(snapshot.context)
   );
   const loading = useSelector(store, (snapshot) => selectLoading(snapshot.context));
   const error = useSelector(store, (snapshot) => selectError(snapshot.context));
@@ -232,13 +233,13 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     (query: string) => {
       store.trigger.filterChanged({ query });
     },
-    [store],
+    [store]
   );
   const updateActiveIndex = useCallback(
     (index: number) => {
       store.trigger.activeIndexSet({ index });
     },
-    [store],
+    [store]
   );
   const moveUp = useCallback(() => {
     store.trigger.moved({ delta: -1 });
@@ -281,7 +282,7 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     (nextMode: Mode) => {
       setMode(nextMode);
     },
-    [setMode],
+    [setMode]
   );
 
   useProvideCommandContext(() => {
@@ -302,7 +303,7 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
 
   const enabled = useCallback(
     (group: ChooseCommandGroup) => !(optionsRef.current.disable?.includes(group) ?? false),
-    [optionsRef],
+    [optionsRef]
   );
   const builtInActions = useMemo<ActionDefinition[]>(() => {
     const definitions: ChooseKeymapDefinition[] = [
@@ -490,7 +491,7 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
         moveDown();
       }
     },
-    [enabled, modeRef, moveDown, moveUp, multiRef, toggleActive],
+    [enabled, modeRef, moveDown, moveUp, multiRef, toggleActive]
   );
 
   const controller = useLazyRef<ChooseController>(() => ({

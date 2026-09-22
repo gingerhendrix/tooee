@@ -1,6 +1,5 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach, beforeEach } from "bun:test";
-import { act } from "react";
+
 import {
   createRoute,
   createRouter,
@@ -9,6 +8,8 @@ import {
   useScreenFocus,
   useScreenEffect,
 } from "@tooee/router";
+import { testRender } from "@tooee/test-support";
+import { act } from "react";
 import type { ReactNode } from "react";
 
 // Simple screen that reports its focus state
@@ -118,7 +119,7 @@ describe("useScreenFocus", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -137,7 +138,7 @@ describe("useScreenFocus", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -163,7 +164,7 @@ describe("useScreenFocus", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -206,7 +207,7 @@ describe("useScreenEffect", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -224,7 +225,7 @@ describe("useScreenEffect", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -244,7 +245,7 @@ describe("useScreenEffect", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 

@@ -2,7 +2,7 @@ import type { RouterAction, RouterState } from "./types.js";
 
 export const stackReducer = function stackReducer(
   state: RouterState,
-  action: RouterAction,
+  action: RouterAction
 ): RouterState {
   switch (action.type) {
     case "push": {

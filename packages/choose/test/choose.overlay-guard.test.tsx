@@ -1,7 +1,9 @@
-import { testRender, ensureTestConfigHome, resetTestConfig } from "@tooee/test-support";
 import { test, expect, afterEach, describe, beforeEach } from "bun:test";
-import { act } from "react";
+
 import { TooeeProvider } from "@tooee/shell";
+import { testRender, ensureTestConfigHome, resetTestConfig } from "@tooee/test-support";
+import { act } from "react";
+
 import { Choose } from "../src/choose.js";
 import type { ChooseContentProvider, ChooseResult } from "../src/types.js";
 
@@ -38,7 +40,7 @@ afterEach(() => {
 });
 
 const setup = async function setup(
-  opts: { onConfirm?: (result: ChooseResult) => void; onCancel?: () => void } = {},
+  opts: { onConfirm?: (result: ChooseResult) => void; onCancel?: () => void } = {}
 ) {
   const handleConfirm = opts.onConfirm;
   const handleCancel = opts.onCancel;
@@ -51,7 +53,7 @@ const setup = async function setup(
         onCancel={handleCancel}
       />
     </TooeeProvider>,
-    { height: 30, kittyKeyboard: true, width: 80 },
+    { height: 30, kittyKeyboard: true, width: 80 }
   );
   await s.renderOnce();
   return s;

@@ -1,16 +1,17 @@
-import type { ReactNode } from "react";
+import { CommandProvider, useProvideCommandContext } from "@tooee/commands";
+import type { Mode } from "@tooee/commands";
 import { ConfigProvider, useConfig } from "@tooee/config";
 import type { TooeeConfig } from "@tooee/config";
 import { ThemeSwitcherProvider } from "@tooee/themes";
-import { CommandProvider, useProvideCommandContext } from "@tooee/commands";
-import type { Mode } from "@tooee/commands";
 import { ToastProvider, useToast } from "@tooee/toasts";
 import type { ToastController } from "@tooee/toasts";
-import { OverlayProvider } from "./overlay.js";
+import type { ReactNode } from "react";
+
 import { CommandPaletteProvider } from "./command-palette-provider.js";
-import { WhichKeyProvider } from "./which-key-provider.js";
-import { useCopyOnSelect } from "./copy-on-select.js";
 import { useDebugConsoleCommand } from "./commands.js";
+import { useCopyOnSelect } from "./copy-on-select.js";
+import { OverlayProvider } from "./overlay.js";
+import { WhichKeyProvider } from "./which-key-provider.js";
 
 declare module "@tooee/commands" {
   interface CommandContext {

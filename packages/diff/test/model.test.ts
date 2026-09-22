@@ -1,4 +1,5 @@
 import { test, expect, describe } from "bun:test";
+
 import { buildDiffModel, diffRowAdapter, scanPatchSections } from "../src/model.js";
 import { BARE_UNIFIED_PATCH, MULTI_FILE_PATCH, RENAME_AND_BINARY_PATCH } from "./fixtures.js";
 
@@ -9,10 +10,10 @@ describe("scanPatchSections", () => {
     expect(sections[0].hunks).toHaveLength(2);
     expect(sections[1].hunks).toHaveLength(1);
     expect(MULTI_FILE_PATCH.slice(sections[0].start, sections[0].headerEnd)).toContain(
-      "diff --git a/src/a.ts",
+      "diff --git a/src/a.ts"
     );
     expect(MULTI_FILE_PATCH.slice(sections[0].hunks[1].start, sections[0].hunks[1].end)).toBe(
-      "@@ -20,3 +21,3 @@ function tail() {\n const x = 1;\n-const y = 2;\n+const y = 3;\n const z = 4;\n",
+      "@@ -20,3 +21,3 @@ function tail() {\n const x = 1;\n-const y = 2;\n+const y = 3;\n const z = 4;\n"
     );
   });
 

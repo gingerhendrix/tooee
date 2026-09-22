@@ -1,5 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import path from "node:path";
+
 import { launchTerminal } from "tuistory";
 import type { Session } from "tuistory";
 
@@ -33,7 +34,7 @@ const launchShell = async function launchShell(source: string): Promise<Session>
 
 test("Ask renders on the terminal while command substitution captures only its answer", async () => {
   const terminal = await launchShell(
-    `answer=$(${cliCommand} ask --single-line "Name:"); status=$?; printf '\\nCAPTURE<%s> STATUS<%s>\\n' "$answer" "$status"`,
+    `answer=$(${cliCommand} ask --single-line "Name:"); status=$?; printf '\\nCAPTURE<%s> STATUS<%s>\\n' "$answer" "$status"`
   );
 
   await terminal.waitForText("Name:", { timeout: 15_000 });
@@ -44,7 +45,7 @@ test("Ask renders on the terminal while command substitution captures only its a
 
 test("Ask cancellation writes no value and exits with status 1", async () => {
   const terminal = await launchShell(
-    `answer=$(${cliCommand} ask --single-line "Name:"); status=$?; printf '\\nCAPTURE<%s> STATUS<%s>\\n' "$answer" "$status"`,
+    `answer=$(${cliCommand} ask --single-line "Name:"); status=$?; printf '\\nCAPTURE<%s> STATUS<%s>\\n' "$answer" "$status"`
   );
 
   await terminal.waitForText("Name:", { timeout: 15_000 });
@@ -55,7 +56,7 @@ test("Ask cancellation writes no value and exits with status 1", async () => {
 
 test("Choose keeps piped items and captured output separate from its terminal UI", async () => {
   const terminal = await launchShell(
-    `choice=$(printf 'alpha\\nbeta\\n' | ${cliCommand} choose); status=$?; printf '\\nCAPTURE<%s> STATUS<%s>\\n' "$choice" "$status"`,
+    `choice=$(printf 'alpha\\nbeta\\n' | ${cliCommand} choose); status=$?; printf '\\nCAPTURE<%s> STATUS<%s>\\n' "$choice" "$status"`
   );
 
   await terminal.waitForText("alpha", { timeout: 15_000 });
@@ -65,7 +66,7 @@ test("Choose keeps piped items and captured output separate from its terminal UI
 
 test("Choose writes only the selected line when stdout is a file", async () => {
   const terminal = await launchShell(
-    `file=$(mktemp); printf 'alpha\\nbeta\\n' | ${cliCommand} choose >"$file"; status=$?; value=$(cat "$file"); bytes=$(wc -c <"$file"); rm -f "$file"; printf '\\nFILE<%s> BYTES<%s> STATUS<%s>\\n' "$value" "$bytes" "$status"`,
+    `file=$(mktemp); printf 'alpha\\nbeta\\n' | ${cliCommand} choose >"$file"; status=$?; value=$(cat "$file"); bytes=$(wc -c <"$file"); rm -f "$file"; printf '\\nFILE<%s> BYTES<%s> STATUS<%s>\\n' "$value" "$bytes" "$status"`
   );
 
   await terminal.waitForText("alpha", { timeout: 15_000 });
@@ -75,7 +76,7 @@ test("Choose writes only the selected line when stdout is a file", async () => {
 
 test("View remains interactive after its piped content closes", async () => {
   const terminal = await launchShell(
-    `printf '# piped title\\n' | ${cliCommand} view; printf '\\nVIEW_STATUS<%s>\\n' "$?"`,
+    `printf '# piped title\\n' | ${cliCommand} view; printf '\\nVIEW_STATUS<%s>\\n' "$?"`
   );
 
   await terminal.waitForText("piped title", { timeout: 15_000 });

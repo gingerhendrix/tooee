@@ -14,7 +14,7 @@ export interface StateKey<T> {
 
 export const createStateKey = function createStateKey<T>(
   name: string,
-  codec: Codec<T>,
+  codec: Codec<T>
 ): StateKey<T> {
   return { name, parse: codec.parse };
 };

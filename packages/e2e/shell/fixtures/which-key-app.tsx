@@ -1,10 +1,10 @@
 #!/usr/bin/env bun
 
-import { useMemo, useState } from "react";
 import { useActions, useCommandGroup } from "@tooee/commands";
 import type { ActionDefinition } from "@tooee/commands";
 import { AppLayout } from "@tooee/layout";
 import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 
 const WhichKeyE2EApp = function WhichKeyE2EApp(): ReactNode {
@@ -76,7 +76,7 @@ const WhichKeyE2EApp = function WhichKeyE2EApp(): ReactNode {
         title: "Local go command",
       },
     ],
-    [],
+    []
   );
 
   useActions(actions);

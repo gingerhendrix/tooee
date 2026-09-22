@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
-import { CommandPalette } from "@tooee/renderers";
 import type { HunkDiffFile } from "@tooee/diff";
+import { CommandPalette } from "@tooee/renderers";
+import type { ReactNode } from "react";
 
 export interface DiffFilePickerOverlayProps {
   files: readonly HunkDiffFile[];

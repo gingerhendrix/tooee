@@ -1,11 +1,12 @@
-import { testRender, expectDefined, press, pressEscape } from "@tooee/test-support";
-import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
-import { act, useState } from "react";
-import { TooeeProvider, useNavigation } from "@tooee/shell";
+
+import { useMode } from "@tooee/commands";
 import { findMatchingLines, useSearch } from "@tooee/search";
 import type { SearchState } from "@tooee/search";
-import { useMode } from "@tooee/commands";
+import { TooeeProvider, useNavigation } from "@tooee/shell";
+import { testRender, expectDefined, press, pressEscape } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
+import { act, useState } from "react";
 import type { ReactNode } from "react";
 
 describe("findMatchingLines", () => {
@@ -75,7 +76,7 @@ const setup = async function setup() {
     <TooeeProvider>
       <SearchHarness />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 60 },
+    { height: 24, kittyKeyboard: true, width: 60 }
   );
   await session.renderOnce();
   return session;
@@ -107,7 +108,7 @@ describe("search hook", () => {
       <TooeeProvider>
         <CountingHarness />
       </TooeeProvider>,
-      { height: 10, kittyKeyboard: true, width: 40 },
+      { height: 10, kittyKeyboard: true, width: 40 }
     );
     await testSetup.renderOnce();
     await act(async () => {
@@ -248,7 +249,7 @@ const setupGrowing = async function setupGrowing(deps: boolean) {
     <TooeeProvider>
       <GrowingSearchHarness deps={deps} />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 60 },
+    { height: 24, kittyKeyboard: true, width: 60 }
   );
   await session.renderOnce();
   return session;

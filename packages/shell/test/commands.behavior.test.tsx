@@ -1,10 +1,11 @@
+import { test, expect, afterEach } from "bun:test";
+
+import { useMode } from "@tooee/commands";
+import { TooeeProvider, useThemeCommands, useQuitCommand } from "@tooee/shell";
 import { testRender } from "@tooee/test-support";
 import type { TestSession } from "@tooee/test-support";
-import { test, expect, afterEach } from "bun:test";
-import { act } from "react";
-import { TooeeProvider, useThemeCommands, useQuitCommand } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
-import { useMode } from "@tooee/commands";
+import { act } from "react";
 import type { ReactNode } from "react";
 
 const ThemeHarness = function ThemeHarness(): ReactNode {
@@ -40,7 +41,7 @@ test("t opens theme picker", async () => {
     <TooeeProvider>
       <ThemeHarness />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 60 },
+    { height: 24, kittyKeyboard: true, width: 60 }
   );
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("open:false");
@@ -65,7 +66,7 @@ test("q calls onQuit handler", async () => {
         }}
       />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 60 },
+    { height: 24, kittyKeyboard: true, width: 60 }
   );
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toContain("quit-harness");

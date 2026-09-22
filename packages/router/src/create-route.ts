@@ -23,10 +23,10 @@ export function createRoute<
   TData = unknown,
   TState = unknown,
 >(
-  config: RouteConfig<TParams, TData, TState> & { params: Codec<TParams> },
+  config: RouteConfig<TParams, TData, TState> & { params: Codec<TParams> }
 ): RouteDefinition<TParams, TData, TState>;
 export function createRoute<TData = unknown, TState = unknown>(
-  config: RouteConfig<RouteParams, TData, TState>,
+  config: RouteConfig<RouteParams, TData, TState>
 ): RouteDefinition<RouteParams, TData, TState>;
 export function createRoute(config: RouteConfig): RouteDefinition {
   const params = config.params ?? passthrough();

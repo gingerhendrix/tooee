@@ -1,9 +1,9 @@
-import type { ReactNode } from "react";
 import type { MouseEvent } from "@opentui/core";
 import { useMode } from "@tooee/commands";
 import type { Mode } from "@tooee/commands";
 import { OverlayPanel } from "@tooee/layout";
 import type { PanelInset, PanelInsetValue } from "@tooee/layout";
+import type { ReactNode } from "react";
 
 /**
  * Default hint-bar entries for the current mode. Composites append their own
@@ -11,7 +11,7 @@ import type { PanelInset, PanelInsetValue } from "@tooee/layout";
  */
 export const buildAskHints = function buildAskHints(
   mode: Mode,
-  opts: { multiline?: boolean; cursorExtra?: string[]; extra?: string[] } = {},
+  opts: { multiline?: boolean; cursorExtra?: string[]; extra?: string[] } = {}
 ): string[] {
   const submitHint =
     opts.multiline === true && mode === "insert" ? "Shift+Enter submit" : "Enter submit";

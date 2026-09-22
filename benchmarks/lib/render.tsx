@@ -1,7 +1,9 @@
 import { performance } from "node:perf_hooks";
+
+import { testRender } from "@tooee/test-support";
 import type { ReactNode } from "react";
 import { act } from "react";
-import { testRender } from "@tooee/test-support";
+
 import { percentile, printTimedMetric } from "./benchmark-result.ts";
 
 export interface BenchmarkViewport {
@@ -15,7 +17,7 @@ export type TestRendererSetup = Awaited<ReturnType<typeof testRender>>;
 
 export const renderPass = async function renderPass(
   setup: TestRendererSetup,
-  passes = 1,
+  passes = 1
 ): Promise<void> {
   for (let pass = 0; pass < passes; pass += 1) {
     // Preserve ordered render transitions; these passes intentionally run sequentially.
@@ -28,7 +30,7 @@ export const renderPass = async function renderPass(
 };
 
 export const destroyRenderer = async function destroyRenderer(
-  setup: TestRendererSetup,
+  setup: TestRendererSetup
 ): Promise<void> {
   await act(async () => {
     setup.renderer.destroy();
@@ -39,7 +41,7 @@ export const destroyRenderer = async function destroyRenderer(
 export const measureFirstFrame = async function measureFirstFrame(
   metricPrefix: string,
   node: ReactNode,
-  viewport: BenchmarkViewport = DEFAULT_VIEWPORT,
+  viewport: BenchmarkViewport = DEFAULT_VIEWPORT
 ): Promise<string> {
   let setup: TestRendererSetup | undefined;
   const start = performance.now();
@@ -58,7 +60,7 @@ export const measureFirstFrame = async function measureFirstFrame(
 
 export const mountForInteraction = async function mountForInteraction(
   node: ReactNode,
-  viewport: BenchmarkViewport = DEFAULT_VIEWPORT,
+  viewport: BenchmarkViewport = DEFAULT_VIEWPORT
 ): Promise<TestRendererSetup> {
   const setup = await testRender(node, { ...viewport, kittyKeyboard: true });
   await renderPass(setup, 3);
@@ -69,7 +71,7 @@ export const measureKeyPressLatencies = async function measureKeyPressLatencies(
   setup: TestRendererSetup,
   key: string,
   presses: number,
-  modifiers?: { ctrl?: boolean; shift?: boolean },
+  modifiers?: { ctrl?: boolean; shift?: boolean }
 ): Promise<number[]> {
   const latencies: number[] = [];
 
@@ -90,7 +92,7 @@ export const measureKeyPressLatencies = async function measureKeyPressLatencies(
 
 export const printLatencySummary = function printLatencySummary(
   metricPrefix: string,
-  latencies: number[],
+  latencies: number[]
 ): void {
   printTimedMetric(`${metricPrefix}_median_ms`, percentile(latencies, 50));
   printTimedMetric(`${metricPrefix}_p95_ms`, percentile(latencies, 95));

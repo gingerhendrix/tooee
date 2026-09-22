@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
+
 import type { Session } from "tuistory";
+
 import { launchInsertPanel, launchPanels } from "./helpers.js";
 
 let session: Session;

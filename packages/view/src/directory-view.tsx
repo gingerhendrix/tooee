@@ -1,18 +1,19 @@
-import { useState, useMemo } from "react";
 import { useCommand } from "@tooee/commands";
 import type { ActionDefinition } from "@tooee/commands";
-import { View } from "./view.js";
+import { useState, useMemo } from "react";
+import type { ReactNode } from "react";
+
+import { ViewState } from "./components/view-state.js";
+import { createFileProvider } from "./default-provider.js";
 import { listDirectoryFiles } from "./directory-provider.js";
 import type { DirectoryEntry } from "./directory-provider.js";
 import type { AnyContent, ContentProvider } from "./types.js";
-import { createFileProvider } from "./default-provider.js";
-import { ViewState } from "./components/view-state.js";
-import type { ReactNode } from "react";
+import { View } from "./view.js";
 
 const createDirectoryFileProvider = function createDirectoryFileProvider(
   entry: DirectoryEntry,
   index: number,
-  total: number,
+  total: number
 ): ContentProvider {
   const inner = createFileProvider(entry.path);
   return {
@@ -47,7 +48,7 @@ export const DirectoryView = function DirectoryView({
       files.length > 0
         ? createDirectoryFileProvider(files[currentIndex], currentIndex, files.length)
         : null,
-    [files, currentIndex],
+    [files, currentIndex]
   );
 
   useCommand({

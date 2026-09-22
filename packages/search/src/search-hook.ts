@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useSelector } from "@xstate/store-react";
 import { useCommand, useMode, useSetMode } from "@tooee/commands";
 import type { Mode } from "@tooee/commands";
+import { useSelector } from "@xstate/store-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import {
   createNavSearchStore,
   selectCurrentMatchIndex,
@@ -38,7 +39,7 @@ export const useNavSearchStore = function useNavSearchStore(options: {
   const depsRef = useRef<NavSearchDeps>({ isSelectable: options.isSelectable ?? (() => true) });
   depsRef.current.isSelectable = options.isSelectable ?? (() => true);
   const [store, setStore] = useState(() =>
-    createNavSearchStore({ deps: depsRef.current, keys: options.keys }),
+    createNavSearchStore({ deps: depsRef.current, keys: options.keys })
   );
   void setStore;
   useEffect(() => {
@@ -63,7 +64,7 @@ export const useSearchBindings = function useSearchBindings(
     onJump,
     enabled = true,
     deps = [],
-  }: Omit<UseSearchOptions, "onJump"> & { onJump?: (index: number) => void },
+  }: Omit<UseSearchOptions, "onJump"> & { onJump?: (index: number) => void }
 ): SearchState {
   const mode = useMode();
   const setMode = useSetMode();
@@ -91,14 +92,14 @@ export const useSearchBindings = function useSearchBindings(
   const searchActive = useSelector(store, (snapshot) => selectSearchActive(snapshot.context));
   const matchingLines = useSelector(store, (snapshot) => selectMatches(snapshot.context));
   const currentMatchIndex = useSelector(store, (snapshot) =>
-    selectCurrentMatchIndex(snapshot.context),
+    selectCurrentMatchIndex(snapshot.context)
   );
 
   const updateSearchQuery = useCallback(
     (query: string) => {
       store.trigger.searchChanged({ matches: query ? matchRef.current(query) : [], query });
     },
-    [store],
+    [store]
   );
 
   // Re-match a committed query once when the caller-declared content changes.

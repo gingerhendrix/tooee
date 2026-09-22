@@ -1,11 +1,13 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
-import { act, useState } from "react";
+
 import { TooeeProvider } from "@tooee/shell";
-import { Choose } from "../src/choose.js";
-import { ChooseOverlay } from "../src/choose-overlay.js";
-import type { ChooseContentProvider, ChooseItem } from "../src/types.js";
+import { testRender } from "@tooee/test-support";
+import { act, useState } from "react";
 import type { ReactNode } from "react";
+
+import { ChooseOverlay } from "../src/choose-overlay.js";
+import { Choose } from "../src/choose.js";
+import type { ChooseContentProvider, ChooseItem } from "../src/types.js";
 
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
@@ -38,7 +40,7 @@ describe("Choose async load (R-02)", () => {
       <TooeeProvider initialMode="insert">
         <Choose contentProvider={provider} />
       </TooeeProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
     await flush(testSetup);
@@ -59,7 +61,7 @@ describe("Choose async load (R-02)", () => {
       <TooeeProvider initialMode="insert">
         <Choose contentProvider={provider} />
       </TooeeProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
     await flush(testSetup);
@@ -90,7 +92,7 @@ describe("Choose async load (R-02)", () => {
       <TooeeProvider initialMode="insert">
         <Harness />
       </TooeeProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("Loading...");
@@ -135,7 +137,7 @@ describe("Choose async load (R-02)", () => {
       <TooeeProvider initialMode="insert">
         <Harness />
       </TooeeProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -169,7 +171,7 @@ describe("ChooseOverlay async load (R-02)", () => {
           onCancel={() => {}}
         />
       </TooeeProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
     await flush(testSetup);

@@ -1,11 +1,12 @@
-import { testRender, press, pressEnter, pressEscape } from "@tooee/test-support";
-import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
-import { act, useState } from "react";
+
 import { MouseButtons } from "@opentui/core/testing";
-import { TooeeProvider } from "@tooee/shell";
 import { useCommand, useMode } from "@tooee/commands";
 import { useCurrentOverlay, useHasOverlay } from "@tooee/overlays";
+import { TooeeProvider } from "@tooee/shell";
+import { testRender, press, pressEnter, pressEscape } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
+import { act, useState } from "react";
 import type { ReactNode } from "react";
 
 const LateRegistrant = function LateRegistrant() {
@@ -89,7 +90,7 @@ const setup = async function setup() {
     <TooeeProvider>
       <PaletteHarness />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await s.renderOnce();
   return s;
@@ -127,7 +128,7 @@ describe("command palette", () => {
       <TooeeProvider>
         <LateHarness />
       </TooeeProvider>,
-      { height: 24, kittyKeyboard: true, width: 80 },
+      { height: 24, kittyKeyboard: true, width: 80 }
     );
     await testSetup.renderOnce();
 
@@ -195,7 +196,7 @@ const setupClick = async function setupClick(onRun: (id: string) => void) {
     <TooeeProvider>
       <PaletteClickHarness onRun={onRun} />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await s.renderOnce();
   return s;

@@ -1,6 +1,8 @@
-import { testRender, copied } from "@tooee/test-support";
 import { test, expect, afterEach, beforeEach, describe } from "bun:test";
+
+import { testRender, copied } from "@tooee/test-support";
 import { act } from "react";
+
 import type { AnyContent, ContentProvider } from "../src/types.js";
 
 const { TooeeProvider } = await import("@tooee/shell");
@@ -9,7 +11,7 @@ const { View } = await import("../src/view.js");
 
 const staticProvider = function staticProvider(
   content: AnyContent,
-  marks?: ContentProvider["marks"],
+  marks?: ContentProvider["marks"]
 ): ContentProvider {
   return { format: content.format, load: () => content, marks };
 };
@@ -60,7 +62,7 @@ const setup = async function setup(provider: ContentProvider) {
     <TooeeProvider>
       <View contentProvider={provider} />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await s.renderOnce();
   await act(async () => {

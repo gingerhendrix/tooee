@@ -175,7 +175,7 @@ export interface SourceLineRow {
  */
 export const sourceLines = function sourceLines(
   source: string,
-  options?: { sourceId?: string },
+  options?: { sourceId?: string }
 ): SourceLineRow[] {
   const index = new SourceIndex(source, options?.sourceId);
   const rows: SourceLineRow[] = [];

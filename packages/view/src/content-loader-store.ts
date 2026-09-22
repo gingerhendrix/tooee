@@ -1,5 +1,6 @@
-import { createStore } from "@xstate/store";
 import type { MarkSet } from "@tooee/marks";
+import { createStore } from "@xstate/store";
+
 import type { AnyContent, Content, ContentChunk, ContentFormat } from "./types.js";
 
 type ContentProviderResult = AnyContent | Promise<AnyContent> | AsyncIterable<ContentChunk>;
@@ -32,7 +33,7 @@ export type ContentLoaderEvents = {
 };
 
 export const isAsyncIterable = function isAsyncIterable(
-  value: ContentProviderResult,
+  value: ContentProviderResult
 ): value is AsyncIterable<ContentChunk> {
   return (
     value !== null &&
@@ -45,7 +46,7 @@ export const isAsyncIterable = function isAsyncIterable(
 
 export const createEmptyContent = function createEmptyContent(
   format: string,
-  title?: string,
+  title?: string
 ): AnyContent {
   switch (format) {
     case "markdown": {
@@ -69,7 +70,7 @@ export const createEmptyContent = function createEmptyContent(
 const ensureContentFormat = function ensureContentFormat<F extends ContentFormat>(
   current: AnyContent | null,
   format: F,
-  title?: string,
+  title?: string
 ): Extract<Content, { format: F }> {
   if (!current || current.format !== format) {
     // SAFETY: createEmptyContent returns the built-in content variant selected by the same format.
@@ -84,7 +85,7 @@ const ensureContentFormat = function ensureContentFormat<F extends ContentFormat
 export const applyContentChunk = function applyContentChunk(
   current: AnyContent | null,
   chunk: ContentChunk,
-  title?: string,
+  title?: string
 ): AnyContent {
   switch (chunk.type) {
     case "replace": {

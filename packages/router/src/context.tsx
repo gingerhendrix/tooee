@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useSyncExternalStore } from "react";
 import type { ReactNode } from "react";
+
 import type { RouterInstance, StackEntry } from "./types.js";
 
 // Contexts
@@ -21,7 +22,7 @@ export const RouterProvider = function RouterProvider({
 }: RouterProviderProps): ReactNode {
   if (!router.started) {
     throw new Error(
-      "RouterProvider requires a started router. Await router.start() before rendering.",
+      "RouterProvider requires a started router. Await router.start() before rendering."
     );
   }
 

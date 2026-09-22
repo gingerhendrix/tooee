@@ -1,6 +1,8 @@
-import { testRender, copied } from "@tooee/test-support";
 import { test, expect, afterEach, beforeEach, describe } from "bun:test";
+
+import { testRender, copied } from "@tooee/test-support";
 import { act } from "react";
+
 import type { AnyContent, ContentProvider } from "../src/types.js";
 
 const { TooeeProvider } = await import("@tooee/shell");
@@ -52,7 +54,7 @@ const setup = async function setup(provider: ContentProvider) {
     <TooeeProvider>
       <View contentProvider={provider} />
     </TooeeProvider>,
-    { height: 40, kittyKeyboard: true, width: 100 },
+    { height: 40, kittyKeyboard: true, width: 100 }
   );
   await s.renderOnce();
   await act(async () => {
@@ -149,7 +151,7 @@ describe("diff navigation", () => {
     const frame = testSetup.captureCharFrame();
     expect(frame).toMatch(/Layout:?\s*split/u);
     expect(frame.split("\n").find((line) => line.includes("const b = 22;"))).toContain(
-      "const b = 2;",
+      "const b = 2;"
     );
 
     await press("s");

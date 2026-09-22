@@ -1,13 +1,13 @@
-import type { ReactNode } from "react";
 import type { MouseEvent } from "@opentui/core";
 import { useMode } from "@tooee/commands";
 import type { Mode } from "@tooee/commands";
 import { OverlayPanel } from "@tooee/layout";
 import type { PanelInset, PanelInsetValue } from "@tooee/layout";
+import type { ReactNode } from "react";
 
 export const buildChooseHints = function buildChooseHints(
   mode: Mode,
-  options: { multi?: boolean; extra?: string[] } = {},
+  options: { multi?: boolean; extra?: string[] } = {}
 ): string[] {
   const base =
     mode === "insert"

@@ -1,5 +1,6 @@
-import type { RefObject } from "react";
 import type { MouseEvent } from "@opentui/core";
+import type { RefObject } from "react";
+
 import type { DecorationLayer } from "./decoration-layer.js";
 import type { RowDocumentRenderable } from "./row-document-renderable.js";
 

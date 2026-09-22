@@ -1,9 +1,10 @@
 import type { KeyEvent } from "@opentui/core";
-import type { Mode } from "./mode.js";
+
 import { ROOT_SURFACE_ID, createBaseStore, selectKeyboardOwnerSurface } from "./command-store.js";
 import type { CommandStoreInstance, SurfaceRecord } from "./command-store.js";
 import { createKeyDispatcher } from "./key-dispatch.js";
 import type { KeyDispatchConfig, KeyDispatchResult } from "./key-dispatch.js";
+import type { Mode } from "./mode.js";
 import type { Command, CommandContext, CommandRegistry } from "./types.js";
 
 export type { KeyDispatchResult } from "./key-dispatch.js";
@@ -37,7 +38,7 @@ const reportCommandFailure = async function reportCommandFailure(result: Promise
 };
 
 export const createCommandStore = function createCommandStore(
-  options: CreateCommandStoreOptions,
+  options: CreateCommandStoreOptions
 ): CommandStore {
   const rootRecord: SurfaceRecord = {
     buildCtx: options.root.buildCtx,

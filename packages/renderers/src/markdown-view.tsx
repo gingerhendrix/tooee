@@ -1,8 +1,9 @@
-import { useMemo } from "react";
-import type { ReactNode, RefObject } from "react";
 import type { TextBufferRenderable } from "@opentui/core";
 import { useTerminalDimensions } from "@opentui/react";
 import { useTheme } from "@tooee/themes";
+import { useMemo } from "react";
+import type { ReactNode, RefObject } from "react";
+
 import { DEFAULT_CODE_BLOCK_RENDERERS } from "./code-blocks.js";
 import type { CodeBlockRenderer } from "./code-blocks.js";
 import type { DocumentBindings } from "./document-bindings.js";
@@ -74,7 +75,7 @@ export const MarkdownView = function MarkdownView({
   const { width: terminalWidth } = useTerminalDimensions();
   const blocks = useMemo(
     () => providedBlocks ?? flattenMarkdown(content),
-    [providedBlocks, content],
+    [providedBlocks, content]
   );
 
   const contentWidth = Math.max(
@@ -85,7 +86,7 @@ export const MarkdownView = function MarkdownView({
         showLineNumbers,
         signColumnWidth: DEFAULT_SIGN_COLUMN_WIDTH,
       }) -
-      MARKDOWN_SCROLLBAR_RESERVE,
+      MARKDOWN_SCROLLBAR_RESERVE
   );
 
   const mergedCodeBlockRenderers = useMemo(() => {
@@ -98,22 +99,20 @@ export const MarkdownView = function MarkdownView({
 
   const blockElements = useMemo(
     () =>
-      blocks.map(
-        (block, index): ReactNode => (
-          <FlatBlockRenderer
-            key={index}
-            block={block}
-            blockIndex={index}
-            theme={theme}
-            syntax={syntax}
-            contentWidth={contentWidth}
-            hScrollableBlocksRef={hScrollableBlocksRef}
-            codeBlockRenderers={mergedCodeBlockRenderers}
-            onLinkActivate={onLinkActivate}
-            imageBasePath={imageBasePath}
-          />
-        ),
-      ),
+      blocks.map((block, index): ReactNode => (
+        <FlatBlockRenderer
+          key={index}
+          block={block}
+          blockIndex={index}
+          theme={theme}
+          syntax={syntax}
+          contentWidth={contentWidth}
+          hScrollableBlocksRef={hScrollableBlocksRef}
+          codeBlockRenderers={mergedCodeBlockRenderers}
+          onLinkActivate={onLinkActivate}
+          imageBasePath={imageBasePath}
+        />
+      )),
     [
       blocks,
       theme,
@@ -123,7 +122,7 @@ export const MarkdownView = function MarkdownView({
       mergedCodeBlockRenderers,
       onLinkActivate,
       imageBasePath,
-    ],
+    ]
   );
 
   return (

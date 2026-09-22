@@ -1,8 +1,9 @@
-import { runCliSession } from "@tooee/shell";
 import type { ActionDefinition } from "@tooee/commands";
+import { runCliSession } from "@tooee/shell";
+import type { ReactNode } from "react";
+
 import { Choose } from "./choose.js";
 import type { ChooseContentProvider, ChooseOptions, ChooseResult } from "./types.js";
-import type { ReactNode } from "react";
 
 export interface ChooseLaunchOptions {
   contentProvider: ChooseContentProvider;
@@ -11,7 +12,7 @@ export interface ChooseLaunchOptions {
 }
 
 export const launch = async function launch(
-  opts: ChooseLaunchOptions,
+  opts: ChooseLaunchOptions
 ): Promise<ChooseResult | null> {
   const result = await runCliSession<ChooseResult>(
     ({ resolve, cancel }): ReactNode => (
@@ -31,7 +32,7 @@ export const launch = async function launch(
       provider: { initialMode: "insert" },
       stdinPolicy: "tty-if-piped",
       stdoutPolicy: "tty-if-redirected",
-    },
+    }
   );
   return result;
 };

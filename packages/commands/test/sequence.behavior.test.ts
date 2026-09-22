@@ -1,9 +1,11 @@
 import { describe, expect, test } from "bun:test";
+
 import type { KeyEvent } from "@opentui/core";
 import { DEFAULT_SEQUENCE_TIMEOUT_MS, SequenceTracker } from "@tooee/commands/store";
+import { keyEvent as key } from "@tooee/test-support";
+
 import { findPendingMatch, matchesBuffer, pruneBuffer } from "../src/sequence.js";
 import type { ParsedHotkey } from "../src/types.js";
-import { keyEvent as key } from "@tooee/test-support";
 
 const sleep = async function sleep(ms: number): Promise<void> {
   await Bun.sleep(ms);

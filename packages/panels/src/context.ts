@@ -1,5 +1,5 @@
-import { createContext, useContext } from "react";
 import type { Mode } from "@tooee/commands";
+import { createContext, useContext } from "react";
 
 /**
  * The interface a `PanelGroup` exposes to the `Panel`s and hooks beneath it.

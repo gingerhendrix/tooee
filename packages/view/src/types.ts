@@ -1,10 +1,10 @@
-import type { ReactNode } from "react";
 import type { ImageFit, ImageRenderProtocol, ImageSource } from "@opentui/core";
 import type { CommandContext } from "@tooee/commands";
+import type { MarkSet } from "@tooee/marks";
 import { formatTableCell } from "@tooee/renderers";
 import type { ColumnDef, SourceLineRow, TableRow } from "@tooee/renderers";
 import type { DocumentController } from "@tooee/shell";
-import type { MarkSet } from "@tooee/marks";
+import type { ReactNode } from "react";
 
 // === Built-in content types ===
 
@@ -149,7 +149,7 @@ export const isBuiltinContent = function isBuiltinContent(content: AnyContent): 
 };
 
 export const isCustomContent = function isCustomContent(
-  content: AnyContent,
+  content: AnyContent
 ): content is CustomContent {
   return !BUILTIN_FORMATS.has(content.format);
 };
@@ -186,7 +186,7 @@ export const getTextContent = function getTextContent(content: AnyContent): stri
     case "table": {
       const headers = content.columns.map((column) => column.header ?? column.key);
       const rowLines = content.rows.map((row) =>
-        content.columns.map((column) => formatTableCell(row[column.key])).join("\t"),
+        content.columns.map((column) => formatTableCell(row[column.key])).join("\t")
       );
       return [headers.join("\t"), ...rowLines].join("\n");
     }

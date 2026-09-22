@@ -23,16 +23,14 @@ export const StatusBar = function StatusBar({ items }: StatusBarProps): ReactNod
         paddingRight: 1,
       }}
     >
-      {items.map(
-        (item, index): ReactNode => (
-          <box key={index} style={{ flexDirection: "row", marginRight: 2 }}>
-            <text content={item.label} style={{ fg: theme.textMuted }} />
-            {(item.value?.length ?? 0) > 0 && (
-              <text content={` ${item.value}`} style={{ fg: theme.text }} />
-            )}
-          </box>
-        ),
-      )}
+      {items.map((item, index): ReactNode => (
+        <box key={index} style={{ flexDirection: "row", marginRight: 2 }}>
+          <text content={item.label} style={{ fg: theme.textMuted }} />
+          {(item.value?.length ?? 0) > 0 && (
+            <text content={` ${item.value}`} style={{ fg: theme.text }} />
+          )}
+        </box>
+      ))}
     </box>
   );
 };

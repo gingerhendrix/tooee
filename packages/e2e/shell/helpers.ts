@@ -1,7 +1,8 @@
+import path from "node:path";
+
+import { ensureTestConfigHome, resetTestConfig } from "@tooee/test-support";
 import { launchTerminal } from "tuistory";
 import type { Session } from "tuistory";
-import path from "node:path";
-import { ensureTestConfigHome, resetTestConfig } from "@tooee/test-support";
 
 const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
 const CONFIG_NAMESPACE = "shell-e2e";
@@ -10,7 +11,7 @@ const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
 export const launchShellFixture = async function launchShellFixture(
   fixture: string,
   readyText = "which-key e2e ready",
-  options: { exitMarker?: string } = {},
+  options: { exitMarker?: string } = {}
 ): Promise<Session> {
   resetTestConfig(CONFIG_NAMESPACE);
   const fixturePath = path.resolve(import.meta.dir, "fixtures", fixture);

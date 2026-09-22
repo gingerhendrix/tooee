@@ -1,3 +1,9 @@
+import { test, expect, afterEach, describe, beforeEach } from "bun:test";
+
+import { MouseButtons } from "@opentui/core/testing";
+import { useMode } from "@tooee/commands";
+import { useCurrentOverlay } from "@tooee/overlays";
+import { TooeeProvider, useThemeCommands } from "@tooee/shell";
 import {
   testRender,
   ensureTestConfigHome,
@@ -8,13 +14,8 @@ import {
   pressEscape,
 } from "@tooee/test-support";
 import type { TestSession } from "@tooee/test-support";
-import { test, expect, afterEach, describe, beforeEach } from "bun:test";
-import { act } from "react";
-import { MouseButtons } from "@opentui/core/testing";
-import { TooeeProvider, useThemeCommands } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
-import { useCurrentOverlay } from "@tooee/overlays";
-import { useMode } from "@tooee/commands";
+import { act } from "react";
 import type { ReactNode } from "react";
 
 const CONFIG_NAMESPACE = "shell-theme-picker";
@@ -47,7 +48,7 @@ const setup = async function setup() {
     <TooeeProvider>
       <ThemePickerHarness />
     </TooeeProvider>,
-    { height: 40, kittyKeyboard: true, width: 80 },
+    { height: 40, kittyKeyboard: true, width: 80 }
   );
   await s.renderOnce();
   return s;

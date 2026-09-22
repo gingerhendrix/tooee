@@ -1,6 +1,7 @@
+import type { ResolvedTheme } from "@tooee/themes";
 import type { Token } from "marked";
 import type { ReactNode } from "react";
-import type { ResolvedTheme } from "@tooee/themes";
+
 import { hasMarkedText, normalizeSoftLineEndings } from "./tokens.js";
 import { visitInline } from "./visit-inline.js";
 

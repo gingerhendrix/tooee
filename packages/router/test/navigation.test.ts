@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+
 import { createRoute, createRouter, createStateKey } from "@tooee/router";
 import type {
   NavigationEvent,
@@ -7,6 +8,7 @@ import type {
   ResolvedNavigation,
   RouteParams,
 } from "@tooee/router";
+
 import { idParams, valueState } from "./support/codecs.ts";
 
 const Screen = function Screen(): null {
@@ -22,7 +24,7 @@ const deferred = function deferred<T = undefined>(): PromiseWithResolvers<T> {
 
 const expectStatus = function expectStatus<TStatus extends NavigationResult["status"]>(
   result: NavigationResult,
-  status: TStatus,
+  status: TStatus
 ): Extract<NavigationResult, { status: TStatus }> {
   expect(result.status).toBe(status);
   if (result.status !== status) {
@@ -119,7 +121,7 @@ describe("router startup", () => {
   test("rejects duplicate route ids during construction", () => {
     const duplicate = createRoute({ component: Screen, id: "home" });
     expect(() =>
-      createRouter({ initial: { routeId: "home" }, routes: [homeRoute, duplicate] }),
+      createRouter({ initial: { routeId: "home" }, routes: [homeRoute, duplicate] })
     ).toThrow('Duplicate route id "home"');
   });
 
@@ -277,7 +279,7 @@ describe("serialized switch-latest concurrency", () => {
     const controller = new AbortController();
     const resultPromise = router.navigate(
       { routeId: "settings", type: "push" },
-      { signal: controller.signal },
+      { signal: controller.signal }
     );
     controller.abort();
     release.resolve();

@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
+import { TooeeProvider } from "@tooee/shell";
 import { View } from "@tooee/view";
 import type { ContentProvider } from "@tooee/view";
-import { TooeeProvider } from "@tooee/shell";
+
 import {
   FIXTURE_TIERS,
   makeCodeFixture,
@@ -25,12 +26,12 @@ if (!Number.isFinite(interactionPresses) || interactionPresses < 1) {
 
 const benchmarkViewContent = async function benchmarkViewContent(
   name: string,
-  contentProvider: ContentProvider,
+  contentProvider: ContentProvider
 ): Promise<void> {
   const setup = await mountForInteraction(
     <TooeeProvider initialMode="cursor" sequenceTimeoutMs={250}>
       <View contentProvider={contentProvider} />
-    </TooeeProvider>,
+    </TooeeProvider>
   );
 
   try {

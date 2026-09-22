@@ -1,7 +1,8 @@
-import { useMemo } from "react";
-import type { ReactNode, Ref } from "react";
 import type { ActionDefinition } from "@tooee/commands";
 import { useOverlayDialog } from "@tooee/overlays";
+import { useMemo } from "react";
+import type { ReactNode, Ref } from "react";
+
 import { AskOverlay } from "./ask-overlay.js";
 import type { AskPanelProps } from "./ask-panel.js";
 import type { AskEditorController } from "./use-ask-editor.js";
@@ -56,31 +57,28 @@ export const useAskDialog = function useAskDialog(): AskDialogHandle {
   return useMemo<AskDialogHandle>(
     () => ({
       open: async (options) =>
-        await dialog.open(
-          "ask-dialog",
-          (settle): ReactNode => (
-            <AskOverlay
-              prompt={options.prompt}
-              title={options.title}
-              multiline={options.multiline}
-              defaultValue={options.defaultValue}
-              placeholder={options.placeholder}
-              commands={options.commands}
-              controllerRef={options.controllerRef}
-              hints={options.hints}
-              statusRight={options.statusRight}
-              footer={options.footer}
-              inset={options.inset}
-              onSubmit={(value) => {
-                settle(value);
-              }}
-              onCancel={() => {
-                settle(null);
-              }}
-            />
-          ),
-        ),
+        await dialog.open("ask-dialog", (settle): ReactNode => (
+          <AskOverlay
+            prompt={options.prompt}
+            title={options.title}
+            multiline={options.multiline}
+            defaultValue={options.defaultValue}
+            placeholder={options.placeholder}
+            commands={options.commands}
+            controllerRef={options.controllerRef}
+            hints={options.hints}
+            statusRight={options.statusRight}
+            footer={options.footer}
+            inset={options.inset}
+            onSubmit={(value) => {
+              settle(value);
+            }}
+            onCancel={() => {
+              settle(null);
+            }}
+          />
+        )),
     }),
-    [dialog],
+    [dialog]
   );
 };

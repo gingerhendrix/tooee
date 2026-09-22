@@ -1,6 +1,8 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
+
+import { testRender } from "@tooee/test-support";
 import { ThemeSwitcherProvider } from "@tooee/themes";
+
 import { Table, computeColumnWidths, isNumeric } from "../src/table.js";
 
 const createColumns = function createColumns(headers: string[]) {
@@ -12,7 +14,7 @@ const createColumns = function createColumns(headers: string[]) {
 
 const createRows = function createRows(
   columns: ReturnType<typeof createColumns>,
-  values: string[][],
+  values: string[][]
 ) {
   return values.map((row) => {
     const record: Record<string, string> = {};
@@ -42,7 +44,7 @@ describe("Table component", () => {
           maxWidth={60}
         />
       </ThemeSwitcherProvider>,
-      { height: 20, width: 60 },
+      { height: 20, width: 60 }
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -67,7 +69,7 @@ describe("Table component", () => {
           maxWidth={50}
         />
       </ThemeSwitcherProvider>,
-      { height: 20, width: 50 },
+      { height: 20, width: 50 }
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -86,7 +88,7 @@ describe("Table component", () => {
           maxWidth={35}
         />
       </ThemeSwitcherProvider>,
-      { height: 20, width: 35 },
+      { height: 20, width: 35 }
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -107,7 +109,7 @@ describe("Table component", () => {
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,
-      { height: 10, width: 40 },
+      { height: 10, width: 40 }
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -124,7 +126,7 @@ describe("Table component", () => {
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,
-      { height: 10, width: 40 },
+      { height: 10, width: 40 }
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -149,7 +151,7 @@ describe("Table component", () => {
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,
-      { height: 15, width: 40 },
+      { height: 15, width: 40 }
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -172,7 +174,7 @@ describe("Table component", () => {
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,
-      { height: 15, width: 40 },
+      { height: 15, width: 40 }
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -196,7 +198,7 @@ describe("Table component", () => {
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,
-      { height: 10, width: 40 },
+      { height: 10, width: 40 }
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -218,7 +220,7 @@ describe("Table component", () => {
           maxWidth={40}
         />
       </ThemeSwitcherProvider>,
-      { height: 15, width: 40 },
+      { height: 15, width: 40 }
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -258,7 +260,7 @@ describe("fill mode", () => {
       ["Name", "Very Long Description Header"],
       [["Alice", "A very long description that exceeds the threshold"]],
       30,
-      { ...defaultOptions, columnWidthMode: "fill" },
+      { ...defaultOptions, columnWidthMode: "fill" }
     );
     const total = widths.reduce((a, b) => a + b, 0);
     expect(total).toBeLessThanOrEqual(30);
@@ -276,7 +278,7 @@ describe("fill mode", () => {
           columnWidthMode="fill"
         />
       </ThemeSwitcherProvider>,
-      { height: 10, width: 60 },
+      { height: 10, width: 60 }
     );
     await testSetup.renderOnce();
     const frame = testSetup.captureCharFrame();
@@ -292,7 +294,7 @@ describe("Table utilities", () => {
       ["Name", "Description"],
       [["Alice", "A very long description that exceeds the threshold"]],
       40,
-      defaultOptions,
+      defaultOptions
     );
     // No border overhead -- total column widths should fit within maxWidth
     const total = widths.reduce((a, b) => a + b, 0);

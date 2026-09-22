@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef } from "react";
+
 import { useSurfaceRegistry } from "./context.js";
-import type { Command, CommandHandler, CommandWhen } from "./types.js";
 import type { Mode } from "./mode.js";
+import type { Command, CommandHandler, CommandWhen } from "./types.js";
 
 export interface ActionDefinition {
   id: string;
@@ -28,10 +29,10 @@ export const useActions = function useActions(actions: ActionDefinition[] | unde
           (a) =>
             // modes and when-presence are frozen into the registration, so
             // they must participate in the re-registration key.
-            `${a.id}:${a.title}:${a.hotkey ?? ""}:${a.category ?? ""}:${a.group ?? ""}:${a.icon ?? ""}:${a.hidden ?? false}:${a.modes?.join("|") ?? ""}:${a.when ? 1 : 0}`,
+            `${a.id}:${a.title}:${a.hotkey ?? ""}:${a.category ?? ""}:${a.group ?? ""}:${a.icon ?? ""}:${a.hidden ?? false}:${a.modes?.join("|") ?? ""}:${a.when ? 1 : 0}`
         )
         .join(",") ?? "",
-    [actions],
+    [actions]
   );
 
   useEffect(() => {

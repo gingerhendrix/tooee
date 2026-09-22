@@ -1,7 +1,8 @@
 import { readdirSync, statSync } from "node:fs";
 import path from "node:path";
-import type { ContentProvider } from "./types.js";
+
 import { createFileProvider } from "./default-provider.js";
+import type { ContentProvider } from "./types.js";
 
 const SUPPORTED_EXTENSIONS = new Set([
   "md",
@@ -78,7 +79,7 @@ export const listDirectoryFiles = function listDirectoryFiles(dirPath: string): 
 };
 
 export const createDirectoryFileProvider = function createDirectoryFileProvider(
-  filePath: string,
+  filePath: string
 ): ContentProvider {
   return createFileProvider(filePath);
 };

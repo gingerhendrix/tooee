@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
 import type { BoxProps } from "@opentui/react";
 import type { Mode } from "@tooee/commands";
+import type { ReactNode } from "react";
 
 /** Switch shortcuts for a panel group. Set the whole prop to `null` to disable built-in switching. */
 export interface PanelSwitchKeys {

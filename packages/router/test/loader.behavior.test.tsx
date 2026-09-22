@@ -1,10 +1,12 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
-import { act } from "react";
+
 import { createRoute, createRouter, RouterProvider, Outlet, useRouteData } from "@tooee/router";
 import type { RouteParams } from "@tooee/router";
-import { echoData, messageData } from "./support/codecs.ts";
+import { testRender } from "@tooee/test-support";
+import { act } from "react";
 import type { ReactNode } from "react";
+
+import { echoData, messageData } from "./support/codecs.ts";
 
 // Route specs (identity + data codec) declared before the components that read them.
 const paramSpec = { data: echoData, id: "param" } as const;
@@ -94,7 +96,7 @@ describe("route loaders", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -138,7 +140,7 @@ describe("route loaders", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -171,7 +173,7 @@ describe("route loaders", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -221,7 +223,7 @@ describe("route loaders", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -273,7 +275,7 @@ describe("route loaders", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -306,7 +308,7 @@ describe("route loaders", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -366,7 +368,7 @@ describe("route loaders", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -416,7 +418,7 @@ describe("route loaders", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -485,7 +487,7 @@ describe("route loaders", () => {
       <RouterProvider router={router}>
         <Outlet />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 

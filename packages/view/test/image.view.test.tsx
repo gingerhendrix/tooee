@@ -1,9 +1,11 @@
-import { act } from "react";
 import { afterEach, describe, expect, test } from "bun:test";
-import { testRender } from "@tooee/test-support";
+
 import { TooeeProvider } from "@tooee/shell";
-import { View } from "../src/view.js";
+import { testRender } from "@tooee/test-support";
+import { act } from "react";
+
 import type { ContentProvider } from "../src/types.js";
+import { View } from "../src/view.js";
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
@@ -16,7 +18,7 @@ const renderProvider = async function renderProvider(provider: ContentProvider) 
     <TooeeProvider>
       <View contentProvider={provider} />
     </TooeeProvider>,
-    { height: 60, width: 80 },
+    { height: 60, width: 80 }
   );
   await testSetup.renderOnce();
   await act(async () => {

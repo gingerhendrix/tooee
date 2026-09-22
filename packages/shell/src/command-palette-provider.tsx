@@ -1,5 +1,3 @@
-import { createElement, useCallback } from "react";
-import type { ReactNode } from "react";
 import {
   selectActivePanelSurface,
   useCommand,
@@ -9,6 +7,9 @@ import {
 } from "@tooee/commands";
 import { useOverlay } from "@tooee/overlays";
 import type { OverlayCloseReason } from "@tooee/overlays";
+import { createElement, useCallback } from "react";
+import type { ReactNode } from "react";
+
 import { CommandPaletteOverlay } from "./command-palette-overlay.js";
 
 const OVERLAY_ID = "command-palette";
@@ -52,7 +53,7 @@ export const CommandPaletteProvider = function CommandPaletteProvider({
           launchMode,
         }),
       null,
-      { ownCommands: true, role: "modal", surfaceMode: "insert" },
+      { ownCommands: true, role: "modal", surfaceMode: "insert" }
     );
   }, [overlay, mode, commands, invoke, commandStore]);
 

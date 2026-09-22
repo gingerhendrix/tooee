@@ -1,10 +1,11 @@
-import { testRender, press } from "@tooee/test-support";
-import type { TestSession } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
-import { TooeeProvider, WhichKeyOverlay } from "@tooee/shell";
+
 import { useActions, useCommand, useCommandGroup, useCommandSequenceState } from "@tooee/commands";
 import type { CommandSequenceState, ParsedStep } from "@tooee/commands";
 import { useCurrentOverlay, useHasOverlay } from "@tooee/overlays";
+import { TooeeProvider, WhichKeyOverlay } from "@tooee/shell";
+import { testRender, press } from "@tooee/test-support";
+import type { TestSession } from "@tooee/test-support";
 import type { ReactNode } from "react";
 
 const step = function step(key: string): ParsedStep {
@@ -214,7 +215,7 @@ describe("which-key", () => {
       <TooeeProvider leader="space">
         <WhichKeyOverlay state={state} />
       </TooeeProvider>,
-      { height: 24, kittyKeyboard: true, width: 80 },
+      { height: 24, kittyKeyboard: true, width: 80 }
     );
     await testSetup.renderOnce();
 

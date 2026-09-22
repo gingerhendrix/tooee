@@ -1,5 +1,5 @@
-import type { HunkDiffThemeName } from "hunkdiff/opentui";
 import type { ResolvedTheme } from "@tooee/themes";
+import type { HunkDiffThemeName } from "hunkdiff/opentui";
 
 /**
  * Hunk resolves one of its own bundled palettes by name; it accepts no custom
@@ -86,7 +86,7 @@ export const isLightBackground = function isLightBackground(color: string): bool
  */
 export const resolveHunkDiffTheme = function resolveHunkDiffTheme(
   themeName: string,
-  theme: ResolvedTheme,
+  theme: ResolvedTheme
 ): HunkDiffThemeName {
   const pair = HUNK_THEME_BY_NAME.get(themeName) ?? GITHUB;
   return isLightBackground(theme.background) ? pair.light : pair.dark;

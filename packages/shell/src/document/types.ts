@@ -1,4 +1,3 @@
-import type { Key } from "react";
 import type { MouseEvent } from "@opentui/core";
 import type { ActionDefinition, CommandContext } from "@tooee/commands";
 import type {
@@ -9,6 +8,8 @@ import type {
   DocumentRowSource as RendererDocumentRowSource,
 } from "@tooee/renderers";
 import type { SearchState } from "@tooee/search";
+import type { Key } from "react";
+
 import type { NavigationState } from "../navigation.js";
 
 /**

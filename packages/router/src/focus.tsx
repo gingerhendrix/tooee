@@ -1,6 +1,6 @@
+import { useScreenScope } from "@tooee/commands";
 import { createContext, useContext, useEffect, useMemo, useRef } from "react";
 import type { EffectCallback, ReactNode } from "react";
-import { useScreenScope } from "@tooee/commands";
 
 /**
  * Route-chain leaf flag. Set by `Outlet` at each depth to `isTopOfStack`, with

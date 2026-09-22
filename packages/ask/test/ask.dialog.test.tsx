@@ -1,13 +1,15 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { act, useRef, useState } from "react";
-import { TooeeProvider } from "@tooee/shell";
+
 import { useCommand } from "@tooee/commands";
 import { useCurrentOverlay, useOverlay, useOverlayState } from "@tooee/overlays";
 import type { OverlayController, OverlayHandle } from "@tooee/overlays";
+import { TooeeProvider } from "@tooee/shell";
 import { testRender, expectDefined } from "@tooee/test-support";
+import { act, useRef, useState } from "react";
+import type { ReactNode } from "react";
+
 import { useAskDialog } from "../src/use-ask-dialog.js";
 import type { AskDialogHandle } from "../src/use-ask-dialog.js";
-import type { ReactNode } from "react";
 
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
@@ -133,7 +135,7 @@ const setup = async function setup() {
     <TooeeProvider>
       <Harness />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await session.renderOnce();
   return session;
@@ -142,7 +144,7 @@ const setup = async function setup() {
 const openDialog = async function openDialog(
   open: (options: { prompt: string }) => Promise<string | null>,
   prompt: string,
-  label: string,
+  label: string
 ) {
   await act(async () => {
     void open({ prompt }).then(record(label));
@@ -160,7 +162,7 @@ describe("useAskDialog settlement", () => {
         return result;
       },
       "Question?",
-      "ask",
+      "ask"
     );
     expect(testSetup.captureCharFrame()).toContain("Question?");
 
@@ -180,7 +182,7 @@ describe("useAskDialog settlement", () => {
         return result;
       },
       "Question?",
-      "ask",
+      "ask"
     );
 
     await pressEscape();
@@ -198,7 +200,7 @@ describe("useAskDialog settlement", () => {
         return result;
       },
       "Question?",
-      "ask",
+      "ask"
     );
 
     await pressEscape();
@@ -219,7 +221,7 @@ describe("useAskDialog settlement", () => {
         return result;
       },
       "Question?",
-      "ask",
+      "ask"
     );
 
     const topId = expectDefined(expectDefined(handles.current).stackIds().at(-1));
@@ -232,7 +234,7 @@ describe("useAskDialog settlement", () => {
         {
           ownCommands: true,
           role: "modal",
-        },
+        }
       );
       await Promise.resolve();
     });
@@ -260,7 +262,7 @@ describe("useAskDialog settlement", () => {
         return result;
       },
       "Owned?",
-      "owned",
+      "owned"
     );
     expect(testSetup.captureCharFrame()).toContain("Owned?");
 

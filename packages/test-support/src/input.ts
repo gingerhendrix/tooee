@@ -1,12 +1,13 @@
-import type { testRender } from "./test-render.js";
 import { act } from "react";
+
+import type { testRender } from "./test-render.js";
 
 export type TestSession = Awaited<ReturnType<typeof testRender>>;
 
 export const press = async function press(
   session: TestSession,
   key: string,
-  modifiers?: { ctrl?: boolean; shift?: boolean },
+  modifiers?: { ctrl?: boolean; shift?: boolean }
 ) {
   await act(async () => {
     session.mockInput.pressKey(key, modifiers);
@@ -17,7 +18,7 @@ export const press = async function press(
 
 export const pressTab = async function pressTab(
   session: TestSession,
-  modifiers?: { shift?: boolean },
+  modifiers?: { shift?: boolean }
 ) {
   await act(async () => {
     session.mockInput.pressTab(modifiers);

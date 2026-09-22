@@ -1,6 +1,12 @@
-import { useCallback, useMemo, useRef, Fragment } from "react";
-import type { ReactNode } from "react";
-import { useSelector } from "@xstate/store-react";
+import {
+  useMode,
+  useSetMode,
+  useProvideCommandContext,
+  useCommand,
+  useCommandStore,
+  CommandSurfaceProvider,
+} from "@tooee/commands";
+import type { Mode } from "@tooee/commands";
 import {
   OverlayControllerContext,
   OverlayStateContext,
@@ -19,15 +25,9 @@ import type {
   OverlayStore,
   OverlayUpdate,
 } from "@tooee/overlays";
-import {
-  useMode,
-  useSetMode,
-  useProvideCommandContext,
-  useCommand,
-  useCommandStore,
-  CommandSurfaceProvider,
-} from "@tooee/commands";
-import type { Mode } from "@tooee/commands";
+import { useSelector } from "@xstate/store-react";
+import { useCallback, useMemo, useRef, Fragment } from "react";
+import type { ReactNode } from "react";
 
 declare module "@tooee/commands" {
   interface CommandContext {
@@ -110,7 +110,7 @@ export const OverlayProvider = function OverlayProvider({
     (id: OverlayId, reason: OverlayCloseReason) => {
       overlayStore.trigger.closed({ id, reason });
     },
-    [overlayStore],
+    [overlayStore]
   );
 
   const open = useCallback(
@@ -118,7 +118,7 @@ export const OverlayProvider = function OverlayProvider({
       id: OverlayId,
       render: OverlayRenderer<TPayload>,
       payload: TPayload,
-      options: OverlayOpenOptions = {},
+      options: OverlayOpenOptions = {}
     ): OverlayHandle<TPayload> => {
       const prevMode = modeRef.current;
       // Owned command surfaces carry their own local mode and never touch the
@@ -153,21 +153,21 @@ export const OverlayProvider = function OverlayProvider({
 
       return handle;
     },
-    [overlayStore, setMode, removeEntry],
+    [overlayStore, setMode, removeEntry]
   );
 
   const update = useCallback(
     <TPayload,>(id: OverlayId, next: OverlayUpdate<TPayload>) => {
       overlayStore.trigger.updated({ id, next: eraseUpdate(next) });
     },
-    [overlayStore],
+    [overlayStore]
   );
 
   const closeTop = useCallback(
     (reason: OverlayCloseReason = "close") => {
       overlayStore.trigger.closedTop({ reason });
     },
-    [overlayStore],
+    [overlayStore]
   );
 
   const topId = stack.at(-1)?.id ?? null;
@@ -179,7 +179,7 @@ export const OverlayProvider = function OverlayProvider({
       topId,
       update,
     }),
-    [open, update, closeTop, topId],
+    [open, update, closeTop, topId]
   );
 
   useProvideCommandContext(() => ({ overlay: controller }));
@@ -252,7 +252,7 @@ export const OverlayProvider = function OverlayProvider({
     // and never own input, so they don't count as modal. Everything else —
     // legacy overlays and modal owned surfaces — does.
     hasModalOverlay: stack.some(
-      (e) => !(e.options.ownCommands === true && e.options.role === "passive"),
+      (e) => !(e.options.ownCommands === true && e.options.role === "passive")
     ),
     hasOverlay: stack.length > 0,
     stack: stack.map((e) => e.id),

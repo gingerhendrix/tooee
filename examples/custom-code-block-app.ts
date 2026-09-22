@@ -23,9 +23,9 @@
  * Controls: j/k scroll, c cursor mode, h/l pan wide blocks, q quit, t themes
  */
 
-import { createElement } from "react";
 import { launch, CodeBlockChrome } from "@tooee/view";
 import type { ContentProvider, CodeBlockRendererProps } from "@tooee/view";
+import { createElement } from "react";
 import type { ReactNode } from "react";
 
 type Theme = CodeBlockRendererProps["theme"];
@@ -140,7 +140,7 @@ const ProgressRenderer = function ProgressRenderer({
     });
 
   const invalid = rows.some(
-    (row) => row.label === "" || !Number.isFinite(row.value) || row.value < 0 || row.value > 100,
+    (row) => row.label === "" || !Number.isFinite(row.value) || row.value < 0 || row.value > 100
   );
   if (rows.length === 0 || invalid) {
     return null;
@@ -159,9 +159,9 @@ const ProgressRenderer = function ProgressRenderer({
         h("span", { fg: theme.textMuted }, `${row.label.padEnd(labelWidth)} `),
         h("span", { fg: row.value >= 100 ? theme.success : theme.accent }, "█".repeat(filled)),
         h("span", { fg: theme.borderSubtle }, "░".repeat(PROGRESS_BAR_WIDTH - filled)),
-        h("span", { fg: theme.text }, ` ${String(row.value).padStart(3)}%`),
+        h("span", { fg: theme.text }, ` ${String(row.value).padStart(3)}%`)
       );
-    }),
+    })
   );
 };
 
@@ -213,10 +213,9 @@ const CalloutRenderer = function CalloutRenderer({
       },
     },
     h("text", { style: { height: 1 } }, h("span", { fg: color }, `● ${style.label}`)),
-    ...lines.map(
-      (line, i): ReactNode =>
-        h("text", { content: line, key: i, style: { fg: theme.text, height: 1 } }),
-    ),
+    ...lines.map((line, i): ReactNode =>
+      h("text", { content: line, key: i, style: { fg: theme.text, height: 1 } })
+    )
   );
 };
 
@@ -256,7 +255,7 @@ const TimelineRenderer = function TimelineRenderer({
       !Number.isFinite(row.duration) ||
       row.start < 0 ||
       row.duration <= 0 ||
-      row.start + row.duration > TIMELINE_HOURS,
+      row.start + row.duration > TIMELINE_HOURS
   );
   if (rows.length === 0 || invalid) {
     return null;
@@ -290,7 +289,7 @@ const TimelineRenderer = function TimelineRenderer({
       ref: hScroll.register,
       style: { fg: theme.markdownText, height: lines.length },
       wrapMode: "none",
-    }),
+    })
   );
 };
 

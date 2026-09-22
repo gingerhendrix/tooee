@@ -1,6 +1,8 @@
 import { test, expect, describe } from "bun:test";
-import { flattenMarkdown, getFlatBlockText } from "../src/markdown-blocks.js";
+
 import { expectDefined } from "@tooee/test-support";
+
+import { flattenMarkdown, getFlatBlockText } from "../src/markdown-blocks.js";
 import type { FlatBlock } from "../src/markdown-blocks.js";
 
 /** Compact per-row projection: order, kind, bullet/checkbox, semantic text, and exact source. */
@@ -303,7 +305,7 @@ describe("flattenMarkdown row order and provenance", () => {
     // The second fence resolves to its own occurrence, not back to the first.
     expect(expectDefined(expectDefined(result[1]).source).s).toBe(11);
     expect(expectDefined(expectDefined(result[1]).source).s).toBeGreaterThan(
-      expectDefined(expectDefined(result[0]).source).e,
+      expectDefined(expectDefined(result[0]).source).e
     );
   });
 
@@ -382,18 +384,18 @@ describe("flattenMarkdown row order and provenance", () => {
         // Row order and semantic text agree; CRLF offsets address the \r\n string.
         expect(lfRows.map((r) => r.text)).toEqual(crlfRows.map((r) => r.text));
         expect(lfRows.map((r) => expectDefined(r.source).sl)).toEqual(
-          crlfRows.map((r) => expectDefined(r.source).sl),
+          crlfRows.map((r) => expectDefined(r.source).sl)
         );
         expect(lfRows.map((r) => expectDefined(r.source).t)).toEqual(
-          crlfRows.map((r) => expectDefined(r.source).t),
+          crlfRows.map((r) => expectDefined(r.source).t)
         );
         expect(lfRows.map((r) => expectDefined(r.source).line)).toEqual(
-          crlfRows.map((r) => expectDefined(r.source).line),
+          crlfRows.map((r) => expectDefined(r.source).line)
         );
 
         // The second paragraph starts later under CRLF (extra \r per break).
         expect(expectDefined(expectDefined(crlfRows[1]).source).s).toBeGreaterThan(
-          expectDefined(expectDefined(lfRows[1]).source).s,
+          expectDefined(expectDefined(lfRows[1]).source).s
         );
         // lineText excludes the \r\n delimiter.
         expect(expectDefined(expectDefined(crlfRows[0]).source).line).toBe("para one");
@@ -460,7 +462,7 @@ describe("flattenMarkdown row order and provenance", () => {
 describe("getFlatBlockText", () => {
   test("uses token raw for content rows and visible bullet text for synthetic rows", () => {
     const synthetic = flattenMarkdown("1. first\n2.\n   - nested").find(
-      (block) => block.token.raw === "",
+      (block) => block.token.raw === ""
     );
     // For a bullet-only synthetic row, text falls back to the visible bullet.
     expect(synthetic).toBeDefined();

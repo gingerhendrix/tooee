@@ -1,7 +1,9 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
-import { ThemeProvider } from "@tooee/themes";
+
 import { MarkdownView } from "@tooee/renderers";
+import { testRender } from "@tooee/test-support";
+import { ThemeProvider } from "@tooee/themes";
+
 import { DIFF_CODE_BLOCK_RENDERERS, parseDiffFenceOptions } from "../src/diff-code-block.js";
 import { MULTI_FILE_PATCH } from "./fixtures.js";
 
@@ -17,7 +19,7 @@ const renderMarkdown = async function renderMarkdown(markdown: string, width = 1
     <ThemeProvider name="github" mode="dark">
       <MarkdownView content={markdown} codeBlockRenderers={DIFF_CODE_BLOCK_RENDERERS} />
     </ThemeProvider>,
-    { height: 40, width },
+    { height: 40, width }
   );
   await testSetup.renderOnce();
   return testSetup.captureCharFrame();

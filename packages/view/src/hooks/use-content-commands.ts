@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { useCopyCommand, useToggleLineNumbersCommand } from "@tooee/shell";
 import { useConfig } from "@tooee/config";
+import { useCopyCommand, useToggleLineNumbersCommand } from "@tooee/shell";
+import { useState } from "react";
+
 import type { AnyContent } from "../types.js";
 
 interface UseContentCommandsParams {

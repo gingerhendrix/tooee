@@ -1,7 +1,7 @@
 import { tegami } from "tegami";
+import type { TegamiPlugin } from "tegami";
 import { runCli } from "tegami/cli";
 import { github } from "tegami/plugins/github";
-import type { TegamiPlugin } from "tegami";
 
 /** Preserve Tooee's existing shared v<version> tag and GitHub release. */
 const sharedReleaseTag = (): TegamiPlugin => ({
@@ -22,7 +22,7 @@ const sharedReleaseTag = (): TegamiPlugin => ({
 
     if (versions.size > 1) {
       throw new Error(
-        `Tooee release packages have mismatched versions: ${[...versions].join(", ")}`,
+        `Tooee release packages have mismatched versions: ${[...versions].join(", ")}`
       );
     }
   },

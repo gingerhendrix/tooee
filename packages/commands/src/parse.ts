@@ -72,7 +72,7 @@ export const parseHotkey = function parseHotkey(hotkey: string, leaderKey?: stri
       // No leader configured: the hotkey must not spring to life on some
       // invented default. Zero steps = unmatchable; the dispatcher skips it.
       warnOnce(
-        `[tooee/commands] Hotkey "${trimmed}" uses <leader> but no leader key is configured; the hotkey is disabled.`,
+        `[tooee/commands] Hotkey "${trimmed}" uses <leader> but no leader key is configured; the hotkey is disabled.`
       );
       return { steps: [] };
     }

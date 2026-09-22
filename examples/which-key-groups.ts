@@ -18,13 +18,13 @@
  *   q            — quit
  */
 
-import { createElement, useMemo, useState } from "react";
-import type { ComponentType, ReactNode } from "react";
 import { useActions, useCommandGroup } from "@tooee/commands";
 import type { ActionDefinition } from "@tooee/commands";
 import { AppLayout } from "@tooee/layout";
 import { launchCli, useQuitCommand } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
+import { createElement, useMemo, useState } from "react";
+import type { ComponentType, ReactNode } from "react";
 
 const h = function h<Props extends object>(
   tag: string | ComponentType<Props>,
@@ -213,7 +213,7 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
         title: "Hidden maintenance action",
       },
     ],
-    [],
+    []
   );
 
   useActions(actions);
@@ -247,14 +247,13 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
     h("text", { content: "" }),
     h("text", { content: `Last action: ${lastAction}`, fg: theme.accent }),
     h("text", { content: "" }),
-    ...lines.map(
-      (line, i): ReactNode =>
-        h("text", {
-          content: line,
-          fg: line.startsWith("#") ? theme.primary : theme.text,
-          key: i,
-        }),
-    ),
+    ...lines.map((line, i): ReactNode =>
+      h("text", {
+        content: line,
+        fg: line.startsWith("#") ? theme.primary : theme.text,
+        key: i,
+      })
+    )
   );
 
   return h(
@@ -264,7 +263,7 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
       statusBar: { items: [{ label: "Mode:", value: "cursor" }] },
       titleBar: { title: "Which-key Groups Demo" },
     },
-    content,
+    content
   );
 };
 

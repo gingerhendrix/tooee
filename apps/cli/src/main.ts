@@ -1,4 +1,8 @@
 #!/usr/bin/env bun
+import { statSync } from "node:fs";
+
+import { launch as launchAsk } from "@tooee/ask";
+import { launch as launchChoose, createStdinChooseProvider } from "@tooee/choose";
 import {
   launch as launchView,
   launchDirectory,
@@ -6,9 +10,6 @@ import {
   createStdinProvider,
 } from "@tooee/view";
 import type { ContentFormat } from "@tooee/view";
-import { statSync } from "node:fs";
-import { launch as launchAsk } from "@tooee/ask";
-import { launch as launchChoose, createStdinChooseProvider } from "@tooee/choose";
 
 const [command, ...args] = process.argv.slice(2);
 
@@ -116,7 +117,7 @@ try {
     case "ask": {
       const singleLine = args.includes("--single-line") || args.includes("-s");
       const filtered = args.filter(
-        (a) => a !== "--multiline" && a !== "-m" && a !== "--single-line" && a !== "-s",
+        (a) => a !== "--multiline" && a !== "-m" && a !== "--single-line" && a !== "-s"
       );
       const prompt = filtered.join(" ") || undefined;
       const result = await launchAsk({ multiline: !singleLine, prompt });

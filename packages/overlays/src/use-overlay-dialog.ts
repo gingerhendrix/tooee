@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
+
 import { useOverlay } from "./overlay-context.js";
 import type { OverlayHandle } from "./overlay-context.js";
 
@@ -11,7 +12,7 @@ export interface OverlayDialogHandle<TResult> {
   /** Open one owned modal overlay and resolve when it settles or closes. */
   open: (
     id: string,
-    render: (settle: OverlayDialogSettle<TResult>) => ReactNode,
+    render: (settle: OverlayDialogSettle<TResult>) => ReactNode
   ) => Promise<TResult | null>;
 }
 

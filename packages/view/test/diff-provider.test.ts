@@ -1,5 +1,6 @@
 import { test, expect, describe } from "bun:test";
 import path from "node:path";
+
 import { createFileProvider } from "../src/default-provider.js";
 import { getTextContent } from "../src/types.js";
 

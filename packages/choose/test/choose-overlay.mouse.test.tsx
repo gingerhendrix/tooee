@@ -1,8 +1,10 @@
-import { testRender, ensureTestConfigHome, resetTestConfig } from "@tooee/test-support";
 import { test, expect, describe, afterEach, beforeEach } from "bun:test";
-import { act } from "react";
+
 import { MouseButtons } from "@opentui/core/testing";
 import { TooeeProvider } from "@tooee/shell";
+import { testRender, ensureTestConfigHome, resetTestConfig } from "@tooee/test-support";
+import { act } from "react";
+
 import { ChooseOverlay } from "../src/choose-overlay.js";
 import type { ChooseItem } from "../src/types.js";
 
@@ -53,7 +55,7 @@ const setup = async function setup(opts: {
         onCancel={opts.onCancel ?? (() => {})}
       />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 60 },
+    { height: 24, kittyKeyboard: true, width: 60 }
   );
   await s.renderOnce();
   return s;

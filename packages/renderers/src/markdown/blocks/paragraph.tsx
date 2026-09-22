@@ -1,7 +1,8 @@
+import type { ResolvedTheme } from "@tooee/themes";
 import type { Tokens } from "marked";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import type { ResolvedTheme } from "@tooee/themes";
+
 import { resolveMarkdownImageSource, splitMarkdownImages } from "../../markdown-images.js";
 import type { MarkdownImageEmbed } from "../../markdown-images.js";
 import { InlineTokens } from "../inline.js";
@@ -71,19 +72,18 @@ export const ParagraphRenderer = function ParagraphRenderer({
         marginRight: 1,
       }}
     >
-      {segments.map(
-        (segment, index): ReactNode =>
-          segment.type === "image" ? (
-            <MarkdownImage key={index} image={segment} basePath={imageBasePath} theme={theme} />
-          ) : (
-            <text
-              key={index}
-              style={{ fg: theme.markdownText }}
-              onMouseDown={linkMouseHandler(segment.tokens, onLinkActivate)}
-            >
-              <InlineTokens tokens={segment.tokens} theme={theme} />
-            </text>
-          ),
+      {segments.map((segment, index): ReactNode =>
+        segment.type === "image" ? (
+          <MarkdownImage key={index} image={segment} basePath={imageBasePath} theme={theme} />
+        ) : (
+          <text
+            key={index}
+            style={{ fg: theme.markdownText }}
+            onMouseDown={linkMouseHandler(segment.tokens, onLinkActivate)}
+          >
+            <InlineTokens tokens={segment.tokens} theme={theme} />
+          </text>
+        )
       )}
     </box>
   );

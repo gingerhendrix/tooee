@@ -1,5 +1,6 @@
-import { testRender, copied } from "@tooee/test-support";
 import { test, expect, afterEach, beforeEach, describe } from "bun:test";
+
+import { testRender, copied } from "@tooee/test-support";
 import type { ReactNode } from "react";
 
 const { TooeeProvider, useDocumentController, Document } = await import("@tooee/shell");
@@ -68,7 +69,7 @@ const setup = async function setup(copy?: boolean, rows?: Row[]) {
     <TooeeProvider>
       <Harness copy={copy} rows={rows} />
     </TooeeProvider>,
-    { height: 12, kittyKeyboard: true, width: 40 },
+    { height: 12, kittyKeyboard: true, width: 40 }
   );
   await session.renderOnce();
   return session;

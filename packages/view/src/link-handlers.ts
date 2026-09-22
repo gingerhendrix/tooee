@@ -1,6 +1,8 @@
 import path from "node:path";
+
 import type { CommandContext } from "@tooee/commands";
 import type { NavigateHandle, RouteDefinition } from "@tooee/router";
+
 import { resolveMarkdownLink } from "./markdown-links.js";
 
 export interface LinkTarget {
@@ -44,7 +46,7 @@ export const localFileLinkHandler: LinkHandler = function localFileLinkHandler(l
 export const runLinkHandlers = function runLinkHandlers(
   handlers: readonly LinkHandler[],
   link: LinkTarget,
-  context: LinkHandlerContext,
+  context: LinkHandlerContext
 ): boolean {
   for (const handler of handlers) {
     // oxlint-disable-next-line typescript/no-unnecessary-boolean-literal-compare -- preserve exact-true consumption for JavaScript callers too

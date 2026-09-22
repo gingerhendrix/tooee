@@ -1,6 +1,7 @@
+import type { ResolvedTheme } from "@tooee/themes";
 import type { Token } from "marked";
 import type { ReactNode } from "react";
-import type { ResolvedTheme } from "@tooee/themes";
+
 import { checkboxMarker } from "../../markdown-blocks.js";
 import type { FlatBlock } from "../../markdown-blocks.js";
 import { InlineTokens } from "../inline.js";
@@ -38,7 +39,7 @@ export const ListLineRenderer = function ListLineRenderer({
         onMouseDown={linkMouseHandler(
           inlineTokens,
           onLinkActivate,
-          Bun.stringWidth(`${bullet}${checkboxPrefix}`),
+          Bun.stringWidth(`${bullet}${checkboxPrefix}`)
         )}
       >
         <span fg={theme.markdownListItem}>{bullet}</span>

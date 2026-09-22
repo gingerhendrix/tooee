@@ -1,7 +1,9 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
-import { act } from "react";
+
+import { testRender } from "@tooee/test-support";
 import { ThemeProvider } from "@tooee/themes";
+import { act } from "react";
+
 import { DiffView, effectiveLayout } from "../src/diff-view.js";
 import { buildDiffModel } from "../src/model.js";
 import { MULTI_FILE_PATCH, RENAME_AND_BINARY_PATCH } from "./fixtures.js";
@@ -18,14 +20,14 @@ const DEFAULT_SIZE = { height: 40, width: 100 };
 const renderDiff = async function renderDiff(
   patch: string,
   props: Partial<Parameters<typeof DiffView>[0]> = {},
-  size = DEFAULT_SIZE,
+  size = DEFAULT_SIZE
 ) {
   const model = buildDiffModel(patch);
   testSetup = await testRender(
     <ThemeProvider name="github" mode="dark">
       <DiffView rows={model.rows} {...props} />
     </ThemeProvider>,
-    size,
+    size
   );
   await testSetup.renderOnce();
   return testSetup.captureCharFrame();
@@ -76,14 +78,14 @@ describe("DiffView", () => {
       <ThemeProvider name="github" mode="dark">
         <DiffView rows={model.rows} layout="split" />
       </ThemeProvider>,
-      { height: 40, width: 120 },
+      { height: 40, width: 120 }
     );
     await testSetup.renderOnce();
     expect(
       testSetup
         .captureCharFrame()
         .split("\n")
-        .find((line) => line.includes("const b = 22;")),
+        .find((line) => line.includes("const b = 22;"))
     ).toContain("const b = 2;");
 
     await act(async () => {
@@ -96,7 +98,7 @@ describe("DiffView", () => {
       testSetup
         .captureCharFrame()
         .split("\n")
-        .find((line) => line.includes("const b = 22;")),
+        .find((line) => line.includes("const b = 22;"))
     ).not.toContain("const b = 2;");
   });
 });

@@ -1,8 +1,9 @@
 import { useTerminalDimensions } from "@opentui/react";
 import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
+
 import { useToast } from "./toast-provider.js";
 import type { ToastLevel } from "./types.js";
-import type { ReactNode } from "react";
 
 const LEVEL_ICONS = {
   error: "✗",
@@ -13,7 +14,7 @@ const LEVEL_ICONS = {
 
 const getLevelColor = function getLevelColor(
   theme: ReturnType<typeof useTheme>["theme"],
-  level: ToastLevel,
+  level: ToastLevel
 ): string {
   switch (level) {
     case "info": {

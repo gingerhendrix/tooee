@@ -1,7 +1,8 @@
-import type { ReactNode } from "react";
 import type { ExtendedComponentProps } from "@opentui/react";
 import type { RowDocumentRenderable } from "@tooee/renderers";
+import type { ReactNode } from "react";
 import "@tooee/renderers/row-document";
+
 import type { DocumentController } from "./types.js";
 
 export type RowDocumentProps = ExtendedComponentProps<typeof RowDocumentRenderable>;
@@ -40,11 +41,9 @@ export const Document = function Document<T>({
       decorations={controller.decorations}
       onMouseDown={handleMouseDown}
     >
-      {controller.rows.map(
-        (row, index): ReactNode => (
-          <box key={controller.getRowKey(index)}>{renderRow(row, index)}</box>
-        ),
-      )}
+      {controller.rows.map((row, index): ReactNode => (
+        <box key={controller.getRowKey(index)}>{renderRow(row, index)}</box>
+      ))}
     </row-document>
   );
 };

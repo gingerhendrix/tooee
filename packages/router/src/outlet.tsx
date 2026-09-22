@@ -1,9 +1,10 @@
 import { createContext, createElement, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import type { AnyRoute, StackEntry } from "./types.js";
+
 import { useRouterInstance, useRouterStack, StackEntryIndexContext } from "./context.js";
 import { ScreenFocusProvider } from "./focus.js";
 import { RouteDataProvider } from "./loader.js";
+import type { AnyRoute, StackEntry } from "./types.js";
 
 // Depth tracking context
 
@@ -13,7 +14,7 @@ const OutletDepthContext = createContext<number>(0);
 
 export const getRouteChain = function getRouteChain(
   routeMap: { get: (id: string) => AnyRoute | undefined },
-  routeId: string,
+  routeId: string
 ): AnyRoute[] {
   const chain: AnyRoute[] = [];
   let current = routeMap.get(routeId);
@@ -103,7 +104,7 @@ export const Outlet = function Outlet(): ReactNode {
 
   const chain = getRouteChain(
     { get: (id: string) => router.getRouteDefinition(id) },
-    topEntry.routeId,
+    topEntry.routeId
   );
 
   const routeAtDepth = chain[depth];

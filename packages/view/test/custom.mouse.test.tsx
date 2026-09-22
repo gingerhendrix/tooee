@@ -1,11 +1,13 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
-import { act } from "react";
+
 import { MouseButtons } from "@opentui/core/testing";
 import { TooeeProvider } from "@tooee/shell";
-import { View } from "../src/view.js";
-import type { AnyContent, ContentProvider, ContentRenderer } from "../src/types.js";
+import { testRender } from "@tooee/test-support";
+import { act } from "react";
 import type { ReactNode } from "react";
+
+import type { AnyContent, ContentProvider, ContentRenderer } from "../src/types.js";
+import { View } from "../src/view.js";
 
 const CONTENT: AnyContent = {
   data: {},
@@ -66,7 +68,7 @@ const setup = async function setup(renderer: ContentRenderer) {
     <TooeeProvider>
       <View contentProvider={PROVIDER} renderers={{ chart: renderer }} />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await s.renderOnce();
   await act(async () => {

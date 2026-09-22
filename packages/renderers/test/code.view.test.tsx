@@ -1,6 +1,8 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach } from "bun:test";
+
+import { testRender } from "@tooee/test-support";
 import { ThemeSwitcherProvider } from "@tooee/themes";
+
 import { CodeView } from "../src/code-view.js";
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
@@ -14,7 +16,7 @@ test("renders code content", async () => {
     <ThemeSwitcherProvider>
       <CodeView content={"function hello() {\n  return 42\n}"} />
     </ThemeSwitcherProvider>,
-    { height: 24, width: 80 },
+    { height: 24, width: 80 }
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -27,7 +29,7 @@ test("shows line numbers by default", async () => {
     <ThemeSwitcherProvider>
       <CodeView content={"line one\nline two\nline three"} />
     </ThemeSwitcherProvider>,
-    { height: 24, width: 80 },
+    { height: 24, width: 80 }
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -41,7 +43,7 @@ test("hides line numbers when disabled", async () => {
     <ThemeSwitcherProvider>
       <CodeView content="only content" showLineNumbers={false} />
     </ThemeSwitcherProvider>,
-    { height: 24, width: 80 },
+    { height: 24, width: 80 }
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -53,7 +55,7 @@ test("snapshot", async () => {
     <ThemeSwitcherProvider>
       <CodeView content={"const x = 1\nconst y = 2"} language="js" />
     </ThemeSwitcherProvider>,
-    { height: 8, width: 40 },
+    { height: 8, width: 40 }
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();

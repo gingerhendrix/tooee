@@ -1,4 +1,5 @@
 import { createStore } from "@xstate/store";
+
 import { fuzzyFilter } from "./fuzzy.js";
 import type { FuzzyMatch } from "./fuzzy.js";
 import type { ChooseItem } from "./types.js";
@@ -33,7 +34,7 @@ export type ChooseStoreEvents = {
 
 const replaceItems = function replaceItems(
   ctx: ChooseStoreContext,
-  items: ChooseItem[],
+  items: ChooseItem[]
 ): ChooseStoreContext {
   return {
     ...ctx,

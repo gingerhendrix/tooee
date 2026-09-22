@@ -1,6 +1,6 @@
+import type { CommandSurfaceRole, Mode } from "@tooee/commands";
 import { createContext, useContext } from "react";
 import type { ReactNode } from "react";
-import type { CommandSurfaceRole, Mode } from "@tooee/commands";
 
 // Types
 
@@ -49,14 +49,14 @@ export type OverlayUpdate<TPayload = unknown> =
 
 /** Replace an overlay payload outright (safe even when the payload is a function). */
 export const overlayValue = function overlayValue<TPayload>(
-  value: TPayload,
+  value: TPayload
 ): OverlayUpdate<TPayload> {
   return { kind: "value", value };
 };
 
 /** Derive the next overlay payload from the previous one. */
 export const overlayUpdater = function overlayUpdater<TPayload>(
-  update: (previous: TPayload) => TPayload,
+  update: (previous: TPayload) => TPayload
 ): OverlayUpdate<TPayload> {
   return { kind: "updater", update };
 };
@@ -82,7 +82,7 @@ export interface OverlayController {
     id: OverlayId,
     render: OverlayRenderer<TPayload>,
     payload: TPayload,
-    options?: OverlayOpenOptions,
+    options?: OverlayOpenOptions
   ) => OverlayHandle<TPayload>;
   update: <TPayload>(id: OverlayId, next: OverlayUpdate<TPayload>) => void;
   closeTop: (reason?: OverlayCloseReason) => void;

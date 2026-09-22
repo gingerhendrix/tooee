@@ -134,7 +134,7 @@ export const parseTSV = function parseTSV(input: string): TableData {
   const columns = createColumnDefs(lines[0].split("\t"));
   const rows = buildRows(
     columns,
-    lines.slice(1).map((line) => line.split("\t")),
+    lines.slice(1).map((line) => line.split("\t"))
   );
   return { columns, rows };
 };

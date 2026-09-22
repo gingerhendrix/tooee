@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
-import os from "node:os";
 import { mkdirSync, writeFileSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
+
 import { aggregateMetric } from "./lib/benchmark-result.ts";
 import type { BenchmarkRunResult } from "./lib/benchmark-result.ts";
 
@@ -219,7 +220,7 @@ const runResult: BenchmarkRunResult = {
 console.log("\n## Aggregated benchmark medians");
 for (const result of results) {
   console.log(
-    `${result.name}: median=${formatValue(result.median, result.unit)} p95=${formatValue(result.p95, result.unit)}`,
+    `${result.name}: median=${formatValue(result.median, result.unit)} p95=${formatValue(result.p95, result.unit)}`
   );
 }
 

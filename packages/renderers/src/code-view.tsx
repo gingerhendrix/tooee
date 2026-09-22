@@ -1,9 +1,10 @@
 import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
+
 import type { DocumentBindings } from "./document-bindings.js";
 import { DEFAULT_SIGN_COLUMN_WIDTH } from "./row-document-renderable.js";
-import { useGutterPalette } from "./use-gutter-palette.js";
 import "./row-document.js";
-import type { ReactNode } from "react";
+import { useGutterPalette } from "./use-gutter-palette.js";
 
 interface CodeViewProps {
   content: string;

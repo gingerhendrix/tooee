@@ -1,8 +1,9 @@
+import { test, expect, afterEach, describe } from "bun:test";
+
+import { useMode } from "@tooee/commands";
+import { TooeeProvider, useNavigation } from "@tooee/shell";
 import { testRender, press, pressTab, pressEscape } from "@tooee/test-support";
 import type { TestSession } from "@tooee/test-support";
-import { test, expect, afterEach, describe } from "bun:test";
-import { TooeeProvider, useNavigation } from "@tooee/shell";
-import { useMode } from "@tooee/commands";
 import type { ReactNode } from "react";
 
 const CursorHarness = function CursorHarness({ rowCount }: { rowCount: number }): ReactNode {
@@ -25,7 +26,7 @@ const setup = async function setup(rowCount = 100) {
     <TooeeProvider>
       <CursorHarness rowCount={rowCount} />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 60 },
+    { height: 24, kittyKeyboard: true, width: 60 }
   );
   await session.renderOnce();
   return session;

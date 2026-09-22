@@ -6,9 +6,7 @@ Part of the [Tooee](https://github.com/gingerhendrix/tooee) monorepo. See the ma
 
 ## Session lifecycle
 
-Use `mountTooee` when a host owns the renderer. Unmounting removes only the
-React tree; it never destroys the renderer or installs local terminal-health
-listeners.
+Use `mountTooee` when a host owns the renderer. Unmounting removes only the React tree; it never destroys the renderer or installs local terminal-health listeners.
 
 ```tsx
 const mount = mountTooee(sshRenderer, <App />, {
@@ -18,9 +16,7 @@ const mount = mountTooee(sshRenderer, <App />, {
 mount.unmount();
 ```
 
-Use `launchCli` for a locally owned renderer, or `runCliSession` when the UI
-settles one result. Local handles own renderer destruction, terminal-health
-listeners, and any `/dev/tty` streams opened by the input and output policies.
+Use `launchCli` for a locally owned renderer, or `runCliSession` when the UI settles one result. Local handles own renderer destruction, terminal-health listeners, and any `/dev/tty` streams opened by the input and output policies.
 
 ```tsx
 const result = await runCliSession<string>(
@@ -29,10 +25,8 @@ const result = await runCliSession<string>(
     provider: { initialMode: "insert" },
     stdinPolicy: "tty-if-piped",
     stdoutPolicy: "tty-if-redirected",
-  },
+  }
 );
 ```
 
-Repeated `unmount`, `destroy`, `resolve`, and `cancel` calls are safe. A session
-returns `null` on cancellation. Initialization and render failures reject the
-promise.
+Repeated `unmount`, `destroy`, `resolve`, and `cancel` calls are safe. A session returns `null` on cancellation. Initialization and render failures reject the promise.

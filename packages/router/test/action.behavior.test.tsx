@@ -1,6 +1,5 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
-import { act, useState } from "react";
+
 import {
   createRoute,
   createRouter,
@@ -9,6 +8,8 @@ import {
   useActionResultHandler,
 } from "@tooee/router";
 import type { ActionNavigationResult } from "@tooee/router";
+import { testRender } from "@tooee/test-support";
+import { act, useState } from "react";
 import type { ReactNode } from "react";
 
 // Screens
@@ -62,7 +63,7 @@ describe("useActionResultHandler", () => {
         <Outlet />
         <HandlerCapture />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 80 },
+      { height: 24, kittyKeyboard: true, width: 80 }
     );
     await testSetup.renderOnce();
 
@@ -99,7 +100,7 @@ describe("useActionResultHandler", () => {
         <Outlet />
         <HandlerCapture />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 80 },
+      { height: 24, kittyKeyboard: true, width: 80 }
     );
     await testSetup.renderOnce();
 
@@ -134,7 +135,7 @@ describe("useActionResultHandler", () => {
         <Outlet />
         <HandlerCapture />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 80 },
+      { height: 24, kittyKeyboard: true, width: 80 }
     );
     await testSetup.renderOnce();
 
@@ -168,7 +169,7 @@ describe("useActionResultHandler", () => {
         <Outlet />
         <HandlerCapture />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 80 },
+      { height: 24, kittyKeyboard: true, width: 80 }
     );
     await testSetup.renderOnce();
 
@@ -219,7 +220,7 @@ describe("useActionResultHandler", () => {
         <Outlet />
         <HandlerCapture />
       </RouterProvider>,
-      { height: 24, kittyKeyboard: true, width: 80 },
+      { height: 24, kittyKeyboard: true, width: 80 }
     );
     await testSetup.renderOnce();
 

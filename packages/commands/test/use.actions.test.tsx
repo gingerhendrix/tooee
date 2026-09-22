@@ -1,9 +1,11 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
+
+import { testRender } from "@tooee/test-support";
 import { act, useState } from "react";
+import type { ReactNode } from "react";
+
 import { CommandProvider, useActions, useCommand } from "../src/index.js";
 import type { Mode } from "../src/index.js";
-import type { ReactNode } from "react";
 
 const ModesReregistrationHarness = function ModesReregistrationHarness(): ReactNode {
   const [modes, setModes] = useState<Mode[]>(["cursor"]);
@@ -77,7 +79,7 @@ describe("useActions re-registration key (R-07)", () => {
       <CommandProvider>
         <ModesReregistrationHarness />
       </CommandProvider>,
-      { height: 10, kittyKeyboard: true, width: 60 },
+      { height: 10, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -97,7 +99,7 @@ describe("useActions re-registration key (R-07)", () => {
       <CommandProvider>
         <WhenReregistrationHarness />
       </CommandProvider>,
-      { height: 10, kittyKeyboard: true, width: 60 },
+      { height: 10, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 

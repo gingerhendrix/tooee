@@ -1,7 +1,9 @@
-import { testRender, expectDefined } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
+
+import { testRender, expectDefined } from "@tooee/test-support";
 import { act, useState } from "react";
 import type { ReactNode } from "react";
+
 import {
   CommandProvider,
   CommandSurfaceProvider,
@@ -180,7 +182,7 @@ describe("F-08: mode changes reset a pending chord", () => {
           </CommandSurfaceProvider>
         </box>
       </CommandProvider>,
-      { height: 10, kittyKeyboard: true, width: 60 },
+      { height: 10, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -224,7 +226,7 @@ describe("F-08: mode changes reset a pending chord", () => {
       <CommandProvider>
         <Harness />
       </CommandProvider>,
-      { height: 10, kittyKeyboard: true, width: 60 },
+      { height: 10, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -280,7 +282,7 @@ describe("F-09: surface replacement resets a pending chord", () => {
       <CommandProvider>
         <Harness />
       </CommandProvider>,
-      { height: 10, kittyKeyboard: true, width: 60 },
+      { height: 10, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -309,7 +311,7 @@ describe("reactive registry", () => {
       <CommandProvider>
         <LateRegistryHarness />
       </CommandProvider>,
-      { height: 10, kittyKeyboard: true, width: 60 },
+      { height: 10, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 
@@ -326,7 +328,7 @@ describe("F-13: surface command metadata", () => {
       <CommandProvider>
         <ActiveSurfaceHarness />
       </CommandProvider>,
-      { height: 10, kittyKeyboard: true, width: 80 },
+      { height: 10, kittyKeyboard: true, width: 80 }
     );
     await testSetup.renderOnce();
 
@@ -342,7 +344,7 @@ describe("F-13: surface command metadata", () => {
       <CommandProvider>
         <SurfaceFallbackHarness />
       </CommandProvider>,
-      { height: 10, kittyKeyboard: true, width: 80 },
+      { height: 10, kittyKeyboard: true, width: 80 }
     );
     await testSetup.renderOnce();
 

@@ -1,8 +1,9 @@
+import { useTheme } from "@tooee/themes";
 import { useMemo } from "react";
 import type { ReactNode } from "react";
-import { useTheme } from "@tooee/themes";
-import { Chooser } from "./chooser/chooser.js";
+
 import { ChooseHighlightedText } from "./chooser/choose-highlighted-text.js";
+import { Chooser } from "./chooser/chooser.js";
 import type { ChooseItem } from "./chooser/types.js";
 
 export interface CommandPaletteEntry {
@@ -27,11 +28,11 @@ export const CommandPalette = function CommandPalette({
   const { theme } = useTheme();
   const entriesById = useMemo(
     () => new Map(commands.map((entry) => [entry.id, entry])),
-    [commands],
+    [commands]
   );
   const items = useMemo<ChooseItem[]>(
     () => commands.map((entry) => ({ text: entry.title, value: entry.id })),
-    [commands],
+    [commands]
   );
   const handleSelect = (item: ChooseItem): void => {
     if (item.value !== undefined) {

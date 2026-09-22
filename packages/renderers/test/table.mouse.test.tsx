@@ -1,12 +1,14 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, describe, afterEach } from "bun:test";
-import { act } from "react";
+
 import { MouseButtons } from "@opentui/core/testing";
+import { testRender } from "@tooee/test-support";
 import { ThemeSwitcherProvider } from "@tooee/themes";
+import { act } from "react";
+import type { ReactNode } from "react";
+
 import { Table } from "../src/table.js";
 import { useRowMouseBindings } from "./support/bindings.js";
 import type { RowMouseCallbacks } from "./support/bindings.js";
-import type { ReactNode } from "react";
 
 const cols = function cols(headers: string[]) {
   return headers.map((header, index) => ({ header, key: `col_${index}` }));
@@ -57,7 +59,7 @@ describe("Table mouse interaction", () => {
           }}
         />
       </ThemeSwitcherProvider>,
-      { height: 15, width: 40 },
+      { height: 15, width: 40 }
     );
     await testSetup.renderOnce();
 
@@ -82,7 +84,7 @@ describe("Table mouse interaction", () => {
           }}
         />
       </ThemeSwitcherProvider>,
-      { height: 15, width: 40 },
+      { height: 15, width: 40 }
     );
     await testSetup.renderOnce();
 
@@ -112,7 +114,7 @@ describe("Table mouse interaction", () => {
           }}
         />
       </ThemeSwitcherProvider>,
-      { height: 15, width: 40 },
+      { height: 15, width: 40 }
     );
     await testSetup.renderOnce();
     await act(async () => {
@@ -132,7 +134,7 @@ describe("Table mouse interaction", () => {
           }}
         />
       </ThemeSwitcherProvider>,
-      { height: 15, width: 40 },
+      { height: 15, width: 40 }
     );
     await testSetup.renderOnce();
 

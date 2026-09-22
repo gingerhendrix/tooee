@@ -1,6 +1,8 @@
-import path from "node:path";
 import { describe, expect, test } from "bun:test";
+import path from "node:path";
+
 import { marked } from "marked";
+
 import {
   parseObsidianImageEmbed,
   resolveMarkdownImageSource,
@@ -29,7 +31,7 @@ describe("Obsidian image embeds", () => {
 
   test("splits standard Markdown and Obsidian images from surrounding text", () => {
     const [paragraph] = marked.lexer(
-      "Before ![standard](images/one.png) middle ![[images/two.webp|20x8]] after",
+      "Before ![standard](images/one.png) middle ![[images/two.webp|20x8]] after"
     );
     if (paragraph?.type !== "paragraph") {
       throw new Error("Expected a paragraph token");
@@ -58,13 +60,13 @@ describe("Obsidian image embeds", () => {
 
   test("resolves local links against the Markdown directory and preserves URLs", () => {
     expect(resolveMarkdownImageSource("images/cover.png", "/vault/note-folder")).toBe(
-      path.join("/vault/note-folder", "images/cover.png"),
+      path.join("/vault/note-folder", "images/cover.png")
     );
     expect(resolveMarkdownImageSource("https://example.com/cover.png", "/vault")).toBe(
-      "https://example.com/cover.png",
+      "https://example.com/cover.png"
     );
     expect(resolveMarkdownImageSource("data:image/png;base64,abc", "/vault")).toBe(
-      "data:image/png;base64,abc",
+      "data:image/png;base64,abc"
     );
   });
 });

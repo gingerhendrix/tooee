@@ -1,8 +1,8 @@
 import { createTestRenderer } from "@opentui/core/testing";
 import type { TestRendererOptions } from "@opentui/core/testing";
+import { createRoot } from "@opentui/react";
 import { act } from "react";
 import type { ReactNode } from "react";
-import { createRoot } from "@opentui/react";
 
 declare global {
   var IS_REACT_ACT_ENVIRONMENT: boolean;
@@ -14,7 +14,7 @@ const setIsReactActEnvironment = function setIsReactActEnvironment(isReactActEnv
 
 export const testRender = async function testRender(
   node: ReactNode,
-  testRendererOptions: TestRendererOptions,
+  testRendererOptions: TestRendererOptions
 ) {
   let root: ReturnType<typeof createRoot> | null = null;
   setIsReactActEnvironment(true);

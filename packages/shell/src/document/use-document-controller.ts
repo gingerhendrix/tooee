@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
-import type { Key } from "react";
 import type { MouseEvent } from "@opentui/core";
 import { useBuildCommandContext, useSurfaceInvoke } from "@tooee/commands";
+import type { ActionDefinition, CommandContext } from "@tooee/commands";
 import { useHasModalOverlay } from "@tooee/overlays";
 import type { ContextMenuEntry, DecorationLayer, RowDocumentRenderable } from "@tooee/renderers";
 import { useNavSearchStore, useSearchBindings } from "@tooee/search";
 import { useTheme } from "@tooee/themes";
-import type { ActionDefinition, CommandContext } from "@tooee/commands";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import type { Key } from "react";
+
 import { actionsToContextMenuEntries, useContextMenu } from "../context-menu.js";
 import { useCopy } from "../copy-hook.js";
 import { useNavigationBindings } from "../navigation.js";
@@ -27,7 +28,7 @@ const EMPTY_ANCHORS: readonly never[] = [];
 /** The last row that accepts the cursor, or `null` when none does. */
 const lastSelectableIndex = function lastSelectableIndex(
   count: number,
-  isSelectable: (index: number) => boolean,
+  isSelectable: (index: number) => boolean
 ): number | null {
   for (let index = count - 1; index >= 0; index -= 1) {
     if (isSelectable(index)) {
@@ -40,7 +41,7 @@ const lastSelectableIndex = function lastSelectableIndex(
 const rowKey = function rowKey<T>(
   adapter: DocumentRowAdapter<T>,
   row: T | undefined,
-  index: number,
+  index: number
 ): Key {
   return adapter.getKey && row !== undefined ? adapter.getKey(row, index) : index;
 };
@@ -49,7 +50,7 @@ const rowKey = function rowKey<T>(
 const makeAnchor = function makeAnchor<T>(
   rows: readonly T[],
   adapter: DocumentRowAdapter<T>,
-  index: number,
+  index: number
 ): DocumentRowAnchor<T> | null {
   const row = rows[index];
   if (row === undefined) {
@@ -72,7 +73,7 @@ const makeAnchor = function makeAnchor<T>(
  */
 const resolveContextMenuEntries = function resolveContextMenuEntries(
   items: DocumentContextMenuItems,
-  context: CommandContext,
+  context: CommandContext
 ): ContextMenuEntry[] {
   const [first] = items;
   if (first !== undefined && "handler" in first) {
@@ -89,7 +90,7 @@ const resolveContextMenuEntries = function resolveContextMenuEntries(
 const defaultMatch = function defaultMatch<T>(
   query: string,
   rows: readonly T[],
-  getText: (row: T, index: number) => string,
+  getText: (row: T, index: number) => string
 ): number[] {
   const lowered = query.toLowerCase();
   const matches: number[] = [];
@@ -110,7 +111,7 @@ const defaultMatch = function defaultMatch<T>(
  * derive from it, so they cannot drift apart.
  */
 export const useDocumentController = function useDocumentController<T>(
-  options: UseDocumentControllerOptions<T>,
+  options: UseDocumentControllerOptions<T>
 ): DocumentController<T> {
   const {
     rows,
@@ -143,7 +144,7 @@ export const useDocumentController = function useDocumentController<T>(
 
   const getRowKey = useCallback(
     (index: number): Key => rowKey(adapterRef.current, rowsRef.current[index], index),
-    [],
+    []
   );
 
   const getRowText = useCallback((index: number): string => {
@@ -162,12 +163,12 @@ export const useDocumentController = function useDocumentController<T>(
         }
         return adapterRef.current.isSelectable?.(row, index) ?? true;
       },
-    [rows],
+    [rows]
   );
 
   const rowKeys = useMemo(
     () => rows.map((row, index) => rowKey(adapterRef.current, row, index)),
-    [rows],
+    [rows]
   );
   const navSearchStore = useNavSearchStore({
     isSelectable,
@@ -239,7 +240,7 @@ export const useDocumentController = function useDocumentController<T>(
             const row = rows[index];
             return row === undefined ? [] : [row];
           }),
-    [selectedIndices, rows],
+    [selectedIndices, rows]
   );
 
   // Anchors are derived on demand from the current rows + adapter, so they can
@@ -247,12 +248,12 @@ export const useDocumentController = function useDocumentController<T>(
   const getAnchor = useCallback(
     (index: number): DocumentRowAnchor<T> | null =>
       makeAnchor(rowsRef.current, adapterRef.current, index),
-    [],
+    []
   );
 
   const activeAnchor = useMemo<DocumentRowAnchor<T> | null>(
     () => (activeIndex === null ? null : makeAnchor(rows, adapter, activeIndex)),
-    [rows, adapter, activeIndex],
+    [rows, adapter, activeIndex]
   );
 
   const selectedAnchors = useMemo<readonly DocumentRowAnchor<T>[]>(() => {
@@ -288,7 +289,7 @@ export const useDocumentController = function useDocumentController<T>(
       search?.matchingLines,
       search?.currentMatchIndex,
       theme,
-    ],
+    ]
   );
 
   const decorations = useMemo(
@@ -296,7 +297,7 @@ export const useDocumentController = function useDocumentController<T>(
       externalDecorations.length === 0
         ? interactionDecorations
         : [...interactionDecorations, ...externalDecorations],
-    [interactionDecorations, externalDecorations],
+    [interactionDecorations, externalDecorations]
   );
 
   // -- Scroll follow --------------------------------------------------------
@@ -405,7 +406,7 @@ export const useDocumentController = function useDocumentController<T>(
       const row = rowsRef.current[index];
       return row === undefined ? null : { index, key: getRowKey(index), row };
     },
-    [getRowKey],
+    [getRowKey]
   );
 
   // Row mouse handlers stand down while a modal overlay is up: centered
@@ -421,7 +422,7 @@ export const useDocumentController = function useDocumentController<T>(
       }
       setCursor(index);
     },
-    [setCursor],
+    [setCursor]
   );
 
   const openContextMenu = contextMenuController.open;
@@ -468,7 +469,7 @@ export const useDocumentController = function useDocumentController<T>(
         invokeRef.current(id);
       });
     },
-    [getRowAtScreenY, selectRow, openContextMenu, buildCommandContext],
+    [getRowAtScreenY, selectRow, openContextMenu, buildCommandContext]
   );
 
   return useMemo(
@@ -512,6 +513,6 @@ export const useDocumentController = function useDocumentController<T>(
       getRowAtScreenY,
       selectRow,
       onMouseDown,
-    ],
+    ]
   );
 };

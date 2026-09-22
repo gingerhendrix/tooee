@@ -32,7 +32,7 @@ export const ScreenScopeProvider = function ScreenScopeProvider({
   const parent = useContext(ScreenScopeContext);
   const value = useMemo<ScreenScopeState>(
     () => ({ isFocused: parent.isFocused && active }),
-    [parent.isFocused, active],
+    [parent.isFocused, active]
   );
   return <ScreenScopeContext value={value}>{children}</ScreenScopeContext>;
 };

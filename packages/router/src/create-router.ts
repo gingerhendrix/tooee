@@ -46,7 +46,7 @@ const cloneEntry = function cloneEntry(entry: Readonly<StackEntry>): StackEntry 
 };
 
 const cloneIntent = function cloneIntent(
-  intent: SerializedNavigationIntent,
+  intent: SerializedNavigationIntent
 ): SerializedNavigationIntent {
   if (intent.type === "pop") {
     return Object.freeze({ type: "pop" });
@@ -59,12 +59,12 @@ const cloneIntent = function cloneIntent(
 };
 
 const snapshotStack = function snapshotStack(
-  stack: readonly Readonly<StackEntry>[],
+  stack: readonly Readonly<StackEntry>[]
 ): readonly Readonly<StackEntry>[] {
   return Object.freeze(
     stack.map((entry) =>
-      Object.freeze({ params: Object.freeze({ ...entry.params }), routeId: entry.routeId }),
-    ),
+      Object.freeze({ params: Object.freeze({ ...entry.params }), routeId: entry.routeId })
+    )
   );
 };
 
@@ -79,7 +79,7 @@ const cancellationResult = function cancellationResult(request: Request): Naviga
 const nextFor = function nextFor(
   intent: SerializedNavigationIntent,
   from: readonly Readonly<StackEntry>[],
-  target: StackEntry,
+  target: StackEntry
 ): StackEntry[] {
   switch (intent.type) {
     case "push": {
@@ -101,7 +101,7 @@ const nextFor = function nextFor(
 };
 
 export const createRouter = function createRouter<TContext = undefined>(
-  options: RouterOptions<TContext>,
+  options: RouterOptions<TContext>
 ): RouterInstance<TContext> {
   const routeMap = new Map<string, AnyRoute>();
   for (const route of options.routes) {
@@ -144,7 +144,7 @@ export const createRouter = function createRouter<TContext = undefined>(
 
   const reportNavigationError = function reportNavigationError(
     error: Error,
-    failureContext: NavigationFailureContext,
+    failureContext: NavigationFailureContext
   ): void {
     try {
       options.onNavigationError?.(error, failureContext);
@@ -192,7 +192,7 @@ export const createRouter = function createRouter<TContext = undefined>(
   const createRequest = function createRequest(
     intent: SerializedNavigationIntent,
     callerSignal: AbortSignal | undefined,
-    startup: boolean,
+    startup: boolean
   ): Request {
     const { promise, resolve } = Promise.withResolvers<NavigationResult>();
     const id = nextId;
@@ -220,7 +220,7 @@ export const createRouter = function createRouter<TContext = undefined>(
   const navigationFor = function navigationFor(
     request: Request,
     from: readonly Readonly<StackEntry>[],
-    target: StackEntry,
+    target: StackEntry
   ): ResolvedNavigation {
     const detachedTarget = Object.freeze({
       params: Object.freeze({ ...target.params }),
@@ -351,7 +351,7 @@ export const createRouter = function createRouter<TContext = undefined>(
     request: Request,
     guardList: readonly NavigationGuard<TContext>[],
     index: number,
-    handles: GuardHandle[],
+    handles: GuardHandle[]
   ): void {
     if (request.controller.signal.aborted) {
       cleanupHandles(request, handles);
@@ -458,7 +458,7 @@ export const createRouter = function createRouter<TContext = undefined>(
   const submit = function submit(
     intent: SerializedNavigationIntent,
     callerSignal?: AbortSignal,
-    startup = false,
+    startup = false
   ): Promise<NavigationResult> {
     const request = createRequest(intent, callerSignal, startup);
     if (callerSignal !== undefined) {
@@ -502,7 +502,7 @@ export const createRouter = function createRouter<TContext = undefined>(
   const typedIntent = function typedIntent<TParams extends RouteParams>(
     type: "push" | "replace" | "reset",
     route: RouteDefinition<TParams>,
-    params: TParams | undefined,
+    params: TParams | undefined
   ): Promise<NavigationResult> {
     assertStarted();
     if (routeMap.get(route.id) !== route) {
@@ -566,7 +566,7 @@ export const createRouter = function createRouter<TContext = undefined>(
       const promise = submit(
         { params: options.initial.params, routeId: options.initial.routeId, type: "reset" },
         startOptions?.signal,
-        true,
+        true
       );
       startupPromise = promise;
       void (async () => {

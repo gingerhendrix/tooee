@@ -1,4 +1,5 @@
 import { test, expect, describe } from "bun:test";
+
 import { MarkSet } from "@tooee/marks";
 import type { Mark } from "@tooee/marks";
 

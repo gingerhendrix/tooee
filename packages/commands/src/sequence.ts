@@ -1,6 +1,7 @@
 import type { KeyEvent } from "@opentui/core";
-import type { ParsedHotkey } from "./types.js";
+
 import { matchStep } from "./match.js";
+import type { ParsedHotkey } from "./types.js";
 
 export const DEFAULT_SEQUENCE_TIMEOUT_MS = 1500;
 
@@ -32,7 +33,7 @@ export interface SequenceFeedResult {
  */
 export const matchesBuffer = function matchesBuffer(
   buffer: readonly KeyEvent[],
-  hotkey: ParsedHotkey,
+  hotkey: ParsedHotkey
 ): boolean {
   const { steps } = hotkey;
   if (steps.length === 0) {
@@ -60,11 +61,11 @@ export const matchesBuffer = function matchesBuffer(
  */
 export const findPendingMatch = function findPendingMatch(
   buffer: readonly KeyEvent[],
-  hotkeys: readonly ParsedHotkey[],
+  hotkeys: readonly ParsedHotkey[]
 ): SequencePendingMatch | null {
   const maxPrefixLength = Math.min(
     buffer.length,
-    Math.max(0, ...hotkeys.map((h) => h.steps.length - 1)),
+    Math.max(0, ...hotkeys.map((h) => h.steps.length - 1))
   );
 
   for (let prefixLength = maxPrefixLength; prefixLength > 0; prefixLength -= 1) {
@@ -104,7 +105,7 @@ export const findPendingMatch = function findPendingMatch(
  */
 export const pruneBuffer = function pruneBuffer(
   buffer: readonly KeyEvent[],
-  hotkeys: readonly ParsedHotkey[],
+  hotkeys: readonly ParsedHotkey[]
 ): readonly KeyEvent[] {
   const maxLen = Math.max(0, ...hotkeys.map((h) => h.steps.length));
   if (maxLen > 0 && buffer.length > maxLen) {

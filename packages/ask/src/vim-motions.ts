@@ -24,14 +24,14 @@ export interface VimMotionState {
 }
 
 export const appendAtCursor = function appendAtCursor(
-  target: EditableInsertTarget | null | undefined,
+  target: EditableInsertTarget | null | undefined
 ): void {
   target?.moveCursorRight();
 };
 
 export const openLineAtCursor = function openLineAtCursor(
   target: EditableInsertTarget | null | undefined,
-  position: "above" | "below",
+  position: "above" | "below"
 ): void {
   if (!target) {
     return;
@@ -70,7 +70,7 @@ const isPlainKey = function isPlainKey(key: KeyEvent, name: string): boolean {
 
 const handleBasicMotion = function handleBasicMotion(
   key: KeyEvent,
-  target: EditableMotionTarget,
+  target: EditableMotionTarget
 ): boolean {
   const motions: readonly {
     matches: boolean;
@@ -136,7 +136,7 @@ const handleBasicMotion = function handleBasicMotion(
 export const handleEditBufferVimMotion = function handleEditBufferVimMotion(
   key: KeyEvent,
   target: EditableMotionTarget | null | undefined,
-  state: VimMotionState,
+  state: VimMotionState
 ): boolean {
   if (!target || key.ctrl || key.meta || key.option) {
     state.pendingG = false;

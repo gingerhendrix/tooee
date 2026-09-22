@@ -16,8 +16,7 @@ Use `controllerRef` on an assembly, or the controller returned by `useChoose`, t
 
 ## Promise-based dialog
 
-`useChooseDialog<T>()` opens `ChooseOverlay` as a modal dialog on the host's
-overlay stack and resolves the typed selection:
+`useChooseDialog<T>()` opens `ChooseOverlay` as a modal dialog on the host's overlay stack and resolves the typed selection:
 
 ```tsx
 const choose = useChooseDialog<Model>();
@@ -30,12 +29,7 @@ const model = await choose.open({
 // T on select, T[] with { multi: true }, null on cancel/replacement/unmount
 ```
 
-Generics are retained without casts: single-select resolves `T | null`,
-multi-select resolves `T[] | null` (Choose selection semantics: toggled items,
-falling back to the active item). Each `open()` owns one overlay record
-(unique id per call) and one owned modal command surface; the promise settles
-exactly once. The host must render overlay content (`AppLayout` does; custom
-hosts render `useCurrentOverlay()`).
+Generics are retained without casts: single-select resolves `T | null`, multi-select resolves `T[] | null` (Choose selection semantics: toggled items, falling back to the active item). Each `open()` owns one overlay record (unique id per call) and one owned modal command surface; the promise settles exactly once. The host must render overlay content (`AppLayout` does; custom hosts render `useCurrentOverlay()`).
 
 ## Command surfaces
 

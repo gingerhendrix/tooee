@@ -18,7 +18,7 @@ export type DecodedReactContent = EmptyReactContent | StringReactContent | NodeR
 
 /** Decode a public React slot once into its three rendering cases. */
 export const decodeReactContent = function decodeReactContent(
-  content: ReactNode,
+  content: ReactNode
 ): DecodedReactContent {
   if (content === null || content === undefined) {
     return { kind: "empty" };

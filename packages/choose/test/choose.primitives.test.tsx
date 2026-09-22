@@ -1,14 +1,16 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { act, createRef, useState } from "react";
+
 import { CommandSurfaceProvider, useCommand } from "@tooee/commands";
 import { TooeeProvider } from "@tooee/shell";
 import { testRender, expectDefined } from "@tooee/test-support";
-import { Choose } from "../src/choose.js";
+import { act, createRef, useState } from "react";
+import type { ReactNode } from "react";
+
 import { ChooseOverlay } from "../src/choose-overlay.js";
 import { buildChooseHints } from "../src/choose-panel.js";
+import { Choose } from "../src/choose.js";
 import type { ChooseContentProvider, ChooseItem, ChooseSource } from "../src/types.js";
 import type { ChooseController } from "../src/use-choose.js";
-import type { ReactNode } from "react";
 
 const ChildSurface = function ChildSurface({ close }: { close: () => void }): ReactNode {
   useCommand({
@@ -132,7 +134,7 @@ describe("ChooseController and normalized sources", () => {
           submitted = result.items;
         }}
         onCancel={() => {}}
-      />,
+      />
     );
 
     await act(async () => {
@@ -151,7 +153,7 @@ describe("ChooseController and normalized sources", () => {
     expect(
       expectDefined(controllerRef.current)
         .getSelectedItems()
-        .map((item) => item.text),
+        .map((item) => item.text)
     ).toEqual(["beta", "gamma"]);
     expect(submitted.map((item) => item.text)).toEqual(["beta", "gamma"]);
   });
@@ -170,7 +172,7 @@ describe("ChooseController and normalized sources", () => {
         controllerRef={controllerRef}
         onSelect={() => {}}
         onCancel={() => {}}
-      />,
+      />
     );
     expect(testSetup.captureCharFrame()).toContain("item-1");
 
@@ -263,7 +265,7 @@ describe("shared commands, context, and surfaces", () => {
           selected.push(item);
         }}
         onCancel={() => {}}
-      />,
+      />
     );
 
     await typeText("ga");
@@ -285,7 +287,7 @@ describe("shared commands, context, and surfaces", () => {
         onCancel={() => {
           cancellations += 1;
         }}
-      />,
+      />
     );
 
     await pressEscape();
@@ -308,7 +310,7 @@ describe("shared commands, context, and surfaces", () => {
           submitted = result.items;
         }}
         onCancel={() => {}}
-      />,
+      />
     );
 
     await pressTab();
@@ -340,7 +342,7 @@ describe("shared commands, context, and surfaces", () => {
             title: "Inspect chooser",
           },
         ]}
-      />,
+      />
     );
 
     await pressArrow("down");
@@ -357,7 +359,7 @@ describe("shared commands, context, and surfaces", () => {
         onSelect={(item) => {
           selected.push(item);
         }}
-      />,
+      />
     );
 
     expect(testSetup.captureCharFrame()).toContain("CHILD PICKER");
@@ -394,7 +396,7 @@ describe("shared commands, context, and surfaces", () => {
         onConfirm={() => {
           confirms += 1;
         }}
-      />,
+      />
     );
 
     await pressEnter();
@@ -421,7 +423,7 @@ describe("view extension points", () => {
           onCancel={() => {}}
         />
       </TooeeProvider>,
-      { height: 16, kittyKeyboard: true, width: 50 },
+      { height: 16, kittyKeyboard: true, width: 50 }
     );
     await testSetup.renderOnce();
 
@@ -469,7 +471,7 @@ describe("view extension points", () => {
             {defaultContent}
           </>
         )}
-      />,
+      />
     );
 
     const frame = testSetup.captureCharFrame();

@@ -1,4 +1,6 @@
+import type { Mode } from "@tooee/commands";
 import { createStore } from "@xstate/store";
+
 import type {
   OverlayCloseReason,
   OverlayId,
@@ -6,7 +8,6 @@ import type {
   OverlayRenderer,
   OverlayUpdate,
 } from "./overlay-context.js";
-import type { Mode } from "@tooee/commands";
 
 /**
  * An overlay stack entry as tracked by the store. `prevMode` is the host mode
@@ -52,7 +53,7 @@ export interface OverlayClosedEmit {
  */
 const restoreModeDecision = function restoreModeDecision(
   stack: readonly OverlayRecord[],
-  record: OverlayRecord,
+  record: OverlayRecord
 ): Mode | null {
   if (record.options.ownCommands === true || record.options.restoreMode === false) {
     return null;
@@ -187,7 +188,7 @@ export type OverlayStore = ReturnType<typeof createOverlayStore>;
 // --- Selectors ---------------------------------------------------------------
 
 export const selectStack = function selectStack(
-  ctx: OverlayStoreContext,
+  ctx: OverlayStoreContext
 ): readonly OverlayRecord[] {
   return ctx.stack;
 };
@@ -202,14 +203,14 @@ export const selectHasOverlay = function selectHasOverlay(ctx: OverlayStoreConte
 
 export const selectIsOpen = function selectIsOpen(
   ctx: OverlayStoreContext,
-  id: OverlayId,
+  id: OverlayId
 ): boolean {
   return ctx.stack.some((entry) => entry.id === id);
 };
 
 /** Fresh array; prefer selectStack identity + memo in render paths. */
 export const selectStackIds = function selectStackIds(
-  ctx: OverlayStoreContext,
+  ctx: OverlayStoreContext
 ): readonly OverlayId[] {
   return ctx.stack.map((entry) => entry.id);
 };

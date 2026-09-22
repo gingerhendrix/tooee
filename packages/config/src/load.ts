@@ -1,5 +1,6 @@
 import { readFileSync, mkdirSync, writeFileSync, existsSync } from "node:fs";
 import path from "node:path";
+
 import type { TooeeConfig } from "./types.js";
 
 const DEFAULTS: TooeeConfig = {
@@ -126,7 +127,7 @@ const decodeConfig = function decodeConfig(json: JsonValue): Partial<TooeeConfig
 
 const mergeConfig = function mergeConfig(
   target: Partial<TooeeConfig>,
-  source: Partial<TooeeConfig>,
+  source: Partial<TooeeConfig>
 ): TooeeConfig {
   const merged: TooeeConfig = { ...target, ...source };
   if (target.theme !== undefined || source.theme !== undefined) {

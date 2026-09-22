@@ -2,14 +2,16 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { act } from "react";
+
 import { useSurfaceInvoke } from "@tooee/commands";
 import { TooeeProvider } from "@tooee/shell";
 import { testRender } from "@tooee/test-support";
-import { DirectoryView } from "../src/directory-view.js";
-import { View } from "../src/view.js";
-import type { ContentProvider } from "../src/types.js";
+import { act } from "react";
 import type { ReactNode } from "react";
+
+import { DirectoryView } from "../src/directory-view.js";
+import type { ContentProvider } from "../src/types.js";
+import { View } from "../src/view.js";
 
 let commandIds: string[] = [];
 let testSetup: Awaited<ReturnType<typeof testRender>>;
@@ -26,7 +28,7 @@ const render = async function render(node: ReactNode) {
       {node}
       <CommandProbe />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await setup.renderOnce();
   await act(async () => {

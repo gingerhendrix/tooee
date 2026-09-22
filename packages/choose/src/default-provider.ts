@@ -14,7 +14,7 @@ export const createStdinChooseProvider =
   };
 
 export const createStaticProvider = function createStaticProvider(
-  items: ChooseItem[],
+  items: ChooseItem[]
 ): ChooseContentProvider {
   return {
     load: () => items,

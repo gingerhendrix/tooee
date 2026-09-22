@@ -1,4 +1,7 @@
 import { describe, expect, test } from "bun:test";
+
+import { overlayUpdater, overlayValue } from "../src/overlay-context.js";
+import type { OverlayOpenOptions } from "../src/overlay-context.js";
 import {
   createOverlayStore,
   selectHasOverlay,
@@ -8,8 +11,6 @@ import {
   selectTop,
 } from "../src/overlay-store.js";
 import type { OverlayClosedEmit, OverlayRecord } from "../src/overlay-store.js";
-import { overlayUpdater, overlayValue } from "../src/overlay-context.js";
-import type { OverlayOpenOptions } from "../src/overlay-context.js";
 
 const expectDefined = function expectDefined<T>(value: T | undefined): T {
   if (value === undefined) {
@@ -21,13 +22,13 @@ const expectDefined = function expectDefined<T>(value: T | undefined): T {
 const record = function record(
   id: string,
   options: OverlayOpenOptions = {},
-  prevMode = "cursor",
+  prevMode = "cursor"
 ): OverlayRecord {
   return { id, options, payload: null, prevMode, render: () => null };
 };
 
 const collectCloses = function collectCloses(
-  store: ReturnType<typeof createOverlayStore>,
+  store: ReturnType<typeof createOverlayStore>
 ): OverlayClosedEmit[] {
   const closes: OverlayClosedEmit[] = [];
   store.on("closed", (emit) => {
@@ -64,7 +65,7 @@ describe("overlay store — stack transitions", () => {
       next: overlayUpdater((previous) => `${String(previous)}${String(previous)}`),
     });
     expect(expectDefined(selectStack(store.getSnapshot().context)[0]).payload).toBe(
-      "payload!payload!",
+      "payload!payload!"
     );
 
     store.trigger.closedTop({ reason: "escape" });

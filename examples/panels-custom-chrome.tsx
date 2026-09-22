@@ -14,13 +14,13 @@
  *   q                quit
  */
 
-import { useState } from "react";
-import type { ReactNode } from "react";
 import { useCommand } from "@tooee/commands";
 import { AppLayout } from "@tooee/layout";
 import { Panel, PanelGroup, usePanelState } from "@tooee/panels";
 import { launchCli, useQuitCommand } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
+import { useState } from "react";
+import type { ReactNode } from "react";
 
 const CustomPanel = function CustomPanel({ children }: { children: ReactNode }): ReactNode {
   const { activate, id, isActive, title } = usePanelState();

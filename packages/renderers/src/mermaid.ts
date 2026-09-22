@@ -1,6 +1,6 @@
-import { parseMermaid, renderMermaidASCII } from "beautiful-mermaid";
 import { parseColor, StyledText } from "@opentui/core";
 import type { TextChunk } from "@opentui/core";
+import { parseMermaid, renderMermaidASCII } from "beautiful-mermaid";
 
 interface BeautifulMermaidAsciiTheme {
   fg?: string;
@@ -52,7 +52,7 @@ export const isMermaidFence = function isMermaidFence(lang?: string): boolean {
 const hasDirectedPath = function hasDirectedPath(
   adjacency: Map<string, Set<string>>,
   source: string,
-  target: string,
+  target: string
 ): boolean {
   const pending = [...(adjacency.get(source) ?? [])];
   const visited = new Set<string>([source]);
@@ -77,7 +77,7 @@ const hasDirectedPath = function hasDirectedPath(
 };
 
 const hasUnsafeCyclicFanTopology = function hasUnsafeCyclicFanTopology(
-  edges: ReturnType<typeof parseMermaid>["edges"],
+  edges: ReturnType<typeof parseMermaid>["edges"]
 ): boolean {
   const adjacency = new Map<string, Set<string>>();
   const incomingDegree = new Map<string, number>();
@@ -101,13 +101,13 @@ const hasUnsafeCyclicFanTopology = function hasUnsafeCyclicFanTopology(
   return fanInNodes.some((fanIn) =>
     fanOutNodes.some(
       (fanOut) =>
-        hasDirectedPath(adjacency, fanIn, fanOut) && hasDirectedPath(adjacency, fanOut, fanIn),
-    ),
+        hasDirectedPath(adjacency, fanIn, fanOut) && hasDirectedPath(adjacency, fanOut, fanIn)
+    )
   );
 };
 
 const exceedsSynchronousRenderBudget = function exceedsSynchronousRenderBudget(
-  source: string,
+  source: string
 ): boolean {
   if (source.length > MAX_SOURCE_LENGTH || source.split("\n").length > MAX_SOURCE_LINES) {
     return true;
@@ -127,7 +127,7 @@ const exceedsSynchronousRenderBudget = function exceedsSynchronousRenderBudget(
 const appendStyledChunk = function appendStyledChunk(
   chunks: TextChunk[],
   text: string,
-  fg?: string,
+  fg?: string
 ) {
   if (text.length === 0) {
     return;
@@ -149,7 +149,7 @@ const sgrParams = function sgrParams(rawParams: string): number[] {
 
 const updateAnsiForeground = function updateAnsiForeground(
   params: number[],
-  currentFg: string | undefined,
+  currentFg: string | undefined
 ): string | undefined {
   let fg = currentFg;
 
@@ -216,7 +216,7 @@ export const ansiToStyledText = function ansiToStyledText(input: string): AnsiSt
  */
 export const renderMermaidForTerminal = function renderMermaidForTerminal(
   source: string,
-  options: MermaidRenderOptions = {},
+  options: MermaidRenderOptions = {}
 ): MermaidRenderResult {
   if (source.trim().length === 0) {
     return { message: "Mermaid block is empty", ok: false, reason: "empty" };

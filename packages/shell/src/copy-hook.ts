@@ -1,5 +1,5 @@
-import { useCommand, useSetMode } from "@tooee/commands";
 import { copyToClipboard } from "@tooee/clipboard";
+import { useCommand, useSetMode } from "@tooee/commands";
 
 export interface UseCopyOptions {
   getRowText: (index: number) => string;

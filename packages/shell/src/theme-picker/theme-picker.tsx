@@ -1,8 +1,8 @@
-import { useMemo } from "react";
-import type { ReactNode } from "react";
 import { Chooser, ChooseHighlightedText } from "@tooee/renderers";
 import type { ChooseItem } from "@tooee/renderers";
 import { useTheme } from "@tooee/themes";
+import { useMemo } from "react";
+import type { ReactNode } from "react";
 
 export interface ThemePickerEntry {
   id: string;
@@ -27,15 +27,15 @@ export const ThemePicker = function ThemePicker({
   const { theme } = useTheme();
   const items = useMemo<ChooseItem[]>(
     () => entries.map((entry) => ({ text: entry.title, value: entry.id })),
-    [entries],
+    [entries]
   );
   const initialActiveIndex = useMemo(
     () =>
       Math.max(
         0,
-        entries.findIndex((entry) => entry.id === currentTheme),
+        entries.findIndex((entry) => entry.id === currentTheme)
       ),
-    [currentTheme, entries],
+    [currentTheme, entries]
   );
   const handleSelect = (item: ChooseItem): void => {
     if (item.value !== undefined) {

@@ -1,4 +1,5 @@
 import { RGBA, SyntaxStyle } from "@opentui/core";
+
 import type { ResolvedTheme } from "./types.js";
 
 // ---------------------------------------------------------------------------

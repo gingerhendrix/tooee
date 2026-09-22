@@ -1,9 +1,10 @@
-import { useMemo } from "react";
-import type { ReactNode } from "react";
 import type { ActionDefinition } from "@tooee/commands";
 import { useOverlayDialog } from "@tooee/overlays";
-import { ChooseOverlay } from "./choose-overlay.js";
+import { useMemo } from "react";
+import type { ReactNode } from "react";
+
 import type { ChooseListProps } from "./choose-list.js";
+import { ChooseOverlay } from "./choose-overlay.js";
 import type { ChoosePanelProps } from "./choose-panel.js";
 import type { ChooseItem, ChooseSource } from "./types.js";
 
@@ -57,7 +58,7 @@ export interface ChooseDialogHandle<T> {
 }
 
 const isDialogItemArray = function isDialogItemArray<T>(
-  items: ChooseDialogItems<T>,
+  items: ChooseDialogItems<T>
 ): items is readonly T[] {
   return Array.isArray(items);
 };
@@ -87,7 +88,7 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
   const dialog = useOverlayDialog<T | T[]>();
   return useMemo<ChooseDialogHandle<T>>(() => {
     const open = async (
-      options: ChooseDialogOptionsBase<T> & { toItem?: (item: T) => ChooseItem },
+      options: ChooseDialogOptionsBase<T> & { toItem?: (item: T) => ChooseItem }
     ): Promise<T | T[] | null> => {
       // Displayed rows map back to typed items by identity: every mapped
       // row is a fresh object (spread copy), so duplicates in `items` and
@@ -130,36 +131,34 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
         statusRight: options.statusRight,
       };
 
-      return await dialog.open(
-        "choose-dialog",
-        (settle): ReactNode =>
-          multi ? (
-            <ChooseOverlay
-              {...shared}
-              multi
-              onSubmit={(result) => {
-                const values = result.items.flatMap((row) => {
-                  const value = rowToValue.get(row);
-                  return value === undefined ? [] : [value];
-                });
-                settle(values);
-              }}
-              onCancel={() => {
-                settle(null);
-              }}
-            />
-          ) : (
-            <ChooseOverlay
-              {...shared}
-              onSelect={(row) => {
+      return await dialog.open("choose-dialog", (settle): ReactNode =>
+        multi ? (
+          <ChooseOverlay
+            {...shared}
+            multi
+            onSubmit={(result) => {
+              const values = result.items.flatMap((row) => {
                 const value = rowToValue.get(row);
-                settle(value ?? null);
-              }}
-              onCancel={() => {
-                settle(null);
-              }}
-            />
-          ),
+                return value === undefined ? [] : [value];
+              });
+              settle(values);
+            }}
+            onCancel={() => {
+              settle(null);
+            }}
+          />
+        ) : (
+          <ChooseOverlay
+            {...shared}
+            onSelect={(row) => {
+              const value = rowToValue.get(row);
+              settle(value ?? null);
+            }}
+            onCancel={() => {
+              settle(null);
+            }}
+          />
+        )
       );
     };
 

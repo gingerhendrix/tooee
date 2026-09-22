@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useMemo } from "react";
-import type { ReactNode } from "react";
 import { CommandSurfaceProvider, ScreenScopeProvider, useCommand } from "@tooee/commands";
 import { useTheme } from "@tooee/themes";
+import { useCallback, useEffect, useMemo } from "react";
+import type { ReactNode } from "react";
+
 import { PanelContext, usePanelGroupContext } from "./context.js";
 import type { PanelContextValue, PanelGroupContextValue } from "./context.js";
 import type { PanelProps } from "./types.js";
@@ -67,7 +68,7 @@ export const Panel = function Panel({
 
   const panelContext = useMemo<PanelContextValue>(
     () => ({ groupId, id, title }),
-    [groupId, id, title],
+    [groupId, id, title]
   );
 
   const inner = (

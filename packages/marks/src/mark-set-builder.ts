@@ -1,5 +1,5 @@
-import type { Mark, MarkPosition, MarkStyle } from "./types.js";
 import { MarkSet } from "./mark-set.js";
+import type { Mark, MarkPosition, MarkStyle } from "./types.js";
 
 export class MarkSetBuilder {
   readonly #marks: Mark[] = [];

@@ -1,6 +1,8 @@
 import path from "node:path";
-import { parseAuto } from "@tooee/renderers";
+
 import { isDiffPatch } from "@tooee/diff";
+import { parseAuto } from "@tooee/renderers";
+
 import type { Content, ContentFormat, ContentProvider } from "./types.js";
 
 export interface CreateProviderOptions {
@@ -78,7 +80,7 @@ const contentFromText = function contentFromText(
   text: string,
   format: ContentFormat,
   title: string | undefined,
-  language?: string,
+  language?: string
 ): Content {
   switch (format) {
     case "markdown": {
@@ -108,7 +110,7 @@ const contentFromText = function contentFromText(
 
 export const createFileProvider = function createFileProvider(
   filePath: string,
-  options: CreateProviderOptions = {},
+  options: CreateProviderOptions = {}
 ): ContentProvider {
   return {
     async load(): Promise<Content> {
@@ -137,7 +139,7 @@ export const createFileProvider = function createFileProvider(
 };
 
 export const createStdinProvider = function createStdinProvider(
-  options: CreateProviderOptions = {},
+  options: CreateProviderOptions = {}
 ): ContentProvider {
   return {
     async load(): Promise<Content> {
@@ -149,7 +151,7 @@ export const createStdinProvider = function createStdinProvider(
 };
 
 export const createTableFileProvider = function createTableFileProvider(
-  filePath: string,
+  filePath: string
 ): ContentProvider {
   return createFileProvider(filePath, { renderer: "table" });
 };

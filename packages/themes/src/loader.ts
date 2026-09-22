@@ -1,10 +1,12 @@
-import type { SyntaxStyle } from "@opentui/core";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import path from "node:path";
+
+import type { SyntaxStyle } from "@opentui/core";
 import type { ColorMode } from "@tooee/config";
+
+import { buildSyntaxStyle } from "./syntax-rules.js";
 import { resolveTheme } from "./types.js";
 import type { ThemeJSON, ResolvedTheme } from "./types.js";
-import { buildSyntaxStyle } from "./syntax-rules.js";
 
 // ---------------------------------------------------------------------------
 // Theme loading
@@ -22,7 +24,7 @@ const themeJsonCache = new Map<string, ThemeJSON>();
 
 const loadJsonThemesFromDir = function loadJsonThemesFromDir(
   dir: string,
-  target: Map<string, ThemeJSON>,
+  target: Map<string, ThemeJSON>
 ) {
   try {
     if (!existsSync(dir)) {
@@ -99,7 +101,7 @@ export const DEFAULT_MODE: ColorMode = "dark";
 
 const bundledDefaultThemeText = readFileSync(
   new URL("../themes/tokyonight.json", import.meta.url),
-  "utf-8",
+  "utf-8"
 );
 // SAFETY: this package owns the bundled theme document. resolveTheme validates
 // every consumed color and fills every omitted key from FALLBACKS.

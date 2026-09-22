@@ -1,13 +1,14 @@
-import type { ReactNode, RefObject } from "react";
 import type { ScrollBoxRenderable } from "@opentui/core";
-import { TitleBar } from "./title-bar.js";
-import { StatusBar } from "./status-bar.js";
-import type { StatusBarItem } from "./status-bar.js";
+import { useCurrentOverlay } from "@tooee/overlays";
 import { SearchBar } from "@tooee/search";
 import type { SearchState } from "@tooee/search";
 import { useTheme } from "@tooee/themes";
-import { useCurrentOverlay } from "@tooee/overlays";
 import { ToastContainer } from "@tooee/toasts";
+import type { ReactNode, RefObject } from "react";
+
+import { StatusBar } from "./status-bar.js";
+import type { StatusBarItem } from "./status-bar.js";
+import { TitleBar } from "./title-bar.js";
 
 export interface AppLayoutScroll {
   ref: RefObject<ScrollBoxRenderable | null>;

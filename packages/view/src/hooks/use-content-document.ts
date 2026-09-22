@@ -3,6 +3,7 @@ import type { StatusBarItem } from "@tooee/layout";
 import type { DecorationLayer } from "@tooee/renderers";
 import { useDocumentController } from "@tooee/shell";
 import type { DocumentController, DocumentRowAdapter } from "@tooee/shell";
+
 import type { AnyContent } from "../types.js";
 import { useContentCommands } from "./use-content-commands.js";
 
@@ -33,7 +34,7 @@ export const useContentDocument = function useContentDocument<T>(
   rows: readonly T[],
   adapter: DocumentRowAdapter<T>,
   { actions, content, decorations, textContent }: ContentDocumentProps,
-  options: ContentDocumentOptions<T>,
+  options: ContentDocumentOptions<T>
 ): ContentDocumentResult<T> {
   const { showLineNumbers } = useContentCommands({ content, textContent });
   const document = useDocumentController<T>({

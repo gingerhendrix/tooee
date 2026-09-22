@@ -32,9 +32,9 @@
  *     q                quit
  */
 
+import type { ActionDefinition, CommandContext } from "@tooee/commands";
 import { launch } from "@tooee/view";
 import type { ContentProvider, Content } from "@tooee/view";
-import type { ActionDefinition, CommandContext } from "@tooee/commands";
 
 interface FileRow {
   name: string;

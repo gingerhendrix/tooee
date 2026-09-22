@@ -1,6 +1,6 @@
-import { useCallback } from "react";
 import type { MouseEvent } from "@opentui/core";
 import { useTheme } from "@tooee/themes";
+import { useCallback } from "react";
 import type { ReactNode } from "react";
 
 interface CloseButtonProps {
@@ -35,7 +35,7 @@ export const CloseButton = function CloseButton({
       event.stopPropagation();
       onClose();
     },
-    [onClose],
+    [onClose]
   );
 
   return (

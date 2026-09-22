@@ -1,4 +1,5 @@
 import { extend } from "@opentui/react";
+
 import { RowDocumentRenderable } from "./row-document-renderable.js";
 
 extend({ "row-document": RowDocumentRenderable });

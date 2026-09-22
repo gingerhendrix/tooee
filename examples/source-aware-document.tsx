@@ -1,4 +1,6 @@
 #!/usr/bin/env bun
+import { sourceLines, sourceLineAdapter } from "@tooee/renderers";
+import { Document, DocumentScreen, launchCli, useDocumentController } from "@tooee/shell";
 /**
  * A complete source-aware custom document.
  *
@@ -7,8 +9,6 @@
  */
 import { useMemo } from "react";
 import type { ReactNode } from "react";
-import { sourceLines, sourceLineAdapter } from "@tooee/renderers";
-import { Document, DocumentScreen, launchCli, useDocumentController } from "@tooee/shell";
 
 const source = `# Release notes
 

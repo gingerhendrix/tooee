@@ -1,5 +1,7 @@
 import { describe, test, expect, afterEach } from "bun:test";
+
 import type { Session } from "tuistory";
+
 import { launchShellFixture } from "./helpers.js";
 
 let session: Session;
@@ -14,10 +16,10 @@ afterEach(() => {
 
 const expectSomeFrame = function expectSomeFrame(
   frames: string[],
-  pattern: RegExp | string,
+  pattern: RegExp | string
 ): string {
   const matchingFrame = frames.find((frame) =>
-    pattern instanceof RegExp ? pattern.test(frame) : frame.includes(pattern),
+    pattern instanceof RegExp ? pattern.test(frame) : frame.includes(pattern)
   );
   expect(matchingFrame, frames.join("\n--- frame ---\n")).toBeDefined();
   if (matchingFrame === undefined) {

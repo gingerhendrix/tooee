@@ -1,5 +1,6 @@
 import { marked } from "marked";
 import type { Token, Tokens } from "marked";
+
 import { SourceIndex } from "./source.js";
 import type { DocumentRowSource } from "./source.js";
 
@@ -206,7 +207,7 @@ const flattenList = function flattenList(
   indent: number,
   out: FlatBlock[],
   res: MarkdownResolver | null,
-  bound: number,
+  bound: number
 ): void {
   for (let i = 0; i < list.items.length; i += 1) {
     const item = list.items[i];
@@ -239,7 +240,7 @@ const flattenListItem = function flattenListItem(
   out: FlatBlock[],
   res: MarkdownResolver | null,
   itemStart: number | null,
-  itemEnd: number,
+  itemEnd: number
 ): void {
   const checked = item.checked === null ? undefined : item.checked;
   const childTokens = item.tokens;
@@ -302,7 +303,7 @@ const flattenWalk = function flattenWalk(
   indent: number,
   out: FlatBlock[],
   res: MarkdownResolver | null,
-  bound: number,
+  bound: number
 ): void {
   for (const token of tokens) {
     if (token.type === "space") {
@@ -329,7 +330,7 @@ const flattenWalk = function flattenWalk(
  */
 export const flattenMarkdown = function flattenMarkdown(
   markdown: string,
-  options?: FlattenMarkdownOptions,
+  options?: FlattenMarkdownOptions
 ): FlatBlock[] {
   const res = new MarkdownResolver(markdown, options?.sourceId);
   const out: FlatBlock[] = [];

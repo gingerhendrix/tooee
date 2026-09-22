@@ -1,8 +1,10 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
+
+import { useKeyboard } from "@opentui/react";
+import { testRender } from "@tooee/test-support";
 import { act, useState } from "react";
 import type { ReactNode } from "react";
-import { useKeyboard } from "@opentui/react";
+
 import {
   CommandProvider,
   CommandSurfaceProvider,
@@ -77,7 +79,7 @@ type TestSession = Awaited<ReturnType<typeof testRender>>;
 const press = async function press(
   session: TestSession,
   key: string,
-  modifiers?: { ctrl?: boolean; shift?: boolean },
+  modifiers?: { ctrl?: boolean; shift?: boolean }
 ) {
   await act(async () => {
     session.mockInput.pressKey(key, modifiers);
@@ -220,7 +222,7 @@ const setup = async function setup(aRole: CommandSurfaceRole = "modal") {
     <CommandProvider>
       <Harness aRole={aRole} />
     </CommandProvider>,
-    { height: 24, kittyKeyboard: true, width: 60 },
+    { height: 24, kittyKeyboard: true, width: 60 }
   );
   await session.renderOnce();
   return session;
@@ -317,7 +319,7 @@ describe("command surface arbitration", () => {
       <CommandProvider>
         <RawKeyboardHarness />
       </CommandProvider>,
-      { height: 24, kittyKeyboard: true, width: 60 },
+      { height: 24, kittyKeyboard: true, width: 60 }
     );
     await testSetup.renderOnce();
 

@@ -1,6 +1,7 @@
-import type { ReactNode } from "react";
 import type { MouseEvent } from "@opentui/core";
 import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
+
 import { CloseButton } from "./close-button.js";
 import { decodeReactContent } from "./react-content.js";
 import type { DecodedReactContent } from "./react-content.js";
@@ -36,7 +37,7 @@ export interface OverlayPanelProps {
 
 const renderThemedContent = function renderThemedContent(
   content: DecodedReactContent,
-  color: string,
+  color: string
 ): ReactNode {
   if (content.kind === "empty") {
     return null;
@@ -46,7 +47,7 @@ const renderThemedContent = function renderThemedContent(
 
 const renderPrompt = function renderPrompt(
   prompt: DecodedReactContent,
-  textColor: string,
+  textColor: string
 ): ReactNode {
   if (prompt.kind === "empty") {
     return null;

@@ -2,6 +2,8 @@
 import { TooeeProvider } from "@tooee/shell";
 import { View } from "@tooee/view";
 import type { ContentProvider } from "@tooee/view";
+
+import { printMetric } from "./lib/benchmark-result.ts";
 import { FIXTURE_TIERS, makeTableFixture } from "./lib/fixtures.ts";
 import {
   destroyRenderer,
@@ -10,7 +12,6 @@ import {
   printLatencySummary,
   printMemoryMetrics,
 } from "./lib/render.tsx";
-import { printMetric } from "./lib/benchmark-result.ts";
 
 const tier = FIXTURE_TIERS.large;
 const interactionPresses = Number(process.env.TOOEE_BENCH_HEAVY_INTERACTIONS ?? 10);
@@ -21,12 +22,12 @@ if (!Number.isFinite(interactionPresses) || interactionPresses < 1) {
 
 const benchmarkViewContent = async function benchmarkViewContent(
   name: string,
-  contentProvider: ContentProvider,
+  contentProvider: ContentProvider
 ): Promise<void> {
   const setup = await mountForInteraction(
     <TooeeProvider initialMode="cursor" sequenceTimeoutMs={250}>
       <View contentProvider={contentProvider} />
-    </TooeeProvider>,
+    </TooeeProvider>
   );
 
   try {

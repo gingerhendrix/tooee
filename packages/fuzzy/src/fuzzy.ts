@@ -19,7 +19,7 @@ export interface FuzzyMatch<T> {
  */
 export const fuzzyMatchPositions = function fuzzyMatchPositions(
   query: string,
-  text: string,
+  text: string
 ): { score: number; positions: number[] } | null {
   const lowerQuery = query.toLowerCase();
   const lowerText = text.toLowerCase();
@@ -62,7 +62,7 @@ export const fuzzyMatch = function fuzzyMatch(query: string, text: string): numb
 export const rankBy = function rankBy<T>(
   items: readonly T[],
   query: string,
-  getText: (item: T) => string,
+  getText: (item: T) => string
 ): FuzzyMatch<T>[] {
   if (query === "") {
     return items.map((item, originalIndex) => ({ item, originalIndex, positions: [], score: 0 }));

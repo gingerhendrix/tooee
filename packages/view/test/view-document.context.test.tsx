@@ -1,13 +1,15 @@
-import { testRender, expectDefined } from "@tooee/test-support";
 import { test, expect, afterEach, beforeEach, describe } from "bun:test";
-import { act } from "react";
+
 import { useSurfaceInvoke } from "@tooee/commands";
 import type { ActionDefinition, CommandContext } from "@tooee/commands";
 import { TooeeProvider } from "@tooee/shell";
 import type { DocumentCommandContext } from "@tooee/shell";
-import { View } from "../src/view.js";
+import { testRender, expectDefined } from "@tooee/test-support";
+import { act } from "react";
+
 import type { ViewCommandContext } from "../src/hooks/use-view-command-context.js";
 import type { AnyContent, ContentProvider } from "../src/types.js";
+import { View } from "../src/view.js";
 
 const staticProvider = function staticProvider(content: AnyContent): ContentProvider {
   return { format: content.format, load: () => content };
@@ -75,7 +77,7 @@ const setup = async function setup(provider: ContentProvider) {
       <View contentProvider={provider} actions={ACTIONS} />
       <CommandProbe />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await s.renderOnce();
   await act(async () => {

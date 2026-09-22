@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+
 import { loadThemes, resolveTheme } from "@tooee/themes";
 
 // OpenTUI's hexToRgb accepts 3/4-digit shorthand as well as 6/8-digit hex

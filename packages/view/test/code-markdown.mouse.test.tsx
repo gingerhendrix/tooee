@@ -1,11 +1,13 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach, describe } from "bun:test";
-import { act } from "react";
+
 import { MouseButtons } from "@opentui/core/testing";
-import { TooeeProvider } from "@tooee/shell";
 import type { ActionDefinition, CommandContext } from "@tooee/commands";
-import { View } from "../src/view.js";
+import { TooeeProvider } from "@tooee/shell";
+import { testRender } from "@tooee/test-support";
+import { act } from "react";
+
 import type { AnyContent, ContentProvider, MarkdownLinkActivateHandler } from "../src/types.js";
+import { View } from "../src/view.js";
 
 const staticProvider = function staticProvider(content: AnyContent): ContentProvider {
   return { format: content.format, load: () => content };
@@ -41,7 +43,7 @@ afterEach(() => {
 const setup = async function setup(
   provider: ContentProvider,
   actions?: ActionDefinition[],
-  onMarkdownLinkActivate?: MarkdownLinkActivateHandler,
+  onMarkdownLinkActivate?: MarkdownLinkActivateHandler
 ) {
   const s = await testRender(
     <TooeeProvider>
@@ -51,7 +53,7 @@ const setup = async function setup(
         onMarkdownLinkActivate={onMarkdownLinkActivate}
       />
     </TooeeProvider>,
-    { height: 24, kittyKeyboard: true, width: 80 },
+    { height: 24, kittyKeyboard: true, width: 80 }
   );
   await s.renderOnce();
   await act(async () => {

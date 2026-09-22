@@ -1,4 +1,5 @@
 import { test, expect, describe } from "bun:test";
+
 import { isDiffPatch } from "../src/detect.js";
 import { BARE_UNIFIED_PATCH, MULTI_FILE_PATCH, RENAME_AND_BINARY_PATCH } from "./fixtures.js";
 

@@ -1,9 +1,11 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach } from "bun:test";
-import { createRef } from "react";
+
 import type { ScrollBoxRenderable } from "@opentui/core";
+import { testRender } from "@tooee/test-support";
 import { ThemeSwitcherProvider } from "@tooee/themes";
 import { ToastProvider } from "@tooee/toasts";
+import { createRef } from "react";
+
 import { AppLayout } from "../src/app-layout.js";
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
@@ -24,7 +26,7 @@ test("renders title bar with title and subtitle", async () => {
         </AppLayout>
       </ToastProvider>
     </ThemeSwitcherProvider>,
-    { height: 24, width: 80 },
+    { height: 24, width: 80 }
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -41,7 +43,7 @@ test("renders status bar with items", async () => {
         </AppLayout>
       </ToastProvider>
     </ThemeSwitcherProvider>,
-    { height: 24, width: 80 },
+    { height: 24, width: 80 }
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -58,7 +60,7 @@ test("renders children in scrollable area", async () => {
         </AppLayout>
       </ToastProvider>
     </ThemeSwitcherProvider>,
-    { height: 24, width: 80 },
+    { height: 24, width: 80 }
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -78,7 +80,7 @@ test("renders a configured scrollbox through the scroll prop", async () => {
         </AppLayout>
       </ToastProvider>
     </ThemeSwitcherProvider>,
-    { height: 24, width: 80 },
+    { height: 24, width: 80 }
   );
   await testSetup.renderOnce();
 
@@ -103,7 +105,7 @@ test("snapshot full layout", async () => {
         </AppLayout>
       </ToastProvider>
     </ThemeSwitcherProvider>,
-    { height: 10, width: 60 },
+    { height: 10, width: 60 }
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();

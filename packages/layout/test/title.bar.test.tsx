@@ -1,6 +1,8 @@
-import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach } from "bun:test";
+
+import { testRender } from "@tooee/test-support";
 import { ThemeSwitcherProvider } from "@tooee/themes";
+
 import { TitleBar } from "../src/title-bar.js";
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
@@ -14,7 +16,7 @@ test("renders title text", async () => {
     <ThemeSwitcherProvider>
       <TitleBar title="My Title" />
     </ThemeSwitcherProvider>,
-    { height: 24, width: 80 },
+    { height: 24, width: 80 }
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -26,7 +28,7 @@ test("renders subtitle when provided", async () => {
     <ThemeSwitcherProvider>
       <TitleBar title="My Title" subtitle="A subtitle" />
     </ThemeSwitcherProvider>,
-    { height: 24, width: 80 },
+    { height: 24, width: 80 }
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -39,7 +41,7 @@ test("does not render subtitle when not provided", async () => {
     <ThemeSwitcherProvider>
       <TitleBar title="Only Title" />
     </ThemeSwitcherProvider>,
-    { height: 24, width: 80 },
+    { height: 24, width: 80 }
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();
@@ -52,7 +54,7 @@ test("snapshot", async () => {
     <ThemeSwitcherProvider>
       <TitleBar title="Snapshot Title" subtitle="Sub" />
     </ThemeSwitcherProvider>,
-    { height: 3, width: 60 },
+    { height: 3, width: 60 }
   );
   await testSetup.renderOnce();
   const frame = testSetup.captureCharFrame();

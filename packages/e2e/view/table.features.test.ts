@@ -1,7 +1,9 @@
 import { describe, test, expect, afterEach } from "bun:test";
+
 import type { Session } from "tuistory";
-import { launchTable } from "./table-helpers.js";
+
 import { launchView } from "./helpers.js";
+import { launchTable } from "./table-helpers.js";
 
 let session: Session;
 
