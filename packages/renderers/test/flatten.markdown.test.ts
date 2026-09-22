@@ -59,12 +59,12 @@ describe("flattenMarkdown row order and provenance", () => {
     expect(rows("# Title\n\n## Sub\n\nBody text.")).toEqual([
       {
         source: { e: 7, ec: 7, el: 0, last: 0, line: "# Title", s: 0, sc: 0, sl: 0, t: "# Title" },
-        text: "# Title\n\n",
+        text: "# Title",
         type: "heading",
       },
       {
         source: { e: 15, ec: 6, el: 2, last: 2, line: "## Sub", s: 9, sc: 0, sl: 2, t: "## Sub" },
-        text: "## Sub\n\n",
+        text: "## Sub",
         type: "heading",
       },
       {

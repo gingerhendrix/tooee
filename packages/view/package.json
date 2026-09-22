@@ -54,7 +54,7 @@
     "@tooee/themes": "workspace:*",
     "@xstate/store": "^4.2.3",
     "@xstate/store-react": "^2",
-    "marked": "^17.0.4"
+    "marked": "^18.0.14"
   },
   "devDependencies": {
     "@opentui/core": "^0.5.12",

@@ -50,7 +50,7 @@
     "@types/react": "^19.3.0",
     "ghostty-opentui": "^1.4.5",
     "lefthook": "2.1.10",
-    "marked": "^17.0.4",
+    "marked": "^18.0.14",
     "oxfmt": "0.36.0",
     "oxlint": "1.78.0",
     "oxlint-tsgolint": "0.24.0",
