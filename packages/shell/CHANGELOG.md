@@ -1,3 +1,15 @@
+## @tooee/shell@0.10.0
+
+### Sticky-bottom follow for documents
+
+`useDocumentController` takes a new `followTail` option for streamed rows. A followed document opens on its last row. While the viewport is at the bottom, it stays pinned there as rows arrive, and a cursor on the last row moves to the new last row. Scroll up to stop following. Scroll back to the bottom to follow again. `Document` turns on the scroll box's sticky-bottom scroll for you.
+
+`RowDocumentRenderable` has a new `isScrolledToBottom()` method.
+
+### Keep the scroll position when document rows update
+
+Documents built on `useDocumentController` no longer jump back to the cursor row when their rows change. Streamed rows and in-place text updates now keep a wheel-scrolled viewport where it is. The view still follows the cursor when the cursor moves.
+
 ## @tooee/shell@0.9.0
 
 ### Keep terminal UI output out of shell results
