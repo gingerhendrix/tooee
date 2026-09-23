@@ -1,51 +1,89 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/search\":\n    type: patch\n  \"@tooee/shell\":\n    type: patch\n---\n\n## `g g` and `G` bring back their row after a wheel scroll\n\nBefore, `g g` and `G` did nothing when the cursor was already on the first or last row and the view was scrolled away from it. Now a document scrolls that row back into view. With `followTail`, `G` also pins the view to the bottom again.\n\nThe nav-search store now emits `jumped` for every `jump` that lands on a row, also when the cursor does not move.\n"
-    filename: fix-jump-reveals-row.md
+  - content: "---\npackages:\n  \"@tooee/cli\":\n    type: patch\n---\n\n## Include the terminal runtime with the CLI\n\nThe Tooee CLI now installs OpenTUI and React as runtime dependencies. Global and one-off installs no longer need the user to supply the CLI's rendering runtime.\n"
+    filename: fix-cli-runtime-dependencies.md
+    v: 0.0.0
+  - content: "---\npackages:\n  group:tooee:\n    type: patch\n---\n\n## Update OpenTUI to 0.5.12 and refresh dependencies\n\nTooee now builds and tests against OpenTUI 0.5.12. The `@opentui/core` and `@opentui/react` peer ranges move from `^0.5.1` to `^0.5.12`, so apps that embed Tooee packages should install OpenTUI 0.5.12 or later.\n\n`@tooee/diff` now uses `hunkdiff` 0.22.0. Its OpenTUI peers accept the new runtime, so installs no longer warn about `hunkdiff` peers. `@tooee/diff` also installs `@pierre/diffs` 1.3.5, which the Hunk OpenTUI components need at runtime.\n\nMarkdown parsing moves to `marked` 18. Heading rows in the Markdown view now search and copy as the heading line alone, without trailing blank lines. Chooser rows keep a blank column before the scrollbar under the new OpenTUI text wrapping.\n\nReact 19.3 and `@xstate/store` 4.2.3 are the new tested versions.\n"
+    filename: update-dependencies.md
     v: 0.0.0
 core:packages:
-  - id: npm:@tooee/cli
-    updated: true
-  - id: npm:@tooee/ask
-    updated: true
-  - id: npm:@tooee/choose
-    updated: true
-  - id: npm:@tooee/clipboard
-    updated: true
-  - id: npm:@tooee/commands
-    updated: true
-  - id: npm:@tooee/config
-    updated: true
-  - id: npm:@tooee/diff
-    updated: true
-  - id: npm:@tooee/fuzzy
-    updated: true
-  - id: npm:@tooee/layout
-    updated: true
-  - id: npm:@tooee/overlays
-    updated: true
-  - id: npm:@tooee/marks
-    updated: true
-  - id: npm:@tooee/panels
-    updated: true
-  - id: npm:@tooee/renderers
-    updated: true
-  - id: npm:@tooee/router
+  - changelogIds:
+      - fix-cli-runtime-dependencies.md
+      - update-dependencies.md
+    id: npm:@tooee/cli
     updated: true
   - changelogIds:
-      - fix-jump-reveals-row.md
-    id: npm:@tooee/shell
+      - update-dependencies.md
+    id: npm:@tooee/ask
     updated: true
   - changelogIds:
-      - fix-jump-reveals-row.md
+      - update-dependencies.md
+    id: npm:@tooee/choose
+    updated: true
+  - changelogIds:
+      - update-dependencies.md
+    id: npm:@tooee/clipboard
+    updated: true
+  - changelogIds:
+      - update-dependencies.md
+    id: npm:@tooee/commands
+    updated: true
+  - changelogIds:
+      - update-dependencies.md
+    id: npm:@tooee/config
+    updated: true
+  - changelogIds:
+      - update-dependencies.md
+    id: npm:@tooee/diff
+    updated: true
+  - changelogIds:
+      - update-dependencies.md
+    id: npm:@tooee/fuzzy
+    updated: true
+  - changelogIds:
+      - update-dependencies.md
+    id: npm:@tooee/layout
+    updated: true
+  - changelogIds:
+      - update-dependencies.md
+    id: npm:@tooee/marks
+    updated: true
+  - changelogIds:
+      - update-dependencies.md
+    id: npm:@tooee/overlays
+    updated: true
+  - changelogIds:
+      - update-dependencies.md
+    id: npm:@tooee/panels
+    updated: true
+  - changelogIds:
+      - update-dependencies.md
+    id: npm:@tooee/renderers
+    updated: true
+  - changelogIds:
+      - update-dependencies.md
+    id: npm:@tooee/router
+    updated: true
+  - changelogIds:
+      - update-dependencies.md
     id: npm:@tooee/search
+    updated: true
+  - changelogIds:
+      - update-dependencies.md
+    id: npm:@tooee/shell
     updated: true
   - id: npm:@tooee/test-support
     updated: false
-  - id: npm:@tooee/themes
+  - changelogIds:
+      - update-dependencies.md
+    id: npm:@tooee/themes
     updated: true
-  - id: npm:@tooee/toasts
+  - changelogIds:
+      - update-dependencies.md
+    id: npm:@tooee/toasts
     updated: true
-  - id: npm:@tooee/view
+  - changelogIds:
+      - update-dependencies.md
+    id: npm:@tooee/view
     updated: true
 npm:packages:
   - id: npm:@tooee/cli
@@ -57,13 +95,13 @@ npm:packages:
   - id: npm:@tooee/diff
   - id: npm:@tooee/fuzzy
   - id: npm:@tooee/layout
-  - id: npm:@tooee/overlays
   - id: npm:@tooee/marks
+  - id: npm:@tooee/overlays
   - id: npm:@tooee/panels
   - id: npm:@tooee/renderers
   - id: npm:@tooee/router
-  - id: npm:@tooee/shell
   - id: npm:@tooee/search
+  - id: npm:@tooee/shell
   - id: npm:@tooee/test-support
   - id: npm:@tooee/themes
   - id: npm:@tooee/toasts
