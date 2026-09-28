@@ -94,7 +94,7 @@ export const FlatBlockRenderer = function FlatBlockRenderer({
   }
   const table = narrowToken(token, "table");
   if (table !== null) {
-    return <MarkdownTableRenderer token={table} indent={indent} />;
+    return <MarkdownTableRenderer token={table} indent={indent} onLinkActivate={onLinkActivate} />;
   }
   if (token.type === "hr") {
     return <HorizontalRule theme={theme} indent={indent} />;

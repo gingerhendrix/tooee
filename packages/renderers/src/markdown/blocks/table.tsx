@@ -6,14 +6,18 @@ import { useMemo } from "react";
 import type { ReactNode } from "react";
 
 import { inlineTokensToChunks } from "../chunks.js";
+import type { MarkdownLinkHandler } from "../links.js";
 import { getPlainText } from "../plain-text.js";
+import { tableLinkMouseHandler } from "../table-links.js";
 
 export const MarkdownTableRenderer = function MarkdownTableRenderer({
   token,
   indent,
+  onLinkActivate,
 }: {
   token: Tokens.Table;
   indent: number;
+  onLinkActivate?: MarkdownLinkHandler;
 }): ReactNode {
   const { theme } = useTheme();
 
@@ -38,6 +42,10 @@ export const MarkdownTableRenderer = function MarkdownTableRenderer({
     );
     return [headerRow, ...dataRows];
   }, [token, theme]);
+  const onMouseDown = useMemo(
+    () => tableLinkMouseHandler(content, onLinkActivate),
+    [content, onLinkActivate]
+  );
 
   return (
     <box style={{ marginBottom: 1, marginLeft: 1 + indent, marginRight: 1 }}>
@@ -50,6 +58,7 @@ export const MarkdownTableRenderer = function MarkdownTableRenderer({
         borderStyle="single"
         borderColor={theme.border}
         fg={theme.text}
+        onMouseDown={onMouseDown}
       />
     </box>
   );

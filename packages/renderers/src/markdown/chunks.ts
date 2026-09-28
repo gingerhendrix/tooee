@@ -34,8 +34,10 @@ export const inlineTokensToChunks = function inlineTokensToChunks(
     escape: (token) => [chunk(token.text)],
     fallback: (token) => (hasMarkedText(token) ? [chunk(token.text)] : []),
     image: (token) => [chunk(token.text)],
-    link: (_token, children) =>
-      children.map((child) => underlineChunk({ ...child, fg: parseColor(theme.markdownLink) })),
+    link: (token, children) =>
+      children.map((child) =>
+        underlineChunk({ ...child, fg: parseColor(theme.markdownLink), link: { url: token.href } })
+      ),
     space: () => [],
     strong: (_token, children) => children.map((child) => boldChunk(child)),
     text: (token) => [chunk(token.text)],
