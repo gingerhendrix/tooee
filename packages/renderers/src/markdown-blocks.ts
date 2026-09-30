@@ -327,6 +327,8 @@ const flattenWalk = function flattenWalk(
  * Lex, flatten, and source-map Markdown in one operation. Every returned block
  * carries a `source` anchor (or `null` when a marked edge case leaves a token
  * genuinely unresolvable), in the exact order used for navigation/rendering.
+ * Block HTML is not rendered, so it does not occupy a navigation row. Resolve
+ * it before filtering so later blocks retain their sequential source anchors.
  */
 export const flattenMarkdown = function flattenMarkdown(
   markdown: string,
@@ -335,5 +337,5 @@ export const flattenMarkdown = function flattenMarkdown(
   const res = new MarkdownResolver(markdown, options?.sourceId);
   const out: FlatBlock[] = [];
   flattenWalk(marked.lexer(markdown), 0, out, res, markdown.length);
-  return out;
+  return out.filter((block) => block.token.type !== "html");
 };

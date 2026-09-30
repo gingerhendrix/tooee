@@ -309,7 +309,7 @@ describe("flattenMarkdown row order and provenance", () => {
     );
   });
 
-  test("blockquotes, nested blockquotes, thematic rules, HTML and tables", () => {
+  test("blockquotes, nested blockquotes, thematic rules and tables", () => {
     expect(rows("> outer\n> > inner")).toEqual([
       {
         source: {
@@ -334,21 +334,6 @@ describe("flattenMarkdown row order and provenance", () => {
         text: "---",
         type: "hr",
       },
-      {
-        source: {
-          e: 17,
-          ec: 12,
-          el: 2,
-          last: 2,
-          line: "<div>x</div>",
-          s: 5,
-          sc: 0,
-          sl: 2,
-          t: "<div>x</div>",
-        },
-        text: "<div>x</div>",
-        type: "html",
-      },
     ]);
 
     expect(rows("| A | B |\n| --- | --- |\n| 1 | 2 |")).toEqual([
@@ -368,6 +353,34 @@ describe("flattenMarkdown row order and provenance", () => {
         type: "table",
       },
     ]);
+  });
+
+  test("hidden HTML blocks do not occupy rows or disturb repeated source anchors", () => {
+    const markdown = [
+      "<!-- guide:meta -->",
+      "Same line",
+      "<!-- Same line -->",
+      "<div>Same line</div>",
+      "Same line",
+      "<!-- /guide:hunks -->",
+    ].join("\n\n");
+    const result = flattenMarkdown(markdown);
+    expect(result).toHaveLength(2);
+    expect(result.map((block) => block.token.type)).toEqual(["paragraph", "paragraph"]);
+    expect(result.map((block) => block.source?.primary.start.offset)).toEqual([
+      markdown.indexOf("Same line"),
+      markdown.lastIndexOf("Same line"),
+    ]);
+    expect(result.map(getFlatBlockText)).toEqual(["Same line", "Same line"]);
+    expect(flattenMarkdown("<!-- only hidden content -->")).toEqual([]);
+  });
+
+  test("HTML inside a list is skipped while visible bullet rows retain their source", () => {
+    const markdown = "- before\n\n  <!-- hidden -->\n\n  after\n\n- <!-- hidden-only item -->";
+    const result = flattenMarkdown(markdown);
+    expect(result.map((block) => block.token.type)).toEqual(["paragraph", "paragraph", "text"]);
+    expect(result.map(getFlatBlockText)).toEqual(["before", "after\n", "- "]);
+    expect(result.map((block) => block.source?.primary.text)).toEqual(["before", "after", "-"]);
   });
 
   describe("LF vs CRLF equivalence", () => {
