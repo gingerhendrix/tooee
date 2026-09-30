@@ -1,93 +1,49 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/cli\":\n    type: patch\n---\n\n## Include the terminal runtime with the CLI\n\nThe Tooee CLI now installs OpenTUI and React as runtime dependencies. Global and one-off installs no longer need the user to supply the CLI's rendering runtime.\n"
-    filename: fix-cli-runtime-dependencies.md
-    v: 0.0.0
-  - content: "---\npackages:\n  group:tooee:\n    type: patch\n---\n\n## Update OpenTUI to 0.5.12 and refresh dependencies\n\nTooee now builds and tests against OpenTUI 0.5.12. The `@opentui/core` and `@opentui/react` peer ranges move from `^0.5.1` to `^0.5.12`, so apps that embed Tooee packages should install OpenTUI 0.5.12 or later.\n\n`@tooee/diff` now uses `hunkdiff` 0.22.0. Its OpenTUI peers accept the new runtime, so installs no longer warn about `hunkdiff` peers. `@tooee/diff` also installs `@pierre/diffs` 1.3.5, which the Hunk OpenTUI components need at runtime.\n\nMarkdown parsing moves to `marked` 18. Heading rows in the Markdown view now search and copy as the heading line alone, without trailing blank lines. Chooser rows keep a blank column before the scrollbar under the new OpenTUI text wrapping.\n\nReact 19.3 and `@xstate/store` 4.2.3 are the new tested versions.\n"
-    filename: update-dependencies.md
-    v: 0.0.0
-  - content: "---\npackages:\n  \"@tooee/renderers\":\n    type: patch\n---\n\n## Make links in Markdown table cells clickable\n\nA left click on a link inside a Markdown table cell now calls the `onLinkActivate` handler, as it does for links in paragraphs, headings, lists, and blockquotes. This works in header cells, in wrapped cells, and in cells with more than one link. Table links also carry an OSC 8 hyperlink, so terminals that support OSC 8 can open them.\n"
-    filename: fix-markdown-table-links.md
+  - content: "---\npackages:\n  \"@tooee/renderers\":\n    type: patch\n---\n\n## Fix Markdown bottom navigation around hidden HTML\n\nMarkdown HTML blocks, including implementation guide comments, no longer create invisible navigation rows. `G` reaches the final visible block and `j` stops there, with cursor highlights and source anchors aligned to the rendered blocks.\n"
+    filename: fix-markdown-bottom.md
     v: 0.0.0
 core:packages:
-  - changelogIds:
-      - fix-cli-runtime-dependencies.md
-      - update-dependencies.md
-    id: npm:@tooee/cli
+  - id: npm:@tooee/cli
+    updated: true
+  - id: npm:@tooee/ask
+    updated: true
+  - id: npm:@tooee/choose
+    updated: true
+  - id: npm:@tooee/clipboard
+    updated: true
+  - id: npm:@tooee/commands
+    updated: true
+  - id: npm:@tooee/config
+    updated: true
+  - id: npm:@tooee/diff
+    updated: true
+  - id: npm:@tooee/fuzzy
+    updated: true
+  - id: npm:@tooee/layout
+    updated: true
+  - id: npm:@tooee/marks
+    updated: true
+  - id: npm:@tooee/overlays
+    updated: true
+  - id: npm:@tooee/panels
     updated: true
   - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/ask
-    updated: true
-  - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/choose
-    updated: true
-  - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/clipboard
-    updated: true
-  - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/commands
-    updated: true
-  - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/config
-    updated: true
-  - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/diff
-    updated: true
-  - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/fuzzy
-    updated: true
-  - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/layout
-    updated: true
-  - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/marks
-    updated: true
-  - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/overlays
-    updated: true
-  - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/panels
-    updated: true
-  - changelogIds:
-      - fix-markdown-table-links.md
-      - update-dependencies.md
+      - fix-markdown-bottom.md
     id: npm:@tooee/renderers
     updated: true
-  - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/search
+  - id: npm:@tooee/router
+    updated: true
+  - id: npm:@tooee/search
+    updated: true
+  - id: npm:@tooee/shell
     updated: true
   - id: npm:@tooee/test-support
     updated: false
-  - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/router
+  - id: npm:@tooee/view
     updated: true
-  - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/themes
+  - id: npm:@tooee/themes
     updated: true
-  - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/shell
-    updated: true
-  - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/toasts
-    updated: true
-  - changelogIds:
-      - update-dependencies.md
-    id: npm:@tooee/view
+  - id: npm:@tooee/toasts
     updated: true
 npm:packages:
   - id: npm:@tooee/cli
@@ -103,11 +59,11 @@ npm:packages:
   - id: npm:@tooee/overlays
   - id: npm:@tooee/panels
   - id: npm:@tooee/renderers
-  - id: npm:@tooee/search
-  - id: npm:@tooee/test-support
   - id: npm:@tooee/router
-  - id: npm:@tooee/themes
+  - id: npm:@tooee/search
   - id: npm:@tooee/shell
-  - id: npm:@tooee/toasts
+  - id: npm:@tooee/test-support
   - id: npm:@tooee/view
+  - id: npm:@tooee/themes
+  - id: npm:@tooee/toasts
   - id: npm:@tooee/examples
