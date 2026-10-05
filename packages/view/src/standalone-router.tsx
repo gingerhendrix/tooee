@@ -107,6 +107,7 @@ export const createStandaloneRouter = function createStandaloneRouter(
         codeBlockRenderers={options.codeBlockRenderers}
         contentProvider={provider}
         onMarkdownLinkActivate={activate}
+        outline={options.outline}
         renderers={options.renderers}
       />
     );

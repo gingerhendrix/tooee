@@ -449,6 +449,7 @@
         "@tooee/layout": "workspace:*",
         "@tooee/marks": "workspace:*",
         "@tooee/overlays": "workspace:*",
+        "@tooee/panels": "workspace:*",
         "@tooee/renderers": "workspace:*",
         "@tooee/router": "workspace:*",
         "@tooee/search": "workspace:*",

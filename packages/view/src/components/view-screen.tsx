@@ -21,6 +21,8 @@ export interface ViewScreenProps<T> {
   setMarkSet: (set: MarkSet) => void;
   clearMarkNamespace: (namespace: string) => void;
   clearAllUserMarks: () => void;
+  /** Optional side region beside the content, such as the Markdown outline. */
+  aside?: ReactNode;
   children: ReactNode;
 }
 
@@ -41,6 +43,7 @@ export const ViewScreen = function ViewScreen<T>({
   setMarkSet,
   clearMarkNamespace,
   clearAllUserMarks,
+  aside,
   children,
 }: ViewScreenProps<T>): ReactNode {
   useProvideViewCommandContext({
@@ -71,6 +74,7 @@ export const ViewScreen = function ViewScreen<T>({
       statusItems={items}
       actions={actions}
       context={{ kind: content.format, reload, title: content.title }}
+      aside={aside}
     >
       {children}
     </DocumentScreen>

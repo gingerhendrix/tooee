@@ -1,4 +1,5 @@
 import type { TextBufferRenderable } from "@opentui/core";
+import { useTerminalDimensions } from "@opentui/react";
 import { useBuildCommandContext, useCommand } from "@tooee/commands";
 import { MarkdownView, flattenMarkdown, getFlatBlockText } from "@tooee/renderers";
 import type { CodeBlockRenderer, FlatBlock } from "@tooee/renderers";
@@ -9,6 +10,8 @@ import type { ReactNode } from "react";
 import { markdownHeadingFoldRanges } from "../../folds/markdown-heading-folds.js";
 import { useFoldCommands, useFoldState } from "../../folds/use-folds.js";
 import { useContentDocument } from "../../hooks/use-content-document.js";
+import { OutlinePanel } from "../../outline/outline-panel.js";
+import { useMarkdownOutline } from "../../outline/use-outline.js";
 import type { MarkdownContent, MarkdownLinkActivateHandler } from "../../types.js";
 import { ViewScreen } from "../view-screen.js";
 import type { SubviewProps } from "./types.js";
@@ -17,6 +20,8 @@ interface MarkdownSubviewProps extends SubviewProps {
   content: MarkdownContent;
   codeBlockRenderers?: Record<string, CodeBlockRenderer>;
   onLinkActivate?: MarkdownLinkActivateHandler;
+  /** Open the heading outline beside the document at start. */
+  outline?: boolean;
 }
 
 /** Columns moved per h/l press when scrolling a wide block horizontally. */
@@ -44,6 +49,7 @@ export const MarkdownSubview = function MarkdownSubview({
   content,
   codeBlockRenderers,
   onLinkActivate,
+  outline: initialOutline = false,
   decorations,
   actions,
   ...screen
@@ -71,6 +77,15 @@ export const MarkdownSubview = function MarkdownSubview({
     }
   );
   useFoldCommands(folds, document.navigation);
+  // Declared after the controller, so its jump effect runs after the
+  // controller has taken the new rows.
+  const outline = useMarkdownOutline({
+    blocks,
+    folds,
+    initialOpen: initialOutline,
+    navigation: document.navigation,
+  });
+  const { width: terminalWidth } = useTerminalDimensions();
   const buildCommandContext = useBuildCommandContext();
   const handleLinkActivate = onLinkActivate
     ? (href: string) => onLinkActivate(href, buildCommandContext())
@@ -114,6 +129,7 @@ export const MarkdownSubview = function MarkdownSubview({
       controller={document}
       actions={actions}
       statusItems={statusItems}
+      aside={<OutlinePanel outline={outline} />}
       {...screen}
     >
       <MarkdownView
@@ -127,6 +143,7 @@ export const MarkdownSubview = function MarkdownSubview({
         codeBlockRenderers={codeBlockRenderers}
         onLinkActivate={handleLinkActivate}
         imageBasePath={content.imageBasePath}
+        width={outline.visible ? terminalWidth - outline.width : undefined}
       />
     </ViewScreen>
   );

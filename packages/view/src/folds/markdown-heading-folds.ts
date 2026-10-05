@@ -3,13 +3,18 @@ import type { Tokens } from "marked";
 
 import type { FoldRange } from "./fold-model.js";
 
-const headingDepth = function headingDepth(block: FlatBlock): number | null {
+/** The Marked heading token of a flattened block, or `null` when the block is not a heading. */
+export const headingToken = function headingToken(block: FlatBlock): Tokens.Heading | null {
   if (block.token.type !== "heading") {
     return null;
   }
   // SAFETY: Marked creates a Heading token for the checked "heading" discriminator.
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's Generic fallback prevents discriminator narrowing
-  return (block.token as Tokens.Heading).depth;
+  return block.token as Tokens.Heading;
+};
+
+const headingDepth = function headingDepth(block: FlatBlock): number | null {
+  return headingToken(block)?.depth ?? null;
 };
 
 /**

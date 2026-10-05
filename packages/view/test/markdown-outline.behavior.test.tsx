@@ -1,0 +1,249 @@
+import { afterEach, describe, expect, test } from "bun:test";
+
+import { MouseButtons } from "@opentui/core/testing";
+import type { ActionDefinition } from "@tooee/commands";
+import { TooeeProvider } from "@tooee/shell";
+import type { DocumentCommandContext } from "@tooee/shell";
+import {
+  expectDefined,
+  press,
+  pressEnter,
+  pressEscape,
+  pressTab,
+  testRender,
+} from "@tooee/test-support";
+import { act } from "react";
+
+import type { ContentProvider } from "../src/types.js";
+import { View } from "../src/view.js";
+
+// Rows: 0 # Guide | 1 p | 2 ## Install | 3 p | 4 code | 5 ## Usage | 6 p
+//       7 ### Keys | 8 p | 9 ## Limits | 10 p
+const MARKDOWN = [
+  "# Guide",
+  "Intro paragraph.",
+  "## Install",
+  "Run the install step.",
+  "```bash\nbun add @tooee/view\n```",
+  "## Usage",
+  "Usage paragraph.",
+  "### Keys",
+  "Keys paragraph.",
+  "## Limits",
+  "Limits paragraph.",
+].join("\n\n");
+const ROW_COUNT = 11;
+const provider: ContentProvider = {
+  load: () => ({ format: "markdown", markdown: MARKDOWN }),
+};
+
+let testSetup: Awaited<ReturnType<typeof testRender>>;
+let documentContext: DocumentCommandContext | undefined;
+
+const actions: ActionDefinition[] = [
+  {
+    handler: (context) => {
+      documentContext = context.document;
+    },
+    hotkey: "x",
+    id: "probe",
+    modes: ["cursor"],
+    title: "Probe document",
+  },
+];
+
+const mount = async function mount({ outline = false, width = 100 } = {}) {
+  documentContext = undefined;
+  testSetup = await testRender(
+    <TooeeProvider>
+      <View contentProvider={provider} actions={actions} outline={outline} />
+    </TooeeProvider>,
+    { height: 40, kittyKeyboard: true, width }
+  );
+  await act(async () => {
+    await Bun.sleep(100);
+  });
+  await testSetup.renderOnce();
+};
+
+afterEach(() => {
+  testSetup?.renderer.destroy();
+});
+
+const keys = async function keys(...sequence: string[]) {
+  for (const key of sequence) {
+    // oxlint-disable-next-line no-await-in-loop -- each key must render before the next
+    await press(testSetup, key);
+  }
+};
+
+/** Let effects that run after a commit, such as the outline jump, settle. */
+const settle = async function settle() {
+  await act(async () => {
+    await Bun.sleep(20);
+  });
+  await testSetup.renderOnce();
+};
+
+const probe = async function probe(): Promise<DocumentCommandContext> {
+  await press(testSetup, "x");
+  return expectDefined(documentContext);
+};
+
+const frame = () => testSetup.captureCharFrame();
+
+/** The outline line that shows `text`, matched inside the panel border. */
+const outlineLine = (text: string) => new RegExp(`│\\s*${text}\\s*│`, "u");
+
+describe("Markdown outline panel", () => {
+  test("is off by default, and g o opens and focuses it, then closes it", async () => {
+    await mount();
+    expect(frame()).not.toContain("Outline");
+
+    await keys("g", "o");
+    expect(frame()).toContain("▸ Outline");
+    expect(frame()).toMatch(outlineLine("▸ Guide"));
+    expect(frame()).toMatch(outlineLine("Install"));
+    expect(frame()).toMatch(outlineLine("Keys"));
+
+    await keys("g", "o");
+    expect(frame()).not.toContain("Outline");
+  });
+
+  test("indents headings by depth", async () => {
+    await mount({ outline: true });
+    const lines = frame().split("\n");
+    const column = (text: string) => {
+      const pattern = new RegExp(`│[\\s▸]*${text}\\s*│`, "u");
+      const line = expectDefined(lines.find((candidate) => pattern.test(candidate)));
+      // The document can show the same text, so measure from the panel border.
+      const at = line.lastIndexOf(text);
+      return at - line.lastIndexOf("│", at);
+    };
+    expect(column("Install")).toBe(column("Guide") + 2);
+    expect(column("Keys")).toBe(column("Install") + 2);
+    expect(column("Limits")).toBe(column("Install"));
+  });
+
+  test("j and k move in the outline and enter jumps the document cursor", async () => {
+    await mount();
+    await keys("g", "o", "j", "j", "j", "k");
+    // The document cursor did not move while the outline had focus.
+    const before = await probe();
+    expect(before.cursor).toBe(0);
+
+    await pressEnter(testSetup);
+    await settle();
+    const after = await probe();
+    expect(after.activeAnchor?.text).toBe("## Usage");
+    expect(after.cursor).toBe(5);
+    expect(frame()).not.toContain("▸ Outline");
+    expect(frame()).toMatch(outlineLine("▸ Usage"));
+
+    // Focus is back in the document, so j moves the document cursor.
+    await keys("j");
+    const moved = await probe();
+    expect(moved.activeAnchor?.text).toBe("Usage paragraph.");
+  });
+
+  test("the current heading follows the document cursor", async () => {
+    await mount({ outline: true });
+    expect(frame()).toContain("Outline");
+    expect(frame()).not.toContain("▸ Outline");
+    expect(frame()).toMatch(outlineLine("▸ Guide"));
+
+    await keys("j", "j", "j", "j", "j", "j", "j", "j");
+    const context = await probe();
+    expect(context.activeAnchor?.text).toBe("Keys paragraph.");
+    expect(frame()).toMatch(outlineLine("▸ Keys"));
+    expect(frame()).not.toMatch(outlineLine("▸ Guide"));
+  });
+
+  test("a jump into a closed fold opens the folds that hide the heading", async () => {
+    await mount({ outline: true });
+    await keys("j", "j", "j", "j", "j", "z", "c");
+    expect(frame()).toContain("## Usage ⋯ 3 blocks");
+    expect(frame()).toMatch(outlineLine("▸ Usage ⋯"));
+    const folded = await probe();
+    expect(folded.rowCount).toBe(ROW_COUNT - 3);
+
+    // Focus starts on the current heading; j selects Keys, inside the fold.
+    await keys("g", "o", "j");
+    await pressEnter(testSetup);
+    await settle();
+    const context = await probe();
+    expect(context.rowCount).toBe(ROW_COUNT);
+    expect(context.activeAnchor?.text).toBe("### Keys");
+    expect(context.cursor).toBe(7);
+    expect(frame()).not.toContain("⋯ 3 blocks");
+  });
+
+  test("escape returns focus to the document and tab keeps multi-select", async () => {
+    await mount();
+    await keys("g", "o");
+    expect(frame()).toContain("▸ Outline");
+
+    await pressEscape(testSetup);
+    expect(frame()).toContain("Outline");
+    expect(frame()).not.toContain("▸ Outline");
+
+    await pressTab(testSetup);
+    expect(frame()).toMatch(/Selected:\s*1/u);
+    expect(frame()).toContain("Outline");
+  });
+
+  test("g o shows in which-key and in the command palette", async () => {
+    await mount();
+    await keys("g");
+    expect(frame()).toContain("Toggle outline");
+    await keys("o");
+    await pressEscape(testSetup);
+
+    await press(testSetup, ":");
+    for (const char of "outline") {
+      // oxlint-disable-next-line no-await-in-loop -- each key must render before the next
+      await press(testSetup, char);
+    }
+    expect(frame()).toContain("Toggle outline");
+  });
+
+  test("a click on an outline heading jumps to it", async () => {
+    await mount({ outline: true });
+    const lines = frame().split("\n");
+    const y = lines.findIndex((line) => outlineLine("Limits").test(line));
+    const x = expectDefined(lines[y]).indexOf("Limits");
+    await act(async () => {
+      await testSetup.mockMouse.click(x, y, MouseButtons.LEFT);
+    });
+    await settle();
+    const context = await probe();
+    expect(context.activeAnchor?.text).toBe("## Limits");
+    expect(context.cursor).toBe(9);
+  });
+
+  test("a narrow terminal hides the outline and g o explains why", async () => {
+    await mount({ outline: true, width: 50 });
+    expect(frame()).not.toContain("Outline");
+
+    await keys("g", "o");
+    expect(frame()).toContain("The outline needs a wider terminal");
+    expect(frame()).not.toContain("Outline─");
+  });
+
+  test("a document with no headings shows an empty outline", async () => {
+    testSetup = await testRender(
+      <TooeeProvider>
+        <View
+          contentProvider={{ load: () => ({ format: "markdown", markdown: "Only text." }) }}
+          outline
+        />
+      </TooeeProvider>,
+      { height: 20, width: 100 }
+    );
+    await act(async () => {
+      await Bun.sleep(100);
+    });
+    await testSetup.renderOnce();
+    expect(frame()).toContain("No headings");
+  });
+});

@@ -30,6 +30,8 @@ interface ViewProps {
   codeBlockRenderers?: Record<string, CodeBlockRenderer>;
   /** Handles primary-button activation of inline Markdown links. */
   onMarkdownLinkActivate?: MarkdownLinkActivateHandler;
+  /** Open the heading outline beside Markdown content at start. Other formats ignore it. */
+  outline?: boolean;
 }
 
 export const View = function View({
@@ -38,6 +40,7 @@ export const View = function View({
   renderers,
   codeBlockRenderers,
   onMarkdownLinkActivate,
+  outline,
 }: ViewProps): ReactNode {
   const { theme } = useTheme();
   const { content, streaming, error, providerMarks, reload } = useContentLoader(contentProvider);
@@ -101,6 +104,7 @@ export const View = function View({
           content={content}
           codeBlockRenderers={mergedCodeBlockRenderers}
           onLinkActivate={onMarkdownLinkActivate}
+          outline={outline}
           {...shared}
         />
       );

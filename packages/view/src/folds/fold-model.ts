@@ -71,6 +71,20 @@ export const foldsAt = function foldsAt(
 };
 
 /**
+ * Keys of the closed ranges that hide `row`: closed ranges whose body
+ * (`start + 1 ..= end`) contains it. Opening them all makes `row` visible.
+ */
+export const closedFoldsHiding = function closedFoldsHiding(
+  ranges: readonly FoldRange[],
+  closedKeys: ReadonlySet<Key>,
+  row: number
+): Key[] {
+  return ranges
+    .filter((range) => closedKeys.has(range.key) && range.start < row && row <= range.end)
+    .map((range) => range.key);
+};
+
+/**
  * The full-array row the cursor should rest on once `view` applies: `row`
  * itself when it stays visible, otherwise the nearest visible row before it,
  * which is the header of the outermost closed fold that hides it.

@@ -1,6 +1,11 @@
 import { describe, expect, test } from "bun:test";
 
-import { computeFoldView, foldsAt, visibleAnchorRow } from "../../src/folds/fold-model.js";
+import {
+  closedFoldsHiding,
+  computeFoldView,
+  foldsAt,
+  visibleAnchorRow,
+} from "../../src/folds/fold-model.js";
 import type { FoldRange } from "../../src/folds/fold-model.js";
 
 // 0 H1 | 1 p | 2 H2 | 3 p | 4 H3 | 5 p | 6 H2 | 7 p
@@ -63,5 +68,18 @@ describe("visibleAnchorRow", () => {
     expect(visibleAnchorRow(view, 7)).toBe(7);
     expect(visibleAnchorRow(view, 5)).toBe(2);
     expect(visibleAnchorRow(view, 3)).toBe(2);
+  });
+});
+
+describe("closedFoldsHiding", () => {
+  test("lists the closed ranges whose body holds a row", () => {
+    expect(closedFoldsHiding(RANGES, new Set([0, 2, 4]), 5)).toEqual([0, 2, 4]);
+    expect(closedFoldsHiding(RANGES, new Set([2]), 5)).toEqual([2]);
+  });
+
+  test("a closed header does not hide itself, and open ranges hide nothing", () => {
+    expect(closedFoldsHiding(RANGES, new Set([4]), 4)).toEqual([]);
+    expect(closedFoldsHiding(RANGES, new Set([0]), 4)).toEqual([0]);
+    expect(closedFoldsHiding(RANGES, new Set(), 5)).toEqual([]);
   });
 });

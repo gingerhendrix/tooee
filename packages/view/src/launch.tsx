@@ -23,6 +23,8 @@ export interface ViewLaunchOptions {
    * Unmatched types fall back to the default syntax-highlighted code block.
    */
   codeBlockRenderers?: Record<string, CodeBlockRenderer>;
+  /** Open the heading outline beside Markdown content at start. */
+  outline?: boolean;
 }
 
 export interface DirectoryLaunchOptions {
