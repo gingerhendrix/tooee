@@ -65,6 +65,11 @@ interface MarkdownViewProps {
   onLinkActivate?: MarkdownLinkHandler;
   /** Directory used to resolve relative standard Markdown and Obsidian image embeds. */
   imageBasePath?: string;
+  /**
+   * Columns the view may use, when it shares the terminal width with a side
+   * panel. Defaults to the terminal width.
+   */
+  width?: number;
 }
 
 /** Columns held back from the measured width for the scrollbar and right edge. */
@@ -81,6 +86,7 @@ export const MarkdownView = function MarkdownView({
   codeBlockRenderers,
   onLinkActivate,
   imageBasePath,
+  width,
 }: MarkdownViewProps): ReactNode {
   const { theme, syntax } = useTheme();
   const palette = useGutterPalette();
@@ -92,7 +98,7 @@ export const MarkdownView = function MarkdownView({
 
   const contentWidth = Math.max(
     1,
-    terminalWidth -
+    (width ?? terminalWidth) -
       computeRowDocumentGutterWidth({
         rowCount: blocks.length,
         rowNumbers,

@@ -2,7 +2,7 @@ import type { Token } from "marked";
 
 import { hasMarkedText, narrowToken } from "./tokens.js";
 
-/** Extract unstyled inline text for table-cell fallback content. */
+/** Extract unstyled inline text, for table-cell fallbacks and heading outlines. */
 export const getPlainText = function getPlainText(tokens: readonly Token[]): string {
   return tokens
     .map((token) => {
