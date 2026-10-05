@@ -1,6 +1,6 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/renderers\":\n    type: patch\n---\n\n## Fix Markdown bottom navigation around hidden HTML\n\nMarkdown HTML blocks, including implementation guide comments, no longer create invisible navigation rows. `G` reaches the final visible block and `j` stops there, with cursor highlights and source anchors aligned to the rendered blocks.\n"
-    filename: fix-markdown-bottom.md
+  - content: "---\npackages:\n  \"@tooee/view\":\n    type: minor\n  \"@tooee/renderers\":\n    type: minor\n---\n\n## Fold Markdown sections under their headings\n\nThe Markdown view can now fold the blocks under a heading. In cursor mode, `z a` toggles the fold at the cursor, `z c` closes it, `z o` opens it, `z M` closes all folds and `z R` opens them all. A closed heading shows `⋯ N blocks`, and the gutter keeps document numbers. Navigation, search, copy and clicks use the visible blocks. When a fold closes over the cursor, the cursor moves to the heading.\n\n`MarkdownView` accepts `rowNumbers` and `foldedBlocks`, and the row document accepts `rowNumbers`, so hosts can render their own filtered block lists.\n"
+    filename: markdown-heading-folds.md
     v: 0.0.0
 core:packages:
   - id: npm:@tooee/cli
@@ -23,27 +23,29 @@ core:packages:
     updated: true
   - id: npm:@tooee/marks
     updated: true
-  - id: npm:@tooee/overlays
-    updated: true
   - id: npm:@tooee/panels
     updated: true
+  - id: npm:@tooee/overlays
+    updated: true
   - changelogIds:
-      - fix-markdown-bottom.md
+      - markdown-heading-folds.md
     id: npm:@tooee/renderers
     updated: true
-  - id: npm:@tooee/router
-    updated: true
   - id: npm:@tooee/search
+    updated: true
+  - id: npm:@tooee/router
     updated: true
   - id: npm:@tooee/shell
     updated: true
   - id: npm:@tooee/test-support
     updated: false
-  - id: npm:@tooee/view
-    updated: true
   - id: npm:@tooee/themes
     updated: true
   - id: npm:@tooee/toasts
+    updated: true
+  - changelogIds:
+      - markdown-heading-folds.md
+    id: npm:@tooee/view
     updated: true
 npm:packages:
   - id: npm:@tooee/cli
@@ -56,14 +58,14 @@ npm:packages:
   - id: npm:@tooee/fuzzy
   - id: npm:@tooee/layout
   - id: npm:@tooee/marks
-  - id: npm:@tooee/overlays
   - id: npm:@tooee/panels
+  - id: npm:@tooee/overlays
   - id: npm:@tooee/renderers
-  - id: npm:@tooee/router
   - id: npm:@tooee/search
+  - id: npm:@tooee/router
   - id: npm:@tooee/shell
   - id: npm:@tooee/test-support
-  - id: npm:@tooee/view
   - id: npm:@tooee/themes
   - id: npm:@tooee/toasts
+  - id: npm:@tooee/view
   - id: npm:@tooee/examples
