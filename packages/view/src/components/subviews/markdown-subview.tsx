@@ -8,7 +8,7 @@ import { useMemo, useRef } from "react";
 import type { ReactNode } from "react";
 
 import { markdownHeadingFoldRanges } from "../../folds/markdown-heading-folds.js";
-import { useFoldCommands, useFoldState } from "../../folds/use-folds.js";
+import { useFoldActions, useFoldCommands, useFoldState } from "../../folds/use-folds.js";
 import { useContentDocument } from "../../hooks/use-content-document.js";
 import { OutlinePanel } from "../../outline/outline-panel.js";
 import { useMarkdownOutline } from "../../outline/use-outline.js";
@@ -76,7 +76,8 @@ export const MarkdownSubview = function MarkdownSubview({
       ],
     }
   );
-  useFoldCommands(folds, document.navigation);
+  const foldActions = useFoldActions(folds, document.navigation);
+  useFoldCommands(folds, foldActions, document.navigation);
   // Declared after the controller, so its jump effect runs after the
   // controller has taken the new rows.
   const outline = useMarkdownOutline({
@@ -129,7 +130,7 @@ export const MarkdownSubview = function MarkdownSubview({
       controller={document}
       actions={actions}
       statusItems={statusItems}
-      aside={<OutlinePanel outline={outline} />}
+      aside={<OutlinePanel outline={outline} foldActions={foldActions} />}
       {...screen}
     >
       <MarkdownView

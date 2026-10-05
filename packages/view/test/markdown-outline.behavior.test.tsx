@@ -178,6 +178,61 @@ describe("Markdown outline panel", () => {
     expect(frame()).not.toContain("⋯ 3 blocks");
   });
 
+  test("fold keys in the outline act on the selected heading", async () => {
+    await mount();
+    // Select Usage: Guide, Install, Usage.
+    await keys("g", "o", "j", "j", "z", "c");
+    expect(frame()).toContain("## Usage ⋯ 3 blocks");
+    expect(frame()).toMatch(outlineLine("Usage ⋯"));
+    expect(frame()).toContain("▸ Outline");
+    const closed = await probe();
+    expect(closed.rowCount).toBe(ROW_COUNT - 3);
+    expect(closed.cursor).toBe(0);
+
+    await keys("z", "o");
+    expect(frame()).not.toContain("⋯");
+    const opened = await probe();
+    expect(opened.rowCount).toBe(ROW_COUNT);
+  });
+
+  test("z z in the outline toggles the selected heading's section", async () => {
+    await mount();
+    await keys("g", "o", "j", "z", "z");
+    expect(frame()).toContain("## Install ⋯ 2 blocks");
+
+    await keys("z", "z");
+    expect(frame()).not.toContain("⋯");
+    expect(frame()).toContain("Run the install step.");
+  });
+
+  test("closing a fold from the outline keeps the document cursor visible", async () => {
+    await mount();
+    await keys("j", "j", "j", "j", "j", "j", "j", "j");
+    const before = await probe();
+    expect(before.activeAnchor?.text).toBe("Keys paragraph.");
+
+    // Focus starts on Keys; k selects Usage, which contains the cursor.
+    await keys("g", "o", "k", "z", "c");
+    const after = await probe();
+    expect(after.activeAnchor?.text).toBe("## Usage");
+    expect(after.cursor).toBe(5);
+    expect(frame()).toContain("## Usage ⋯ 3 blocks");
+  });
+
+  test("z shift+m and z shift+r work while the outline has focus", async () => {
+    await mount();
+    await keys("g", "o", "z");
+    await press(testSetup, "m", { shift: true });
+    const closed = await probe();
+    expect(closed.rowCount).toBe(1);
+    expect(frame()).toContain("▸ Outline");
+
+    await keys("z");
+    await press(testSetup, "r", { shift: true });
+    const opened = await probe();
+    expect(opened.rowCount).toBe(ROW_COUNT);
+  });
+
   test("escape returns focus to the document and tab keeps multi-select", async () => {
     await mount();
     await keys("g", "o");

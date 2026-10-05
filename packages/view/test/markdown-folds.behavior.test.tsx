@@ -181,4 +181,27 @@ describe("Markdown heading folds", () => {
     expect(context.rowCount).toBe(ROW_COUNT - 3);
     expect(frame()).toContain("## Usage ⋯ 3 blocks");
   });
+
+  test("z z closes the block's fold when it is open and opens it when it is closed", async () => {
+    await keys("j", "j", "j");
+    const probed7 = await probe();
+    expect(probed7.activeAnchor?.text).toBe("Run the install step.");
+
+    await keys("z", "z");
+    expect(frame()).toContain("## Install ⋯ 2 blocks");
+    const closed = await probe();
+    expect(closed.cursor).toBe(2);
+    expect(closed.rowCount).toBe(ROW_COUNT - 2);
+
+    await keys("z", "z");
+    expect(frame()).toContain("Run the install step.");
+    const opened = await probe();
+    expect(opened.rowCount).toBe(ROW_COUNT);
+    expect(opened.activeAnchor?.text).toBe("## Install");
+  });
+
+  test("z z shows in which-key under z", async () => {
+    await keys("z");
+    expect(frame()).toContain("Open or close fold");
+  });
 });

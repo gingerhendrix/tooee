@@ -1,5 +1,5 @@
-import { useCommand, useCommandGroup } from "@tooee/commands";
-import type { CommandContext } from "@tooee/commands";
+import { useActions, useCommandGroup } from "@tooee/commands";
+import type { ActionDefinition, CommandContext, CommandHandler } from "@tooee/commands";
 import type { DecorationLayer } from "@tooee/renderers";
 import type { NavigationState } from "@tooee/shell";
 import { useMemo, useState } from "react";
@@ -76,36 +76,49 @@ export const useFoldState = function useFoldState<T>(
   };
 };
 
-const warnNoFold = function warnNoFold(ctx: CommandContext): void {
-  ctx.toast?.toast({ level: "warning", message: "No fold at cursor" });
-};
+/** Fold operations. Row arguments are full-array row indices. */
+export interface FoldActions {
+  /** Toggle the innermost fold that contains `row`. Returns false when no fold contains it. */
+  toggle: (row: number) => boolean;
+  /** Close the innermost open fold that contains `row`. Returns false when there is none. */
+  close: (row: number) => boolean;
+  /** Open the innermost closed fold that contains `row`. Returns false when there is none. */
+  open: (row: number) => boolean;
+  /** Open a fold at `row` when one is closed, else close the innermost open fold. */
+  toggleBlock: (row: number) => boolean;
+  closeAll: () => void;
+  openAll: () => void;
+}
 
 /**
- * Register the Vim fold commands (`z a`, `z c`, `z o`, `z shift+m`,
- * `z shift+r`) against a fold state and the controller's navigation. When a
- * close hides the cursor row, the cursor moves first to the header of the
- * outermost closed fold, and key preservation keeps it there.
+ * Fold operations over a fold state. Any change that hides the document
+ * cursor row first moves the cursor to the header of the outermost closed
+ * fold that hides it, and key preservation keeps it there. This holds for
+ * every target row, so a fold closed from the outline also keeps the cursor
+ * visible.
  */
-export const useFoldCommands = function useFoldCommands<T>(
+export const useFoldActions = function useFoldActions<T>(
   folds: FoldState<T>,
   navigation: Pick<NavigationState, "cursor" | "setCursor">
-): void {
+): FoldActions {
   const { closedKeys, ranges, rowCount, setClosedKeys, view } = folds;
   const { cursor, setCursor } = navigation;
-  const sourceRow = cursor === null ? undefined : view.visibleToSource[cursor];
-  const atCursor = sourceRow === undefined ? [] : foldsAt(ranges, sourceRow);
+  const cursorRow = cursor === null ? undefined : view.visibleToSource[cursor];
 
   const apply = (next: ReadonlySet<Key>) => {
-    if (sourceRow !== undefined) {
-      const anchor = visibleAnchorRow(computeFoldView(rowCount, ranges, next), sourceRow);
+    if (cursorRow !== undefined) {
+      const anchor = visibleAnchorRow(computeFoldView(rowCount, ranges, next), cursorRow);
       const anchorIndex = view.sourceToVisible[anchor] ?? -1;
-      if (anchor !== sourceRow && anchorIndex !== -1) {
+      if (anchor !== cursorRow && anchorIndex !== -1) {
         setCursor(anchorIndex);
       }
     }
     setClosedKeys(next);
   };
-  const withKey = (key: Key, closed: boolean) => {
+  const withKey = (key: Key | undefined, closed: boolean): boolean => {
+    if (key === undefined) {
+      return false;
+    }
     const next = new Set(closedKeys);
     if (closed) {
       next.add(key);
@@ -113,77 +126,78 @@ export const useFoldCommands = function useFoldCommands<T>(
       next.delete(key);
     }
     apply(next);
+    return true;
   };
+  const close = (row: number) =>
+    withKey(foldsAt(ranges, row).find((range) => !closedKeys.has(range.key))?.key, true);
+  const open = (row: number) =>
+    withKey(foldsAt(ranges, row).find((range) => closedKeys.has(range.key))?.key, false);
 
-  useCommandGroup({ id: "fold", prefix: "z", title: "Fold" });
-
-  useCommand({
-    category: "Fold",
-    handler: (ctx) => {
-      const [innermost] = atCursor;
-      if (innermost === undefined) {
-        warnNoFold(ctx);
-        return;
-      }
-      withKey(innermost.key, !closedKeys.has(innermost.key));
-    },
-    hotkey: "z a",
-    id: "fold.toggle",
-    modes: ["cursor"],
-    title: "Toggle fold",
-  });
-
-  useCommand({
-    category: "Fold",
-    handler: (ctx) => {
-      const target = atCursor.find((range) => !closedKeys.has(range.key));
-      if (target === undefined) {
-        warnNoFold(ctx);
-        return;
-      }
-      withKey(target.key, true);
-    },
-    hotkey: "z c",
-    id: "fold.close",
-    modes: ["cursor"],
-    title: "Close fold",
-  });
-
-  useCommand({
-    category: "Fold",
-    handler: (ctx) => {
-      const target = atCursor.find((range) => closedKeys.has(range.key));
-      if (target === undefined) {
-        warnNoFold(ctx);
-        return;
-      }
-      withKey(target.key, false);
-    },
-    hotkey: "z o",
-    id: "fold.open",
-    modes: ["cursor"],
-    title: "Open fold",
-  });
-
-  useCommand({
-    category: "Fold",
-    handler: () => {
+  return {
+    close,
+    closeAll: () => {
       apply(new Set(ranges.map((range) => range.key)));
     },
-    hotkey: "z shift+m",
-    id: "fold.close-all",
-    modes: ["cursor"],
-    title: "Close all folds",
-  });
-
-  useCommand({
-    category: "Fold",
-    handler: () => {
+    open,
+    openAll: () => {
       apply(EMPTY_KEYS);
     },
-    hotkey: "z shift+r",
-    id: "fold.open-all",
+    toggle: (row) => {
+      const [innermost] = foldsAt(ranges, row);
+      return withKey(innermost?.key, innermost !== undefined && !closedKeys.has(innermost.key));
+    },
+    toggleBlock: (row) =>
+      foldsAt(ranges, row).some((range) => closedKeys.has(range.key)) ? open(row) : close(row),
+  };
+};
+
+/**
+ * The Vim fold commands (`z a`, `z c`, `z o`, `z z`, `z shift+m`,
+ * `z shift+r`) as action definitions. The row commands act on `targetRow()`:
+ * the document cursor row on the root surface, or the selected heading in the
+ * outline. `idPrefix` keeps the ids apart on each surface, and `noFoldMessage`
+ * is the warning when no fold contains the target row.
+ */
+export const foldActionDefinitions = function foldActionDefinitions(
+  actions: FoldActions,
+  targetRow: () => number | undefined,
+  idPrefix: string,
+  noFoldMessage: string
+): ActionDefinition[] {
+  const atTarget =
+    (run: (row: number) => boolean) =>
+    (ctx: CommandContext): void => {
+      const row = targetRow();
+      if (row === undefined || !run(row)) {
+        ctx.toast?.toast({ level: "warning", message: noFoldMessage });
+      }
+    };
+  const definitions: [hotkey: string, id: string, title: string, handler: CommandHandler][] = [
+    ["z a", "toggle", "Toggle fold", atTarget(actions.toggle)],
+    ["z c", "close", "Close fold", atTarget(actions.close)],
+    ["z o", "open", "Open fold", atTarget(actions.open)],
+    ["z z", "toggle-block", "Open or close fold", atTarget(actions.toggleBlock)],
+    ["z shift+m", "close-all", "Close all folds", actions.closeAll],
+    ["z shift+r", "open-all", "Open all folds", actions.openAll],
+  ];
+  return definitions.map(([hotkey, id, title, handler]) => ({
+    category: "Fold",
+    handler,
+    hotkey,
+    id: `${idPrefix}.${id}`,
     modes: ["cursor"],
-    title: "Open all folds",
-  });
+    title,
+  }));
+};
+
+/** Register the fold commands on the current surface, acting on the document cursor row. */
+export const useFoldCommands = function useFoldCommands<T>(
+  folds: FoldState<T>,
+  actions: FoldActions,
+  navigation: Pick<NavigationState, "cursor">
+): void {
+  const { cursor } = navigation;
+  const cursorRow = cursor === null ? undefined : folds.view.visibleToSource[cursor];
+  useCommandGroup({ id: "fold", prefix: "z", title: "Fold" });
+  useActions(foldActionDefinitions(actions, () => cursorRow, "fold", "No fold at cursor"));
 };

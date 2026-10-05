@@ -6,6 +6,8 @@ import { useTheme } from "@tooee/themes";
 import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 
+import { foldActionDefinitions } from "../folds/use-folds.js";
+import type { FoldActions } from "../folds/use-folds.js";
 import type { OutlineEntry } from "./markdown-outline.js";
 import type { OutlineState } from "./use-outline.js";
 
@@ -34,9 +36,16 @@ export const outlineLabel = function outlineLabel(
  * The panel-owned outline commands. They register on the outline panel's
  * surface, so they only dispatch while the outline has focus, and they shadow
  * the root commands on the same keys. `g o` closes the outline here, because
- * the panel's `g g` holds the `g` chord.
+ * the panel's `g g` holds the `g` chord. The fold keys act on the selected
+ * heading's section, so the panel registers the whole `z` set.
  */
-const OutlineCommands = function OutlineCommands({ outline }: { outline: OutlineState }): null {
+const OutlineCommands = function OutlineCommands({
+  outline,
+  foldActions,
+}: {
+  outline: OutlineState;
+  foldActions: FoldActions;
+}): null {
   const next = (): void => {
     outline.move(1);
   };
@@ -63,16 +72,18 @@ const OutlineCommands = function OutlineCommands({ outline }: { outline: Outline
     ["escape", "outline.focus-content", "Return to document", outline.focusContent],
     ["g o", "outline.close", "Close outline", outline.close],
   ];
-  useActions(
-    commands.map(([hotkey, id, title, run]): ActionDefinition => ({
+  const selectedRow = (): number | undefined => outline.entries[outline.selectedIndex]?.row;
+  useActions([
+    ...commands.map(([hotkey, id, title, run]): ActionDefinition => ({
       category: "Outline",
       handler: run,
       hotkey,
       id,
       modes: ["cursor"],
       title,
-    }))
-  );
+    })),
+    ...foldActionDefinitions(foldActions, selectedRow, "outline.fold", "No fold at heading"),
+  ]);
   return null;
 };
 
@@ -133,8 +144,10 @@ const OutlineList = function OutlineList({ outline }: { outline: OutlineState })
  */
 export const OutlinePanel = function OutlinePanel({
   outline,
+  foldActions,
 }: {
   outline: OutlineState;
+  foldActions: FoldActions;
 }): ReactNode {
   if (!outline.visible) {
     return null;
@@ -150,7 +163,7 @@ export const OutlinePanel = function OutlinePanel({
       switchKeys={null}
     >
       <Panel id={OUTLINE_PANEL_ID} title="Outline" style={{ flexShrink: 0, width: outline.width }}>
-        <OutlineCommands outline={outline} />
+        <OutlineCommands outline={outline} foldActions={foldActions} />
         <OutlineList outline={outline} />
       </Panel>
     </PanelGroup>
