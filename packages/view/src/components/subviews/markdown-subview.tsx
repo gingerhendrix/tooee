@@ -6,6 +6,8 @@ import type { DocumentRowAdapter } from "@tooee/shell";
 import { useMemo, useRef } from "react";
 import type { ReactNode } from "react";
 
+import { markdownHeadingFoldRanges } from "../../folds/markdown-heading-folds.js";
+import { useFoldCommands, useFoldState } from "../../folds/use-folds.js";
 import { useContentDocument } from "../../hooks/use-content-document.js";
 import type { MarkdownContent, MarkdownLinkActivateHandler } from "../../types.js";
 import { ViewScreen } from "../view-screen.js";
@@ -23,11 +25,19 @@ const BLOCK_HSCROLL_STEP = 4;
 /**
  * Blocks are the row unit. `getFlatBlockText` keeps search/copy in step with the
  * source mapping (notably for synthetic bullet rows), and `getSource` projects
- * each block's Markdown provenance onto the controller's anchors.
+ * each block's Markdown provenance onto the controller's anchors. The key is
+ * the block's index in the full flattened document, so it stays the same when
+ * folds hide the blocks around it.
  */
-const MARKDOWN_BLOCK_ADAPTER: DocumentRowAdapter<FlatBlock> = {
-  getSource: (block) => block.source,
-  getText: (block) => getFlatBlockText(block),
+const markdownBlockAdapter = function markdownBlockAdapter(
+  blocks: readonly FlatBlock[]
+): DocumentRowAdapter<FlatBlock> {
+  const indices = new Map(blocks.map((block, index) => [block, index]));
+  return {
+    getKey: (block, index) => indices.get(block) ?? index,
+    getSource: (block) => block.source,
+    getText: (block) => getFlatBlockText(block),
+  };
 };
 
 export const MarkdownSubview = function MarkdownSubview({
@@ -41,19 +51,26 @@ export const MarkdownSubview = function MarkdownSubview({
   const textContent = content.markdown;
   const lineCount = useMemo(() => textContent.split("\n").length, [textContent]);
   const blocks = useMemo(() => flattenMarkdown(content.markdown), [content.markdown]);
+  const adapter = useMemo(() => markdownBlockAdapter(blocks), [blocks]);
+  const foldRanges = useMemo(() => markdownHeadingFoldRanges(blocks), [blocks]);
+  // Closed heading folds filter `blocks`; `folds.rows` is the one array both
+  // the controller and the renderer see.
+  const folds = useFoldState(blocks, foldRanges, decorations);
 
   const { document, showLineNumbers, statusItems } = useContentDocument<FlatBlock>(
-    blocks,
-    MARKDOWN_BLOCK_ADAPTER,
-    { actions, content, decorations, textContent },
+    folds.rows,
+    adapter,
+    { actions, content, decorations: folds.decorations, textContent },
     {
       multiSelect: true,
+      preserveCursorByKey: true,
       statusItems: [
         { label: "Format:", value: content.format },
         { label: "Lines:", value: String(lineCount) },
       ],
     }
   );
+  useFoldCommands(folds, document.navigation);
   const buildCommandContext = useBuildCommandContext();
   const handleLinkActivate = onLinkActivate
     ? (href: string) => onLinkActivate(href, buildCommandContext())
@@ -101,7 +118,9 @@ export const MarkdownSubview = function MarkdownSubview({
     >
       <MarkdownView
         content={content.markdown}
-        blocks={blocks}
+        blocks={folds.rows}
+        rowNumbers={folds.rowNumbers}
+        foldedBlocks={folds.view.hiddenCounts}
         showLineNumbers={showLineNumbers}
         document={document}
         hScrollableBlocksRef={hScrollableBlocksRef}
