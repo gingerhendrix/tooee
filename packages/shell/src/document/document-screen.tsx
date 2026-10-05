@@ -19,6 +19,8 @@ export interface DocumentScreenProps<T> {
   quit?: boolean | UseQuitCommandOptions;
   themeCommands?: boolean;
   context?: ProvideDocumentCommandContextOptions;
+  /** Optional side region beside the document, such as an outline panel. */
+  aside?: AppLayoutProps["aside"];
   children: ReactNode;
 }
 
@@ -35,6 +37,7 @@ export const DocumentScreen = function DocumentScreen<T>({
   quit = true,
   themeCommands = true,
   context,
+  aside,
   children,
 }: DocumentScreenProps<T>): ReactNode {
   const mode = useMode();
@@ -71,7 +74,12 @@ export const DocumentScreen = function DocumentScreen<T>({
   ];
 
   return (
-    <AppLayout titleBar={titleBar} statusBar={{ items }} searchBar={search ?? undefined}>
+    <AppLayout
+      titleBar={titleBar}
+      statusBar={{ items }}
+      searchBar={search ?? undefined}
+      aside={aside}
+    >
       {children}
     </AppLayout>
   );

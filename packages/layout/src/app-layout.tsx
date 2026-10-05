@@ -23,6 +23,11 @@ export interface AppLayoutProps {
   /** Configure the optional scrollbox used for the main content. */
   scroll?: AppLayoutScroll;
   searchBar?: SearchState;
+  /**
+   * Optional side region, rendered to the right of the main content. The
+   * title bar and status bar stay full width, and overlays still cover both.
+   */
+  aside?: ReactNode;
   children: ReactNode;
 }
 
@@ -42,6 +47,7 @@ export const AppLayout = function AppLayout({
   statusBar,
   scroll,
   searchBar,
+  aside,
   children,
 }: AppLayoutProps): ReactNode {
   const { theme } = useTheme();
@@ -55,7 +61,7 @@ export const AppLayout = function AppLayout({
   return (
     <box flexDirection="column" width="100%" height="100%" backgroundColor={theme.background}>
       {titleBar && <TitleBar title={titleBar.title} subtitle={titleBar.subtitle} />}
-      <box style={{ flexGrow: 1, position: "relative" }}>
+      <box style={{ flexDirection: "row", flexGrow: 1, position: "relative" }}>
         {scroll ? (
           <scrollbox
             ref={scroll.ref}
@@ -69,6 +75,7 @@ export const AppLayout = function AppLayout({
         ) : (
           <box style={{ flexGrow: 1, overflow: "hidden" }}>{children}</box>
         )}
+        {aside}
         {hasRenderableOverlay(contextOverlay) && (
           <box position="absolute" left={0} top={0} width="100%" height="100%">
             {contextOverlay}

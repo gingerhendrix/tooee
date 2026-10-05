@@ -111,3 +111,32 @@ test("snapshot full layout", async () => {
   const frame = testSetup.captureCharFrame();
   expect(frame).toMatchSnapshot();
 });
+
+test("renders the aside to the right of the content, between the bars", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <ToastProvider>
+        <AppLayout
+          titleBar={{ title: "App Title" }}
+          statusBar={{ items: [{ label: "Status" }] }}
+          aside={
+            <box style={{ flexShrink: 0, width: 12 }}>
+              <text content="Side panel" />
+            </box>
+          }
+        >
+          <text content="Main body" />
+        </AppLayout>
+      </ToastProvider>
+    </ThemeSwitcherProvider>,
+    { height: 10, width: 60 }
+  );
+  await testSetup.renderOnce();
+  const lines = testSetup.captureCharFrame().split("\n");
+  const row = lines.findIndex((line) => line.includes("Main body"));
+  expect(row).toBeGreaterThan(0);
+  expect(lines[row]).toContain("Side panel");
+  expect(lines[row]?.indexOf("Side panel")).toBe(48);
+  expect(lines[0]).toContain("App Title");
+  expect(lines.some((line) => line.includes("Status"))).toBe(true);
+});
