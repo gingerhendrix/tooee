@@ -34,6 +34,11 @@ export interface RowDocumentOptions extends ScrollBoxOptions {
   showGutter?: boolean;
   showLineNumbers?: boolean;
   lineNumberStart?: number;
+  /**
+   * Gutter number for each row, in place of `lineNumberStart + row`. Use it
+   * when rows are a filtered view of a longer document, such as folded rows.
+   */
+  rowNumbers?: readonly number[];
   signColumnWidth?: number;
   gutterPaddingRight?: number;
 
@@ -88,17 +93,29 @@ const normalizeDecorationLayers = function normalizeDecorationLayers(
   return [...layers].toSorted((a, b) => a.priority - b.priority);
 };
 
+/** The widest gutter number: the largest `rowNumbers` entry, else the last sequential number. */
+const maxGutterNumber = function maxGutterNumber(opts: {
+  rowCount: number;
+  lineNumberStart?: number;
+  rowNumbers?: readonly number[];
+}): number {
+  if (opts.rowNumbers && opts.rowNumbers.length > 0) {
+    return Math.max(...opts.rowNumbers);
+  }
+  return (opts.lineNumberStart ?? 1) + opts.rowCount - 1;
+};
+
 export const computeRowDocumentGutterWidth = function computeRowDocumentGutterWidth(opts: {
   showLineNumbers: boolean;
   rowCount: number;
   lineNumberStart?: number;
+  rowNumbers?: readonly number[];
   signColumnWidth?: number;
   gutterPaddingRight?: number;
 }): number {
   let width = 0;
   if (opts.showLineNumbers) {
-    const maxLineNum = (opts.lineNumberStart ?? 1) + opts.rowCount - 1;
-    width += Math.max(String(maxLineNum).length, 1);
+    width += Math.max(String(maxGutterNumber(opts)).length, 1);
   }
   width += opts.signColumnWidth ?? 0;
   width += opts.gutterPaddingRight ?? 1;
@@ -115,6 +132,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   private _showGutter: boolean;
   private _showLineNumbers: boolean;
   private readonly _lineNumberStart: number;
+  private _rowNumbers: readonly number[] | undefined;
   private readonly _signColumnWidth: number;
   private readonly _gutterPaddingRight: number;
   private readonly _rowChildOffset: number;
@@ -140,6 +158,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     this._showGutter = options.showGutter ?? true;
     this._showLineNumbers = options.showLineNumbers ?? true;
     this._lineNumberStart = options.lineNumberStart ?? 1;
+    this._rowNumbers = options.rowNumbers;
     this._signColumnWidth = options.signColumnWidth ?? 0;
     this._gutterPaddingRight = options.gutterPaddingRight ?? 1;
     this._rowChildOffset = options.rowChildOffset ?? 0;
@@ -193,6 +212,18 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   set showLineNumbers(value: boolean) {
     if (this._showLineNumbers !== value) {
       this._showLineNumbers = value;
+      this._applyGutterPadding();
+      this.requestRender();
+    }
+  }
+
+  get rowNumbers(): readonly number[] | undefined {
+    return this._rowNumbers;
+  }
+
+  set rowNumbers(value: readonly number[] | undefined) {
+    if (this._rowNumbers !== value) {
+      this._rowNumbers = value;
       this._applyGutterPadding();
       this.requestRender();
     }
@@ -532,6 +563,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
       gutterPaddingRight: this._gutterPaddingRight,
       lineNumberStart: this._lineNumberStart,
       rowCount: this._rowCount,
+      rowNumbers: this._rowNumbers,
       showLineNumbers: this._showLineNumbers,
       signColumnWidth: this._signColumnWidth,
     });
@@ -622,7 +654,16 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     buffer.fillRect(vpX, vpY, gutterWidth, vpHeight, gutterBg);
 
     const lineNumWidth = this._showLineNumbers
-      ? Math.max(String(this._lineNumberStart + this._rowCount - 1).length, 1)
+      ? Math.max(
+          String(
+            maxGutterNumber({
+              lineNumberStart: this._lineNumberStart,
+              rowCount: this._rowCount,
+              rowNumbers: this._rowNumbers,
+            })
+          ).length,
+          1
+        )
       : 0;
 
     for (let screenY = 0; screenY < vpHeight; screenY += 1) {
@@ -653,7 +694,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
       // Line number
       if (this._showLineNumbers) {
-        const lineNum = String(this._lineNumberStart + row);
+        const lineNum = String(this._rowNumbers?.[row] ?? this._lineNumberStart + row);
         const padded = lineNum.padStart(lineNumWidth, " ");
         buffer.drawText(padded, drawX + col, vpY + screenY, gutterFg, effectiveGutterBg);
         col += lineNumWidth;

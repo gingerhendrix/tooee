@@ -16,4 +16,15 @@ describe("row document gutter", () => {
       })
     ).toBe(6);
   });
+
+  test("sizes the number column from explicit row numbers", () => {
+    expect(
+      computeRowDocumentGutterWidth({
+        rowCount: 3,
+        rowNumbers: [1, 2, 120],
+        showLineNumbers: true,
+        signColumnWidth: DEFAULT_SIGN_COLUMN_WIDTH,
+      })
+    ).toBe(7);
+  });
 });

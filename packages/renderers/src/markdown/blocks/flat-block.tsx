@@ -19,6 +19,7 @@ type CodeBlockRendererRegistry = Record<string, CodeBlockRenderer>;
 export const FlatBlockRenderer = function FlatBlockRenderer({
   block,
   blockIndex,
+  hiddenCount,
   theme,
   syntax,
   contentWidth,
@@ -29,6 +30,8 @@ export const FlatBlockRenderer = function FlatBlockRenderer({
 }: {
   block: FlatBlock;
   blockIndex: number;
+  /** Rows hidden under this block by a closed fold. */
+  hiddenCount?: number;
   theme: ResolvedTheme;
   syntax: SyntaxStyle;
   contentWidth: number;
@@ -50,6 +53,7 @@ export const FlatBlockRenderer = function FlatBlockRenderer({
         token={heading}
         theme={theme}
         indent={indent}
+        hiddenCount={hiddenCount}
         onLinkActivate={onLinkActivate}
       />
     );

@@ -6,15 +6,23 @@ import { InlineTokens } from "../inline.js";
 import { linkMouseHandler } from "../links.js";
 import type { MarkdownLinkHandler } from "../links.js";
 
+/** The placeholder shown after a folded heading, for example ` ⋯ 12 blocks`. */
+export const foldMarker = function foldMarker(hiddenCount: number): string {
+  return ` ⋯ ${hiddenCount} ${hiddenCount === 1 ? "block" : "blocks"}`;
+};
+
 export const HeadingRenderer = function HeadingRenderer({
   token,
   theme,
   indent,
+  hiddenCount,
   onLinkActivate,
 }: {
   token: Tokens.Heading;
   theme: ResolvedTheme;
   indent: number;
+  /** Blocks hidden under this heading by a closed fold; shows a muted marker. */
+  hiddenCount?: number;
   onLinkActivate?: MarkdownLinkHandler;
 }): ReactNode {
   const headingColors = new Map<number, string>([
@@ -48,6 +56,9 @@ export const HeadingRenderer = function HeadingRenderer({
         <strong>
           <InlineTokens tokens={token.tokens} theme={theme} />
         </strong>
+        {hiddenCount === undefined ? null : (
+          <span fg={theme.textMuted}>{foldMarker(hiddenCount)}</span>
+        )}
       </text>
     </box>
   );

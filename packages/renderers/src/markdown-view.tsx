@@ -35,6 +35,16 @@ interface MarkdownViewProps {
   blocks?: readonly FlatBlock[];
   showLineNumbers?: boolean;
   /**
+   * Gutter number for each block, in place of the block's position. Pass it
+   * when `blocks` is a filtered view, so the numbers keep their document order.
+   */
+  rowNumbers?: readonly number[];
+  /**
+   * Closed folds, as hidden block counts keyed by the index of the heading
+   * block that stays visible. A heading in this map shows a `⋯ N blocks` marker.
+   */
+  foldedBlocks?: ReadonlyMap<number, number>;
+  /**
    * Binds the row document to a document controller: its ref, the decoration
    * layers to paint, and the mouse handler. Rows are flattened *block* indices,
    * the same unit `j`/`k` move between and copy operates on. Omit it to render
@@ -64,6 +74,8 @@ export const MarkdownView = function MarkdownView({
   content,
   blocks: providedBlocks,
   showLineNumbers = true,
+  rowNumbers,
+  foldedBlocks,
   document,
   hScrollableBlocksRef,
   codeBlockRenderers,
@@ -83,6 +95,7 @@ export const MarkdownView = function MarkdownView({
     terminalWidth -
       computeRowDocumentGutterWidth({
         rowCount: blocks.length,
+        rowNumbers,
         showLineNumbers,
         signColumnWidth: DEFAULT_SIGN_COLUMN_WIDTH,
       }) -
@@ -104,6 +117,7 @@ export const MarkdownView = function MarkdownView({
           key={index}
           block={block}
           blockIndex={index}
+          hiddenCount={foldedBlocks?.get(index)}
           theme={theme}
           syntax={syntax}
           contentWidth={contentWidth}
@@ -115,6 +129,7 @@ export const MarkdownView = function MarkdownView({
       )),
     [
       blocks,
+      foldedBlocks,
       theme,
       syntax,
       contentWidth,
@@ -129,6 +144,7 @@ export const MarkdownView = function MarkdownView({
     <row-document
       ref={document?.ref}
       showLineNumbers={showLineNumbers}
+      rowNumbers={rowNumbers}
       palette={palette}
       decorations={document?.decorations}
       signColumnWidth={DEFAULT_SIGN_COLUMN_WIDTH}
