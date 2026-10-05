@@ -18,6 +18,7 @@ const RENDERERS: ContentFormat[] = ["markdown", "code", "text", "table", "diff"]
 interface ViewArgs {
   filePath?: string;
   renderer?: ContentFormat;
+  outline: boolean;
 }
 
 const parseRenderer = function parseRenderer(value: string | undefined): ContentFormat | undefined {
@@ -37,6 +38,7 @@ const parseRenderer = function parseRenderer(value: string | undefined): Content
 const parseViewArgs = function parseViewArgs(rawArgs: string[]): ViewArgs {
   let renderer: ContentFormat | undefined;
   let filePath: string | undefined;
+  let outline = false;
 
   for (let i = 0; i < rawArgs.length; i += 1) {
     const arg = rawArgs[i];
@@ -49,6 +51,10 @@ const parseViewArgs = function parseViewArgs(rawArgs: string[]): ViewArgs {
       renderer = parseRenderer(arg.slice("--renderer=".length));
       continue;
     }
+    if (arg === "--outline") {
+      outline = true;
+      continue;
+    }
     if (filePath === undefined || filePath === "") {
       filePath = arg;
       continue;
@@ -58,7 +64,7 @@ const parseViewArgs = function parseViewArgs(rawArgs: string[]): ViewArgs {
     process.exit(2);
   }
 
-  return { filePath, renderer };
+  return { filePath, outline, renderer };
 };
 
 const printUsage = function printUsage(): void {
@@ -72,10 +78,12 @@ const printUsage = function printUsage(): void {
   console.log("");
   console.log("View options:");
   console.log("  --renderer, -r <renderer>  Force renderer: markdown, code, text, table, diff");
+  console.log("  --outline                  Open the Markdown heading outline at start");
 
   console.log("");
   console.log("Examples:");
   console.log("  tooee view README.md");
+  console.log("  tooee view --outline README.md");
   console.log("  tooee view --renderer text README.md");
   console.log("  tooee view --renderer table data.csv");
   console.log("  git diff | tooee view --renderer diff");
@@ -90,7 +98,7 @@ const printUsage = function printUsage(): void {
 try {
   switch (command) {
     case "view": {
-      const { filePath, renderer } = parseViewArgs(args);
+      const { filePath, outline, renderer } = parseViewArgs(args);
       if (filePath !== undefined && filePath !== "") {
         try {
           const stat = statSync(filePath);
@@ -110,7 +118,7 @@ try {
         filePath !== undefined && filePath !== ""
           ? createFileProvider(filePath, { renderer })
           : createStdinProvider({ renderer });
-      await launchView({ contentProvider, filePath });
+      await launchView({ contentProvider, filePath, outline });
       break;
     }
 
