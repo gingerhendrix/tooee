@@ -1,3 +1,13 @@
+## @tooee/cli@0.12.0
+
+### Markdown heading outline beside the document
+
+The Markdown view can show an outline of its headings in a panel on the right. `g o` opens the outline and gives it focus. In the outline, `j` and `k` move, `g g` and `G` go to the first and last heading, `enter` moves the document cursor to the heading and returns to the document, `escape` returns to the document, and `g o` closes the outline. The heading that contains the cursor is marked, so the outline follows the document. A jump to a heading inside closed folds opens them. Below 60 columns the outline is hidden. `tab` keeps its multi-select meaning.
+
+A jump from the outline puts the heading three lines below the top of the document view. While the outline has focus, the fold keys `z a`, `z c` and `z o` act on the section of the selected heading. The new `z z` key opens the fold at the cursor or selected heading when it is closed, and closes it when it is open.
+
+`tooee view --outline` and the `outline` option on `View` and `launch()` open the outline at start. `AppLayout` and `DocumentScreen` accept an `aside` region beside the content. `MarkdownView` accepts a `width`, and `@tooee/renderers` exports `getPlainText` and `RowScrollAlign`. The document controller in `@tooee/shell` gains `revealRow(index, { align, margin })`, which scrolls a row to a given place in the view.
+
 ## @tooee/cli@0.10.2
 
 ### Include the terminal runtime with the CLI
