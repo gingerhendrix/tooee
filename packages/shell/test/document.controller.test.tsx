@@ -614,6 +614,95 @@ const document = function document() {
   return expectDefined(controller().ref.current);
 };
 
+/** Moves the cursor and reveals its row at the top with a margin, as an outline jump does. */
+const revealAt = async function revealAt(index: number, margin = 3): Promise<void> {
+  await act(async () => {
+    controller().navigation.setCursor(index);
+    controller().revealRow(index, { align: "start", margin });
+    await Promise.resolve();
+  });
+  await session.renderOnce();
+};
+
+describe("revealRow", () => {
+  const MANY = Array.from({ length: 60 }, (_, i) => row(`r${i}`, `row-${i}`));
+
+  test("start with a margin puts a row below the view near the top", async () => {
+    await setup(MANY);
+    await revealAt(30);
+
+    expect(active()).toBe("r30/30");
+    expect(document().scrollTop).toBe(27);
+    expect(session.captureCharFrame()).toMatch(/^row-27\s*$/mu);
+  });
+
+  test("start with a margin puts a row above the view near the top", async () => {
+    await setup(MANY);
+    await press(session, "g", { shift: true });
+    expect(document().scrollTop).toBeGreaterThan(30);
+
+    await revealAt(20);
+
+    expect(active()).toBe("r20/20");
+    expect(document().scrollTop).toBe(17);
+  });
+
+  test("it scrolls when the cursor is already on the row", async () => {
+    await setup(MANY);
+    await revealAt(30);
+    await wheel("down");
+    expect(document().scrollTop).toBeGreaterThan(27);
+
+    await revealAt(30);
+
+    expect(document().scrollTop).toBe(27);
+  });
+
+  test("near the top of the document the margin stops at the first row", async () => {
+    await setup(MANY);
+    await press(session, "g", { shift: true });
+
+    await revealAt(1);
+
+    expect(document().scrollTop).toBe(0);
+  });
+
+  test("a row that was just added is revealed once it has a layout", async () => {
+    let setRows!: (rows: readonly Row[]) => void;
+    session = await testRender(
+      <TooeeProvider>
+        <DynamicHarness
+          initial={MANY.slice(0, 10)}
+          onReady={(next) => {
+            setRows = next;
+          }}
+        />
+      </TooeeProvider>,
+      { height: 24, kittyKeyboard: true, width: 70 }
+    );
+    await session.renderOnce();
+    // The new rows commit, but no frame lays them out before the reveal.
+    await act(async () => {
+      setRows(MANY);
+      await Promise.resolve();
+    });
+    await revealAt(40);
+
+    expect(active()).toBe("r40/40");
+    expect(document().scrollTop).toBe(37);
+  });
+
+  test("a later cursor move follows the nearest edge again", async () => {
+    await setup(MANY);
+    await revealAt(30);
+
+    await press(session, "k");
+
+    expect(active()).toBe("r29/29");
+    expect(document().scrollTop).toBe(27);
+  });
+});
+
 describe("tail follow", () => {
   const MANY = Array.from({ length: 40 }, (_, i) => row(`r${i}`, `row-${i}`));
   const MORE = [...MANY, row("r40", "row-40"), row("r41", "row-41")];

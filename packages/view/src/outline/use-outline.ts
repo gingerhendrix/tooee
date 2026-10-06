@@ -1,8 +1,8 @@
 import { useTerminalDimensions } from "@opentui/react";
 import { useCommand } from "@tooee/commands";
 import type { FlatBlock } from "@tooee/renderers";
-import type { NavigationState } from "@tooee/shell";
-import { useEffect, useMemo, useRef, useState } from "react";
+import type { DocumentController, NavigationState } from "@tooee/shell";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { closedFoldsHiding } from "../folds/fold-model.js";
 import type { FoldState } from "../folds/use-folds.js";
@@ -15,6 +15,11 @@ const OUTLINE_WIDTH = 32;
 const OUTLINE_MAX_SHARE = 0.4;
 /** Below this terminal width the outline is not shown. */
 export const OUTLINE_MIN_TERMINAL_WIDTH = 60;
+/**
+ * Lines of the document kept above a heading after a jump. The heading lands
+ * near the top of the view, with a little of the text before it for context.
+ */
+export const OUTLINE_JUMP_MARGIN = 3;
 
 /** Columns for the outline at a terminal width, or 0 when the terminal is too narrow. */
 export const outlineWidth = function outlineWidth(terminalWidth: number): number {
@@ -52,18 +57,22 @@ interface UseOutlineOptions {
   blocks: readonly FlatBlock[];
   folds: FoldState<FlatBlock>;
   navigation: Pick<NavigationState, "cursor" | "setCursor">;
+  /** Scrolls a jumped-to heading near the top of the document view. */
+  revealRow: DocumentController<FlatBlock>["revealRow"];
   initialOpen?: boolean;
 }
 
 /**
  * Outline state for a Markdown document, and the root `g o` command that
  * opens, focuses and closes it. A jump to a heading inside closed folds opens
- * those folds, then moves the cursor once the new rows are in place.
+ * those folds, then moves the cursor once the new rows are in place. Every
+ * jump scrolls the heading to near the top of the view.
  */
 export const useMarkdownOutline = function useMarkdownOutline({
   blocks,
   folds,
   navigation,
+  revealRow,
   initialOpen = false,
 }: UseOutlineOptions): OutlineState {
   const entries = useMemo(() => markdownOutline(blocks), [blocks]);
@@ -76,6 +85,13 @@ export const useMarkdownOutline = function useMarkdownOutline({
   const { closedKeys, ranges, setClosedKeys, view } = folds;
   const { cursor, setCursor } = navigation;
   const visible = open && width > 0;
+  const moveTo = useCallback(
+    (index: number) => {
+      setCursor(index);
+      revealRow(index, { align: "start", margin: OUTLINE_JUMP_MARGIN });
+    },
+    [setCursor, revealRow]
+  );
   const focused = visible && focusRequested;
   const sourceRow = cursor === null ? undefined : view.visibleToSource[cursor];
   const currentIndex = sourceRow === undefined ? -1 : outlineIndexAt(entries, sourceRow);
@@ -94,9 +110,9 @@ export const useMarkdownOutline = function useMarkdownOutline({
     const index = row === null ? -1 : (view.sourceToVisible[row] ?? -1);
     if (index !== -1) {
       pendingRowRef.current = null;
-      setCursor(index);
+      moveTo(index);
     }
-  }, [view, setCursor]);
+  }, [view, moveTo]);
 
   const focus = () => {
     setSelected(Math.max(currentIndex, 0));
@@ -123,7 +139,7 @@ export const useMarkdownOutline = function useMarkdownOutline({
     }
     const hiding = closedFoldsHiding(ranges, closedKeys, entry.row);
     if (hiding.length === 0) {
-      setCursor(view.sourceToVisible[entry.row] ?? 0);
+      moveTo(view.sourceToVisible[entry.row] ?? 0);
       return;
     }
     const next = new Set(closedKeys);

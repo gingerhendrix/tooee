@@ -6,6 +6,7 @@ import type {
   DocumentBindings as RendererDocumentBindings,
   DocumentRowAnchor as RendererDocumentRowAnchor,
   DocumentRowSource as RendererDocumentRowSource,
+  RowScrollAlign,
 } from "@tooee/renderers";
 import type { SearchState } from "@tooee/search";
 import type { Key } from "react";
@@ -65,6 +66,14 @@ export interface DocumentRowEvent<T> {
 
 export interface DocumentContextMenuEvent<T> extends DocumentRowEvent<T> {
   context: CommandContext;
+}
+
+/** How `revealRow` places a row in the viewport. */
+export interface DocumentRevealOptions {
+  /** Where the row lands (default `"nearest"`). */
+  align?: RowScrollAlign;
+  /** Lines kept between the row and the viewport edge it aligns to (default 0). */
+  margin?: number;
 }
 
 export interface DocumentSearchOptions<T> {
@@ -162,6 +171,15 @@ export interface DocumentController<T> extends RendererDocumentBindings {
    * rows can wire it unconditionally.
    */
   selectRow: (index: number) => void;
+
+  /**
+   * Scroll a row into view at an alignment, also when the cursor is already on
+   * it. Call it next to `setCursor` to place the new cursor row: the reveal
+   * runs after the cursor follow and wins over it. When the row's layout is
+   * not final yet (for example, rows that were just added), the reveal runs
+   * again once the new geometry is in place, until the cursor moves.
+   */
+  revealRow: (index: number, options?: DocumentRevealOptions) => void;
 
   /** Bound handler: modal guard, row resolution, selection, then app/menu callback. */
   onMouseDown: (event: MouseEvent) => void;

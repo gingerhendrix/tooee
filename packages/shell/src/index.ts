@@ -61,6 +61,7 @@ export type {
   DocumentContextMenuEvent,
   DocumentContextMenuItems,
   DocumentController,
+  DocumentRevealOptions,
   DocumentRowAdapter,
   DocumentRowAnchor,
   DocumentRowEvent,

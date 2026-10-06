@@ -95,6 +95,45 @@ const frame = () => testSetup.captureCharFrame();
 /** The outline line that shows `text`, matched inside the panel border. */
 const outlineLine = (text: string) => new RegExp(`│\\s*${text}\\s*│`, "u");
 
+// Eight sections, each taller than half the 30-line test terminal.
+const LONG_MARKDOWN = [
+  "# Long",
+  "Intro.",
+  ...Array.from({ length: 8 }, (_section, part) =>
+    [
+      `## Part ${part}`,
+      ...Array.from({ length: 6 }, (_paragraph, line) => `Part ${part} paragraph ${line}.`),
+    ].join("\n\n")
+  ),
+].join("\n\n");
+/**
+ * Frame line of a heading after a jump: the title bar is line 0, and the
+ * jump keeps three document lines above the heading.
+ */
+const JUMP_LINE = 4;
+
+const mountLong = async function mountLong() {
+  testSetup = await testRender(
+    <TooeeProvider>
+      <View
+        contentProvider={{ load: () => ({ format: "markdown", markdown: LONG_MARKDOWN }) }}
+        outline
+      />
+    </TooeeProvider>,
+    { height: 30, kittyKeyboard: true, width: 100 }
+  );
+  await act(async () => {
+    await Bun.sleep(100);
+  });
+  await testSetup.renderOnce();
+};
+
+/** Frame line that shows a heading in the document. */
+const headingLine = (text: string) =>
+  frame()
+    .split("\n")
+    .findIndex((line) => line.includes(`## ${text}`));
+
 describe("Markdown outline panel", () => {
   test("is off by default, and g o opens and focuses it, then closes it", async () => {
     await mount();
@@ -274,6 +313,35 @@ describe("Markdown outline panel", () => {
     const context = await probe();
     expect(context.activeAnchor?.text).toBe("## Limits");
     expect(context.cursor).toBe(9);
+  });
+
+  test("a jump scrolls the heading to near the top, from below and from above", async () => {
+    await mountLong();
+    // Focus starts on Long; five j presses select Part 4, below the view.
+    await keys("g", "o", "j", "j", "j", "j", "j");
+    await pressEnter(testSetup);
+    await settle();
+    expect(headingLine("Part 4")).toBe(JUMP_LINE);
+
+    // Focus starts on Part 4; three k presses select Part 1, above the view.
+    await keys("g", "o", "k", "k", "k");
+    await pressEnter(testSetup);
+    await settle();
+    expect(headingLine("Part 1")).toBe(JUMP_LINE);
+  });
+
+  test("a jump into closed folds scrolls the heading to near the top", async () => {
+    await mountLong();
+    // The cursor starts on # Long, so z c folds the whole document.
+    await keys("z", "c");
+    expect(frame()).toContain("# Long ⋯");
+    expect(headingLine("Part 6")).toBe(-1);
+
+    await keys("g", "o", "j", "j", "j", "j", "j", "j", "j");
+    await pressEnter(testSetup);
+    await settle();
+    expect(headingLine("Part 6")).toBe(JUMP_LINE);
+    expect(frame()).toContain("Part 6 paragraph 0.");
   });
 
   test("a narrow terminal hides the outline and g o explains why", async () => {

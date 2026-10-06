@@ -27,6 +27,9 @@ export interface VisibleRowRange {
   lastRow: number;
 }
 
+/** Where `scrollToRow` puts a row in the viewport. */
+export type RowScrollAlign = "nearest" | "start" | "center" | "end";
+
 export interface RowDocumentOptions extends ScrollBoxOptions {
   mode?: "auto" | "multi" | "provider";
 
@@ -318,7 +321,15 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   // scrollToRow
   // -----------------------------------------------------------------------
 
-  scrollToRow(row: number, align: "nearest" | "start" | "center" | "end" = "nearest"): void {
+  /**
+   * Scroll so `row` is in view at `align`. `margin` keeps that many lines
+   * between the row and the viewport edge it aligns to: `start` puts the row
+   * `margin` lines below the top, `end` puts it `margin` lines above the
+   * bottom, and `nearest` scrolls only when the row is inside the margin. The
+   * margin shrinks so the row and both margins fit the viewport. `center`
+   * ignores it.
+   */
+  scrollToRow(row: number, align: RowScrollAlign = "nearest", margin = 0): void {
     const metrics = this.getRowMetrics(row);
     if (!metrics) {
       return;
@@ -326,12 +337,13 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
     const vpHeight = this.viewport.height;
     const { virtualTop, virtualHeight } = metrics;
+    const gap = Math.max(0, Math.min(margin, Math.floor((vpHeight - virtualHeight) / 2)));
 
     let target = this.scrollTop;
 
     switch (align) {
       case "start": {
-        target = virtualTop;
+        target = virtualTop - gap;
         break;
       }
       case "center": {
@@ -339,14 +351,14 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
         break;
       }
       case "end": {
-        target = virtualTop + virtualHeight - vpHeight;
+        target = virtualTop + virtualHeight - vpHeight + gap;
         break;
       }
       case "nearest": {
-        if (virtualTop < this.scrollTop) {
-          target = virtualTop;
-        } else if (virtualTop + virtualHeight > this.scrollTop + vpHeight) {
-          target = virtualTop + virtualHeight - vpHeight;
+        if (virtualTop - gap < this.scrollTop) {
+          target = virtualTop - gap;
+        } else if (virtualTop + virtualHeight + gap > this.scrollTop + vpHeight) {
+          target = virtualTop + virtualHeight - vpHeight + gap;
         }
         break;
       }

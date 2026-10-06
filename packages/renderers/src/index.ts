@@ -82,6 +82,7 @@ export {
 export type {
   RowDocumentOptions,
   RowDocumentPalette,
+  RowScrollAlign,
   VisibleRowRange,
 } from "./row-document-renderable.js";
 export type { DecorationLayer, RowDecoration } from "./decoration-layer.js";

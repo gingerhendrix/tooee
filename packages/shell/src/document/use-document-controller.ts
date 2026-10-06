@@ -5,7 +5,7 @@ import { useHasModalOverlay } from "@tooee/overlays";
 import type { ContextMenuEntry, DecorationLayer, RowDocumentRenderable } from "@tooee/renderers";
 import { useNavSearchStore, useSearchBindings } from "@tooee/search";
 import { useTheme } from "@tooee/themes";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Key } from "react";
 
 import { actionsToContextMenuEntries, useContextMenu } from "../context-menu.js";
@@ -15,6 +15,7 @@ import { buildInteractionDecorations } from "./decorations.js";
 import type {
   DocumentContextMenuItems,
   DocumentController,
+  DocumentRevealOptions,
   DocumentRowAdapter,
   DocumentRowAnchor,
   UseDocumentControllerOptions,
@@ -351,6 +352,52 @@ export const useDocumentController = function useDocumentController<T>(
     };
   }, [navSearchStore]);
 
+  // -- Reveal ---------------------------------------------------------------
+
+  // `revealRow` stores a request. The effect below applies it after the cursor
+  // follow of the same commit, so the requested alignment wins. Rows that were
+  // just added are not laid out yet, so the reveal runs once more on the next
+  // geometry change. A cursor move before that change cancels the second run.
+  const [reveal, setReveal] = useState<{
+    index: number;
+    options: DocumentRevealOptions;
+  } | null>(null);
+  const revealRow = useCallback((index: number, revealOptions: DocumentRevealOptions = {}) => {
+    setReveal({ index, options: revealOptions });
+  }, []);
+  const detachRevealRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    detachRevealRef.current?.();
+  }, [cursor, activeKey]);
+
+  useEffect(() => {
+    const document = ref.current;
+    if (!document || reveal === null) {
+      return () => {
+        // No document or request: no listener was attached.
+      };
+    }
+    const { align = "nearest", margin = 0 } = reveal.options;
+    const apply = () => {
+      document.scrollToRow(reveal.index, align, margin);
+    };
+    const onGeometry = () => {
+      document.off("row-geometry-change", onGeometry);
+      apply();
+    };
+    const detach = () => {
+      document.off("row-geometry-change", onGeometry);
+      if (detachRevealRef.current === detach) {
+        detachRevealRef.current = null;
+      }
+    };
+    apply();
+    document.on("row-geometry-change", onGeometry);
+    detachRevealRef.current = detach;
+    return detach;
+  }, [reveal]);
+
   // -- Tail follow ----------------------------------------------------------
 
   // With `followTail`, `Document` turns on the scroll box's sticky-bottom
@@ -487,6 +534,7 @@ export const useDocumentController = function useDocumentController<T>(
       navigation: { ...navigation, toggledIndices },
       onMouseDown,
       ref,
+      revealRow,
       rows,
       search,
       selectRow,
@@ -512,6 +560,7 @@ export const useDocumentController = function useDocumentController<T>(
       getAnchor,
       getRowAtScreenY,
       selectRow,
+      revealRow,
       onMouseDown,
     ]
   );

@@ -85,6 +85,7 @@ export const MarkdownSubview = function MarkdownSubview({
     folds,
     initialOpen: initialOutline,
     navigation: document.navigation,
+    revealRow: document.revealRow,
   });
   const { width: terminalWidth } = useTerminalDimensions();
   const buildCommandContext = useBuildCommandContext();
