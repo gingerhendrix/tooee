@@ -9,9 +9,9 @@ This guide describes the API shipped in Tooee 0.2.1.
 The complete, CI-typechecked version is [`../examples/source-aware-document.tsx`](../examples/source-aware-document.tsx).
 
 ```tsx
-import { useMemo } from "react";
 import { sourceLines, sourceLineAdapter } from "@tooee/renderers";
 import { Document, DocumentScreen, launchCli, useDocumentController } from "@tooee/shell";
+import { useMemo } from "react";
 
 function SourceDocument({ source }: { source: string }) {
   const rows = useMemo(() => sourceLines(source, { sourceId: "notes.txt" }), [source]);
@@ -267,6 +267,13 @@ The controller, document components, adapter/controller types, and source coordi
 
 ```ts
 import {
+  flattenMarkdown,
+  getFlatBlockText,
+  sourceLines,
+  sourceLineAdapter,
+  type FlatBlock,
+} from "@tooee/renderers";
+import {
   Document,
   DocumentScreen,
   useDocumentController,
@@ -274,11 +281,4 @@ import {
   type DocumentRowAnchor,
   type SourceSpan,
 } from "@tooee/shell";
-import {
-  flattenMarkdown,
-  getFlatBlockText,
-  sourceLines,
-  sourceLineAdapter,
-  type FlatBlock,
-} from "@tooee/renderers";
 ```

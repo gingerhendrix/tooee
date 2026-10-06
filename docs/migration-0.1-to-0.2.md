@@ -83,8 +83,8 @@ Do not use a source offset as a row key unless source location truly defines dom
 Before:
 
 ```ts
-import { marked } from "marked";
 import { flattenTokens } from "@tooee/renderers";
+import { marked } from "marked";
 
 const blocks = flattenTokens(marked.lexer(markdown));
 ```
@@ -93,8 +93,8 @@ After:
 
 ```ts
 import { flattenMarkdown, getFlatBlockText } from "@tooee/renderers";
-import type { DocumentRowAdapter } from "@tooee/shell";
 import type { FlatBlock } from "@tooee/renderers";
+import type { DocumentRowAdapter } from "@tooee/shell";
 
 const blocks = flattenMarkdown(markdown, { sourceId: "README.md" });
 

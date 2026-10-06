@@ -39,8 +39,9 @@ Use the shared `testRender` wrapper from `@tooee/test-support`. It builds on Ope
 ### Pattern
 
 ```tsx
-import { testRender } from "@tooee/test-support";
 import { test, expect, afterEach } from "bun:test";
+
+import { testRender } from "@tooee/test-support";
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
@@ -120,7 +121,9 @@ Test fixtures live in `packages/view/test/fixtures/`:
 
 ```typescript
 import { describe, test, expect, afterEach } from "bun:test";
+
 import { type Session } from "tuistory";
+
 import { launchView } from "./helpers.ts";
 
 let session: Session;
