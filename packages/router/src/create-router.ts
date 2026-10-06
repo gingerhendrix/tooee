@@ -467,7 +467,7 @@ export const createRouter = function createRouter<TContext = undefined>(
         fail(request, asError(cause), handles);
       };
 
-      // oxlint-disable-next-line promise/prefer-await-to-callbacks, promise/prefer-await-to-then -- chaining preserves synchronous commits for synchronous guards
+      // oxlint-disable-next-line promise/prefer-await-to-then -- chaining preserves synchronous commits for synchronous guards
       void output.then(continueWith, rejectGuard);
     } else {
       continueWith(output);

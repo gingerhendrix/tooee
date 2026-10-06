@@ -74,7 +74,6 @@ const decodePullRequests = function decodePullRequests(text: string): PR[] {
   const parsed = parseJsonDocument(text === "" ? "[]" : text);
 
   if (!isJsonArray(parsed)) {
-    // oxlint-disable-next-line unicorn/prefer-type-error -- preserve the example's existing invalid-payload Error contract
     throw new Error("GitHub returned invalid pull request data");
   }
 

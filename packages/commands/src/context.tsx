@@ -152,7 +152,6 @@ export const CommandProvider = function CommandProvider({
 };
 
 // preserve the top-down provider/dispatcher organization.
-// oxlint-disable-next-line no-use-before-define -- provider deliberately renders its dispatcher below
 const CommandDispatcher = function CommandDispatcher({
   children,
   commandStore,
@@ -718,6 +717,5 @@ export const useProvideCommandContextKey = function useProvideCommandContextKey<
   K extends keyof CommandContext,
 >(key: K, getter: () => CommandContext[K]): void {
   // provide a typed augmentation builder instead of asserting computed keys.
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- computed key is constrained by K
   useProvideCommandContext(() => ({ [key]: getter() }));
 };

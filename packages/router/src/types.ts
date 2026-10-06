@@ -150,7 +150,6 @@ export interface RouterOptions<TContext = undefined> {
   onSubscriberError?: (error: Error) => void;
 }
 
-// oxlint-disable-next-line anti-slop/no-unsafe-dictionary-type -- a plain `RouteParams` use is re-reported inside a type alias; the decision is recorded at the declaration
 type OptionalParams<TParams extends RouteParams> =
   Record<string, never> extends TParams ? [params?: TParams] : [params: TParams];
 
