@@ -84,8 +84,10 @@ export const closedFoldsHiding = function closedFoldsHiding(
   row: number
 ): Key[] {
   return ranges
+    .values()
     .filter((range) => closedKeys.has(range.key) && range.start < row && row <= range.end)
-    .map((range) => range.key);
+    .map((range) => range.key)
+    .toArray();
 };
 
 /**

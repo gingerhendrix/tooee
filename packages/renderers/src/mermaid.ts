@@ -97,13 +97,17 @@ const hasUnsafeCyclicFanTopology = function hasUnsafeCyclicFanTopology(
     outgoingDegree.set(edge.source, (outgoingDegree.get(edge.source) ?? 0) + 1);
   }
 
-  const fanInNodes = [...incomingDegree]
+  const fanInNodes = incomingDegree
+    .entries()
     .filter(([, degree]) => degree >= MIN_UNSAFE_CYCLIC_FAN_DEGREE)
-    .map(([node]) => node);
+    .map(([node]) => node)
+    .toArray();
 
-  const fanOutNodes = [...outgoingDegree]
+  const fanOutNodes = outgoingDegree
+    .entries()
     .filter(([, degree]) => degree >= MIN_UNSAFE_CYCLIC_FAN_DEGREE)
-    .map(([node]) => node);
+    .map(([node]) => node)
+    .toArray();
 
   return fanInNodes.some((fanIn) =>
     fanOutNodes.some(
