@@ -24,21 +24,22 @@ export interface NavSearchDeps {
   isSelectable: (index: number) => boolean;
 }
 
+// An event without a payload uses `object`. xstate treats it the same as `{}`, which lint rejects.
 interface NavSearchEventDefinitions {
   rowsChanged: { keys: readonly RowKey[]; preserveCursorByKey?: boolean };
   move: { delta: number };
   jump: { index: number; direction: 1 | -1 };
   setCursor: { index: number };
-  enterSelect: Record<never, never>;
-  cancelSelect: Record<never, never>;
-  toggleCurrent: Record<never, never>;
+  enterSelect: object;
+  cancelSelect: object;
+  toggleCurrent: object;
   toggleAndMove: { delta: number };
   searchStarted: { mode: Mode };
   searchChanged: { query: string; matches: readonly number[] };
-  searchSubmitted: Record<never, never>;
-  searchCancelled: Record<never, never>;
-  searchNext: Record<never, never>;
-  searchPrevious: Record<never, never>;
+  searchSubmitted: object;
+  searchCancelled: object;
+  searchNext: object;
+  searchPrevious: object;
 }
 
 export type NavSearchEvents = {

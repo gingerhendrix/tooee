@@ -16,16 +16,17 @@ export interface ChooseStoreContext {
   reloadRevision: number;
 }
 
+// An event without a payload uses `object`. xstate treats it the same as `{}`, which lint rejects.
 interface ChooseStoreEventDefinitions {
   filterChanged: { query: string };
   activeIndexSet: { index: number };
   moved: { delta: number };
-  activeToggled: Record<never, never>;
-  requestStarted: Record<never, never>;
+  activeToggled: object;
+  requestStarted: object;
   loadingStarted: { requestId: number };
   loadSucceeded: { requestId: number; items: ChooseItem[] };
   loadFailed: { requestId: number; error: string };
-  reloadRequested: Record<never, never>;
+  reloadRequested: object;
 }
 
 export type ChooseStoreEvents = {
