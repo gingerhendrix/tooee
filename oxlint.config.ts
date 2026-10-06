@@ -22,6 +22,9 @@ export default defineConfig({
     { name: "react-idioms", specifier: "./tools/oxlint/react-idioms/index.ts" },
   ],
   options: {
+    // A disable comment that no longer suppresses anything fails the gate, so stale
+    // exceptions cannot accumulate after rule or code changes.
+    reportUnusedDisableDirectives: "error",
     typeAware: true,
   },
   overrides: [
@@ -45,6 +48,7 @@ export default defineConfig({
     "typescript/no-deprecated": "error",
     "typescript/no-empty-object-type": "error",
     "typescript/no-explicit-any": "error",
+    "typescript/no-generated-empty-object-type": "error",
     "typescript/no-invalid-void-type": "error",
     "typescript/no-redundant-type-constituents": "error",
     "typescript/no-unnecessary-type-parameters": "error",
@@ -68,17 +72,19 @@ export default defineConfig({
     "unicorn/prefer-number-coercion": "error",
     "unicorn/prefer-single-call": "error",
     "unicorn/prefer-spread": "error",
-    // Anti-slop custom policy (vendored plugin under tools/oxlint/anti-slop). The adoption
-    // sweep is closed: all 336 findings are gone and every rule is an error, so the per-rule
-    // debt ratchet that held the remaining warnings has been removed. The router keeps a small
-    // set of local exceptions where an unparsed value is the public contract; each one names
-    // its rule and its reason next to the code, and `packages/router/src/types.ts` records why
-    // that boundary stays `unknown`.
+    // Anti-slop custom policy (vendored plugin under tools/oxlint/anti-slop, upstream c44ef22).
+    // Every generic rule is an error and no debt ratchet remains. About 36 local exceptions
+    // remain across the packages and examples, mostly at decode and runtime-type boundaries.
+    // Each one names its rule and its reason next to the code. The router holds the largest
+    // group, and `packages/router/src/types.ts` records why its boundary stays `unknown`.
+    // The Effect rules under effect/ stay off: Tooee has no `effect` dependency.
+    "anti-slop/no-array-filter-map": "error",
     "anti-slop/no-chained-type-assertions": "error",
     "anti-slop/no-conditional-empty-object-spread": "error",
     "anti-slop/no-known-value-widening": "error",
     "anti-slop/no-module-mocking": "error",
     "anti-slop/no-object-parameters": "error",
+    "anti-slop/no-reduce-accumulator-copy": "error",
     "anti-slop/no-reflect-apply": "error",
     "anti-slop/no-reflect-get": "error",
     "anti-slop/no-runtime-typeof": "error",
@@ -88,6 +94,7 @@ export default defineConfig({
     "anti-slop/no-unknown-type-aliases": "error",
     "anti-slop/no-unsafe-dictionary-type": "error",
     "anti-slop/no-widen-then-assert": "error",
+    "anti-slop/require-readable-spacing": "error",
     "anti-slop/require-safety-comment-for-type-assertion": "error",
     // Vendored react-idioms plugin (tools/oxlint/react-idioms). This rule started in Tooee's
     // anti-slop copy and now lives in the oxlint-rules repository.
