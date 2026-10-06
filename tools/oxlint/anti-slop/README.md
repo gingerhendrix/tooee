@@ -2,15 +2,17 @@
 
 This directory vendors Dillon Mulroy's `anti-slop` plugin under the MIT license.
 
+- Canonical source: `repos/oxlint-rules`, folder `plugins/anti-slop/`
 - Upstream: `https://github.com/dmmulroy/anti-slop`
-- Upstream commit: `6d538555cb151d4121ed51a27db81890eacf8ae9`
-- Proven implementation source: Streamsy commit `92d6660ff62d96b3cda9411c6bc6a4b4051202bc`
+- Upstream commit: `c44ef22ca116d0ba62a3ff663a0bd13a3f3fa40b` (2026-09-10, after v0.1.2)
+- Vendored commit and file hashes: [`VENDORED.json`](VENDORED.json)
 - Local policy: Tooee repository-owned configuration in `/oxlint.config.ts`
+- Third-party code inside the copy: `vendor/eslint-stylistic/` holds the ESLint Stylistic padding
+  engine under its own MIT license. See its `UPSTREAM.md`.
 
-The TypeScript implementation is copied from the proven Streamsy vendor snapshot. StreamOS
-owns local rule severity, scoping, remediation, and future adaptations.
+Do not edit these files here. Change the rule in `oxlint-rules`, then run
+`bun run vendor anti-slop <tooee-worktree>` from that repository. Tooee owns rule severity and
+scoping in `/oxlint.config.ts`.
 
-Tooee adds one repository-specific rule:
-
-- `no-react-global-namespace` requires an explicit `React` import binding before code uses a
-  `React.X` type. Prefer a named type import such as `import type { ReactNode } from "react"`.
+The Tooee rule `no-react-global-namespace` moved to the `react-idioms` plugin in
+`tools/oxlint/react-idioms/`. Its rule id is now `react-idioms/no-react-global-namespace`.

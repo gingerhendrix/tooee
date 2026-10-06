@@ -30,11 +30,7 @@ export const noReactGlobalNamespaceRule = defineRule({
         hasReactImport = hasReactImportBinding(node);
       },
       TSQualifiedName(node) {
-        if (
-          !hasReactImport &&
-          node.left.type === "Identifier" &&
-          node.left.name === "React"
-        ) {
+        if (!hasReactImport && node.left.type === "Identifier" && node.left.name === "React") {
           context.report({ node, messageId: "globalNamespace" });
         }
       },

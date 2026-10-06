@@ -1,3 +1,4 @@
-# oxfmt reads this file by default. The vendored anti-slop Oxlint plugin stays
-# byte-identical to the StreamOS copy, which uses a different formatter profile.
+# oxfmt reads this file by default. The vendored Oxlint plugins stay byte-identical to the
+# canonical copies in the oxlint-rules repository, which uses a different formatter profile.
 tools/oxlint/anti-slop/
+tools/oxlint/react-idioms/

@@ -1,0 +1,9 @@
+{
+  "source": "oxlint-rules",
+  "plugin": "react-idioms",
+  "commit": "c21988b6d368d4fca2e7b4bbc561c1773642d127",
+  "files": {
+    "index.ts": "771be04d7864e665ac1ff66f03cfa59aced14a43a09b2ca40156f98c3dd9a112",
+    "rules/no-react-global-namespace.ts": "f2cc2fcb5235f8df99051fd22fc1ebc2e3c7123169749330ff2b7ed8cb8fff65"
+  }
+}

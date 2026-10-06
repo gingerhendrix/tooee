@@ -7,16 +7,20 @@ export default defineConfig({
   // Tool configs are validated by Ultracite Doctor and their own CLIs. Type-aware
   // lint cannot resolve Oxfmt's config-only type surface through the repo projects.
   // The documentation site is an independent Bun project checked by its own CI step.
-  // The vendored anti-slop detector implementation is third-party code held byte-identical
-  // to the StreamOS copy; local policy applies to Tooee code, not to the detectors.
+  // The vendored plugins under tools/oxlint are copies from the oxlint-rules repository and
+  // must stay byte-identical to it; local policy applies to Tooee code, not to the detectors.
   ignorePatterns: [
     ...core.ignorePatterns,
     "oxlint.config.ts",
     "oxfmt.config.ts",
     "site/**",
     "tools/oxlint/anti-slop/**",
+    "tools/oxlint/react-idioms/**",
   ],
-  jsPlugins: [{ name: "anti-slop", specifier: "./tools/oxlint/anti-slop/index.ts" }],
+  jsPlugins: [
+    { name: "anti-slop", specifier: "./tools/oxlint/anti-slop/index.ts" },
+    { name: "react-idioms", specifier: "./tools/oxlint/react-idioms/index.ts" },
+  ],
   options: {
     typeAware: true,
   },
@@ -77,7 +81,6 @@ export default defineConfig({
     "anti-slop/no-object-parameters": "error",
     "anti-slop/no-reflect-apply": "error",
     "anti-slop/no-reflect-get": "error",
-    "anti-slop/no-react-global-namespace": "error",
     "anti-slop/no-runtime-typeof": "error",
     "anti-slop/no-shape-in-symbol-names": "error",
     "anti-slop/no-unknown-parameters": "error",
@@ -86,6 +89,9 @@ export default defineConfig({
     "anti-slop/no-unsafe-dictionary-type": "error",
     "anti-slop/no-widen-then-assert": "error",
     "anti-slop/require-safety-comment-for-type-assertion": "error",
+    // Vendored react-idioms plugin (tools/oxlint/react-idioms). This rule started in Tooee's
+    // anti-slop copy and now lives in the oxlint-rules repository.
+    "react-idioms/no-react-global-namespace": "error",
     // Permanently off (policy). Tooee renders to a terminal, not the DOM: there is no
     // accessibility tree and no ARIA. `CommandSurfaceProvider.role` is a Tooee command-surface
     // role ("modal" | "passive"), and the rule can only ever produce false positives here.
