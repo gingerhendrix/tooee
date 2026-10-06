@@ -5,6 +5,7 @@ import type { Session } from "tuistory";
 import { launchView } from "./helpers.js";
 
 let session: Session;
+
 afterEach(() => {
   session?.close();
 });

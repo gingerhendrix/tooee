@@ -14,6 +14,7 @@ import type { RowMouseCallbacks } from "./support/bindings.js";
 // header chrome, so the first line renders at viewport y=0. Gutter is line
 // numbers (1 digit) + sign column (3) + padding (1) = 5, so x=8 lands on code.
 const CODE = ["const a = 1", "const b = 2", "const c = 3", "const d = 4", "const e = 5"].join("\n");
+
 const CONTENT_X = 8;
 
 const CodeHarness = function CodeHarness(callbacks: RowMouseCallbacks): ReactNode {
@@ -95,9 +96,11 @@ describe("CodeView mouse interaction", () => {
 
     expect(events.length).toBe(1);
     const [event] = events;
+
     if (event === undefined) {
       throw new Error("Expected a context-menu event");
     }
+
     expect(event.index).toBe(1);
     expect(event.x).toBe(CONTENT_X);
     expect(event.y).toBe(1);

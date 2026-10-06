@@ -29,12 +29,15 @@ interface FramePosition {
 
 const lineOf = function lineOf(frame: string, text: string): FramePosition {
   const lines = frame.split("\n");
+
   for (let y = 0; y < lines.length; y += 1) {
     const x = lines[y].indexOf(text);
+
     if (x !== -1) {
       return { x, y };
     }
   }
+
   return { x: -1, y: -1 };
 };
 

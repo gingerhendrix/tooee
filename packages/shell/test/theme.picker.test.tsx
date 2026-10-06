@@ -19,7 +19,9 @@ import { act } from "react";
 import type { ReactNode } from "react";
 
 const CONFIG_NAMESPACE = "shell-theme-picker";
+
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
+
 process.env.XDG_CONFIG_HOME = TEST_CONFIG_HOME;
 
 beforeEach(() => {
@@ -50,7 +52,9 @@ const setup = async function setup() {
     </TooeeProvider>,
     { height: 40, kittyKeyboard: true, width: 80 }
   );
+
   await s.renderOnce();
+
   return s;
 };
 
@@ -131,9 +135,11 @@ describe("theme picker", () => {
     const openFrame = testSetup.captureCharFrame();
     expect(openFrame).toContain("open:true");
     const currentTheme = /theme:(?<theme>\S+)/u.exec(openFrame)?.groups?.theme;
+
     if (currentTheme === undefined) {
       throw new Error("expected the current theme in the harness frame");
     }
+
     // The shared chooser opens on the current theme and scrolls it into view.
     expect(openFrame).toContain(currentTheme);
     // Should show filter count
@@ -161,13 +167,16 @@ describe("theme picker", () => {
     const frame = testSetup.captureCharFrame();
     const lines = frame.split("\n");
     let pos = { x: -1, y: -1 };
+
     for (let y = 4; y < lines.length; y += 1) {
       const x = lines[y].indexOf(target);
+
       if (x !== -1) {
         pos = { x, y };
         break;
       }
     }
+
     expect(pos.y).toBeGreaterThan(-1);
 
     await act(async () => {

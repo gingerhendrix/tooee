@@ -13,10 +13,12 @@ const expectDefined = function expectDefined<T>(value: T | undefined): T {
   if (value === undefined) {
     throw new Error("Expected test value to be defined");
   }
+
   return value;
 };
 
 let testRenderer: Awaited<ReturnType<typeof createTestRenderer>> | undefined;
+
 let sessionHandle: TooeeSessionHandle | undefined;
 
 afterEach(() => {
@@ -88,16 +90,19 @@ describe("mountTooee", () => {
 describe("local sessions", () => {
   test("renderer-originated destroy unmounts the owned React tree", async () => {
     let effectCleanupCalls = 0;
+
     const ResourceOwner = function ResourceOwner(): ReactNode {
       useEffect(() => {
         const interval = setInterval(() => {
           // Keeps a live timer that the effect cleanup must clear.
         }, 1000);
+
         return () => {
           clearInterval(interval);
           effectCleanupCalls += 1;
         };
       }, []);
+
       return <text>resource owner</text>;
     };
 
@@ -124,9 +129,11 @@ describe("local sessions", () => {
 
   test("destroy releases the renderer and health listeners exactly once", async () => {
     let rendererDestroyCalls = 0;
+
     const rendererOptions = remoteRendererOptions(() => {
       rendererDestroyCalls += 1;
     });
+
     const stdin = expectDefined(rendererOptions.stdin);
     const beforeEnd = stdin.listenerCount("end");
     const beforeClose = stdin.listenerCount("close");
@@ -157,6 +164,7 @@ describe("local sessions", () => {
     const resultPromise = runCliSession<string>(
       (session): ReactNode => {
         controller = session;
+
         return <text>settlement</text>;
       },
       {
@@ -178,9 +186,11 @@ describe("local sessions", () => {
 
   test("runCliSession reserves null for cancellation and rejects render failures", async () => {
     let controller: CliSessionController<string> | undefined;
+
     const cancelled = runCliSession<string>(
       (session): ReactNode => {
         controller = session;
+
         return <text>cancel</text>;
       },
       { renderer: remoteRendererOptions(), terminalHealth: false }
@@ -192,6 +202,7 @@ describe("local sessions", () => {
     expect(await cancelled).toBeNull();
 
     let failure: Error | undefined;
+
     try {
       await runCliSession<string>(() => {
         throw new Error("render factory failed");
@@ -201,6 +212,7 @@ describe("local sessions", () => {
         failure = error;
       }
     }
+
     expect(failure?.message).toBe("render factory failed");
   });
 });
@@ -216,6 +228,7 @@ test("guardTerminalHealth owns and removes only its listeners", async () => {
     destroyRenderer: false,
     exitProcess: false,
   });
+
   expect(stdin.listenerCount("end")).toBe(beforeEnd + 1);
   expect(stdin.listenerCount("close")).toBe(beforeClose + 1);
 

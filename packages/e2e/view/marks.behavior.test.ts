@@ -27,6 +27,7 @@ describe("marks rendering e2e (code content)", () => {
   test("search highlights are visible when searching in code content", async () => {
     session = await launchView("long.ts");
     await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
+
     // Open search — retry until search bar appears
     for (let attempt = 0; attempt < 3; attempt += 1) {
       // Retry keystrokes must be delivered one at a time while the UI updates.
@@ -38,10 +39,12 @@ describe("marks rendering e2e (code content)", () => {
       // Inspect each frame before deciding whether another retry is needed.
       // oxlint-disable-next-line no-await-in-loop -- Preserve ordered polling.
       const check = await session.text();
+
       if (!/Mode:\s*cursor/u.test(check)) {
         break;
       }
     }
+
     // Type a search query that matches multiple lines
     await session.type("function");
     // Submit search

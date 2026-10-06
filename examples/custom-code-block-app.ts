@@ -136,12 +136,14 @@ const ProgressRenderer = function ProgressRenderer({
     .filter((line) => line.length > 0)
     .map((line) => {
       const [label, raw] = line.split(",");
+
       return { label: (label ?? "").trim(), value: Number((raw ?? "").trim()) };
     });
 
   const invalid = rows.some(
     (row) => row.label === "" || !Number.isFinite(row.value) || row.value < 0 || row.value > 100
   );
+
   if (rows.length === 0 || invalid) {
     return null;
   }
@@ -153,6 +155,7 @@ const ProgressRenderer = function ProgressRenderer({
     { indent, theme },
     ...rows.map((row, i): ReactNode => {
       const filled = Math.round((row.value / 100) * PROGRESS_BAR_WIDTH);
+
       return h(
         "text",
         { key: i, style: { height: 1 } },
@@ -189,6 +192,7 @@ const CalloutRenderer = function CalloutRenderer({
   // ```callout warning — the kind is the second word of the info string
   const kind = info.trim().split(/\s+/u)[1]?.toLowerCase() ?? "info";
   const style = CALLOUT_STYLES.get(kind);
+
   if (style === undefined || text.trim() === "") {
     return null;
   }
@@ -227,6 +231,7 @@ const CalloutRenderer = function CalloutRenderer({
 // pans exactly like built-in code and mermaid blocks.
 
 const TIMELINE_HOURS = 24;
+
 const TIMELINE_HOUR_COLS = 5;
 
 const TimelineRenderer = function TimelineRenderer({
@@ -241,6 +246,7 @@ const TimelineRenderer = function TimelineRenderer({
     .filter((line) => line.length > 0)
     .map((line) => {
       const [label, start, duration] = line.split(",");
+
       return {
         duration: Number((duration ?? "").trim()),
         label: (label ?? "").trim(),
@@ -257,6 +263,7 @@ const TimelineRenderer = function TimelineRenderer({
       row.duration <= 0 ||
       row.start + row.duration > TIMELINE_HOURS
   );
+
   if (rows.length === 0 || invalid) {
     return null;
   }
@@ -266,6 +273,7 @@ const TimelineRenderer = function TimelineRenderer({
   const gutter = " ".repeat(labelWidth + 1);
 
   let ticks = "";
+
   for (let hour = 0; hour < TIMELINE_HOURS; hour += 4) {
     ticks += `${hour}:00`.padEnd(4 * TIMELINE_HOUR_COLS);
   }
@@ -276,6 +284,7 @@ const TimelineRenderer = function TimelineRenderer({
     ...rows.map((row) => {
       const offset = " ".repeat(Math.round(row.start * TIMELINE_HOUR_COLS));
       const bar = "█".repeat(Math.max(1, Math.round(row.duration * TIMELINE_HOUR_COLS)));
+
       return `${row.label.padEnd(labelWidth)} ${offset}${bar}`;
     }),
   ];

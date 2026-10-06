@@ -24,24 +24,31 @@ export const MarkdownTableRenderer = function MarkdownTableRenderer({
   const content: TextTableContent = useMemo(() => {
     const headerRow: TextTableCellContent[] = token.header.map((cell) => {
       const chunks = inlineTokensToChunks(cell.tokens, theme);
+
       return chunks.length > 0
         ? chunks.map((item) => boldChunk(item))
         : [boldChunk(getPlainText(cell.tokens).trim())];
     });
+
     const dataRows = token.rows.map((row) =>
       row.map((cell) => {
         const chunks = inlineTokensToChunks(cell.tokens, theme);
+
         if (chunks.length > 0) {
           return chunks;
         }
+
         const fallbackCell: TextTableCellContent = [
           { __isChunk: true, text: getPlainText(cell.tokens) },
         ];
+
         return fallbackCell;
       })
     );
+
     return [headerRow, ...dataRows];
   }, [token, theme]);
+
   const onMouseDown = useMemo(
     () => tableLinkMouseHandler(content, onLinkActivate),
     [content, onLinkActivate]

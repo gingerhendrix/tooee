@@ -62,12 +62,14 @@ describe("buildDiffModel", () => {
     const model = buildDiffModel(MULTI_FILE_PATCH);
     const hunkRows = model.rows.filter((row) => row.kind === "hunk" && row.fileIndex === 0);
     expect(hunkRows).toHaveLength(2);
+
     for (const row of hunkRows) {
       expect(row.file.metadata.hunks).toHaveLength(1);
       // Whole-file line arrays stay intact so line numbers and collapsed-gap
       // counts still resolve against the complete file.
       expect(row.file.metadata.additionLines).toEqual(row.parent.metadata.additionLines);
     }
+
     expect(hunkRows[1].file.metadata.hunks[0].collapsedBefore).toBe(16);
   });
 

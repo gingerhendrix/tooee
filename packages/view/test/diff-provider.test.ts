@@ -20,12 +20,14 @@ describe("diff format detection", () => {
     const content = await createFileProvider(fixture("sample.patch"), {
       renderer: "text",
     }).load();
+
     expect(content.format).toBe("text");
   });
 
   test("a patch with an unhelpful extension is sniffed from its content", async () => {
     const file = path.join(import.meta.dir, "fixtures", "sniffed-patch.tmp");
     await Bun.write(file, await Bun.file(fixture("sample.patch")).text());
+
     try {
       const content = await createFileProvider(file).load();
       expect(content.format).toBe("diff");

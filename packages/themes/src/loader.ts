@@ -30,11 +30,14 @@ const loadJsonThemesFromDir = function loadJsonThemesFromDir(
     if (!existsSync(dir)) {
       return;
     }
+
     for (const file of readdirSync(dir)) {
       if (!file.endsWith(".json")) {
         continue;
       }
+
       const name = path.basename(file, ".json");
+
       try {
         const content = readFileSync(path.join(dir, file), "utf-8");
         // SAFETY: the file is not validated here on purpose. Its only consumer is
@@ -71,13 +74,16 @@ const loadBundledThemes = function loadBundledThemes(): Map<string, ThemeJSON> {
   // Project-local: search upward for .tooee/themes/
   let dir = process.cwd();
   const seen = new Set<string>();
+
   while (dir && !seen.has(dir)) {
     seen.add(dir);
     loadJsonThemesFromDir(path.join(dir, ".tooee", "themes"), themeJsonCache);
     const parent = path.dirname(dir);
+
     if (parent === dir) {
       break;
     }
+
     dir = parent;
   }
 
@@ -97,12 +103,14 @@ export const getThemeNames = function getThemeNames(): string[] {
 // ---------------------------------------------------------------------------
 
 export const DEFAULT_THEME_NAME = "tokyonight";
+
 export const DEFAULT_MODE: ColorMode = "dark";
 
 const bundledDefaultThemeText = readFileSync(
   new URL("../themes/tokyonight.json", import.meta.url),
   "utf-8"
 );
+
 // SAFETY: this package owns the bundled theme document. resolveTheme validates
 // every consumed color and fills every omitted key from FALLBACKS.
 // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- trusted package-owned JSON boundary
@@ -110,6 +118,7 @@ const bundledDefaultThemeJson = JSON.parse(bundledDefaultThemeText) as ThemeJSON
 
 const buildBundledDefaultTheme = function buildBundledDefaultTheme(mode: ColorMode): Theme {
   const colors = resolveTheme(bundledDefaultThemeJson, mode);
+
   return { colors, mode, name: DEFAULT_THEME_NAME, syntax: buildSyntaxStyle(colors) };
 };
 
@@ -118,17 +127,23 @@ export const defaultTheme: Theme = buildBundledDefaultTheme(DEFAULT_MODE);
 export const buildTheme = function buildTheme(name: string, mode: ColorMode): Theme {
   const themes = loadThemes();
   const json = themes.get(name);
+
   if (!json) {
     // Fall back to tokyonight, then first available, then the bundled default.
     const fallbackJson = themes.get(DEFAULT_THEME_NAME) ?? themes.values().next().value;
+
     if (fallbackJson) {
       const resolved = resolveTheme(fallbackJson, mode);
+
       return { colors: resolved, mode, name, syntax: buildSyntaxStyle(resolved) };
     }
+
     return buildBundledDefaultTheme(mode);
   }
+
   try {
     const resolved = resolveTheme(json, mode);
+
     return { colors: resolved, mode, name, syntax: buildSyntaxStyle(resolved) };
   } catch {
     return buildBundledDefaultTheme(mode);

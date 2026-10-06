@@ -48,6 +48,7 @@ const AskSurface = function AskSurface({
 const PassiveSurface = function PassiveSurface({ onAction }: { onAction: () => void }): ReactNode {
   // Bound to the same hotkey the root uses to prove passive surfaces never win.
   useCommand({ handler: onAction, hotkey: "q", id: "passive.quit-like", title: "Passive" });
+
   return <text content="PASSIVE_OVERLAY" />;
 };
 
@@ -133,7 +134,9 @@ const setup = async function setup() {
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 80 }
   );
+
   await session.renderOnce();
+
   return session;
 };
 

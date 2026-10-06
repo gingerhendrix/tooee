@@ -61,6 +61,7 @@ const typeText = async function typeText(text: string) {
 };
 
 let askSettlements: (string | null)[] = [];
+
 let chooseSettlements: (string | null)[] = [];
 
 interface NestedHarnessRef {
@@ -103,6 +104,7 @@ const NestedHarness = function NestedHarness(): ReactNode {
                 })
                 .then((model) => {
                   chooseSettlements.push(model === null ? null : model.id);
+
                   if (model !== null) {
                     controllerRef.current?.insertText(model.id);
                   }
@@ -118,6 +120,7 @@ const NestedHarness = function NestedHarness(): ReactNode {
         multiline: false,
         prompt: "Ask something",
       });
+
       return result;
     },
   };
@@ -137,7 +140,9 @@ const setupNested = async function setupNested() {
     </TooeeProvider>,
     { height: 30, kittyKeyboard: true, width: 80 }
   );
+
   await session.renderOnce();
+
   return session;
 };
 

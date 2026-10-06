@@ -30,12 +30,15 @@ const documentParams: Codec<{ path?: string }> = {
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
       throw new TypeError("Expected document params");
     }
+
     if (!("path" in value) || value.path === undefined) {
       return {};
     }
+
     if (typeof value.path !== "string" || !path.isAbsolute(value.path)) {
       throw new TypeError("Expected an absolute document path");
     }
+
     /* oxlint-enable anti-slop/no-runtime-typeof */
     return { path: value.path };
   },
@@ -55,32 +58,41 @@ export const createStandaloneRouter = function createStandaloneRouter(
     const navigate = useNavigate();
     const { stack } = useRouter();
     const chooseLink = useChooseDialog<MarkdownLink>();
+
     const provider = useMemo(
       () =>
         documentPath === undefined ? options.contentProvider : createFileProvider(documentPath),
       [documentPath]
     );
+
     const activate = (href: string, command: CommandContext): boolean => {
       if (options.filePath === undefined) {
         command.toast?.toast({ level: "info", message: "Links need a source file" });
+
         return true;
       }
+
       const currentPath = path.resolve(documentPath ?? options.filePath);
+
       return runLinkHandlers(
         options.linkHandlers ?? [],
         { baseDir: path.dirname(currentPath), currentPath, href },
         { command, documentRoute, navigate }
       );
     };
+
     useCommand({
       handler: async (context) => {
         // Source positions are zero-based, unlike the displayed line numbers.
         const line = context.document?.activeAnchor?.source?.primary?.start.line;
         const content = context.view?.content;
+
         if (line === undefined || content === undefined) {
           return;
         }
+
         const links = markdownLinks(getTextContent(content).split("\n")[line] ?? "");
+
         // One link follows directly; several open a chooser so none is silently preferred.
         const link =
           links.length > 1
@@ -90,6 +102,7 @@ export const createStandaloneRouter = function createStandaloneRouter(
                 toItem: (item) => ({ description: item.href, text: item.text }),
               })
             : (links[0] ?? null);
+
         if (link !== null) {
           activate(link.href, context);
         }
@@ -100,6 +113,7 @@ export const createStandaloneRouter = function createStandaloneRouter(
       title: "Follow Markdown link",
       when: (context) => context.view?.format === "markdown",
     });
+
     return (
       <View
         key={`${stack.length}:${documentPath ?? ""}`}
@@ -112,14 +126,17 @@ export const createStandaloneRouter = function createStandaloneRouter(
       />
     );
   };
+
   const documentRoute = createRoute({
     component: DocumentScreen,
     id: "view.document",
     params: documentParams,
   });
+
   const router = createRouter({
     initial: { routeId: documentRoute.id },
     routes: [documentRoute],
   });
+
   return { documentRoute, router };
 };

@@ -130,7 +130,9 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     commandScope = "choose",
     escapeToCursor = true,
   } = options;
+
   const initialItems = Array.isArray(source) ? source : [];
+
   const store = useLazyRef(() =>
     createChooseStore({
       initialActiveIndex,
@@ -139,34 +141,44 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
       loading: !Array.isArray(source),
     })
   ).current;
+
   const filterRef = useRef<InputRenderable>(null);
+
   const initialArraySourceRef = useLazyRef<ChooseItem[] | null>(() =>
     Array.isArray(source) ? source : null
   );
+
   const didHandleInitialSourceRef = useRef(false);
 
   const items = useSelector(store, (snapshot) => selectItems(snapshot.context));
   const matches = useSelector(store, (snapshot) => selectMatches(snapshot.context));
   const filterQuery = useSelector(store, (snapshot) => selectFilterQuery(snapshot.context));
   const activeIndex = useSelector(store, (snapshot) => selectActiveIndex(snapshot.context));
+
   const selectedOriginalIndices = useSelector(store, (snapshot) =>
     selectSelectedOriginalIndices(snapshot.context)
   );
+
   const loading = useSelector(store, (snapshot) => selectLoading(snapshot.context));
   const error = useSelector(store, (snapshot) => selectError(snapshot.context));
   const reloadRevision = useSelector(store, (snapshot) => selectReloadRevision(snapshot.context));
   const activeItem = matches[activeIndex]?.item;
+
   const selectedItems = useMemo(() => {
     if (!multi) {
       return activeItem === undefined ? [] : [activeItem];
     }
+
     const selected = [...selectedOriginalIndices].flatMap((index) => {
       const item = items[index];
+
       return item === undefined ? [] : [item];
     });
+
     if (selected.length > 0) {
       return selected;
     }
+
     return activeItem === undefined ? [] : [activeItem];
   }, [multi, activeItem, selectedOriginalIndices, items]);
 
@@ -182,6 +194,7 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
 
   useEffect(() => {
     let active = true;
+
     const deactivate = () => {
       active = false;
     };
@@ -194,17 +207,21 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
       source === initialArraySourceRef.current
     ) {
       didHandleInitialSourceRef.current = true;
+
       return deactivate;
     }
+
     didHandleInitialSourceRef.current = true;
 
     store.trigger.requestStarted({});
     const { requestId } = store.getSnapshot().context;
     let result: ChooseItem[] | Promise<ChooseItem[]>;
+
     try {
       result = loadChooseSource(source);
     } catch (loadError) {
       store.trigger.loadFailed({ error: chooseSourceError(loadError), requestId });
+
       return deactivate;
     }
 
@@ -213,6 +230,7 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
       void (async () => {
         try {
           const loaded = await result;
+
           if (active) {
             store.trigger.loadSucceeded({ items: loaded, requestId });
           }
@@ -222,10 +240,12 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
           }
         }
       })();
+
       return deactivate;
     }
 
     store.trigger.loadSucceeded({ items: result, requestId });
+
     return deactivate;
   }, [source, reloadRevision, store, initialArraySourceRef]);
 
@@ -235,49 +255,65 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     },
     [store]
   );
+
   const updateActiveIndex = useCallback(
     (index: number) => {
       store.trigger.activeIndexSet({ index });
     },
     [store]
   );
+
   const moveUp = useCallback(() => {
     store.trigger.moved({ delta: -1 });
   }, [store]);
+
   const moveDown = useCallback(() => {
     store.trigger.moved({ delta: 1 });
   }, [store]);
+
   const getActiveItem = useCallback(() => {
     const { context } = store.getSnapshot();
+
     return context.matches[context.activeIndex]?.item;
   }, [store]);
+
   const getSelectedItems = useCallback((): ChooseItem[] => {
     const { context } = store.getSnapshot();
     const active = context.matches[context.activeIndex]?.item;
+
     if (!multiRef.current) {
       return active === undefined ? [] : [active];
     }
+
     const selected = [...context.selectedOriginalIndices].flatMap((index) => {
       const item = context.items[index];
+
       return item === undefined ? [] : [item];
     });
+
     if (selected.length > 0) {
       return selected;
     }
+
     return active === undefined ? [] : [active];
   }, [multiRef, store]);
+
   const toggleActive = useCallback(() => {
     if (multiRef.current) {
       store.trigger.activeToggled({});
     }
   }, [multiRef, store]);
+
   const submit = useCallback(() => {
     void optionsRef.current.onSubmit({ items: getSelectedItems() });
   }, [getSelectedItems, optionsRef]);
+
   const cancel = useCallback(() => optionsRef.current.onCancel?.(), [optionsRef]);
+
   const reload = useCallback(() => {
     store.trigger.reloadRequested({});
   }, [store]);
+
   const setModeExternal = useCallback(
     (nextMode: Mode) => {
       setMode(nextMode);
@@ -293,9 +329,11 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
         selectedItems: getSelectedItems(),
       },
     };
+
     if (optionsRef.current.onCancel !== undefined) {
       context.exit = cancel;
     }
+
     return context;
   });
 
@@ -305,6 +343,7 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     (group: ChooseCommandGroup) => !(optionsRef.current.disable?.includes(group) ?? false),
     [optionsRef]
   );
+
   const builtInActions = useMemo<ActionDefinition[]>(() => {
     const definitions: ChooseKeymapDefinition[] = [
       {
@@ -448,6 +487,7 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
         when: () => multiRef.current,
       },
     ];
+
     return definitions.map(({ group, when, ...definition }) => ({
       ...definition,
       when: () => enabled(group()) && (when?.() ?? true),
@@ -466,10 +506,12 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
     submit,
     toggleActive,
   ]);
+
   useActions(builtInActions);
 
   const surfaceId = useCommandSurfaceId();
   const activeSurface = useActiveCommandSurface();
+
   const suspended =
     (options.suspended ?? false) || (activeSurface !== null && activeSurface.id !== surfaceId);
 
@@ -483,8 +525,10 @@ export const useChoose = function useChoose(options: UseChooseOptions): UseChoos
       ) {
         return;
       }
+
       event.preventDefault();
       toggleActive();
+
       if (event.shift) {
         moveUp();
       } else {

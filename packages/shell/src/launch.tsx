@@ -28,6 +28,7 @@ export interface TooeeMount {
 }
 
 export type CliStdinPolicy = "process" | "tty-if-piped";
+
 export type CliStdoutPolicy = "process" | "tty-if-redirected";
 
 export interface LaunchCliOptions {
@@ -87,6 +88,7 @@ export const guardTerminalHealth = function guardTerminalHealth(
   let handled = false;
   let disposed = false;
   const stdin = renderer.stdin ?? process.stdin;
+
   const lifecycle = {
     dispose: () => {
       // Replaced before terminal listeners are attached.
@@ -97,6 +99,7 @@ export const guardTerminalHealth = function guardTerminalHealth(
     if (handled) {
       return;
     }
+
     handled = true;
     lifecycle.dispose();
 
@@ -107,7 +110,9 @@ export const guardTerminalHealth = function guardTerminalHealth(
         // A dead PTY may make terminal restoration fail.
       }
     }
+
     options.onTerminalEnd?.();
+
     if (options.exitProcess ?? true) {
       process.exit(0);
     }
@@ -117,16 +122,19 @@ export const guardTerminalHealth = function guardTerminalHealth(
     if (disposed) {
       return;
     }
+
     disposed = true;
     stdin.removeListener("end", onTerminalEnd);
     stdin.removeListener("close", onTerminalEnd);
     renderer.removeListener("destroy", dispose);
   };
+
   lifecycle.dispose = dispose;
 
   stdin.on("end", onTerminalEnd);
   stdin.on("close", onTerminalEnd);
   renderer.once("destroy", dispose);
+
   return dispose;
 };
 
@@ -142,12 +150,14 @@ export const mountTooee = function mountTooee(
   const markRendererDestroyed = () => {
     unmounted = true;
   };
+
   renderer.once("destroy", markRendererDestroyed);
 
   const unmount = () => {
     if (unmounted) {
       return;
     }
+
     unmounted = true;
     renderer.removeListener("destroy", markRendererDestroyed);
     root.unmount();
@@ -161,6 +171,7 @@ export const mountTooee = function mountTooee(
     } catch {
       // Preserve the original render failure.
     }
+
     throw error;
   }
 
@@ -179,7 +190,9 @@ const openTtyInput = function openTtyInput(policy: CliStdinPolicy): tty.ReadStre
   if (policy !== "tty-if-piped" || process.stdin.isTTY) {
     return undefined;
   }
+
   const fd = fs.openSync("/dev/tty", "r");
+
   try {
     return new tty.ReadStream(fd);
   } catch (error) {
@@ -192,7 +205,9 @@ const openTtyOutput = function openTtyOutput(policy: CliStdoutPolicy): tty.Write
   if (policy !== "tty-if-redirected" || process.stdout.isTTY) {
     return undefined;
   }
+
   const fd = fs.openSync("/dev/tty", "w");
+
   try {
     return new tty.WriteStream(fd);
   } catch (error) {
@@ -218,19 +233,24 @@ export const launchCli = async function launchCli(
     if (options.renderer?.stdin === undefined) {
       ttyInput = openTtyInput(options.stdinPolicy ?? "process");
     }
+
     if (options.renderer?.stdout === undefined) {
       ttyOutput = openTtyOutput(options.stdoutPolicy ?? "process");
     }
+
     const rendererOptions: CliRendererConfig = {
       ...options.renderer,
       exitOnCtrlC: options.exitOnCtrlC ?? true,
     };
+
     if (ttyInput !== undefined) {
       rendererOptions.stdin = ttyInput;
     }
+
     if (ttyOutput !== undefined) {
       rendererOptions.stdout = ttyOutput;
     }
+
     renderer = await createCliRenderer(rendererOptions);
   } catch (error) {
     ttyInput?.destroy();
@@ -239,6 +259,7 @@ export const launchCli = async function launchCli(
   }
 
   let mount: TooeeMount;
+
   try {
     mount = mountTooee(renderer, node, { provider: options.provider });
   } catch (error) {
@@ -248,6 +269,7 @@ export const launchCli = async function launchCli(
       ttyInput?.destroy();
       ttyOutput?.destroy();
     }
+
     throw error;
   }
 
@@ -268,6 +290,7 @@ export const launchCli = async function launchCli(
     if (destroyed) {
       return;
     }
+
     destroyed = true;
     removeHealthGuard();
     ttyInput?.destroy();
@@ -277,6 +300,7 @@ export const launchCli = async function launchCli(
   const onRendererDestroyed = () => {
     releaseOwnedResources();
   };
+
   renderer.once("destroy", onRendererDestroyed);
 
   const handle: TooeeSessionHandle = {
@@ -284,6 +308,7 @@ export const launchCli = async function launchCli(
       if (destroyed) {
         return;
       }
+
       try {
         mount.unmount();
       } finally {
@@ -325,7 +350,9 @@ export const runCliSession = async function runCliSession<T>(
     if (settled) {
       return;
     }
+
     settled = true;
+
     try {
       handle.current?.destroy();
     } finally {
@@ -350,6 +377,7 @@ export const runCliSession = async function runCliSession<T>(
   handle.current.renderer.once("destroy", () => {
     settle(null);
   });
+
   if (settled) {
     handle.current.destroy();
   }

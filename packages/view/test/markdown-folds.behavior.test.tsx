@@ -24,12 +24,15 @@ const MARKDOWN = [
   "## Limits",
   "Limits paragraph.",
 ].join("\n\n");
+
 const ROW_COUNT = 11;
+
 const provider: ContentProvider = {
   load: () => ({ format: "markdown", markdown: MARKDOWN }),
 };
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
+
 let documentContext: DocumentCommandContext | undefined;
 
 const actions: ActionDefinition[] = [
@@ -72,6 +75,7 @@ const keys = async function keys(...sequence: string[]) {
 
 const probe = async function probe(): Promise<DocumentCommandContext> {
   await press(testSetup, "x");
+
   return expectDefined(documentContext);
 };
 
@@ -153,10 +157,12 @@ describe("Markdown heading folds", () => {
     await keys("j", "j", "z", "c");
 
     await press(testSetup, "/");
+
     for (const char of "install step") {
       // oxlint-disable-next-line no-await-in-loop -- each key must render before the next
       await press(testSetup, char);
     }
+
     await act(async () => {
       testSetup.mockInput.pressEnter();
       await Promise.resolve();

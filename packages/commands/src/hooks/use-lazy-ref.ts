@@ -5,5 +5,6 @@ import type { RefObject } from "react";
 export const useLazyRef = function useLazyRef<T>(init: () => T): RefObject<T> {
   const container = useRef<RefObject<T> | null>(null);
   container.current ??= { current: init() };
+
   return container.current;
 };

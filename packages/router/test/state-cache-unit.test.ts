@@ -5,7 +5,9 @@ import { StateCache, createStateKey } from "@tooee/router";
 import { scrollState } from "./support/codecs.ts";
 
 const homeKey = createStateKey("0:home", scrollState);
+
 const detailKey = createStateKey("1:detail", scrollState);
+
 const missingKey = createStateKey("0:unknown", scrollState);
 
 describe("StateCache", () => {

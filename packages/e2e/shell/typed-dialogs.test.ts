@@ -22,6 +22,7 @@ const launch = async function launch(): Promise<Session> {
     "typed-dialogs-app.tsx",
     "typed dialogs e2e ready"
   );
+
   return launchedSession;
 };
 

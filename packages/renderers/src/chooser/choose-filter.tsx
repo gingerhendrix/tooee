@@ -28,6 +28,7 @@ export const ChooseFilter = function ChooseFilter({
   const handleFilterKeyDown = view.onFilterKeyDown;
   const promptContent = decodeReactContent(prompt);
   let renderedPrompt: ReactNode = null;
+
   if (promptContent.kind === "string") {
     renderedPrompt = <text content={promptContent.value} fg={theme.accent} />;
   } else if (promptContent.kind === "node") {

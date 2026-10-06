@@ -5,7 +5,9 @@ import { launchTerminal } from "tuistory";
 import type { Session } from "tuistory";
 
 const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
+
 const CONFIG_NAMESPACE = "shell-e2e";
+
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
 
 export const launchShellFixture = async function launchShellFixture(
@@ -15,6 +17,7 @@ export const launchShellFixture = async function launchShellFixture(
 ): Promise<Session> {
   resetTestConfig(CONFIG_NAMESPACE);
   const fixturePath = path.resolve(import.meta.dir, "fixtures", fixture);
+
   const command =
     options.exitMarker !== undefined && options.exitMarker !== ""
       ? {
@@ -25,6 +28,7 @@ export const launchShellFixture = async function launchShellFixture(
           command: "bash",
         }
       : { args: ["--conditions=@tooee/source", fixturePath], command: "bun" };
+
   const session = await launchTerminal({
     ...command,
     cols: 80,
@@ -32,7 +36,9 @@ export const launchShellFixture = async function launchShellFixture(
     env: { ...process.env, XDG_CONFIG_HOME: TEST_CONFIG_HOME },
     rows: 24,
   });
+
   await session.waitForText(readyText, { timeout: 15_000 });
   await Bun.sleep(150);
+
   return session;
 };

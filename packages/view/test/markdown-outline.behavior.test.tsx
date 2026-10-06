@@ -32,12 +32,15 @@ const MARKDOWN = [
   "## Limits",
   "Limits paragraph.",
 ].join("\n\n");
+
 const ROW_COUNT = 11;
+
 const provider: ContentProvider = {
   load: () => ({ format: "markdown", markdown: MARKDOWN }),
 };
 
 let testSetup: Awaited<ReturnType<typeof testRender>>;
+
 let documentContext: DocumentCommandContext | undefined;
 
 const actions: ActionDefinition[] = [
@@ -87,6 +90,7 @@ const settle = async function settle() {
 
 const probe = async function probe(): Promise<DocumentCommandContext> {
   await press(testSetup, "x");
+
   return expectDefined(documentContext);
 };
 
@@ -106,6 +110,7 @@ const LONG_MARKDOWN = [
     ].join("\n\n")
   ),
 ].join("\n\n");
+
 /**
  * Frame line of a heading after a jump: the title bar is line 0, and the
  * jump keeps three document lines above the heading.
@@ -152,13 +157,16 @@ describe("Markdown outline panel", () => {
   test("indents headings by depth", async () => {
     await mount({ outline: true });
     const lines = frame().split("\n");
+
     const column = (text: string) => {
       const pattern = new RegExp(`│[\\s▸]*${text}\\s*│`, "u");
       const line = expectDefined(lines.find((candidate) => pattern.test(candidate)));
       // The document can show the same text, so measure from the panel border.
       const at = line.lastIndexOf(text);
+
       return at - line.lastIndexOf("│", at);
     };
+
     expect(column("Install")).toBe(column("Guide") + 2);
     expect(column("Keys")).toBe(column("Install") + 2);
     expect(column("Limits")).toBe(column("Install"));
@@ -294,10 +302,12 @@ describe("Markdown outline panel", () => {
     await pressEscape(testSetup);
 
     await press(testSetup, ":");
+
     for (const char of "outline") {
       // oxlint-disable-next-line no-await-in-loop -- each key must render before the next
       await press(testSetup, char);
     }
+
     expect(frame()).toContain("Toggle outline");
   });
 

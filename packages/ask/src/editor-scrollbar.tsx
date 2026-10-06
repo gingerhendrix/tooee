@@ -13,6 +13,7 @@ export interface EditorScrollbarProps {
 }
 
 const THUMB_CHAR = "█";
+
 const TRACK_CHAR = "░";
 
 /**
@@ -36,12 +37,14 @@ export const EditorScrollbar = function EditorScrollbar({
 
   // Rendered height of the editor in rows (available post-layout).
   const { height } = target;
+
   if (height <= 0) {
     return null;
   }
 
   // Total virtual (wrapped) line count, not the count currently in view.
   const total = target.editorView.getTotalVirtualLineCount();
+
   // Content fits, so no scrollbar is needed.
   if (total <= height) {
     return null;
@@ -56,9 +59,11 @@ export const EditorScrollbar = function EditorScrollbar({
   const thumbTop = Math.round((clampedOffset / maxOffset) * maxThumbTop);
 
   let content = "";
+
   for (let i = 0; i < height; i += 1) {
     const isThumb = i >= thumbTop && i < thumbTop + thumbSize;
     content += isThumb ? THUMB_CHAR : TRACK_CHAR;
+
     if (i < height - 1) {
       content += "\n";
     }

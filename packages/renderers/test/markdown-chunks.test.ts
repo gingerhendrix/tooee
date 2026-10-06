@@ -9,9 +9,11 @@ import { inlineTokensToChunks } from "../src/markdown/chunks.js";
 import { chunkLinkAt } from "../src/markdown/table-links.js";
 
 const [firstTheme] = loadThemes().values();
+
 if (firstTheme === undefined) {
   throw new Error("no bundled theme");
 }
+
 const theme = resolveTheme(firstTheme, "dark");
 
 const chunk = function chunk(text: string, url?: string): TextChunk {
@@ -24,6 +26,7 @@ describe("inlineTokensToChunks", () => {
       Lexer.lexInline("see [the **plan**](docs/plan.md) now"),
       theme
     );
+
     expect(chunks.map((item) => [item.text, item.link?.url])).toEqual([
       ["see ", undefined],
       ["the ", "docs/plan.md"],

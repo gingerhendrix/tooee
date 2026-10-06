@@ -60,14 +60,20 @@ const BuriedHarness = function BuriedHarness(): ReactNode {
     modes: ["cursor", "insert", "select"],
     title: "Close over",
   });
+
   return <text content={`hostmode:${mode}`} />;
 };
 
 const createOverlayA = (): ReactNode => <text content="overlay-a" />;
+
 const createOverlayB = (): ReactNode => <text content="overlay-b" />;
+
 const createReplacedOverlayA = (): ReactNode => <text content="overlay-a-replaced" />;
+
 const createEscapeDismissibleOverlay = (): ReactNode => <text content="overlay-escape" />;
+
 const createEscapePersistentOverlay = (): ReactNode => <text content="overlay-persistent" />;
+
 const createAppLayoutOverlay = (): ReactNode => <text content="OVERLAY_CONTENT" />;
 
 const OverlayHarness = function OverlayHarness(): ReactNode {
@@ -75,6 +81,7 @@ const OverlayHarness = function OverlayHarness(): ReactNode {
   const handles = useRef(new Map<string, OverlayHandle<undefined>>());
   const current = useCurrentOverlay();
   const has = useHasOverlay();
+
   const open = (id: string, render: () => ReactNode, options?: OverlayOpenOptions): void => {
     handles.current.set(id, overlay.open(id, render, undefined, { mode: null, ...options }));
   };
@@ -199,7 +206,9 @@ const setup = async function setup(component: ReactNode) {
     kittyKeyboard: true,
     width: 80,
   });
+
   await s.renderOnce();
+
   return s;
 };
 
@@ -323,6 +332,7 @@ describe("overlay lifecycle correctness (R-04)", () => {
         modes: ["cursor"],
         title: "Open",
       });
+
       return <text content="replace-harness" />;
     };
 

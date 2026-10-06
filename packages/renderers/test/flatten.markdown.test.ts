@@ -26,6 +26,7 @@ interface RowProjection {
 
 const projectRow = function projectRow(block: FlatBlock): RowProjection {
   const p = block.source?.primary;
+
   const row: RowProjection = {
     source: p
       ? {
@@ -43,12 +44,15 @@ const projectRow = function projectRow(block: FlatBlock): RowProjection {
     text: getFlatBlockText(block),
     type: block.token.type,
   };
+
   if (block.bullet !== undefined) {
     row.bullet = block.bullet;
   }
+
   if (block.checked !== undefined) {
     row.checked = block.checked;
   }
+
   return row;
 };
 
@@ -364,6 +368,7 @@ describe("flattenMarkdown row order and provenance", () => {
       "Same line",
       "<!-- /guide:hunks -->",
     ].join("\n\n");
+
     const result = flattenMarkdown(markdown);
     expect(result).toHaveLength(2);
     expect(result.map((block) => block.token.type)).toEqual(["paragraph", "paragraph"]);
@@ -388,6 +393,7 @@ describe("flattenMarkdown row order and provenance", () => {
       ["no terminal newline", "para one\n\npara two"],
       ["terminal newline", "para one\n\npara two\n"],
     ];
+
     for (const [label, lf] of cases) {
       test(label, () => {
         const crlf = lf.replaceAll("\n", "\r\n");
@@ -477,6 +483,7 @@ describe("getFlatBlockText", () => {
     const synthetic = flattenMarkdown("1. first\n2.\n   - nested").find(
       (block) => block.token.raw === ""
     );
+
     // For a bullet-only synthetic row, text falls back to the visible bullet.
     expect(synthetic).toBeDefined();
     expect(getFlatBlockText(expectDefined(synthetic)).length).toBeGreaterThan(0);

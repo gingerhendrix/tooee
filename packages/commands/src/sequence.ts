@@ -36,21 +36,26 @@ export const matchesBuffer = function matchesBuffer(
   hotkey: ParsedHotkey
 ): boolean {
   const { steps } = hotkey;
+
   if (steps.length === 0) {
     return false;
   }
+
   if (buffer.length < steps.length) {
     return false;
   }
 
   const start = buffer.length - steps.length;
+
   for (let i = 0; i < steps.length; i += 1) {
     const event = buffer[start + i];
     const step = steps[i];
+
     if (event === undefined || step === undefined || !matchStep(event, step)) {
       return false;
     }
   }
+
   return true;
 };
 
@@ -74,11 +79,13 @@ export const findPendingMatch = function findPendingMatch(
 
     for (let hotkeyIndex = 0; hotkeyIndex < hotkeys.length; hotkeyIndex += 1) {
       const hotkey = hotkeys[hotkeyIndex];
+
       if (hotkey.steps.length <= prefixLength) {
         continue;
       }
 
       let matches = true;
+
       for (let i = 0; i < prefixLength; i += 1) {
         if (!matchStep(buffer[start + i], hotkey.steps[i])) {
           matches = false;
@@ -108,9 +115,11 @@ export const pruneBuffer = function pruneBuffer(
   hotkeys: readonly ParsedHotkey[]
 ): readonly KeyEvent[] {
   const maxLen = Math.max(0, ...hotkeys.map((h) => h.steps.length));
+
   if (maxLen > 0 && buffer.length > maxLen) {
     return buffer.slice(buffer.length - maxLen);
   }
+
   return buffer;
 };
 
@@ -143,6 +152,7 @@ export class SequenceTracker {
     for (let i = 0; i < hotkeys.length; i += 1) {
       if (matchesBuffer(this.buffer, hotkeys[i])) {
         this.reset();
+
         return { matchedIndex: i, pending: null };
       }
     }
@@ -161,6 +171,7 @@ export class SequenceTracker {
     const hadBuffer = this.buffer.length > 0;
     this.buffer = [];
     this.clearTimer();
+
     if (hadBuffer) {
       this.onReset?.();
     }

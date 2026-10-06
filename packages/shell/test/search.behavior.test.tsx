@@ -51,6 +51,7 @@ let searchHandle: SearchState | null = null;
 const SearchHarness = function SearchHarness(): ReactNode {
   const nav = useNavigation({ rowCount: TEST_TEXT.split("\n").length, viewportHeight: 3 });
   const mode = useMode();
+
   const search = useSearch({
     match: (query) => findMatchingLines(TEST_TEXT, query),
     onJump: nav.setCursor,
@@ -78,7 +79,9 @@ const setup = async function setup() {
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 60 }
   );
+
   await session.renderOnce();
+
   return session;
 };
 
@@ -92,18 +95,24 @@ afterEach(() => {
 describe("search hook", () => {
   test("computes matches once per query event and not again on submit", async () => {
     let calls = 0;
+
     const CountingHarness = function CountingHarness(): ReactNode {
       const nav = useNavigation({ rowCount: 2 });
+
       const search = useSearch({
         match: () => {
           calls += 1;
+
           return [0];
         },
         onJump: nav.setCursor,
       });
+
       searchHandle = search;
+
       return <text content={search.searchQuery} />;
     };
+
     testSetup = await testRender(
       <TooeeProvider>
         <CountingHarness />
@@ -234,11 +243,13 @@ const GrowingSearchHarness = function GrowingSearchHarness({ deps }: { deps: boo
 
   const text = lines.join("\n");
   const nav = useNavigation({ rowCount: lines.length, viewportHeight: 3 });
+
   const search = useSearch({
     deps: deps ? [text] : undefined,
     match: (query) => findMatchingLines(text, query),
     onJump: nav.setCursor,
   });
+
   searchHandle = search;
 
   return <text content={`matches:[${search.matchingLines.join(",")}]`} />;
@@ -251,7 +262,9 @@ const setupGrowing = async function setupGrowing(deps: boolean) {
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 60 }
   );
+
   await session.renderOnce();
+
   return session;
 };
 

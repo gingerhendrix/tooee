@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import path from "node:path";
 
 const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
+
 const CLI = path.resolve(REPO_ROOT, "apps/cli/src/main.ts");
 
 const runCli = function runCli(...args: string[]) {
@@ -11,6 +12,7 @@ const runCli = function runCli(...args: string[]) {
     stderr: "pipe",
     stdout: "pipe",
   });
+
   return {
     exitCode: result.exitCode,
     stderr: result.stderr.toString(),

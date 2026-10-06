@@ -81,6 +81,7 @@ interface HarnessRef {
 }
 
 const handles: HarnessRef = { current: null };
+
 let settlements: unknown[] = [];
 
 beforeEach(() => {
@@ -95,6 +96,7 @@ const DialogOwner = function DialogOwner({
 }) {
   const dialog = useChooseDialog<Fruit>();
   openRef.current = dialog;
+
   return null;
 };
 
@@ -136,7 +138,9 @@ const setup = async function setup() {
     </TooeeProvider>,
     { height: 30, kittyKeyboard: true, width: 80 }
   );
+
   await session.renderOnce();
+
   return session;
 };
 
@@ -278,10 +282,12 @@ describe("useChooseDialog", () => {
 
   test("duplicate display texts still resolve distinct typed items", async () => {
     testSetup = await setup();
+
     const twins: Fruit[] = [
       { id: 10, name: "same" },
       { id: 20, name: "same" },
     ];
+
     await act(async () => {
       void expectDefined(handles.current)
         .fruits.open({ items: twins, prompt: "Pick twin", toItem })

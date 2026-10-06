@@ -10,11 +10,14 @@ import { echoData, messageData } from "./support/codecs.ts";
 
 // Route specs (identity + data codec) declared before the components that read them.
 const paramSpec = { data: echoData, id: "param" } as const;
+
 const dataSpec = { data: messageData, id: "data" } as const;
+
 const noLoaderSpec = { id: "noloader" } as const;
 
 const ParamScreen = function ParamScreen(): ReactNode {
   const data = useRouteData(paramSpec);
+
   return (
     <box>
       <text content={`screen:param:${data?.echo ?? "none"}`} />
@@ -40,6 +43,7 @@ const HomeScreen = function HomeScreen(): ReactNode {
 
 const DataScreen = function DataScreen(): ReactNode {
   const data = useRouteData(dataSpec);
+
   return (
     <box>
       <text content={`screen:data:${data?.message ?? "none"}`} />
@@ -76,11 +80,13 @@ describe("route loaders", () => {
     const deferred = createDeferred<{ message: string }>();
 
     const homeRoute = createRoute({ component: HomeScreen, id: "home" });
+
     const dataRoute = createRoute({
       ...dataSpec,
       component: DataScreen,
       loader: async () => {
         const result = await deferred.promise;
+
         return result;
       },
       pendingComponent: LoadingScreen,
@@ -90,6 +96,7 @@ describe("route loaders", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, dataRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -134,6 +141,7 @@ describe("route loaders", () => {
       initial: { routeId: "home" },
       routes: [homeRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -152,12 +160,14 @@ describe("route loaders", () => {
     const deferred = createDeferred<unknown>();
 
     const homeRoute = createRoute({ component: HomeScreen, id: "home" });
+
     const errorRoute = createRoute({
       component: DataScreen,
       errorComponent: ErrorScreen,
       id: "failing",
       loader: async () => {
         const result = await deferred.promise;
+
         return result;
       },
       pendingComponent: LoadingScreen,
@@ -167,6 +177,7 @@ describe("route loaders", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, errorRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -203,11 +214,13 @@ describe("route loaders", () => {
     const deferred = createDeferred<unknown>();
 
     const homeRoute = createRoute({ component: HomeScreen, id: "home" });
+
     const errorRoute = createRoute({
       component: DataScreen,
       id: "failing",
       loader: async () => {
         const result = await deferred.promise;
+
         return result;
       },
       pendingComponent: LoadingScreen,
@@ -217,6 +230,7 @@ describe("route loaders", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, errorRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -256,6 +270,7 @@ describe("route loaders", () => {
 
     const NoLoaderScreen = function NoLoaderScreen(): ReactNode {
       capturedData = useRouteData<string>(noLoaderSpec);
+
       return (
         <box>
           <text content="screen:noloader" />
@@ -269,6 +284,7 @@ describe("route loaders", () => {
       initial: { routeId: "noloader" },
       routes: [noLoaderRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -288,12 +304,14 @@ describe("route loaders", () => {
     let loadCount = 0;
 
     const homeRoute = createRoute({ component: HomeScreen, id: "home" });
+
     const dataRoute = createRoute({
       ...dataSpec,
       component: DataScreen,
       loader: async ({ params: _params }) => {
         loadCount += 1;
         await Promise.resolve();
+
         return { message: `load-${loadCount}` };
       },
     });
@@ -302,6 +320,7 @@ describe("route loaders", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, dataRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -353,6 +372,7 @@ describe("route loaders", () => {
       component: DataScreen,
       loader: async () => {
         const result = await deferred.promise;
+
         return result;
       },
       // No pendingComponent
@@ -362,6 +382,7 @@ describe("route loaders", () => {
       initial: { routeId: "data" },
       routes: [dataRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -393,16 +414,21 @@ describe("route loaders", () => {
     let callCount = 0;
 
     const homeRoute = createRoute({ component: HomeScreen, id: "home" });
+
     const dataRoute = createRoute({
       ...dataSpec,
       component: DataScreen,
       loader: async ({ params: _params }) => {
         callCount += 1;
+
         if (callCount === 1) {
           const result = await deferred1.promise;
+
           return result;
         }
+
         const result = await deferred2.promise;
+
         return result;
       },
       pendingComponent: LoadingScreen,
@@ -412,6 +438,7 @@ describe("route loaders", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, dataRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -467,12 +494,14 @@ describe("route loaders", () => {
     let receivedParams: RouteParams = {};
 
     const homeRoute = createRoute({ component: HomeScreen, id: "home" });
+
     const paramRoute = createRoute({
       ...paramSpec,
       component: ParamScreen,
       loader: async ({ params }) => {
         receivedParams = params;
         await Promise.resolve();
+
         return { echo: String(params.id) };
       },
     });
@@ -481,6 +510,7 @@ describe("route loaders", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, paramRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(

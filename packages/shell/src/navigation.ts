@@ -14,6 +14,7 @@ import { useSelector } from "@xstate/store-react";
 import { useCallback, useMemo } from "react";
 
 const CURSOR_MODES: Mode[] = ["cursor"];
+
 const SELECT_MODES: Mode[] = ["select"];
 
 export interface UseNavigationOptions {
@@ -51,6 +52,7 @@ export const useNavigationBindings = function useNavigationBindings(
   const anchor = useSelector(store, (snapshot) => selectSelectionAnchor(snapshot.context));
   const toggledKeys = useSelector(store, (snapshot) => selectToggledKeys(snapshot.context));
   const rowKeys = useSelector(store, (snapshot) => selectRowKeys(snapshot.context));
+
   const setCursor = useCallback(
     (index: number) => {
       store.trigger.setCursor({ index });
@@ -196,24 +198,29 @@ export const useNavigationBindings = function useNavigationBindings(
         title: "Cancel selection",
       },
     ];
+
     return definitions.map(({ group, ...definition }) => ({
       ...definition,
       when: group === "multi-select" ? () => multiSelect : undefined,
     }));
   }, [halfPage, multiSelect, setMode, store]);
+
   useActions(actions);
 
   const { context } = store.getSnapshot();
   const toggledIndices = new Set<number>();
+
   for (const [index, key] of rowKeys.entries()) {
     if (toggledKeys.has(key)) {
       toggledIndices.add(index);
     }
   }
+
   const selection =
     mode === "select" && anchor !== null && cursor !== null
       ? deriveSelection({ ...context, cursor, selectionAnchor: anchor }, mode)
       : null;
+
   return { cursor, selection, setCursor, toggledIndices };
 };
 
@@ -224,6 +231,8 @@ export const useNavigation = function useNavigation(
     () => Array.from({ length: options.rowCount }, (_, index) => index),
     [options.rowCount]
   );
+
   const store = useNavSearchStore({ isSelectable: options.isSelectable, keys });
+
   return useNavigationBindings(store, options);
 };

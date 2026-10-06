@@ -7,7 +7,9 @@ import { pathToFileURL } from "node:url";
 import { markdownLinks, resolveMarkdownLink } from "../src/markdown-links.js";
 
 let root: string;
+
 let current: string;
+
 beforeEach(() => {
   root = mkdtempSync(path.join(tmpdir(), "tooee-links-"));
   current = path.join(root, "current.md");
@@ -15,15 +17,18 @@ beforeEach(() => {
   writeFileSync(path.join(root, "a b.md"), "# Target");
   mkdirSync(path.join(root, "directory"));
 });
+
 afterEach(() => {
   rmSync(root, { force: true, recursive: true });
 });
 
 test("resolves relative, absolute and file URLs, including fragments", () => {
   const target = path.join(root, "a b.md");
+
   for (const href of ["./a%20b.md", target, pathToFileURL(target).href, "a%20b.md#heading"]) {
     expect(resolveMarkdownLink(href, root, current)).toEqual({ path: target, status: "file" });
   }
+
   expect(resolveMarkdownLink("#heading", root, current)).toEqual({ path: current, status: "file" });
 });
 

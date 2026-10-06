@@ -2,11 +2,15 @@ import type { ColumnDef } from "@tooee/renderers";
 import type { Content } from "@tooee/view";
 
 type CodeContent = Extract<Content, { format: "code" }>;
+
 type MarkdownContent = Extract<Content, { format: "markdown" }>;
+
 type TableContent = Extract<Content, { format: "table" }>;
 
 export type BenchmarkTableCell = string | number;
+
 export type BenchmarkTableRow = Record<string, BenchmarkTableCell | undefined>;
+
 type TableFixture = Omit<TableContent, "rows"> & { rows: BenchmarkTableRow[] };
 
 export interface FixtureTier {
@@ -51,19 +55,23 @@ const WORDS = [
 
 const sentence = function sentence(seed: number, words = 16): string {
   const parts: string[] = [];
+
   for (let index = 0; index < words; index += 1) {
     parts.push(WORDS[(seed + index * 7) % WORDS.length] ?? "word");
   }
+
   return `${parts.join(" ")}.`;
 };
 
 const markdownTable = function markdownTable(section: number): string {
   const rows = ["| Metric | Value | Notes |", "| --- | ---: | --- |"];
+
   for (let row = 0; row < 6; row += 1) {
     rows.push(
       `| item-${section}-${row} | ${section * 100 + row} | ${sentence(section + row, 7)} |`
     );
   }
+
   return rows.join("\n");
 };
 
@@ -100,6 +108,7 @@ export const makeMarkdownFixture = function makeMarkdownFixture(
   }
 
   const markdown = sections.join("\n");
+
   return {
     format: "markdown",
     markdown,
@@ -111,6 +120,7 @@ export const makeCodeFixture = function makeCodeFixture(
   tier: FixtureTier = FIXTURE_TIERS.moderate
 ): CodeContent {
   const lines: string[] = [];
+
   for (let line = 0; line < tier.codeLines; line += 1) {
     const label = WORDS[line % WORDS.length];
     lines.push(
@@ -137,12 +147,14 @@ export const makeTableFixture = function makeTableFixture(
 
   const rows: BenchmarkTableRow[] = Array.from({ length: tier.tableRows }, (_, rowIndex) => {
     const row: BenchmarkTableRow = {};
+
     for (const [columnIndex, column] of columns.entries()) {
       row[column.key] =
         columnIndex % 3 === 0
           ? rowIndex * (columnIndex + 1)
           : `${WORDS[(rowIndex + columnIndex) % WORDS.length]}-${rowIndex}-${columnIndex}`;
     }
+
     return row;
   });
 

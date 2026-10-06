@@ -6,12 +6,16 @@ import { launchTerminal } from "tuistory";
 import type { Session } from "tuistory";
 
 const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
+
 const DEMO = path.resolve(REPO_ROOT, "examples/custom-code-block-app.ts");
+
 const CONFIG_NAMESPACE = "custom-code-block-app-e2e";
+
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
 
 const launchDemo = async function launchDemo(): Promise<Session> {
   resetTestConfig(CONFIG_NAMESPACE);
+
   const session = await launchTerminal({
     args: ["--conditions=@tooee/source", DEMO],
     cols: 80,
@@ -20,8 +24,10 @@ const launchDemo = async function launchDemo(): Promise<Session> {
     env: { ...process.env, XDG_CONFIG_HOME: TEST_CONFIG_HOME },
     rows: 40,
   });
+
   // Wait for the app to be ready — status bar shows "Format:"
   await session.waitForText("Format:", { timeout: 15_000 });
+
   return session;
 };
 
@@ -76,6 +82,7 @@ describe("custom code block app e2e", () => {
       // oxlint-disable-next-line no-await-in-loop -- Preserve sequential terminal input.
       await session.press("l");
     }
+
     await session.waitForText("24:00", { timeout: 8000 });
 
     // Pan back to the start
@@ -84,6 +91,7 @@ describe("custom code block app e2e", () => {
       // oxlint-disable-next-line no-await-in-loop -- Preserve sequential terminal input.
       await session.press("h");
     }
+
     await session.waitForText("0:00", { timeout: 8000 });
     const restored = await session.text();
     expect(restored).not.toContain("24:00");

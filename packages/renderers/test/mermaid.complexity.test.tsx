@@ -9,6 +9,7 @@ import { renderMermaidForTerminal } from "../src/mermaid.js";
 const deploymentTopology = await Bun.file(
   new URL("fixtures/deployment-topology.mmd", import.meta.url)
 ).text();
+
 const semanticApplicationInterface = await Bun.file(
   new URL("fixtures/semantic-application-interface.mmd", import.meta.url)
 ).text();
@@ -85,6 +86,7 @@ test("renders an acyclic fan-in and fan-out graph", () => {
   SPLIT --> Z[Z]`);
 
   expect(result.ok).toBe(true);
+
   if (result.ok) {
     expect(result.text).toContain("Hub");
     expect(result.text).toContain("Split");

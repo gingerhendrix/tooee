@@ -16,6 +16,7 @@ import type { ReactNode } from "react";
 
 const HomeScreen = function HomeScreen(): ReactNode {
   const { isFocused } = useScreenFocus();
+
   return (
     <box>
       <text content={`home:focused:${isFocused}`} />
@@ -27,6 +28,7 @@ const HomeScreen = function HomeScreen(): ReactNode {
 
 const FocusLayout = function FocusLayout(): ReactNode {
   const { isFocused } = useScreenFocus();
+
   return (
     <box>
       <text content={`layout:focused:${isFocused}`} />
@@ -37,6 +39,7 @@ const FocusLayout = function FocusLayout(): ReactNode {
 
 const FocusChild = function FocusChild(): ReactNode {
   const { isFocused } = useScreenFocus();
+
   return (
     <box>
       <text content={`child:focused:${isFocused}`} />
@@ -51,11 +54,13 @@ let effectLog: string[] = [];
 const EffectLayout = function EffectLayout(): ReactNode {
   useScreenEffect(() => {
     effectLog.push("layout:effect");
+
     return () => {
       effectLog.push("layout:cleanup");
     };
   });
   const { isFocused } = useScreenFocus();
+
   return (
     <box>
       <text content={`elayout:focused:${isFocused}`} />
@@ -67,10 +72,12 @@ const EffectLayout = function EffectLayout(): ReactNode {
 const EffectChild = function EffectChild(): ReactNode {
   useScreenEffect(() => {
     effectLog.push("child:effect");
+
     return () => {
       effectLog.push("child:cleanup");
     };
   });
+
   return (
     <box>
       <text content="echild" />
@@ -81,7 +88,9 @@ const EffectChild = function EffectChild(): ReactNode {
 // Route definitions
 
 const homeRoute = createRoute({ component: HomeScreen, id: "home" });
+
 const layoutRoute = createRoute({ component: FocusLayout, id: "layout" });
+
 const nestedRoute = createRoute({
   component: FocusChild,
   id: "nested",
@@ -89,6 +98,7 @@ const nestedRoute = createRoute({
 });
 
 const effectLayoutRoute = createRoute({ component: EffectLayout, id: "elayout" });
+
 const effectNestedRoute = createRoute({
   component: EffectChild,
   id: "enested",
@@ -113,6 +123,7 @@ describe("useScreenFocus", () => {
       initial: { routeId: "home" },
       routes: [homeRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -132,6 +143,7 @@ describe("useScreenFocus", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, layoutRoute, nestedRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -158,6 +170,7 @@ describe("useScreenFocus", () => {
       initial: { routeId: "layout" },
       routes: [layoutRoute, nestedRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -201,6 +214,7 @@ describe("useScreenEffect", () => {
       initial: { routeId: "elayout" },
       routes: [effectLayoutRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -219,6 +233,7 @@ describe("useScreenEffect", () => {
       initial: { routeId: "enested" },
       routes: [effectLayoutRoute, effectNestedRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -239,6 +254,7 @@ describe("useScreenEffect", () => {
       initial: { routeId: "elayout" },
       routes: [effectLayoutRoute, effectNestedRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(

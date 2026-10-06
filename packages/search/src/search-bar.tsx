@@ -21,6 +21,7 @@ export const SearchBar = function SearchBar({
   const { theme } = useTheme();
 
   let matchDisplay = "";
+
   if (matchCount !== undefined && matchCount > 0) {
     matchDisplay = `${(currentMatch ?? 0) + 1}/${matchCount}`;
   } else if (matchCount === 0 && query.length > 0) {

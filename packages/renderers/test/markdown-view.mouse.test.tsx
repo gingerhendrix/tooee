@@ -53,6 +53,7 @@ describe("MarkdownView mouse interaction", () => {
     const md =
       "This is the first paragraph and it is intentionally long enough to wrap across " +
       "several visual lines in a narrow view.\n\nSecond paragraph.";
+
     const clicked: number[] = [];
     testSetup = await testRender(
       <ThemeSwitcherProvider>
@@ -155,6 +156,7 @@ describe("MarkdownView inline links", () => {
           }}
           onLinkActivate={(href) => {
             activated.push(href);
+
             return true;
           }}
         />
@@ -182,6 +184,7 @@ describe("MarkdownView inline links", () => {
           }}
           onLinkActivate={(href) => {
             activated.push(href);
+
             return false;
           }}
         />
@@ -204,6 +207,7 @@ describe("MarkdownView inline links", () => {
           content={"Before\n[linked artifact](nested/note.md) after"}
           onLinkActivate={(href) => {
             activated.push(href);
+
             return true;
           }}
         />

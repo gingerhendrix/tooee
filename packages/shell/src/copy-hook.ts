@@ -23,6 +23,7 @@ export const useCopy = function useCopy({
     enabled,
     handler: (ctx) => {
       const text = cursor === null ? "" : getRowText(cursor);
+
       if (text) {
         void copyToClipboard(text);
         ctx.toast?.toast({ level: "success", message: "Copied line to clipboard" });
@@ -48,9 +49,11 @@ export const useCopy = function useCopy({
           .join("\n");
       } else if (selection) {
         const rows: string[] = [];
+
         for (let index = selection.start; index <= selection.end; index += 1) {
           rows.push(getRowText(index));
         }
+
         text = rows.join("\n");
       }
 

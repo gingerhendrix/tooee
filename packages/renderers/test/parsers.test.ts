@@ -16,6 +16,7 @@ describe("parseCSV", () => {
     const result = parseCSV(
       'name,bio\nAlice,"Likes ""coding"" and tea"\nBob,"Lives in Paris, France"'
     );
+
     expect(result.columns.map((column) => column.header)).toEqual(["name", "bio"]);
     expect(result.rows[0]).toEqual({ bio: 'Likes "coding" and tea', name: "Alice" });
     expect(result.rows[1]).toEqual({ bio: "Lives in Paris, France", name: "Bob" });

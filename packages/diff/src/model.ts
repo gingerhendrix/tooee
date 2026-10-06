@@ -61,7 +61,9 @@ interface PatchSection {
 }
 
 const GIT_HEADER = "diff --git ";
+
 const OLD_FILE_HEADER = "--- ";
+
 const HUNK_HEADER = "@@";
 
 /**
@@ -79,16 +81,19 @@ export const scanPatchSections = function scanPatchSections(patch: string): Patc
   const openSection = (start: number): PatchSection => {
     const section: PatchSection = { end: start, headerEnd: start, hunks: [], start };
     sections.push(section);
+
     return section;
   };
 
   let offset = 0;
+
   for (const line of patch.split("\n")) {
     const lineStart = offset;
     const lineEnd = offset + line.length + 1;
     offset = lineEnd;
 
     let current = sections.at(-1);
+
     if (
       line.startsWith(GIT_HEADER) ||
       (line.startsWith(OLD_FILE_HEADER) && (current === undefined || current.hunks.length > 0))
@@ -96,17 +101,21 @@ export const scanPatchSections = function scanPatchSections(patch: string): Patc
       current = openSection(lineStart);
     } else if (line.startsWith(HUNK_HEADER)) {
       current ??= openSection(lineStart);
+
       if (current.hunks.length === 0) {
         current.headerEnd = lineStart;
       }
+
       current.hunks.push({ end: lineEnd, start: lineStart });
     }
 
     if (current === undefined) {
       continue;
     }
+
     current.end = lineEnd;
     const lastHunk = current.hunks.at(-1);
+
     if (lastHunk) {
       lastHunk.end = lineEnd;
     } else {
@@ -118,6 +127,7 @@ export const scanPatchSections = function scanPatchSections(patch: string): Patc
   for (const section of sections) {
     section.end = Math.min(section.end, patch.length);
     section.headerEnd = Math.min(section.headerEnd, section.end);
+
     for (const hunk of section.hunks) {
       hunk.end = Math.min(hunk.end, section.end);
     }
@@ -143,6 +153,7 @@ const normalizeHunkHeaderForRender = function normalizeHunkHeaderForRender(
   hunk: HunkDiffFile["metadata"]["hunks"][number]
 ): HunkDiffFile["metadata"]["hunks"][number] {
   const { hunkContext, hunkSpecs } = hunk;
+
   if (
     hunkContext === undefined ||
     hunkContext.length === 0 ||
@@ -152,6 +163,7 @@ const normalizeHunkHeaderForRender = function normalizeHunkHeaderForRender(
   }
 
   const [specs] = hunkSpecs.split(HUNK_HEADER_CONTEXT_SEPARATOR, 1);
+
   return { ...hunk, hunkSpecs: `${specs} @@` };
 };
 
@@ -161,6 +173,7 @@ const narrowToHunk = function narrowToHunk(
   hunkIndex: number
 ): HunkDiffFileInput {
   const hunk = normalizeHunkHeaderForRender(file.metadata.hunks[hunkIndex]);
+
   return {
     ...file,
     id: `${file.id}#${hunkIndex}`,
@@ -177,6 +190,7 @@ const fallbackHunkTexts = function fallbackHunkTexts(patch: string): FallbackHun
   const header: string[] = [];
   const hunks: string[][] = [];
   let currentHunk: string[] | null = null;
+
   for (const line of patch.split("\n")) {
     if (line.startsWith(HUNK_HEADER)) {
       currentHunk = [line];
@@ -187,6 +201,7 @@ const fallbackHunkTexts = function fallbackHunkTexts(patch: string): FallbackHun
       header.push(line);
     }
   }
+
   return { header: header.join("\n"), hunks: hunks.map((lines) => lines.join("\n")) };
 };
 
@@ -205,6 +220,7 @@ export const buildDiffModel = function buildDiffModel(patch: string, sourceId?: 
   const index = new SourceIndex(patch, sourceId);
 
   const rows: DiffRow[] = [];
+
   for (const [fileIndex, file] of files.entries()) {
     const section = aligned?.[fileIndex];
     const fallback = fallbackHunkTexts(file.patch ?? "");
@@ -256,6 +272,7 @@ export const buildDiffModel = function buildDiffModel(patch: string, sourceId?: 
 
   let additions = 0;
   let deletions = 0;
+
   for (const file of files) {
     additions += file.stats.additions;
     deletions += file.stats.deletions;

@@ -5,4 +5,5 @@ export {
   readClipboardText,
   readPrimaryText,
 } from "./clipboard.js";
+
 export type { ClipboardContent } from "./clipboard.js";

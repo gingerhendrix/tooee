@@ -38,7 +38,9 @@ const TypedDialogsApp = function TypedDialogsApp(): ReactNode {
                 prompt: "Pick a model",
                 toItem: (item) => ({ text: item.label }),
               });
+
               setChooseResult(selectedModel === null ? "<null>" : selectedModel.id);
+
               if (selectedModel !== null) {
                 controllerRef.current?.insertText(selectedModel.id);
               }
@@ -53,6 +55,7 @@ const TypedDialogsApp = function TypedDialogsApp(): ReactNode {
         multiline: false,
         prompt: "Type something",
       });
+
       setAskResult(value === null ? "<null>" : `[${value}]`);
     },
     hotkey: "a",
@@ -68,6 +71,7 @@ const TypedDialogsApp = function TypedDialogsApp(): ReactNode {
         prompt: "Pick a model",
         toItem: (item) => ({ text: item.label }),
       });
+
       setChooseResult(selectedModel === null ? "<null>" : selectedModel.id);
     },
     hotkey: "c",

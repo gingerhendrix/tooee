@@ -33,6 +33,7 @@ export const computeFoldView = function computeFoldView(
   closedKeys: ReadonlySet<Key>
 ): FoldView {
   const closedEnds = new Map<number, number>();
+
   for (const range of ranges) {
     if (range.end > range.start && closedKeys.has(range.key)) {
       closedEnds.set(range.start, Math.max(closedEnds.get(range.start) ?? range.end, range.end));
@@ -43,14 +44,17 @@ export const computeFoldView = function computeFoldView(
   const sourceToVisible: number[] = Array.from({ length: rowCount }, () => -1);
   const hiddenCounts = new Map<number, number>();
   let hiddenUntil = -1;
+
   for (let index = 0; index < rowCount; index += 1) {
     if (index <= hiddenUntil) {
       continue;
     }
+
     const visibleIndex = visibleToSource.length;
     visibleToSource.push(index);
     sourceToVisible[index] = visibleIndex;
     const end = closedEnds.get(index);
+
     if (end !== undefined) {
       hiddenUntil = Math.min(end, rowCount - 1);
       hiddenCounts.set(visibleIndex, hiddenUntil - index);
@@ -95,5 +99,6 @@ export const visibleAnchorRow = function visibleAnchorRow(view: FoldView, row: n
       return index;
     }
   }
+
   return row;
 };

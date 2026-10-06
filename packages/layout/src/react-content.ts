@@ -23,9 +23,11 @@ export const decodeReactContent = function decodeReactContent(
   if (content === null || content === undefined) {
     return { kind: "empty" };
   }
+
   // oxlint-disable-next-line anti-slop/no-runtime-typeof -- ReactNode boundary distinguishes themed primitive text from nodes rendered by React
   if (typeof content === "string") {
     return { kind: "string", value: content };
   }
+
   return { kind: "node", value: content };
 };

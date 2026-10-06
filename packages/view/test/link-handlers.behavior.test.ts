@@ -6,12 +6,15 @@ import { createStandaloneRouter } from "../src/standalone-router.js";
 
 test("custom handlers consume synchronously or fall through to local navigation", async () => {
   const filePath = `${import.meta.dir}/fixtures/links/start.md`;
+
   const { documentRoute, router } = createStandaloneRouter({
     contentProvider: { load: () => ({ format: "markdown", markdown: "" }) },
     filePath,
   });
+
   await router.start();
   const toast = mock(() => {});
+
   const context: LinkHandlerContext = {
     command: {
       commands: { invoke: mock(() => {}), list: () => [] },
@@ -23,6 +26,7 @@ test("custom handlers consume synchronously or fall through to local navigation"
     documentRoute,
     navigate: router,
   };
+
   const link = { baseDir: `${import.meta.dir}/fixtures/links`, href: "nested/target.md" };
   const later = mock(() => false);
   expect(runLinkHandlers([() => true, later], link, context)).toBe(true);
@@ -31,12 +35,14 @@ test("custom handlers consume synchronously or fall through to local navigation"
   expect(toast).not.toHaveBeenCalled();
 
   const settled = Promise.withResolvers<boolean>();
+
   const unsubscribe = router.subscribeNavigation((event) => {
     if (event.type === "settled") {
       unsubscribe();
       settled.resolve(true);
     }
   });
+
   expect(runLinkHandlers([later], link, context)).toBe(true);
   await settled.promise;
   expect(later).toHaveBeenCalledTimes(1);

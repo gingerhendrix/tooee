@@ -20,6 +20,7 @@ import "./row-document.js";
 import "./text-table.js";
 
 export { inlineLinkAtPosition } from "./markdown/links.js";
+
 export type { InlineLinkPosition, MarkdownLinkHandler } from "./markdown/links.js";
 
 type CodeBlockRendererRegistry = Record<string, CodeBlockRenderer>;
@@ -91,6 +92,7 @@ export const MarkdownView = function MarkdownView({
   const { theme, syntax } = useTheme();
   const palette = useGutterPalette();
   const { width: terminalWidth } = useTerminalDimensions();
+
   const blocks = useMemo(
     () => providedBlocks ?? flattenMarkdown(content),
     [providedBlocks, content]
@@ -110,9 +112,11 @@ export const MarkdownView = function MarkdownView({
 
   const mergedCodeBlockRenderers = useMemo(() => {
     const entries = new Map(Object.entries(DEFAULT_CODE_BLOCK_RENDERERS));
+
     for (const [key, renderer] of Object.entries(codeBlockRenderers ?? {})) {
       entries.set(key.trim().toLowerCase(), renderer);
     }
+
     return Object.fromEntries(entries);
   }, [codeBlockRenderers]);
 

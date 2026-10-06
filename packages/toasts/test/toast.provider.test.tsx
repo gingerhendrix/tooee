@@ -16,6 +16,7 @@ const DurationTest = function DurationTest(): ReactNode {
       toast({ level: l, message: `${l} toast` });
     }
   }, [toast]);
+
   return <text content={`duration:${currentToast?.duration ?? "none"}`} />;
 };
 
@@ -24,6 +25,7 @@ const SingleLevelTest = function SingleLevelTest({ level }: { level: ToastLevel 
   useEffect(() => {
     toast({ level, message: "test" });
   }, [toast, level]);
+
   return <text content={`duration:${currentToast?.duration ?? "none"}`} />;
 };
 
@@ -32,6 +34,7 @@ const DefaultLevelTest = function DefaultLevelTest(): ReactNode {
   useEffect(() => {
     toast({ message: "no level" });
   }, [toast]);
+
   return (
     <text
       content={currentToast ? `level:${currentToast.level}:dur:${currentToast.duration}` : "none"}
@@ -50,6 +53,7 @@ afterEach(() => {
  */
 const ToastHarness = function ToastHarness(): ReactNode {
   const { currentToast } = useToast();
+
   return (
     <box>
       <text
@@ -77,6 +81,7 @@ const ToastTrigger = function ToastTrigger({
   useEffect(() => {
     toast({ duration, id, level, message });
   }, [toast, message, level, id, duration]);
+
   return null;
 };
 
@@ -87,6 +92,7 @@ const renderWithProviders = async function renderWithProviders(children: ReactNo
     </ThemeSwitcherProvider>,
     { height: 24, width: 60 }
   );
+
   return result;
 };
 
@@ -108,6 +114,7 @@ test("dismiss clears the toast", async () => {
   const DismissTest = function DismissTest(): ReactNode {
     toastApi = useToast();
     const { currentToast } = toastApi;
+
     return <text content={currentToast ? `toast:${currentToast.message}` : "toast:none"} />;
   };
 
@@ -154,6 +161,7 @@ test("same ID replaces existing toast and resets timer", async () => {
   const DedupTest = function DedupTest(): ReactNode {
     toastApi = useToast();
     const { currentToast } = toastApi;
+
     return (
       <text
         content={
@@ -261,6 +269,7 @@ test("ToastContainer renders correct icon per level", async () => {
     ["success", icons.success],
     ["warning", icons.warning],
   ];
+
   for (const [level, icon] of iconEntries) {
     // These renders must remain ordered: each iteration owns and destroys its renderer.
     // preserve sequential renderer lifecycle while making the test parallel-safe.

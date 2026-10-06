@@ -21,6 +21,7 @@ describe("search e2e", () => {
     await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     const before = await session.text();
     expect(before).toMatch(/Mode:\s*cursor/u);
+
     // Press / to open search — retry until the status bar changes
     // (on slow CI the first keypress can be dropped)
     for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -33,10 +34,12 @@ describe("search e2e", () => {
       // Inspect each frame before deciding whether another retry is needed.
       // oxlint-disable-next-line no-await-in-loop -- Preserve ordered polling.
       const check = await session.text();
+
       if (!/Mode:\s*cursor/u.test(check)) {
         break;
       }
     }
+
     const text = await session.text();
     // The search bar replaces the status bar so Mode: cursor is gone
     expect(text).not.toMatch(/Mode:\s*cursor/u);
@@ -45,6 +48,7 @@ describe("search e2e", () => {
   test("type query and submit search, then n navigates", async () => {
     session = await launchView("long.md");
     await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
+
     // Open search — retry until search bar appears
     for (let attempt = 0; attempt < 3; attempt += 1) {
       // Retry keystrokes must be delivered one at a time while the UI updates.
@@ -56,10 +60,12 @@ describe("search e2e", () => {
       // Inspect each frame before deciding whether another retry is needed.
       // oxlint-disable-next-line no-await-in-loop -- Preserve ordered polling.
       const check = await session.text();
+
       if (!/Mode:\s*cursor/u.test(check)) {
         break;
       }
     }
+
     // Type a search query
     await session.type("Section");
     // Submit search (Enter returns to cursor mode)
@@ -75,6 +81,7 @@ describe("search e2e", () => {
   test("Escape cancels search", async () => {
     session = await launchView("long.md");
     await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
+
     // Open search — retry until search bar appears
     for (let attempt = 0; attempt < 3; attempt += 1) {
       // Retry keystrokes must be delivered one at a time while the UI updates.
@@ -86,10 +93,12 @@ describe("search e2e", () => {
       // Inspect each frame before deciding whether another retry is needed.
       // oxlint-disable-next-line no-await-in-loop -- Preserve ordered polling.
       const check = await session.text();
+
       if (!/Mode:\s*cursor/u.test(check)) {
         break;
       }
     }
+
     await session.type("Section");
     // Send kitty-encoded Escape (raw \x1b is ambiguous)
     session.writeRaw("\u001B[27u");

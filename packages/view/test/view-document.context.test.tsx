@@ -36,7 +36,9 @@ const CODE = staticProvider({
 });
 
 let documentCtx: DocumentCommandContext | undefined;
+
 let viewCtx: ViewCommandContext | undefined;
+
 let commandIds: string[] = [];
 
 const ACTIONS: ActionDefinition[] = [
@@ -56,6 +58,7 @@ const ACTIONS: ActionDefinition[] = [
 const CommandProbe = function CommandProbe() {
   const { commands } = useSurfaceInvoke();
   commandIds = commands.map((command) => command.id);
+
   return null;
 };
 
@@ -79,11 +82,13 @@ const setup = async function setup(provider: ContentProvider) {
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 80 }
   );
+
   await s.renderOnce();
   await act(async () => {
     await Bun.sleep(100);
   });
   await s.renderOnce();
+
   return s;
 };
 

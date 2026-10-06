@@ -38,9 +38,11 @@ export const PanelGroupContext = createContext<PanelGroupContextValue | null>(nu
 
 export const usePanelGroupContext = function usePanelGroupContext(): PanelGroupContextValue {
   const ctx = useContext(PanelGroupContext);
+
   if (!ctx) {
     throw new Error("usePanelGroupContext must be used within a PanelGroup");
   }
+
   return ctx;
 };
 

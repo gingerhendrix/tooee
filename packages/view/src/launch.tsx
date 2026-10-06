@@ -35,9 +35,11 @@ export interface DirectoryLaunchOptions {
 export const launch = async function launch(options: ViewLaunchOptions): Promise<void> {
   const { router } = createStandaloneRouter(options);
   const startup = await router.start();
+
   if (startup.status !== "committed") {
     throw new Error(`View router startup ${startup.status}`);
   }
+
   await runCliSession<undefined>(
     (): ReactNode => (
       <RouterProvider router={router}>

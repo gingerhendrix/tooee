@@ -25,11 +25,14 @@ export const markdownOutline = function markdownOutline(
 ): OutlineEntry[] {
   const headings = blocks.flatMap((block, row) => {
     const heading = headingToken(block);
+
     return heading === null
       ? []
       : [{ depth: heading.depth, row, text: getPlainText(heading.tokens).trim() }];
   });
+
   const minDepth = Math.min(...headings.map((heading) => heading.depth));
+
   return headings.map((heading) => ({ ...heading, level: heading.depth - minDepth }));
 };
 

@@ -109,7 +109,9 @@ const setup = async function setup(children = <WhichKeyHarness />) {
     kittyKeyboard: true,
     width: 80,
   });
+
   await s.renderOnce();
+
   return s;
 };
 
@@ -181,6 +183,7 @@ describe("which-key", () => {
     const s = step("s");
     const t = step("t");
     const e = step("e");
+
     const state: CommandSequenceState = {
       candidates: [
         {

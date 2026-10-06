@@ -6,7 +6,9 @@ import { act } from "react";
 import type { AnyContent, ContentProvider } from "../src/types.js";
 
 const { TooeeProvider } = await import("@tooee/shell");
+
 const { MarkSetBuilder, MarkPriorities } = await import("@tooee/marks");
+
 const { View } = await import("../src/view.js");
 
 const staticProvider = function staticProvider(
@@ -36,6 +38,7 @@ const TABLE: AnyContent = {
 };
 
 const DATE_TEXT = "2026-09-05T12:34:56.000Z";
+
 const DATE_TABLE: AnyContent = {
   columns: [{ header: "Created", key: "created" }],
   format: "table",
@@ -64,11 +67,13 @@ const setup = async function setup(provider: ContentProvider) {
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 80 }
   );
+
   await s.renderOnce();
   await act(async () => {
     await Bun.sleep(100);
   });
   await s.renderOnce();
+
   return s;
 };
 
@@ -82,11 +87,13 @@ const press = async function press(key: string, modifiers?: { shift?: boolean })
 
 const typeQuery = async function typeQuery(query: string) {
   await press("/");
+
   for (const char of query) {
     // preserve sequential key delivery for deterministic input handling.
     // oxlint-disable-next-line no-await-in-loop -- each key must be rendered before the next
     await press(char);
   }
+
   await act(async () => {
     testSetup.mockInput.pressEnter();
     await Promise.resolve();

@@ -12,7 +12,9 @@ import type { OutlineEntry } from "./markdown-outline.js";
 import type { OutlineState } from "./use-outline.js";
 
 const OUTLINE_PANEL_ID = "outline";
+
 const INDENT = "  ";
+
 /** Columns the panel border and the list padding take from the panel width. */
 const OUTLINE_CHROME_WIDTH = 4;
 
@@ -29,6 +31,7 @@ export const outlineLabel = function outlineLabel(
   const label = `${INDENT.repeat(entry.level)}${current ? "▸ " : "  "}${entry.text}`;
   const room = Math.max(1, width - suffix.length);
   const cut = label.length > room ? `${label.slice(0, Math.max(0, room - 1))}…` : label;
+
   return `${cut}${suffix}`;
 };
 
@@ -49,18 +52,23 @@ const OutlineCommands = function OutlineCommands({
   const next = (): void => {
     outline.move(1);
   };
+
   const previous = (): void => {
     outline.move(-1);
   };
+
   const first = (): void => {
     outline.select(0);
   };
+
   const last = (): void => {
     outline.select(outline.entries.length - 1);
   };
+
   const jump = (): void => {
     outline.jump(outline.selectedIndex);
   };
+
   const commands: [hotkey: string, id: string, title: string, run: () => void][] = [
     ["j", "outline.down", "Next heading", next],
     ["down", "outline.down-arrow", "Next heading", next],
@@ -72,6 +80,7 @@ const OutlineCommands = function OutlineCommands({
     ["escape", "outline.focus-content", "Return to document", outline.focusContent],
     ["g o", "outline.close", "Close outline", outline.close],
   ];
+
   const selectedRow = (): number | undefined => outline.entries[outline.selectedIndex]?.row;
   useActions([
     ...commands.map(([hotkey, id, title, run]): ActionDefinition => ({
@@ -84,6 +93,7 @@ const OutlineCommands = function OutlineCommands({
     })),
     ...foldActionDefinitions(foldActions, selectedRow, "outline.fold", "No fold at heading"),
   ]);
+
   return null;
 };
 
@@ -113,6 +123,7 @@ const OutlineList = function OutlineList({ outline }: { outline: OutlineState })
       {outline.entries.map((entry, index): ReactNode => {
         const current = index === outline.currentIndex;
         const highlighted = outline.focused && index === outline.selectedIndex;
+
         return (
           <box
             key={entry.row}
@@ -152,10 +163,12 @@ export const OutlinePanel = function OutlinePanel({
   if (!outline.visible) {
     return null;
   }
+
   // The only panel asks for activation on a mouse-down inside it.
   const handleActivePanelChange = (): void => {
     outline.focus();
   };
+
   return (
     <PanelGroup
       activePanelId={outline.focused ? OUTLINE_PANEL_ID : null}

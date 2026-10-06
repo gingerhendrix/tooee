@@ -4,9 +4,13 @@ import { testRender, copied } from "@tooee/test-support";
 import type { ReactNode } from "react";
 
 const { TooeeProvider, useDocumentController, Document } = await import("@tooee/shell");
+
 const { useMode } = await import("@tooee/commands");
+
 const { useToast } = await import("@tooee/toasts");
+
 const { press, pressTab } = await import("@tooee/test-support");
+
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
 interface Row {
@@ -23,6 +27,7 @@ const ROWS: Row[] = [
 const StateProbe = function StateProbe(): ReactNode {
   const mode = useMode();
   const { currentToast } = useToast();
+
   return <text content={`mode:${mode} toast:${currentToast?.message ?? "none"}`} />;
 };
 
@@ -72,6 +77,7 @@ const setup = async function setup(copy?: boolean, rows?: Row[]) {
     { height: 12, kittyKeyboard: true, width: 40 }
   );
   await session.renderOnce();
+
   return session;
 };
 

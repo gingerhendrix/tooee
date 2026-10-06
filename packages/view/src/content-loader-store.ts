@@ -52,15 +52,19 @@ export const createEmptyContent = function createEmptyContent(
     case "markdown": {
       return { format, markdown: "", title };
     }
+
     case "code": {
       return { code: "", format, title };
     }
+
     case "text": {
       return { format, text: "", title };
     }
+
     case "table": {
       return { columns: [], format, rows: [], title };
     }
+
     default: {
       return { data: undefined, format, title };
     }
@@ -77,6 +81,7 @@ const ensureContentFormat = function ensureContentFormat<F extends ContentFormat
     // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- format-dependent content is trusted at this provider boundary
     return createEmptyContent(format, title) as Extract<Content, { format: F }>;
   }
+
   // SAFETY: The equality guard narrows current to the built-in content variant selected by format.
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the provider contract supplies the matching format
   return current as Extract<Content, { format: F }>;
@@ -91,30 +96,39 @@ export const applyContentChunk = function applyContentChunk(
     case "replace": {
       return chunk.content;
     }
+
     case "append": {
       if (chunk.format === "markdown") {
         const target = ensureContentFormat(current, "markdown", title);
+
         return { ...target, markdown: target.markdown + chunk.data };
       }
+
       if (chunk.format === "code") {
         const target = ensureContentFormat(current, "code", title);
+
         return {
           ...target,
           code: target.code + chunk.data,
           language: chunk.language ?? target.language,
         };
       }
+
       {
         const target = ensureContentFormat(current, "text", title);
+
         return { ...target, text: target.text + chunk.data };
       }
     }
+
     case "patch": {
       return chunk.apply(current);
     }
+
     case "marks": {
       return current ?? createEmptyContent("markdown", title);
     }
+
     default: {
       return current ?? createEmptyContent("markdown", title);
     }
@@ -141,14 +155,18 @@ export const createContentLoaderStore = function createContentLoaderStore() {
         if (event.requestId !== ctx.requestId) {
           return ctx;
         }
+
         if (event.chunk.type === "marks") {
           const markSet = event.chunk.set;
+
           const providerMarks = [
             ...ctx.providerMarks.filter((set) => set.namespace !== markSet.namespace),
             markSet,
           ];
+
           return { ...ctx, providerMarks };
         }
+
         return { ...ctx, content: applyContentChunk(ctx.content, event.chunk, ctx.title) };
       },
       loadCancelled: (ctx, event) =>
@@ -183,8 +201,13 @@ export const createContentLoaderStore = function createContentLoaderStore() {
 };
 
 export const selectContent = (ctx: ContentLoaderContext) => ctx.content;
+
 export const selectStatus = (ctx: ContentLoaderContext) => ctx.status;
+
 export const selectStreaming = (ctx: ContentLoaderContext) => ctx.status === "streaming";
+
 export const selectError = (ctx: ContentLoaderContext) => ctx.error;
+
 export const selectProviderMarks = (ctx: ContentLoaderContext) => ctx.providerMarks;
+
 export const selectLoadSeq = (ctx: ContentLoaderContext) => ctx.loadSeq;

@@ -14,6 +14,7 @@ afterEach(() => {
 });
 
 const THUMB = "█";
+
 const TRACK = "░";
 
 // 30 uniquely-identifiable lines, far taller than the boxes used below.
@@ -28,7 +29,9 @@ const setupAsk = async function setupAsk(value: string, width = 40, height = 14)
     </TooeeProvider>,
     { height, kittyKeyboard: true, width }
   );
+
   await s.renderOnce();
+
   return s;
 };
 
@@ -45,7 +48,9 @@ const setupOverlay = async function setupOverlay(value: string, width = 60, heig
     </TooeeProvider>,
     { height, kittyKeyboard: true, width }
   );
+
   await s.renderOnce();
+
   return s;
 };
 
@@ -76,9 +81,11 @@ const wheel = async function wheel(x: number, y: number, direction: "up" | "down
 const thumbRow = function thumbRow(frame: string): number {
   const rows = frame.split("\n");
   const idx = rows.findIndex((row) => row.includes(THUMB));
+
   if (idx === -1) {
     throw new Error("no thumb found in frame");
   }
+
   return idx;
 };
 

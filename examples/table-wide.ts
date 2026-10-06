@@ -290,9 +290,11 @@ const columns = headers.map((header, index) => ({
 
 const tableRows = rows.map((row) => {
   const record: Record<string, string> = {};
+
   for (const [index, key] of columnKeys.entries()) {
     record[key] = row[index] ?? "";
   }
+
   return record;
 });
 

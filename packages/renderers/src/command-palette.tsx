@@ -26,14 +26,17 @@ export const CommandPalette = function CommandPalette({
   onClose,
 }: CommandPaletteProps): ReactNode {
   const { theme } = useTheme();
+
   const entriesById = useMemo(
     () => new Map(commands.map((entry) => [entry.id, entry])),
     [commands]
   );
+
   const items = useMemo<ChooseItem[]>(
     () => commands.map((entry) => ({ text: entry.title, value: entry.id })),
     [commands]
   );
+
   const handleSelect = (item: ChooseItem): void => {
     if (item.value !== undefined) {
       onSelect(item.value);
@@ -50,6 +53,7 @@ export const CommandPalette = function CommandPalette({
       onSelect={handleSelect}
       renderItem={({ item, positions }): ReactNode => {
         const entry = item.value === undefined ? undefined : entriesById.get(item.value);
+
         return (
           <>
             <text fg={theme.text} style={{ flexGrow: 1 }}>

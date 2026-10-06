@@ -71,10 +71,12 @@ const colorCache = new Map<string, RGBA>();
 
 const cachedColor = function cachedColor(hex: string): RGBA {
   let c = colorCache.get(hex);
+
   if (!c) {
     c = RGBA.fromHex(hex);
     colorCache.set(hex, c);
   }
+
   return c;
 };
 
@@ -93,6 +95,7 @@ const normalizeDecorationLayers = function normalizeDecorationLayers(
   if (!layers || layers.length === 0) {
     return [];
   }
+
   return [...layers].toSorted((a, b) => a.priority - b.priority);
 };
 
@@ -105,6 +108,7 @@ const maxGutterNumber = function maxGutterNumber(opts: {
   if (opts.rowNumbers && opts.rowNumbers.length > 0) {
     return Math.max(...opts.rowNumbers);
   }
+
   return (opts.lineNumberStart ?? 1) + opts.rowCount - 1;
 };
 
@@ -117,11 +121,14 @@ export const computeRowDocumentGutterWidth = function computeRowDocumentGutterWi
   gutterPaddingRight?: number;
 }): number {
   let width = 0;
+
   if (opts.showLineNumbers) {
     width += Math.max(String(maxGutterNumber(opts)).length, 1);
   }
+
   width += opts.signColumnWidth ?? 0;
   width += opts.gutterPaddingRight ?? 1;
+
   return width;
 };
 
@@ -248,6 +255,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     if (row < 0 || row >= this._rowCount) {
       return null;
     }
+
     return {
       row,
       virtualHeight: this._rowVirtualHeights[row],
@@ -258,16 +266,20 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   getRowAtVirtualY(y: number): number {
     const clamped = Math.max(0, Math.min(y, this._virtualRowToRow.length - 1));
     const row = this._virtualRowToRow[clamped];
+
     if (row >= 0) {
       return row;
     }
+
     // Gap row — search backward for nearest valid row
     for (let i = clamped - 1; i >= 0; i -= 1) {
       const r = this._virtualRowToRow[i];
+
       if (r >= 0) {
         return r;
       }
     }
+
     return 0;
   }
 
@@ -285,22 +297,28 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
    */
   getRowAtScreenY(screenY: number): number | null {
     const localY = screenY - this.viewport.y;
+
     if (localY < 0 || localY >= this.viewport.height) {
       return null;
     }
+
     const virtualY = Math.floor(this.scrollTop) + localY;
+
     if (virtualY < 0 || virtualY >= this._virtualRowToRow.length) {
       return null;
     }
+
     if (virtualY >= this._contentVirtualEnd) {
       return null;
     }
+
     return this.getRowAtVirtualY(virtualY);
   }
 
   getVisibleRange(): VisibleRowRange {
     const top = Math.floor(this.scrollTop);
     const bottom = top + this.viewport.height;
+
     return {
       firstRow: this.getRowAtVirtualY(top),
       lastRow: this.getRowAtVirtualY(bottom - 1),
@@ -331,6 +349,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
    */
   scrollToRow(row: number, align: RowScrollAlign = "nearest", margin = 0): void {
     const metrics = this.getRowMetrics(row);
+
     if (!metrics) {
       return;
     }
@@ -346,22 +365,27 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
         target = virtualTop - gap;
         break;
       }
+
       case "center": {
         target = virtualTop - (vpHeight - virtualHeight) / 2;
         break;
       }
+
       case "end": {
         target = virtualTop + virtualHeight - vpHeight + gap;
         break;
       }
+
       case "nearest": {
         if (virtualTop - gap < this.scrollTop) {
           target = virtualTop - gap;
         } else if (virtualTop + virtualHeight + gap > this.scrollTop + vpHeight) {
           target = virtualTop + virtualHeight - vpHeight + gap;
         }
+
         break;
       }
+
       default: {
         break;
       }
@@ -376,8 +400,10 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     // extend the scroll to include it
     if (row + 1 === this._rowCount - 1) {
       const next = this.getRowMetrics(row + 1);
+
       if (next) {
         const bottomEdge = next.virtualTop + next.virtualHeight;
+
         if (bottomEdge > target + vpHeight) {
           target = bottomEdge - vpHeight;
         }
@@ -403,6 +429,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
     // Paint decorations and gutter on top
     this._paintDecorations(buffer);
+
     if (this._showGutter) {
       this._paintGutter(buffer);
     }
@@ -416,20 +443,24 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     if (this._mode === "multi") {
       return "multi";
     }
+
     if (this._mode === "provider") {
       return "provider";
     }
 
     // Auto-detect: single child with LineInfoProvider → provider mode
     const children = this.getChildren();
+
     if (children.length === 1 && isRowContentProvider(children[0])) {
       return "provider";
     }
+
     return "multi";
   }
 
   private _computeGeometry(): void {
     const mode = this._detectMode();
+
     if (mode === "provider") {
       this._computeFromProvider();
     } else {
@@ -445,6 +476,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
     if (totalHeight === 0 || children.length <= offset) {
       this._finishGeometry([], [], [], [], 0);
+
       return;
     }
 
@@ -465,6 +497,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
       for (let r = 0; r < h; r += 1) {
         const vRow = childStart + r;
+
         if (vRow >= 0 && vRow < totalHeight) {
           virtualRowToRow[vRow] = row;
           virtualRowWraps[vRow] = r === 0 ? 0 : 1;
@@ -483,11 +516,13 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
   private _computeFromProvider(): void {
     const children = this.getChildren();
+
     if (children.length === 0) {
       return;
     }
 
     const [provider] = children;
+
     if (!isRowContentProvider(provider)) {
       return;
     }
@@ -513,6 +548,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
         if (currentRow >= 0) {
           rowVirtualHeights[currentRow] = v - rowVirtualStarts[currentRow];
         }
+
         rowVirtualStarts[row] = v;
         currentRow = row;
         rowCount = Math.max(rowCount, row + 1);
@@ -541,16 +577,20 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     rowCount: number
   ): void {
     let contentVirtualEnd = 0;
+
     for (let row = 0; row < rowCount; row += 1) {
       const end = rowVirtualStarts[row] + rowVirtualHeights[row];
+
       if (end > contentVirtualEnd) {
         contentVirtualEnd = end;
       }
     }
+
     this._contentVirtualEnd = contentVirtualEnd;
 
     // Change detection via hash
     const hash = rowVirtualStarts.join(",");
+
     if (hash !== this._lastGeometryHash) {
       this._rowVirtualStarts = rowVirtualStarts;
       this._rowVirtualHeights = rowVirtualHeights;
@@ -614,9 +654,11 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
         if (deco.background !== undefined && deco.background !== "") {
           rowBgs.set(deco.row, deco.background);
         }
+
         if (deco.gutterBackground !== undefined && deco.gutterBackground !== "") {
           rowGutterBgs.set(deco.row, deco.gutterBackground);
         }
+
         if (deco.sign) {
           rowSigns.set(deco.row, deco.sign);
         }
@@ -625,18 +667,23 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
     for (let screenY = 0; screenY < vpHeight; screenY += 1) {
       const vRow = top + screenY;
+
       if (vRow >= this._virtualRowToRow.length) {
         break;
       }
 
       const row = this._virtualRowToRow[vRow];
+
       if (row < 0) {
         continue;
       }
+
       const bg = rowBgs.get(row);
+
       if (bg === undefined || bg === "") {
         continue;
       }
+
       buffer.fillRect(vpX, vpY + screenY, vpWidth, 1, cachedColor(bg));
     }
 
@@ -650,6 +697,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
   private _paintGutter(buffer: OptimizedBuffer): void {
     const gutterWidth = this._computeGutterWidth();
+
     if (gutterWidth === 0) {
       return;
     }
@@ -680,14 +728,17 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
     for (let screenY = 0; screenY < vpHeight; screenY += 1) {
       const vRow = top + screenY;
+
       if (vRow >= this._virtualRowToRow.length) {
         break;
       }
 
       const row = this._virtualRowToRow[vRow];
+
       if (row < 0) {
         continue;
       }
+
       const isFirstLine = this._virtualRowWraps[vRow] === 0;
 
       if (!isFirstLine) {
@@ -698,8 +749,10 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
       let col = 0;
 
       const rowGutterHex = this._layerGutterBgs.get(row);
+
       const effectiveGutterBg =
         rowGutterHex !== undefined && rowGutterHex !== "" ? cachedColor(rowGutterHex) : gutterBg;
+
       if (rowGutterHex !== undefined && rowGutterHex !== "") {
         buffer.fillRect(drawX, vpY + screenY, gutterWidth, 1, effectiveGutterBg);
       }

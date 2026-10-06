@@ -28,6 +28,7 @@ export class StateCache {
 
   restore<T>(key: StateKey<T>): T | undefined {
     const value = this.cache.get(key.name);
+
     return value === undefined ? undefined : key.parse(value);
   }
 

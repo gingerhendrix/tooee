@@ -29,6 +29,7 @@ const ModesReregistrationHarness = function ModesReregistrationHarness(): ReactN
     id: "swap-modes",
     title: "Swap modes",
   });
+
   return <text content={`count:${count}`} />;
 };
 
@@ -54,6 +55,7 @@ const WhenReregistrationHarness = function WhenReregistrationHarness(): ReactNod
     id: "restrict",
     title: "Restrict",
   });
+
   return <text content={`count:${count}`} />;
 };
 

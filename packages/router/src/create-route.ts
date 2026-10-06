@@ -13,6 +13,7 @@ const passthrough = function passthrough(): Codec<RouteParams> {
       if (typeof value !== "object" || value === null || Array.isArray(value)) {
         throw new TypeError("Route params must be an object");
       }
+
       return { ...value };
     },
   };
@@ -31,10 +32,12 @@ export function createRoute<TData = unknown, TState = unknown>(
 export function createRoute(config: RouteConfig): RouteDefinition {
   const params = config.params ?? passthrough();
   const { canonicalize, loader, title } = config;
+
   // oxlint-disable-next-line anti-slop/no-unknown-parameters -- AnyRoute.resolveParams decodes a stored stack entry through this route's codec
   const resolveParams = function resolveParams(value: unknown): RouteParams {
     const decoded = params.parse(value);
     const canonical = canonicalize === undefined ? decoded : canonicalize(decoded);
+
     return { ...canonical };
   };
 

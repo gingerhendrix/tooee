@@ -51,6 +51,7 @@ const cloneIntent = function cloneIntent(
   if (intent.type === "pop") {
     return Object.freeze({ type: "pop" });
   }
+
   return Object.freeze({
     params: intent.params === undefined ? undefined : Object.freeze({ ...intent.params }),
     routeId: intent.routeId,
@@ -85,15 +86,19 @@ const nextFor = function nextFor(
     case "push": {
       return [...from.map(cloneEntry), cloneEntry(target)];
     }
+
     case "replace": {
       return [...from.slice(0, -1).map(cloneEntry), cloneEntry(target)];
     }
+
     case "reset": {
       return [cloneEntry(target)];
     }
+
     case "pop": {
       return [...from.slice(0, -2).map(cloneEntry), cloneEntry(target)];
     }
+
     default: {
       throw new Error("Unsupported navigation intent");
     }
@@ -104,10 +109,12 @@ export const createRouter = function createRouter<TContext = undefined>(
   options: RouterOptions<TContext>
 ): RouterInstance<TContext> {
   const routeMap = new Map<string, AnyRoute>();
+
   for (const route of options.routes) {
     if (routeMap.has(route.id)) {
       throw new Error(`Duplicate route id "${route.id}"`);
     }
+
     routeMap.set(route.id, route);
   }
 
@@ -117,6 +124,7 @@ export const createRouter = function createRouter<TContext = undefined>(
   const context = options.context as TContext;
   const initialGuards: NavigationGuard<TContext>[] = [];
   const configuredGuards = options.beforeNavigate;
+
   if (configuredGuards !== undefined) {
     // The configured value is either a callable guard or a readonly guard list;
     // Function is the domain branch that preserves the readonly array type.
@@ -129,6 +137,7 @@ export const createRouter = function createRouter<TContext = undefined>(
       }
     }
   }
+
   const guards = new Set<NavigationGuard<TContext>>(initialGuards);
   const listeners = new Set<() => void>();
   const navigationListeners = new Set<(event: NavigationEvent) => void>();
@@ -176,7 +185,9 @@ export const createRouter = function createRouter<TContext = undefined>(
       if (handle.abort === undefined || handle.aborted) {
         continue;
       }
+
       handle.aborted = true;
+
       try {
         handle.abort();
       } catch (error) {
@@ -197,6 +208,7 @@ export const createRouter = function createRouter<TContext = undefined>(
     const { promise, resolve } = Promise.withResolvers<NavigationResult>();
     const id = nextId;
     nextId += 1;
+
     return {
       callerSignal,
       controller: new AbortController(),
@@ -211,9 +223,11 @@ export const createRouter = function createRouter<TContext = undefined>(
 
   const resolveTarget = function resolveTarget(entry: StackEntry): StackEntry {
     const route = routeMap.get(entry.routeId);
+
     if (route === undefined) {
       throw new Error(`Route "${entry.routeId}" not found`);
     }
+
     return { params: route.resolveParams(entry.params), routeId: route.id };
   };
 
@@ -226,6 +240,7 @@ export const createRouter = function createRouter<TContext = undefined>(
       params: Object.freeze({ ...target.params }),
       routeId: target.routeId,
     });
+
     return Object.freeze({
       from,
       id: request.id,
@@ -240,19 +255,25 @@ export const createRouter = function createRouter<TContext = undefined>(
     if (request.settled) {
       return;
     }
+
     request.settled = true;
     request.removeCallerAbort?.();
+
     if (pendingNavigation?.id === request.id) {
       pendingNavigation = null;
     }
+
     if (request.navigation !== undefined) {
       emitNavigation({ navigation: request.navigation, result, type: "settled" });
     }
+
     request.resolve(result);
+
     if (active === request) {
       active = null;
       const next = queued;
       queued = null;
+
       if (next !== null) {
         // oxlint-disable-next-line no-use-before-define -- finish and startRequest are mutually recursive state-machine transitions
         startRequest(next);
@@ -274,60 +295,80 @@ export const createRouter = function createRouter<TContext = undefined>(
     if (request.controller.signal.aborted) {
       cleanupHandles(request, handles);
       finish(request, cancellationResult(request));
+
       return;
     }
+
     try {
       for (const handle of handles) {
         handle.beforeCommit?.();
       }
     } catch (error) {
       fail(request, asError(error), handles);
+
       return;
     }
+
     if (request.controller.signal.aborted) {
       cleanupHandles(request, handles);
       finish(request, cancellationResult(request));
+
       return;
     }
 
     const { navigation } = request;
+
     if (navigation === undefined) {
       fail(request, new Error("Navigation target was not resolved"), handles);
+
       return;
     }
+
     const previous = stack;
+
     switch (request.intent.type) {
       case "pop": {
         const index = previous.length - 1;
         const removed = previous[index];
+
         if (removed !== undefined) {
           stateCache.clear(`${index}:${removed.routeId}`);
         }
+
         break;
       }
+
       case "replace": {
         const index = previous.length - 1;
         const removed = previous[index];
+
         if (removed !== undefined) {
           stateCache.clear(`${index}:${removed.routeId}`);
         }
+
         break;
       }
+
       case "reset": {
         stateCache.clearAll();
         break;
       }
+
       case "push": {
         break;
       }
+
       default: {
         throw new Error("Unsupported navigation intent");
       }
     }
+
     stack = navigation.next.map(cloneEntry);
+
     if (request.startup) {
       started = true;
     }
+
     for (const listener of listeners) {
       try {
         listener();
@@ -335,15 +376,18 @@ export const createRouter = function createRouter<TContext = undefined>(
         reportSubscriberError(asError(error));
       }
     }
+
     const result: NavigationResult = {
       from: navigation.from,
       id: request.id,
       status: "committed",
       to: snapshotStack(stack),
     };
+
     if (request.startup) {
       startupResult = result;
     }
+
     finish(request, result);
   };
 
@@ -356,23 +400,31 @@ export const createRouter = function createRouter<TContext = undefined>(
     if (request.controller.signal.aborted) {
       cleanupHandles(request, handles);
       finish(request, cancellationResult(request));
+
       return;
     }
+
     if (index >= guardList.length) {
       commit(request, handles);
+
       return;
     }
+
     const { navigation } = request;
+
     if (navigation === undefined) {
       fail(request, new Error("Navigation target was not resolved"), handles);
+
       return;
     }
 
     let output: NavigationGuardResult | Promise<NavigationGuardResult>;
+
     try {
       output = guardList[index](navigation, context);
     } catch (error) {
       fail(request, asError(error), handles);
+
       return;
     }
 
@@ -380,15 +432,20 @@ export const createRouter = function createRouter<TContext = undefined>(
       if (request.controller.signal.aborted) {
         cleanupHandles(request, handles);
         finish(request, cancellationResult(request));
+
         return;
       }
+
       if (result === false) {
         cleanupHandles(request, handles);
         finish(request, { id: request.id, reason: "guard", status: "cancelled" });
+
         return;
       }
+
       if (result !== undefined) {
         handles.push({ abort: result.abort, aborted: false, beforeCommit: result.beforeCommit });
+
         if (result.target !== undefined) {
           try {
             const target = resolveTarget(result.target);
@@ -396,10 +453,12 @@ export const createRouter = function createRouter<TContext = undefined>(
             pendingNavigation = request.navigation;
           } catch (error) {
             fail(request, asError(error), handles);
+
             return;
           }
         }
       }
+
       runGuards(request, guardList, index + 1, handles);
     };
 
@@ -407,6 +466,7 @@ export const createRouter = function createRouter<TContext = undefined>(
       const rejectGuard = function rejectGuard(cause: unknown): void {
         fail(request, asError(cause), handles);
       };
+
       // oxlint-disable-next-line promise/prefer-await-to-callbacks, promise/prefer-await-to-then -- chaining preserves synchronous commits for synchronous guards
       void output.then(continueWith, rejectGuard);
     } else {
@@ -418,26 +478,35 @@ export const createRouter = function createRouter<TContext = undefined>(
     if (request.settled) {
       return;
     }
+
     active = request;
+
     if (request.callerSignal?.aborted === true) {
       request.cancellation = "aborted";
       request.controller.abort();
       finish(request, cancellationResult(request));
+
       return;
     }
 
     const from = snapshotStack(stack);
     let rawTarget: StackEntry;
+
     if (request.intent.type === "pop") {
       if (from.length <= 1) {
         finish(request, { id: request.id, reason: "stack-bottom", status: "noop" });
+
         return;
       }
+
       const revealed = from.at(-2);
+
       if (revealed === undefined) {
         finish(request, { id: request.id, reason: "stack-bottom", status: "noop" });
+
         return;
       }
+
       rawTarget = cloneEntry(revealed);
     } else {
       rawTarget = { params: request.intent.params ?? {}, routeId: request.intent.routeId };
@@ -448,8 +517,10 @@ export const createRouter = function createRouter<TContext = undefined>(
       request.navigation = navigationFor(request, from, target);
     } catch (error) {
       fail(request, asError(error), []);
+
       return;
     }
+
     pendingNavigation = request.navigation;
     emitNavigation({ navigation: request.navigation, type: "started" });
     runGuards(request, [...guards], 0, []);
@@ -461,15 +532,18 @@ export const createRouter = function createRouter<TContext = undefined>(
     startup = false
   ): Promise<NavigationResult> {
     const request = createRequest(intent, callerSignal, startup);
+
     if (callerSignal !== undefined) {
       const onAbort = function onAbort(): void {
         request.cancellation ??= "aborted";
         request.controller.abort();
+
         if (queued === request) {
           queued = null;
           finish(request, cancellationResult(request));
         }
       };
+
       callerSignal.addEventListener("abort", onAbort, { once: true });
       request.removeCallerAbort = () => {
         callerSignal.removeEventListener("abort", onAbort);
@@ -481,6 +555,7 @@ export const createRouter = function createRouter<TContext = undefined>(
     } else {
       active.cancellation ??= "superseded";
       active.controller.abort();
+
       if (queued !== null) {
         const displaced = queued;
         queued = null;
@@ -488,8 +563,10 @@ export const createRouter = function createRouter<TContext = undefined>(
         displaced.controller.abort();
         finish(displaced, cancellationResult(displaced));
       }
+
       queued = request;
     }
+
     return request.promise;
   };
 
@@ -505,9 +582,11 @@ export const createRouter = function createRouter<TContext = undefined>(
     params: TParams | undefined
   ): Promise<NavigationResult> {
     assertStarted();
+
     if (routeMap.get(route.id) !== route) {
       throw new Error(`Route object "${route.id}" is not registered with this router`);
     }
+
     return submit({ params: params ?? {}, routeId: route.id, type });
   };
 
@@ -515,6 +594,7 @@ export const createRouter = function createRouter<TContext = undefined>(
   const instance: RouterInstance<TContext> = {
     addNavigationGuard(guard) {
       guards.add(guard);
+
       return () => {
         guards.delete(guard);
       };
@@ -528,9 +608,11 @@ export const createRouter = function createRouter<TContext = undefined>(
     get currentRoute() {
       assertStarted();
       const current = stack.at(-1);
+
       if (current === undefined) {
         throw new Error("Router stack is empty");
       }
+
       return current;
     },
     getRouteDefinition(routeId) {
@@ -538,6 +620,7 @@ export const createRouter = function createRouter<TContext = undefined>(
     },
     navigate(intent, navigationOptions) {
       assertStarted();
+
       return submit(intent, navigationOptions?.signal);
     },
     get pendingNavigation() {
@@ -545,6 +628,7 @@ export const createRouter = function createRouter<TContext = undefined>(
     },
     pop(navigationOptions) {
       assertStarted();
+
       return submit({ type: "pop" }, navigationOptions?.signal);
     },
     push(route, ...params) {
@@ -560,21 +644,26 @@ export const createRouter = function createRouter<TContext = undefined>(
       if (startupResult?.status === "committed") {
         return Promise.resolve(startupResult);
       }
+
       if (startupPromise !== null) {
         return startupPromise;
       }
+
       const promise = submit(
         { params: options.initial.params, routeId: options.initial.routeId, type: "reset" },
         startOptions?.signal,
         true
       );
+
       startupPromise = promise;
       void (async () => {
         const result = await promise;
+
         if (result.status !== "committed") {
           startupPromise = null;
         }
       })();
+
       return promise;
     },
     get stack() {
@@ -588,12 +677,14 @@ export const createRouter = function createRouter<TContext = undefined>(
     },
     subscribe(listener) {
       listeners.add(listener);
+
       return () => {
         listeners.delete(listener);
       };
     },
     subscribeNavigation(listener) {
       navigationListeners.add(listener);
+
       return () => {
         navigationListeners.delete(listener);
       };

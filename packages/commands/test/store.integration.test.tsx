@@ -18,11 +18,13 @@ import type { Mode } from "../src/index.js";
 
 const LateRegistrant = function LateRegistrant() {
   useCommand({ handler: () => {}, hotkey: "l", id: "late", title: "Late" });
+
   return null;
 };
 
 const CommandCount = function CommandCount(): ReactNode {
   const { commands } = useSurfaceInvoke();
+
   return <text content={`count:${commands.length}`} />;
 };
 
@@ -36,6 +38,7 @@ const LateRegistryHarness = function LateRegistryHarness(): ReactNode {
     id: "root.show",
     title: "Show late",
   });
+
   return (
     <box flexDirection="column">
       <CommandCount />
@@ -50,6 +53,7 @@ const MetadataSurfaceContent = function MetadataSurfaceContent({
   children?: ReactNode;
 }): ReactNode {
   useCommand({ handler: () => {}, hotkey: "1", id: "s.one", title: "One" });
+
   return (
     <box flexDirection="column">
       <text content="surface" />
@@ -60,23 +64,27 @@ const MetadataSurfaceContent = function MetadataSurfaceContent({
 
 const ExtraCommand = function ExtraCommand() {
   useCommand({ handler: () => {}, hotkey: "2", id: "s.two", title: "Two" });
+
   return null;
 };
 
 const ActiveProbe = function ActiveProbe(): ReactNode {
   const active = useActiveCommandSurface();
+
   const ids = active
     ? active.commands
         .map((c) => c.id)
         .toSorted()
         .join(",")
     : "none";
+
   return <text content={`active-commands:[${ids}]`} />;
 };
 
 const ActiveSurfaceHarness = function ActiveSurfaceHarness(): ReactNode {
   const [showExtra, setShowExtra] = useState(false);
   useCommand({ handler: () => {}, hotkey: "a", id: "root.a", title: "Root A" });
+
   return (
     <box flexDirection="column">
       <ActiveProbe />
@@ -96,15 +104,18 @@ const ActiveSurfaceHarness = function ActiveSurfaceHarness(): ReactNode {
 
 const ExtraToggle = function ExtraToggle({ onToggle }: { onToggle: () => void }) {
   useCommand({ handler: onToggle, hotkey: "m", id: "s.more", title: "More" });
+
   return null;
 };
 
 const SurfaceCommandsProbe = function SurfaceCommandsProbe(): ReactNode {
   const commands = useSurfaceCommands();
+
   const ids = commands
     .map((c) => c.id)
     .toSorted()
     .join(",");
+
   return <text content={`surface-commands:[${ids}]`} />;
 };
 
@@ -118,6 +129,7 @@ const SurfaceFallbackHarness = function SurfaceFallbackHarness(): ReactNode {
     id: "root.open",
     title: "Open",
   });
+
   return (
     <box flexDirection="column">
       <SurfaceCommandsProbe />
@@ -148,6 +160,7 @@ const press = async function press(session: TestSession, key: string) {
 
 const SequenceProbe = function SequenceProbe(): ReactNode {
   const sequence = useCommandSequenceState();
+
   return <text content={`pending:${sequence ? sequence.prefix.length : 0}`} />;
 };
 
@@ -170,6 +183,7 @@ describe("F-08: mode changes reset a pending chord", () => {
         modes: ["cursor", "insert"],
         title: "Chord",
       });
+
       return <text content="surface" />;
     };
 
@@ -219,6 +233,7 @@ describe("F-08: mode changes reset a pending chord", () => {
         modes: ["cursor", "insert"],
         title: "Chord",
       });
+
       return <SequenceProbe />;
     };
 
@@ -259,6 +274,7 @@ describe("F-09: surface replacement resets a pending chord", () => {
         id: "s.chord",
         title: "Chord",
       });
+
       return <text content="surface" />;
     };
 
@@ -267,6 +283,7 @@ describe("F-09: surface replacement resets a pending chord", () => {
       swap = () => {
         setGeneration((g) => g + 1);
       };
+
       return (
         <box flexDirection="column">
           <SequenceProbe />

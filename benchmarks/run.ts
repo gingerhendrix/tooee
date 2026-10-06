@@ -7,6 +7,7 @@ import { aggregateMetric } from "./lib/benchmark-result.ts";
 import type { BenchmarkRunResult } from "./lib/benchmark-result.ts";
 
 const DEFAULT_SCRIPTS = ["render-first-frame.tsx", "interaction-latency.tsx"];
+
 const HEAVY_SCRIPTS = ["heavy-render.tsx", "heavy-interaction.tsx"];
 
 interface RunOptions {
@@ -23,9 +24,11 @@ interface PackageInfo {
 
 const readArgValue = function readArgValue(args: string[], index: number): string {
   const value = args[index + 1];
+
   if (!value) {
     throw new Error(`Missing value for ${args[index]}`);
   }
+
   return value;
 };
 
@@ -87,6 +90,7 @@ const parseArgs = function parseArgs(args: string[]): RunOptions {
   }
 
   options.samples = Math.floor(options.samples);
+
   return options;
 };
 
@@ -96,12 +100,15 @@ const parseMetrics = function parseMetrics(output: string): Map<string, number> 
 
   for (const line of output.split(/\r?\n/u)) {
     const match = metricPattern.exec(line.trim());
+
     if (match) {
       const metric = match.groups?.metric;
       const value = match.groups?.value;
+
       if (metric === undefined || value === undefined) {
         throw new Error(`Invalid metric line: ${line}`);
       }
+
       metrics.set(metric, Number(value));
     }
   }
@@ -132,6 +139,7 @@ const runScript = async function runScript(script: string): Promise<Map<string, 
   }
 
   process.stdout.write(stdout);
+
   return parseMetrics(stdout);
 };
 
@@ -141,9 +149,11 @@ const gitSha = function gitSha(): string | undefined {
     stdin: "ignore",
     stdout: "pipe",
   });
+
   if (proc.exitCode !== 0) {
     return undefined;
   }
+
   return Buffer.from(proc.stdout).toString("utf-8").trim();
 };
 
@@ -153,6 +163,7 @@ const packageInfo = async function packageInfo(): Promise<PackageInfo> {
     // and this local diagnostic reads only those metadata fields from that repository-owned file.
     // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the repository-owned root manifest establishes PackageInfo
     const packageJson = JSON.parse(await Bun.file("package.json").text()) as PackageInfo;
+
     return { name: packageJson.name, version: packageJson.version };
   } catch {
     return {};
@@ -163,14 +174,18 @@ const formatValue = function formatValue(value: number, unit: string): string {
   if (unit === "bytes") {
     return `${Math.round(value).toLocaleString()} bytes`;
   }
+
   if (unit === "ms") {
     return `${value >= 100 ? value.toFixed(1) : value.toFixed(2)}ms`;
   }
+
   return value.toFixed(2);
 };
 
 const options = parseArgs(Bun.argv.slice(2));
+
 const scripts = options.scripts.length > 0 ? [...options.scripts] : [...DEFAULT_SCRIPTS];
+
 if (options.includeHeavy) {
   scripts.push(...HEAVY_SCRIPTS);
 }
@@ -199,6 +214,7 @@ for (const script of scripts) {
 const results = [...samplesByMetric.values()]
   .map(({ source, metric, samples }) => aggregateMetric(source, metric, samples))
   .toSorted((left, right) => left.name.localeCompare(right.name));
+
 const packageJson = await packageInfo();
 
 const runResult: BenchmarkRunResult = {
@@ -218,6 +234,7 @@ const runResult: BenchmarkRunResult = {
 };
 
 console.log("\n## Aggregated benchmark medians");
+
 for (const result of results) {
   console.log(
     `${result.name}: median=${formatValue(result.median, result.unit)} p95=${formatValue(result.p95, result.unit)}`

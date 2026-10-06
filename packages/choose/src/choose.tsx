@@ -64,8 +64,10 @@ export const Choose = function Choose({
       // action-driven CLIs keep their own submit semantics.
       if (actions?.some((action) => action.id === "submit") === true) {
         invoke("submit");
+
         return;
       }
+
       if (multi || result.items.length > 0) {
         onConfirm?.(result);
       } else {
@@ -96,6 +98,7 @@ export const Choose = function Choose({
 
   const hints = buildChooseHints(choose.view.mode, { multi });
   let titleBar: { title: string } | undefined;
+
   if (title !== undefined && title !== "") {
     titleBar = { title };
   } else if (prompt !== undefined && prompt !== "") {

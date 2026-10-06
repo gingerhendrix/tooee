@@ -21,6 +21,7 @@ export const TableSubview = function TableSubview({
 }: TableSubviewProps): ReactNode {
   const textContent = useMemo(() => getTextContent(content), [content]);
   const { columns, rows } = content;
+
   const adapter = useMemo(
     () => ({
       getText: (row: TableRow) =>
@@ -28,6 +29,7 @@ export const TableSubview = function TableSubview({
     }),
     [columns]
   );
+
   const { document, showLineNumbers, statusItems } = useContentDocument<TableRow>(
     rows,
     adapter,

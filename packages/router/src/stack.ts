@@ -10,12 +10,15 @@ export const stackReducer = function stackReducer(
         stack: [...state.stack, { params: action.params ?? {}, routeId: action.routeId }],
       };
     }
+
     case "pop": {
       if (state.stack.length <= 1) {
         return state;
       }
+
       return { stack: state.stack.slice(0, -1) };
     }
+
     case "replace": {
       return {
         stack: [
@@ -24,11 +27,13 @@ export const stackReducer = function stackReducer(
         ],
       };
     }
+
     case "reset": {
       return {
         stack: [{ params: action.params ?? {}, routeId: action.routeId }],
       };
     }
+
     default: {
       return state;
     }

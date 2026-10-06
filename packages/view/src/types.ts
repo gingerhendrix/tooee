@@ -137,7 +137,9 @@ export interface ContentProvider {
 // === Compat aliases ===
 
 export type ViewContent = Content;
+
 export type ViewContentProvider = ContentProvider;
+
 export type { ColumnDef, TableRow } from "@tooee/renderers";
 
 // === Utilities ===
@@ -167,29 +169,38 @@ export const getTextContent = function getTextContent(content: AnyContent): stri
     case "markdown": {
       return content.markdown;
     }
+
     case "code": {
       return content.code;
     }
+
     case "diff": {
       return content.patch;
     }
+
     case "text": {
       return content.text;
     }
+
     case "image": {
       // oxlint-disable-next-line anti-slop/no-runtime-typeof -- ImageSource is OpenTUI's public string-or-binary union; only its string and URL variants have text content
       if (typeof content.src === "string") {
         return content.src;
       }
+
       return content.src instanceof URL ? content.src.href : "";
     }
+
     case "table": {
       const headers = content.columns.map((column) => column.header ?? column.key);
+
       const rowLines = content.rows.map((row) =>
         content.columns.map((column) => formatTableCell(row[column.key])).join("\t")
       );
+
       return [headers.join("\t"), ...rowLines].join("\n");
     }
+
     default: {
       return "";
     }

@@ -24,6 +24,7 @@ export const useCopyOnSelect = function useCopyOnSelect(): void {
 
     const handler = (selection: Selection) => {
       const text = selection.getSelectedText();
+
       if (!text) {
         return;
       }
@@ -37,6 +38,7 @@ export const useCopyOnSelect = function useCopyOnSelect(): void {
     };
 
     renderer.on("selection", handler);
+
     return () => {
       renderer.off("selection", handler);
     };

@@ -5,6 +5,7 @@ export const createStdinChooseProvider =
     return {
       async load(): Promise<ChooseItem[]> {
         const text = await new Response(Bun.stdin.stream()).text();
+
         return text
           .split("\n")
           .filter((line) => line.length > 0)

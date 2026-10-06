@@ -72,6 +72,7 @@ export const createViewCommandContext = function createViewCommandContext({
   marks,
 }: CreateViewCommandContextOptions): ViewCommandContext {
   const resolvedFormat = format ?? content?.format ?? "custom";
+
   const resolvedContent: AnyContent =
     content ??
     ({

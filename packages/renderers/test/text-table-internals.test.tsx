@@ -38,9 +38,11 @@ const renderTable = async function renderTable(content: TextTableContent, width:
     { height: 12, width }
   );
   await testSetup.renderOnce();
+
   if (ref.current === null) {
     throw new Error("text-table did not mount");
   }
+
   return ref.current;
 };
 
@@ -69,6 +71,7 @@ describe("TextTableRenderable internals", () => {
       ],
       14
     );
+
     const frame = testSetup.captureCharFrame().split("\n");
     const threeY = frame.findIndex((line) => line.includes("three"));
     const threeX = frame[threeY]?.indexOf("three") ?? -1;

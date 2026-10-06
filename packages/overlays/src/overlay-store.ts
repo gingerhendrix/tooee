@@ -58,7 +58,9 @@ const restoreModeDecision = function restoreModeDecision(
   if (record.options.ownCommands === true || record.options.restoreMode === false) {
     return null;
   }
+
   const topLegacy = stack.findLast((entry) => entry.options.ownCommands !== true);
+
   return topLegacy === record ? record.prevMode : null;
 };
 
@@ -126,29 +128,36 @@ export const createOverlayStore = function createOverlayStore() {
     on: {
       closed: (ctx, event, enqueue) => {
         const record = ctx.stack.find((entry) => entry.id === event.id);
+
         if (!record) {
           return ctx;
         }
+
         enqueue.emit.closed({
           reason: event.reason,
           record,
           restoreModeTo: restoreModeDecision(ctx.stack, record),
         });
+
         return { stack: ctx.stack.filter((entry) => entry !== record) };
       },
       closedTop: (ctx, event, enqueue) => {
         if (ctx.stack.length === 0) {
           return ctx;
         }
+
         const record = ctx.stack.at(-1);
+
         if (record === undefined) {
           return ctx;
         }
+
         enqueue.emit.closed({
           reason: event.reason,
           record,
           restoreModeTo: restoreModeDecision(ctx.stack, record),
         });
+
         return { stack: ctx.stack.slice(0, -1) };
       },
       opened: (ctx, event, enqueue) => {
@@ -156,27 +165,36 @@ export const createOverlayStore = function createOverlayStore() {
         // open-state (e.g. a picker's isOpen) via the contract's "replaced"
         // reason instead of the entry being silently filtered away.
         const displaced = ctx.stack.find((entry) => entry.id === event.record.id);
+
         if (displaced) {
           enqueue.emit.closed({ reason: "replaced", record: displaced, restoreModeTo: null });
         }
+
         const filtered = displaced
           ? ctx.stack.filter((entry) => entry.id !== event.record.id)
           : ctx.stack;
+
         return { stack: [...filtered, event.record] };
       },
       updated: (ctx, event) => {
         const idx = ctx.stack.findIndex((entry) => entry.id === event.id);
+
         if (idx === -1) {
           return ctx;
         }
+
         const record = ctx.stack[idx];
+
         if (record === undefined) {
           return ctx;
         }
+
         const payload =
           event.next.kind === "updater" ? event.next.update(record.payload) : event.next.value;
+
         const stack = [...ctx.stack];
         stack[idx] = { ...record, payload };
+
         return { stack };
       },
     },

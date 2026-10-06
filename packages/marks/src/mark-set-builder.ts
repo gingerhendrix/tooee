@@ -10,6 +10,7 @@ export class MarkSetBuilder {
       range: { from: { line }, to: { line } },
       style,
     });
+
     return this;
   }
 
@@ -19,11 +20,13 @@ export class MarkSetBuilder {
       range: { from, to },
       style,
     });
+
     return this;
   }
 
   addMark(mark: Mark): this {
     this.#marks.push(mark);
+
     return this;
   }
 

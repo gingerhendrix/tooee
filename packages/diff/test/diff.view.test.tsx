@@ -30,6 +30,7 @@ const renderDiff = async function renderDiff(
     size
   );
   await testSetup.renderOnce();
+
   return testSetup.captureCharFrame();
 };
 

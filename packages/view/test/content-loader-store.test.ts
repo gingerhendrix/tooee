@@ -42,6 +42,7 @@ describe("content loader store", () => {
     store.trigger.loadStarted({ marks: [] });
     const staleId = store.getSnapshot().context.requestId;
     store.trigger.loadStarted({ marks: [] });
+
     const events = [
       () => {
         store.trigger.streamStarted({ format: "text", requestId: staleId });
@@ -65,6 +66,7 @@ describe("content loader store", () => {
         store.trigger.loadCancelled({ requestId: staleId });
       },
     ];
+
     for (const trigger of events) {
       const before = store.getSnapshot().context;
       trigger();

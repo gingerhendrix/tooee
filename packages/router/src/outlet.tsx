@@ -18,10 +18,12 @@ export const getRouteChain = function getRouteChain(
 ): AnyRoute[] {
   const chain: AnyRoute[] = [];
   let current = routeMap.get(routeId);
+
   while (current) {
     chain.unshift(current);
     current = current.parent;
   }
+
   return chain;
 };
 
@@ -43,12 +45,14 @@ const RouteRenderer = function RouteRenderer({
   useEffect(() => {
     const { load } = routeDef;
     let cancelled = false;
+
     if (load !== undefined) {
       setLoading(true);
       setLoaderError(null);
       void (async () => {
         try {
           const result = await load(entry.params);
+
           if (!cancelled) {
             setData(result);
             setLoading(false);
@@ -61,6 +65,7 @@ const RouteRenderer = function RouteRenderer({
         }
       })();
     }
+
     return () => {
       cancelled = true;
     };
@@ -93,11 +98,13 @@ export const Outlet = function Outlet(): ReactNode {
   const depth = useContext(OutletDepthContext);
 
   const topEntry = stack.at(-1);
+
   if (topEntry === undefined) {
     return null;
   }
 
   const routeDef = router.getRouteDefinition(topEntry.routeId);
+
   if (!routeDef) {
     return null;
   }
@@ -108,6 +115,7 @@ export const Outlet = function Outlet(): ReactNode {
   );
 
   const routeAtDepth = chain[depth];
+
   if (routeAtDepth === undefined) {
     return null;
   }

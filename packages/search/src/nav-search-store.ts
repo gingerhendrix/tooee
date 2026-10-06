@@ -2,6 +2,7 @@ import type { Mode } from "@tooee/commands";
 import { createStore } from "@xstate/store";
 
 export type RowKey = string | number | bigint;
+
 export type SearchStatus = "idle" | "editing" | "committed";
 
 export interface NavSearchContext {
@@ -39,6 +40,7 @@ interface NavSearchEventDefinitions {
   searchNext: Record<never, never>;
   searchPrevious: Record<never, never>;
 }
+
 export type NavSearchEvents = {
   [EventName in keyof NavSearchEventDefinitions]: NavSearchEventDefinitions[EventName];
 };
@@ -47,6 +49,7 @@ interface NavSearchEmittedDefinitions {
   restoreMode: { mode: Mode };
   jumped: { index: number };
 }
+
 type NavSearchEmitted = {
   [EventName in keyof NavSearchEmittedDefinitions]: NavSearchEmittedDefinitions[EventName];
 };
@@ -60,21 +63,26 @@ export const resolveIndex = function resolveIndex(
   if (rowCount <= 0) {
     return null;
   }
+
   const max = rowCount - 1;
   const clamped = Math.max(0, Math.min(target, max));
+
   if (isSelectable(clamped)) {
     return clamped;
   }
+
   for (let index = clamped + direction; index >= 0 && index <= max; index += direction) {
     if (isSelectable(index)) {
       return index;
     }
   }
+
   for (let index = clamped - direction; index >= 0 && index <= max; index -= direction) {
     if (isSelectable(index)) {
       return index;
     }
   }
+
   return null;
 };
 
@@ -82,16 +90,21 @@ const toggle = function toggle(ctx: NavSearchContext): NavSearchContext {
   if (ctx.cursor === null) {
     return ctx;
   }
+
   const key = ctx.rowKeys[ctx.cursor];
+
   if (key === undefined) {
     return ctx;
   }
+
   const toggledKeys = new Set(ctx.toggledKeys);
+
   if (toggledKeys.has(key)) {
     toggledKeys.delete(key);
   } else {
     toggledKeys.add(key);
   }
+
   return { ...ctx, toggledKeys };
 };
 
@@ -103,10 +116,13 @@ const searchStep = function searchStep(
   if (ctx.search.matches.length === 0) {
     return ctx;
   }
+
   const currentMatchIndex =
     (ctx.search.currentMatchIndex + delta + ctx.search.matches.length) % ctx.search.matches.length;
+
   const cursor = ctx.search.matches[currentMatchIndex];
   enqueue.emit.jumped({ index: cursor });
+
   return { ...ctx, cursor, search: { ...ctx.search, currentMatchIndex } };
 };
 
@@ -120,6 +136,7 @@ export const createNavSearchStore = function createNavSearchStore(
 ) {
   const deps = options.deps ?? { isSelectable: () => true };
   const keys = options.keys ?? EMPTY_KEYS;
+
   const resolve = (index: number, direction: 1 | -1, count = keys.length) =>
     resolveIndex(index, direction, count, deps.isSelectable);
 
@@ -149,30 +166,36 @@ export const createNavSearchStore = function createNavSearchStore(
           ctx.rowKeys.length,
           deps.isSelectable
         );
+
         // Emit even when the cursor is already on the target row, so a view
         // can reveal a row the user scrolled away from.
         if (cursor !== null) {
           enqueue.emit.jumped({ index: cursor });
         }
+
         return { ...ctx, cursor };
       },
       move: (ctx, event) => {
         if (ctx.cursor === null) {
           return ctx;
         }
+
         const direction: 1 | -1 = event.delta < 0 ? -1 : 1;
+
         const cursor = resolveIndex(
           ctx.cursor + event.delta,
           direction,
           ctx.rowKeys.length,
           deps.isSelectable
         );
+
         return cursor === null || cursor === ctx.cursor ? ctx : { ...ctx, cursor };
       },
       rowsChanged: (ctx, event) => {
         const previousCursor = ctx.cursor;
         const previousKey = previousCursor === null ? undefined : ctx.rowKeys[previousCursor];
         let { cursor } = ctx;
+
         if (event.keys.length === 0) {
           cursor = null;
         } else if (
@@ -200,13 +223,16 @@ export const createNavSearchStore = function createNavSearchStore(
         } else if (!deps.isSelectable(cursor)) {
           cursor = resolveIndex(cursor, 1, event.keys.length, deps.isSelectable);
         }
+
         const available = new Set(event.keys);
         const filtered = new Set([...ctx.toggledKeys].filter((key) => available.has(key)));
         const toggledKeys = filtered.size === ctx.toggledKeys.size ? ctx.toggledKeys : filtered;
+
         return { ...ctx, cursor, rowKeys: event.keys, toggledKeys };
       },
       searchCancelled: (ctx, _event, enqueue) => {
         enqueue.emit.restoreMode({ mode: ctx.search.preSearchMode });
+
         return {
           ...ctx,
           search: {
@@ -223,14 +249,17 @@ export const createNavSearchStore = function createNavSearchStore(
         const matchesUnchanged =
           ctx.search.matches.length === event.matches.length &&
           ctx.search.matches.every((match, index) => Object.is(match, event.matches[index]));
+
         if (ctx.search.query === event.query && matchesUnchanged) {
           return ctx;
         }
 
         const [first] = event.matches;
+
         if (first !== undefined) {
           enqueue.emit.jumped({ index: first });
         }
+
         return {
           ...ctx,
           cursor:
@@ -260,10 +289,13 @@ export const createNavSearchStore = function createNavSearchStore(
       }),
       searchSubmitted: (ctx, _event, enqueue) => {
         const [first] = ctx.search.matches;
+
         if (first !== undefined) {
           enqueue.emit.jumped({ index: first });
         }
+
         enqueue.emit.restoreMode({ mode: ctx.search.preSearchMode });
+
         return {
           ...ctx,
           cursor:
@@ -281,20 +313,25 @@ export const createNavSearchStore = function createNavSearchStore(
       setCursor: (ctx, event) => {
         const direction: 1 | -1 = ctx.cursor !== null && event.index < ctx.cursor ? -1 : 1;
         const cursor = resolveIndex(event.index, direction, ctx.rowKeys.length, deps.isSelectable);
+
         return cursor === null ? ctx : { ...ctx, cursor };
       },
       toggleAndMove: (ctx, event) => {
         const toggled = toggle(ctx);
+
         if (toggled.cursor === null) {
           return toggled;
         }
+
         const direction: 1 | -1 = event.delta < 0 ? -1 : 1;
+
         const cursor = resolveIndex(
           toggled.cursor + event.delta,
           direction,
           toggled.rowKeys.length,
           deps.isSelectable
         );
+
         return cursor === null ? toggled : { ...toggled, cursor };
       },
       toggleCurrent: (ctx) => toggle(ctx),
@@ -305,15 +342,24 @@ export const createNavSearchStore = function createNavSearchStore(
 export type NavSearchStore = ReturnType<typeof createNavSearchStore>;
 
 export const selectCursor = (ctx: NavSearchContext) => ctx.cursor;
+
 export const selectRowKeys = (ctx: NavSearchContext) => ctx.rowKeys;
+
 export const selectSelectionAnchor = (ctx: NavSearchContext) => ctx.selectionAnchor;
+
 export const selectToggledKeys = (ctx: NavSearchContext) => ctx.toggledKeys;
+
 export const selectSearchStatus = (ctx: NavSearchContext) => ctx.search.status;
+
 export const selectSearchActive = (ctx: NavSearchContext) => ctx.search.status === "editing";
+
 export const selectSearchQuery = (ctx: NavSearchContext) =>
   ctx.search.status === "editing" ? ctx.search.query : ctx.search.committedQuery;
+
 export const selectMatches = (ctx: NavSearchContext) => ctx.search.matches;
+
 export const selectCurrentMatchIndex = (ctx: NavSearchContext) => ctx.search.currentMatchIndex;
+
 export const deriveSelection = function deriveSelection(ctx: NavSearchContext, mode: Mode) {
   return mode === "select" && ctx.selectionAnchor !== null && ctx.cursor !== null
     ? {

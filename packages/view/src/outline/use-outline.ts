@@ -11,10 +11,13 @@ import type { OutlineEntry } from "./markdown-outline.js";
 
 /** Outline width in columns, border included. */
 const OUTLINE_WIDTH = 32;
+
 /** The outline never takes more than this share of the terminal width. */
 const OUTLINE_MAX_SHARE = 0.4;
+
 /** Below this terminal width the outline is not shown. */
 export const OUTLINE_MIN_TERMINAL_WIDTH = 60;
+
 /**
  * Lines of the document kept above a heading after a jump. The heading lands
  * near the top of the view, with a little of the text before it for context.
@@ -26,6 +29,7 @@ export const outlineWidth = function outlineWidth(terminalWidth: number): number
   if (terminalWidth < OUTLINE_MIN_TERMINAL_WIDTH) {
     return 0;
   }
+
   return Math.min(OUTLINE_WIDTH, Math.floor(terminalWidth * OUTLINE_MAX_SHARE));
 };
 
@@ -85,6 +89,7 @@ export const useMarkdownOutline = function useMarkdownOutline({
   const { closedKeys, ranges, setClosedKeys, view } = folds;
   const { cursor, setCursor } = navigation;
   const visible = open && width > 0;
+
   const moveTo = useCallback(
     (index: number) => {
       setCursor(index);
@@ -92,10 +97,12 @@ export const useMarkdownOutline = function useMarkdownOutline({
     },
     [setCursor, revealRow]
   );
+
   const focused = visible && focusRequested;
   const sourceRow = cursor === null ? undefined : view.visibleToSource[cursor];
   const currentIndex = sourceRow === undefined ? -1 : outlineIndexAt(entries, sourceRow);
   const selectedIndex = focused ? Math.min(selected, entries.length - 1) : currentIndex;
+
   const closedRows = useMemo(
     () => new Set(ranges.filter((range) => closedKeys.has(range.key)).map((range) => range.start)),
     [ranges, closedKeys]
@@ -108,6 +115,7 @@ export const useMarkdownOutline = function useMarkdownOutline({
   useEffect(() => {
     const row = pendingRowRef.current;
     const index = row === null ? -1 : (view.sourceToVisible[row] ?? -1);
+
     if (index !== -1) {
       pendingRowRef.current = null;
       moveTo(index);
@@ -118,34 +126,46 @@ export const useMarkdownOutline = function useMarkdownOutline({
     setSelected(Math.max(currentIndex, 0));
     setFocusRequested(true);
   };
+
   const focusContent = () => {
     setFocusRequested(false);
   };
+
   const close = () => {
     setOpen(false);
     setFocusRequested(false);
   };
+
   const select = (index: number) => {
     setSelected(Math.max(0, Math.min(index, entries.length - 1)));
   };
+
   const move = (delta: number) => {
     select(selectedIndex + delta);
   };
+
   const jump = (index: number) => {
     const entry = entries[index];
     setFocusRequested(false);
+
     if (entry === undefined) {
       return;
     }
+
     const hiding = closedFoldsHiding(ranges, closedKeys, entry.row);
+
     if (hiding.length === 0) {
       moveTo(view.sourceToVisible[entry.row] ?? 0);
+
       return;
     }
+
     const next = new Set(closedKeys);
+
     for (const key of hiding) {
       next.delete(key);
     }
+
     pendingRowRef.current = entry.row;
     setClosedKeys(next);
   };
@@ -155,12 +175,16 @@ export const useMarkdownOutline = function useMarkdownOutline({
     handler: (ctx) => {
       if (width === 0) {
         ctx.toast?.toast({ level: "info", message: "The outline needs a wider terminal" });
+
         return;
       }
+
       if (open && focused) {
         close();
+
         return;
       }
+
       setOpen(true);
       focus();
     },

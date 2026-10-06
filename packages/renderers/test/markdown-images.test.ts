@@ -33,6 +33,7 @@ describe("Obsidian image embeds", () => {
     const [paragraph] = marked.lexer(
       "Before ![standard](images/one.png) middle ![[images/two.webp|20x8]] after"
     );
+
     if (paragraph?.type !== "paragraph") {
       throw new Error("Expected a paragraph token");
     }

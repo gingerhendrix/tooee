@@ -18,8 +18,11 @@ interface Model {
 }
 
 declare const modelDialog: ChooseDialogHandle<Model>;
+
 declare const rowDialog: ChooseDialogHandle<ChooseItem>;
+
 declare const expectString: (value: string) => void;
+
 declare const expectStrings: (value: string[]) => void;
 
 // Never called; exists only to be typechecked.
@@ -29,6 +32,7 @@ export const chooseDialogTypeChecks = async function chooseDialogTypeChecks(): P
     items: [{ id: "a", label: "A" }],
     toItem: (model) => ({ text: model.label }),
   });
+
   if (single !== null) {
     expectString(single.id);
   }
@@ -39,12 +43,14 @@ export const chooseDialogTypeChecks = async function chooseDialogTypeChecks(): P
     multi: true,
     toItem: (model) => ({ text: model.label }),
   });
+
   if (multi !== null) {
     expectStrings(multi.map((model) => model.id));
   }
 
   // --- toItem may be omitted only when T is a ChooseItem ---------------------
   const row = await rowDialog.open({ items: [{ text: "one" }] });
+
   if (row !== null) {
     expectString(row.text);
   }

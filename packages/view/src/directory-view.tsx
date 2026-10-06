@@ -16,6 +16,7 @@ const createDirectoryFileProvider = function createDirectoryFileProvider(
   total: number
 ): ContentProvider {
   const inner = createFileProvider(entry.path);
+
   return {
     async load(): Promise<AnyContent> {
       const result = inner.load();
@@ -23,6 +24,7 @@ const createDirectoryFileProvider = function createDirectoryFileProvider(
       // or through a Promise; it never returns the ContentProvider async-iterable arm.
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- file providers return external content at this boundary
       const content = result instanceof Promise ? await result : (result as AnyContent);
+
       return {
         ...content,
         title: `${entry.name}  (${index + 1}/${total})`,

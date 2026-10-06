@@ -6,6 +6,7 @@ import { act } from "react";
 import type { AnyContent, ContentProvider } from "../src/types.js";
 
 const { TooeeProvider } = await import("@tooee/shell");
+
 const { View } = await import("../src/view.js");
 
 const PATCH = `diff --git a/src/a.ts b/src/a.ts
@@ -56,11 +57,13 @@ const setup = async function setup(provider: ContentProvider) {
     </TooeeProvider>,
     { height: 40, kittyKeyboard: true, width: 100 }
   );
+
   await s.renderOnce();
   await act(async () => {
     await Bun.sleep(100);
   });
   await s.renderOnce();
+
   return s;
 };
 
@@ -78,15 +81,18 @@ const press = async function press(key: string, modifiers?: { shift?: boolean })
  */
 const cursorIndex = function cursorIndex(frame: string): number {
   const match = /Cursor:?\s*(?<index>\d+)/u.exec(frame);
+
   return Number(match?.groups?.index ?? -1);
 };
 
 const typeQuery = async function typeQuery(query: string) {
   await press("/");
+
   for (const char of query) {
     // oxlint-disable-next-line no-await-in-loop -- each key must be rendered before the next
     await press(char);
   }
+
   await act(async () => {
     testSetup.mockInput.pressEnter();
     await Promise.resolve();
@@ -136,6 +142,7 @@ describe("diff navigation", () => {
       // oxlint-disable-next-line no-await-in-loop -- each key must be rendered before the next
       await press(char);
     }
+
     await act(async () => {
       testSetup.mockInput.pressEnter();
       await Promise.resolve();

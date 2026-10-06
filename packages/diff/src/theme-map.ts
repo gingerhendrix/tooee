@@ -61,21 +61,25 @@ export const HUNK_THEME_MAP: Record<string, HunkThemePair> = HUNK_THEME_ENTRIES;
 const HUNK_THEME_BY_NAME = new Map<string, HunkThemePair>(Object.entries(HUNK_THEME_ENTRIES));
 
 const HEX_COLOR = /^#(?<digits>[0-9a-f]{3}|[0-9a-f]{6})$/iu;
+
 /** Rec. 601 luma above this counts as a light background. */
 const LIGHT_LUMA = 128;
 
 /** `true` when `color` is a hex colour bright enough to read as a light background. */
 export const isLightBackground = function isLightBackground(color: string): boolean {
   const digits = HEX_COLOR.exec(color.trim())?.groups?.digits;
+
   if (digits === undefined) {
     // Named or transparent backgrounds carry no brightness: assume dark.
     return false;
   }
+
   // #abc expands to #aabbcc; the pattern only ever matches ASCII hex digits.
   const full = digits.length === 3 ? digits.replaceAll(/[0-9a-f]/giu, "$&$&") : digits;
   const r = Number.parseInt(full.slice(0, 2), 16);
   const g = Number.parseInt(full.slice(2, 4), 16);
   const b = Number.parseInt(full.slice(4, 6), 16);
+
   return 0.299 * r + 0.587 * g + 0.114 * b > LIGHT_LUMA;
 };
 
@@ -89,5 +93,6 @@ export const resolveHunkDiffTheme = function resolveHunkDiffTheme(
   theme: ResolvedTheme
 ): HunkDiffThemeName {
   const pair = HUNK_THEME_BY_NAME.get(themeName) ?? GITHUB;
+
   return isLightBackground(theme.background) ? pair.light : pair.dark;
 };

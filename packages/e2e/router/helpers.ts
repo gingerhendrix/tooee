@@ -5,12 +5,16 @@ import { launchTerminal } from "tuistory";
 import type { Session } from "tuistory";
 
 const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
+
 const FIXTURE_APP = path.resolve(import.meta.dir, "fixtures/router-app.tsx");
+
 const CONFIG_NAMESPACE = "router-e2e";
+
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
 
 export const launchRouter = async function launchRouter(args: string[] = []): Promise<Session> {
   resetTestConfig(CONFIG_NAMESPACE);
+
   const session = await launchTerminal({
     args: ["--conditions=@tooee/source", FIXTURE_APP, ...args],
     cols: 80,
@@ -19,6 +23,8 @@ export const launchRouter = async function launchRouter(args: string[] = []): Pr
     env: { ...process.env, XDG_CONFIG_HOME: TEST_CONFIG_HOME },
     rows: 24,
   });
+
   await session.waitForText("Route:", { timeout: 15_000 });
+
   return session;
 };

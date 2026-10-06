@@ -28,6 +28,7 @@ const PanelSwitchCommands = function PanelSwitchCommands({
     modes: group.switchModes,
     title: "Previous panel",
   });
+
   return null;
 };
 
@@ -62,6 +63,7 @@ export const Panel = function Panel({
   }, [setDisabled, id, disabledValue]);
 
   const isActive = activeId === id && !disabledValue;
+
   const activate = useCallback(() => {
     activatePanel(id);
   }, [activatePanel, id]);
@@ -96,9 +98,11 @@ export const Panel = function Panel({
   const borderColor = disabledValue ? theme.borderSubtle : activeBorder;
   const titleColor = isActive ? theme.borderActive : theme.textMuted;
   let displayTitle: string | undefined;
+
   if (title !== undefined) {
     displayTitle = isActive ? `▸ ${title}` : title;
   }
+
   const canActivateOnMouseDown = group.activateOnMouseDown && !disabledValue;
 
   return (

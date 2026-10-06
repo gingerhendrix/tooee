@@ -63,6 +63,7 @@ const contentProvider: ContentProvider = {
     const rows = lines.map((line) => {
       const [hash, subject, author, date] = line.split("\u0000");
       const preview = subject.length > 120 ? `${subject.slice(0, 120)}...` : subject;
+
       return {
         author,
         date,

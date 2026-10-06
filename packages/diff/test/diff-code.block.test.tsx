@@ -22,6 +22,7 @@ const renderMarkdown = async function renderMarkdown(markdown: string, width = 1
     { height: 40, width }
   );
   await testSetup.renderOnce();
+
   return testSetup.captureCharFrame();
 };
 
@@ -65,6 +66,7 @@ describe("diffCodeBlockRenderer", () => {
 +const value = before + 1;
  return value;
 `;
+
     const frame = await renderMarkdown(fence("diff", patch));
     const hunkHeaderLine = lineWith(frame, "@@ -1,3 +1,3 @@ function demo()");
     expect(hunkHeaderLine.match(/function demo\(\)/gu)).toHaveLength(1);

@@ -50,6 +50,7 @@ export const View = function View({
   const setMarkSet = useCallback((set: MarkSet) => {
     setUserMarks((prev) => {
       const filtered = prev.filter((s) => s.namespace !== set.namespace);
+
       return [...filtered, set];
     });
   }, []);
@@ -109,19 +110,24 @@ export const View = function View({
         />
       );
     }
+
     case "code":
     case "text": {
       return <CodeSubview content={content} {...shared} />;
     }
+
     case "image": {
       return <ImageSubview content={content} {...shared} />;
     }
+
     case "table": {
       return <TableSubview content={content} {...shared} />;
     }
+
     case "diff": {
       return <DiffSubview content={content} {...shared} />;
     }
+
     default: {
       return null;
     }

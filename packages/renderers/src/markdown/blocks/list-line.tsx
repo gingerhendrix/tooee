@@ -20,12 +20,15 @@ export const ListLineRenderer = function ListLineRenderer({
 }): ReactNode {
   const { token, indent, bullet, checked } = block;
   const checkboxPrefix = checkboxMarker(checked);
+
   const inlineTokens: Token[] =
     "tokens" in token && Array.isArray(token.tokens) ? token.tokens : [];
+
   const tokenText = hasMarkedText(token) ? token.text : "";
   const hasContent = inlineTokens.length > 0 || tokenText.length > 0;
 
   let content: ReactNode = null;
+
   if (inlineTokens.length > 0) {
     content = <InlineTokens tokens={inlineTokens} theme={theme} />;
   } else if (tokenText.length > 0) {

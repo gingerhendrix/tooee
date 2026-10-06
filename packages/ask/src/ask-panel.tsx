@@ -15,14 +15,17 @@ export const buildAskHints = function buildAskHints(
 ): string[] {
   const submitHint =
     opts.multiline === true && mode === "insert" ? "Shift+Enter submit" : "Enter submit";
+
   const base =
     mode === "insert"
       ? [submitHint, "Esc commands"]
       : ["i insert", "q quit", ...(opts.cursorExtra ?? []), submitHint];
+
   return opts.extra ? [...base, ...opts.extra] : base;
 };
 
 export type AskPanelInsetValue = PanelInsetValue;
+
 export type AskPanelInset = PanelInset;
 
 export interface AskPanelProps {

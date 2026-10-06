@@ -45,6 +45,7 @@ const eraseUpdate = function eraseUpdate<TPayload>(next: OverlayUpdate<TPayload>
   if (next.kind === "value") {
     return { kind: "value", value: next.value };
   }
+
   return {
     kind: "updater",
     // oxlint-disable-next-line anti-slop/no-unknown-parameters, anti-slop/no-unknown-returns -- heterogeneous overlay store erases each public generic payload at this adapter boundary
@@ -85,19 +86,24 @@ export const OverlayProvider = function OverlayProvider({
       // Placeholder until the effect below binds the live mode setter.
     },
   });
+
   const storeRef = useRef<OverlayStore | null>(null);
+
   if (storeRef.current === null) {
     storeRef.current = createOverlayStore();
     storeRef.current.on("closed", ({ record, reason, restoreModeTo }) => {
       record.options.onClose?.(reason);
+
       if (restoreModeTo !== null) {
         bridgeRef.current.setMode(restoreModeTo);
       }
+
       if (reason === "replaced") {
         bridgeRef.current.resetSequence();
       }
     });
   }
+
   const overlayStore = storeRef.current;
   bridgeRef.current.setMode = setMode;
   bridgeRef.current.resetSequence = () => {
@@ -124,9 +130,11 @@ export const OverlayProvider = function OverlayProvider({
       // Owned command surfaces carry their own local mode and never touch the
       // host's global mode.
       let overlayMode = options.mode;
+
       if (overlayMode === undefined) {
         overlayMode = "insert";
       }
+
       if (options.ownCommands === true) {
         overlayMode = null;
       }
@@ -195,6 +203,7 @@ export const OverlayProvider = function OverlayProvider({
     title: "Close overlay",
     when: () => {
       const top = selectTop(overlayStore.getSnapshot().context);
+
       return top !== null && top.options.dismissOnEscape !== false;
     },
   });
@@ -204,6 +213,7 @@ export const OverlayProvider = function OverlayProvider({
       <>
         {stack.map((entry, index): ReactNode => {
           const isTop = index === stack.length - 1;
+
           let node = entry.render({
             close: (reason: OverlayCloseReason = "close") => {
               removeEntry(entry.id, reason);

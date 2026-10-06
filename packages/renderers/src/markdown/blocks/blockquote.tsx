@@ -19,11 +19,13 @@ export const BlockquoteRenderer = function BlockquoteRenderer({
   onLinkActivate?: MarkdownLinkHandler;
 }): ReactNode {
   const inlineTokens: Token[] = [];
+
   for (const child of token.tokens) {
     if ("tokens" in child && Array.isArray(child.tokens)) {
       if (inlineTokens.length > 0) {
         inlineTokens.push({ raw: "\n", type: "br" });
       }
+
       inlineTokens.push(...child.tokens);
     } else if (hasMarkedText(child)) {
       inlineTokens.push(child);

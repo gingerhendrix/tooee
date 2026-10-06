@@ -9,9 +9,11 @@ const BUNDLED = new Set<string>(HUNK_DIFF_THEME_NAMES);
 
 const colorsFor = function colorsFor(name: string) {
   const json = loadThemes().get(name);
+
   if (json === undefined) {
     throw new Error(`missing theme fixture: ${name}`);
   }
+
   return resolveTheme(json, "dark");
 };
 
@@ -19,12 +21,14 @@ describe("resolveHunkDiffTheme", () => {
   test("every bundled Tooee theme resolves to a real Hunk theme, in both modes", () => {
     const themes = loadThemes();
     expect(themes.size).toBeGreaterThan(0);
+
     for (const [name, json] of themes) {
       for (const mode of ["dark", "light"] as const) {
         const resolved = resolveHunkDiffTheme(name, resolveTheme(json, mode));
         expect(BUNDLED.has(resolved)).toBe(true);
       }
     }
+
     // Every shipped theme is mapped explicitly, not just via the fallback.
     for (const name of themes.keys()) {
       expect(Object.hasOwn(HUNK_THEME_MAP, name)).toBe(true);

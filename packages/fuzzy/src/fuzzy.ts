@@ -46,6 +46,7 @@ export const fuzzyMatchPositions = function fuzzyMatchPositions(
   if (qi < lowerQuery.length) {
     return null;
   }
+
   return { positions, score };
 };
 
@@ -55,6 +56,7 @@ export const fuzzyMatchPositions = function fuzzyMatchPositions(
  */
 export const fuzzyMatch = function fuzzyMatch(query: string, text: string): number | null {
   const result = fuzzyMatchPositions(query, text);
+
   return result ? result.score : null;
 };
 
@@ -69,16 +71,22 @@ export const rankBy = function rankBy<T>(
   }
 
   const matches: FuzzyMatch<T>[] = [];
+
   for (let originalIndex = 0; originalIndex < items.length; originalIndex += 1) {
     const item = items[originalIndex];
+
     if (item === undefined) {
       continue;
     }
+
     const match = fuzzyMatchPositions(query, getText(item));
+
     if (match !== null) {
       matches.push({ item, originalIndex, positions: match.positions, score: match.score });
     }
   }
+
   matches.sort((left, right) => right.score - left.score);
+
   return matches;
 };

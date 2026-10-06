@@ -20,6 +20,7 @@ const ChildSurface = function ChildSurface({ close }: { close: () => void }): Re
     modes: ["cursor"],
     title: "Close child",
   });
+
   return (
     <box position="absolute" left="30%" right="30%" top="40%" bottom="40%" border>
       <text content="CHILD PICKER" />
@@ -33,6 +34,7 @@ const NestedHost = function NestedHost({
   onSelect: (item: ChooseItem) => void;
 }): ReactNode {
   const [open, setOpen] = useState(true);
+
   return (
     <ChooseOverlay
       items={[{ text: "alpha" }, { text: "beta" }]}
@@ -70,7 +72,9 @@ const setup = async function setup(node: ReactNode) {
     kittyKeyboard: true,
     width: 80,
   });
+
   await session.renderOnce();
+
   return session;
 };
 
@@ -161,8 +165,10 @@ describe("ChooseController and normalized sources", () => {
   test("accepts a synchronous loader and reloads it through the controller", async () => {
     const controllerRef = createRef<ChooseController>();
     let revision = 0;
+
     const source = () => {
       revision += 1;
+
       return [{ text: `item-${revision}` }];
     };
 
@@ -193,6 +199,7 @@ describe("ChooseController and normalized sources", () => {
       replace = () => {
         setItems([{ text: "fresh-one" }]);
       };
+
       return (
         <ChooseOverlay
           items={items}
@@ -229,11 +236,14 @@ describe("ChooseController and normalized sources", () => {
     const Host = function Host(): ReactNode {
       const [source, setSource] = useState<ChooseSource>(() => async () => {
         const items = await slow.promise;
+
         return items;
       });
+
       replace = () => {
         setSource([{ text: "fresh" }]);
       };
+
       return <ChooseOverlay items={source} onSelect={() => {}} onCancel={() => {}} />;
     };
 
@@ -408,6 +418,7 @@ describe("shared commands, context, and surfaces", () => {
 describe("view extension points", () => {
   test("wraps long rows and keeps the active row visible while scrolling", async () => {
     const controllerRef = createRef<ChooseController>();
+
     const items = Array.from({ length: 12 }, (_, index) => ({
       description: `Provider API description for model ${index + 1} with a 200,000 token context.`,
       text: `Command Code Model ${String(index + 1).padStart(2, "0")}`,
@@ -447,9 +458,11 @@ describe("view extension points", () => {
     await testSetup.renderOnce();
 
     const frame = testSetup.captureCharFrame();
+
     const activeLine = frame
       .split("\n")
       .findIndex((line) => line.includes("Command Code Model 09"));
+
     expect(activeLine).toBeGreaterThan(0);
     expect(activeLine).toBeLessThan(14);
     expect(frame).toContain("description for model 9 with a 200,000");

@@ -63,6 +63,7 @@ export const ParagraphRenderer = function ParagraphRenderer({
   imageBasePath?: string;
 }): ReactNode {
   const segments = splitMarkdownImages(token.tokens);
+
   return (
     <box
       style={{

@@ -16,6 +16,7 @@ const Screen = function Screen(): null {
 };
 
 const homeRoute = createRoute({ component: Screen, id: "home" });
+
 const settingsRoute = createRoute({ component: Screen, id: "settings" });
 
 const deferred = function deferred<T = undefined>(): PromiseWithResolvers<T> {
@@ -27,9 +28,11 @@ const expectStatus = function expectStatus<TStatus extends NavigationResult["sta
   status: TStatus
 ): Extract<NavigationResult, { status: TStatus }> {
   expect(result.status).toBe(status);
+
   if (result.status !== status) {
     throw new Error(`Expected ${status}, got ${result.status}`);
   }
+
   // SAFETY: the equality guard above checks the same discriminant that selects
   // this Extract member from NavigationResult.
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the checked status discriminant establishes the generic Extract member
@@ -40,6 +43,7 @@ describe("router startup", () => {
   test("uses the guarded pipeline and shares concurrent startup", async () => {
     const release = deferred();
     let calls = 0;
+
     const router = createRouter({
       beforeNavigate: async () => {
         calls += 1;
@@ -69,13 +73,16 @@ describe("router startup", () => {
   test("failed and cancelled startup can retry", async () => {
     let attempt = 0;
     const errors: Error[] = [];
+
     const router = createRouter({
       // oxlint-disable-next-line typescript/consistent-return -- the third attempt intentionally allows navigation with an implicit void result
       beforeNavigate: () => {
         attempt += 1;
+
         if (attempt === 1) {
           throw new Error("prepare failed");
         }
+
         if (attempt === 2) {
           return false;
         }
@@ -99,6 +106,7 @@ describe("router startup", () => {
   test("caller abort cancels startup and allows retry", async () => {
     const release = deferred();
     let wait = true;
+
     const router = createRouter({
       beforeNavigate: async () => {
         if (wait) {
@@ -108,6 +116,7 @@ describe("router startup", () => {
       initial: { routeId: "home" },
       routes: [homeRoute],
     });
+
     const controller = new AbortController();
     const startup = router.start({ signal: controller.signal });
     controller.abort();
@@ -127,6 +136,7 @@ describe("router startup", () => {
 
   test("exposes the typed router context to guards", async () => {
     const runtime = { preparations: 0 };
+
     const router = createRouter({
       beforeNavigate: (_navigation, context) => {
         context.preparations += 1;
@@ -150,13 +160,16 @@ describe("target resolution and typed navigation", () => {
       id: "canonical-detail",
       params: idParams,
     });
+
     const seen: string[] = [];
+
     const router = createRouter({
       beforeNavigate: [
         // oxlint-disable-next-line typescript/consistent-return -- only the matching target is rewritten
         (navigation) => {
           if (navigation.target?.routeId === "canonical-detail") {
             seen.push(String(navigation.target.params.id));
+
             return { target: { params: {}, routeId: "settings" } };
           }
         },
@@ -167,6 +180,7 @@ describe("target resolution and typed navigation", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, canonicalDetail, settingsRoute],
     });
+
     await router.start();
 
     expectStatus(await router.push(canonicalDetail, { id: " 42 " }), "committed");
@@ -176,6 +190,7 @@ describe("target resolution and typed navigation", () => {
 
   test("serialized invalid targets fail without rejecting or changing state", async () => {
     const errors: Error[] = [];
+
     const router = createRouter({
       initial: { routeId: "home" },
       onNavigationError: (error) => {
@@ -183,6 +198,7 @@ describe("target resolution and typed navigation", () => {
       },
       routes: [homeRoute],
     });
+
     await router.start();
     const before = router.stack;
     const result = await router.navigate({ routeId: "missing", type: "push" });
@@ -202,6 +218,7 @@ describe("target resolution and typed navigation", () => {
 
   test("pop resolves and canonicalizes the revealed entry; bottom pop is a no-op", async () => {
     const initialParams: RouteParams = { tab: "UPPER" };
+
     const canonicalHome = createRoute({
       canonicalize: (params) => ({
         // This test owns the string fixture in initialParams and checks its canonical result below.
@@ -211,7 +228,9 @@ describe("target resolution and typed navigation", () => {
       component: Screen,
       id: "canonical-home",
     });
+
     const targets: Readonly<{ routeId: string; params: RouteParams }>[] = [];
+
     const router = createRouter({
       beforeNavigate: (navigation) => {
         if (navigation.intent.type === "pop" && navigation.target !== null) {
@@ -221,6 +240,7 @@ describe("target resolution and typed navigation", () => {
       initial: { params: initialParams, routeId: "canonical-home" },
       routes: [canonicalHome, settingsRoute],
     });
+
     await router.start();
     await router.push(settingsRoute);
     expectStatus(await router.pop(), "committed");
@@ -234,11 +254,13 @@ describe("serialized switch-latest concurrency", () => {
     const releases: ReturnType<typeof deferred>[] = [];
     let running = 0;
     let maximum = 0;
+
     const router = createRouter({
       beforeNavigate: async (navigation) => {
         if (navigation.from.length === 0) {
           return;
         }
+
         running += 1;
         maximum = Math.max(maximum, running);
         const release = deferred();
@@ -249,6 +271,7 @@ describe("serialized switch-latest concurrency", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, settingsRoute],
     });
+
     await router.start();
 
     const first = router.push(settingsRoute);
@@ -266,6 +289,7 @@ describe("serialized switch-latest concurrency", () => {
 
   test("caller abort and stale completion cannot commit", async () => {
     const release = deferred();
+
     const router = createRouter({
       beforeNavigate: async (navigation) => {
         if (navigation.intent.type !== "reset") {
@@ -275,12 +299,15 @@ describe("serialized switch-latest concurrency", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, settingsRoute],
     });
+
     await router.start();
     const controller = new AbortController();
+
     const resultPromise = router.navigate(
       { routeId: "settings", type: "push" },
       { signal: controller.signal }
     );
+
     controller.abort();
     release.resolve();
     expect(expectStatus(await resultPromise, "cancelled").reason).toBe("aborted");
@@ -291,6 +318,7 @@ describe("serialized switch-latest concurrency", () => {
 describe("activation, cleanup, cache, and errors", () => {
   test("activates in guard order and cleans up exactly once in reverse order", async () => {
     const log: string[] = [];
+
     const makeGuard =
       (id: string): NavigationGuard<undefined> =>
       () => ({
@@ -301,6 +329,7 @@ describe("activation, cleanup, cache, and errors", () => {
           log.push(`commit:${id}`);
         },
       });
+
     const router = createRouter({
       beforeNavigate: [
         makeGuard("a"),
@@ -315,6 +344,7 @@ describe("activation, cleanup, cache, and errors", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, settingsRoute],
     });
+
     expectStatus(await router.start(), "committed");
     expect(log).toEqual(["commit:a", "commit:b"]);
     log.length = 0;
@@ -325,6 +355,7 @@ describe("activation, cleanup, cache, and errors", () => {
   test("beforeCommit failure preserves router state and cache", async () => {
     let fail = false;
     const errors: string[] = [];
+
     const router = createRouter({
       beforeNavigate: () => ({
         abort: () => {},
@@ -340,6 +371,7 @@ describe("activation, cleanup, cache, and errors", () => {
       },
       routes: [homeRoute, settingsRoute],
     });
+
     await router.start();
     const key = createStateKey("0:home", valueState);
     router.stateCache.save(key, { value: "kept" });
@@ -363,6 +395,7 @@ describe("activation, cleanup, cache, and errors", () => {
     let laterListenerCalls = 0;
     let subscriberErrors = 0;
     let fail = false;
+
     const router = createRouter({
       beforeNavigate: () => {
         if (fail) {
@@ -379,6 +412,7 @@ describe("activation, cleanup, cache, and errors", () => {
       },
       routes: [homeRoute, settingsRoute],
     });
+
     await router.start();
     router.subscribe(() => {
       throw new Error("listener failed");
@@ -403,6 +437,7 @@ describe("navigation observability", () => {
   test("sets pending before started and clears it before settled", async () => {
     const release = deferred();
     const events: { event: NavigationEvent["type"]; pending: number | null }[] = [];
+
     const router = createRouter({
       beforeNavigate: async (navigation) => {
         if (navigation.intent.type !== "reset") {
@@ -412,6 +447,7 @@ describe("navigation observability", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, settingsRoute],
     });
+
     await router.start();
     events.length = 0;
     router.subscribeNavigation((event) => {
@@ -430,6 +466,7 @@ describe("navigation observability", () => {
 
   test("snapshots cannot mutate committed state", async () => {
     let captured: ResolvedNavigation | undefined;
+
     const router = createRouter({
       beforeNavigate: (navigation) => {
         captured = navigation;
@@ -437,6 +474,7 @@ describe("navigation observability", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, settingsRoute],
     });
+
     await router.start();
     await router.push(settingsRoute);
     expect(() => {

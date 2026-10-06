@@ -27,6 +27,7 @@ const overrideRenderer: CodeBlockRenderer = ({ theme }): ReactNode => (
 
 const hScrollRenderer: CodeBlockRenderer = ({ text, theme, indent, hScroll }): ReactNode => {
   const { register, onMouseScroll: handleMouseScroll } = hScroll;
+
   return (
     <box style={{ marginBottom: 1, marginLeft: 1 + indent }}>
       <text
@@ -206,6 +207,7 @@ test("converts mermaid ANSI output into styled plain text", () => {
   });
 
   expect(result.ok).toBe(true);
+
   if (!result.ok) {
     return;
   }
@@ -247,9 +249,11 @@ test("renders mermaid fences as terminal diagrams", async () => {
   );
   await testSetup.renderOnce();
   const updatedFrame = testSetup.captureCharFrame();
+
   if (!updatedFrame.includes("Client") || !updatedFrame.includes("Server")) {
     throw new Error("Mermaid output did not update after the source changed");
   }
+
   if (updatedFrame.includes("Agent")) {
     throw new Error("Mermaid retained stale output after the source changed");
   }
@@ -261,6 +265,7 @@ test("renders mermaid fences as terminal diagrams", async () => {
   );
   await testSetup.renderOnce();
   const failedFrame = testSetup.captureCharFrame();
+
   if (!failedFrame.includes("not a diagram ???") || failedFrame.includes("Client")) {
     throw new Error("Mermaid failure did not replace completed output with the source fallback");
   }
@@ -296,6 +301,7 @@ test("renders markdown table", async () => {
 | --- | --- | --- |
 | Alice | 30 | London |
 | Bob | 25 | Paris |`;
+
   testSetup = await testRender(
     <ThemeSwitcherProvider>
       <MarkdownView content={md} />
@@ -383,6 +389,7 @@ describe("code block height", () => {
     const code = ["const a = 1", "const b = 2", "const c = 3", "const d = 4", "const e = 5"].join(
       "\n"
     );
+
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView content={`\`\`\`js\n${code}\n\`\`\``} />
@@ -405,6 +412,7 @@ describe("code block height", () => {
       "  return true",
       "}",
     ].join("\n");
+
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView content={`# Code\n\n\`\`\`js\n${code}\n\`\`\``} />
@@ -450,6 +458,7 @@ describe("content positioning after embedded blocks", () => {
 | Beta | 200 |
 
 This text follows the table.`;
+
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
@@ -500,6 +509,7 @@ describe("inline table rendering", () => {
 | Alice | 95 |
 | Bob | 87 |
 | Carol | 92 |`;
+
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
@@ -519,6 +529,7 @@ describe("inline table rendering", () => {
     const rows = Array.from({ length: 8 }, (_, i) => `| Item ${i + 1} | ${(i + 1) * 10} |`).join(
       "\n"
     );
+
     const md = `| Name | Value |\n| --- | --- |\n${rows}`;
     testSetup = await testRender(
       <ThemeSwitcherProvider>
@@ -543,6 +554,7 @@ describe("inline table rendering", () => {
 | Bob | 25 | Paris |
 
 Summary text.`;
+
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
@@ -575,6 +587,7 @@ Middle paragraph.
 | X | Y |
 
 Final paragraph.`;
+
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
@@ -609,6 +622,7 @@ Summary of results:
 | Rate | 99% |
 
 Done.`;
+
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView content={md} />
@@ -934,6 +948,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
     // The mermaid block (block index 0) registered its text renderable
     const diagram = registry.current.get(0);
     expect(diagram).toBeDefined();
+
     if (!diagram) {
       return;
     }
@@ -981,9 +996,11 @@ describe("wide mermaid diagram horizontal scrolling", () => {
     // Scrolling a fitting diagram is a no-op (scrollX clamps to 0)
     const diagram = registry.current.get(0);
     expect(diagram).toBeDefined();
+
     if (diagram) {
       diagram.scrollX += 1000;
     }
+
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toBe(frame);
   });
@@ -1005,6 +1022,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
     const paragraphs = Array.from({ length: 30 }, (_, i) => `Paragraph ${i + 1} text.`).join(
       "\n\n"
     );
+
     const md = `${wideMermaid}\n\n${paragraphs}`;
     testSetup = await testRender(
       <ThemeSwitcherProvider>
@@ -1020,10 +1038,12 @@ describe("wide mermaid diagram horizontal scrolling", () => {
 
     // Wheel down over the diagram body
     const { mockMouse } = testSetup;
+
     for (let i = 0; i < 10; i += 1) {
       // oxlint-disable-next-line no-await-in-loop -- preserve sequential input and render ordering
       await mockMouse.scroll(30, 3, "down");
     }
+
     await testSetup.renderOnce();
 
     const after = testSetup.captureCharFrame();
@@ -1048,10 +1068,12 @@ describe("wide mermaid diagram horizontal scrolling", () => {
 
     // Shift+wheel-down over the diagram body maps to pan-right
     const { mockMouse } = testSetup;
+
     for (let i = 0; i < 30; i += 1) {
       // oxlint-disable-next-line no-await-in-loop -- preserve sequential input and render ordering
       await mockMouse.scroll(30, 3, "down", { modifiers: { shift: true } });
     }
+
     await testSetup.renderOnce();
 
     const panned = testSetup.captureCharFrame();
@@ -1062,6 +1084,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
       // oxlint-disable-next-line no-await-in-loop -- preserve sequential input and render ordering
       await mockMouse.scroll(30, 3, "up", { modifiers: { shift: true } });
     }
+
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("Alpha station");
   });
@@ -1083,6 +1106,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
 
     const diagram = registry.current.get(0);
     expect(diagram).toBeDefined();
+
     if (!diagram) {
       return;
     }
@@ -1091,6 +1115,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
     // letter color. Both glyph classes are color-unambiguous in the diagram.
     const spanColors = (glyphMatch: RegExp): Set<string> => {
       const colors = new Set<string>();
+
       for (const line of testSetup.captureSpans().lines) {
         for (const span of line.spans) {
           if (glyphMatch.test(span.text)) {
@@ -1098,6 +1123,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
           }
         }
       }
+
       return colors;
     };
 
@@ -1110,6 +1136,7 @@ describe("wide mermaid diagram horizontal scrolling", () => {
     // At every pan offset the arrow and letter colors must stay unchanged.
     const { maxScrollX } = diagram;
     expect(maxScrollX).toBeGreaterThan(0);
+
     for (let offset = 1; offset <= maxScrollX; offset += 3) {
       diagram.scrollX = offset;
       // oxlint-disable-next-line no-await-in-loop -- preserve sequential render ordering
@@ -1129,6 +1156,7 @@ describe("wide code block horizontal scrolling", () => {
   // the 60-column test terminal. Distinct markers at both ends.
   const wideAsciiRow =
     "[Alpha station] ──► [Beta station] ──► [Gamma station] ──► [Delta station] ──► [Epsilon station] ──► [Zeta terminal]";
+
   const wideCode = ["```", "┌──────┐", wideAsciiRow, "└──────┘", "```"].join("\n");
 
   test("wide code block clips to the right instead of wrapping", async () => {
@@ -1165,6 +1193,7 @@ describe("wide code block horizontal scrolling", () => {
     // The code block (block index 0) registered its renderable
     const codeBlock = registry.current.get(0);
     expect(codeBlock).toBeDefined();
+
     if (!codeBlock) {
       return;
     }
@@ -1209,9 +1238,11 @@ describe("wide code block horizontal scrolling", () => {
     // Scrolling a fitting code block is a no-op (scrollX clamps to 0)
     const codeBlock = registry.current.get(0);
     expect(codeBlock).toBeDefined();
+
     if (codeBlock) {
       codeBlock.scrollX += 1000;
     }
+
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toBe(frame);
   });
@@ -1231,10 +1262,12 @@ describe("wide code block horizontal scrolling", () => {
 
     // Shift+wheel-down over the code block body maps to pan-right
     const { mockMouse } = testSetup;
+
     for (let i = 0; i < 40; i += 1) {
       // oxlint-disable-next-line no-await-in-loop -- preserve sequential input and render ordering
       await mockMouse.scroll(30, 3, "down", { modifiers: { shift: true } });
     }
+
     await testSetup.renderOnce();
 
     const panned = testSetup.captureCharFrame();
@@ -1245,6 +1278,7 @@ describe("wide code block horizontal scrolling", () => {
       // oxlint-disable-next-line no-await-in-loop -- preserve sequential input and render ordering
       await mockMouse.scroll(30, 3, "up", { modifiers: { shift: true } });
     }
+
     await testSetup.renderOnce();
     expect(testSetup.captureCharFrame()).toContain("Alpha station");
   });
@@ -1253,6 +1287,7 @@ describe("wide code block horizontal scrolling", () => {
     const paragraphs = Array.from({ length: 30 }, (_, i) => `Paragraph ${i + 1} text.`).join(
       "\n\n"
     );
+
     const md = `${wideCode}\n\n${paragraphs}`;
     testSetup = await testRender(
       <ThemeSwitcherProvider>
@@ -1268,10 +1303,12 @@ describe("wide code block horizontal scrolling", () => {
 
     // Wheel down over the code block body
     const { mockMouse } = testSetup;
+
     for (let i = 0; i < 10; i += 1) {
       // oxlint-disable-next-line no-await-in-loop -- preserve sequential input and render ordering
       await mockMouse.scroll(30, 3, "down");
     }
+
     await testSetup.renderOnce();
 
     const after = testSetup.captureCharFrame();
@@ -1297,6 +1334,7 @@ describe("wide code block horizontal scrolling", () => {
 
     const block = registry.current.get(0);
     expect(block).toBeDefined();
+
     if (!block) {
       return;
     }
@@ -1317,10 +1355,12 @@ describe("wide code block horizontal scrolling", () => {
 describe("scroll isolation", () => {
   test("code block content stays intact after scroll events", async () => {
     const code = ["line A", "line B", "line C"].join("\n");
+
     // Create content tall enough that the document can scroll
     const paragraphs = Array.from({ length: 20 }, (_, i) => `Paragraph ${i + 1} text.`).join(
       "\n\n"
     );
+
     const md = `# Doc\n\n\`\`\`\n${code}\n\`\`\`\n\n${paragraphs}`;
     testSetup = await testRender(
       <ThemeSwitcherProvider>
@@ -1338,13 +1378,16 @@ describe("scroll isolation", () => {
 
     // Send scroll events at the code block position (roughly row 4-5, col 40)
     const { mockMouse } = testSetup;
+
     for (let i = 0; i < 3; i += 1) {
       // oxlint-disable-next-line no-await-in-loop -- preserve sequential input and render ordering
       await mockMouse.scroll(40, 4, "down");
     }
+
     await testSetup.renderOnce();
 
     const frameAfter = testSetup.captureCharFrame();
+
     // After scrolling down, if the code block is still in view,
     // all its lines should still be visible and intact.
     // If it scrolled out of view, that's fine too - the document scrolled.
@@ -1429,10 +1472,13 @@ describe("custom code block renderers", () => {
 
   test("renderer receives the full info string", async () => {
     let seenInfo: string | undefined;
+
     const infoRenderer: CodeBlockRenderer = ({ info, theme }): ReactNode => {
       seenInfo = info;
+
       return <text content="custom" fg={theme.accent} />;
     };
+
     testSetup = await testRender(
       <ThemeSwitcherProvider>
         <MarkdownView
@@ -1512,10 +1558,13 @@ describe("custom code block renderers", () => {
 
   test("custom renderer inside a list item receives its indent", async () => {
     let seenIndent: number | undefined;
+
     const indentRenderer: CodeBlockRenderer = ({ indent, theme }): ReactNode => {
       seenIndent = indent;
+
       return <text content="indented custom block" fg={theme.accent} />;
     };
+
     const md = "- Step:\n\n  ```graphql\n  query { a }\n  ```";
     testSetup = await testRender(
       <ThemeSwitcherProvider>
@@ -1547,6 +1596,7 @@ describe("custom code block renderers", () => {
 
     const block = registry.current.get(0);
     expect(block).toBeDefined();
+
     if (!block) {
       return;
     }

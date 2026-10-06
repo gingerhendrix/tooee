@@ -31,11 +31,14 @@ export const useOverlayDialog = function useOverlayDialog<TResult>(): OverlayDia
   useEffect(() => {
     unmountedRef.current = false;
     const handles = openHandlesRef.current;
+
     return () => {
       unmountedRef.current = true;
+
       for (const handle of handles.values()) {
         handle.close("unmounted");
       }
+
       handles.clear();
     };
   }, []);
@@ -56,13 +59,17 @@ export const useOverlayDialog = function useOverlayDialog<TResult>(): OverlayDia
         if (settled) {
           return false;
         }
+
         settled = true;
         openHandlesRef.current.delete(id);
         resolve(result);
+
         return true;
       };
+
       const settle: OverlayDialogSettle<TResult> = (result) => {
         const activeHandle = openHandlesRef.current.get(id);
+
         if (finish(result)) {
           activeHandle?.close("close");
         }
@@ -76,7 +83,9 @@ export const useOverlayDialog = function useOverlayDialog<TResult>(): OverlayDia
         role: "modal",
         surfaceMode: "insert",
       });
+
       openHandlesRef.current.set(id, handle);
+
       return await promise;
     },
   };

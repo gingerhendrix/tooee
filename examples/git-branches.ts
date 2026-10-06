@@ -37,6 +37,7 @@ const branchProvider = {
       const isCurrent = branch === currentBranch;
       const isMain = branch === "main" || branch === "master";
       let icon = "\u{25CB}";
+
       if (isCurrent) {
         icon = "\u{2713}";
       } else if (isMain) {
@@ -61,10 +62,12 @@ const main = async function main() {
 
   if (result && result.items[0].value !== undefined && result.items[0].value !== "") {
     const branch = result.items[0].value;
+
     const proc = Bun.spawn(["git", "checkout", branch], {
       stderr: "inherit",
       stdout: "inherit",
     });
+
     await proc.exited;
   }
 };

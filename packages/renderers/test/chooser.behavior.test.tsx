@@ -9,6 +9,7 @@ import type { ReactNode } from "react";
 import { Chooser } from "../src/chooser/chooser.js";
 
 const ITEMS = [{ text: "alpha" }, { text: "beta" }, { text: "gamma" }];
+
 const noop = (): void => {};
 
 const Harness = function Harness({

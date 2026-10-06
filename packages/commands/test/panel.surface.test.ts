@@ -366,6 +366,7 @@ describe("panel surfaces — fall-through & shadowing", () => {
         modes: ["cursor", "select"],
       })
     );
+
     const panel: SurfaceRecord = {
       buildCtx: () => fakeCtx("insert"),
       depth: 1,
@@ -375,6 +376,7 @@ describe("panel surfaces — fall-through & shadowing", () => {
       order: 0,
       role: "panel",
     };
+
     cs.registryFor(panel).register(command("editor.cursor-only", "j", { modes: ["cursor"] }));
     cs.pushSurface(panel);
     cs.activatePanel("g", "editor");

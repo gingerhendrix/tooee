@@ -24,11 +24,14 @@ const ADAPTER = {
 };
 
 let handle: DocumentController<Row> | null = null;
+
 let presses: DocumentRowEvent<Row>[] = [];
+
 let menuEvents: DocumentContextMenuEvent<Row>[] = [];
 
 const menuFor = function menuFor(event: DocumentContextMenuEvent<Row>): ContextMenuEntry[] {
   menuEvents.push(event);
+
   return [{ id: `open-${event.row.id}`, title: `Open ${event.row.label}` }];
 };
 
@@ -47,6 +50,7 @@ const Harness = function Harness({
     },
     rows,
   });
+
   handle = document;
   // Gives the guard tests a real modal overlay to open with `t`.
   useThemeCommands();
@@ -90,6 +94,7 @@ const setup = async function setup(
     { height: options.height ?? 12, kittyKeyboard: true, width: 40 }
   );
   await session.renderOnce();
+
   return session;
 };
 
@@ -207,7 +212,9 @@ describe("variable-height rows", () => {
       },
       rows,
     });
+
     tallHandle = document;
+
     return (
       <AppLayout statusBar={{ items: [] }}>
         <Document
@@ -242,6 +249,7 @@ describe("variable-height rows", () => {
       { height, kittyKeyboard: true, width: 40 }
     );
     await session.renderOnce();
+
     return session;
   };
 
@@ -258,6 +266,7 @@ describe("variable-height rows", () => {
     for (const y of [1, 2, 3]) {
       expect(expectDefined(tallHandle).getRowAtScreenY(y)).toMatchObject({ index: 1, key: "b" });
     }
+
     expect(expectDefined(tallHandle).getRowAtScreenY(0)).toMatchObject({ index: 0, key: "a" });
     expect(expectDefined(tallHandle).getRowAtScreenY(4)).toMatchObject({ index: 2, key: "c" });
     expect(expectDefined(tallHandle).getRowAtScreenY(5)).toMatchObject({ index: 2, key: "c" });
@@ -287,6 +296,7 @@ describe("variable-height rows", () => {
       label: `row-${i}`,
       lines: 2,
     }));
+
     await setupTall(many);
     await press(session, "g", { shift: true });
 
@@ -317,7 +327,9 @@ describe("non-selectable rows", () => {
       },
       rows,
     });
+
     sectionHandle = document;
+
     return (
       <AppLayout statusBar={{ items: [] }}>
         <Document
@@ -408,12 +420,15 @@ describe("action-backed context menu", () => {
   const ActionsHarness = function ActionsHarness({ rows }: { rows: readonly Row[] }): ReactNode {
     const actions = makeActions();
     useActions(actions);
+
     const document = useDocumentController<Row>({
       adapter: ADAPTER,
       contextMenu: actions,
       rows,
     });
+
     handle = document;
+
     return (
       <AppLayout statusBar={{ items: [] }}>
         <Document
@@ -439,6 +454,7 @@ describe("action-backed context menu", () => {
       { height: 12, kittyKeyboard: true, width: 40 }
     );
     await session.renderOnce();
+
     return session;
   };
 
@@ -475,15 +491,19 @@ describe("action-backed context menu", () => {
     }): ReactNode {
       const actions = makeActions();
       useActions(actions);
+
       const document = useDocumentController<Row>({
         adapter: ADAPTER,
         contextMenu: (event) => {
           seenKey = event.key;
+
           return actions;
         },
         rows,
       });
+
       handle = document;
+
       return (
         <AppLayout statusBar={{ items: [] }}>
           <Document

@@ -56,6 +56,7 @@ const decodePR = function decodePR(value: JsonValue): PR | null {
   }
 
   const { author, createdAt, number, state, title } = value;
+
   if (
     !isJsonNumber(number) ||
     !isJsonString(title) ||
@@ -71,19 +72,24 @@ const decodePR = function decodePR(value: JsonValue): PR | null {
 
 const decodePullRequests = function decodePullRequests(text: string): PR[] {
   const parsed = parseJsonDocument(text === "" ? "[]" : text);
+
   if (!isJsonArray(parsed)) {
     // oxlint-disable-next-line unicorn/prefer-type-error -- preserve the example's existing invalid-payload Error contract
     throw new Error("GitHub returned invalid pull request data");
   }
 
   const pullRequests: PR[] = [];
+
   for (const value of parsed) {
     const pullRequest = decodePR(value);
+
     if (pullRequest === null) {
       throw new Error("GitHub returned invalid pull request data");
     }
+
     pullRequests.push(pullRequest);
   }
+
   return pullRequests;
 };
 

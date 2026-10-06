@@ -58,23 +58,30 @@ export const listDirectoryFiles = function listDirectoryFiles(dirPath: string): 
     if (entry.startsWith(".")) {
       continue;
     }
+
     const fullPath = path.join(dirPath, entry);
+
     try {
       const stat = statSync(fullPath);
+
       if (!stat.isFile()) {
         continue;
       }
     } catch {
       continue;
     }
+
     const ext = entry.split(".").pop()?.toLowerCase();
+
     if (ext === undefined || ext === "" || !SUPPORTED_EXTENSIONS.has(ext)) {
       continue;
     }
+
     files.push({ name: entry, path: fullPath });
   }
 
   files.sort((a, b) => a.name.localeCompare(b.name));
+
   return files;
 };
 

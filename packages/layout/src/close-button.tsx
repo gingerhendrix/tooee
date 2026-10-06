@@ -31,6 +31,7 @@ export const CloseButton = function CloseButton({
       if (event.button !== 0) {
         return;
       }
+
       event.preventDefault();
       event.stopPropagation();
       onClose();

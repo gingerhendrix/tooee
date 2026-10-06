@@ -38,9 +38,13 @@ export interface TableProps {
 }
 
 const PADDING = 1;
+
 const TABLE_MARGIN = 1;
+
 const DEFAULT_MIN_COL_WIDTH = 4;
+
 const DEFAULT_MAX_COL_WIDTH = 80;
+
 const DEFAULT_SAMPLE_SIZE = 100;
 
 const isNumeric = function isNumeric(value: string): boolean {
@@ -58,12 +62,15 @@ const sampleRows = function sampleRows(rows: string[][], sampleSize: number): st
   if (rows.length <= sampleSize) {
     return rows;
   }
+
   // Sample evenly distributed rows for representative widths
   const step = rows.length / sampleSize;
   const sampled: string[][] = [];
+
   for (let i = 0; i < sampleSize; i += 1) {
     sampled.push(rows[Math.floor(i * step)]);
   }
+
   return sampled;
 };
 
@@ -85,15 +92,18 @@ const computeColumnWidths = function computeColumnWidths(
     const headerLen = Bun.stringWidth(header);
     let maxRowLen = 0;
     const sampledRowCount = sampledRows.length;
+
     for (let rowIndex = 0; rowIndex < sampledRowCount; rowIndex += 1) {
       if (rowIndex in sampledRows) {
         const row = sampledRows[rowIndex];
         maxRowLen = Math.max(maxRowLen, Bun.stringWidth(row[col] ?? ""));
       }
     }
+
     const contentWidth = Math.max(headerLen, maxRowLen);
     // Apply min/max constraints before adding padding
     const constrainedWidth = Math.min(maxColumnWidth, Math.max(minColumnWidth, contentWidth));
+
     return constrainedWidth + PADDING * 2;
   });
 
@@ -106,8 +116,10 @@ const computeColumnWidths = function computeColumnWidths(
       const extra = maxWidth - totalNatural;
       const perCol = Math.floor(extra / colCount);
       const remainder = extra - perCol * colCount;
+
       return naturalWidths.map((w, i) => w + perCol + (i < remainder ? 1 : 0));
     }
+
     return naturalWidths;
   }
 
@@ -130,6 +142,7 @@ const computeColumnWidths = function computeColumnWidths(
   if (longTotal === 0 || remaining <= 0) {
     // All compact or no space left -- distribute evenly
     const total = naturalWidths.reduce((a, b) => a + b, 0);
+
     return naturalWidths.map((w) =>
       Math.max(minColWidthWithPadding, Math.floor((w / total) * available))
     );
@@ -139,6 +152,7 @@ const computeColumnWidths = function computeColumnWidths(
     if (compact[i]) {
       return w;
     }
+
     return Math.max(minColWidthWithPadding, Math.floor((w / longTotal) * remaining));
   });
 };
@@ -148,36 +162,46 @@ export const formatTableCell = function formatTableCell(value: TableRow[string])
   if (value === null || value === undefined) {
     return "";
   }
+
   if (value instanceof Date) {
     return value.toISOString();
   }
+
   const valueTag = Object.prototype.toString.call(value);
+
   switch (valueTag) {
     case "[object String]": {
       return String.prototype.toString.call(value);
     }
+
     case "[object Number]": {
       return Number.prototype.toString.call(value);
     }
+
     case "[object BigInt]": {
       return BigInt.prototype.toString.call(value);
     }
+
     case "[object Boolean]": {
       return Boolean.prototype.toString.call(value);
     }
+
     case "[object Symbol]": {
       return Symbol.prototype.toString.call(value);
     }
+
     case "[object Function]":
     case "[object AsyncFunction]":
     case "[object GeneratorFunction]":
     case "[object AsyncGeneratorFunction]": {
       return Function.prototype.toString.call(value);
     }
+
     default: {
       break;
     }
   }
+
   try {
     return JSON.stringify(value);
   } catch {
@@ -212,12 +236,14 @@ export const Table = function Table({
       }),
     [showLineNumbers, rows.length]
   );
+
   const effectiveMaxWidth = Math.max(
     0,
     (maxWidth ?? terminalWidth) - TABLE_MARGIN * 2 - gutterWidth
   );
 
   const headers = useMemo(() => columns.map((column) => column.header ?? column.key), [columns]);
+
   const normalizedRows = useMemo(
     () => rows.map((row) => columns.map((column) => formatTableCell(row[column.key]))),
     [columns, rows]
@@ -249,11 +275,14 @@ export const Table = function Table({
         if (column.align === "right") {
           return true;
         }
+
         if (column.align === "left") {
           return false;
         }
+
         const sampleValues = normalizedRows.slice(0, 10).map((row) => row[colIdx] ?? "");
         const numericCount = sampleValues.filter(isNumeric).length;
+
         return numericCount > sampleValues.length / 2;
       }),
     [columns, normalizedRows]
@@ -266,10 +295,12 @@ export const Table = function Table({
           {row.map((cell, j): ReactNode => {
             const contentWidth = colWidths[j] - PADDING * 2;
             const cellWidth = Bun.stringWidth(cell);
+
             const displayCell =
               alignments[j] && cellWidth <= contentWidth
                 ? " ".repeat(contentWidth - cellWidth) + cell
                 : cell;
+
             return (
               <text
                 key={j}
@@ -344,4 +375,5 @@ export const Table = function Table({
 
 // Exported for testing and MarkdownView
 export { computeColumnWidths, isNumeric, sampleRows };
+
 export type { ColumnWidthOptions };

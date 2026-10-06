@@ -28,7 +28,9 @@ const setup = async function setup(rowCount = 100) {
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 60 }
   );
+
   await session.renderOnce();
+
   return session;
 };
 

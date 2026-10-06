@@ -22,6 +22,7 @@ describe("listDirectoryFiles", () => {
 
   test("returns correct paths", () => {
     const files = listDirectoryFiles(TEST_DIR);
+
     for (const f of files) {
       expect(f.path).toBe(path.resolve(TEST_DIR, f.name));
     }
@@ -29,6 +30,7 @@ describe("listDirectoryFiles", () => {
 
   test("includes every stock table and diff extension in sorted order", () => {
     const dir = mkdtempSync(path.join(tmpdir(), "tooee-directory-"));
+
     try {
       for (const name of ["delta.patch", "beta.tsv", "alpha.csv", "charlie.diff"]) {
         writeFileSync(path.join(dir, name), "fixture");
@@ -61,12 +63,14 @@ const setup = async function setup() {
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 80 }
   );
+
   await s.renderOnce();
   // Allow async content load
   await act(async () => {
     await Bun.sleep(100);
   });
   await s.renderOnce();
+
   return s;
 };
 

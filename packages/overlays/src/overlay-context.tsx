@@ -127,6 +127,7 @@ const defaultState: OverlayState = {
 };
 
 export const OverlayControllerContext = createContext<OverlayController>(defaultController);
+
 export const OverlayStateContext = createContext<OverlayState>(defaultState);
 
 // Hooks

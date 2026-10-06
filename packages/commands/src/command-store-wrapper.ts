@@ -48,6 +48,7 @@ export const createCommandStore = function createCommandStore(
     order: 0,
     role: "root",
   };
+
   const store = createBaseStore({
     activePanels: new Map(),
     commandsBySurface: new Map(),
@@ -56,17 +57,20 @@ export const createCommandStore = function createCommandStore(
     sequence: null,
     surfaces: [rootRecord],
   });
+
   let config: CommandStoreConfig = {
     keymap: options.keymap,
     leader: options.leader,
     sequenceTimeoutMs: options.sequenceTimeoutMs,
   };
+
   const dispatcher = createKeyDispatcher({ getConfig: () => config, rootRecord, store });
   const registries = new Map<SurfaceRecord, CommandRegistry>();
   let orderCounter = 1;
 
   const clearIfOwnerChanged = (before: SurfaceRecord | null): void => {
     const after = selectKeyboardOwnerSurface(store.getSnapshot().context);
+
     if (before !== after) {
       dispatcher.dispose();
     }
@@ -78,6 +82,7 @@ export const createCommandStore = function createCommandStore(
     const before = selectKeyboardOwnerSurface(store.getSnapshot().context);
     store.trigger.surfacePushed({ surface });
     clearIfOwnerChanged(before);
+
     return () => {
       const beforePop = selectKeyboardOwnerSurface(store.getSnapshot().context);
       store.trigger.surfacePopped({ surface });
@@ -90,11 +95,13 @@ export const createCommandStore = function createCommandStore(
     store.trigger.panelActivated({ groupId, panelId });
     clearIfOwnerChanged(before);
   };
+
   const removePanelGroup = (groupId: string): void => {
     const before = selectKeyboardOwnerSurface(store.getSnapshot().context);
     store.trigger.panelGroupRemoved({ groupId });
     clearIfOwnerChanged(before);
   };
+
   const modeChanged = (surfaceId: string): void => {
     dispatcher.dispose();
     store.trigger.modeChanged({ surfaceId });
@@ -102,6 +109,7 @@ export const createCommandStore = function createCommandStore(
 
   const registryFor = (record: SurfaceRecord): CommandRegistry => {
     let registry = registries.get(record);
+
     if (!registry) {
       registry = {
         get commands() {
@@ -109,12 +117,16 @@ export const createCommandStore = function createCommandStore(
         },
         invoke(id: string) {
           const command = store.getSnapshot().context.commandsBySurface.get(record.id)?.get(id);
+
           if (!command) {
             return;
           }
+
           const commandContext = record.buildCtx();
+
           if (!command.when || command.when(commandContext)) {
             const result = command.handler(commandContext);
+
             if (result) {
               void reportCommandFailure(result);
             }
@@ -122,6 +134,7 @@ export const createCommandStore = function createCommandStore(
         },
         register(command: Command) {
           store.trigger.commandRegistered({ command, surfaceId: record.id });
+
           return () => {
             store.trigger.commandUnregistered({ command, surfaceId: record.id });
           };
@@ -129,6 +142,7 @@ export const createCommandStore = function createCommandStore(
       };
       registries.set(record, registry);
     }
+
     return registry;
   };
 

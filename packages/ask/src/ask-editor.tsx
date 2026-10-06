@@ -27,6 +27,7 @@ export const AskEditor = function AskEditor({ editor }: AskEditorProps): ReactNo
     editor.mode === "cursor"
       ? { blinking: false, style: "block" }
       : { blinking: true, style: "line" };
+
   const cursorColor = editor.mode === "cursor" ? theme.accent : theme.primary;
 
   if (editor.multiline) {

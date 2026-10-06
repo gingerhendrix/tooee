@@ -37,6 +37,7 @@ export interface CommandContext {
 export type CommandContextBase = Pick<CommandContext, "mode" | "setMode" | "commands" | "exit">;
 
 export type CommandHandler = (ctx: CommandContext) => void | Promise<void>;
+
 export type CommandWhen = (ctx: CommandContext) => boolean;
 
 export interface Command {

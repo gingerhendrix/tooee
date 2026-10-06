@@ -10,9 +10,11 @@ import {
 
 const buildSet = function buildSet(namespace: string, priority: number, lines: number[]): MarkSet {
   const builder = new MarkSetBuilder();
+
   for (const line of lines) {
     builder.addLine(line, { background: `${namespace}-bg` });
   }
+
   return builder.build(namespace, priority);
 };
 
@@ -92,6 +94,7 @@ describe("effectiveStyleAtLine", () => {
         style: { background: "override-bg" },
       },
     ]);
+
     const highSet = buildSet("high", 300, [5]);
     const state = createMarkState([lowSet, highSet]);
 
@@ -115,6 +118,7 @@ describe("updateMarkState", () => {
       buildSet("search", 100, [1, 2, 3]),
       buildSet("cursor", 500, [1]),
     ]);
+
     const updated = updateMarkState(state, "search", buildSet("search", 100, [5, 6]));
 
     expect(updated.sets).toHaveLength(2);
@@ -178,9 +182,11 @@ describe("getSet", () => {
 
     const set = state.getSet("search");
     expect(set).toBeDefined();
+
     if (set === undefined) {
       throw new Error("Expected search mark set to exist");
     }
+
     expect(set.namespace).toBe("search");
   });
 

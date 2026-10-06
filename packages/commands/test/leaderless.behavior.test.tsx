@@ -16,6 +16,7 @@ const NoLeaderHarness = function NoLeaderHarness(): ReactNode {
     id: "leader.cmd",
     title: "Leader command",
   });
+
   return <text content={`count:${count}`} />;
 };
 
@@ -29,6 +30,7 @@ const ConfiguredLeaderHarness = function ConfiguredLeaderHarness(): ReactNode {
     id: "leader.cmd",
     title: "Leader command",
   });
+
   return <text content={`count:${count}`} />;
 };
 

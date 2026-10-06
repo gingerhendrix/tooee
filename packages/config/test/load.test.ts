@@ -6,8 +6,11 @@ import path from "node:path";
 import { loadConfig } from "../src/load.js";
 
 const originalCwd = process.cwd();
+
 const originalXdgConfigHome = process.env.XDG_CONFIG_HOME;
+
 let tempRoot = "";
+
 let globalConfigHome = "";
 
 beforeEach(() => {
@@ -18,11 +21,13 @@ beforeEach(() => {
 
 afterEach(() => {
   process.chdir(originalCwd);
+
   if (originalXdgConfigHome === undefined) {
     delete process.env.XDG_CONFIG_HOME;
   } else {
     process.env.XDG_CONFIG_HOME = originalXdgConfigHome;
   }
+
   rmSync(tempRoot, { force: true, recursive: true });
 });
 

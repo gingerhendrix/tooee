@@ -34,5 +34,6 @@ export const launch = async function launch(
       stdoutPolicy: "tty-if-redirected",
     }
   );
+
   return result;
 };

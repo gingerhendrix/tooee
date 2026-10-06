@@ -15,14 +15,17 @@ import {
 type TestSession = Awaited<ReturnType<typeof testRender>>;
 
 let invokeEffective: ((id: string) => void) | null = null;
+
 let fired: string[] = [];
 
 const Probe = function Probe(): ReactNode {
   const { commands, invoke } = useEffectiveCommands();
   invokeEffective = invoke;
+
   const summary = commands
     .map((command) => `${command.id}:${command.defaultHotkey ?? "-"}`)
     .join(",");
+
   return <text content={`eff=${summary}`} />;
 };
 
@@ -37,6 +40,7 @@ const Activate = function Activate({
   useEffect(() => {
     store.activatePanel(groupId, panelId);
   }, [store, groupId, panelId]);
+
   return null;
 };
 
@@ -59,6 +63,7 @@ const RootCommands = function RootCommands(): ReactNode {
     modes: ["cursor"],
     title: "Root Jump",
   });
+
   return null;
 };
 
@@ -82,6 +87,7 @@ const PanelACommands = function PanelACommands(): ReactNode {
     modes: ["cursor"],
     title: "Panel A Only",
   });
+
   return null;
 };
 
@@ -95,6 +101,7 @@ const PanelBCommands = function PanelBCommands(): ReactNode {
     modes: ["cursor"],
     title: "Panel B Only",
   });
+
   return null;
 };
 

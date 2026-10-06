@@ -14,6 +14,7 @@ const deepFreezeMark = function deepFreezeMark(mark: Mark): Mark {
   Object.freeze(mark.range);
   Object.freeze(mark.style);
   Object.freeze(mark);
+
   return mark;
 };
 
@@ -27,15 +28,19 @@ export class MarkSet {
   constructor(namespace: string, priority: number, marks: Mark[]) {
     this.namespace = namespace;
     this.priority = priority;
+
     const sorted = [...marks]
       .toSorted((a, b) => a.range.from.line - b.range.from.line)
       .map(deepFreezeMark);
+
     this.#marks = sorted;
     const maxEnd: number[] = [];
+
     for (let i = 0; i < sorted.length; i += 1) {
       const end = sorted[i].range.to.line;
       maxEnd[i] = i === 0 ? end : Math.max(maxEnd[i - 1], end);
     }
+
     this.#maxEnd = maxEnd;
   }
 
@@ -48,70 +53,86 @@ export class MarkSet {
     // Binary search for the first mark whose from.line >= line
     let lo = 0;
     let hi = this.#marks.length;
+
     while (lo < hi) {
       // `no-bitwise` is a typo-avoidance rule (`&` vs `&&`). An unsigned shift is the
       // canonical overflow-safe binary-search midpoint and is intentional here.
       // oxlint-disable-next-line no-bitwise -- deliberate binary-search midpoint
       const mid = (lo + hi) >>> 1;
+
       if (this.#marks[mid].range.from.line < line) {
         lo = mid + 1;
       } else {
         hi = mid;
       }
     }
+
     for (let i = lo - 1; i >= 0; i -= 1) {
       // If the max end line among marks[0..i] is before the target,
       // no mark at or before index i can reach the target line.
       if (this.#maxEnd[i] < line) {
         break;
       }
+
       const mark = this.#marks[i];
+
       if (mark.range.to.line >= line) {
         results.push(mark);
       }
     }
+
     // Marks starting at this line
     for (let i = lo; i < this.#marks.length; i += 1) {
       const mark = this.#marks[i];
+
       if (mark.range.from.line > line) {
         break;
       }
+
       // from.line === line
       results.push(mark);
     }
+
     return results;
   }
 
   marksInRange(from: number, to: number): Mark[] {
     const results: Mark[] = [];
+
     for (const mark of this.#marks) {
       // A mark overlaps [from, to] if mark.from.line <= to && mark.to.line >= from
       if (mark.range.from.line > to) {
         break;
       }
+
       if (mark.range.to.line >= from) {
         results.push(mark);
       }
     }
+
     return results;
   }
 
   *forVisibleRows(from: number, to: number): Generator<RowDecoration> {
     const marks = this.marksInRange(from, to);
+
     for (const mark of marks) {
       const startLine = Math.max(from, mark.range.from.line);
       const endLine = Math.min(to, mark.range.to.line);
+
       for (let line = startLine; line <= endLine; line += 1) {
         const decoration: RowDecoration = { row: line };
 
         if ((mark.style.background?.length ?? 0) > 0) {
           decoration.background = mark.style.background;
         }
+
         if ((mark.style.gutterBackground?.length ?? 0) > 0) {
           decoration.gutterBackground = mark.style.gutterBackground;
         }
 
         const signText = (mark.style.signBefore ?? "") + (mark.style.signAfter ?? "");
+
         if (signText) {
           decoration.sign = { fg: mark.style.foreground, text: signText };
         }

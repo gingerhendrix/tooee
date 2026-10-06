@@ -45,11 +45,13 @@ export const measureFirstFrame = async function measureFirstFrame(
 ): Promise<string> {
   let setup: TestRendererSetup | undefined;
   const start = performance.now();
+
   try {
     setup = await testRender(node, { ...viewport, kittyKeyboard: true });
     await renderPass(setup);
     const duration = performance.now() - start;
     printTimedMetric(`${metricPrefix}_first_frame_ms`, duration);
+
     return setup.captureCharFrame();
   } finally {
     if (setup) {
@@ -64,6 +66,7 @@ export const mountForInteraction = async function mountForInteraction(
 ): Promise<TestRendererSetup> {
   const setup = await testRender(node, { ...viewport, kittyKeyboard: true });
   await renderPass(setup, 3);
+
   return setup;
 };
 
@@ -100,9 +103,11 @@ export const printLatencySummary = function printLatencySummary(
 
 export const printMemoryMetrics = function printMemoryMetrics(metricPrefix: string): void {
   const collectGarbage = Bun.gc;
+
   if (collectGarbage !== undefined) {
     collectGarbage(true);
   }
+
   const usage = process.memoryUsage();
   console.log(`METRIC ${metricPrefix}_rss_bytes=${usage.rss}`);
   console.log(`METRIC ${metricPrefix}_heap_used_bytes=${usage.heapUsed}`);

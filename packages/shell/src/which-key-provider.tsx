@@ -23,11 +23,13 @@ const fallbackCandidateLabel = function fallbackCandidateLabel(
   if (candidate.command.group !== undefined && candidate.command.group !== "") {
     return candidate.command.group;
   }
+
   if (candidate.command.category !== undefined && candidate.command.category !== "") {
     return candidate.command.category;
   }
 
   const [, step] = candidate.remainingSteps;
+
   return step === undefined
     ? candidate.command.title
     : `${formatStepKey(step)}… ${candidate.command.title}`;
@@ -37,13 +39,16 @@ const summarizeCandidates = function summarizeCandidates(
   state: CommandSequenceState
 ): { key: string; title: string }[] {
   const byKey = new Map<string, string[]>();
+
   for (const candidate of state.candidates) {
     const key = formatStepKey(candidate.nextStep);
     const label = candidate.group?.title ?? fallbackCandidateLabel(candidate);
     const values = byKey.get(key) ?? [];
+
     if (!values.includes(label)) {
       values.push(label);
     }
+
     byKey.set(key, values);
   }
 
@@ -98,6 +103,7 @@ export const WhichKeyProvider = function WhichKeyProvider({
   const handleRef = useRef<OverlayHandle<CommandSequenceState> | null>(null);
 
   const effectiveLeaderOnly = leaderOnly ?? leaderKey !== undefined;
+
   const shouldShow =
     sequence !== null &&
     sequence.candidates.length > 0 &&
@@ -110,11 +116,13 @@ export const WhichKeyProvider = function WhichKeyProvider({
   useLayoutEffect(() => {
     if (!shouldShow) {
       handleRef.current?.close();
+
       return;
     }
 
     if (handleRef.current !== null) {
       handleRef.current.update(overlayValue(sequence));
+
       return;
     }
 

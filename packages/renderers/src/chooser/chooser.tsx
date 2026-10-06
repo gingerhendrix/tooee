@@ -34,6 +34,7 @@ export const Chooser = function Chooser({
   emptyContent,
 }: ChooserProps): ReactNode {
   const { theme } = useTheme();
+
   const choose = useChoose({
     commandScope,
     escapeToCursor: false,
@@ -42,6 +43,7 @@ export const Chooser = function Chooser({
     onCancel,
     onSubmit: async ({ items: selectedItems }) => {
       const [item] = selectedItems;
+
       if (item !== undefined) {
         await onSelect(item);
       }

@@ -18,6 +18,7 @@ import {
 } from "./lib/render.tsx";
 
 const tier = FIXTURE_TIERS.moderate;
+
 const interactionPresses = Number(process.env.TOOEE_BENCH_INTERACTIONS ?? 30);
 
 if (!Number.isFinite(interactionPresses) || interactionPresses < 1) {
@@ -36,6 +37,7 @@ const benchmarkViewContent = async function benchmarkViewContent(
 
   try {
     const frame = setup.captureCharFrame();
+
     if (!frame.includes("Mode:") || !frame.includes("Cursor:")) {
       throw new Error(`${name} benchmark did not render the Tooee view chrome before interaction`);
     }
@@ -46,6 +48,7 @@ const benchmarkViewContent = async function benchmarkViewContent(
     const halfPageLatencies = await measureKeyPressLatencies(setup, "d", interactionPresses, {
       ctrl: true,
     });
+
     printLatencySummary(`${name}_ctrl_d_key`, halfPageLatencies);
     printMemoryMetrics(`${name}_after_navigation`);
   } finally {
@@ -54,7 +57,9 @@ const benchmarkViewContent = async function benchmarkViewContent(
 };
 
 const markdown = makeMarkdownFixture(tier);
+
 const code = makeCodeFixture(tier);
+
 const table = makeTableFixture(tier);
 
 await benchmarkViewContent("markdown_moderate", {

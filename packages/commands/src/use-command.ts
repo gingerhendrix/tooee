@@ -58,13 +58,16 @@ export const useCommand = function useCommand(options: UseCommandOptions): void 
       when: optionsRef.current.when
         ? (ctx) => {
             const { when } = optionsRef.current;
+
             if (!when) {
               return false;
             }
+
             return when(ctx);
           }
         : undefined,
     };
+
     return registry.register(command);
   }, [
     options.id,

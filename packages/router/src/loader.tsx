@@ -25,6 +25,7 @@ export const RouteDataProvider = function RouteDataProvider({
   children: ReactNode;
 }): ReactNode {
   const value = useMemo<RouteDataValue>(() => ({ data, routeId }), [data, routeId]);
+
   return <RouteDataContext value={value}>{children}</RouteDataContext>;
 };
 
@@ -45,14 +46,18 @@ export const useRouteDataContext = function useRouteDataContext<TData>(
   route: RouteDataSource<TData>
 ): TData | undefined {
   const value = useContext(RouteDataContext);
+
   if (value === undefined || value.routeId !== route.id) {
     return undefined;
   }
+
   const { data } = route;
+
   if (data === undefined) {
     throw new Error(
       `Route "${route.id}" has no \`data\` codec, so its loader data cannot be typed. Add \`data\` to the route to use useRouteData().`
     );
   }
+
   return data.parse(value.data);
 };

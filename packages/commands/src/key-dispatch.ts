@@ -65,23 +65,30 @@ const collectCandidates = function collectCandidates(
 
   for (const command of commands?.values() ?? []) {
     const commandModes = command.modes ?? DEFAULT_MODES;
+
     if (!commandModes.includes(currentMode) || (command.when && !command.when(cmdCtx))) {
       continue;
     }
+
     const hotkey = config.keymap?.[command.id] ?? command.defaultHotkey;
+
     if (hotkey === undefined || hotkey === "") {
       continue;
     }
+
     const parsed = getParsedHotkey(hotkey);
+
     if (parsed.steps.length === 0) {
       continue;
     }
+
     if (parsed.steps.length === 1) {
       singleStep.push({ command, parsed });
     } else {
       multiStep.push({ command, hotkey, parsed });
     }
   }
+
   return { multiStep, singleStep };
 };
 
@@ -96,6 +103,7 @@ const runSurface = function runSurface(
   clearBufferAndTimer: () => void
 ): SurfaceDispatch {
   const cmdCtx = record.buildCtx();
+
   const candidates = collectCandidates(
     ctx.commandsBySurface.get(record.id),
     record.getMode(),
@@ -110,10 +118,12 @@ const runSurface = function runSurface(
     armTimer();
 
     const matchedIndex = hotkeys.findIndex((hotkey) => matchesBuffer(state.buffer, hotkey));
+
     if (matchedIndex !== -1) {
       clearBufferAndTimer();
       environment.store.trigger.sequenceReset();
       const matched = candidates.multiStep[matchedIndex].command;
+
       return {
         invoke: (): void => {
           void matched.handler(cmdCtx);
@@ -124,8 +134,10 @@ const runSurface = function runSurface(
 
     state.buffer = pruneBuffer(state.buffer, hotkeys);
     const pending = findPendingMatch(state.buffer, hotkeys);
+
     if (pending) {
       const firstCandidate = candidates.multiStep[pending.indexes[0]];
+
       const sequence: CommandSequenceState = {
         candidates: pending.indexes
           .map((index) => candidates.multiStep[index])
@@ -140,7 +152,9 @@ const runSurface = function runSurface(
           })),
         prefix: firstCandidate.parsed.steps.slice(0, pending.prefixLength),
       };
+
       environment.store.trigger.sequencePending({ state: sequence });
+
       return { outcome: "pending" };
     }
 
@@ -151,6 +165,7 @@ const runSurface = function runSurface(
   for (const { command, parsed } of candidates.singleStep) {
     if (matchStep(event, parsed.steps[0])) {
       environment.store.trigger.sequenceReset();
+
       return {
         invoke: (): void => {
           void command.handler(cmdCtx);
@@ -162,6 +177,7 @@ const runSurface = function runSurface(
 
   clearBufferAndTimer();
   environment.store.trigger.sequenceReset();
+
   return { outcome: "miss" };
 };
 
@@ -172,9 +188,12 @@ const finishDispatch = function finishDispatch(
 ): KeyDispatchResult {
   if (dispatch.outcome === "pending") {
     state.sequenceOwnerId = ownerId;
+
     return { handled: true };
   }
+
   state.sequenceOwnerId = null;
+
   return dispatch.outcome === "invoke"
     ? { handled: true, invoke: dispatch.invoke }
     : { handled: false };
@@ -198,15 +217,18 @@ export const createKeyDispatcher = function createKeyDispatcher(
       state.timer = null;
     }
   };
+
   const clearBufferAndTimer = (): void => {
     state.buffer = [];
     state.sequenceOwnerId = null;
     clearTimer();
   };
+
   const reset = (): void => {
     clearBufferAndTimer();
     environment.store.trigger.sequenceReset();
   };
+
   const armTimer = (): void => {
     clearTimer();
     state.timer = setTimeout(
@@ -214,16 +236,20 @@ export const createKeyDispatcher = function createKeyDispatcher(
       environment.getConfig().sequenceTimeoutMs ?? DEFAULT_SEQUENCE_TIMEOUT_MS
     );
   };
+
   const getParsedHotkey = (hotkey: string): ParsedHotkey => {
     const { leader } = environment.getConfig();
     const cacheKey = `${hotkey}:${leader ?? ""}`;
     let parsed = parseCache.get(cacheKey);
+
     if (!parsed) {
       parsed = parseHotkey(hotkey, leader);
       parseCache.set(cacheKey, parsed);
     }
+
     return parsed;
   };
+
   const dispatchTo = (
     record: SurfaceRecord,
     event: KeyEvent,
@@ -239,33 +265,42 @@ export const createKeyDispatcher = function createKeyDispatcher(
       armTimer,
       clearBufferAndTimer
     );
+
   const finish = (dispatch: SurfaceDispatch, ownerId: string): KeyDispatchResult =>
     finishDispatch(dispatch, ownerId, state);
 
   const key = (event: KeyEvent): KeyDispatchResult => {
     const ctx = environment.store.getSnapshot().context;
+
     if (state.buffer.length > 0 && state.sequenceOwnerId !== null) {
       const owner =
         state.sequenceOwnerId === ROOT_SURFACE_ID
           ? environment.rootRecord
           : (ctx.surfaces.find((record) => record.id === state.sequenceOwnerId) ?? null);
+
       if (owner) {
         return finish(dispatchTo(owner, event, ctx), state.sequenceOwnerId);
       }
+
       clearBufferAndTimer();
     }
 
     const modal = selectActiveModalSurface(ctx);
+
     if (modal) {
       return finish(dispatchTo(modal, event, ctx), modal.id);
     }
+
     const panel = selectActivePanelSurface(ctx);
+
     if (panel) {
       const dispatch = dispatchTo(panel, event, ctx);
+
       if (dispatch.outcome !== "miss" || panel.getMode() === "insert") {
         return finish(dispatch, panel.id);
       }
     }
+
     return finish(dispatchTo(environment.rootRecord, event, ctx), ROOT_SURFACE_ID);
   };
 

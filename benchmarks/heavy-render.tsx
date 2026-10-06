@@ -13,13 +13,19 @@ import {
 import { DEFAULT_VIEWPORT, measureFirstFrame, printMemoryMetrics } from "./lib/render.tsx";
 
 const tier = FIXTURE_TIERS.large;
+
 const markdown = makeMarkdownFixture(tier);
+
 const code = makeCodeFixture(tier);
+
 const table = makeTableFixture(tier);
 
 printMetric("markdown_line_count", countLines(markdown.markdown));
+
 printMetric("code_line_count", countLines(code.code));
+
 printMetric("table_row_count", table.rows.length);
+
 printMetric("table_column_count", table.columns.length);
 
 await measureFirstFrame(
@@ -28,6 +34,7 @@ await measureFirstFrame(
     <MarkdownView content={markdown.markdown} />
   </TooeeProvider>
 );
+
 printMemoryMetrics("markdown_large_after_first_frame");
 
 await measureFirstFrame(
@@ -36,6 +43,7 @@ await measureFirstFrame(
     <CodeView content={code.code} language={code.language} />
   </TooeeProvider>
 );
+
 printMemoryMetrics("code_large_after_first_frame");
 
 await measureFirstFrame(
@@ -44,4 +52,5 @@ await measureFirstFrame(
     <Table columns={table.columns} rows={table.rows} maxWidth={DEFAULT_VIEWPORT.width} />
   </TooeeProvider>
 );
+
 printMemoryMetrics("table_large_after_first_frame");

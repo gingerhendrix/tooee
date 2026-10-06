@@ -33,6 +33,7 @@ export const HeadingRenderer = function HeadingRenderer({
     [5, theme.textMuted],
     [6, theme.textMuted],
   ]);
+
   const prefixes = new Map<number, string>([
     [1, "# "],
     [2, "## "],

@@ -8,6 +8,7 @@ interface TitleBarProps {
 
 export const TitleBar = function TitleBar({ title, subtitle }: TitleBarProps): ReactNode {
   const { theme } = useTheme();
+
   return (
     <box
       style={{

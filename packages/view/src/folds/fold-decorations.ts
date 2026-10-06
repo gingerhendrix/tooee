@@ -11,15 +11,19 @@ export const projectDecorationLayers = function projectDecorationLayers(
   view: FoldView
 ): DecorationLayer[] {
   const { visibleToSource, sourceToVisible } = view;
+
   return layers.map((layer): DecorationLayer => ({
     *forVisibleRows(from: number, to: number): Generator<RowDecoration> {
       const sourceFrom = visibleToSource[from];
       const sourceTo = visibleToSource[Math.min(to, visibleToSource.length - 1)];
+
       if (sourceFrom === undefined || sourceTo === undefined) {
         return;
       }
+
       for (const decoration of layer.forVisibleRows(sourceFrom, sourceTo)) {
         const row = sourceToVisible[decoration.row] ?? -1;
+
         if (row !== -1) {
           yield { ...decoration, row };
         }

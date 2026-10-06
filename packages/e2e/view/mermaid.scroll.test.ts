@@ -39,6 +39,7 @@ describe("wide mermaid diagram horizontal scrolling e2e", () => {
       // oxlint-disable-next-line no-await-in-loop -- Preserve sequential terminal input.
       await session.press("l");
     }
+
     await session.waitForText("Zeta terminal", { timeout: 8000 });
     const scrolled = await session.text();
     expect(scrolled).toContain("Zeta terminal");
@@ -50,6 +51,7 @@ describe("wide mermaid diagram horizontal scrolling e2e", () => {
       // oxlint-disable-next-line no-await-in-loop -- Preserve sequential terminal input.
       await session.press("h");
     }
+
     await session.waitForText("Alpha station", { timeout: 8000 });
     const restored = await session.text();
     expect(restored).toContain("Alpha station");

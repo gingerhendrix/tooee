@@ -64,6 +64,7 @@ const parseArgs = function parseArgs(args: string[]): CompareOptions {
   }
 
   const [baselinePath, candidatePath] = positional;
+
   if (baselinePath === undefined || candidatePath === undefined) {
     throw new Error("Expected exactly two JSON result paths");
   }
@@ -81,9 +82,11 @@ const readRun = function readRun(path: string): BenchmarkRunResult {
   // the checks below reject a different version or missing results envelope before comparison.
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the runner-owned format and envelope checks establish the version-1 result contract
   const parsed = JSON.parse(readFileSync(path, "utf-8")) as BenchmarkRunResult;
+
   if (parsed.version !== 1 || !Array.isArray(parsed.results)) {
     throw new Error(`${path} is not a supported Tooee benchmark result file`);
   }
+
   return parsed;
 };
 
@@ -91,10 +94,12 @@ const formatBytes = function formatBytes(value: number): string {
   const units = ["B", "KiB", "MiB", "GiB"];
   let next = value;
   let unit = 0;
+
   while (Math.abs(next) >= 1024 && unit < units.length - 1) {
     next /= 1024;
     unit += 1;
   }
+
   return `${next >= 100 ? next.toFixed(1) : next.toFixed(2)} ${units[unit]}`;
 };
 
@@ -102,20 +107,25 @@ const formatValue = function formatValue(value: number, unit: BenchmarkUnit): st
   if (unit === "bytes") {
     return formatBytes(value);
   }
+
   if (unit === "ms") {
     return `${value >= 100 ? value.toFixed(1) : value.toFixed(2)}ms`;
   }
+
   if (unit === "ratio") {
     return value.toFixed(3);
   }
+
   if (unit === "boolean") {
     return value === 0 ? "false" : "true";
   }
+
   return Number.isInteger(value) ? value.toLocaleString() : value.toFixed(2);
 };
 
 const formatDelta = function formatDelta(value: number, unit: BenchmarkUnit): string {
   const sign = value > 0 ? "+" : "";
+
   return `${sign}${formatValue(value, unit)}`;
 };
 
@@ -133,17 +143,21 @@ const compareRuns = function compareRuns(
     }
 
     const candidateMetric = candidateByName.get(baselineMetric.name);
+
     if (!candidateMetric) {
       continue;
     }
 
     const delta = candidateMetric.median - baselineMetric.median;
     let ratio = candidateMetric.median / baselineMetric.median;
+
     if (baselineMetric.median === 0) {
       ratio = candidateMetric.median === 0 ? 1 : Infinity;
     }
+
     const percent = baselineMetric.median === 0 ? 0 : (ratio - 1) * 100;
     const { threshold } = baselineMetric;
+
     const thresholdExceeded = Boolean(
       baselineMetric.comparable &&
       threshold &&
@@ -167,6 +181,7 @@ const compareRuns = function compareRuns(
     if (left.thresholdExceeded !== right.thresholdExceeded) {
       return left.thresholdExceeded ? -1 : 1;
     }
+
     return right.percent - left.percent;
   });
 };
@@ -186,13 +201,16 @@ const printRunHeader = function printRunHeader(
 const printComparisons = function printComparisons(comparisons: MetricComparison[]): void {
   console.log("\n| Metric | Baseline | Candidate | Delta | Change | Status |");
   console.log("|---|---:|---:|---:|---:|---|");
+
   for (const comparison of comparisons) {
     let status = "ok";
+
     if (comparison.thresholdExceeded) {
       status = "REGRESSION";
     } else if (comparison.delta < 0) {
       status = "better";
     }
+
     console.log(
       `| ${comparison.name} | ${formatValue(comparison.baseline.median, comparison.unit)} | ${formatValue(comparison.candidate.median, comparison.unit)} | ${formatDelta(comparison.delta, comparison.unit)} | ${comparison.percent >= 0 ? "+" : ""}${comparison.percent.toFixed(1)}% | ${status} |`
     );
@@ -200,14 +218,21 @@ const printComparisons = function printComparisons(comparisons: MetricComparison
 };
 
 const options = parseArgs(Bun.argv.slice(2));
+
 const baseline = readRun(options.baselinePath);
+
 const candidate = readRun(options.candidatePath);
+
 const comparisons = compareRuns(baseline, candidate, options.onlyComparable);
+
 const regressions = comparisons.filter((comparison) => comparison.thresholdExceeded);
 
 printRunHeader("Baseline", options.baselinePath, baseline);
+
 printRunHeader("Candidate", options.candidatePath, candidate);
+
 printComparisons(comparisons);
+
 console.log(
   `\nCompared ${comparisons.length} metric(s); ${regressions.length} threshold regression(s).`
 );

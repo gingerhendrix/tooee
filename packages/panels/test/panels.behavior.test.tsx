@@ -62,7 +62,9 @@ const pressBackspace = async function pressBackspace(current: TestSession): Prom
 // Per-test observation state (reset in beforeEach), kept at module scope so the
 // components that read it can also live at module scope.
 let requested: string[] = [];
+
 let effectLog: string[] = [];
+
 let focusLog = new Set<string>();
 
 /** Reports its panel's active state, a local counter, and a hotkey-driven command. */
@@ -77,6 +79,7 @@ const Probe = function Probe({ id, hotkey }: { id: string; hotkey: string }): Re
     id: `${id}.hit`,
     title: `${id} hit`,
   });
+
   return <text content={`${id}=${isActive ? "A" : "-"}:${count}`} />;
 };
 
@@ -108,6 +111,7 @@ const ActivateOuterRight = function ActivateOuterRight(): null {
     id: "outer.activate-right",
     title: "Activate outer right",
   });
+
   return null;
 };
 
@@ -145,6 +149,7 @@ const SiblingGroupsInner = function SiblingGroupsInner(): ReactNode {
     id: "siblings.remove-second",
     title: "Remove second group",
   });
+
   return (
     <>
       <PanelGroup id="first" defaultActivePanelId="first-a">
@@ -189,6 +194,7 @@ const ControlledInner = function ControlledInner(): ReactNode {
     id: "apply",
     title: "apply",
   });
+
   return (
     <PanelGroup
       activePanelId={controlled}
@@ -233,6 +239,7 @@ const RepairInner = function RepairInner(): ReactNode {
     id: "disable-b",
     title: "disable b",
   });
+
   return (
     <PanelGroup defaultActivePanelId="a">
       <Panel id="a" chrome="none">
@@ -261,10 +268,12 @@ const RepairApp = function RepairApp(): ReactNode {
 const Effectful = function Effectful({ id }: { id: string }): ReactNode {
   useScreenEffect(() => {
     effectLog.push(`${id}:on`);
+
     return () => {
       effectLog.push(`${id}:off`);
     };
   });
+
   return <text content={`eff:${id}`} />;
 };
 
@@ -273,28 +282,35 @@ const FocusReporter = function FocusReporter({ id }: { id: string }): ReactNode 
   useNavigate();
   useScreenEffect(() => {
     focusLog.add(id);
+
     return () => {
       focusLog.delete(id);
     };
   });
+
   return <text content={`route:${id}`} />;
 };
 
 const LeftInbox = function LeftInbox(): ReactNode {
   return <text content="left:inbox" />;
 };
+
 const LeftThread = function LeftThread(): ReactNode {
   return <text content="left:thread" />;
 };
+
 const RightPreview = function RightPreview(): ReactNode {
   return <text content="right:preview" />;
 };
+
 const RightDetail = function RightDetail(): ReactNode {
   return <text content="right:detail" />;
 };
+
 const LeftLeaf = function LeftLeaf(): ReactNode {
   return <FocusReporter id="left" />;
 };
+
 const RightLeaf = function RightLeaf(): ReactNode {
   return <FocusReporter id="right" />;
 };
@@ -313,6 +329,7 @@ const makeStackRouters = function makeStackRouters(): StackRouters {
   const right = createRouter({ initial: { routeId: "preview" }, routes: [preview, detail] });
   void left.start();
   void right.start();
+
   return {
     left,
     right,
@@ -321,6 +338,7 @@ const makeStackRouters = function makeStackRouters(): StackRouters {
 
 const RouterPane = function RouterPane(): ReactNode {
   useRouterCommands();
+
   return <Outlet />;
 };
 
@@ -558,11 +576,14 @@ describe("state preservation & chrome", () => {
 
   test("usePanels reports ordered ids and the reactive active id", async () => {
     const seen: { ids: readonly string[]; active: string | null }[] = [];
+
     const Reporter = function Reporter(): ReactNode {
       const { panelIds, activePanelId } = usePanels();
       seen.push({ active: activePanelId, ids: panelIds });
+
       return null;
     };
+
     session = await testRender(
       <CommandProvider>
         <PanelGroup defaultActivePanelId="a">

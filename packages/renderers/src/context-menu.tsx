@@ -20,7 +20,9 @@ interface ContextMenuProps {
 }
 
 const MIN_WIDTH = 16;
+
 const HORIZONTAL_PADDING = 2;
+
 const BORDER = 2;
 
 /**
@@ -45,6 +47,7 @@ export const ContextMenu = function ContextMenu({
   const select = useCallback(
     (index: number) => {
       const entry = entries[index];
+
       if (entry !== undefined) {
         onSelect(entry.id);
       }
@@ -55,9 +58,11 @@ export const ContextMenu = function ContextMenu({
   const moveUp = useCallback(() => {
     setActiveIndex((index) => Math.max(0, index - 1));
   }, []);
+
   const moveDown = useCallback(() => {
     setActiveIndex((index) => Math.min(entries.length - 1, index + 1));
   }, [entries.length]);
+
   const selectActive = useCallback(() => {
     select(activeIndex);
   }, [activeIndex, select]);
@@ -107,25 +112,32 @@ export const ContextMenu = function ContextMenu({
   // so wide glyphs like CJK and emoji are counted correctly).
   let longest = 0;
   const entryCount = entries.length;
+
   for (let index = 0; index < entryCount; index += 1) {
     if (index in entries) {
       const entry = entries[index];
+
       const width =
         Bun.stringWidth(entry.title) +
         (entry.hotkey !== undefined && entry.hotkey !== "" ? Bun.stringWidth(entry.hotkey) + 2 : 0);
+
       longest = Math.max(longest, width);
     }
   }
+
   const innerWidth = Math.max(MIN_WIDTH, longest);
   const panelWidth = innerWidth + HORIZONTAL_PADDING + BORDER;
   const panelHeight = Math.max(1, entries.length) + BORDER;
 
   // Clamp on-screen: flip left/up when the anchor is near the right/bottom edge.
   let left = x;
+
   if (left + panelWidth > termWidth) {
     left = Math.max(0, termWidth - panelWidth);
   }
+
   let top = y;
+
   if (top + panelHeight > termHeight) {
     top = Math.max(0, termHeight - panelHeight);
   }
@@ -172,6 +184,7 @@ export const ContextMenu = function ContextMenu({
                 if (event.button !== 0) {
                   return;
                 }
+
                 event.preventDefault();
                 event.stopPropagation();
                 onSelect(entry.id);

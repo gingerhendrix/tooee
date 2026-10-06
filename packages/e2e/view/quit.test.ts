@@ -22,6 +22,7 @@ describe("quit", () => {
     await session.press("q");
     // Give the process time to exit
     await Bun.sleep(2000);
+
     // After quitting, getting text should either throw or return empty/different content
     try {
       const textAfter = await session.text();

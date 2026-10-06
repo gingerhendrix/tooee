@@ -58,6 +58,7 @@ describe("MarkSet", () => {
         range: { from: { line: 10 }, to: { line: 5 } },
         style: { background: "inv" },
       };
+
       const set = new MarkSet("test", 100, [inverted]);
       expect(set.size).toBe(1);
       // The mark starts at 10, ends at 5 — won't match lines 5-10

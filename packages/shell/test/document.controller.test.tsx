@@ -44,6 +44,7 @@ const controller = function controller(): DocumentController<Row> {
   if (!handle) {
     throw new Error("controller not mounted");
   }
+
   return handle;
 };
 
@@ -125,6 +126,7 @@ const DynamicHarness = function DynamicHarness({
 }): ReactNode {
   const [rows, setRows] = useState(initial);
   onReady(setRows);
+
   return <Harness rows={rows} {...options} />;
 };
 
@@ -143,6 +145,7 @@ const setup = async function setup(rows: readonly Row[], options: HarnessOptions
     { height: 24, kittyKeyboard: true, width: 70 }
   );
   await session.renderOnce();
+
   return session;
 };
 
@@ -164,6 +167,7 @@ const setupDynamic = async function setupDynamic(
     { height: 24, kittyKeyboard: true, width: 70 }
   );
   await session.renderOnce();
+
   return async (rows: readonly Row[]) => {
     await act(async () => {
       setRows(rows);
@@ -191,6 +195,7 @@ const setupWithRecreatedRows = async function setupWithRecreatedRows(
     { height: 24, kittyKeyboard: true, width: 70 }
   );
   await session.renderOnce();
+
   return async (rows: readonly Row[]) => {
     await act(async () => {
       setRows(rows);
@@ -409,6 +414,7 @@ describe("search", () => {
     const search: DocumentSearchOptions<Row> = {
       match: (text, rows) => rows.flatMap((r, index) => (r.id === text ? [index] : [])),
     };
+
     await setup(ROWS, { search });
     await query("c");
     expect(expectDefined(controller().search).matchingLines).toEqual([2]);
@@ -488,6 +494,7 @@ describe("decorations", () => {
       },
       priority: 250,
     };
+
     await setup(THREE, { decorations: [external] });
     expect(describeLayers(controller().decorations)).toBe(
       `${DocumentDecorationPriorities.CURSOR}@0 250@1`
@@ -510,6 +517,7 @@ const wheelAway = async function wheelAway(): Promise<number> {
   expect(scrollTop).toBeGreaterThan(0);
   expect(active()).toBe("r0/0");
   expect(session.captureCharFrame()).not.toMatch(/^row-0\s*$/mu);
+
   return scrollTop;
 };
 

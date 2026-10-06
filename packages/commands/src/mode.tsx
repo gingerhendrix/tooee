@@ -36,6 +36,7 @@ export const ModeProvider = function ModeProvider({
       modeRef.current = nextMode;
       onModeChangeRef.current?.(nextMode);
     }
+
     setMode(nextMode);
   }, []);
 
@@ -49,16 +50,20 @@ export const ModeProvider = function ModeProvider({
 
 export const useMode = function useMode(): Mode {
   const ctx = useContext(ModeContext);
+
   if (!ctx) {
     throw new Error("useMode must be used within a ModeProvider");
   }
+
   return ctx.mode;
 };
 
 export const useSetMode = function useSetMode(): (mode: Mode) => void {
   const ctx = useContext(ModeContext);
+
   if (!ctx) {
     throw new Error("useSetMode must be used within a ModeProvider");
   }
+
   return ctx.setMode;
 };

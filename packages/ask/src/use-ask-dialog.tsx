@@ -54,6 +54,7 @@ export interface AskDialogHandle {
  */
 export const useAskDialog = function useAskDialog(): AskDialogHandle {
   const dialog = useOverlayDialog<string>();
+
   return useMemo<AskDialogHandle>(
     () => ({
       open: async (options) =>

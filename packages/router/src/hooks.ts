@@ -28,6 +28,7 @@ export type ActionResultHandler = (result: ActionNavigationResult) => void;
 
 export const useNavigate = function useNavigate(): NavigateHandle {
   const router = useRouterInstance();
+
   return {
     pop: useCallback<RouterInstance["pop"]>((options) => router.pop(options), [router]),
     push: useCallback<RouterInstance["push"]>(
@@ -54,12 +55,15 @@ const isActiveRoute = function isActiveRoute(
   routeId: string
 ): boolean {
   let current: AnyRoute | undefined = router.getRouteDefinition(activeRouteId);
+
   while (current !== undefined) {
     if (current.id === routeId) {
       return true;
     }
+
     current = current.parent;
   }
+
   return false;
 };
 
@@ -78,12 +82,15 @@ export const useParams = function useParams<TParams>(route: {
   const router = useRouterInstance();
   const stack = useRouterStack();
   const entry = stack.at(-1);
+
   if (entry === undefined) {
     throw new Error("Router stack is empty");
   }
+
   if (!isActiveRoute(router, entry.routeId, route.id)) {
     throw new Error(`useParams("${route.id}") called while route "${entry.routeId}" is active.`);
   }
+
   return route.params.parse(entry.params);
 };
 
@@ -97,14 +104,17 @@ export const useRouteData = function useRouteData<TData>(
 export const useCurrentRoute = function useCurrentRoute(): StackEntry {
   const stack = useRouterStack();
   const currentRoute = stack.at(-1);
+
   if (currentRoute === undefined) {
     throw new Error("Router stack is empty");
   }
+
   return currentRoute;
 };
 
 export const useCanGoBack = function useCanGoBack(): boolean {
   const stack = useRouterStack();
+
   return stack.length > 1;
 };
 
@@ -114,6 +124,7 @@ export const useRouter = function useRouter(): RouterInstance {
 
 export const useActionResultHandler = function useActionResultHandler(): ActionResultHandler {
   const router = useRouterInstance();
+
   return useCallback(
     (result: ActionNavigationResult) => {
       if (result.type === "navigate") {
@@ -147,6 +158,7 @@ export const useScreenState = function useScreenState<TState>(route: {
   const stack = useRouterStack();
   const entry = stack[stackIndex];
   const { screenState } = route;
+
   if (screenState === undefined) {
     throw new Error(
       `Route "${route.id}" has no \`screenState\` codec, so its screen state cannot be typed. Add \`screenState\` to the route to use useScreenState().`

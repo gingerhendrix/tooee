@@ -25,11 +25,14 @@ const MARKDOWN = [
   "Final visible paragraph.",
   "<!-- trailing invisible marker -->",
 ].join("\n\n");
+
 // Title + six heading/prose/diff groups + final paragraph.
 const ROW_COUNT = 20;
+
 const provider: ContentProvider = {
   load: () => ({ format: "markdown", markdown: MARKDOWN }),
 };
+
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
 afterEach(() => {
@@ -40,6 +43,7 @@ test.each([50, 100])(
   "Markdown G and j stop at the final visible block at width %i",
   async (width) => {
     let documentContext: DocumentCommandContext | undefined;
+
     const actions: ActionDefinition[] = [
       {
         handler: (context) => {
@@ -51,6 +55,7 @@ test.each([50, 100])(
         title: "Probe document",
       },
     ];
+
     testSetup = await testRender(
       <TooeeProvider>
         <View contentProvider={provider} actions={actions} />
@@ -72,16 +77,20 @@ test.each([50, 100])(
     await press(testSetup, "g");
     await press(testSetup, "x");
     expect(expectDefined(documentContext).cursor).toBe(0);
+
     for (let index = 1; index < ROW_COUNT; index += 1) {
       // oxlint-disable-next-line no-await-in-loop -- each cursor move must render before the next key
       await press(testSetup, "j");
     }
+
     expect(testSetup.captureCharFrame()).toContain("Final visible paragraph.");
     const bottom = testSetup.captureCharFrame();
+
     for (let index = 0; index < 25; index += 1) {
       // oxlint-disable-next-line no-await-in-loop -- verify repeated moves against the settled bottom frame
       await press(testSetup, "j");
     }
+
     expect(testSetup.captureCharFrame()).toBe(bottom);
     await press(testSetup, "x");
     expect(expectDefined(documentContext).cursor).toBe(ROW_COUNT - 1);

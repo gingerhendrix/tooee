@@ -49,6 +49,7 @@ export const ToastProvider = function ToastProvider({
       const level = options.level ?? "info";
       const duration = options.duration ?? DEFAULT_DURATIONS[level];
       const id = options.id ?? `toast-${nextToastId}`;
+
       if (options.id === undefined || options.id === null) {
         nextToastId += 1;
       }
@@ -92,8 +93,10 @@ export const ToastProvider = function ToastProvider({
 
 export const useToast = function useToast(): ToastController {
   const ctx = useContext(ToastContext);
+
   if (!ctx) {
     throw new Error("useToast must be used within a ToastProvider");
   }
+
   return ctx;
 };

@@ -24,22 +24,29 @@ export type LinkHandler = (link: LinkTarget, context: LinkHandlerContext) => boo
 
 export const localFileLinkHandler: LinkHandler = function localFileLinkHandler(link, context) {
   const result = resolveMarkdownLink(link.href, link.baseDir, link.currentPath);
+
   if (result.status === "unsupported") {
     return false;
   }
+
   if (result.status === "file") {
     void context.navigate.push(context.documentRoute, { path: result.path });
+
     return true;
   }
+
   const relative = path.relative(link.baseDir, result.path);
+
   const target =
     relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)
       ? result.path
       : relative || ".";
+
   context.command.toast?.toast({
     level: "warning",
     message: `${result.status === "missing" ? "File not found" : "Not a file"}: ${target}`,
   });
+
   return true;
 };
 
@@ -54,9 +61,12 @@ export const runLinkHandlers = function runLinkHandlers(
       return true;
     }
   }
+
   if (localFileLinkHandler(link, context)) {
     return true;
   }
+
   context.command.toast?.toast({ level: "warning", message: `Unsupported link: ${link.href}` });
+
   return true;
 };

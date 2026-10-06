@@ -28,6 +28,7 @@ afterEach(() => {
 const Loader = function Loader({ provider }: { provider: ContentProvider }): ReactNode {
   const { content, streaming, error } = useContentLoader(provider);
   const text = content && "text" in content ? content.text : "";
+
   return (
     <box flexDirection="column">
       <text content={`text:${text}`} />
@@ -47,37 +48,46 @@ const flush = async function flush(s: TestSession) {
 describe("useContentLoader streaming lifecycle (R-03)", () => {
   test("cleanup closes the streaming iterator", async () => {
     let returned = false;
+
     const iterable: AsyncIterable<ContentChunk> = {
       [Symbol.asyncIterator]() {
         let first = true;
+
         return {
           next: async (): Promise<IteratorResult<ContentChunk>> => {
             await Promise.resolve();
+
             if (first) {
               first = false;
+
               return {
                 done: false as const,
                 value: { data: "hello", format: "text" as const, type: "append" as const },
               };
             }
+
             // Long-lived stream: never yields again
             return await Promise.withResolvers<IteratorResult<ContentChunk>>().promise;
           },
           return: () => {
             returned = true;
+
             return { done: true as const, value: undefined };
           },
         };
       },
     };
+
     const provider: ContentProvider = { format: "text", load: () => iterable };
 
     let hide!: () => void;
+
     const Harness = function Harness(): ReactNode {
       const [show, setShow] = useState(true);
       hide = () => {
         setShow(false);
       };
+
       return show ? <Loader provider={provider} /> : <text content="unmounted" />;
     };
 
@@ -130,18 +140,23 @@ describe("useContentLoader reload and request identity", () => {
   test("reloads a synchronous provider", async () => {
     let calls = 0;
     let reload!: () => void;
+
     const provider: ContentProvider = {
       load: () => {
         calls += 1;
+
         return { format: "text", text: `sync-${calls}` };
       },
     };
+
     const Harness = function Harness(): ReactNode {
       const result = useContentLoader(provider);
       ({ reload } = result);
       const value = result.content && "text" in result.content ? result.content.text : "";
+
       return <text content={value} />;
     };
+
     testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await flush(testSetup);
     expect(testSetup.captureCharFrame()).toContain("sync-1");
@@ -156,20 +171,25 @@ describe("useContentLoader reload and request identity", () => {
   test("reloads a Promise provider and ignores the stale resolution", async () => {
     const resolvers: ((value: { format: "text"; text: string }) => void)[] = [];
     let reload!: () => void;
+
     const provider: ContentProvider = {
       load: async (): Promise<{ format: "text"; text: string }> => {
         const { promise, resolve } = Promise.withResolvers<{ format: "text"; text: string }>();
         resolvers.push(resolve);
         await Promise.resolve();
+
         return await promise;
       },
     };
+
     const Harness = function Harness(): ReactNode {
       const result = useContentLoader(provider);
       ({ reload } = result);
       const value = result.content && "text" in result.content ? result.content.text : "loading";
+
       return <text content={value} />;
     };
+
     testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await flush(testSetup);
     await act(async () => {
@@ -191,46 +211,59 @@ describe("useContentLoader reload and request identity", () => {
     let oldReturned = false;
     let resolveOldNext!: (result: IteratorResult<ContentChunk>) => void;
     let reload!: () => void;
+
     const provider: ContentProvider = {
       format: "text",
       load: () => {
         calls += 1;
+
         if (calls === 1) {
           let first = true;
+
           return {
             [Symbol.asyncIterator]() {
               return {
                 async next(): Promise<IteratorResult<ContentChunk>> {
                   await Promise.resolve();
+
                   if (first) {
                     first = false;
+
                     return {
                       done: false as const,
                       value: { data: "old", format: "text" as const, type: "append" as const },
                     };
                   }
+
                   const { promise, resolve } =
                     Promise.withResolvers<IteratorResult<ContentChunk>>();
+
                   resolveOldNext = resolve;
+
                   return await promise;
                 },
                 return() {
                   oldReturned = true;
+
                   return { done: true as const, value: undefined };
                 },
               };
             },
           };
         }
+
         return freshStream();
       },
     };
+
     const Harness = function Harness(): ReactNode {
       const result = useContentLoader(provider);
       ({ reload } = result);
       const value = result.content && "text" in result.content ? result.content.text : "";
+
       return <text content={`${result.status}:${value}`} />;
     };
+
     testSetup = await testRender(<Harness />, { height: 10, width: 60 });
     await flush(testSetup);
     expect(testSetup.captureCharFrame()).toContain("old");

@@ -71,10 +71,12 @@ export const selectActiveModalSurface = function selectActiveModalSurface(
   ctx: CommandStoreContext
 ): SurfaceRecord | null {
   let best: SurfaceRecord | null = null;
+
   for (const record of ctx.surfaces) {
     if (record.role !== "modal") {
       continue;
     }
+
     if (
       best === null ||
       record.depth > best.depth ||
@@ -83,6 +85,7 @@ export const selectActiveModalSurface = function selectActiveModalSurface(
       best = record;
     }
   }
+
   return best;
 };
 
@@ -103,13 +106,16 @@ export const selectActivePanelSurface = function selectActivePanelSurface(
   ctx: CommandStoreContext
 ): SurfaceRecord | null {
   let best: SurfaceRecord | null = null;
+
   for (const record of ctx.surfaces) {
     if (record.role !== "panel" || record.groupId === undefined) {
       continue;
     }
+
     if (ctx.activePanels.get(record.groupId) !== record.id) {
       continue;
     }
+
     if (
       best === null ||
       record.depth > best.depth ||
@@ -118,6 +124,7 @@ export const selectActivePanelSurface = function selectActivePanelSurface(
       best = record;
     }
   }
+
   return best;
 };
 
@@ -142,6 +149,7 @@ export const selectSurfaceCommands = function selectSurfaceCommands(
   surfaceId: string
 ): readonly Command[] {
   const commands = ctx.commandsBySurface.get(surfaceId);
+
   return commands ? [...commands.values()] : [];
 };
 
@@ -169,22 +177,29 @@ export const selectGroups = function selectGroups(
 
 export const formatStepKey = function formatStepKey(step: ParsedStep): string {
   const modifiers = [];
+
   if (step.ctrl) {
     modifiers.push("ctrl");
   }
+
   if (step.meta) {
     modifiers.push("meta");
   }
+
   if (step.option) {
     modifiers.push("option");
   }
+
   if (step.shift) {
     modifiers.push("shift");
   }
+
   if (step.super === true) {
     modifiers.push("super");
   }
+
   modifiers.push(step.key);
+
   return modifiers.join("+");
 };
 
@@ -225,10 +240,12 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
         // original insertion position and takes the new value — identical to
         // clone-then-set. Pinned by the duplicate-id ordering tests.
         const commands = new Map([...(existing ?? []), [event.command.id, event.command] as const]);
+
         const commandsBySurface = new Map([
           ...ctx.commandsBySurface,
           [event.surfaceId, commands] as const,
         ]);
+
         return { ...ctx, commandsBySurface };
       },
       commandUnregistered: (
@@ -239,17 +256,21 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
         // writer, and the first registrant's unmount must not delete the
         // second's live command.
         const existing = ctx.commandsBySurface.get(event.surfaceId);
+
         if (!existing || existing.get(event.command.id) !== event.command) {
           return ctx;
         }
+
         const commands = new Map(existing);
         commands.delete(event.command.id);
         const commandsBySurface = new Map(ctx.commandsBySurface);
+
         if (commands.size === 0) {
           commandsBySurface.delete(event.surfaceId);
         } else {
           commandsBySurface.set(event.surfaceId, commands);
         }
+
         return { ...ctx, commandsBySurface };
       },
       contextSourceRegistered: (
@@ -257,6 +278,7 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
         event: { id: string; getter: ContextGetter }
       ): CommandStoreContext => {
         const contextSources = new Map([...ctx.contextSources, [event.id, event.getter] as const]);
+
         return { ...ctx, contextSources };
       },
       contextSourceUnregistered: (
@@ -266,8 +288,10 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
         if (!ctx.contextSources.has(event.id)) {
           return ctx;
         }
+
         const contextSources = new Map(ctx.contextSources);
         contextSources.delete(event.id);
+
         return { ...ctx, contextSources };
       },
       groupRegistered: (
@@ -275,6 +299,7 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
         event: { group: RegisteredCommandGroup }
       ): CommandStoreContext => {
         const groups = new Map([...ctx.groups, [event.group.prefixKey, event.group] as const]);
+
         return { ...ctx, groups };
       },
       groupUnregistered: (
@@ -285,8 +310,10 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
         if (ctx.groups.get(event.group.prefixKey) !== event.group) {
           return ctx;
         }
+
         const groups = new Map(ctx.groups);
         groups.delete(event.group.prefixKey);
+
         return { ...ctx, groups };
       },
       modeChanged: (
@@ -303,12 +330,16 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
         if (ctx.activePanels.get(event.groupId) === event.panelId) {
           return ctx;
         }
+
         const before = selectKeyboardOwnerSurface(ctx);
+
         const activePanels = new Map([
           ...ctx.activePanels,
           [event.groupId, event.panelId] as const,
         ]);
+
         const after = selectKeyboardOwnerSurface({ ...ctx, activePanels });
+
         return {
           ...ctx,
           activePanels,
@@ -322,10 +353,12 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
         if (!ctx.activePanels.has(event.groupId)) {
           return ctx;
         }
+
         const before = selectKeyboardOwnerSurface(ctx);
         const activePanels = new Map(ctx.activePanels);
         activePanels.delete(event.groupId);
         const after = selectKeyboardOwnerSurface({ ...ctx, activePanels });
+
         return {
           ...ctx,
           activePanels,
@@ -344,11 +377,14 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
       ): CommandStoreContext => {
         // Identity-based removal: only the exact pushed record is removed.
         const surfaces = ctx.surfaces.filter((record) => record !== event.surface);
+
         if (surfaces.length === ctx.surfaces.length) {
           return ctx;
         }
+
         const before = selectKeyboardOwnerSurface(ctx);
         const after = selectKeyboardOwnerSurface({ ...ctx, surfaces });
+
         return {
           ...ctx,
           sequence: sequenceAfterStackChange(before, after, ctx.sequence),
@@ -362,6 +398,7 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
         const before = selectKeyboardOwnerSurface(ctx);
         const surfaces = [...ctx.surfaces, event.surface];
         const after = selectKeyboardOwnerSurface({ ...ctx, surfaces });
+
         return {
           ...ctx,
           sequence: sequenceAfterStackChange(before, after, ctx.sequence),

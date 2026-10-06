@@ -12,6 +12,7 @@ const KEY_ALIASES: ReadonlyMap<string, string> = new Map([
 
 const normalizeKey = function normalizeKey(key: string): string {
   const lower = key.toLowerCase();
+
   return KEY_ALIASES.get(lower) ?? lower;
 };
 
@@ -21,6 +22,7 @@ const warnOnce = function warnOnce(message: string): void {
   if (warned.has(message)) {
     return;
   }
+
   warned.add(message);
   console.warn(message);
 };
@@ -36,6 +38,7 @@ const parseStep = function parseStep(step: string): ParsedStep {
 
   for (const part of parts) {
     const trimmed = part.trim();
+
     if (trimmed === "ctrl" || trimmed === "control") {
       ctrl = true;
     } else if (trimmed === "meta" || trimmed === "alt") {
@@ -67,6 +70,7 @@ export const parseHotkey = function parseHotkey(hotkey: string, leaderKey?: stri
 
   // Handle leader prefix
   const leaderMatch = /^<leader>(?<followingKey>.+)$/u.exec(trimmed);
+
   if (leaderMatch) {
     if (leaderKey === undefined || leaderKey === "") {
       // No leader configured: the hotkey must not spring to life on some
@@ -74,15 +78,19 @@ export const parseHotkey = function parseHotkey(hotkey: string, leaderKey?: stri
       warnOnce(
         `[tooee/commands] Hotkey "${trimmed}" uses <leader> but no leader key is configured; the hotkey is disabled.`
       );
+
       return { steps: [] };
     }
+
     const leaderStep = parseStep(leaderKey);
     const followStep = parseStep(leaderMatch.groups?.followingKey ?? "");
+
     return { steps: [leaderStep, followStep] };
   }
 
   // Space-separated = sequence
   const parts = trimmed.split(/\s+/u);
   const steps = parts.map(parseStep);
+
   return { steps };
 };

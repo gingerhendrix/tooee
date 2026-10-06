@@ -42,6 +42,7 @@ export const PanelGroup = function PanelGroup({
   const commandStore = useCommandStore();
   const enclosingPanel = useOptionalPanelContext();
   const enclosingGroup = useOptionalPanelGroupContext();
+
   const isInActiveAncestry =
     enclosingPanel === null || enclosingGroup?.activeId === enclosingPanel.id;
 
@@ -50,9 +51,11 @@ export const PanelGroup = function PanelGroup({
 
   const [registrations, setRegistrations] = useState<readonly Registration[]>([]);
   const orderCounterRef = useRef(0);
+
   const [uncontrolledActive, setUncontrolledActive] = useState<string | null>(
     defaultActivePanelId ?? null
   );
+
   // Order of the last resolved active panel, so removal repair can pick the
   // next-in-order (else previous) panel rather than always jumping to the first.
   const lastActiveOrderRef = useRef(-1);
@@ -65,6 +68,7 @@ export const PanelGroup = function PanelGroup({
         ? prev
         : [...prev, { disabled: false, id: panelId, order }]
     );
+
     return () => {
       setRegistrations((prev) => prev.filter((entry) => entry.id !== panelId));
     };
@@ -73,11 +77,14 @@ export const PanelGroup = function PanelGroup({
   const setDisabled = useCallback((panelId: string, disabled: boolean): void => {
     setRegistrations((prev) => {
       const index = prev.findIndex((entry) => entry.id === panelId);
+
       if (index === -1 || prev[index].disabled === disabled) {
         return prev;
       }
+
       const next = [...prev];
       next[index] = { ...next[index], disabled };
+
       return next;
     });
   }, []);
@@ -95,20 +102,26 @@ export const PanelGroup = function PanelGroup({
     if (activatable.length === 0) {
       return null;
     }
+
     if (requestedId !== null && activatable.some((entry) => entry.id === requestedId)) {
       return requestedId;
     }
+
     // Controlled means controlled: a missing/disabled controlled id activates no
     // panel (root owns input) rather than silently repairing to a peer.
     if (isControlled) {
       return null;
     }
+
     const lastOrder = lastActiveOrderRef.current;
     const nextAfter = activatable.find((entry) => entry.order > lastOrder);
+
     if (nextAfter) {
       return nextAfter.id;
     }
+
     const previousBefore = [...activatable].toReversed().find((entry) => entry.order < lastOrder);
+
     return (previousBefore ?? activatable[0]).id;
   }, [activatable, requestedId, isControlled]);
 
@@ -128,17 +141,20 @@ export const PanelGroup = function PanelGroup({
       commandStore.activatePanel(groupId, resolvedId);
       lastActiveOrderRef.current =
         activatable.find((entry) => entry.id === resolvedId)?.order ?? lastActiveOrderRef.current;
+
       if (!isControlled && resolvedId !== uncontrolledActive) {
         // Keep the uncontrolled intent in step with a repair so `requestedId`
         // tracks the resolved panel on subsequent renders.
         setUncontrolledActive(resolvedId);
       }
     }
+
     // Uncontrolled: announce resolved changes (initial select and repair). A
     // controlled group announces from `activate`/`next`/`previous` instead, so
     // the parent is not echoed its own prop change.
     if (!isControlled && resolvedId !== announcedRef.current) {
       announcedRef.current = resolvedId;
+
       if (resolvedId !== null) {
         onActivePanelChangeRef.current?.(resolvedId);
       }
@@ -167,6 +183,7 @@ export const PanelGroup = function PanelGroup({
       if (!activatableRef.current.some((entry) => entry.id === panelId)) {
         return;
       }
+
       if (isControlled) {
         onActivePanelChangeRef.current?.(panelId);
       } else {
@@ -179,16 +196,20 @@ export const PanelGroup = function PanelGroup({
   const step = useCallback(
     (direction: 1 | -1): void => {
       const list = activatableRef.current;
+
       if (list.length < 2) {
         return;
       }
+
       const currentIndex = list.findIndex((entry) => entry.id === resolvedRef.current);
       let nextIndex = currentIndex + direction;
+
       if (nextIndex >= list.length) {
         nextIndex = wrapEnabled ? 0 : currentIndex;
       } else if (nextIndex < 0) {
         nextIndex = wrapEnabled ? list.length - 1 : currentIndex;
       }
+
       activate(list[nextIndex].id);
     },
     [activate, wrapEnabled]
@@ -197,6 +218,7 @@ export const PanelGroup = function PanelGroup({
   const next = useCallback(() => {
     step(1);
   }, [step]);
+
   const previous = useCallback(() => {
     step(-1);
   }, [step]);

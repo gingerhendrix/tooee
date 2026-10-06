@@ -33,7 +33,9 @@ export const hasTextTableInternals = function hasTextTableInternals(
   ) {
     return false;
   }
+
   const { _layout: layout } = table;
+
   return (
     Array.isArray(table._cells) &&
     Number.isInteger(table.cellPaddingX) &&
@@ -68,10 +70,12 @@ const spanAt = function spanAt(
 ): Span | null {
   for (const [index, size] of sizes.entries()) {
     const inside = local - (offsets[index] ?? 0) - 1;
+
     if (inside >= 0 && inside < size) {
       return { index, inside };
     }
   }
+
   return null;
 };
 
@@ -98,27 +102,35 @@ export const textTableCellAt = function textTableCellAt(
   if (!hasTextTableInternals(table)) {
     return null;
   }
+
   const { columnOffsets, columnWidths, rowHeights, rowOffsets } = table._layout;
   const row = spanAt(rowOffsets, rowHeights, y - table.y);
   const column = spanAt(columnOffsets, columnWidths, x - table.x);
+
   if (row === null || column === null) {
     return null;
   }
+
   const view = table._cells[row.index]?.[column.index]?.textBufferView;
+
   if (!(view instanceof TextBufferView)) {
     return null;
   }
+
   const cellX = column.inside - table.cellPaddingX;
   const visualLine = row.inside - table.cellPaddingY;
   const { lineSources, lineStartCols, lineWidthCols } = view.lineInfo;
   const line = lineSources[visualLine];
   const start = lineStartCols[visualLine];
   const width = lineWidthCols[visualLine];
+
   if (line === undefined || start === undefined || width === undefined) {
     return null;
   }
+
   if (cellX < 0 || cellX >= width) {
     return null;
   }
+
   return { column: column.index, line, offset: start + cellX, row: row.index };
 };

@@ -16,9 +16,11 @@ const makeMarkState = function makeMarkState(sets: readonly MarkSet[]): MarkStat
   return {
     effectiveStyleAtLine(line: number): MarkStyle | null {
       const marks = this.marksAtLine(line);
+
       if (marks.length === 0) {
         return null;
       }
+
       return marks.at(-1)?.style ?? null;
     },
     getSet(namespace: string): MarkSet | undefined {
@@ -26,8 +28,10 @@ const makeMarkState = function makeMarkState(sets: readonly MarkSet[]): MarkStat
     },
     marksAtLine(line: number): Mark[] {
       const results: Mark[] = [];
+
       for (const set of sortedSets) {
         const marks = set.marksAtLine(line);
+
         for (const mark of marks) {
           results.push({
             ...mark,
@@ -35,7 +39,9 @@ const makeMarkState = function makeMarkState(sets: readonly MarkSet[]): MarkStat
           });
         }
       }
+
       results.sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
+
       return results;
     },
     namespaces,
@@ -55,9 +61,12 @@ export const updateMarkState = function updateMarkState(
   if (newSet && newSet.namespace !== namespace) {
     throw new Error(`Namespace mismatch: expected "${namespace}", got "${newSet.namespace}"`);
   }
+
   const filtered = state.sets.filter((s) => s.namespace !== namespace);
+
   if (newSet) {
     filtered.push(newSet);
   }
+
   return makeMarkState(filtered);
 };

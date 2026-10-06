@@ -55,11 +55,13 @@ const setup = async function setup(
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 80 }
   );
+
   await s.renderOnce();
   await act(async () => {
     await Bun.sleep(100);
   });
   await s.renderOnce();
+
   return s;
 };
 
@@ -70,12 +72,15 @@ interface FramePosition {
 
 const lineOf = function lineOf(frame: string, text: string): FramePosition {
   const lines = frame.split("\n");
+
   for (let y = 0; y < lines.length; y += 1) {
     const x = lines[y].indexOf(text);
+
     if (x !== -1) {
       return { x, y };
     }
   }
+
   return { x: -1, y: -1 };
 };
 
@@ -208,6 +213,7 @@ describe("Markdown view mouse selection", () => {
     let activated: { context: CommandContext; href: string } | undefined;
     testSetup = await setup(MD_LINK, undefined, (href, context) => {
       activated = { context, href };
+
       return true;
     });
     await press("j");
@@ -229,10 +235,13 @@ describe("Markdown view mouse selection", () => {
 
   test("a one-argument link handler remains compatible and only exact true consumes", async () => {
     const activated: string[] = [];
+
     const legacyHandler = (href: string) => {
       activated.push(href);
+
       return "handled";
     };
+
     testSetup = await setup(MD_LINK, undefined, legacyHandler);
 
     const pos = lineOf(testSetup.captureCharFrame(), "linked artifact");

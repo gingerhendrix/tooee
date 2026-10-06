@@ -56,6 +56,7 @@ const TooeeProviderInner = function TooeeProviderInner({
   sequenceTimeoutMs?: number;
 }): ReactNode {
   const config = useConfig();
+
   return (
     <ThemeSwitcherProvider initialTheme={config.theme?.name} initialMode={config.theme?.mode}>
       <CommandProvider

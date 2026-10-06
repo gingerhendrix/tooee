@@ -13,17 +13,21 @@ import type { RowMouseCallbacks } from "./support/bindings.js";
 const cols = function cols(headers: string[]) {
   return headers.map((header, index) => ({ header, key: `col_${index}` }));
 };
+
 const rows = function rows(columns: ReturnType<typeof cols>, values: string[][]) {
   return values.map((row) => {
     const record: Record<string, string> = {};
+
     for (const [index, column] of columns.entries()) {
       record[column.key] = row[index] ?? "";
     }
+
     return record;
   });
 };
 
 const COLUMNS = cols(["Name", "Age"]);
+
 const DATA = rows(COLUMNS, [
   ["Alice", "30"],
   ["Bob", "25"],
@@ -34,6 +38,7 @@ const DATA = rows(COLUMNS, [
 // Data rows therefore start at y=2. Gutter (line numbers + sign) is ~5 wide, so we
 // click at x=8 to land on cell content.
 const DATA_TOP_Y = 2;
+
 const CONTENT_X = 8;
 
 const TableHarness = function TableHarness(callbacks: RowMouseCallbacks): ReactNode {
@@ -95,9 +100,11 @@ describe("Table mouse interaction", () => {
 
     expect(events.length).toBe(1);
     const [event] = events;
+
     if (event === undefined) {
       throw new Error("Expected a context-menu event");
     }
+
     expect(event.index).toBe(1);
     expect(event.x).toBe(CONTENT_X);
     expect(event.y).toBe(DATA_TOP_Y + 1);

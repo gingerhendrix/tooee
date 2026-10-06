@@ -47,6 +47,7 @@ export const FlatBlockRenderer = function FlatBlockRenderer({
   }
 
   const heading = narrowToken(token, "heading");
+
   if (heading !== null) {
     return (
       <HeadingRenderer
@@ -58,7 +59,9 @@ export const FlatBlockRenderer = function FlatBlockRenderer({
       />
     );
   }
+
   const paragraph = narrowToken(token, "paragraph");
+
   if (paragraph !== null) {
     return (
       <ParagraphRenderer
@@ -70,7 +73,9 @@ export const FlatBlockRenderer = function FlatBlockRenderer({
       />
     );
   }
+
   const code = narrowToken(token, "code");
+
   if (code !== null) {
     return (
       <CodeBlock
@@ -85,7 +90,9 @@ export const FlatBlockRenderer = function FlatBlockRenderer({
       />
     );
   }
+
   const blockquote = narrowToken(token, "blockquote");
+
   if (blockquote !== null) {
     return (
       <BlockquoteRenderer
@@ -96,19 +103,25 @@ export const FlatBlockRenderer = function FlatBlockRenderer({
       />
     );
   }
+
   const table = narrowToken(token, "table");
+
   if (table !== null) {
     return <MarkdownTableRenderer token={table} indent={indent} onLinkActivate={onLinkActivate} />;
   }
+
   if (token.type === "hr") {
     return <HorizontalRule theme={theme} indent={indent} />;
   }
+
   if (token.type === "space" || token.type === "html") {
     return null;
   }
+
   if (!hasMarkedText(token)) {
     return null;
   }
+
   return (
     <text
       content={token.text}

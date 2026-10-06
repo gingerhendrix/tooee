@@ -14,11 +14,13 @@ import type { ContentProvider } from "../src/types.js";
 import { View } from "../src/view.js";
 
 let commandIds: string[] = [];
+
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
 const CommandProbe = function CommandProbe(): null {
   const { commands } = useSurfaceInvoke();
   commandIds = commands.map((command) => command.id);
+
   return null;
 };
 
@@ -30,11 +32,13 @@ const render = async function render(node: ReactNode) {
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 80 }
   );
+
   await setup.renderOnce();
   await act(async () => {
     await Bun.sleep(100);
   });
   await setup.renderOnce();
+
   return setup;
 };
 
@@ -66,6 +70,7 @@ describe("bare view states", () => {
         throw new Error("missing file");
       },
     };
+
     testSetup = await render(<View contentProvider={failingProvider} />);
 
     expect(testSetup.captureCharFrame()).toContain("Error: missing file");
@@ -74,6 +79,7 @@ describe("bare view states", () => {
 
   test("q quits an empty directory", async () => {
     const emptyDirectory = mkdtempSync(path.join(tmpdir(), "tooee-empty-directory-"));
+
     try {
       testSetup = await render(<DirectoryView dirPath={emptyDirectory} />);
 

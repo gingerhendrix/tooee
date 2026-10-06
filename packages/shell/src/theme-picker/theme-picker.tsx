@@ -25,10 +25,12 @@ export const ThemePicker = function ThemePicker({
   onNavigate,
 }: ThemePickerProps): ReactNode {
   const { theme } = useTheme();
+
   const items = useMemo<ChooseItem[]>(
     () => entries.map((entry) => ({ text: entry.title, value: entry.id })),
     [entries]
   );
+
   const initialActiveIndex = useMemo(
     () =>
       Math.max(
@@ -37,6 +39,7 @@ export const ThemePicker = function ThemePicker({
       ),
     [currentTheme, entries]
   );
+
   const handleSelect = (item: ChooseItem): void => {
     if (item.value !== undefined) {
       onSelect(item.value);

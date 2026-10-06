@@ -22,6 +22,7 @@ export const CommandPaletteOverlay = function CommandPaletteOverlay({
         .filter((cmd) => cmd.hidden !== true)
         .filter((cmd) => {
           const cmdModes = cmd.modes ?? DEFAULT_MODES;
+
           return cmdModes.includes(launchMode);
         })
         .map((cmd) => ({

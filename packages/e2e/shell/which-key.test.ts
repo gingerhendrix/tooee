@@ -21,10 +21,13 @@ const expectSomeFrame = function expectSomeFrame(
   const matchingFrame = frames.find((frame) =>
     pattern instanceof RegExp ? pattern.test(frame) : frame.includes(pattern)
   );
+
   expect(matchingFrame, frames.join("\n--- frame ---\n")).toBeDefined();
+
   if (matchingFrame === undefined) {
     throw new Error("Expected a frame matching the requested pattern");
   }
+
   return matchingFrame;
 };
 

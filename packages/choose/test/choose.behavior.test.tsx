@@ -15,12 +15,15 @@ interface FramePosition {
 
 const lineOf = function lineOf(frame: string, text: string): FramePosition {
   const lines = frame.split("\n");
+
   for (let y = 0; y < lines.length; y += 1) {
     const x = lines[y].indexOf(text);
+
     if (x !== -1) {
       return { x, y };
     }
   }
+
   return { x: -1, y: -1 };
 };
 
@@ -57,6 +60,7 @@ const setup = async function setup(
 ) {
   const handleConfirm = opts.onConfirm;
   const handleCancel = opts.onCancel;
+
   const s = await testRender(
     <TooeeProvider initialMode="insert">
       <Choose
@@ -69,7 +73,9 @@ const setup = async function setup(
     </TooeeProvider>,
     { height: 24, kittyKeyboard: opts.kittyKeyboard ?? true, width: 60 }
   );
+
   await s.renderOnce();
+
   return s;
 };
 
@@ -351,10 +357,12 @@ describe("Choose visual alignment", () => {
     const lines = charFrame.split("\n");
     let alphaLine = -1;
     let betaLine = -1;
+
     for (let i = 0; i < lines.length; i += 1) {
       if (lines[i].includes("alpha")) {
         alphaLine = i;
       }
+
       if (lines[i].includes("beta")) {
         betaLine = i;
       }
@@ -504,6 +512,7 @@ const setupEmpty = async function setupEmpty(
   } = {}
 ) {
   const handleCancel = opts.onCancel;
+
   const s = await testRender(
     <TooeeProvider initialMode="insert">
       <Choose
@@ -514,7 +523,9 @@ const setupEmpty = async function setupEmpty(
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 60 }
   );
+
   await s.renderOnce();
+
   return s;
 };
 

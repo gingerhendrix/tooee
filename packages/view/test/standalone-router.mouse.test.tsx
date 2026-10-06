@@ -10,15 +10,18 @@ import { createFileProvider } from "../src/default-provider.js";
 import { createStandaloneRouter } from "../src/standalone-router.js";
 
 let setup: Awaited<ReturnType<typeof testRender>>;
+
 afterEach(() => {
   setup?.renderer.destroy();
 });
+
 const settle = async () => {
   await act(async () => {
     await Bun.sleep(100);
   });
   await setup.renderOnce();
 };
+
 const click = async (text: string) => {
   const lines = setup.captureCharFrame().split("\n");
   const y = lines.findIndex((line) => line.includes(text));
@@ -31,10 +34,12 @@ const click = async (text: string) => {
 
 test("real mouse links replace the provider and resolve against the current file", async () => {
   const filePath = `${import.meta.dir}/fixtures/links/start.md`;
+
   const { router } = createStandaloneRouter({
     contentProvider: createFileProvider(filePath),
     filePath,
   });
+
   const startup = await router.start();
   expect(startup.status).toBe("committed");
   setup = await testRender(
@@ -64,10 +69,12 @@ test("real mouse links replace the provider and resolve against the current file
 
 test("cursor Enter on a line with several links opens a chooser instead of taking the first", async () => {
   const filePath = `${import.meta.dir}/fixtures/links/start.md`;
+
   const { router } = createStandaloneRouter({
     contentProvider: createFileProvider(filePath),
     filePath,
   });
+
   await router.start();
   setup = await testRender(
     <TooeeProvider initialMode="cursor">
@@ -102,12 +109,14 @@ test("cursor Enter on a line with several links opens a chooser instead of takin
 
 test("stdin consumes links with an info toast without running custom handlers", async () => {
   const handler = mock(() => true);
+
   const { router } = createStandaloneRouter({
     contentProvider: {
       load: () => ({ format: "markdown", markdown: "[Local document](next.md)" }),
     },
     linkHandlers: [handler],
   });
+
   await router.start();
   setup = await testRender(
     <TooeeProvider initialMode="cursor">

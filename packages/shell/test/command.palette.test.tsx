@@ -16,6 +16,7 @@ const LateRegistrant = function LateRegistrant() {
     modes: ["cursor"],
     title: "Late Arrival Command",
   });
+
   return null;
 };
 
@@ -31,6 +32,7 @@ const LateHarness = function LateHarness(): ReactNode {
     modes: ["cursor"],
     title: "Show late",
   });
+
   return (
     <box flexDirection="column">
       {showLate && <LateRegistrant />}
@@ -92,7 +94,9 @@ const setup = async function setup() {
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 80 }
   );
+
   await s.renderOnce();
+
   return s;
 };
 
@@ -135,12 +139,14 @@ describe("command palette", () => {
     // Register a command well after the palette provider mounted, then open.
     await press(testSetup, "l");
     await press(testSetup, ":");
+
     // Filter down to the late command (the harness box only fits a few rows).
     // preserve ordered filter input for the palette.
     for (const key of "arrival") {
       // oxlint-disable-next-line no-await-in-loop -- each key must be rendered before the next key is sent
       await press(testSetup, key);
     }
+
     expect(testSetup.captureCharFrame()).toContain("Late Arrival Command");
   });
 });
@@ -182,12 +188,15 @@ interface FramePosition {
 
 const lineOf = function lineOf(frame: string, text: string): FramePosition {
   const lines = frame.split("\n");
+
   for (let y = 0; y < lines.length; y += 1) {
     const x = lines[y].indexOf(text);
+
     if (x !== -1) {
       return { x, y };
     }
   }
+
   return { x: -1, y: -1 };
 };
 
@@ -198,7 +207,9 @@ const setupClick = async function setupClick(onRun: (id: string) => void) {
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 80 }
   );
+
   await s.renderOnce();
+
   return s;
 };
 
@@ -210,10 +221,12 @@ describe("command palette mouse", () => {
     });
 
     await press(testSetup, ":");
+
     for (const key of "clickable") {
       // oxlint-disable-next-line no-await-in-loop -- each key must render before the next
       await press(testSetup, key);
     }
+
     await pressEnter(testSetup);
 
     expect(ran).toEqual(["test.clickable"]);

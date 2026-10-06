@@ -8,7 +8,9 @@ import { Choose } from "../src/choose.js";
 import type { ChooseContentProvider, ChooseResult } from "../src/types.js";
 
 const CONFIG_NAMESPACE = "choose-overlay-guard";
+
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
+
 process.env.XDG_CONFIG_HOME = TEST_CONFIG_HOME;
 
 beforeEach(() => {
@@ -44,6 +46,7 @@ const setup = async function setup(
 ) {
   const handleConfirm = opts.onConfirm;
   const handleCancel = opts.onCancel;
+
   const s = await testRender(
     <TooeeProvider initialMode="insert">
       <Choose
@@ -55,7 +58,9 @@ const setup = async function setup(
     </TooeeProvider>,
     { height: 30, kittyKeyboard: true, width: 80 }
   );
+
   await s.renderOnce();
+
   return s;
 };
 

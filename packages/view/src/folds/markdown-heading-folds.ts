@@ -8,6 +8,7 @@ export const headingToken = function headingToken(block: FlatBlock): Tokens.Head
   if (block.token.type !== "heading") {
     return null;
   }
+
   // SAFETY: Marked creates a Heading token for the checked "heading" discriminator.
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's Generic fallback prevents discriminator narrowing
   return block.token as Tokens.Heading;
@@ -28,6 +29,7 @@ export const markdownHeadingFoldRanges = function markdownHeadingFoldRanges(
 ): FoldRange[] {
   const ranges: FoldRange[] = [];
   const open: { depth: number; start: number }[] = [];
+
   const close = (start: number, end: number) => {
     if (end > start) {
       ranges.push({ end, key: start, start });
@@ -36,17 +38,22 @@ export const markdownHeadingFoldRanges = function markdownHeadingFoldRanges(
 
   for (const [index, block] of blocks.entries()) {
     const depth = headingDepth(block);
+
     if (depth === null) {
       continue;
     }
+
     while (open.length > 0 && (open.at(-1)?.depth ?? 0) >= depth) {
       const finished = open.pop();
+
       if (finished) {
         close(finished.start, index - 1);
       }
     }
+
     open.push({ depth, start: index });
   }
+
   for (const finished of open) {
     close(finished.start, blocks.length - 1);
   }

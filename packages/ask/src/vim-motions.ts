@@ -46,6 +46,7 @@ export const openLineAtCursor = function openLineAtCursor(
     target.cursorOffset = currentLineStart;
     target.insertText("\n");
     target.cursorOffset = currentLineStart;
+
     return;
   }
 
@@ -55,6 +56,7 @@ export const openLineAtCursor = function openLineAtCursor(
 
 const consume = function consume(key: KeyEvent): true {
   key.preventDefault();
+
   return true;
 };
 
@@ -125,11 +127,15 @@ const handleBasicMotion = function handleBasicMotion(
       },
     },
   ];
+
   const motion = motions.find(({ matches }) => matches);
+
   if (!motion) {
     return false;
   }
+
   motion.move();
+
   return consume(key);
 };
 
@@ -140,13 +146,16 @@ export const handleEditBufferVimMotion = function handleEditBufferVimMotion(
 ): boolean {
   if (!target || key.ctrl || key.meta || key.option) {
     state.pendingG = false;
+
     return false;
   }
 
   if (state.pendingG) {
     state.pendingG = false;
+
     if (isPlainKey(key, "g")) {
       target.gotoBufferHome();
+
       return consume(key);
     }
   }
@@ -154,12 +163,16 @@ export const handleEditBufferVimMotion = function handleEditBufferVimMotion(
   if (handleBasicMotion(key, target)) {
     return true;
   }
+
   if ((key.name === "g" && key.shift) || key.raw === "G") {
     target.gotoBufferEnd();
+
     return consume(key);
   }
+
   if (isPlainKey(key, "g")) {
     state.pendingG = true;
+
     return consume(key);
   }
 

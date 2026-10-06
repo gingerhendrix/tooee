@@ -33,9 +33,11 @@ describe("Choose async load (R-02)", () => {
     const provider: ChooseContentProvider = {
       load: async () => {
         const items = await Promise.reject<ChooseItem[]>(new Error("boom"));
+
         return items;
       },
     };
+
     testSetup = await testRender(
       <TooeeProvider initialMode="insert">
         <Choose contentProvider={provider} />
@@ -57,6 +59,7 @@ describe("Choose async load (R-02)", () => {
         await Promise.reject("plain failure");
       },
     };
+
     testSetup = await testRender(
       <TooeeProvider initialMode="insert">
         <Choose contentProvider={provider} />
@@ -71,20 +74,25 @@ describe("Choose async load (R-02)", () => {
 
   test("stale results from a replaced provider are ignored", async () => {
     const slow = deferred<ChooseItem[]>();
+
     const slowProvider: ChooseContentProvider = {
       load: async () => {
         const items = await slow.promise;
+
         return items;
       },
     };
+
     const fastProvider: ChooseContentProvider = { load: () => [{ text: "fresh-item" }] };
 
     let swap!: () => void;
+
     const Harness = function Harness(): ReactNode {
       const [provider, setProvider] = useState(slowProvider);
       swap = () => {
         setProvider(fastProvider);
       };
+
       return <Choose contentProvider={provider} />;
     };
 
@@ -116,20 +124,25 @@ describe("Choose async load (R-02)", () => {
 
   test("stale rejection from a replaced provider is ignored", async () => {
     const slow = deferred<ChooseItem[]>();
+
     const slowProvider: ChooseContentProvider = {
       load: async () => {
         const items = await slow.promise;
+
         return items;
       },
     };
+
     const fastProvider: ChooseContentProvider = { load: () => [{ text: "fresh-item" }] };
 
     let swap!: () => void;
+
     const Harness = function Harness(): ReactNode {
       const [provider, setProvider] = useState(slowProvider);
       swap = () => {
         setProvider(fastProvider);
       };
+
       return <Choose contentProvider={provider} />;
     };
 
@@ -165,6 +178,7 @@ describe("ChooseOverlay async load (R-02)", () => {
         <ChooseOverlay
           items={async () => {
             const items = await Promise.reject<ChooseItem[]>(new Error("overlay boom"));
+
             return items;
           }}
           onSelect={() => {}}

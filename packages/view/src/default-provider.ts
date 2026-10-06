@@ -16,26 +16,31 @@ interface DetectedFileFormat {
 
 const detectFormat = function detectFormat(filePath: string): DetectedFileFormat {
   const ext = filePath.split(".").pop()?.toLowerCase();
+
   if (ext === undefined || ext === "") {
     return { format: "text" };
   }
 
   const imageExts = new Set(["png", "jpg", "jpeg", "gif", "webp"]);
+
   if (imageExts.has(ext)) {
     return { format: "image" };
   }
 
   const tableExts = new Set(["csv", "tsv"]);
+
   if (tableExts.has(ext)) {
     return { format: "table" };
   }
 
   const diffExts = new Set(["diff", "patch"]);
+
   if (diffExts.has(ext)) {
     return { format: "diff" };
   }
 
   const markdownExts = new Set(["md", "mdx", "markdown"]);
+
   if (markdownExts.has(ext)) {
     return { format: "markdown" };
   }
@@ -69,6 +74,7 @@ const detectFormat = function detectFormat(filePath: string): DetectedFileFormat
   ]);
 
   const language = codeExts.get(ext);
+
   if (language !== undefined) {
     return { format: "code", language };
   }
@@ -86,22 +92,29 @@ const contentFromText = function contentFromText(
     case "markdown": {
       return { format: "markdown", markdown: text, title };
     }
+
     case "code": {
       return { code: text, format: "code", language, title };
     }
+
     case "diff": {
       return { format: "diff", patch: text, title };
     }
+
     case "table": {
       const parsed = parseAuto(text);
+
       return { columns: parsed.columns, format: "table", rows: parsed.rows, title };
     }
+
     case "text": {
       return { format: "text", text, title };
     }
+
     case "image": {
       return { format: "image", src: text.trim(), title };
     }
+
     default: {
       return { format: "text", text, title };
     }
@@ -124,15 +137,19 @@ export const createFileProvider = function createFileProvider(
 
       const file = Bun.file(filePath);
       const text = await file.text();
+
       // Patches are routinely written to files with no telling extension.
       const resolved =
         options.renderer === undefined && detected.format === "text" && isDiffPatch(text)
           ? "diff"
           : format;
+
       const content = contentFromText(text, resolved, title, detected.language);
+
       if (content.format === "markdown") {
         content.imageBasePath = path.dirname(path.resolve(filePath));
       }
+
       return content;
     },
   };
@@ -145,6 +162,7 @@ export const createStdinProvider = function createStdinProvider(
     async load(): Promise<Content> {
       const text = await new Response(Bun.stdin.stream()).text();
       const format = options.renderer ?? (isDiffPatch(text) ? "diff" : "markdown");
+
       return contentFromText(text, format, "stdin");
     },
   };

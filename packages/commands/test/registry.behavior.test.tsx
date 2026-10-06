@@ -9,6 +9,7 @@ import type { RegisteredCommandGroup } from "../src/index.js";
 
 const CommandRegistrant = function CommandRegistrant({ onFire }: { onFire: () => void }) {
   useCommand({ handler: onFire, hotkey: "d", id: "dup", title: "Dup" });
+
   return null;
 };
 
@@ -24,6 +25,7 @@ const CommandIdentityHarness = function CommandIdentityHarness(): ReactNode {
     id: "root.hide-first",
     title: "Hide first",
   });
+
   return (
     <box flexDirection="column">
       <text content={`first:${firstCount}`} />
@@ -46,6 +48,7 @@ const CommandIdentityHarness = function CommandIdentityHarness(): ReactNode {
 
 const GroupRegistrant = function GroupRegistrant({ title }: { title: string }) {
   useCommandGroup({ id: `group-${title}`, prefix: "g", title });
+
   return null;
 };
 
@@ -63,6 +66,7 @@ const GroupIdentityHarness = function GroupIdentityHarness({
     id: "root.hide-first",
     title: "Hide first",
   });
+
   return (
     <box>
       <ProbeComponent />
@@ -118,13 +122,16 @@ describe("registry unregister guards (R-05)", () => {
     interface ObservedRegistry {
       groups?: ReadonlyMap<string, RegisteredCommandGroup>;
     }
+
     const observed: ObservedRegistry = {};
+
     const currentGroups = (): ReadonlyMap<string, RegisteredCommandGroup> =>
       expectDefined(observed.groups);
 
     const Probe = function Probe() {
       const { groups } = useCommandRegistry();
       observed.groups = groups;
+
       return null;
     };
 

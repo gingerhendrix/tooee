@@ -5,10 +5,15 @@ import { MarkSet } from "@tooee/marks";
 import { createViewCommandContext } from "../src/hooks/use-view-command-context.js";
 
 const providerMark = new MarkSet("provider", 1, []);
+
 const userMark = new MarkSet("user", 1, []);
+
 const reload = () => {};
+
 const setMarkSet = () => {};
+
 const clearNamespace = () => {};
+
 const clearAll = () => {};
 
 describe("createViewCommandContext", () => {

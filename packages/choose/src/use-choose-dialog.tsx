@@ -86,6 +86,7 @@ const defaultDialogItem = function defaultDialogItem<T>(item: T): ChooseItem {
  */
 export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle<T> {
   const dialog = useOverlayDialog<T | T[]>();
+
   return useMemo<ChooseDialogHandle<T>>(() => {
     const open = async (
       options: ChooseDialogOptionsBase<T> & { toItem?: (item: T) => ChooseItem }
@@ -95,11 +96,14 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
       // `toItem` results that share references stay unambiguous.
       const toItem = options.toItem ?? defaultDialogItem;
       const rowToValue = new Map<ChooseItem, T>();
+
       const mapValues = (values: readonly T[]): ChooseItem[] => {
         rowToValue.clear();
+
         return values.map((value) => {
           const row = { ...toItem(value) };
           rowToValue.set(row, value);
+
           return row;
         });
       };
@@ -107,17 +111,21 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
       // Created once per open() so the source identity is stable across
       // overlay re-renders (a fresh source each render would reload forever).
       const { items } = options;
+
       const source: ChooseSource = isDialogItemArray(items)
         ? mapValues(items)
         : (): ChooseItem[] | Promise<ChooseItem[]> => {
             const loaded = items();
+
             if (loaded instanceof Promise) {
               return (async () => mapValues(await loaded))();
             }
+
             return mapValues(loaded);
           };
 
       const multi = options.multi === true;
+
       const shared = {
         commands: options.commands,
         emptyMessage: options.emptyMessage,
@@ -139,8 +147,10 @@ export const useChooseDialog = function useChooseDialog<T>(): ChooseDialogHandle
             onSubmit={(result) => {
               const values = result.items.flatMap((row) => {
                 const value = rowToValue.get(row);
+
                 return value === undefined ? [] : [value];
               });
+
               settle(values);
             }}
             onCancel={() => {

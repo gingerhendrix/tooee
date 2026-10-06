@@ -42,6 +42,7 @@ const renderThemedContent = function renderThemedContent(
   if (content.kind === "empty") {
     return null;
   }
+
   return content.kind === "string" ? <text content={content.value} fg={color} /> : content.value;
 };
 
@@ -52,9 +53,11 @@ const renderPrompt = function renderPrompt(
   if (prompt.kind === "empty") {
     return null;
   }
+
   if (prompt.kind === "node") {
     return prompt.value;
   }
+
   return (
     <box paddingLeft={1} paddingRight={1}>
       <text fg={textColor}>

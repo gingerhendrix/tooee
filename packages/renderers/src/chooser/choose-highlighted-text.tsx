@@ -24,6 +24,7 @@ export const ChooseHighlightedText = function ChooseHighlightedText({
 
   for (let index = 0; index < text.length; index += 1) {
     const highlighted = positionSet.has(index);
+
     if (index === 0) {
       current = text[index];
       currentHighlighted = highlighted;
@@ -35,6 +36,7 @@ export const ChooseHighlightedText = function ChooseHighlightedText({
       currentHighlighted = highlighted;
     }
   }
+
   if (current) {
     parts.push({ highlighted: currentHighlighted, text: current });
   }

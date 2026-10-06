@@ -38,6 +38,7 @@ const markdownBlockAdapter = function markdownBlockAdapter(
   blocks: readonly FlatBlock[]
 ): DocumentRowAdapter<FlatBlock> {
   const indices = new Map(blocks.map((block, index) => [block, index]));
+
   return {
     getKey: (block, index) => indices.get(block) ?? index,
     getSource: (block) => block.source,
@@ -76,8 +77,10 @@ export const MarkdownSubview = function MarkdownSubview({
       ],
     }
   );
+
   const foldActions = useFoldActions(folds, document.navigation);
   useFoldCommands(folds, foldActions, document.navigation);
+
   // Declared after the controller, so its jump effect runs after the
   // controller has taken the new rows.
   const outline = useMarkdownOutline({
@@ -87,20 +90,25 @@ export const MarkdownSubview = function MarkdownSubview({
     navigation: document.navigation,
     revealRow: document.revealRow,
   });
+
   const { width: terminalWidth } = useTerminalDimensions();
   const buildCommandContext = useBuildCommandContext();
+
   const handleLinkActivate = onLinkActivate
     ? (href: string) => onLinkActivate(href, buildCommandContext())
     : undefined;
 
   const hScrollableBlocksRef = useRef<Map<number, TextBufferRenderable>>(new Map());
+
   const cursorScrollable = () =>
     document.activeIndex === null
       ? undefined
       : hScrollableBlocksRef.current.get(document.activeIndex);
+
   useCommand({
     handler: () => {
       const target = cursorScrollable();
+
       if (target) {
         target.scrollX -= BLOCK_HSCROLL_STEP;
       }
@@ -114,6 +122,7 @@ export const MarkdownSubview = function MarkdownSubview({
   useCommand({
     handler: () => {
       const target = cursorScrollable();
+
       if (target) {
         target.scrollX += BLOCK_HSCROLL_STEP;
       }

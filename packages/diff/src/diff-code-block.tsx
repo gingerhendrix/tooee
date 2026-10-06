@@ -32,6 +32,7 @@ export const parseDiffFenceOptions = function parseDiffFenceOptions(
       .slice(1)
       .map((word) => word.toLowerCase())
   );
+
   return {
     layout: words.has("split") ? "split" : "stack",
     showLineNumbers: !words.has("nolines"),
@@ -54,6 +55,7 @@ const DiffCodeBlock = function DiffCodeBlock({
   indent,
 }: CodeBlockRendererProps): ReactNode {
   const { theme, name: themeName } = useTheme();
+
   const model = useMemo(() => {
     try {
       return buildDiffModel(text);
@@ -61,6 +63,7 @@ const DiffCodeBlock = function DiffCodeBlock({
       return null;
     }
   }, [text]);
+
   const options = useMemo(() => parseDiffFenceOptions(info), [info]);
 
   // A ```diff fence is often prose-style +/- lines with no hunk headers. Only
@@ -71,6 +74,7 @@ const DiffCodeBlock = function DiffCodeBlock({
 
   const hunkTheme = resolveHunkDiffTheme(themeName, theme);
   const blockWidth = Math.max(1, width);
+
   // A single-file fence needs no file header: the fence is the file.
   const rows =
     model.files.length > 1 ? model.rows : model.rows.filter((row) => row.kind !== "file");

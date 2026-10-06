@@ -11,6 +11,7 @@ const sharedReleaseTag = (): TegamiPlugin => ({
 
     for (const [id, packagePlan] of plan.packages) {
       const pkg = this.graph.get(id);
+
       if (pkg?.group?.name !== "tooee" || pkg.version === undefined) {
         continue;
       }

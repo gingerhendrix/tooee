@@ -23,6 +23,7 @@ const ChordSurface = function ChordSurface({
   onChord: () => void;
 }): ReactNode {
   useCommand({ handler: onChord, hotkey: "g g", id: "s.chord", title: "Chord" });
+
   return <text content={`SURFACE gen:${generation}`} />;
 };
 
@@ -33,6 +34,7 @@ const SequenceProbe = function SequenceProbe() {
   // cover a probe text row in the frame.
   const sequence = useCommandSequenceState();
   pendingLength = sequence ? sequence.prefix.length : 0;
+
   return null;
 };
 
@@ -76,6 +78,7 @@ describe("F-09: same-id overlay replacement resets a pending chord (shell bridge
 
     const ControllerCapture = function ControllerCapture() {
       controller = useOverlay();
+
       return null;
     };
 

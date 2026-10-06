@@ -9,7 +9,9 @@ import { ChooseOverlay } from "../src/choose-overlay.js";
 import type { ChooseItem } from "../src/types.js";
 
 const CONFIG_NAMESPACE = "choose-overlay-mouse";
+
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
+
 process.env.XDG_CONFIG_HOME = TEST_CONFIG_HOME;
 
 beforeEach(() => {
@@ -33,12 +35,15 @@ interface FramePosition {
 
 const lineOf = function lineOf(frame: string, text: string): FramePosition {
   const lines = frame.split("\n");
+
   for (let y = 0; y < lines.length; y += 1) {
     const x = lines[y].indexOf(text);
+
     if (x !== -1) {
       return { x, y };
     }
   }
+
   return { x: -1, y: -1 };
 };
 
@@ -57,7 +62,9 @@ const setup = async function setup(opts: {
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 60 }
   );
+
   await s.renderOnce();
+
   return s;
 };
 

@@ -5,5 +5,6 @@ export const expectDefined = <T>(
   if (value === null || value === undefined) {
     throw new Error(message);
   }
+
   return value;
 };

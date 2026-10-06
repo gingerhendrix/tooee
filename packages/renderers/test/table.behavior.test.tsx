@@ -18,9 +18,11 @@ const createRows = function createRows(
 ) {
   return values.map((row) => {
     const record: Record<string, string> = {};
+
     for (const [index, column] of columns.entries()) {
       record[column.key] = row[index] ?? "";
     }
+
     return record;
   });
 };
@@ -236,6 +238,7 @@ describe("fill mode", () => {
       ...defaultOptions,
       columnWidthMode: "fill",
     });
+
     const total = widths.reduce((a, b) => a + b, 0);
     expect(total).toBe(80);
   });
@@ -245,6 +248,7 @@ describe("fill mode", () => {
       ...defaultOptions,
       columnWidthMode: "fill",
     });
+
     // Both columns should get equal extra space (same natural width)
     expect(widths[0]).toBe(widths[1]);
   });
@@ -262,6 +266,7 @@ describe("fill mode", () => {
       30,
       { ...defaultOptions, columnWidthMode: "fill" }
     );
+
     const total = widths.reduce((a, b) => a + b, 0);
     expect(total).toBeLessThanOrEqual(30);
   });
@@ -296,6 +301,7 @@ describe("Table utilities", () => {
       40,
       defaultOptions
     );
+
     // No border overhead -- total column widths should fit within maxWidth
     const total = widths.reduce((a, b) => a + b, 0);
     expect(total).toBeLessThanOrEqual(40);

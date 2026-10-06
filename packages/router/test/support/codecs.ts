@@ -17,22 +17,27 @@ const asRecord = function asRecord(value: unknown): Record<string, unknown> {
   if (typeof value !== "object" || value === null) {
     throw new TypeError(`Expected an object, got ${typeof value}`);
   }
+
   return { ...value };
 };
 
 const stringAt = function stringAt(record: Record<string, unknown>, field: string): string {
   const raw = record[field];
+
   if (typeof raw !== "string") {
     throw new TypeError(`Expected "${field}" to be a string`);
   }
+
   return raw;
 };
 
 const numberAt = function numberAt(record: Record<string, unknown>, field: string): number {
   const raw = record[field];
+
   if (typeof raw !== "number") {
     throw new TypeError(`Expected "${field}" to be a number`);
   }
+
   return raw;
 };
 
@@ -65,6 +70,7 @@ export const numberState: Codec<number> = {
     if (typeof value !== "number") {
       throw new TypeError(`Expected a number, got ${typeof value}`);
     }
+
     return value;
   },
 };

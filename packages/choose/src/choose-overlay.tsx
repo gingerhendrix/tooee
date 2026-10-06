@@ -50,6 +50,7 @@ export type ChooseOverlayProps = ChooseOverlayBaseProps &
  */
 export const ChooseOverlay = function ChooseOverlay(props: ChooseOverlayProps): ReactNode {
   const multi = props.multi === true;
+
   const choose = useChoose({
     commandScope: "choose-overlay",
     commands: props.commands,
@@ -59,7 +60,9 @@ export const ChooseOverlay = function ChooseOverlay(props: ChooseOverlayProps): 
       if (multi) {
         return props.onSubmit(result);
       }
+
       const [item] = result.items;
+
       if (item !== undefined) {
         return props.onSelect(item);
       }

@@ -63,7 +63,9 @@ interface HarnessRef {
 }
 
 const handles: HarnessRef = { current: null };
+
 let hostProbeCount = 0;
+
 let settlements: (string | null)[] = [];
 
 beforeEach(() => {
@@ -86,6 +88,7 @@ const DialogOwner = function DialogOwner({
 }) {
   const dialog = useAskDialog();
   openRef.current = dialog;
+
   return null;
 };
 
@@ -137,7 +140,9 @@ const setup = async function setup() {
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 80 }
   );
+
   await session.renderOnce();
+
   return session;
 };
 
@@ -159,6 +164,7 @@ describe("useAskDialog settlement", () => {
     await openDialog(
       async (o) => {
         const result = await expectDefined(handles.current).dialog.open(o);
+
         return result;
       },
       "Question?",
@@ -179,6 +185,7 @@ describe("useAskDialog settlement", () => {
     await openDialog(
       async (o) => {
         const result = await expectDefined(handles.current).dialog.open(o);
+
         return result;
       },
       "Question?",
@@ -197,6 +204,7 @@ describe("useAskDialog settlement", () => {
     await openDialog(
       async (o) => {
         const result = await expectDefined(handles.current).dialog.open(o);
+
         return result;
       },
       "Question?",
@@ -218,6 +226,7 @@ describe("useAskDialog settlement", () => {
     await openDialog(
       async (o) => {
         const result = await expectDefined(handles.current).dialog.open(o);
+
         return result;
       },
       "Question?",
@@ -259,6 +268,7 @@ describe("useAskDialog settlement", () => {
     await openDialog(
       async (o) => {
         const result = await expectDefined(expectDefined(handles.current).ownerDialog).open(o);
+
         return result;
       },
       "Owned?",

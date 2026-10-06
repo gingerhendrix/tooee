@@ -9,10 +9,12 @@ const decodeChooseSource = function decodeChooseSource(source: ChooseSource): De
   if (Array.isArray(source)) {
     return { items: source, kind: "items" };
   }
+
   // oxlint-disable-next-line anti-slop/no-runtime-typeof -- public source boundary distinguishes the documented loader callback from a provider
   if (typeof source === "function") {
     return { kind: "loader", load: source };
   }
+
   return { kind: "provider", provider: source };
 };
 
@@ -21,12 +23,15 @@ export const loadChooseSource = function loadChooseSource(
   source: ChooseSource
 ): ChooseItem[] | Promise<ChooseItem[]> {
   const decoded = decodeChooseSource(source);
+
   if (decoded.kind === "items") {
     return decoded.items;
   }
+
   if (decoded.kind === "loader") {
     return decoded.load();
   }
+
   return decoded.provider.load();
 };
 

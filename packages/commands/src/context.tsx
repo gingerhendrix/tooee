@@ -47,7 +47,9 @@ interface CommandStoreContextValue {
 }
 
 const CommandStoreReactContext = createContext<CommandStoreContextValue | null>(null);
+
 const CommandSequenceContext = createContext<CommandSequenceState | null>(null);
+
 /** Nesting depth of the nearest command surface (0 at the root app). */
 const CommandSurfaceDepthContext = createContext(0);
 
@@ -123,6 +125,7 @@ export const CommandProvider = function CommandProvider({
       sequenceTimeoutMs,
     })
   );
+
   const commandStore = storeRef.current;
 
   // Root mode changes are transitions: reset any pending chord synchronously
@@ -192,7 +195,9 @@ const CommandDispatcher = function CommandDispatcher({
     if (event.defaultPrevented) {
       return;
     }
+
     const result = commandStore.key(event);
+
     if (result.handled) {
       event.preventDefault();
       result.invoke?.();
@@ -258,9 +263,11 @@ export const CommandSurfaceProvider = function CommandSurfaceProvider({
   initialMode = "cursor",
 }: CommandSurfaceProviderProps): ReactNode {
   const parent = useContext(CommandStoreReactContext);
+
   if (!parent) {
     throw new Error("CommandSurfaceProvider must be used within a CommandProvider");
   }
+
   const { commandStore } = parent;
 
   // Surface-local mode changes are transitions too (F-08): a mid-chord mode
@@ -293,9 +300,11 @@ const CommandSurfaceInner = function CommandSurfaceInner({
   groupId?: string;
 }): ReactNode {
   const parent = useContext(CommandStoreReactContext);
+
   if (!parent) {
     throw new Error("CommandSurfaceProvider must be used within a CommandProvider");
   }
+
   const { commandStore } = parent;
 
   const parentDepth = useContext(CommandSurfaceDepthContext);
@@ -318,6 +327,7 @@ const CommandSurfaceInner = function CommandSurfaceInner({
 
   const buildCtx = (): CommandContext => {
     const registry = commandStore.registryFor(recordRef.current);
+
     return buildCommandContext({
       commands: commandsFromRegistry(registry),
       contributions: commandStore.store.getSnapshot().context.contextSources.values(),
@@ -344,6 +354,7 @@ const CommandSurfaceInner = function CommandSurfaceInner({
       role,
     };
   }
+
   const record = recordRef.current;
 
   // Mount/unmount registration is a keep-effect: it synchronizes the React
@@ -373,9 +384,11 @@ export const useSurfaceInvoke = function useSurfaceInvoke(): {
   invoke: (id: string) => void;
 } {
   const ctx = useContext(CommandStoreReactContext);
+
   if (!ctx) {
     throw new Error("useSurfaceInvoke must be used within a CommandProvider");
   }
+
   const { commandStore, surface } = ctx;
 
   // Reactive: consumers re-render when a command registers or unregisters on
@@ -383,6 +396,7 @@ export const useSurfaceInvoke = function useSurfaceInvoke(): {
   const commandMap = useSelector(commandStore.store, (s) =>
     selectSurfaceCommandMap(s.context, surface.id)
   );
+
   const registry = commandStore.registryFor(surface);
 
   return useMemo(
@@ -401,10 +415,13 @@ export const useSurfaceInvoke = function useSurfaceInvoke(): {
  */
 export const useBuildCommandContext = function useBuildCommandContext(): () => CommandContext {
   const ctx = useContext(CommandStoreReactContext);
+
   if (!ctx) {
     throw new Error("useBuildCommandContext must be used within a CommandProvider");
   }
+
   const { surface } = ctx;
+
   return useCallback(() => surface.buildCtx(), [surface]);
 };
 
@@ -416,17 +433,21 @@ export const useBuildCommandContext = function useBuildCommandContext(): () => C
  */
 export const useSurfaceRegistry = function useSurfaceRegistry(): CommandRegistry {
   const ctx = useContext(CommandStoreReactContext);
+
   if (!ctx) {
     throw new Error("useSurfaceRegistry must be used within a CommandProvider");
   }
+
   return ctx.commandStore.registryFor(ctx.surface);
 };
 
 export const useCommandRegistry = function useCommandRegistry(): CommandContextValue {
   const ctx = useContext(CommandStoreReactContext);
+
   if (!ctx) {
     throw new Error("useCommandRegistry must be used within a CommandProvider");
   }
+
   const { commandStore, surface, leaderKey } = ctx;
 
   // Subscribe to the slices so captured maps stay current across renders (the
@@ -459,9 +480,11 @@ export const useCommandSequenceState =
  */
 export const useCommandSurfaceId = function useCommandSurfaceId(): string {
   const ctx = useContext(CommandStoreReactContext);
+
   if (!ctx) {
     throw new Error("useCommandSurfaceId must be used within a CommandProvider");
   }
+
   return ctx.surface.id;
 };
 
@@ -478,8 +501,10 @@ export const useActiveCommandSurface =
     const { store } = ctx?.commandStore ?? FALLBACK_COMMAND_STORE;
 
     const record = useSelector(store, (s) => selectKeyboardOwnerSurface(s.context));
+
     const commandMap = useSelector(store, (s) => {
       const active = selectKeyboardOwnerSurface(s.context);
+
       return active ? selectSurfaceCommandMap(s.context, active.id) : undefined;
     });
 
@@ -490,6 +515,7 @@ export const useActiveCommandSurface =
       if (!record || record.role === "root") {
         return null;
       }
+
       return {
         commands: commandMap ? [...commandMap.values()] : [],
         id: record.id,
@@ -511,6 +537,7 @@ export const useSurfaceCommands = function useSurfaceCommands(
 
   const commandMap = useSelector(store, (s) => {
     const id = surfaceId ?? selectKeyboardOwnerSurface(s.context)?.id ?? ROOT_SURFACE_ID;
+
     return selectSurfaceCommandMap(s.context, id);
   });
 
@@ -537,35 +564,43 @@ export interface EffectiveCommands {
  */
 export const useEffectiveCommands = function useEffectiveCommands(): EffectiveCommands {
   const ctx = useContext(CommandStoreReactContext);
+
   if (!ctx) {
     throw new Error("useEffectiveCommands must be used within a CommandProvider");
   }
+
   const { commandStore } = ctx;
   const { store } = commandStore;
 
   const panelMap = useSelector(store, (s) => {
     const panel = selectActivePanelSurface(s.context);
+
     return panel ? selectSurfaceCommandMap(s.context, panel.id) : undefined;
   });
+
   const rootMap = useSelector(store, (s) => selectSurfaceCommandMap(s.context, ROOT_SURFACE_ID));
   const hasPanel = useSelector(store, (s) => selectActivePanelSurface(s.context) !== null);
 
   return useMemo(() => {
     const rootCommands = rootMap ? [...rootMap.values()] : [];
+
     const rootInvoke = (id: string): void => {
       commandStore.registryFor(commandStore.rootRecord).invoke(id);
     };
+
     if (!hasPanel) {
       return { commands: rootCommands, invoke: rootInvoke };
     }
 
     const panelCommands = panelMap ? [...panelMap.values()] : [];
     const panelIds = new Set(panelCommands.map((command) => command.id));
+
     const shadowed = new Set(
       panelCommands
         .map((command) => command.defaultHotkey)
         .filter((hotkey): hotkey is string => hotkey !== undefined && hotkey !== "")
     );
+
     const effectiveRoot = rootCommands
       .filter((command) => !panelIds.has(command.id))
       .map((command) =>
@@ -577,11 +612,14 @@ export const useEffectiveCommands = function useEffectiveCommands(): EffectiveCo
     const invoke = (id: string): void => {
       if (panelIds.has(id)) {
         const panel = selectActivePanelSurface(store.getSnapshot().context);
+
         if (panel) {
           commandStore.registryFor(panel).invoke(id);
+
           return;
         }
       }
+
       rootInvoke(id);
     };
 
@@ -596,14 +634,17 @@ export const useEffectiveCommands = function useEffectiveCommands(): EffectiveCo
  */
 export const useCommandStore = function useCommandStore(): CommandStore {
   const ctx = useContext(CommandStoreReactContext);
+
   if (!ctx) {
     throw new Error("useCommandStore must be used within a CommandProvider");
   }
+
   return ctx.commandStore;
 };
 
 export const useCommandGroup = function useCommandGroup(group: CommandGroup): void {
   const ctx = useContext(CommandStoreReactContext);
+
   if (!ctx) {
     throw new Error("useCommandGroup must be used within a CommandProvider");
   }
@@ -613,11 +654,14 @@ export const useCommandGroup = function useCommandGroup(group: CommandGroup): vo
 
   useEffect(() => {
     const parsed = parseHotkey(groupRef.current.prefix, leaderKey);
+
     const registered: RegisteredCommandGroup = {
       ...groupRef.current,
       prefixKey: stepsKey(parsed.steps),
     };
+
     commandStore.store.trigger.groupRegistered({ group: registered });
+
     return () => {
       // Unregistration is identity-guarded in the store transition (R-05).
       commandStore.store.trigger.groupUnregistered({ group: registered });
@@ -641,6 +685,7 @@ export const useProvideCommandContext = function useProvideCommandContext(
   getter: () => Partial<CommandContext>
 ): void {
   const ctx = useContext(CommandStoreReactContext);
+
   if (!ctx) {
     throw new Error("useProvideCommandContext must be used within a CommandProvider");
   }
@@ -648,6 +693,7 @@ export const useProvideCommandContext = function useProvideCommandContext(
   const idRef = useLazyRef(() => {
     const id = `ctx-${nextContextSourceId}`;
     nextContextSourceId += 1;
+
     return id;
   });
 
@@ -661,6 +707,7 @@ export const useProvideCommandContext = function useProvideCommandContext(
       getter: () => getterRef.current(),
       id,
     });
+
     return () => {
       commandStore.store.trigger.contextSourceUnregistered({ id });
     };

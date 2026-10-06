@@ -11,10 +11,12 @@ describe("fuzzyFilter", () => {
   test("empty query returns all items with score 0", () => {
     const result = fuzzyFilter(items("alpha", "beta", "gamma"), "");
     expect(result).toHaveLength(3);
+
     for (const m of result) {
       expect(m.score).toBe(0);
       expect(m.positions).toEqual([]);
     }
+
     expect(result[0].originalIndex).toBe(0);
     expect(result[1].originalIndex).toBe(1);
     expect(result[2].originalIndex).toBe(2);
@@ -72,6 +74,7 @@ describe("fuzzyFilter", () => {
   test("preserves originalIndex", () => {
     const input = items("cherry", "apple", "banana");
     const result = fuzzyFilter(input, "a");
+
     // All three contain 'a' but originalIndex should be preserved
     for (const m of result) {
       expect(m.item).toBe(input[m.originalIndex]);

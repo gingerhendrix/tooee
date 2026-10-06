@@ -16,6 +16,7 @@ afterEach(() => {
 
 const extractTheme = function extractTheme(text: string): string {
   const match = /Theme:\s*(?<theme>\S+)/u.exec(text);
+
   return match?.groups?.theme ?? "";
 };
 
@@ -37,18 +38,22 @@ describe("theme picker", () => {
     await session.press("enter");
     // Wait for theme picker to close and the previewed theme to apply.
     let after = "";
+
     for (let i = 0; i < 20; i += 1) {
       // Poll after each render transition until the picker closes.
       // oxlint-disable-next-line no-await-in-loop -- Preserve sequential render polling.
       const text = await session.text();
       after = extractTheme(text);
+
       if (after && after !== initial && !text.includes("aura")) {
         break;
       }
+
       // The polling interval controls the render-transition timing.
       // oxlint-disable-next-line no-await-in-loop -- Preserve sequential polling timing.
       await Bun.sleep(250);
     }
+
     expect(after).not.toBe(initial);
   }, 20_000);
 });

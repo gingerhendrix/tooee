@@ -73,25 +73,31 @@ export const createChooseStore = function createChooseStore(options: {
     on: {
       activeIndexSet: (ctx, event) => {
         const activeIndex = clampActiveIndex(event.index, ctx.matches.length);
+
         return activeIndex === ctx.activeIndex ? ctx : { ...ctx, activeIndex };
       },
       activeToggled: (ctx) => {
         const originalIndex = ctx.matches[ctx.activeIndex]?.originalIndex;
+
         if (originalIndex === undefined) {
           return ctx;
         }
+
         const selectedOriginalIndices = new Set(ctx.selectedOriginalIndices);
+
         if (selectedOriginalIndices.has(originalIndex)) {
           selectedOriginalIndices.delete(originalIndex);
         } else {
           selectedOriginalIndices.add(originalIndex);
         }
+
         return { ...ctx, selectedOriginalIndices };
       },
       filterChanged: (ctx, event) => {
         if (event.query === ctx.filterQuery) {
           return ctx;
         }
+
         return {
           ...ctx,
           activeIndex: 0,
@@ -103,6 +109,7 @@ export const createChooseStore = function createChooseStore(options: {
         if (event.requestId !== ctx.requestId) {
           return ctx;
         }
+
         return {
           ...replaceItems(ctx, []),
           error: event.error,
@@ -113,6 +120,7 @@ export const createChooseStore = function createChooseStore(options: {
         if (event.requestId !== ctx.requestId) {
           return ctx;
         }
+
         return {
           ...replaceItems(ctx, event.items),
           error: null,
@@ -123,6 +131,7 @@ export const createChooseStore = function createChooseStore(options: {
         event.requestId === ctx.requestId && !ctx.loading ? { ...ctx, loading: true } : ctx,
       moved: (ctx, event) => {
         const activeIndex = clampActiveIndex(ctx.activeIndex + event.delta, ctx.matches.length);
+
         return activeIndex === ctx.activeIndex ? ctx : { ...ctx, activeIndex };
       },
       reloadRequested: (ctx) => ({ ...ctx, reloadRevision: ctx.reloadRevision + 1 }),
@@ -138,11 +147,18 @@ export const createChooseStore = function createChooseStore(options: {
 export type ChooseStore = ReturnType<typeof createChooseStore>;
 
 export const selectItems = (ctx: ChooseStoreContext): ChooseItem[] => ctx.items;
+
 export const selectMatches = (ctx: ChooseStoreContext): FuzzyMatch[] => ctx.matches;
+
 export const selectFilterQuery = (ctx: ChooseStoreContext): string => ctx.filterQuery;
+
 export const selectActiveIndex = (ctx: ChooseStoreContext): number => ctx.activeIndex;
+
 export const selectSelectedOriginalIndices = (ctx: ChooseStoreContext): ReadonlySet<number> =>
   ctx.selectedOriginalIndices;
+
 export const selectLoading = (ctx: ChooseStoreContext): boolean => ctx.loading;
+
 export const selectError = (ctx: ChooseStoreContext): string | null => ctx.error;
+
 export const selectReloadRevision = (ctx: ChooseStoreContext): number => ctx.reloadRevision;

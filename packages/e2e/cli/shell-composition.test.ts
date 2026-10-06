@@ -5,7 +5,9 @@ import { launchTerminal } from "tuistory";
 import type { Session } from "tuistory";
 
 const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
+
 const CLI = path.resolve(REPO_ROOT, "apps/cli/src/main.ts");
+
 const cliCommand = `bun --conditions=@tooee/source ${JSON.stringify(CLI)}`;
 
 let session: Session | undefined;
@@ -16,6 +18,7 @@ afterEach(() => {
   } catch {
     // The application can close the PTY before test cleanup.
   }
+
   session = undefined;
 });
 
@@ -28,7 +31,9 @@ const launchShell = async function launchShell(source: string): Promise<Session>
     env: process.env,
     rows: 24,
   });
+
   session = terminal;
+
   return terminal;
 };
 
@@ -91,6 +96,7 @@ test("a session without a controlling terminal reports a startup error", async (
     stdin: "pipe",
     stdout: "pipe",
   });
+
   void process.stdin.end();
 
   const [exitCode, stdout, stderr] = await Promise.all([

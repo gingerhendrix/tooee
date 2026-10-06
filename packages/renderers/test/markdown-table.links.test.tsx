@@ -42,12 +42,15 @@ interface Point {
 /** Screen position of the first rendered occurrence of `text`, searched from `fromLine`. */
 const locate = function locate(text: string, fromLine = 0): Point {
   const lines = testSetup.captureCharFrame().split("\n");
+
   for (let y = fromLine; y < lines.length; y += 1) {
     const x = lines[y]?.indexOf(text) ?? -1;
+
     if (x !== -1) {
       return { x, y };
     }
   }
+
   throw new Error(`"${text}" is not on screen:\n${lines.join("\n")}`);
 };
 
@@ -70,6 +73,7 @@ const renderTable = async function renderTable(
             ? undefined
             : (href) => {
                 activated.push(href);
+
                 return onLinkActivate(href);
               }
         }
@@ -78,6 +82,7 @@ const renderTable = async function renderTable(
     { height: 20, width }
   );
   await testSetup.renderOnce();
+
   return { activated, selected };
 };
 
@@ -97,6 +102,7 @@ describe("MarkdownView table links", () => {
       60,
       handled
     );
+
     await click(locate("Plan"));
     expect(result.activated).toEqual(["plan.md"]);
     expect(result.selected).toEqual([]);
@@ -108,6 +114,7 @@ describe("MarkdownView table links", () => {
       60,
       handled
     );
+
     const alpha = locate("Alpha");
     await click({ x: alpha.x + 4, y: alpha.y });
     await click(locate("Beta"));
@@ -122,6 +129,7 @@ describe("MarkdownView table links", () => {
       34,
       handled
     );
+
     const first = locate("several");
     const target = locate("Target", first.y);
     expect(target.y).toBeGreaterThan(first.y);
@@ -137,6 +145,7 @@ describe("MarkdownView table links", () => {
       60,
       handled
     );
+
     await click(locate("plain"));
     expect(result.activated).toEqual([]);
     expect(result.selected).toHaveLength(1);
@@ -148,6 +157,7 @@ describe("MarkdownView table links", () => {
       60,
       () => false
     );
+
     await click(locate("External"));
     expect(result.activated).toEqual(["https://example.com"]);
     expect(result.selected).toHaveLength(1);

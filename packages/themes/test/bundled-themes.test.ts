@@ -9,6 +9,7 @@ for (const [name, json] of loadThemes()) {
   for (const mode of ["dark", "light"] as const) {
     test(`bundled theme "${name}" resolves in ${mode} mode`, () => {
       const resolved = resolveTheme(json, mode);
+
       for (const [key, value] of Object.entries(resolved)) {
         expect(value, `${name}.${key} (${mode})`).toMatch(HEX);
       }

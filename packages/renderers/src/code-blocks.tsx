@@ -130,6 +130,7 @@ export const defaultCodeBlockRenderer: CodeBlockRenderer = ({
 }): ReactNode => {
   const { register, onMouseScroll: handleMouseScroll } = hScroll;
   const lineCount = text.split("\n").length;
+
   // Code lines never wrap (wrapMode "none") — wide code blocks and ASCII
   // diagrams pan horizontally via the renderable's own viewport (`scrollX`)
   // instead of word-wrapping into an unreadable mess. Blocks that fit render
@@ -166,6 +167,7 @@ export const mermaidCodeBlockRenderer: CodeBlockRenderer = ({
   hScroll,
 }): ReactNode => {
   const { register, onMouseScroll: handleMouseScroll } = hScroll;
+
   const mermaidTheme = {
     accent: theme.accent,
     arrow: theme.accent,
@@ -176,6 +178,7 @@ export const mermaidCodeBlockRenderer: CodeBlockRenderer = ({
     junction: theme.borderSubtle,
     line: theme.textMuted,
   };
+
   const result = renderMermaidForTerminal(text, { mode: "ansi", theme: mermaidTheme });
 
   if (!result.ok) {
@@ -183,6 +186,7 @@ export const mermaidCodeBlockRenderer: CodeBlockRenderer = ({
   }
 
   const lineCount = result.text.split("\n").length;
+
   // Diagram lines never wrap (wrapMode "none"). Wide diagrams pan via the
   // text renderable's own viewport (`scrollX`), which the native renderer
   // clips with correct style-run alignment. Translating a natural-width text
@@ -210,6 +214,7 @@ const DEFAULT_CODE_BLOCK_RENDERER_ENTRIES = {
 /** Built-in code block renderers, merged under user-provided entries. */
 // oxlint-disable-next-line anti-slop/no-known-value-widening -- public registry contract permits arbitrary fence-type lookup
 const defaultRendererMap: Record<string, CodeBlockRenderer> = DEFAULT_CODE_BLOCK_RENDERER_ENTRIES;
+
 export { defaultRendererMap as DEFAULT_CODE_BLOCK_RENDERERS };
 
 // ---------------------------------------------------------------------------
@@ -234,13 +239,16 @@ const useHScrollableBlock = function useHScrollableBlock(
   hScrollableBlocksRef?: RefObject<Map<number, TextBufferRenderable>>
 ) {
   const nodeRef = useRef<TextBufferRenderable | null>(null);
+
   const register = useCallback(
     (node: TextBufferRenderable | null) => {
       nodeRef.current = node;
       const map = hScrollableBlocksRef?.current;
+
       if (!map) {
         return;
       }
+
       if (node) {
         map.set(blockIndex, node);
       } else {
@@ -252,10 +260,13 @@ const useHScrollableBlock = function useHScrollableBlock(
 
   const handleMouseScroll = useCallback((event: MouseEvent) => {
     const node = nodeRef.current;
+
     if (!node || !event.scroll || !event.modifiers.shift) {
       return;
     }
+
     const { direction, delta } = event.scroll;
+
     if (direction === "up") {
       node.scrollX -= delta;
     } else if (direction === "down") {
@@ -283,11 +294,13 @@ const CustomCodeBlock = function CustomCodeBlock({
   rendererProps: CodeBlockRendererProps;
 }): ReactNode {
   let node: ReactNode = null;
+
   try {
     node = renderer(rendererProps);
   } catch {
     node = null;
   }
+
   return node ?? defaultCodeBlockRenderer(rendererProps);
 };
 
@@ -332,6 +345,7 @@ export const CodeBlock = function CodeBlock({
   };
 
   const custom = rendererProps.lang === "" ? undefined : renderers?.[rendererProps.lang];
+
   if (custom && custom !== defaultCodeBlockRenderer) {
     // Keyed by fence type so a type change remounts the custom renderer
     // (renderers may use hooks; see CodeBlockRenderer docs).

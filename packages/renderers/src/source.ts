@@ -56,16 +56,19 @@ export interface DocumentRowAnchor<T> {
 // ---------------------------------------------------------------------------
 
 const LINE_FEED_CODE = 10;
+
 const CARRIAGE_RETURN_CODE = 13;
 
 /** Offsets of the first character of every physical line. */
 const buildLineStarts = function buildLineStarts(text: string): number[] {
   const starts = [0];
+
   for (let i = 0; i < text.length; i += 1) {
     if (text.codePointAt(i) === LINE_FEED_CODE) {
       starts.push(i + 1);
     }
   }
+
   return starts;
 };
 
@@ -90,19 +93,23 @@ export class SourceIndex {
     const starts = this.lineStarts;
     let lo = 0;
     let hi = starts.length - 1;
+
     while (lo < hi) {
       const mid = Math.floor((lo + hi + 1) / 2);
+
       if (starts[mid] <= offset) {
         lo = mid;
       } else {
         hi = mid - 1;
       }
     }
+
     return lo;
   }
 
   point(offset: number): SourcePoint {
     const line = this.lineAt(offset);
+
     return { column: offset - this.lineStarts[line], line, offset };
   }
 
@@ -111,12 +118,15 @@ export class SourceIndex {
     const starts = this.lineStarts;
     const nextStart = line + 1 < starts.length ? starts[line + 1] : this.text.length;
     let end = nextStart;
+
     if (end > starts[line] && this.text.codePointAt(end - 1) === LINE_FEED_CODE) {
       end -= 1;
+
       if (end > starts[line] && this.text.codePointAt(end - 1) === CARRIAGE_RETURN_CODE) {
         end -= 1;
       }
     }
+
     return end;
   }
 
@@ -128,14 +138,17 @@ export class SourceIndex {
    */
   span(rawStart: number, rawEnd: number, trimTrailingNewlines = true): SourceSpan {
     let end = rawEnd;
+
     if (trimTrailingNewlines) {
       while (end > rawStart && this.text.codePointAt(end - 1) === 10) {
         end -= 1;
+
         if (end > rawStart && this.text.codePointAt(end - 1) === 13) {
           end -= 1;
         }
       }
     }
+
     if (end < rawStart) {
       end = rawStart;
     }
@@ -143,6 +156,7 @@ export class SourceIndex {
     const start = this.point(rawStart);
     const endPoint = this.point(end);
     const lastLine = end > rawStart ? this.lineAt(end - 1) : start.line;
+
     const span: SourceSpan = {
       end: endPoint,
       lastLine,
@@ -150,9 +164,11 @@ export class SourceIndex {
       start,
       text: this.text.slice(rawStart, end),
     };
+
     if (this.sourceId !== undefined) {
       span.sourceId = this.sourceId;
     }
+
     return span;
   }
 }
@@ -179,6 +195,7 @@ export const sourceLines = function sourceLines(
 ): SourceLineRow[] {
   const index = new SourceIndex(source, options?.sourceId);
   const rows: SourceLineRow[] = [];
+
   for (let line = 0; line < index.lineStarts.length; line += 1) {
     const start = index.lineStarts[line];
     const end = index.lineContentEnd(line);
@@ -187,6 +204,7 @@ export const sourceLines = function sourceLines(
       text: source.slice(start, end),
     });
   }
+
   return rows;
 };
 

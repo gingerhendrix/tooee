@@ -39,7 +39,9 @@ const setupAsk = async function setupAsk(
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 80 }
   );
+
   await s.renderOnce();
+
   return s;
 };
 
@@ -63,7 +65,9 @@ const setup = async function setup(
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 80 }
   );
+
   await s.renderOnce();
+
   return s;
 };
 
@@ -124,6 +128,7 @@ const findEditableWithText = function findEditableWithText(
 
   for (const child of node.getChildren()) {
     const match = findEditableWithText(child, text);
+
     if (match) {
       return match;
     }

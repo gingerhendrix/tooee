@@ -26,6 +26,7 @@ export const useThemePicker = function useThemePicker(): ThemePickerState {
   const { stack } = useOverlayState();
   const originalThemeRef = useRef(currentTheme);
   const handleRef = useRef<OverlayHandle<null> | null>(null);
+
   const entries = useMemo<ThemePickerEntry[]>(
     () => allThemes.map((name) => ({ id: name, title: name })),
     [allThemes]

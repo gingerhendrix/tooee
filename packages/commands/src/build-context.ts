@@ -47,8 +47,10 @@ export const buildCommandContext = function buildCommandContext(
     mode: input.mode,
     setMode: input.setMode,
   };
+
   for (const getter of input.contributions ?? []) {
     Object.assign(base, getter());
   }
+
   return base;
 };

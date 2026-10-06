@@ -23,28 +23,37 @@ import { createOverlayStore } from "./overlay-store.js";
 import type { OverlayRecord, OverlayStore } from "./overlay-store.js";
 
 declare const record: OverlayRecord;
+
 declare const reason: OverlayCloseReason;
 
 // --- Type-level assertion helpers -------------------------------------------
 
 type Assert<T extends true> = T;
+
 type IsNever<T> = [T] extends [never] ? true : false;
+
 type Has<TKeys, TName> = [Extract<TKeys, TName>] extends [never] ? false : true;
 
 type TriggerNames = keyof OverlayStore["trigger"];
+
 type SendNames = Parameters<OverlayStore["send"]>[0]["type"];
+
 type EmittedNames = Parameters<OverlayStore["on"]>[0];
 
 // --- Known event names must be present --------------------------------------
 
 type KnownTriggers = Assert<Has<TriggerNames, "opened" | "updated" | "closed" | "closedTop">>;
+
 type KnownSends = Assert<Has<SendNames, "opened" | "updated" | "closed" | "closedTop">>;
+
 type KnownEmits = Assert<Has<EmittedNames, "closed">>;
 
 // --- Unknown event names must NOT exist in the maps --------------------------
 
 type UnknownTriggerRejected = Assert<IsNever<Extract<TriggerNames, "bogusEvent">>>;
+
 type UnknownSendRejected = Assert<IsNever<Extract<SendNames, "bogusEvent">>>;
+
 type UnknownEmitRejected = Assert<IsNever<Extract<EmittedNames, "bogusEmit">>>;
 
 export type OverlayStoreEventNameChecks = [
@@ -79,6 +88,7 @@ export const overlayStoreTypeChecks = function overlayStoreTypeChecks(): void {
       restoreModeTo: string | null;
       record: OverlayRecord;
     } = emitted;
+
     void closeReason;
     void restoreModeTo;
     void closedRecord;

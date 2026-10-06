@@ -26,12 +26,15 @@ const parseRenderer = function parseRenderer(value: string | undefined): Content
     console.error("Missing value for --renderer");
     process.exit(2);
   }
+
   const renderer = RENDERERS.find((candidate) => candidate === value);
+
   if (renderer === undefined) {
     console.error(`Unknown renderer: ${value}`);
     console.error(`Expected one of: ${RENDERERS.join(", ")}`);
     process.exit(2);
   }
+
   return renderer;
 };
 
@@ -42,19 +45,23 @@ const parseViewArgs = function parseViewArgs(rawArgs: string[]): ViewArgs {
 
   for (let i = 0; i < rawArgs.length; i += 1) {
     const arg = rawArgs[i];
+
     if (arg === "--renderer" || arg === "-r") {
       i += 1;
       renderer = parseRenderer(rawArgs[i]);
       continue;
     }
+
     if (arg.startsWith("--renderer=")) {
       renderer = parseRenderer(arg.slice("--renderer=".length));
       continue;
     }
+
     if (arg === "--outline") {
       outline = true;
       continue;
     }
+
     if (filePath === undefined || filePath === "") {
       filePath = arg;
       continue;
@@ -99,14 +106,17 @@ try {
   switch (command) {
     case "view": {
       const { filePath, outline, renderer } = parseViewArgs(args);
+
       if (filePath !== undefined && filePath !== "") {
         try {
           const stat = statSync(filePath);
+
           if (stat.isDirectory()) {
             if (renderer) {
               console.error("--renderer cannot be used with directory view");
               process.exit(2);
             }
+
             await launchDirectory({ dirPath: filePath });
             break;
           }
@@ -114,24 +124,30 @@ try {
           // Fall through to file provider which will show its own error
         }
       }
+
       const contentProvider =
         filePath !== undefined && filePath !== ""
           ? createFileProvider(filePath, { renderer })
           : createStdinProvider({ renderer });
+
       await launchView({ contentProvider, filePath, outline });
       break;
     }
 
     case "ask": {
       const singleLine = args.includes("--single-line") || args.includes("-s");
+
       const filtered = args.filter(
         (a) => a !== "--multiline" && a !== "-m" && a !== "--single-line" && a !== "-s"
       );
+
       const prompt = filtered.join(" ") || undefined;
       const result = await launchAsk({ multiline: !singleLine, prompt });
+
       if (result === null) {
         process.exit(1);
       }
+
       process.stdout.write(`${result}\n`);
       break;
     }
@@ -142,6 +158,7 @@ try {
       const prompt = promptIdx === -1 ? undefined : args[promptIdx + 1];
       const contentProvider = createStdinChooseProvider();
       const result = await launchChoose({ contentProvider, options: { multi, prompt } });
+
       if (result) {
         for (const item of result.items) {
           process.stdout.write(`${item.value ?? item.text}\n`);
@@ -149,6 +166,7 @@ try {
       } else {
         process.exit(1);
       }
+
       break;
     }
 

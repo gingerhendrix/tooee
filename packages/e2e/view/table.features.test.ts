@@ -86,12 +86,14 @@ describe("table sticky header", () => {
     await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
     // Header should be visible initially
     expect(await session.text()).toContain("name");
+
     // Scroll down significantly
     for (let i = 0; i < 20; i += 1) {
       // Each key must be delivered in order to advance the cursor.
       // oxlint-disable-next-line no-await-in-loop -- Preserve sequential terminal input.
       await session.press("j");
     }
+
     await session.waitForText(/Cursor:\s*(?:1\d|2\d)/u, { timeout: 5000 });
     const text = await session.text();
     // Header should STILL be visible at the top (sticky)

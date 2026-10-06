@@ -44,12 +44,16 @@ export const Ask = function Ask({
   const handleSubmit = (text: string) => {
     if (actions?.some((a) => a.id === "submit") === true) {
       invoke("submit");
+
       return;
     }
+
     if (onSubmit) {
       onSubmit(text);
+
       return;
     }
+
     renderer.destroy();
   };
 
@@ -60,6 +64,7 @@ export const Ask = function Ask({
     placeholder,
     suspended: hasOverlay,
   });
+
   const handleMouseDown = editor.onMouseDown;
 
   useProvideCommandContext(() => ({

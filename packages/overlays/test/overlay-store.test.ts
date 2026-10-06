@@ -16,6 +16,7 @@ const expectDefined = function expectDefined<T>(value: T | undefined): T {
   if (value === undefined) {
     throw new Error("Expected test value to be defined");
   }
+
   return value;
 };
 
@@ -34,6 +35,7 @@ const collectCloses = function collectCloses(
   store.on("closed", (emit) => {
     closes.push(emit);
   });
+
   return closes;
 };
 

@@ -18,6 +18,7 @@ import { parseHotkey } from "../src/parse.js";
 import type { Command, CommandContext, RegisteredCommandGroup } from "../src/types.js";
 
 const cursorMode: Mode = "cursor";
+
 const cursorContextGetter = () => ({ mode: cursorMode });
 
 const fakeCtx = function fakeCtx(mode: Mode): CommandContext {
@@ -36,6 +37,7 @@ const makeStore = function makeStore(options?: {
   rootMode?: () => Mode;
 }): CommandStore {
   const getMode = options?.rootMode ?? (() => "cursor");
+
   return createCommandStore({
     keymap: options?.keymap,
     leader: options?.leader,
@@ -614,6 +616,7 @@ describe("command store — selector discipline", () => {
     );
   });
 });
+
 test("formatStepKey includes the super modifier", () => {
   expect(
     formatStepKey({

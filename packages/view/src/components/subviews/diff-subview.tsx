@@ -51,6 +51,7 @@ export const DiffSubview = function DiffSubview({
   const [layout, setLayout] = useState<"split" | "stack">(
     content.layout ?? config.view?.diffLayout ?? "stack"
   );
+
   const [wrapLines, setWrapLines] = useState(config.view?.wrap ?? false);
   const [horizontalOffset, setHorizontalOffset] = useState(0);
 
@@ -64,6 +65,7 @@ export const DiffSubview = function DiffSubview({
           currentDocument.activeIndex === null
             ? undefined
             : model.rows[currentDocument.activeIndex];
+
         return [
           { label: "Format:", value: content.format },
           { label: "Files:", value: String(model.files.length) },
@@ -98,6 +100,7 @@ export const DiffSubview = function DiffSubview({
       const index = model.rows.findIndex(
         (row) => row.kind === "file" && row.fileIndex === fileIndex
       );
+
       return index === -1 ? null : index;
     },
     [model.rows]
@@ -109,6 +112,7 @@ export const DiffSubview = function DiffSubview({
       const from = current?.fileIndex ?? 0;
       const target = Math.min(Math.max(from + delta, 0), model.files.length - 1);
       const index = fileRowIndex(target);
+
       if (index !== null) {
         setCursor(index);
       }
@@ -185,6 +189,7 @@ export const DiffSubview = function DiffSubview({
             files: model.files,
             onSelect: (fileIndex: number) => {
               const index = fileRowIndex(fileIndex);
+
               if (index !== null) {
                 setCursor(index);
               }

@@ -28,6 +28,7 @@ export const ScreenFocusProvider = function ScreenFocusProvider({
   children: ReactNode;
 }): ReactNode {
   const value = useMemo<RouteFocusState>(() => ({ active }), [active]);
+
   return <RouteFocusContext value={value}>{children}</RouteFocusContext>;
 };
 
@@ -40,6 +41,7 @@ export const ScreenFocusProvider = function ScreenFocusProvider({
 export const useScreenFocus = function useScreenFocus(): ScreenFocus {
   const scope = useScreenScope();
   const route = useContext(RouteFocusContext);
+
   return { isFocused: scope.isFocused && route.active };
 };
 

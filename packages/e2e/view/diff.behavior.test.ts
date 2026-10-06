@@ -8,8 +8,11 @@ import type { Session } from "tuistory";
 import { VIEW_FIXTURES } from "./helpers.js";
 
 const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
+
 const CLI = path.resolve(REPO_ROOT, "apps/cli/src/main.ts");
+
 const CONFIG_NAMESPACE = "diff-e2e";
+
 const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
 
 /**
@@ -19,6 +22,7 @@ const TEST_CONFIG_HOME = ensureTestConfigHome(CONFIG_NAMESPACE);
  */
 const launchDiff = async function launchDiff(fixture: string): Promise<Session> {
   resetTestConfig(CONFIG_NAMESPACE);
+
   const session = await launchTerminal({
     args: ["--conditions=@tooee/source", CLI, "view", path.resolve(VIEW_FIXTURES, fixture)],
     cols: 120,
@@ -27,9 +31,11 @@ const launchDiff = async function launchDiff(fixture: string): Promise<Session> 
     env: { ...process.env, XDG_CONFIG_HOME: TEST_CONFIG_HOME },
     rows: 40,
   });
+
   await session.waitForText("Format:", { timeout: 15_000 });
   await session.waitForText(/Mode:/u, { timeout: 5000 });
   await Bun.sleep(150);
+
   return session;
 };
 

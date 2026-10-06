@@ -27,6 +27,7 @@ export const Document = function Document<T>({
   ...rowDocumentProps
 }: DocumentProps<T>): ReactNode {
   const handleMouseDown = controller.onMouseDown;
+
   // Tail follow pins the viewport with the scroll box's own sticky scroll. It
   // re-pins during layout, before paint, so streamed rows never flash.
   const stickyProps = controller.followTail

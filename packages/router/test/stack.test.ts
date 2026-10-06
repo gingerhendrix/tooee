@@ -19,11 +19,13 @@ describe("stackReducer", () => {
 
   test("push preserves params", () => {
     const state = makeState("home");
+
     const next = stackReducer(state, {
       params: { id: "123" },
       routeId: "detail",
       type: "push",
     });
+
     expect(next.stack[1].params).toEqual({ id: "123" });
   });
 
@@ -49,11 +51,13 @@ describe("stackReducer", () => {
 
   test("replace swaps last entry", () => {
     const state = makeState("home", "detail");
+
     const next = stackReducer(state, {
       params: { tab: "general" },
       routeId: "settings",
       type: "replace",
     });
+
     expect(next.stack).toHaveLength(2);
     expect(next.stack[0].routeId).toBe("home");
     expect(next.stack[1].routeId).toBe("settings");
@@ -69,11 +73,13 @@ describe("stackReducer", () => {
 
   test("reset preserves params", () => {
     const state = makeState("home", "detail");
+
     const next = stackReducer(state, {
       params: { fresh: true },
       routeId: "settings",
       type: "reset",
     });
+
     expect(next.stack).toHaveLength(1);
     expect(next.stack[0].params).toEqual({ fresh: true });
   });

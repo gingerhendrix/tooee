@@ -90,6 +90,7 @@ const ChartRenderer = function ChartRenderer({
     .filter((line) => line.length > 0)
     .map((line) => {
       const [label, raw] = line.split(",");
+
       return { label: (label ?? "").trim(), value: Number((raw ?? "").trim()) };
     });
 
@@ -106,6 +107,7 @@ const ChartRenderer = function ChartRenderer({
     ...rows.map((row, i): ReactNode => {
       const barLength = max > 0 ? Math.max(1, Math.round((row.value / max) * BAR_WIDTH)) : 0;
       const label = row.label.padEnd(labelWidth);
+
       return h(
         "text",
         { key: i, style: { height: 1 } },

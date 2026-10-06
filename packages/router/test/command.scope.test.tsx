@@ -16,6 +16,7 @@ const expectDefined = function expectDefined<T>(value: T | undefined): T {
   if (value === undefined) {
     throw new Error("Expected test value to be defined");
   }
+
   return value;
 };
 
@@ -28,6 +29,7 @@ const UnmountScreenA = function UnmountScreenA(): ReactNode {
     modes: ["cursor"],
     title: "Screen A action",
   });
+
   return (
     <box>
       <text content="screen:A" />
@@ -43,6 +45,7 @@ const UnmountScreenB = function UnmountScreenB(): ReactNode {
     modes: ["cursor"],
     title: "Screen B action",
   });
+
   return (
     <box>
       <text content="screen:B" />
@@ -59,6 +62,7 @@ const RemountScreenA = function RemountScreenA(): ReactNode {
     modes: ["cursor"],
     title: "Screen A action",
   });
+
   return (
     <box>
       <text content="screen:A" />
@@ -78,6 +82,7 @@ const RemountScreenB = function RemountScreenB(): ReactNode {
 
 const HomeScreen = function HomeScreen(): ReactNode {
   useRouterCommands();
+
   return (
     <box>
       <text content="screen:home" />
@@ -87,6 +92,7 @@ const HomeScreen = function HomeScreen(): ReactNode {
 
 const DetailScreen = function DetailScreen(): ReactNode {
   useRouterCommands();
+
   return (
     <box>
       <text content="screen:detail" />
@@ -97,6 +103,7 @@ const DetailScreen = function DetailScreen(): ReactNode {
 // Route definitions
 
 const homeRoute = createRoute({ component: HomeScreen, id: "home" });
+
 const detailRoute = createRoute({ component: DetailScreen, id: "detail" });
 
 // Test setup
@@ -113,12 +120,14 @@ describe("useRouterCommands", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+
     await router.start();
 
     let ctx: ReturnType<typeof useSurfaceInvoke>;
 
     const CtxCapture = function CtxCapture() {
       ctx = useSurfaceInvoke();
+
       return null;
     };
 
@@ -145,12 +154,14 @@ describe("useRouterCommands", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+
     await router.start();
 
     let ctx: ReturnType<typeof useSurfaceInvoke>;
 
     const CtxCapture = function CtxCapture() {
       ctx = useSurfaceInvoke();
+
       return null;
     };
 
@@ -175,12 +186,14 @@ describe("useRouterCommands", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+
     await router.start();
 
     let ctx: ReturnType<typeof useSurfaceInvoke>;
 
     const CtxCapture = function CtxCapture() {
       ctx = useSurfaceInvoke();
+
       return null;
     };
 
@@ -211,12 +224,14 @@ describe("useRouterCommands", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+
     await router.start();
 
     let ctx: ReturnType<typeof useSurfaceInvoke>;
 
     const CtxCapture = function CtxCapture() {
       ctx = useSurfaceInvoke();
+
       return null;
     };
 
@@ -263,12 +278,14 @@ describe("natural command scoping via unmount", () => {
       initial: { routeId: "screenA" },
       routes: [routeA, routeB],
     });
+
     await router.start();
 
     let ctx: ReturnType<typeof useSurfaceInvoke>;
 
     const CtxCapture = function CtxCapture() {
       ctx = useSurfaceInvoke();
+
       return null;
     };
 
@@ -312,12 +329,14 @@ describe("natural command scoping via unmount", () => {
       initial: { routeId: "screenA" },
       routes: [routeA, routeB],
     });
+
     await router.start();
 
     let ctx: ReturnType<typeof useSurfaceInvoke>;
 
     const CtxCapture = function CtxCapture() {
       ctx = useSurfaceInvoke();
+
       return null;
     };
 

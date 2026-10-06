@@ -19,39 +19,53 @@ export const resolveMarkdownLink = function resolveMarkdownLink(
 ): LinkResolution {
   try {
     const decoded = decodeURIComponent(href);
+
     if (/[\p{Cc}\\]/u.test(decoded)) {
       return { status: "unsupported" };
     }
+
     const target = href.trim();
+
     if (!target || target.startsWith("//")) {
       return { status: "unsupported" };
     }
+
     const [rawPath] = target.split("#", 1);
+
     if (rawPath.includes("?")) {
       return { status: "unsupported" };
     }
+
     let path: string;
+
     if (/^[a-zA-Z][a-zA-Z\d+.-]*:/u.test(rawPath)) {
       // Check the authority before URL normalizes localhost into an empty host.
       if (!/^file:\/\/\//iu.test(rawPath)) {
         return { status: "unsupported" };
       }
+
       const url = new URL(rawPath);
+
       if (url.hostname || url.search) {
         return { status: "unsupported" };
       }
+
       path = fileURLToPath(url);
     } else {
       path = rawPath
         ? nodePath.resolve(baseDir, decodeURIComponent(rawPath))
         : (currentPath ?? baseDir);
     }
+
     const absolute = nodePath.resolve(path);
+
     try {
       const stat = statSync(absolute);
+
       if (stat.isFile()) {
         return { path: absolute, status: "file" };
       }
+
       return stat.isDirectory()
         ? { path: absolute, status: "directory" }
         : { status: "unsupported" };
@@ -82,8 +96,10 @@ const collect = (tokens: Token[], links: MarkdownLink[]): void => {
     }
   }
 };
+
 export const markdownLinks = function markdownLinks(line: string): MarkdownLink[] {
   const links: MarkdownLink[] = [];
   collect(Lexer.lexInline(line), links);
+
   return links;
 };

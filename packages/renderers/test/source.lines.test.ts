@@ -16,6 +16,7 @@ interface LineProjection {
 const lines = function lines(source: string, sourceId?: string): LineProjection[] {
   return sourceLines(source, (sourceId?.length ?? 0) > 0 ? { sourceId } : undefined).map((row) => {
     const p = row.source.primary;
+
     return {
       e: p.end.offset,
       last: p.lastLine,

@@ -16,17 +16,21 @@ import { counterState, valueState } from "./support/codecs.ts";
 
 // Route specs (identity + screen-state codec) declared before their components.
 const screenASpec = { id: "screenA", screenState: valueState } as const;
+
 const savingSpec = { id: "saving", screenState: counterState } as const;
 
 // Typed cache keys: the key carries the codec, so save/restore stay coupled.
 const screenAKeyAt = (index: number) => createStateKey(`${index}:screenA`, valueState);
+
 const savingKeyAt = (index: number) => createStateKey(`${index}:saving`, counterState);
+
 const screenBKeyAt = (index: number) => createStateKey(`${index}:screenB`, valueState);
 
 // Screen that displays saved state from useScreenState hook
 
 const ScreenA = function ScreenA(): ReactNode {
   const { savedState } = useScreenState(screenASpec);
+
   return (
     <box>
       <text content={`screenA:saved:${savedState?.value ?? "none"}`} />
@@ -50,6 +54,7 @@ const SavingScreen = function SavingScreen(): ReactNode {
   useEffect(() => {
     saveState({ counter: count + 1 });
   }, [saveState, count]);
+
   return (
     <box>
       <text content={`saving:count:${count}`} />
@@ -60,7 +65,9 @@ const SavingScreen = function SavingScreen(): ReactNode {
 // Route definitions
 
 const routeA = createRoute({ ...screenASpec, component: ScreenA });
+
 const routeB = createRoute({ component: ScreenB, id: "screenB" });
+
 const savingRoute = createRoute({ ...savingSpec, component: SavingScreen });
 
 // Test setup
@@ -77,6 +84,7 @@ describe("useScreenState", () => {
       initial: { routeId: "screenA" },
       routes: [routeA, routeB],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -121,6 +129,7 @@ describe("useScreenState", () => {
       initial: { routeId: "screenA" },
       routes: [routeA, routeB],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -155,6 +164,7 @@ describe("useScreenState", () => {
       initial: { routeId: "screenA" },
       routes: [routeA, routeB],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -208,6 +218,7 @@ describe("useScreenState", () => {
       initial: { routeId: "saving" },
       routes: [savingRoute, routeB],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -228,6 +239,7 @@ describe("useScreenState", () => {
       initial: { routeId: "screenA" },
       routes: [routeA, routeB],
     });
+
     await router.start();
 
     testSetup = await testRender(

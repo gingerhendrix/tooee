@@ -39,10 +39,12 @@ export const useFoldState = function useFoldState<T>(
   decorations: DecorationLayer[]
 ): FoldState<T> {
   const [closedKeys, setClosedKeys] = useState<ReadonlySet<Key>>(EMPTY_KEYS);
+
   const view = useMemo(
     () => computeFoldView(rows.length, ranges, closedKeys),
     [rows.length, ranges, closedKeys]
   );
+
   const folded = view.visibleToSource.length < rows.length;
 
   const visibleRows = useMemo(
@@ -50,15 +52,18 @@ export const useFoldState = function useFoldState<T>(
       folded
         ? view.visibleToSource.flatMap((index) => {
             const row = rows[index];
+
             return row === undefined ? [] : [row];
           })
         : rows,
     [folded, rows, view]
   );
+
   const visibleDecorations = useMemo(
     () => (folded ? projectDecorationLayers(decorations, view) : decorations),
     [folded, decorations, view]
   );
+
   const rowNumbers = useMemo(
     () => (folded ? view.visibleToSource.map((index) => index + 1) : undefined),
     [folded, view]
@@ -109,27 +114,36 @@ export const useFoldActions = function useFoldActions<T>(
     if (cursorRow !== undefined) {
       const anchor = visibleAnchorRow(computeFoldView(rowCount, ranges, next), cursorRow);
       const anchorIndex = view.sourceToVisible[anchor] ?? -1;
+
       if (anchor !== cursorRow && anchorIndex !== -1) {
         setCursor(anchorIndex);
       }
     }
+
     setClosedKeys(next);
   };
+
   const withKey = (key: Key | undefined, closed: boolean): boolean => {
     if (key === undefined) {
       return false;
     }
+
     const next = new Set(closedKeys);
+
     if (closed) {
       next.add(key);
     } else {
       next.delete(key);
     }
+
     apply(next);
+
     return true;
   };
+
   const close = (row: number) =>
     withKey(foldsAt(ranges, row).find((range) => !closedKeys.has(range.key))?.key, true);
+
   const open = (row: number) =>
     withKey(foldsAt(ranges, row).find((range) => closedKeys.has(range.key))?.key, false);
 
@@ -144,6 +158,7 @@ export const useFoldActions = function useFoldActions<T>(
     },
     toggle: (row) => {
       const [innermost] = foldsAt(ranges, row);
+
       return withKey(innermost?.key, innermost !== undefined && !closedKeys.has(innermost.key));
     },
     toggleBlock: (row) =>
@@ -168,10 +183,12 @@ export const foldActionDefinitions = function foldActionDefinitions(
     (run: (row: number) => boolean) =>
     (ctx: CommandContext): void => {
       const row = targetRow();
+
       if (row === undefined || !run(row)) {
         ctx.toast?.toast({ level: "warning", message: noFoldMessage });
       }
     };
+
   const definitions: [hotkey: string, id: string, title: string, handler: CommandHandler][] = [
     ["z a", "toggle", "Toggle fold", atTarget(actions.toggle)],
     ["z c", "close", "Close fold", atTarget(actions.close)],
@@ -180,6 +197,7 @@ export const foldActionDefinitions = function foldActionDefinitions(
     ["z shift+m", "close-all", "Close all folds", actions.closeAll],
     ["z shift+r", "open-all", "Open all folds", actions.openAll],
   ];
+
   return definitions.map(([hotkey, id, title, handler]) => ({
     category: "Fold",
     handler,

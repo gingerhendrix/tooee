@@ -15,12 +15,15 @@ export interface PanelState {
 export const usePanelState = function usePanelState(): PanelState {
   const panel = useContext(PanelContext);
   const group = usePanelGroupContext();
+
   if (!panel) {
     throw new Error("usePanelState must be used within a Panel");
   }
+
   const isActive = group.activeId === panel.id;
   const { activate } = group;
   const { id, title } = panel;
+
   return useMemo<PanelState>(
     () => ({
       activate: () => {
@@ -46,6 +49,7 @@ export interface PanelsControls {
 export const usePanels = function usePanels(): PanelsControls {
   const group = usePanelGroupContext();
   const { panelIds, activeId, activate, next, previous } = group;
+
   return useMemo<PanelsControls>(
     () => ({ activate, activePanelId: activeId, next, panelIds, previous }),
     [panelIds, activeId, activate, next, previous]
@@ -56,8 +60,10 @@ export const usePanels = function usePanels(): PanelsControls {
 export const usePanelActive = function usePanelActive(): boolean {
   const panel = useContext(PanelContext);
   const group = useOptionalPanelGroupContext();
+
   if (!panel || !group) {
     return true;
   }
+
   return group.activeId === panel.id;
 };

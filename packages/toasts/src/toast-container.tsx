@@ -20,17 +20,22 @@ const getLevelColor = function getLevelColor(
     case "info": {
       return theme.info;
     }
+
     case "success": {
       return theme.success;
     }
+
     case "warning": {
       return theme.warning;
     }
+
     case "error": {
       return theme.error;
     }
+
     default: {
       const exhaustiveLevel: never = level;
+
       return exhaustiveLevel;
     }
   }

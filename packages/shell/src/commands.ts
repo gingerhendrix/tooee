@@ -105,6 +105,7 @@ export const useCopyCommand = function useCopyCommand(opts: UseCopyCommandOption
   useCommand({
     handler: (ctx) => {
       const text = opts.getText();
+
       if (text !== undefined && text !== "") {
         void copyToClipboard(text);
         ctx.toast?.toast({ level: "success", message: "Copied to clipboard" });
@@ -124,10 +125,13 @@ export const usePasteCommands = function usePasteCommands(opts: UsePasteCommands
   useCommand({
     handler: async (ctx) => {
       const target = opts.getTarget();
+
       if (!target) {
         return;
       }
+
       const text = await readClipboardText();
+
       if (text !== undefined && text !== "") {
         target.insertText(text);
       } else {
@@ -143,10 +147,13 @@ export const usePasteCommands = function usePasteCommands(opts: UsePasteCommands
   useCommand({
     handler: async (ctx) => {
       const target = opts.getTarget();
+
       if (!target) {
         return;
       }
+
       const text = await readPrimaryText();
+
       if (text !== undefined && text !== "") {
         target.insertText(text);
       } else {

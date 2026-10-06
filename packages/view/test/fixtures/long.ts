@@ -21,12 +21,15 @@ const categorize = function categorize(value: number): string {
   if (value < 10) {
     return "low";
   }
+
   if (value < 50) {
     return "medium";
   }
+
   if (value < 90) {
     return "high";
   }
+
   return "critical";
 };
 
@@ -55,9 +58,11 @@ const processData = function processData(points: DataPoint[]): ProcessingResult 
 
   for (const point of points) {
     total += point.value;
+
     if (point.value < min) {
       min = point.value;
     }
+
     if (point.value > max) {
       max = point.value;
     }
@@ -85,22 +90,26 @@ const sortByValue = function sortByValue(points: DataPoint[], ascending = true):
 
 const groupByCategory = function groupByCategory(points: DataPoint[]): Map<string, DataPoint[]> {
   const groups = new Map<string, DataPoint[]>();
+
   for (const point of points) {
     const group = groups.get(point.category) ?? [];
     group.push(point);
     groups.set(point.category, group);
   }
+
   return groups;
 };
 
 const generateSampleData = function generateSampleData(count: number): DataPoint[] {
   const names = ["alpha", "beta", "gamma", "delta", "epsilon"];
   const results: DataPoint[] = [];
+
   for (let i = 0; i < count; i += 1) {
     const name = names[i % names.length] ?? "unknown";
     const value = Math.floor(Math.random() * 100);
     results.push(createDataPoint(i, name, value));
   }
+
   return results;
 };
 
@@ -112,6 +121,7 @@ const formatResult = function formatResult(result: ProcessingResult): string {
     `Max: ${result.max}`,
     `Count: ${result.count}`,
   ];
+
   return lines.join("\n");
 };
 
@@ -119,15 +129,19 @@ const validateDataPoint = function validateDataPoint(point: DataPoint): boolean 
   if (point.id < 0) {
     return false;
   }
+
   if (point.name.length === 0) {
     return false;
   }
+
   if (point.value < 0 || point.value > 100) {
     return false;
   }
+
   if (!["low", "medium", "high", "critical"].includes(point.category)) {
     return false;
   }
+
   return true;
 };
 

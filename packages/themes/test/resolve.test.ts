@@ -13,6 +13,7 @@ describe("resolveTheme", () => {
     const json: ThemeJSON = {
       theme: { primary: "secondary", secondary: "primary" },
     };
+
     const resolved = resolveTheme(json, "dark");
     expect(resolved.primary).toBe("#808080");
     expect(resolved.secondary).toBe("#808080");
@@ -23,6 +24,7 @@ describe("resolveTheme", () => {
       defs: { a: "b", b: "a" },
       theme: { primary: "a" },
     };
+
     expect(resolveTheme(json, "dark").primary).toBe("#808080");
   });
 
@@ -30,6 +32,7 @@ describe("resolveTheme", () => {
     const json: ThemeJSON = {
       theme: { primary: "primary" },
     };
+
     expect(resolveTheme(json, "dark").primary).toBe("#808080");
   });
 
@@ -38,6 +41,7 @@ describe("resolveTheme", () => {
       defs: { brand: "#ff0000" },
       theme: { primary: "brand" },
     };
+
     expect(resolveTheme(json, "dark").primary).toBe("#ff0000");
   });
 
@@ -46,6 +50,7 @@ describe("resolveTheme", () => {
       defs: { base: "#112233", x: "base", y: "base" },
       theme: { primary: "x", secondary: "y" },
     };
+
     const resolved = resolveTheme(json, "dark");
     expect(resolved.primary).toBe("#112233");
     expect(resolved.secondary).toBe("#112233");
@@ -55,6 +60,7 @@ describe("resolveTheme", () => {
     const json: ThemeJSON = {
       theme: { primary: "transparent", secondary: "none" },
     };
+
     const resolved = resolveTheme(json, "dark");
     expect(resolved.primary).toBe("#00000000");
     expect(resolved.secondary).toBe("#00000000");
@@ -64,6 +70,7 @@ describe("resolveTheme", () => {
     const json: ThemeJSON = {
       theme: { primary: "doesNotExist" },
     };
+
     expect(resolveTheme(json, "dark").primary).toBe("#808080");
   });
 
@@ -72,6 +79,7 @@ describe("resolveTheme", () => {
       defs: { day: "#eeeeee" },
       theme: { primary: { dark: "#111111", light: "day" } },
     };
+
     expect(resolveTheme(json, "dark").primary).toBe("#111111");
     expect(resolveTheme(json, "light").primary).toBe("#eeeeee");
   });

@@ -32,6 +32,7 @@ const HomeScreen = function HomeScreen(): ReactNode {
 
 const DetailScreen = function DetailScreen(): ReactNode {
   const params = useParams(detailSpec);
+
   return (
     <box>
       <text content={`screen:detail:${params.id}`} />
@@ -69,10 +70,13 @@ const NestedChild = function NestedChild(): ReactNode {
 // Route definitions
 
 const homeRoute = createRoute({ component: HomeScreen, id: "home" });
+
 const detailRoute = createRoute({ ...detailSpec, component: DetailScreen });
+
 const settingsRoute = createRoute({ component: SettingsScreen, id: "settings" });
 
 const layoutRoute = createRoute({ component: LayoutScreen, id: "layout" });
+
 const nestedRoute = createRoute({
   component: NestedChild,
   id: "nested",
@@ -119,6 +123,7 @@ describe("RouterProvider + Outlet", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -140,6 +145,7 @@ describe("RouterProvider + Outlet", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -167,6 +173,7 @@ describe("RouterProvider + Outlet", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -200,6 +207,7 @@ describe("RouterProvider + Outlet", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute, settingsRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -227,6 +235,7 @@ describe("RouterProvider + Outlet", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute, settingsRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -264,6 +273,7 @@ describe("RouterProvider + Outlet", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, layoutRoute, nestedRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -292,6 +302,7 @@ describe("createRouter (imperative)", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+
     await router.start();
 
     expect(router.currentRoute.routeId).toBe("home");
@@ -312,9 +323,11 @@ describe("createRouter (imperative)", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+
     await router.start();
 
     let callCount = 0;
+
     const unsub = router.subscribe(() => {
       callCount += 1;
     });
@@ -339,6 +352,7 @@ describe("createRouter (imperative)", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+
     await router.start();
 
     expect(router.getRouteDefinition("home")).toBe(homeRoute);

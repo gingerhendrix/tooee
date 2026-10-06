@@ -46,44 +46,55 @@ const isJsonString = function isJsonString(value: JsonValue | undefined): value 
 // ---------------------------------------------------------------------------
 
 type ThemeSettings = NonNullable<TooeeConfig["theme"]>;
+
 type ViewSettings = NonNullable<TooeeConfig["view"]>;
 
 const decodeTheme = function decodeTheme(json: JsonObject): ThemeSettings {
   const theme: ThemeSettings = {};
   const { mode, name } = json;
+
   if (isJsonString(name)) {
     theme.name = name;
   }
+
   if (mode === "dark" || mode === "light") {
     theme.mode = mode;
   }
+
   return theme;
 };
 
 /** Every value must be a string; one wrong value rejects the whole map. */
 const decodeKeys = function decodeKeys(json: JsonObject): TooeeConfig["keys"] {
   const entries: [string, string][] = [];
+
   for (const [key, value] of Object.entries(json)) {
     if (!isJsonString(value)) {
       return undefined;
     }
+
     entries.push([key, value]);
   }
+
   return Object.fromEntries(entries);
 };
 
 const decodeView = function decodeView(json: JsonObject): ViewSettings {
   const view: ViewSettings = {};
   const { copyOnSelect, diffLayout, gutter, wrap } = json;
+
   if (wrap === true || wrap === false) {
     view.wrap = wrap;
   }
+
   if (gutter === true || gutter === false) {
     view.gutter = gutter;
   }
+
   if (diffLayout === "split" || diffLayout === "stack") {
     view.diffLayout = diffLayout;
   }
+
   if (
     copyOnSelect === true ||
     copyOnSelect === false ||
@@ -92,6 +103,7 @@ const decodeView = function decodeView(json: JsonObject): ViewSettings {
   ) {
     view.copyOnSelect = copyOnSelect;
   }
+
   return view;
 };
 
@@ -104,20 +116,26 @@ const decodeConfig = function decodeConfig(json: JsonValue): Partial<TooeeConfig
   if (!isJsonObject(json)) {
     return {};
   }
+
   const config: Partial<TooeeConfig> = {};
   const { keys, theme, view } = json;
+
   if (isJsonObject(theme)) {
     config.theme = decodeTheme(theme);
   }
+
   if (isJsonObject(keys)) {
     const decodedKeys = decodeKeys(keys);
+
     if (decodedKeys !== undefined) {
       config.keys = decodedKeys;
     }
   }
+
   if (isJsonObject(view)) {
     config.view = decodeView(view);
   }
+
   return config;
 };
 
@@ -130,15 +148,19 @@ const mergeConfig = function mergeConfig(
   source: Partial<TooeeConfig>
 ): TooeeConfig {
   const merged: TooeeConfig = { ...target, ...source };
+
   if (target.theme !== undefined || source.theme !== undefined) {
     merged.theme = { ...target.theme, ...source.theme };
   }
+
   if (target.keys !== undefined || source.keys !== undefined) {
     merged.keys = { ...target.keys, ...source.keys };
   }
+
   if (target.view !== undefined || source.view !== undefined) {
     merged.view = { ...target.view, ...source.view };
   }
+
   return merged;
 };
 
@@ -147,6 +169,7 @@ const readJsonFile = function readJsonFile(configPath: string): Partial<TooeeCon
     if (!existsSync(configPath)) {
       return {};
     }
+
     return decodeConfig(parseJsonDocument(readFileSync(configPath, "utf-8")));
   } catch {
     return {};
@@ -155,24 +178,31 @@ const readJsonFile = function readJsonFile(configPath: string): Partial<TooeeCon
 
 const getGlobalConfigPath = function getGlobalConfigPath(): string {
   const xdg = process.env.XDG_CONFIG_HOME ?? path.join(process.env.HOME ?? "", ".config");
+
   return path.join(xdg, "tooee", "config.json");
 };
 
 const findProjectConfig = function findProjectConfig(): Partial<TooeeConfig> {
   let dir = process.cwd();
   const seen = new Set<string>();
+
   while (dir && !seen.has(dir)) {
     seen.add(dir);
     const configPath = path.join(dir, ".tooee", "config.json");
+
     if (existsSync(configPath)) {
       return readJsonFile(configPath);
     }
+
     const parent = path.dirname(dir);
+
     if (parent === dir) {
       break;
     }
+
     dir = parent;
   }
+
   return {};
 };
 
@@ -180,15 +210,18 @@ export const loadConfig = function loadConfig(overrides?: Partial<TooeeConfig>):
   let config: TooeeConfig = { ...DEFAULTS };
   config = mergeConfig(config, readJsonFile(getGlobalConfigPath()));
   config = mergeConfig(config, findProjectConfig());
+
   if (overrides) {
     config = mergeConfig(config, overrides);
   }
+
   return config;
 };
 
 export const writeGlobalConfig = function writeGlobalConfig(partial: Partial<TooeeConfig>): void {
   const configPath = getGlobalConfigPath();
   const dir = path.dirname(configPath);
+
   try {
     const existing = readJsonFile(configPath);
     const merged = mergeConfig(existing, partial);

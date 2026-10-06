@@ -20,7 +20,9 @@ const ROWS: Row[] = [
 ];
 
 let commandIds: string[] = [];
+
 let captured: DocumentCommandContext | undefined;
+
 let reloads = 0;
 
 const ACTIONS: ActionDefinition[] = [
@@ -40,6 +42,7 @@ const ACTIONS: ActionDefinition[] = [
 const CommandProbe = function CommandProbe() {
   const { commands } = useSurfaceInvoke();
   commandIds = commands.map((command) => command.id);
+
   return null;
 };
 
@@ -90,11 +93,13 @@ const setup = async function setup(props: ScreenOptions & { multiSelect?: boolea
     { height: 16, kittyKeyboard: true, width: 90 }
   );
   await session.renderOnce();
+
   return session;
 };
 
 const statusLine = function statusLine(): string {
   const lines = session.captureCharFrame().split("\n");
+
   return lines.find((line) => line.includes("Theme:")) ?? "";
 };
 
@@ -232,6 +237,7 @@ const EmptyHarness = function EmptyHarness(): ReactNode {
     adapter: { getKey: (r) => r.id, getText: (r) => r.label },
     rows: [],
   });
+
   return (
     <DocumentScreen controller={document} titleBar={{ title: "Docs" }}>
       <Document

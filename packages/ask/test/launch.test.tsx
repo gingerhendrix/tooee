@@ -1,10 +1,13 @@
 import { expect, mock, test } from "bun:test";
 
 const shell = await import("@tooee/shell");
+
 const runCliSession = mock(async () => {
   await Promise.resolve();
+
   return "answer";
 });
+
 void mock.module("@tooee/shell", () => ({ ...shell, runCliSession }));
 
 const { launch } = await import("../src/launch.js");

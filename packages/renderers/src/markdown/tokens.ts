@@ -33,6 +33,7 @@ export const narrowToken = function narrowToken<Type extends keyof KnownTokenByT
   if (token.type !== type) {
     return null;
   }
+
   // SAFETY: Marked creates the token member selected by the checked type discriminator.
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the Generic fallback prevents discriminator narrowing
   return token as KnownTokenByType[Type];
@@ -43,6 +44,7 @@ export const hasMarkedText = function hasMarkedText(token: Token): token is Toke
   if (!("text" in token)) {
     return false;
   }
+
   // oxlint-disable-next-line anti-slop/no-runtime-typeof -- primitive check stays at the Marked token boundary
   return typeof token.text === "string";
 };

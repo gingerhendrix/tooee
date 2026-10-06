@@ -44,7 +44,9 @@ const CopyHost = function CopyHost(props: {
     disable: props.disable,
     multiline: props.multiline,
   });
+
   const mode = useMode();
+
   return (
     <AppLayout statusBar={{ items: [{ label: "mode:", value: mode }] }}>
       <AskEditor editor={editor} />
@@ -60,6 +62,7 @@ const PickerSurface = function PickerSurface({ onClose }: { onClose: () => void 
     modes: ["cursor"],
     title: "Close picker",
   });
+
   return (
     <box position="absolute" left="30%" right="30%" top="40%" bottom="40%" border>
       <text content="PICKER" />
@@ -73,6 +76,7 @@ const Host = function Host(props: {
 }): ReactNode {
   const [pickerOpen, setPickerOpen] = useState(true);
   const controllerRef = useRef<AskEditorController>(null);
+
   return (
     <AskOverlay
       prompt="Question"
@@ -121,7 +125,9 @@ const setup = async function setup(node: ReactNode) {
     kittyKeyboard: true,
     width: 80,
   });
+
   await s.renderOnce();
+
   return s;
 };
 
@@ -168,12 +174,15 @@ const findEditable = function findEditable(node: Renderable): EditBufferRenderab
   if (isEditBufferRenderable(node)) {
     return node;
   }
+
   for (const child of node.getChildren()) {
     const editable = findEditable(child);
+
     if (editable) {
       return editable;
     }
   }
+
   return undefined;
 };
 

@@ -40,6 +40,7 @@ const ActivatePanelCommand = function ActivatePanelCommand({
     modes: ["cursor"],
     title: `Activate panel ${hotkey}`,
   });
+
   return null;
 };
 

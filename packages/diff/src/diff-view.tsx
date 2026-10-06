@@ -135,6 +135,7 @@ export const DiffView = function DiffView({
       }),
     [rows.length, showLineNumbers]
   );
+
   const contentWidth = Math.max(1, width ?? terminalWidth - gutterWidth - SCROLLBAR_RESERVE);
 
   const hunkTheme = render.theme ?? resolveHunkDiffTheme(themeName, theme);

@@ -22,6 +22,7 @@ const Activate = function Activate({
   useEffect(() => {
     store.activatePanel(groupId, panelId);
   }, [store, groupId, panelId]);
+
   return null;
 };
 
@@ -33,6 +34,7 @@ const PanelACommands = function PanelACommands(): ReactNode {
     modes: ["cursor"],
     title: "Panel A List",
   });
+
   return null;
 };
 
@@ -44,6 +46,7 @@ const PanelBCommands = function PanelBCommands(): ReactNode {
     modes: ["cursor"],
     title: "Panel B Only",
   });
+
   return null;
 };
 
@@ -56,6 +59,7 @@ const PanelHarness = function PanelHarness(): ReactNode {
     modes: ["cursor"],
     title: "Root Global",
   });
+
   return (
     <box flexDirection="column">
       <CommandSurfaceProvider id="a" role="panel" groupId="g">
@@ -87,6 +91,7 @@ const InsertPanelCommands = function InsertPanelCommands(): ReactNode {
     modes: ["insert"],
     title: "Panel Insert Only",
   });
+
   return null;
 };
 
@@ -104,6 +109,7 @@ const InsertPanelHarness = function InsertPanelHarness(): ReactNode {
     modes: ["cursor"],
     title: "Root Cursor Only",
   });
+
   return (
     <box flexDirection="column">
       <CommandSurfaceProvider id="editor" role="panel" groupId="g" initialMode="insert">
@@ -129,7 +135,9 @@ const setup = async function setup(): Promise<TestSession> {
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 80 }
   );
+
   await session.renderOnce();
+
   return session;
 };
 
@@ -140,7 +148,9 @@ const setupInsertPanel = async function setupInsertPanel(): Promise<TestSession>
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 80 }
   );
+
   await session.renderOnce();
+
   return session;
 };
 

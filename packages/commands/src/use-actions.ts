@@ -37,6 +37,7 @@ export const useActions = function useActions(actions: ActionDefinition[] | unde
 
   useEffect(() => {
     const { current } = actionsRef;
+
     if (!current || current.length === 0) {
       return () => {
         // Nothing was registered, so there is nothing to unregister.
@@ -53,9 +54,11 @@ export const useActions = function useActions(actions: ActionDefinition[] | unde
           // dispatch) is a no-op, so the missing-action path just returns. The
           // body runs synchronously up to the call, preserving dispatch timing.
           const currentAction = actionsRef.current?.[i];
+
           if (currentAction === undefined) {
             return;
           }
+
           await currentAction.handler(ctx);
         },
         hidden: action.hidden,
@@ -65,6 +68,7 @@ export const useActions = function useActions(actions: ActionDefinition[] | unde
         title: action.title,
         when: action.when ? (ctx) => actionsRef.current?.[i]?.when?.(ctx) ?? false : undefined,
       };
+
       return registry.register(command);
     });
 

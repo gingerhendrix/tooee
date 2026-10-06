@@ -39,9 +39,11 @@ export const useRowMouseBindings = function useRowMouseBindings({
     decorations: NO_DECORATIONS,
     onMouseDown(event: MouseEvent) {
       const row = ref.current?.getRowAtScreenY(event.y);
+
       if (row === null || row === undefined) {
         return;
       }
+
       if (event.button === 0) {
         onRowClick?.(row);
       } else if (event.button === 2) {

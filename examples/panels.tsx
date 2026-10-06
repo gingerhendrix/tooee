@@ -101,6 +101,7 @@ const DetailOverview = function DetailOverview(): ReactNode {
     modes: ["cursor"],
     title: "View raw",
   });
+
   return (
     <box flexDirection="column" paddingLeft={1} paddingRight={1}>
       <text content={`overview: ${name}`} />
@@ -112,6 +113,7 @@ const DetailOverview = function DetailOverview(): ReactNode {
 const DetailRaw = function DetailRaw(): ReactNode {
   const name = useContext(SelectedContext);
   useRouterCommands();
+
   return (
     <box flexDirection="column" paddingLeft={1} paddingRight={1}>
       <text content={`raw: ${name}`} />
@@ -121,11 +123,14 @@ const DetailRaw = function DetailRaw(): ReactNode {
 };
 
 const overviewRoute = createRoute({ component: DetailOverview, id: "overview" });
+
 const rawRoute = createRoute({ component: DetailRaw, id: "raw" });
+
 const detailRouter = createRouter({
   initial: { routeId: "overview" },
   routes: [overviewRoute, rawRoute],
 });
+
 await detailRouter.start();
 
 const ModalBody = function ModalBody({ onClose }: { onClose: () => void }): ReactNode {
@@ -137,6 +142,7 @@ const ModalBody = function ModalBody({ onClose }: { onClose: () => void }): Reac
     modes: ["cursor"],
     title: "Close modal",
   });
+
   return (
     <box
       position="absolute"

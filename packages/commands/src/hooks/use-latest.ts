@@ -5,5 +5,6 @@ import type { RefObject } from "react";
 export const useLatest = function useLatest<T>(value: T): RefObject<T> {
   const ref = useRef(value);
   ref.current = value;
+
   return ref;
 };

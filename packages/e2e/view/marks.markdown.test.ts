@@ -27,6 +27,7 @@ describe("marks rendering e2e (markdown content)", () => {
   test("search highlights are visible when searching in markdown content", async () => {
     session = await launchView("long.md");
     await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
+
     // Open search
     for (let attempt = 0; attempt < 3; attempt += 1) {
       // Retry keystrokes must be delivered one at a time while the UI updates.
@@ -38,10 +39,12 @@ describe("marks rendering e2e (markdown content)", () => {
       // Inspect each frame before deciding whether another retry is needed.
       // oxlint-disable-next-line no-await-in-loop -- Preserve ordered polling.
       const check = await session.text();
+
       if (!/Mode:\s*cursor/u.test(check)) {
         break;
       }
     }
+
     // Type a search query that matches multiple blocks
     await session.type("the");
     await session.press("enter");

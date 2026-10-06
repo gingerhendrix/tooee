@@ -39,6 +39,7 @@ export const useContentLoader = function useContentLoader(
     });
     const { requestId } = store.getSnapshot().context;
     const loaded = contentProvider.load();
+
     let cleanup: () => void = () => {
       // Synchronous providers have no pending work to cancel.
     };
@@ -55,16 +56,20 @@ export const useContentLoader = function useContentLoader(
             // preserve sequential stream consumption for ordered backpressure.
             // oxlint-disable-next-line no-await-in-loop -- each chunk must be consumed in iterator order
             const result = await iterator.next();
+
             if (result.done === true) {
               break;
             }
+
             store.trigger.chunkReceived({ chunk: result.value, requestId });
           }
+
           store.trigger.streamEnded({ requestId });
         } catch (error) {
           store.trigger.loadFailed({ error: normalizeError(error), requestId });
         }
       })();
+
       cleanup = () => {
         store.trigger.loadCancelled({ requestId });
         void (async () => {
@@ -84,6 +89,7 @@ export const useContentLoader = function useContentLoader(
           store.trigger.loadFailed({ error: normalizeError(error), requestId });
         }
       })();
+
       cleanup = () => {
         store.trigger.loadCancelled({ requestId });
       };
@@ -99,6 +105,7 @@ export const useContentLoader = function useContentLoader(
   const error = useSelector(store, (snapshot) => selectError(snapshot.context));
   const providerMarks = useSelector(store, (snapshot) => selectProviderMarks(snapshot.context));
   const status = useSelector(store, (snapshot) => selectStatus(snapshot.context));
+
   const reload = useCallback(() => {
     store.trigger.reloadRequested({});
   }, [store]);

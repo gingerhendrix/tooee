@@ -2,6 +2,7 @@ import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 
 const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
+
 const BASE_DIR = path.join(REPO_ROOT, ".tmp", "test-config");
 
 const resolveHome = function resolveHome(namespace: string): string {
@@ -15,6 +16,7 @@ const resolveTooeeDir = function resolveTooeeDir(namespace: string): string {
 export const ensureTestConfigHome = function ensureTestConfigHome(namespace: string): string {
   const dir = resolveTooeeDir(namespace);
   mkdirSync(dir, { recursive: true });
+
   return resolveHome(namespace);
 };
 

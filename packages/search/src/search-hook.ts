@@ -29,6 +29,7 @@ export interface SearchState {
 }
 
 const CURSOR_MODES: Mode[] = ["cursor"];
+
 const ALL_MODES: Mode[] = ["cursor", "select", "insert"];
 
 export const useNavSearchStore = function useNavSearchStore(options: {
@@ -38,15 +39,19 @@ export const useNavSearchStore = function useNavSearchStore(options: {
 }): NavSearchStore {
   const depsRef = useRef<NavSearchDeps>({ isSelectable: options.isSelectable ?? (() => true) });
   depsRef.current.isSelectable = options.isSelectable ?? (() => true);
+
   const [store, setStore] = useState(() =>
     createNavSearchStore({ deps: depsRef.current, keys: options.keys })
   );
+
   void setStore;
   useEffect(() => {
     const currentKeys = store.getSnapshot().context.rowKeys;
+
     const keysChanged =
       currentKeys.length !== options.keys.length ||
       currentKeys.some((key, index) => !Object.is(key, options.keys[index]));
+
     if (keysChanged) {
       store.trigger.rowsChanged({
         keys: options.keys,
@@ -54,6 +59,7 @@ export const useNavSearchStore = function useNavSearchStore(options: {
       });
     }
   }, [store, options.keys, options.preserveCursorByKey]);
+
   return store;
 };
 
@@ -75,6 +81,7 @@ export const useSearchBindings = function useSearchBindings(
 
   useEffect(() => {
     const subscription = store.on("jumped", ({ index }) => onJumpRef.current?.(index));
+
     return () => {
       subscription.unsubscribe();
     };
@@ -83,6 +90,7 @@ export const useSearchBindings = function useSearchBindings(
     const subscription = store.on("restoreMode", ({ mode: restored }) => {
       setMode(restored);
     });
+
     return () => {
       subscription.unsubscribe();
     };
@@ -91,6 +99,7 @@ export const useSearchBindings = function useSearchBindings(
   const searchQuery = useSelector(store, (snapshot) => selectSearchQuery(snapshot.context));
   const searchActive = useSelector(store, (snapshot) => selectSearchActive(snapshot.context));
   const matchingLines = useSelector(store, (snapshot) => selectMatches(snapshot.context));
+
   const currentMatchIndex = useSelector(store, (snapshot) =>
     selectCurrentMatchIndex(snapshot.context)
   );
@@ -111,8 +120,10 @@ export const useSearchBindings = function useSearchBindings(
     ) {
       return;
     }
+
     depsRef.current = deps;
     const query = selectSearchQuery(store.getSnapshot().context);
+
     if (query) {
       store.trigger.searchChanged({ matches: matchRef.current(query), query });
     }
@@ -177,5 +188,6 @@ export const useSearchBindings = function useSearchBindings(
 
 export const useSearch = function useSearch(options: UseSearchOptions): SearchState {
   const store = useNavSearchStore({ keys: [] });
+
   return useSearchBindings(store, options);
 };

@@ -44,6 +44,7 @@ export const DocumentScreen = function DocumentScreen<T>({
 
   const { name: themeName } = useThemeCommands({ enabled: themeCommands });
   let quitOptions: UseQuitCommandOptions;
+
   if (quit === true) {
     quitOptions = { enabled: true };
   } else if (quit === false) {
@@ -51,12 +52,14 @@ export const DocumentScreen = function DocumentScreen<T>({
   } else {
     quitOptions = quit;
   }
+
   useQuitCommand(quitOptions);
   useActions(actions);
   useProvideDocumentCommandContext(controller, context);
 
   const { search, navigation, toggledIndices } = controller;
   let selectionCount = toggledIndices.size;
+
   if (selectionCount === 0 && navigation.selection) {
     selectionCount = navigation.selection.end - navigation.selection.start + 1;
   }

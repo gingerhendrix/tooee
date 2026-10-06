@@ -21,6 +21,7 @@ export const ConfigProvider = function ConfigProvider({
   children: ReactNode;
 }): ReactNode {
   const config = useMemo(() => loadConfig(overrides), [overrides]);
+
   return <ConfigContext.Provider value={config}>{children}</ConfigContext.Provider>;
 };
 

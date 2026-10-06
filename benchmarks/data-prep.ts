@@ -7,6 +7,7 @@ import { FIXTURE_TIERS, makeMarkdownFixture, makeTableFixture } from "./lib/fixt
 import type { BenchmarkTableCell } from "./lib/fixtures.ts";
 
 const iterations = Number(process.env.TOOEE_BENCH_DATA_PREP_ITERATIONS ?? 20);
+
 const maxWidth = Number(process.env.TOOEE_BENCH_TABLE_MAX_WIDTH ?? 120);
 
 if (!Number.isFinite(iterations) || iterations < 1) {
@@ -15,6 +16,7 @@ if (!Number.isFinite(iterations) || iterations < 1) {
 
 const median = function median(values: number[]): number {
   const sorted = values.toSorted((left, right) => left - right);
+
   return sorted[Math.floor(sorted.length / 2)] ?? 0;
 };
 
@@ -22,6 +24,7 @@ const formatCellValue = function formatCellValue(value: BenchmarkTableCell | und
   if (value === undefined) {
     return "";
   }
+
   return String(value);
 };
 
@@ -64,23 +67,29 @@ for (const tier of [FIXTURE_TIERS.moderate, FIXTURE_TIERS.large]) {
     const normalizedRows = table.rows.map((row) =>
       table.columns.map((column) => formatCellValue(row[column.key]))
     );
+
     return normalizedRows.length * (normalizedRows[0]?.length ?? 0);
   });
+
   printTimedMetric(`table_${tier.name}_normalize_median`, normalize.medianMs);
 
   const width = timeIterations(() => {
     const headers = table.columns.map((column) => column.header ?? column.key);
+
     const normalizedRows = table.rows.map((row) =>
       table.columns.map((column) => formatCellValue(row[column.key]))
     );
+
     const widths = computeColumnWidths(headers, normalizedRows, maxWidth, {
       columnWidthMode: "content",
       maxColumnWidth: 80,
       minColumnWidth: 4,
       sampleSize: 100,
     });
+
     return widths.reduce((sum, value) => sum + value, 0);
   });
+
   printTimedMetric(`table_${tier.name}_normalize_width_median`, width.medianMs);
   printMetric(`table_${tier.name}_width_total`, width.lastCount);
 }

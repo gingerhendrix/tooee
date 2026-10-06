@@ -15,7 +15,9 @@ import { launch } from "@tooee/view";
 import type { ContentProvider, Content } from "@tooee/view";
 
 const headers = ["Language", "Year", "Creator", "Paradigm"];
+
 const columnKeys = ["language", "year", "creator", "paradigm"] as const;
+
 const rows = [
   ["TypeScript", "2012", "Anders Hejlsberg", "Multi-paradigm"],
   ["Rust", "2010", "Graydon Hoare", "Multi-paradigm"],
@@ -41,6 +43,7 @@ const tableRows = rows.map((row) => {
     paradigm: row[3] ?? "",
     year: row[1] ?? "",
   };
+
   return record;
 });
 

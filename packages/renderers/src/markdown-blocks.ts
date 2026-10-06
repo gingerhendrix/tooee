@@ -45,6 +45,7 @@ export const checkboxMarker = function checkboxMarker(checked: boolean | undefin
   if (checked === undefined) {
     return "";
   }
+
   return checked ? "[x] " : "[ ] ";
 };
 
@@ -56,12 +57,15 @@ export const checkboxMarker = function checkboxMarker(checked: boolean | undefin
  */
 export const getFlatBlockText = function getFlatBlockText(block: FlatBlock): string {
   const { raw } = block.token;
+
   if (raw.length > 0) {
     return raw;
   }
+
   if (block.bullet !== undefined) {
     return block.bullet + checkboxMarker(block.checked);
   }
+
   return block.source?.primary.text ?? "";
 };
 
@@ -89,10 +93,13 @@ class MarkdownResolver {
   /** Resolve `raw` at/after the cursor within `[cursor, bound]`, then advance. */
   resolveRaw(raw: string, bound: number): DocumentRowSource | null {
     const match = this.findRaw(raw, bound);
+
     if (!match) {
       return null;
     }
+
     this.cursor = match.end;
+
     return { primary: this.index.span(match.start, match.end) };
   }
 
@@ -112,9 +119,11 @@ class MarkdownResolver {
     if (raw.length === 0) {
       return null;
     }
+
     const md = this.markdown;
 
     const exact = md.indexOf(raw, this.cursor);
+
     if (exact !== -1 && exact + raw.length <= bound) {
       return { end: exact + raw.length, start: exact };
     }
@@ -124,20 +133,26 @@ class MarkdownResolver {
     }
 
     const firstSegment = raw.slice(0, raw.indexOf("\n"));
+
     if (firstSegment.length === 0) {
       return null;
     }
 
     let from = this.cursor;
+
     for (;;) {
       const start = md.indexOf(firstSegment, from);
+
       if (start === -1 || start >= bound) {
         return null;
       }
+
       const end = this.matchFlexibleNewlines(raw, start, bound);
+
       if (end !== -1) {
         return { end, start };
       }
+
       from = start + 1;
     }
   }
@@ -148,8 +163,10 @@ class MarkdownResolver {
     const { length } = md;
     let h = start;
     let n = 0;
+
     while (n < raw.length) {
       const code = raw.codePointAt(n);
+
       if (code === LINE_FEED_CODE) {
         if (h + 1 < length && md.codePointAt(h) === 13 && md.codePointAt(h + 1) === 10) {
           h += 2;
@@ -158,6 +175,7 @@ class MarkdownResolver {
         } else {
           return -1;
         }
+
         n += 1;
       } else if (h < length && md.codePointAt(h) === code) {
         h += 1;
@@ -166,6 +184,7 @@ class MarkdownResolver {
         return -1;
       }
     }
+
     return h <= bound ? h : -1;
   }
 
@@ -175,19 +194,25 @@ class MarkdownResolver {
     const lineEnd = nl === -1 ? itemEnd : Math.min(nl, itemEnd);
     const firstLine = this.markdown.slice(itemStart, lineEnd);
     const match = LIST_MARKER.exec(firstLine);
+
     if (!match) {
       return { primary: this.index.span(itemStart, itemStart, false) };
     }
+
     const markerStart = itemStart + (match.groups?.indent ?? "").length;
     let spanEnd = itemStart + match[0].length;
+
     while (spanEnd > markerStart) {
       const code = this.markdown.codePointAt(spanEnd - 1);
+
       // Continue while the character is a space or tab.
       if (code !== 32 && code !== 9) {
         break;
       }
+
       spanEnd -= 1;
     }
+
     return { primary: this.index.span(markerStart, spanEnd, false) };
   }
 }
@@ -215,8 +240,10 @@ const flattenList = function flattenList(
 
     let itemStart: number | null = null;
     let itemEnd = bound;
+
     if (res) {
       const loc = res.locate(item.raw, bound);
+
       if (loc) {
         itemStart = loc.start;
         itemEnd = loc.end;
@@ -276,6 +303,7 @@ const flattenListItem = function flattenListItem(
       if (!bulletUsed) {
         emitBulletMarker();
       }
+
       // SAFETY: Marked creates a List token for the adjacent token.type branch.
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
       flattenList(token as Tokens.List, indent + bullet.length, out, res, itemEnd);
@@ -284,6 +312,7 @@ const flattenListItem = function flattenListItem(
       if (!bulletUsed) {
         emitBulletMarker();
       }
+
       out.push({
         indent: indent + bullet.length,
         source: res ? res.resolveRaw(token.raw ?? "", itemEnd) : null,
@@ -309,6 +338,7 @@ const flattenWalk = function flattenWalk(
     if (token.type === "space") {
       continue;
     }
+
     if (token.type === "list") {
       // SAFETY: Marked creates a List token for the adjacent token.type branch.
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
@@ -337,5 +367,6 @@ export const flattenMarkdown = function flattenMarkdown(
   const res = new MarkdownResolver(markdown, options?.sourceId);
   const out: FlatBlock[] = [];
   flattenWalk(marked.lexer(markdown), 0, out, res, markdown.length);
+
   return out.filter((block) => block.token.type !== "html");
 };

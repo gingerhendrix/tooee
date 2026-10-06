@@ -137,6 +137,7 @@ export const useAskEditor = function useAskEditor(
   // Bumped whenever the editor viewport may have moved (cursor, content, wheel)
   // so the scrollbar thumb re-computes from the editor's internal scroll state.
   const [scrollRevision, setScrollRevision] = useState(0);
+
   const bumpScroll = useCallback(() => {
     setScrollRevision((r) => r + 1);
   }, []);
@@ -151,6 +152,7 @@ export const useAskEditor = function useAskEditor(
   // for renderable focus so the editor blurs under a nested picker.
   const surfaceId = useCommandSurfaceId();
   const activeSurface = useActiveCommandSurface();
+
   const suspended =
     (options.suspended ?? false) || (activeSurface !== null && activeSurface.id !== surfaceId);
 
@@ -171,6 +173,7 @@ export const useAskEditor = function useAskEditor(
     }
 
     const target = multiline ? textareaRef.current : inputRef.current;
+
     if (!target) {
       return;
     }
@@ -211,6 +214,7 @@ export const useAskEditor = function useAskEditor(
 
   const resolveSubmitKey = useCallback((): AskSubmitKey => {
     const { current } = optionsRef;
+
     return current.submitKey ?? (current.multiline === true ? "shift+enter" : "enter");
   }, [optionsRef]);
 
@@ -218,8 +222,10 @@ export const useAskEditor = function useAskEditor(
     (text: string, emptyMessage: string, successMessage: string, ctx: CommandContext) => {
       if (text === "") {
         ctx.toast?.toast({ level: "warning", message: emptyMessage });
+
         return;
       }
+
       void copyToClipboard(text);
       ctx.toast?.toast({ level: "success", message: successMessage });
     },
@@ -229,10 +235,13 @@ export const useAskEditor = function useAskEditor(
   const copyLine = useCallback(
     (ctx: CommandContext) => {
       const target = getTarget();
+
       if (!target) {
         copyText("", "Nothing to copy", "Copied line to clipboard", ctx);
+
         return;
       }
+
       const text = target.plainText;
       const offset = Math.min(target.cursorOffset, text.length);
       const start = offset === 0 ? 0 : text.lastIndexOf("\n", offset - 1) + 1;
@@ -242,12 +251,14 @@ export const useAskEditor = function useAskEditor(
     },
     [copyText, getTarget]
   );
+
   const copyDocument = useCallback(
     (ctx: CommandContext) => {
       copyText(getText(), "Nothing to copy", "Copied document to clipboard", ctx);
     },
     [copyText, getText]
   );
+
   const copySelection = useCallback(
     (ctx: CommandContext) => {
       const target = getTarget();
@@ -272,6 +283,7 @@ export const useAskEditor = function useAskEditor(
     if (!multilineRef.current) {
       return;
     }
+
     vimMotionStateRef.current.pendingG = false;
     openLineAtCursor(textareaRef.current, "above");
     setMode("insert");
@@ -281,6 +293,7 @@ export const useAskEditor = function useAskEditor(
     if (!multilineRef.current) {
       return;
     }
+
     vimMotionStateRef.current.pendingG = false;
     openLineAtCursor(textareaRef.current, "below");
     setMode("insert");
@@ -294,9 +307,11 @@ export const useAskEditor = function useAskEditor(
   const motion = useCallback(
     (run: (target: TextareaRenderable | InputRenderable) => void) => {
       const target = getTarget();
+
       if (target) {
         run(target);
       }
+
       vimMotionStateRef.current.pendingG = false;
       bumpScroll();
     },
@@ -320,6 +335,7 @@ export const useAskEditor = function useAskEditor(
       modes: ["cursor"],
       title,
     });
+
     const definitions: AskEditorKeymapDefinition[] = [
       {
         group: "copy",
@@ -484,6 +500,7 @@ export const useAskEditor = function useAskEditor(
         target.gotoBufferEnd();
       }),
     ];
+
     return definitions.map(({ group, when, ...definition }) => ({
       ...definition,
       when: () => enabled(group) && (when?.() ?? true),
@@ -505,6 +522,7 @@ export const useAskEditor = function useAskEditor(
     resolveSubmitKey,
     submit,
   ]);
+
   useActions(builtInActions);
 
   // Middle-click paste from primary selection
@@ -514,9 +532,11 @@ export const useAskEditor = function useAskEditor(
         event.preventDefault();
         void (async () => {
           const text = await readPrimaryText();
+
           if (text === undefined || text === "") {
             return;
           }
+
           getTarget()?.insertText(text);
         })();
       }
@@ -527,11 +547,14 @@ export const useAskEditor = function useAskEditor(
   const setText = useCallback(
     (text: string, opts?: { cursorToEnd?: boolean }) => {
       const cursorToEnd = opts?.cursorToEnd ?? true;
+
       if (multilineRef.current) {
         const target = textareaRef.current;
+
         if (!target) {
           return;
         }
+
         const prevOffset = target.cursorOffset;
         target.replaceText(text);
         target.cursorOffset = cursorToEnd
@@ -543,6 +566,7 @@ export const useAskEditor = function useAskEditor(
         const target = inputRef.current;
         const prevOffset = target?.cursorOffset ?? 0;
         setValue(text);
+
         if (target) {
           target.value = text;
           target.cursorOffset = cursorToEnd
@@ -550,6 +574,7 @@ export const useAskEditor = function useAskEditor(
             : Math.min(prevOffset, target.plainText.length);
         }
       }
+
       bumpScroll();
     },
     [bumpScroll, multilineRef]
@@ -565,9 +590,11 @@ export const useAskEditor = function useAskEditor(
 
   const setCursorToEnd = useCallback(() => {
     const target = getTarget();
+
     if (!target) {
       return;
     }
+
     target.cursorOffset = target.plainText.length;
     bumpScroll();
   }, [getTarget, bumpScroll]);

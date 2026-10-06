@@ -8,6 +8,7 @@ interface Variant {
   dark: string;
   light: string;
 }
+
 type ColorValue = string | Variant;
 
 export interface ThemeJSON {
@@ -157,38 +158,49 @@ export const resolveTheme = function resolveTheme(json: ThemeJSON, mode: ColorMo
     if (isVariant(c)) {
       return resolveColor(c[mode], seen);
     }
+
     if (c === "transparent" || c === "none") {
       return "#00000000";
     }
+
     if (c.startsWith("#")) {
       return c;
     }
+
     if (seen.has(c)) {
       return "#808080";
     }
+
     if (defs[c] !== undefined && defs[c] !== null) {
       return resolveColor(defs[c], new Set(seen).add(c));
     }
+
     if (json.theme[c] !== undefined) {
       return resolveColor(json.theme[c], new Set(seen).add(c));
     }
+
     return "#808080";
   };
 
   // Start from the complete fallback theme, then resolve every key the JSON defines.
   const result: ResolvedTheme = { ...FALLBACKS };
+
   for (const key of RESOLVED_KEYS) {
     const val = json.theme[key];
+
     if (val !== undefined) {
       result[key] = resolveColor(val);
     }
   }
+
   // Dynamic fallbacks that reference other resolved keys
   if (json.theme.cursorLine === undefined) {
     result.cursorLine = result.backgroundElement;
   }
+
   if (json.theme.selection === undefined) {
     result.selection = result.backgroundPanel;
   }
+
   return result;
 };

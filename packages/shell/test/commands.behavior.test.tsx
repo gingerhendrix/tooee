@@ -12,6 +12,7 @@ const ThemeHarness = function ThemeHarness(): ReactNode {
   const { picker } = useThemeCommands();
   const { name: themeName } = useTheme();
   const mode = useMode();
+
   return (
     <box>
       <text content={`theme:${themeName}`} />
@@ -23,6 +24,7 @@ const ThemeHarness = function ThemeHarness(): ReactNode {
 
 const QuitHarness = function QuitHarness({ onQuit }: { onQuit: () => void }): ReactNode {
   useQuitCommand({ onQuit });
+
   return (
     <box>
       <text content="quit-harness" />

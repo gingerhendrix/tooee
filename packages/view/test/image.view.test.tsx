@@ -25,6 +25,7 @@ const renderProvider = async function renderProvider(provider: ContentProvider) 
     await Bun.sleep(50);
   });
   await testSetup.renderOnce();
+
   return testSetup.captureCharFrame();
 };
 
@@ -34,6 +35,7 @@ describe("View images", () => {
       format: "image",
       load: () => ({ format: "image", src: "/missing/cover.png", title: "cover.png" }),
     });
+
     expect(frame).toContain("cover.png");
     expect(frame).toContain("Image failed to load: /missing/cover.png");
   });
@@ -47,6 +49,7 @@ describe("View images", () => {
         markdown: "![Standard](standard.png)\n\n![[obsidian.webp|20x8]]",
       }),
     });
+
     expect(frame).toContain("Image failed to load: Standard");
     expect(frame).toContain("Image failed to load: obsidian.webp");
     expect(frame).not.toContain("![[obsidian.webp|20x8]]");

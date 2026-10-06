@@ -13,13 +13,19 @@ import {
 import { DEFAULT_VIEWPORT, measureFirstFrame } from "./lib/render.tsx";
 
 const tier = FIXTURE_TIERS.moderate;
+
 const markdown = makeMarkdownFixture(tier);
+
 const code = makeCodeFixture(tier);
+
 const table = makeTableFixture(tier);
 
 printMetric("markdown_line_count", countLines(markdown.markdown));
+
 printMetric("code_line_count", countLines(code.code));
+
 printMetric("table_row_count", table.rows.length);
+
 printMetric("table_column_count", table.columns.length);
 
 await measureFirstFrame(

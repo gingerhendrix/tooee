@@ -42,10 +42,12 @@ export const percentile = function percentile(values: number[], percentileValue:
   }
 
   const sorted = values.toSorted((left, right) => left - right);
+
   const index = Math.min(
     sorted.length - 1,
     Math.max(0, Math.ceil((percentileValue / 100) * sorted.length) - 1)
   );
+
   return sorted[index] ?? 0;
 };
 
@@ -105,6 +107,7 @@ export const printMetric = function printMetric(name: string, value: number): vo
   if (!Number.isFinite(value)) {
     throw new TypeError(`Metric ${name} is not finite: ${value}`);
   }
+
   console.log(`METRIC ${name}=${value}`);
 };
 

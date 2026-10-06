@@ -59,6 +59,7 @@ export const ThemeProvider = function ThemeProvider({
     }
 
     const t = buildTheme(name ?? DEFAULT_THEME_NAME, mode ?? DEFAULT_MODE);
+
     return { mode: t.mode, name: t.name, syntax: t.syntax, theme: t.colors };
   }, [themeProp, name, mode]);
 
@@ -117,6 +118,7 @@ export const ThemeSwitcherProvider = function ThemeSwitcherProvider({
   const setThemeByName = useCallback(
     (name: string, opts?: { persist?: boolean }) => {
       setThemeName(name);
+
       if (opts?.persist === true) {
         writeGlobalConfig({ theme: { mode, name } });
       }
@@ -152,8 +154,10 @@ export const ThemeSwitcherProvider = function ThemeSwitcherProvider({
 
 export const useThemeSwitcher = function useThemeSwitcher(): ThemeSwitcherContextValue {
   const ctx = useContext(ThemeSwitcherContext);
+
   if (!ctx) {
     throw new Error("useThemeSwitcher must be used within ThemeSwitcherProvider");
   }
+
   return ctx;
 };

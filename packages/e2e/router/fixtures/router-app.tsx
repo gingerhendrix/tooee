@@ -22,7 +22,9 @@ import type { ReactNode } from "react";
 
 // Parse CLI args
 const args = process.argv.slice(2);
+
 const loaderDelayArg = args.find((a) => a.startsWith("--loader-delay="));
+
 const loaderDelay =
   (loaderDelayArg?.length ?? 0) > 0 ? Math.trunc(Number(loaderDelayArg?.split("=")[1])) : 500;
 
@@ -39,6 +41,7 @@ const numberState: Codec<number> = {
     if (typeof value !== "number") {
       throw new TypeError("Expected screen state to be a number");
     }
+
     return value;
   },
 };
@@ -48,7 +51,9 @@ const idParams: Codec<{ id: string }> = {
     if (typeof value !== "object" || value === null || !("id" in value)) {
       throw new TypeError("Expected params { id }");
     }
+
     const { id } = value;
+
     return { id: typeof id === "string" ? id : String(id) };
   },
 };
@@ -58,10 +63,13 @@ const messageData: Codec<{ message: string }> = {
     if (typeof value !== "object" || value === null || !("message" in value)) {
       throw new TypeError("Expected loader data { message }");
     }
+
     const { message } = value;
+
     if (typeof message !== "string") {
       throw new TypeError("Expected message to be a string");
     }
+
     return { message };
   },
 };
@@ -71,7 +79,9 @@ const messageData: Codec<{ message: string }> = {
 // --- Route specs (identity + codecs), declared before their components ---
 
 const homeSpec = { id: "home", screenState: numberState } as const;
+
 const detailSpec = { id: "detail", params: idParams } as const;
+
 const slowSpec = { data: messageData, id: "slow" } as const;
 
 // --- Screen Components ---
@@ -328,6 +338,7 @@ const ErrorComponent = function ErrorComponent({ error }: { error: Error }): Rea
 
 const ParentLayout = function ParentLayout(): ReactNode {
   const { isFocused } = useScreenFocus();
+
   return (
     <box flexDirection="column">
       <text content={`Layout:parent Focus:${isFocused}`} />
@@ -355,7 +366,9 @@ const ChildScreen = function ChildScreen(): ReactNode {
 // --- Route Definitions ---
 
 const homeRoute = createRoute({ ...homeSpec, component: HomeScreen });
+
 const detailRoute = createRoute({ ...detailSpec, component: DetailScreen });
+
 const settingsRoute = createRoute({ component: SettingsScreen, id: "settings" });
 
 const slowRoute = createRoute({
@@ -363,6 +376,7 @@ const slowRoute = createRoute({
   component: SlowScreen,
   loader: async () => {
     await Bun.sleep(loaderDelay);
+
     return { message: "loaded" };
   },
   pendingComponent: SlowPending,
@@ -379,6 +393,7 @@ const errorRoute = createRoute({
 });
 
 const parentRoute = createRoute({ component: ParentLayout, id: "parent" });
+
 const childRoute = createRoute({
   component: ChildScreen,
   id: "child",
@@ -391,6 +406,7 @@ const router = createRouter({
   initial: { routeId: "home" },
   routes: [homeRoute, detailRoute, settingsRoute, slowRoute, errorRoute, parentRoute, childRoute],
 });
+
 await router.start();
 
 // --- Launch ---

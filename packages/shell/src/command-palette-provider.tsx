@@ -33,6 +33,7 @@ export const CommandPaletteProvider = function CommandPaletteProvider({
     const storeContext = commandStore.store.getSnapshot().context;
     const panel = selectActivePanelSurface(storeContext);
     const launchMode = panel?.getMode() ?? mode;
+
     // Insert-mode key dispatch never falls through from a panel to root. Keep
     // a programmatically opened palette faithful to that boundary too: show
     // only the active editor panel's commands, never root commands that typed
@@ -41,6 +42,7 @@ export const CommandPaletteProvider = function CommandPaletteProvider({
       panel && launchMode === "insert"
         ? [...(storeContext.commandsBySurface.get(panel.id)?.values() ?? [])]
         : commands;
+
     overlay.open(
       OVERLAY_ID,
       ({ close }: { close: (reason?: OverlayCloseReason) => void }) =>

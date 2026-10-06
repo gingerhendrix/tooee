@@ -18,6 +18,7 @@ export const testRender = async function testRender(
 ) {
   let root: ReturnType<typeof createRoot> | null = null;
   setIsReactActEnvironment(true);
+
   const testSetup = await createTestRenderer({
     ...testRendererOptions,
     onDestroy() {
@@ -25,16 +26,20 @@ export const testRender = async function testRender(
       setIsReactActEnvironment(false);
     },
   });
+
   root = createRoot(testSetup.renderer);
+
   const render = (nextNode: ReactNode) => {
     root?.render(nextNode);
   };
+
   const rerender = async (nextNode: ReactNode) => {
     await act(async () => {
       render(nextNode);
       await Promise.resolve();
     });
   };
+
   await rerender(node);
   const originalDestroy = testSetup.renderer.destroy.bind(testSetup.renderer);
   testSetup.renderer.destroy = () => {
@@ -42,5 +47,6 @@ export const testRender = async function testRender(
       originalDestroy();
     });
   };
+
   return { ...testSetup, rerender };
 };

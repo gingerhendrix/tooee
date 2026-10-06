@@ -24,10 +24,12 @@ export const buildChooseHints = function buildChooseHints(
           "Esc/q cancel",
           "Enter confirm",
         ];
+
   return options.extra ? [...base, ...options.extra] : base;
 };
 
 export type ChoosePanelInsetValue = PanelInsetValue;
+
 export type ChoosePanelInset = PanelInset;
 
 export interface ChoosePanelProps {

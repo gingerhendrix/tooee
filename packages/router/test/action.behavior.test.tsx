@@ -33,6 +33,7 @@ const DetailScreen = function DetailScreen(): ReactNode {
 // Route definitions
 
 const homeRoute = createRoute({ component: HomeScreen, id: "home" });
+
 const detailRoute = createRoute({ component: DetailScreen, id: "detail" });
 
 // Test setup
@@ -49,6 +50,7 @@ describe("useActionResultHandler", () => {
 
     const HandlerCapture = function HandlerCapture() {
       handler = useActionResultHandler();
+
       return null;
     };
 
@@ -56,6 +58,7 @@ describe("useActionResultHandler", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -86,6 +89,7 @@ describe("useActionResultHandler", () => {
 
     const HandlerCapture = function HandlerCapture() {
       handler = useActionResultHandler();
+
       return null;
     };
 
@@ -93,6 +97,7 @@ describe("useActionResultHandler", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -121,6 +126,7 @@ describe("useActionResultHandler", () => {
 
     const HandlerCapture = function HandlerCapture() {
       handler = useActionResultHandler();
+
       return null;
     };
 
@@ -128,6 +134,7 @@ describe("useActionResultHandler", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -155,6 +162,7 @@ describe("useActionResultHandler", () => {
 
     const HandlerCapture = function HandlerCapture() {
       handler = useActionResultHandler();
+
       return null;
     };
 
@@ -162,6 +170,7 @@ describe("useActionResultHandler", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -204,8 +213,10 @@ describe("useActionResultHandler", () => {
       forceUpdate = () => {
         setState((n) => n + 1);
       };
+
       const h = useActionResultHandler();
       handlerRefs.push(h);
+
       return null;
     };
 
@@ -213,6 +224,7 @@ describe("useActionResultHandler", () => {
       initial: { routeId: "home" },
       routes: [homeRoute, detailRoute],
     });
+
     await router.start();
 
     testSetup = await testRender(
@@ -239,6 +251,7 @@ describe("useActionResultHandler", () => {
 
     // Should have captured at least 3 renders
     expect(handlerRefs.length).toBeGreaterThanOrEqual(3);
+
     // All handler references should be the same function
     for (let i = 1; i < handlerRefs.length; i += 1) {
       expect(handlerRefs[i]).toBe(handlerRefs[0]);

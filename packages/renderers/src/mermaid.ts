@@ -34,8 +34,11 @@ export interface AnsiStyledText {
 // an edge cannot be routed. Keep synchronous work within a conservative budget;
 // MarkdownView will visibly fall back to the original Mermaid source instead.
 const MAX_SOURCE_LENGTH = 20_000;
+
 const MAX_SOURCE_LINES = 300;
+
 const MAX_FLOWCHART_EDGES = 32;
+
 const MIN_UNSAFE_CYCLIC_FAN_DEGREE = 3;
 
 // oxlint-disable-next-line no-control-regex -- ANSI SGR sequences start with the ESC control character
@@ -59,12 +62,15 @@ const hasDirectedPath = function hasDirectedPath(
 
   while (pending.length > 0) {
     const node = pending.pop();
+
     if (node === undefined) {
       continue;
     }
+
     if (node === target) {
       return true;
     }
+
     if (visited.has(node)) {
       continue;
     }
@@ -94,6 +100,7 @@ const hasUnsafeCyclicFanTopology = function hasUnsafeCyclicFanTopology(
   const fanInNodes = [...incomingDegree]
     .filter(([, degree]) => degree >= MIN_UNSAFE_CYCLIC_FAN_DEGREE)
     .map(([node]) => node);
+
   const fanOutNodes = [...outgoingDegree]
     .filter(([, degree]) => degree >= MIN_UNSAFE_CYCLIC_FAN_DEGREE)
     .map(([node]) => node);
@@ -121,6 +128,7 @@ const exceedsSynchronousRenderBudget = function exceedsSynchronousRenderBudget(
   }
 
   const { edges } = parseMermaid(source);
+
   return edges.length > MAX_FLOWCHART_EDGES || hasUnsafeCyclicFanTopology(edges);
 };
 
@@ -134,9 +142,11 @@ const appendStyledChunk = function appendStyledChunk(
   }
 
   const chunk: TextChunk = { __isChunk: true, text };
+
   if (fg !== undefined && fg !== "") {
     chunk.fg = parseColor(fg);
   }
+
   chunks.push(chunk);
 };
 
@@ -144,6 +154,7 @@ const sgrParams = function sgrParams(rawParams: string): number[] {
   if (rawParams === "") {
     return [0];
   }
+
   return rawParams.split(";").map((param) => (param === "" ? 0 : Number(param)));
 };
 
@@ -232,10 +243,12 @@ export const renderMermaidForTerminal = function renderMermaidForTerminal(
     }
 
     const mode = options.mode ?? "plain";
+
     const rendered = renderMermaidASCII(source, {
       colorMode: mode === "ansi" ? "truecolor" : "none",
       theme: options.theme,
     }).trimEnd();
+
     const { text, content } = ansiToStyledText(rendered);
 
     if (text.trim().length === 0) {

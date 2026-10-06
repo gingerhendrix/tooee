@@ -23,6 +23,7 @@ const SPACE_THEN_N: ParsedHotkey[] = [
 describe("SequenceTracker", () => {
   test("keeps pending multi-key combos alive beyond the old 500ms default", async () => {
     let resets = 0;
+
     const tracker = new SequenceTracker({
       onReset: () => {
         resets += 1;
@@ -43,6 +44,7 @@ describe("SequenceTracker", () => {
 
   test("resets pending multi-key combos after the configured timeout", async () => {
     let resets = 0;
+
     const tracker = new SequenceTracker({
       onReset: () => {
         resets += 1;
@@ -66,12 +68,14 @@ describe("pure sequence helpers", () => {
       { ctrl: false, key: "g", meta: false, option: false, shift: false },
     ],
   };
+
   const G_THEN_T: ParsedHotkey = {
     steps: [
       { ctrl: false, key: "g", meta: false, option: false, shift: false },
       { ctrl: false, key: "t", meta: false, option: false, shift: false },
     ],
   };
+
   const SINGLE_X: ParsedHotkey = {
     steps: [{ ctrl: false, key: "x", meta: false, option: false, shift: false }],
   };

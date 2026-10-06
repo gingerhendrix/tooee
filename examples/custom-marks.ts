@@ -206,21 +206,26 @@ const contentProvider: ContentProvider = {
 
 // Track user-added bookmarks (line -> boolean)
 const userBookmarks = new Set<number>();
+
 const userDiagnostics = new Set<number>();
 
 const rebuildUserBookmarks = function rebuildUserBookmarks(): MarkSet {
   const builder = new MarkSetBuilder();
+
   for (const line of userBookmarks) {
     builder.addLine(line, { background: "#1a1a3a", signBefore: "\u2605" });
   }
+
   return builder.build("user:bookmarks", MarkPriorities.USER + 10);
 };
 
 const rebuildUserDiagnostics = function rebuildUserDiagnostics(): MarkSet {
   const builder = new MarkSetBuilder();
+
   for (const line of userDiagnostics) {
     builder.addLine(line, { background: "#4a2800", signBefore: "!" });
   }
+
   return builder.build("user:diagnostics", MarkPriorities.USER + 5);
 };
 
@@ -228,6 +233,7 @@ const actions: ActionDefinition[] = [
   {
     handler: (ctx) => {
       const line = ctx.document?.cursor;
+
       if (line === null || line === undefined) {
         return;
       }
@@ -237,6 +243,7 @@ const actions: ActionDefinition[] = [
       } else {
         userBookmarks.add(line);
       }
+
       ctx.view?.marks.setMarkSet(rebuildUserBookmarks());
       ctx.toast?.toast({
         id: "bookmark-toggle",
@@ -254,6 +261,7 @@ const actions: ActionDefinition[] = [
   {
     handler: (ctx) => {
       const line = ctx.document?.cursor;
+
       if (line === null || line === undefined) {
         return;
       }
@@ -263,6 +271,7 @@ const actions: ActionDefinition[] = [
       } else {
         userDiagnostics.add(line);
       }
+
       ctx.view?.marks.setMarkSet(rebuildUserDiagnostics());
       ctx.toast?.toast({
         id: "diagnostic-toggle",

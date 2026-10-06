@@ -52,12 +52,15 @@ export const AppLayout = function AppLayout({
 }: AppLayoutProps): ReactNode {
   const { theme } = useTheme();
   const contextOverlay = useCurrentOverlay();
+
   const handleSearchQueryChange = (query: string): void => {
     searchBar?.setSearchQuery(query);
   };
+
   const handleSearchSubmit = (): void => {
     searchBar?.submitSearch();
   };
+
   return (
     <box flexDirection="column" width="100%" height="100%" backgroundColor={theme.background}>
       {titleBar && <TitleBar title={titleBar.title} subtitle={titleBar.subtitle} />}

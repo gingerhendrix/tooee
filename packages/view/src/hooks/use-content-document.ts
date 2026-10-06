@@ -37,6 +37,7 @@ export const useContentDocument = function useContentDocument<T>(
   options: ContentDocumentOptions<T>
 ): ContentDocumentResult<T> {
   const { showLineNumbers } = useContentCommands({ content, textContent });
+
   const document = useDocumentController<T>({
     adapter,
     contextMenu: options.contextMenu === false ? false : actions,
@@ -45,6 +46,7 @@ export const useContentDocument = function useContentDocument<T>(
     preserveCursorByKey: options.preserveCursorByKey,
     rows,
   });
+
   const statusItems = options.buildStatusItems?.(document) ??
     options.statusItems ?? [
       { label: "Format:", value: content.format },

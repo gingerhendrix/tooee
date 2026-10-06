@@ -11,20 +11,26 @@ export const chunkLinkAt = function chunkLinkAt(
 ): string | null {
   let currentLine = 0;
   let column = 0;
+
   for (const chunk of chunks) {
     const parts = chunk.text.split("\n");
+
     for (const [index, part] of parts.entries()) {
       const width = Bun.stringWidth(part);
+
       if (currentLine === line && offset >= column && offset < column + width) {
         return chunk.link?.url ?? null;
       }
+
       column += width;
+
       if (index < parts.length - 1) {
         currentLine += 1;
         column = 0;
       }
     }
   }
+
   return null;
 };
 
@@ -39,19 +45,25 @@ export const tableLinkMouseHandler = function tableLinkMouseHandler(
   if (onLinkActivate === undefined) {
     return undefined;
   }
+
   return (event: MouseEvent): void => {
     if (event.button !== 0 || event.target === null) {
       return;
     }
+
     const hit = textTableCellAt(event.target, event.x, event.y);
     const chunks = hit === null ? null : content[hit.row]?.[hit.column];
+
     if (hit === null || chunks === null || chunks === undefined) {
       return;
     }
+
     const href = chunkLinkAt(chunks, hit.line, hit.offset);
+
     if (href === null || onLinkActivate(href) !== true) {
       return;
     }
+
     event.preventDefault();
     event.stopPropagation();
   };

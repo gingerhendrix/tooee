@@ -90,6 +90,7 @@ describe("markdown gutter e2e", () => {
     test("search shows match indicators", async () => {
       session = await launchView("long.md");
       await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
+
       // Open search — retry until search bar appears (Mode: cursor disappears)
       for (let attempt = 0; attempt < 3; attempt += 1) {
         // Retry keystrokes must be delivered one at a time while the UI updates.
@@ -101,10 +102,12 @@ describe("markdown gutter e2e", () => {
         // Inspect each frame before deciding whether another retry is needed.
         // oxlint-disable-next-line no-await-in-loop -- Preserve ordered polling.
         const check = await session.text();
+
         if (!/Mode:\s*cursor/u.test(check)) {
           break;
         }
       }
+
       // Type a query that matches all sections (visible in viewport)
       await session.type("Section");
       // Submit search
@@ -118,6 +121,7 @@ describe("markdown gutter e2e", () => {
     test("search match count shows in search bar", async () => {
       session = await launchView("long.md");
       await session.waitForText(/Mode:\s*cursor/u, { timeout: 5000 });
+
       // Open search — retry until search bar appears (Mode: cursor disappears)
       for (let attempt = 0; attempt < 3; attempt += 1) {
         // Retry keystrokes must be delivered one at a time while the UI updates.
@@ -129,10 +133,12 @@ describe("markdown gutter e2e", () => {
         // Inspect each frame before deciding whether another retry is needed.
         // oxlint-disable-next-line no-await-in-loop -- Preserve ordered polling.
         const check = await session.text();
+
         if (!/Mode:\s*cursor/u.test(check)) {
           break;
         }
       }
+
       await session.type("Section");
       // Wait for match count to appear in search bar (N/M format)
       await session.waitForText(/\d+\/\d+/u, { timeout: 10_000 });

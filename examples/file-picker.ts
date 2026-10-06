@@ -14,6 +14,7 @@ import type { ChooseItem } from "@tooee/choose";
 
 const getIcon = (path: string): string => {
   const ext = path.split(".").pop()?.toLowerCase();
+
   const icons = new Map([
     ["css", "\u{1F3A8}"],
     ["go", "\u{1F439}"],
@@ -28,6 +29,7 @@ const getIcon = (path: string): string => {
     ["ts", "\u{1F4DC}"],
     ["tsx", "\u{269B}"],
   ]);
+
   return icons.get(ext ?? "") ?? "\u{1F4C4}";
 };
 
@@ -36,6 +38,7 @@ const MAX_FILE_RESULTS = 1000;
 const commandExists = async function commandExists(cmd: string): Promise<boolean> {
   const proc = Bun.spawn(["which", cmd], { stderr: "pipe", stdout: "pipe" });
   await proc.exited;
+
   return proc.exitCode === 0;
 };
 

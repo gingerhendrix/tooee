@@ -40,6 +40,7 @@ const RawKeyboardHarness = function RawKeyboardHarness(): ReactNode {
     if (active) {
       return;
     }
+
     if (key.name === "z") {
       setGuarded((n) => n + 1);
     }
@@ -71,6 +72,7 @@ const ZCommandSurface = function ZCommandSurface({
   onAction: () => void;
 }): ReactNode {
   useCommand({ handler: onAction, hotkey: "z", id: "modal.z", title: "Z action" });
+
   return <text content="modal-surface" />;
 };
 
@@ -139,6 +141,7 @@ const SurfaceB = function SurfaceB({
 }): ReactNode {
   useCommand({ handler: onAction, hotkey: "b", id: "b.action", title: "B action" });
   useCommand({ handler: onClose, hotkey: "Escape", id: "b.close", title: "Close B" });
+
   return <text content="surface-b" />;
 };
 
@@ -224,7 +227,9 @@ const setup = async function setup(aRole: CommandSurfaceRole = "modal") {
     </CommandProvider>,
     { height: 24, kittyKeyboard: true, width: 60 }
   );
+
   await session.renderOnce();
+
   return session;
 };
 

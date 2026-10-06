@@ -22,8 +22,11 @@ import type {
 } from "./types.js";
 
 const EMPTY_LAYERS: readonly DecorationLayer[] = [];
+
 const EMPTY_MATCHES: readonly number[] = [];
+
 const EMPTY_ROWS: readonly never[] = [];
+
 const EMPTY_ANCHORS: readonly never[] = [];
 
 /** The last row that accepts the cursor, or `null` when none does. */
@@ -36,6 +39,7 @@ const lastSelectableIndex = function lastSelectableIndex(
       return index;
     }
   }
+
   return null;
 };
 
@@ -54,9 +58,11 @@ const makeAnchor = function makeAnchor<T>(
   index: number
 ): DocumentRowAnchor<T> | null {
   const row = rows[index];
+
   if (row === undefined) {
     return null;
   }
+
   return {
     index,
     key: rowKey(adapter, row, index),
@@ -77,12 +83,14 @@ const resolveContextMenuEntries = function resolveContextMenuEntries(
   context: CommandContext
 ): ContextMenuEntry[] {
   const [first] = items;
+
   if (first !== undefined && "handler" in first) {
     // SAFETY: The first entry has an ActionDefinition handler, and the public union permits only
     // homogeneous ActionDefinition or ContextMenuEntry arrays.
     // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- current public menu item union requires this projection
     return actionsToContextMenuEntries(items as readonly ActionDefinition[], context);
   }
+
   // SAFETY: An empty collection or a first entry without a handler is the ContextMenuEntry arm of
   // the public homogeneous-array union.
   return [...(items as readonly ContextMenuEntry[])];
@@ -95,12 +103,15 @@ const defaultMatch = function defaultMatch<T>(
 ): number[] {
   const lowered = query.toLowerCase();
   const matches: number[] = [];
+
   for (let index = 0; index < rows.length; index += 1) {
     const row = rows[index];
+
     if (row !== undefined && getText(row, index).toLowerCase().includes(lowered)) {
       matches.push(index);
     }
   }
+
   return matches;
 };
 
@@ -150,6 +161,7 @@ export const useDocumentController = function useDocumentController<T>(
 
   const getRowText = useCallback((index: number): string => {
     const row = rowsRef.current[index];
+
     return row === undefined ? "" : adapterRef.current.getText(row, index);
   }, []);
 
@@ -159,9 +171,11 @@ export const useDocumentController = function useDocumentController<T>(
     () =>
       (index: number): boolean => {
         const row = rows[index];
+
         if (row === undefined) {
           return false;
         }
+
         return adapterRef.current.isSelectable?.(row, index) ?? true;
       },
     [rows]
@@ -171,11 +185,13 @@ export const useDocumentController = function useDocumentController<T>(
     () => rows.map((row, index) => rowKey(adapterRef.current, row, index)),
     [rows]
   );
+
   const navSearchStore = useNavSearchStore({
     isSelectable,
     keys: rowKeys,
     preserveCursorByKey,
   });
+
   const navigation = useNavigationBindings(navSearchStore, { multiSelect });
   const { setCursor, toggledIndices } = navigation;
 
@@ -188,9 +204,11 @@ export const useDocumentController = function useDocumentController<T>(
   const match = useCallback((query: string): number[] => {
     const currentRows = rowsRef.current;
     const custom = matchRef.current;
+
     if (custom) {
       return [...custom(query, currentRows)];
     }
+
     return defaultMatch(query, currentRows, (row, index) => adapterRef.current.getText(row, index));
   }, []);
 
@@ -200,6 +218,7 @@ export const useDocumentController = function useDocumentController<T>(
     enabled: searchEnabled,
     match,
   });
+
   const search = searchEnabled ? searchState : null;
 
   // -- Copy -----------------------------------------------------------------
@@ -216,6 +235,7 @@ export const useDocumentController = function useDocumentController<T>(
 
   const activeIndex =
     navigation.cursor !== null && navigation.cursor < rows.length ? navigation.cursor : null;
+
   const activeRow = activeIndex === null ? undefined : rows[activeIndex];
   const activeKey = activeIndex === null ? null : rowKey(adapter, activeRow, activeIndex);
 
@@ -223,13 +243,17 @@ export const useDocumentController = function useDocumentController<T>(
     if (toggledIndices.size > 0) {
       return [...toggledIndices].toSorted((left, right) => left - right);
     }
+
     if (navigation.selection) {
       const indices: number[] = [];
+
       for (let index = navigation.selection.start; index <= navigation.selection.end; index += 1) {
         indices.push(index);
       }
+
       return indices;
     }
+
     return EMPTY_ROWS;
   }, [toggledIndices, navigation.selection]);
 
@@ -239,6 +263,7 @@ export const useDocumentController = function useDocumentController<T>(
         ? EMPTY_ROWS
         : selectedIndices.flatMap((index) => {
             const row = rows[index];
+
             return row === undefined ? [] : [row];
           }),
     [selectedIndices, rows]
@@ -261,13 +286,17 @@ export const useDocumentController = function useDocumentController<T>(
     if (selectedIndices.length === 0) {
       return EMPTY_ANCHORS;
     }
+
     const anchors: DocumentRowAnchor<T>[] = [];
+
     for (const index of selectedIndices) {
       const anchor = makeAnchor(rows, adapter, index);
+
       if (anchor) {
         anchors.push(anchor);
       }
     }
+
     return anchors;
   }, [selectedIndices, rows, adapter]);
 
@@ -310,6 +339,7 @@ export const useDocumentController = function useDocumentController<T>(
   const { cursor } = navigation;
   useEffect(() => {
     const document = ref.current;
+
     if (!document || cursor === null) {
       return () => {
         // No document or cursor yet: no listener was attached.
@@ -318,6 +348,7 @@ export const useDocumentController = function useDocumentController<T>(
 
     if (document.getRowMetrics(cursor)) {
       document.scrollToRow(cursor, "nearest");
+
       return () => {
         // The row was followed synchronously: no listener was attached.
       };
@@ -330,7 +361,9 @@ export const useDocumentController = function useDocumentController<T>(
       document.off("row-geometry-change", onGeometry);
       document.scrollToRow(cursor, "nearest");
     };
+
     document.on("row-geometry-change", onGeometry);
+
     return () => {
       document.off("row-geometry-change", onGeometry);
     };
@@ -343,10 +376,12 @@ export const useDocumentController = function useDocumentController<T>(
   useEffect(() => {
     const subscription = navSearchStore.on("jumped", ({ index }) => {
       const document = ref.current;
+
       if (document?.getRowMetrics(index)) {
         document.scrollToRow(index, "nearest");
       }
     });
+
     return () => {
       subscription.unsubscribe();
     };
@@ -362,9 +397,11 @@ export const useDocumentController = function useDocumentController<T>(
     index: number;
     options: DocumentRevealOptions;
   } | null>(null);
+
   const revealRow = useCallback((index: number, revealOptions: DocumentRevealOptions = {}) => {
     setReveal({ index, options: revealOptions });
   }, []);
+
   const detachRevealRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
@@ -373,28 +410,36 @@ export const useDocumentController = function useDocumentController<T>(
 
   useEffect(() => {
     const document = ref.current;
+
     if (!document || reveal === null) {
       return () => {
         // No document or request: no listener was attached.
       };
     }
+
     const { align = "nearest", margin = 0 } = reveal.options;
+
     const apply = () => {
       document.scrollToRow(reveal.index, align, margin);
     };
+
     const onGeometry = () => {
       document.off("row-geometry-change", onGeometry);
       apply();
     };
+
     const detach = () => {
       document.off("row-geometry-change", onGeometry);
+
       if (detachRevealRef.current === detach) {
         detachRevealRef.current = null;
       }
     };
+
     apply();
     document.on("row-geometry-change", onGeometry);
     detachRevealRef.current = detach;
+
     return detach;
   }, [reveal]);
 
@@ -411,24 +456,30 @@ export const useDocumentController = function useDocumentController<T>(
     atTail: true,
     keys: null,
   });
+
   useEffect(() => {
     if (!followTail) {
       return;
     }
+
     const tail = tailRef.current;
     const last = lastSelectableIndex(rowKeys.length, isSelectable);
+
     if (rowKeys !== tail.keys) {
       tail.keys = rowKeys;
       const pinned = ref.current?.isScrolledToBottom() ?? true;
+
       if (tail.atTail && pinned && last !== null) {
         // Read the store: its own rows reconciliation has already run this
         // commit, so the rendered cursor may be stale.
         if (navSearchStore.getSnapshot().context.cursor !== last) {
           setCursor(last);
         }
+
         return;
       }
     }
+
     tail.atTail = cursor === null || cursor === last;
   }, [followTail, rowKeys, cursor, isSelectable, navSearchStore, setCursor]);
 
@@ -447,10 +498,13 @@ export const useDocumentController = function useDocumentController<T>(
   const getRowAtScreenY = useCallback(
     (screenY: number) => {
       const index = ref.current?.getRowAtScreenY(screenY);
+
       if (index === null || index === undefined || index < 0 || index >= rowsRef.current.length) {
         return null;
       }
+
       const row = rowsRef.current[index];
+
       return row === undefined ? null : { index, key: getRowKey(index), row };
     },
     [getRowKey]
@@ -464,15 +518,18 @@ export const useDocumentController = function useDocumentController<T>(
       if (hasModalOverlayRef.current) {
         return;
       }
+
       if (index < 0 || index >= rowsRef.current.length) {
         return;
       }
+
       setCursor(index);
     },
     [setCursor]
   );
 
   const openContextMenu = contextMenuController.open;
+
   const onMouseDown = useCallback(
     (event: MouseEvent) => {
       if (hasModalOverlayRef.current) {
@@ -480,6 +537,7 @@ export const useDocumentController = function useDocumentController<T>(
       }
 
       const hit = getRowAtScreenY(event.y);
+
       if (!hit) {
         return;
       }
@@ -487,13 +545,16 @@ export const useDocumentController = function useDocumentController<T>(
       if (event.button === 0) {
         selectRow(hit.index);
         onRowPressRef.current?.({ ...hit, event });
+
         return;
       }
 
       if (event.button !== 2) {
         return;
       }
+
       const menu = contextMenuOptionsRef.current;
+
       if (menu === false || menu === undefined) {
         return;
       }
@@ -509,9 +570,11 @@ export const useDocumentController = function useDocumentController<T>(
       // oxlint-disable-next-line anti-slop/no-runtime-typeof -- public context-menu boundary accepts either a callback or prepared entries
       const items = typeof menu === "function" ? menu({ ...hit, context, event }) : menu;
       const entries = resolveContextMenuEntries(items, context);
+
       if (entries.length === 0) {
         return;
       }
+
       openContextMenu(event.x, event.y, entries, (id) => {
         invokeRef.current(id);
       });

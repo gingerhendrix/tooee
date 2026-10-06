@@ -42,11 +42,13 @@ const ThemedLine = function ThemedLine({
 }): ReactNode {
   const decoded = decodeReactContent(content);
   let rendered: ReactNode = null;
+
   if (decoded.kind === "string") {
     rendered = <text content={decoded.value} fg={color} />;
   } else if (decoded.kind === "node") {
     rendered = decoded.value;
   }
+
   return (
     <box height={1} style={{ paddingLeft: 2 }}>
       {rendered}
@@ -76,6 +78,7 @@ export const ChooseList = function ChooseList({
 
   useEffect(() => {
     const activeMatch = state.matches[state.activeIndex];
+
     if (scrollRef.current && activeMatch !== undefined) {
       scrollRef.current.scrollChildIntoView(`choose-item-${activeMatch.originalIndex}`);
     }
@@ -98,6 +101,7 @@ export const ChooseList = function ChooseList({
       {state.matches.map((match, index): ReactNode => {
         const isActive = index === state.activeIndex;
         const isSelected = state.selectedOriginalIndices.has(match.originalIndex);
+
         const defaultContent = (
           <text fg={isActive ? theme.primary : theme.text} style={{ flexGrow: 1 }}>
             {state.multi && (
@@ -118,6 +122,7 @@ export const ChooseList = function ChooseList({
             )}
           </text>
         );
+
         const context: ChooseItemRenderContext = {
           defaultContent,
           index,
@@ -143,6 +148,7 @@ export const ChooseList = function ChooseList({
               if (interactionSuspended || event.button !== 0 || rowClick === "none") {
                 return;
               }
+
               if (rowClick === "submit") {
                 event.preventDefault();
                 event.stopPropagation();

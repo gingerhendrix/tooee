@@ -12,6 +12,7 @@ export interface StatusBarItem {
 
 export const StatusBar = function StatusBar({ items }: StatusBarProps): ReactNode {
   const { theme } = useTheme();
+
   return (
     <box
       style={{

@@ -17,6 +17,7 @@ const ModalHarness = function ModalHarness({
 }): ReactNode {
   const nav = useNavigation({ isSelectable, rowCount, viewportHeight: 10 });
   const mode = useMode();
+
   const search = useSearch({
     match: () => [],
     onJump: nav.setCursor,
@@ -38,7 +39,9 @@ const setup = async function setup(rowCount = 100, isSelectable?: (index: number
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 60 }
   );
+
   await session.renderOnce();
+
   return session;
 };
 

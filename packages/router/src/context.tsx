@@ -6,7 +6,9 @@ import type { RouterInstance, StackEntry } from "./types.js";
 // Contexts
 
 const RouterInstanceContext = createContext<RouterInstance | null>(null);
+
 const RouterStackContext = createContext<readonly StackEntry[]>([]);
+
 export const StackEntryIndexContext = createContext<number>(0);
 
 // Provider
@@ -40,9 +42,11 @@ export const RouterProvider = function RouterProvider({
 
 export const useRouterInstance = function useRouterInstance(): RouterInstance {
   const ctx = useContext(RouterInstanceContext);
+
   if (!ctx) {
     throw new Error("useRouterInstance must be used within RouterProvider");
   }
+
   return ctx;
 };
 
