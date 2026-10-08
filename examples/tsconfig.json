@@ -8,5 +8,5 @@
     "composite": false,
     "emitDeclarationOnly": false
   },
-  "include": ["*.ts", "*.tsx"]
+  "include": ["*.ts", "*.tsx", "pi-chat/**/*.ts", "pi-chat/**/*.tsx"]
 }
