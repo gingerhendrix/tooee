@@ -8,5 +8,6 @@
     "composite": false,
     "emitDeclarationOnly": false
   },
-  "include": ["*.ts", "*.tsx"]
+  "include": ["*.ts", "*.tsx", "termcn/**/*.ts", "termcn/**/*.tsx"],
+  "exclude": ["termcn/vendor/**"]
 }

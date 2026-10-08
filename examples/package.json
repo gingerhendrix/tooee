@@ -5,19 +5,24 @@
   "dependencies": {
     "@tooee/ask": "workspace:*",
     "@tooee/choose": "workspace:*",
+    "@tooee/clipboard": "workspace:*",
     "@tooee/commands": "workspace:*",
     "@tooee/layout": "workspace:*",
     "@tooee/marks": "workspace:*",
     "@tooee/overlays": "workspace:*",
     "@tooee/panels": "workspace:*",
+    "@tooee/renderers": "workspace:*",
     "@tooee/router": "workspace:*",
     "@tooee/shell": "workspace:*",
     "@tooee/themes": "workspace:*",
     "@tooee/toasts": "workspace:*",
     "@tooee/view": "workspace:*",
-    "react": "^19.3.0"
+    "cli-spinners": "^3.4.0",
+    "react": "^19.3.0",
+    "strip-ansi": "^7.2.0"
   },
   "devDependencies": {
+    "@tooee/test-support": "workspace:*",
     "@types/react": "^19.3.0"
   }
 }
