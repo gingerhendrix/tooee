@@ -22,12 +22,12 @@ A content provider is an object with a `load` method. View calls `load()` once w
 
 ## The provider contract
 
-| Field    | Meaning                                                                                              |
-| -------- | ---------------------------------------------------------------------------------------------------- |
-| `load`   | Returns content, a promise of content, or an async iterable of `ContentChunk` values.                |
+| Field | Meaning |
+| --- | --- |
+| `load` | Returns content, a promise of content, or an async iterable of `ContentChunk` values. |
 | `format` | Format of the empty content View shows while a stream has sent no chunk yet. Defaults to `markdown`. |
-| `title`  | Title of that empty content.                                                                         |
-| `marks`  | Mark sets to draw over the rows. The mark model has its own guide in the Build a custom app section. |
+| `title` | Title of that empty content. |
+| `marks` | Mark sets to draw over the rows. The mark model has its own guide in the Build a custom app section. |
 
 `format` and `title` on the provider only matter for streams. Returned content carries its own `title`.
 
@@ -120,12 +120,12 @@ await launch({ contentProvider: pingLog });
 
 View starts with empty content of the provider's `format` and `title`, then applies each chunk as it arrives. When the reader quits during the stream, View calls `return()` on the iterator, so the `finally` block runs and stops the process.
 
-| Chunk `type` | Fields                       | Effect                                                                                                    |
-| ------------ | ---------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `append`     | `format`, `data`, `language` | Appends `data` to markdown, code, or text content. When the current format differs, starts fresh content. |
-| `replace`    | `content`                    | Replaces the whole content with any content value, including table, image, diff, and custom formats.      |
-| `patch`      | `apply`                      | Calls `apply(current)` and shows what it returns. `current` is `null` before the first chunk.             |
-| `marks`      | `set`                        | Adds or replaces the mark set with that namespace. Leaves the content alone.                              |
+| Chunk `type` | Fields | Effect |
+| --- | --- | --- |
+| `append` | `format`, `data`, `language` | Appends `data` to markdown, code, or text content. When the current format differs, starts fresh content. |
+| `replace` | `content` | Replaces the whole content with any content value, including table, image, diff, and custom formats. |
+| `patch` | `apply` | Calls `apply(current)` and shows what it returns. `current` is `null` before the first chunk. |
+| `marks` | `set` | Adds or replaces the mark set with that namespace. Leaves the content alone. |
 
 `append` accepts `markdown`, `code`, and `text`. Diff content is replace-only: send the full patch in a `replace` chunk each time it changes. [request-echo.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/request-echo.ts) streams markdown one character at a time.
 

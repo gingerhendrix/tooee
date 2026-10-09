@@ -89,22 +89,22 @@ Tooee ships 34 themes. Each name is a file under `packages/themes/themes/` in th
 
 The file name is the theme name, so this file adds `deploy-dark` to the picker. `theme` maps Tooee colour keys to values. A value is one of:
 
-| Value                                 | Meaning                                                       |
-| ------------------------------------- | ------------------------------------------------------------- |
-| `"#f5a742"`                           | A hex colour.                                                 |
-| `"amber"`                             | The name of an entry in `defs`, or of another key in `theme`. |
-| `{ "dark": "ink", "light": "paper" }` | One value per mode. `theme.mode` in the config picks one.     |
-| `"transparent"` or `"none"`           | No colour.                                                    |
+| Value | Meaning |
+| --- | --- |
+| `"#f5a742"` | A hex colour. |
+| `"amber"` | The name of an entry in `defs`, or of another key in `theme`. |
+| `{ "dark": "ink", "light": "paper" }` | One value per mode. `theme.mode` in the config picks one. |
+| `"transparent"` or `"none"` | No colour. |
 
 A key you leave out takes a fallback: `#808080` for most colours, `#1e1e1e` for the backgrounds, `#d4d4d4` for `text`, `markdownText`, and `markdownCodeBlock`. `cursorLine` falls back to `backgroundElement` and `selection` to `backgroundPanel`, so set those two backgrounds when you set `background`. A name that refers back to itself resolves to `#808080`.
 
-| Group    | Keys                                                                                                                                                                                                                                                                              |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| UI       | `primary`, `secondary`, `accent`, `error`, `warning`, `success`, `info`, `text`, `textMuted`, `background`, `backgroundPanel`, `backgroundElement`, `border`, `borderActive`, `borderSubtle`                                                                                      |
-| Cursor   | `cursorLine`, `selection`                                                                                                                                                                                                                                                         |
+| Group | Keys |
+| --- | --- |
+| UI | `primary`, `secondary`, `accent`, `error`, `warning`, `success`, `info`, `text`, `textMuted`, `background`, `backgroundPanel`, `backgroundElement`, `border`, `borderActive`, `borderSubtle` |
+| Cursor | `cursorLine`, `selection` |
 | Markdown | `markdownText`, `markdownHeading`, `markdownLink`, `markdownLinkText`, `markdownCode`, `markdownBlockQuote`, `markdownEmph`, `markdownStrong`, `markdownHorizontalRule`, `markdownListItem`, `markdownListEnumeration`, `markdownImage`, `markdownImageText`, `markdownCodeBlock` |
-| Syntax   | `syntaxComment`, `syntaxKeyword`, `syntaxFunction`, `syntaxVariable`, `syntaxString`, `syntaxNumber`, `syntaxType`, `syntaxOperator`, `syntaxPunctuation`                                                                                                                         |
-| Diff     | `diffAdded`, `diffRemoved`, `diffContext`, `diffHunkHeader`, `diffHighlightAdded`, `diffHighlightRemoved`, `diffAddedBg`, `diffRemovedBg`, `diffContextBg`, `diffLineNumber`, `diffAddedLineNumberBg`, `diffRemovedLineNumberBg`                                                  |
+| Syntax | `syntaxComment`, `syntaxKeyword`, `syntaxFunction`, `syntaxVariable`, `syntaxString`, `syntaxNumber`, `syntaxType`, `syntaxOperator`, `syntaxPunctuation` |
+| Diff | `diffAdded`, `diffRemoved`, `diffContext`, `diffHunkHeader`, `diffHighlightAdded`, `diffHighlightRemoved`, `diffAddedBg`, `diffRemovedBg`, `diffContextBg`, `diffLineNumber`, `diffAddedLineNumberBg`, `diffRemovedLineNumberBg` |
 
 The Diff keys feed the `diff` syntax scopes. OpenTUI 0.5 bundles no `diff` grammar and Hunk draws diffs from its own palette, so these keys have no visible effect in Tooee 0.9.0.
 
@@ -161,12 +161,12 @@ await launchCli(<Swatches />);
 
 `n` steps to the next theme in the sorted list and `t` opens the picker. Both save the theme to the global config file.
 
-| Hook                 | Package         | Returns                                                                                                                                  |
-| -------------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `useTheme()`         | `@tooee/themes` | `{ theme, syntax, name, mode }`. `theme` is a `ResolvedTheme`: every key from the table above as a hex string.                           |
-| `useThemeSwitcher()` | `@tooee/themes` | The same fields plus `setTheme(name, { persist })`, `nextTheme()`, `prevTheme()`, and `allThemes`.                                       |
-| `useThemePicker()`   | `@tooee/shell`  | `{ isOpen, open, close, confirm, preview, entries, currentTheme, originalTheme }` for the picker overlay.                                |
-| `useThemeCommands()` | `@tooee/shell`  | Registers `t` with the id `cycle-theme` and returns `{ name, picker }`. Pass `{ enabled: false }` to keep the live name without the key. |
+| Hook | Package | Returns |
+| --- | --- | --- |
+| `useTheme()` | `@tooee/themes` | `{ theme, syntax, name, mode }`. `theme` is a `ResolvedTheme`: every key from the table above as a hex string. |
+| `useThemeSwitcher()` | `@tooee/themes` | The same fields plus `setTheme(name, { persist })`, `nextTheme()`, `prevTheme()`, and `allThemes`. |
+| `useThemePicker()` | `@tooee/shell` | `{ isOpen, open, close, confirm, preview, entries, currentTheme, originalTheme }` for the picker overlay. |
+| `useThemeCommands()` | `@tooee/shell` | Registers `t` with the id `cycle-theme` and returns `{ name, picker }`. Pass `{ enabled: false }` to keep the live name without the key. |
 
 `TooeeProvider` mounts `ThemeSwitcherProvider` with the theme from the config, so every hook works in an app started with `launchCli` or `runCliSession`. `DocumentScreen` calls `useThemeCommands` for you unless `themeCommands` is `false`; a screen of your own calls it to get `t`. `nextTheme`, `prevTheme`, and `setTheme` with `persist: true` write the global config file, as `Enter` in the picker does; `setTheme(name)` alone changes the screen and writes nothing. `useThemePicker` lives in `@tooee/shell` since 0.8; `@tooee/themes` exports the loading and context APIs only. The colour props on `<text>` and `<box>` belong to [OpenTUI](https://opentui.com).
 

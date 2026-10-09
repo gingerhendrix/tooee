@@ -19,15 +19,15 @@ Ask opens an editor with the prompt above it and resolves with the submitted tex
 
 ## Launch options
 
-| Option         | Type                      | Meaning                                                                |
-| -------------- | ------------------------- | ---------------------------------------------------------------------- |
-| `title`        | `string`                  | Title bar text. No title bar when omitted.                             |
-| `prompt`       | `string`                  | Bold line above the editor.                                            |
-| `placeholder`  | `string`                  | Muted text shown while the editor is empty.                            |
-| `defaultValue` | `string`                  | Initial text. The cursor starts at its end.                            |
-| `multiline`    | `boolean`                 | `true` gives a textarea, `false` a one-line input. Defaults to `true`. |
-| `actions`      | `ActionDefinition[]`      | Commands added to the screen. See [Add actions](#add-actions).         |
-| `onSubmit`     | `(value: string) => void` | Runs with the submitted text before the promise resolves.              |
+| Option | Type | Meaning |
+| --- | --- | --- |
+| `title` | `string` | Title bar text. No title bar when omitted. |
+| `prompt` | `string` | Bold line above the editor. |
+| `placeholder` | `string` | Muted text shown while the editor is empty. |
+| `defaultValue` | `string` | Initial text. The cursor starts at its end. |
+| `multiline` | `boolean` | `true` gives a textarea, `false` a one-line input. Defaults to `true`. |
+| `actions` | `ActionDefinition[]` | Commands added to the screen. See [Add actions](#add-actions). |
+| `onSubmit` | `(value: string) => void` | Runs with the submitted text before the promise resolves. |
 
 ## How editing works
 
@@ -126,16 +126,16 @@ Press `a`, type a note, and press `Enter`. The dialog closes and the note appear
 
 `open()` takes:
 
-| Option                                    | Meaning                                                                                |
-| ----------------------------------------- | -------------------------------------------------------------------------------------- |
-| `prompt`                                  | Required. Title of the dialog panel, or the line above the editor when `title` is set. |
-| `title`                                   | Title of the dialog panel.                                                             |
-| `multiline`                               | Textarea when `true`. Defaults to a one-line input.                                    |
-| `defaultValue`                            | Initial text.                                                                          |
-| `placeholder`                             | Muted text while the editor is empty.                                                  |
-| `commands`                                | Extra `ActionDefinition[]` on the dialog. A handler may open another dialog on top.    |
-| `controllerRef`                           | A ref that receives the editor controller while the dialog is open.                    |
-| `hints`, `statusRight`, `footer`, `inset` | Panel chrome. `inset` sets the distance from each screen edge; the default is 20%.     |
+| Option | Meaning |
+| --- | --- |
+| `prompt` | Required. Title of the dialog panel, or the line above the editor when `title` is set. |
+| `title` | Title of the dialog panel. |
+| `multiline` | Textarea when `true`. Defaults to a one-line input. |
+| `defaultValue` | Initial text. |
+| `placeholder` | Muted text while the editor is empty. |
+| `commands` | Extra `ActionDefinition[]` on the dialog. A handler may open another dialog on top. |
+| `controllerRef` | A ref that receives the editor controller while the dialog is open. |
+| `hints`, `statusRight`, `footer`, `inset` | Panel chrome. `inset` sets the distance from each screen edge; the default is 20%. |
 
 Each `open()` mounts one modal overlay with its own command surface. The host's commands pause and the host's mode stays as it was. The promise settles once: with the text on submit, or with `null` when the reader presses `q` in cursor mode, clicks the close button, the component unmounts, or a nested dialog replaces it. The overlay renders wherever the host shows overlay content; `AppLayout` does this, and a custom layout renders `useCurrentOverlay()` from `@tooee/overlays`. [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) covers the overlay stack. [typed-dialogs-app.tsx](https://github.com/gingerhendrix/tooee/blob/main/packages/e2e/shell/fixtures/typed-dialogs-app.tsx) opens a Choose dialog from an Ask dialog command.
 
@@ -206,17 +206,17 @@ The compose panel starts in insert mode, so typing goes into the editor as soon 
 
 `useAskEditor` options:
 
-| Option         | Meaning                                                                                      |
-| -------------- | -------------------------------------------------------------------------------------------- |
-| `multiline`    | Textarea when `true`. Defaults to `false`.                                                   |
-| `defaultValue` | Initial text.                                                                                |
-| `placeholder`  | Muted text while empty.                                                                      |
-| `onSubmit`     | Runs with the text on submit.                                                                |
-| `onCancel`     | Runs on `q` in cursor mode. Without it, `q` is not registered.                               |
-| `submitKey`    | `"enter"`, `"shift+enter"`, or `"none"`. Defaults from `multiline`.                          |
-| `commandScope` | Prefix for the command ids. Defaults to `ask`.                                               |
-| `disable`      | Built-in groups to drop: `motions`, `insert-commands`, `copy`, `submit`, `cancel`, `escape`. |
-| `suspended`    | Blur the editor while something else owns the keyboard.                                      |
+| Option | Meaning |
+| --- | --- |
+| `multiline` | Textarea when `true`. Defaults to `false`. |
+| `defaultValue` | Initial text. |
+| `placeholder` | Muted text while empty. |
+| `onSubmit` | Runs with the text on submit. |
+| `onCancel` | Runs on `q` in cursor mode. Without it, `q` is not registered. |
+| `submitKey` | `"enter"`, `"shift+enter"`, or `"none"`. Defaults from `multiline`. |
+| `commandScope` | Prefix for the command ids. Defaults to `ask`. |
+| `disable` | Built-in groups to drop: `motions`, `insert-commands`, `copy`, `submit`, `cancel`, `escape`. |
+| `suspended` | Blur the editor while something else owns the keyboard. |
 
 The `controller` has `getText`, `setText`, `insertText`, `setCursorToEnd`, `submit`, `mode`, and `setMode`. Pass it up through a ref when a parent needs to fill or read the editor.
 

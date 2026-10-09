@@ -31,7 +31,7 @@ test("x marks the cursor step as done", async () => {
     <TooeeProvider>
       <ReleaseChecklist />
     </TooeeProvider>,
-    { height: 10, kittyKeyboard: true, width: 40 },
+    { height: 10, kittyKeyboard: true, width: 40 }
   );
   await session.renderOnce();
   expect(session.captureCharFrame()).toContain("Done: 0/3");
@@ -85,15 +85,13 @@ export const ReleaseChecklist = function ReleaseChecklist(): ReactNode {
 
   return (
     <box flexDirection="column">
-      {steps.map(
-        (step, index): ReactNode => (
-          <text
-            key={step}
-            content={`${index === cursor ? ">" : " "} [${done.has(index) ? "x" : " "}] ${step}`}
-            fg={index === cursor ? theme.primary : theme.text}
-          />
-        ),
-      )}
+      {steps.map((step, index): ReactNode => (
+        <text
+          key={step}
+          content={`${index === cursor ? ">" : " "} [${done.has(index) ? "x" : " "}] ${step}`}
+          fg={index === cursor ? theme.primary : theme.text}
+        />
+      ))}
       <text content={`Done: ${done.size}/${steps.length}`} />
     </box>
   );
@@ -106,17 +104,17 @@ export const ReleaseChecklist = function ReleaseChecklist(): ReactNode {
 
 `testRender(node, options)` from `@opentui/react/test-utils` creates a test renderer from `@opentui/core/testing`, mounts `node` inside React's `act`, and returns the renderer setup:
 
-| Member                                                                                               | Use                                                                                                                               |
-| ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `renderOnce()`                                                                                       | Draw one frame. Call it after every input.                                                                                        |
-| `captureCharFrame()`                                                                                 | The frame as one string, one line per terminal row. Assert on it with `toContain` or `toMatchSnapshot`.                           |
-| `mockInput.pressKey(key, modifiers?)`                                                                | One key, with `{ ctrl, shift, meta }` when needed. Named keys such as `"ESCAPE"` come from `KeyCodes` in `@opentui/core/testing`. |
-| `mockInput.pressEnter()`, `pressEscape()`, `pressTab()`, `pressBackspace()`, `pressArrow(direction)` | The named keys.                                                                                                                   |
-| `mockInput.typeText(text)`                                                                           | A string, key by key, for an input in insert mode.                                                                                |
-| `mockMouse`                                                                                          | Clicks and wheel events at a cell.                                                                                                |
-| `waitForFrame(predicate)`                                                                            | Render until a frame satisfies the predicate, for content that arrives from a promise.                                            |
-| `resize(width, height)`                                                                              | Change the terminal size.                                                                                                         |
-| `renderer.destroy()`                                                                                 | Release the renderer. Call it in `afterEach`.                                                                                     |
+| Member | Use |
+| --- | --- |
+| `renderOnce()` | Draw one frame. Call it after every input. |
+| `captureCharFrame()` | The frame as one string, one line per terminal row. Assert on it with `toContain` or `toMatchSnapshot`. |
+| `mockInput.pressKey(key, modifiers?)` | One key, with `{ ctrl, shift, meta }` when needed. Named keys such as `"ESCAPE"` come from `KeyCodes` in `@opentui/core/testing`. |
+| `mockInput.pressEnter()`, `pressEscape()`, `pressTab()`, `pressBackspace()`, `pressArrow(direction)` | The named keys. |
+| `mockInput.typeText(text)` | A string, key by key, for an input in insert mode. |
+| `mockMouse` | Clicks and wheel events at a cell. |
+| `waitForFrame(predicate)` | Render until a frame satisfies the predicate, for content that arrives from a promise. |
+| `resize(width, height)` | Change the terminal size. |
+| `renderer.destroy()` | Release the renderer. Call it in `afterEach`. |
 
 Wrap each key press in `act` so React flushes the state that the command handler set, then call `renderOnce()` to draw it. The `press` helper at the top of the page does both. Wrap `renderer.destroy()` in `act` as well: it unmounts the tree, and an unmount outside `act` makes React print a warning about an update to `Root`.
 
@@ -176,17 +174,17 @@ test("x marks the cursor step as done", async () => {
 
 [tuistory](https://github.com/remorses/tuistory) starts the fixture with `bun` inside a terminal emulator, so the test covers the real renderer, the real key parsing, and the process exit. Add it with `bun add -d tuistory`. The fixture is an entry file that mounts the same component the headless test used.
 
-| Method                                                    | Use                                                                                                                                              |
-| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `launchTerminal({ command, args, cols, rows, cwd, env })` | Start the process and return a `Session`.                                                                                                        |
-| `waitForText(pattern, { timeout })`                       | Wait until the screen contains a string or matches a regular expression. Use it before the first key and after each one that changes the screen. |
-| `press(key)`                                              | One key by name: `"j"`, `"enter"`, `"backspace"`, `"down"`, or a chord such as `["ctrl", "d"]`.                                                  |
-| `type(text)`                                              | A string, for an input in insert mode.                                                                                                           |
-| `writeRaw(bytes)`                                         | Bytes as they are, for keys `press` cannot encode.                                                                                               |
-| `text()`                                                  | The screen as text.                                                                                                                              |
-| `captureFrames(key, { frameCount, intervalMs })`          | Several frames after a key, for a bar or an overlay that shows for a moment.                                                                     |
-| `click(pattern)`, `clickAt(x, y)`                         | A left click on text or on a cell.                                                                                                               |
-| `close()`                                                 | End the session. Call it in `afterEach`.                                                                                                         |
+| Method | Use |
+| --- | --- |
+| `launchTerminal({ command, args, cols, rows, cwd, env })` | Start the process and return a `Session`. |
+| `waitForText(pattern, { timeout })` | Wait until the screen contains a string or matches a regular expression. Use it before the first key and after each one that changes the screen. |
+| `press(key)` | One key by name: `"j"`, `"enter"`, `"backspace"`, `"down"`, or a chord such as `["ctrl", "d"]`. |
+| `type(text)` | A string, for an input in insert mode. |
+| `writeRaw(bytes)` | Bytes as they are, for keys `press` cannot encode. |
+| `text()` | The screen as text. |
+| `captureFrames(key, { frameCount, intervalMs })` | Several frames after a key, for a bar or an overlay that shows for a moment. |
+| `click(pattern)`, `clickAt(x, y)` | A left click on text or on a cell. |
+| `close()` | End the session. Call it in `afterEach`. |
 
 Give each test 20 seconds: the first frame waits for Bun to start and for the renderer to draw. A test that presses `q` should then wait for the process to exit before it reads the screen, or wrap the app in a shell command that prints a marker after it exits.
 

@@ -57,12 +57,12 @@ await runCliSession((): ReactNode => <View contentProvider={createStdinProvider(
 
 **The toast says `Copied` but the clipboard is unchanged.** Tooee found no clipboard tool on `PATH` and the copy was a silent no-op; the toast reports success either way. Install one of the tools it looks for:
 
-| Platform      | Copy                                          | Paste and primary selection                          |
-| ------------- | --------------------------------------------- | ---------------------------------------------------- |
-| Linux Wayland | `wl-copy`, used when `WAYLAND_DISPLAY` is set | `wl-paste`                                           |
-| Linux X11     | `xclip`, then `xsel`                          | `xclip`, then `xsel`                                 |
-| macOS         | `osascript`                                   | `pbpaste`; the primary selection reads the clipboard |
-| Windows       | `powershell` with `Set-Clipboard`             | `powershell` with `Get-Clipboard`                    |
+| Platform | Copy | Paste and primary selection |
+| --- | --- | --- |
+| Linux Wayland | `wl-copy`, used when `WAYLAND_DISPLAY` is set | `wl-paste` |
+| Linux X11 | `xclip`, then `xsel` | `xclip`, then `xsel` |
+| macOS | `osascript` | `pbpaste`; the primary selection reads the clipboard |
+| Windows | `powershell` with `Set-Clipboard` | `powershell` with `Get-Clipboard` |
 
 The tools are looked up with `Bun.which` on the `PATH` of the Tooee process, so a launcher that starts Bun with a reduced `PATH` loses the clipboard as well. The order in each row is the order Tooee tries. [Keyboard basics](/docs/start/keyboard-basics#select-and-copy) lists the copy keys.
 

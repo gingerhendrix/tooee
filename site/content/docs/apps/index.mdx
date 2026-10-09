@@ -44,10 +44,10 @@ Run it with `bun release.ts`. Each `launch()` opens one screen, waits until the 
 
 Each app has its own guide:
 
-| Guide                       | What it covers                                                                         |
-| --------------------------- | -------------------------------------------------------------------------------------- |
-| [View](/docs/apps/view)     | Launch options, content providers, formats, diffs, actions, and custom renderers       |
-| [Ask](/docs/apps/ask)       | Launch options, editing, actions, the dialog form, and the editor in a panel           |
+| Guide | What it covers |
+| --- | --- |
+| [View](/docs/apps/view) | Launch options, content providers, formats, diffs, actions, and custom renderers |
+| [Ask](/docs/apps/ask) | Launch options, editing, actions, the dialog form, and the editor in a panel |
 | [Choose](/docs/apps/choose) | Launch options, items, filtering, actions, the dialog form, and the chooser in a panel |
 
 ## Run your own session
@@ -76,14 +76,14 @@ if (yes === true) {
 
 The second argument configures the session:
 
-| Option           | Default     | Meaning                                                                                                                       |
-| ---------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `provider`       | `{}`        | Options for the Tooee provider tree: `initialMode`, `leader`, `config`, `sequenceTimeoutMs`.                                  |
-| `stdinPolicy`    | `"process"` | `"tty-if-piped"` reads keys from `/dev/tty` when process stdin is a pipe.                                                     |
-| `stdoutPolicy`   | `"process"` | `"tty-if-redirected"` draws on `/dev/tty` when process stdout is redirected.                                                  |
-| `exitOnCtrlC`    | `true`      | `ctrl+c` ends the process.                                                                                                    |
-| `terminalHealth` | `true`      | When the key stream ends or closes, destroy the renderer and exit with code 0.                                                |
-| `renderer`       | `{}`        | Extra options for OpenTUI's `createCliRenderer`, except `exitOnCtrlC`. Explicit streams take priority over terminal policies. |
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `provider` | `{}` | Options for the Tooee provider tree: `initialMode`, `leader`, `config`, `sequenceTimeoutMs`. |
+| `stdinPolicy` | `"process"` | `"tty-if-piped"` reads keys from `/dev/tty` when process stdin is a pipe. |
+| `stdoutPolicy` | `"process"` | `"tty-if-redirected"` draws on `/dev/tty` when process stdout is redirected. |
+| `exitOnCtrlC` | `true` | `ctrl+c` ends the process. |
+| `terminalHealth` | `true` | When the key stream ends or closes, destroy the renderer and exit with code 0. |
+| `renderer` | `{}` | Extra options for OpenTUI's `createCliRenderer`, except `exitOnCtrlC`. Explicit streams take priority over terminal policies. |
 
 Ask, Choose, and View set both terminal policies. Directory View sets the output policy. A custom session can opt in to either policy:
 

@@ -5,11 +5,11 @@ description: Tooee uses modal navigation like Vim. Learn the modes, keys, and co
 
 Every Tooee screen runs in one of three modes. The status bar at the bottom shows the current mode next to the theme name.
 
-| Mode   | What keys do                                                                   | How you get there                                                                             |
-| ------ | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
-| cursor | Keys run commands: move, search, copy, quit.                                   | The default in View. `Escape` returns here from the other two modes.                          |
+| Mode | What keys do | How you get there |
+| --- | --- | --- |
+| cursor | Keys run commands: move, search, copy, quit. | The default in View. `Escape` returns here from the other two modes. |
 | insert | Keys type into an input: the search bar, the Choose filter, or the Ask editor. | In View, only inputs such as search. Ask and Choose start here, and `a` or `i` returns to it. |
-| select | `j` and `k` extend a row range for copy.                                       | `v` in View.                                                                                  |
+| select | `j` and `k` extend a row range for copy. | `v` in View. |
 
 ## Move
 
@@ -42,16 +42,16 @@ Matches are highlighted in the rows. The status bar shows the query while a sear
 
 ## Select and copy
 
-| Key         | Mode           | Action                                                             |
-| ----------- | -------------- | ------------------------------------------------------------------ |
-| `v`         | cursor         | Start a selection at the cursor                                    |
-| `j`, `k`    | select         | Extend the selection                                               |
-| `Tab`       | cursor, select | Toggle the cursor row in a multi-row pick                          |
-| `Shift+Tab` | cursor         | Toggle the cursor row and move up                                  |
-| `Escape`    | select         | Cancel the selection                                               |
-| `y y`       | cursor, select | Copy the cursor row                                                |
-| `y v`       | cursor, select | Copy the selection or the toggled rows, then return to cursor mode |
-| `y g`       | cursor, select | Copy the whole document                                            |
+| Key | Mode | Action |
+| --- | --- | --- |
+| `v` | cursor | Start a selection at the cursor |
+| `j`, `k` | select | Extend the selection |
+| `Tab` | cursor, select | Toggle the cursor row in a multi-row pick |
+| `Shift+Tab` | cursor | Toggle the cursor row and move up |
+| `Escape` | select | Cancel the selection |
+| `y y` | cursor, select | Copy the cursor row |
+| `y v` | cursor, select | Copy the selection or the toggled rows, then return to cursor mode |
+| `y g` | cursor, select | Copy the whole document |
 
 `y g` comes from View and Ask. A custom document has it when the app registers `useCopyCommand`; [Documents](/docs/build/documents#copy) covers that. A toast confirms each copy. Copy uses the clipboard tool of your platform; [Troubleshooting](/docs/ship/troubleshooting) lists the tools Tooee looks for.
 

@@ -47,17 +47,15 @@ import { runCliSession } from "@tooee/shell";
 import { View, createFileProvider } from "@tooee/view";
 import type { ReactNode } from "react";
 
-await runCliSession(
-  (): ReactNode => (
-    <View
-      contentProvider={createFileProvider("README.md")}
-      onMarkdownLinkActivate={(href, ctx) => {
-        ctx.toast?.toast({ level: "info", message: href });
-        return true;
-      }}
-    />
-  ),
-);
+await runCliSession((): ReactNode => (
+  <View
+    contentProvider={createFileProvider("README.md")}
+    onMarkdownLinkActivate={(href, ctx) => {
+      ctx.toast?.toast({ level: "info", message: href });
+      return true;
+    }}
+  />
+));
 ```
 
 Return `true` to mark the click as handled, so it does not move the cursor. `launch()` has no option for the handler in Tooee 0.9.0, so mount `View` with `runCliSession` from [Write a launcher](/docs/apps#run-your-own-session).
@@ -75,7 +73,7 @@ import { parseTSV } from "@tooee/renderers";
 import { launch } from "@tooee/view";
 
 const log = await new Response(
-  Bun.spawn(["git", "log", "-20", "--format=%h%x09%as%x09%an%x09%s"]).stdout,
+  Bun.spawn(["git", "log", "-20", "--format=%h%x09%as%x09%an%x09%s"]).stdout
 ).text();
 const { columns, rows } = parseTSV(`sha\tdate\tauthor\tsubject\n${log}`);
 
@@ -92,10 +90,10 @@ Column widths come from the header and a sample of up to 100 rows spread evenly 
 
 `parseTSV`, `parseCSV`, and `parseJSON` from `@tooee/renderers` turn text into `columns` and `rows`. `parseAuto` picks one: JSON when the text starts with `[` and parses as an array, TSV when the first line has a tab, and CSV otherwise. `tooee view --renderer table` and `createTableFileProvider` use `parseAuto`.
 
-| Parser      | Rule                                                                                                                          |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `parseCSV`  | The first line names the columns. A field may be quoted with `"`, and a quote inside a quoted field is written `""`.          |
-| `parseTSV`  | The first line names the columns. Fields split on tabs.                                                                       |
+| Parser | Rule |
+| --- | --- |
+| `parseCSV` | The first line names the columns. A field may be quoted with `"`, and a quote inside a quoted field is written `""`. |
+| `parseTSV` | The first line names the columns. Fields split on tabs. |
 | `parseJSON` | An array of objects. The columns are the union of the keys in the order they first appear; a missing key gives an empty cell. |
 
 An empty header becomes `column_N`. A repeated header gets a `_2` or `_3` suffix so every key stays unique. Blank lines are skipped.
@@ -117,11 +115,11 @@ await launch({
 });
 ```
 
-| Field      | Values                                                                                                               |
-| ---------- | -------------------------------------------------------------------------------------------------------------------- |
-| `src`      | A file path, a `URL`, a `Uint8Array`, an `ArrayBuffer`, a `Blob`, or a `Response`.                                   |
-| `fit`      | `fit` keeps the aspect ratio inside the area and is the default. `cover` fills the area and crops. `fill` stretches. |
-| `protocol` | `auto` is the default. `kitty`, `sixel`, and `blocks` force one protocol.                                            |
+| Field | Values |
+| --- | --- |
+| `src` | A file path, a `URL`, a `Uint8Array`, an `ArrayBuffer`, a `Blob`, or a `Response`. |
+| `fit` | `fit` keeps the aspect ratio inside the area and is the default. `cover` fills the area and crops. `fill` stretches. |
+| `protocol` | `auto` is the default. `kitty`, `sixel`, and `blocks` force one protocol. |
 
 With `auto`, OpenTUI uses the kitty graphics protocol when the terminal reports it, sixel when the terminal reports it and the cell size in pixels is known, and half-block characters otherwise. Inside tmux it uses blocks. A terminal that does not answer the capability query gets blocks too. `sixel` without a known cell size falls back to `blocks`.
 

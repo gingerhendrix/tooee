@@ -14,12 +14,12 @@ Run it with `bun view-changelog.ts`. The first session opens the file. When the 
 
 ## Launch options
 
-| Option               | Type                                | Meaning                                                                                           |
-| -------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `contentProvider`    | `ContentProvider`                   | Where the content comes from. See [Content and providers](/docs/apps/view/content-and-providers). |
-| `actions`            | `ActionDefinition[]`                | Commands added to the screen. See [Actions and command context](/docs/apps/view/actions).         |
-| `renderers`          | `Record<string, ContentRenderer>`   | Renderers for your own content formats. See [Custom renderers](/docs/apps/view/custom-renderers). |
-| `codeBlockRenderers` | `Record<string, CodeBlockRenderer>` | Renderers for fenced code blocks in markdown, keyed by the first word of the fence info string.   |
+| Option | Type | Meaning |
+| --- | --- | --- |
+| `contentProvider` | `ContentProvider` | Where the content comes from. See [Content and providers](/docs/apps/view/content-and-providers). |
+| `actions` | `ActionDefinition[]` | Commands added to the screen. See [Actions and command context](/docs/apps/view/actions). |
+| `renderers` | `Record<string, ContentRenderer>` | Renderers for your own content formats. See [Custom renderers](/docs/apps/view/custom-renderers). |
+| `codeBlockRenderers` | `Record<string, CodeBlockRenderer>` | Renderers for fenced code blocks in markdown, keyed by the first word of the fence info string. |
 
 `launchDirectory` takes `dirPath` and `actions`.
 
@@ -29,13 +29,13 @@ View reads keys from the controlling terminal when process stdin supplies conten
 
 ## Guides
 
-| Guide                                                          | Read it when you want to                                                  |
-| -------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| [Content and providers](/docs/apps/view/content-and-providers) | Give View content at once, later, or as a stream of chunks.               |
-| [Content formats](/docs/apps/view/formats)                     | Know what markdown, code, text, table, and image content accept.          |
-| [Diffs](/docs/apps/view/diffs)                                 | Show a unified patch as a navigable diff.                                 |
-| [Actions and command context](/docs/apps/view/actions)         | Add commands to View and read the cursor row, the content, and the marks. |
-| [Custom renderers](/docs/apps/view/custom-renderers)           | Render a format of your own and keep navigation, search, and copy.        |
+| Guide | Read it when you want to |
+| --- | --- |
+| [Content and providers](/docs/apps/view/content-and-providers) | Give View content at once, later, or as a stream of chunks. |
+| [Content formats](/docs/apps/view/formats) | Know what markdown, code, text, table, and image content accept. |
+| [Diffs](/docs/apps/view/diffs) | Show a unified patch as a navigable diff. |
+| [Actions and command context](/docs/apps/view/actions) | Add commands to View and read the cursor row, the content, and the marks. |
+| [Custom renderers](/docs/apps/view/custom-renderers) | Render a format of your own and keep navigation, search, and copy. |
 
 ## Next
 

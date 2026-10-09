@@ -64,12 +64,12 @@ Run it with `bun deploy-log.tsx`. `j` and `k` move between deploys, `/` searches
 
 Custom content has four fields:
 
-| Field            | Meaning                                                                                                |
-| ---------------- | ------------------------------------------------------------------------------------------------------ |
-| `format`         | Any string other than `markdown`, `code`, `text`, `table`, `diff`, and `image`.                        |
-| `data`           | Any value. The renderer registered for the format knows its shape; on the props it is typed `unknown`. |
-| `title`          | Title bar text.                                                                                        |
-| `getTextContent` | Returns the text of the content, one line per row. Without it the document has one empty row.          |
+| Field | Meaning |
+| --- | --- |
+| `format` | Any string other than `markdown`, `code`, `text`, `table`, `diff`, and `image`. |
+| `data` | Any value. The renderer registered for the format knows its shape; on the props it is typed `unknown`. |
+| `title` | Title bar text. |
+| `getTextContent` | Returns the text of the content, one line per row. Without it the document has one empty row. |
 
 The text from `getTextContent` is what search matches, what `y y` and `y g` copy, and what the fallback draws. Return one line per item you want the cursor to land on. [custom-renderer.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/custom-renderer.ts) draws a kanban board from custom content.
 
@@ -77,14 +77,14 @@ The text from `getTextContent` is what search matches, what `y y` and `y g` copy
 
 `document` is a `DocumentController<SourceLineRow>` from `@tooee/shell`. Its rows are the lines of `getTextContent()`; each row has `text` and `source`, the span of that line.
 
-| Member                              | Use                                                                                |
-| ----------------------------------- | ---------------------------------------------------------------------------------- |
-| `rows`                              | The line rows.                                                                     |
-| `activeIndex`, `activeRow`          | The cursor row.                                                                    |
-| `navigation.selection`              | `{ start, end }` in select mode, or `null`.                                        |
-| `toggledIndices`                    | Rows toggled with `Tab`.                                                           |
-| `selectRow(index)`                  | Moves the cursor from a mouse handler. Does nothing while a modal overlay is open. |
-| `ref`, `decorations`, `onMouseDown` | The bindings a `row-document` element takes.                                       |
+| Member | Use |
+| --- | --- |
+| `rows` | The line rows. |
+| `activeIndex`, `activeRow` | The cursor row. |
+| `navigation.selection` | `{ start, end }` in select mode, or `null`. |
+| `toggledIndices` | Rows toggled with `Tab`. |
+| `selectRow(index)` | Moves the cursor from a mouse handler. Does nothing while a modal overlay is open. |
+| `ref`, `decorations`, `onMouseDown` | The bindings a `row-document` element takes. |
 
 `Document` from `@tooee/shell` wires the bindings for you and draws one host element per row with your `renderRow`. The row document then paints the cursor, search matches, and the selection under your rows, follows the cursor when it scrolls, and moves the cursor on a click. The built-in renderers bind the same three members to their own `row-document` element. [Documents](/docs/build/documents) covers the controller and `Document` in full.
 
@@ -113,22 +113,20 @@ const PipelineRenderer: ContentRenderer = ({ document }): ReactNode => {
   const { theme } = useTheme();
   return (
     <box flexDirection="row" paddingLeft={1}>
-      {document.rows.map(
-        (row, index): ReactNode => (
-          <box
-            key={row.text}
-            border
-            borderColor={index === document.activeIndex ? theme.primary : theme.border}
-            paddingLeft={1}
-            paddingRight={1}
-            onMouseDown={() => {
-              document.selectRow(index);
-            }}
-          >
-            <text content={row.text} />
-          </box>
-        ),
-      )}
+      {document.rows.map((row, index): ReactNode => (
+        <box
+          key={row.text}
+          border
+          borderColor={index === document.activeIndex ? theme.primary : theme.border}
+          paddingLeft={1}
+          paddingRight={1}
+          onMouseDown={() => {
+            document.selectRow(index);
+          }}
+        >
+          <text content={row.text} />
+        </box>
+      ))}
     </box>
   );
 };
@@ -174,17 +172,17 @@ await launch({
 
 The renderer receives:
 
-| Prop         | Meaning                                                                             |
-| ------------ | ----------------------------------------------------------------------------------- |
-| `text`       | The fence body.                                                                     |
-| `lang`       | The matched fence type, lowercased.                                                 |
-| `info`       | The whole info string, for options such as `warning` above.                         |
-| `theme`      | The resolved theme.                                                                 |
-| `syntax`     | The syntax style for a `<code>` element.                                            |
-| `indent`     | Columns of indent when the block sits inside a list.                                |
-| `width`      | Columns available inside `CodeBlockChrome`. Kept current when the terminal resizes. |
-| `blockIndex` | Position of the block in the document.                                              |
-| `hScroll`    | `register` and `onMouseScroll` for a wide block.                                    |
+| Prop | Meaning |
+| --- | --- |
+| `text` | The fence body. |
+| `lang` | The matched fence type, lowercased. |
+| `info` | The whole info string, for options such as `warning` above. |
+| `theme` | The resolved theme. |
+| `syntax` | The syntax style for a `<code>` element. |
+| `indent` | Columns of indent when the block sits inside a list. |
+| `width` | Columns available inside `CodeBlockChrome`. Kept current when the terminal resizes. |
+| `blockIndex` | Position of the block in the document. |
+| `hScroll` | `register` and `onMouseScroll` for a wide block. |
 
 `CodeBlockChrome` draws the bordered box the built-in code block uses. Return `null` to fall back to the syntax-highlighted code block; a renderer that throws falls back the same way. The block stays one row in the document, so the cursor, search, and copy work on the raw fence text.
 

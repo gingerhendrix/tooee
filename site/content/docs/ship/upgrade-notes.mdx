@@ -87,7 +87,7 @@ const handle = overlay.open(
   "details",
   ({ payload }) => <text content={payload} />,
   "Initial details",
-  { mode: null },
+  { mode: null }
 );
 handle.update(overlayValue("Updated details"));
 handle.close();

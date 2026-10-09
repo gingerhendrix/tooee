@@ -33,11 +33,11 @@ _The filter narrows five colors to Blue. Enter confirms it, and the app prints `
 
 ## Launch options
 
-| Option            | Type                    | Meaning                                                             |
-| ----------------- | ----------------------- | ------------------------------------------------------------------- |
+| Option | Type | Meaning |
+| --- | --- | --- |
 | `contentProvider` | `ChooseContentProvider` | An object whose `load()` returns `ChooseItem[]` or a promise of it. |
-| `options`         | `ChooseOptions`         | `title`, `prompt`, `placeholder`, `multi`, and `emptyMessage`.      |
-| `actions`         | `ActionDefinition[]`    | Commands added to the screen. See [Add actions](#add-actions).      |
+| `options` | `ChooseOptions` | `title`, `prompt`, `placeholder`, `multi`, and `emptyMessage`. |
+| `actions` | `ActionDefinition[]` | Commands added to the screen. See [Add actions](#add-actions). |
 
 The `launch()` options keep `title`, `prompt`, and the rest nested under `options`. The `Choose` component takes the same fields as flat props.
 
@@ -194,17 +194,17 @@ Press `b`, type part of a name, and press `Enter`. The dialog resolves the `Bran
 
 `open()` takes:
 
-| Option                                    | Meaning                                                                                                    |
-| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `items`                                   | Required. A `readonly T[]`, or a function that returns the array or a promise of it when the dialog opens. |
-| `toItem`                                  | Maps a `T` to a `ChooseItem`. Required unless `T` is a `ChooseItem`.                                       |
-| `multi`                                   | `true` resolves `T[]`. Defaults to `false`, which resolves one `T`.                                        |
-| `prompt`                                  | Title of the dialog panel.                                                                                 |
-| `placeholder`                             | Filter placeholder.                                                                                        |
-| `emptyMessage`                            | Text shown when nothing matches.                                                                           |
-| `commands`                                | Extra `ActionDefinition[]` on the dialog. A handler may open another dialog on top.                        |
-| `renderItem`                              | Draws a row from its render context in place of the default row.                                           |
-| `hints`, `statusRight`, `footer`, `inset` | Panel chrome. `inset` sets the distance from each screen edge; the default is 20%.                         |
+| Option | Meaning |
+| --- | --- |
+| `items` | Required. A `readonly T[]`, or a function that returns the array or a promise of it when the dialog opens. |
+| `toItem` | Maps a `T` to a `ChooseItem`. Required unless `T` is a `ChooseItem`. |
+| `multi` | `true` resolves `T[]`. Defaults to `false`, which resolves one `T`. |
+| `prompt` | Title of the dialog panel. |
+| `placeholder` | Filter placeholder. |
+| `emptyMessage` | Text shown when nothing matches. |
+| `commands` | Extra `ActionDefinition[]` on the dialog. A handler may open another dialog on top. |
+| `renderItem` | Draws a row from its render context in place of the default row. |
+| `hints`, `statusRight`, `footer`, `inset` | Panel chrome. `inset` sets the distance from each screen edge; the default is 20%. |
 
 Each `open()` mounts one modal overlay with its own command surface. The host's commands pause and the host's mode stays as it was. The promise settles once: with the selection, or with `null` when the reader presses `Escape` or `q` in cursor mode, clicks the close button, the component unmounts, or a nested dialog replaces it. The overlay renders wherever the host shows overlay content; `AppLayout` does this, and a custom layout renders `useCurrentOverlay()` from `@tooee/overlays`. [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) covers the overlay stack.
 

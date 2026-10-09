@@ -29,15 +29,15 @@ When a provider streams, send the whole patch in a `replace` chunk each time it 
 
 The diff renderer registers these commands on top of the keys in [Keyboard basics](/docs/start/keyboard-basics):
 
-| Key      | Command id                              | Action                                                                  |
-| -------- | --------------------------------------- | ----------------------------------------------------------------------- |
-| `s`      | `diff.toggle-layout`                    | Switch between split and stack                                          |
-| `w`      | `diff.toggle-wrap`                      | Wrap long lines, or clip them                                           |
-| `]`      | `diff.next-file`                        | Move the cursor to the next file header                                 |
-| `[`      | `diff.prev-file`                        | Move the cursor to the previous file header                             |
-| `f`      | `diff.file-picker`                      | Open a fuzzy list of files; `Enter` moves the cursor to the picked file |
-| `h`, `l` | `diff.scroll-left`, `diff.scroll-right` | Pan four columns while wrapping is off                                  |
-| `L`      | `toggle-line-numbers`                   | Toggle the row gutter                                                   |
+| Key | Command id | Action |
+| --- | --- | --- |
+| `s` | `diff.toggle-layout` | Switch between split and stack |
+| `w` | `diff.toggle-wrap` | Wrap long lines, or clip them |
+| `]` | `diff.next-file` | Move the cursor to the next file header |
+| `[` | `diff.prev-file` | Move the cursor to the previous file header |
+| `f` | `diff.file-picker` | Open a fuzzy list of files; `Enter` moves the cursor to the picked file |
+| `h`, `l` | `diff.scroll-left`, `diff.scroll-right` | Pan four columns while wrapping is off |
+| `L` | `toggle-line-numbers` | Toggle the row gutter |
 
 `s`, `w`, `]`, `[`, and `f` work in cursor and select mode. `h` and `l` work in cursor mode. The file picker lists each file as its path with `+added -deleted`; a rename shows `old -> new`. A config file remaps any of them by command id, as [Configuration](/docs/customize/configuration) describes.
 

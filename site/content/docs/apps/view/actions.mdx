@@ -54,27 +54,27 @@ A handler cannot end the session in Tooee 0.9.0: `ctx.exit` does nothing inside 
 
 `ctx.document` comes from the document screen behind every format:
 
-| Field                             | Meaning                                                            |
-| --------------------------------- | ------------------------------------------------------------------ |
-| `cursor`                          | Row index under the cursor, or `null`.                             |
-| `rowCount`                        | Number of rows.                                                    |
-| `activeRow`                       | The row object under the cursor, typed `unknown`.                  |
-| `activeKey`                       | The key of that row.                                               |
-| `activeAnchor`                    | `{ row, index, key, text, source }` for the cursor row, or `null`. |
-| `selection`                       | `{ start, end }` in select mode, or `null`.                        |
-| `selectedRows`, `selectedAnchors` | The rows in the selection, or the rows toggled with `Tab`.         |
-| `toggledIndices`                  | The set of toggled row indices.                                    |
-| `kind`, `title`                   | The content format and title.                                      |
-| `reload`                          | Runs the provider's `load()` again.                                |
+| Field | Meaning |
+| --- | --- |
+| `cursor` | Row index under the cursor, or `null`. |
+| `rowCount` | Number of rows. |
+| `activeRow` | The row object under the cursor, typed `unknown`. |
+| `activeKey` | The key of that row. |
+| `activeAnchor` | `{ row, index, key, text, source }` for the cursor row, or `null`. |
+| `selection` | `{ start, end }` in select mode, or `null`. |
+| `selectedRows`, `selectedAnchors` | The rows in the selection, or the rows toggled with `Tab`. |
+| `toggledIndices` | The set of toggled row indices. |
+| `kind`, `title` | The content format and title. |
+| `reload` | Runs the provider's `load()` again. |
 
 What a row is depends on the format:
 
-| Format                    | Row type                            | `text`                                        |
-| ------------------------- | ----------------------------------- | --------------------------------------------- |
-| markdown                  | `FlatBlock` from `@tooee/renderers` | The source text of the block                  |
-| code, text, image, custom | `SourceLineRow`                     | One line                                      |
-| table                     | `TableRow`                          | The cells joined with tabs                    |
-| diff                      | `DiffRow` from `@tooee/diff`        | The patch text of the file header or the hunk |
+| Format | Row type | `text` |
+| --- | --- | --- |
+| markdown | `FlatBlock` from `@tooee/renderers` | The source text of the block |
+| code, text, image, custom | `SourceLineRow` | One line |
+| table | `TableRow` | The cells joined with tabs |
+| diff | `DiffRow` from `@tooee/diff` | The patch text of the file header or the hunk |
 
 `activeRow` is `unknown`, so read the anchor instead. `text` is the text search and copy use. `source.primary` is the position in the original content: `start.line`, `lastLine`, and the exact `text`. Lines are zero-based. This action reports the block under the cursor with its line range:
 
@@ -110,16 +110,16 @@ await launch({ actions, contentProvider: createFileProvider("README.md") });
 
 `ctx.view` is the slice View adds on top:
 
-| Field                                    | Meaning                                                          |
-| ---------------------------------------- | ---------------------------------------------------------------- |
-| `content`                                | The content value the provider returned.                         |
-| `format`, `title`                        | Its format and title.                                            |
-| `data`                                   | The `data` of custom content; `undefined` for a built-in format. |
-| `reload`                                 | Runs the provider's `load()` again.                              |
-| `marks.setMarkSet(set)`                  | Adds a mark set, or replaces the set with the same namespace.    |
-| `marks.clearNamespace(namespace)`        | Removes one user mark set.                                       |
-| `marks.clearAll()`                       | Removes every user mark set.                                     |
-| `marks.userMarks`, `marks.providerMarks` | The current sets from actions and from the provider.             |
+| Field | Meaning |
+| --- | --- |
+| `content` | The content value the provider returned. |
+| `format`, `title` | Its format and title. |
+| `data` | The `data` of custom content; `undefined` for a built-in format. |
+| `reload` | Runs the provider's `load()` again. |
+| `marks.setMarkSet(set)` | Adds a mark set, or replaces the set with the same namespace. |
+| `marks.clearNamespace(namespace)` | Removes one user mark set. |
+| `marks.clearAll()` | Removes every user mark set. |
+| `marks.userMarks`, `marks.providerMarks` | The current sets from actions and from the provider. |
 
 `ctx.document` and `ctx.view` are optional on the context, so guard both. This example toggles a bookmark sign on the cursor row and reloads the file on `r`:
 
