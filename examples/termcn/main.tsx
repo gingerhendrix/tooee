@@ -15,7 +15,7 @@
  *   j / k             move in the list, or scroll docs and source
  *   i                 filter the list (Esc returns to cursor mode)
  *   Enter             open the detail panel; in Preview, interact with the demo
- *   1 / 2 / 3         Docs, Source, Preview tabs
+ *   1 / 2 / 3         Preview, Docs, Source tabs
  *   n / p             next / previous demo
  *   Ctrl+G            leave interact mode
  *   y                 copy the install command

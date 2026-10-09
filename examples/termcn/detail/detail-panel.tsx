@@ -1,7 +1,7 @@
 /**
- * Detail panel for the selected component: header, then the Docs, Source,
- * or Preview tab. Docs load on selection, because the preview tab also needs
- * the page's demo list. Source loads the first time its tab opens.
+ * Detail panel for the selected component: header, then the Preview, Docs,
+ * or Source tab. Preview opens first. Docs load on selection, because the
+ * preview tab also needs the page's demo list. Source loads the first time its tab opens.
  */
 
 import { useCommand } from "@tooee/commands";
@@ -15,7 +15,7 @@ import { useResource } from "../use-resource.js";
 import { DetailHeader } from "./detail-header.js";
 import { DocsTab } from "./docs-tab.js";
 import { SourceTab } from "./source-tab.js";
-import { DETAIL_TABS } from "./tabs.js";
+import { DEFAULT_DETAIL_TAB, DETAIL_TABS } from "./tabs.js";
 import type { DetailTab } from "./tabs.js";
 
 export interface DetailPanelProps {
@@ -23,8 +23,17 @@ export interface DetailPanelProps {
 }
 
 const useTabCommands = function useTabCommands(onSelect: (tab: DetailTab) => void): void {
-  const [docs, source, preview] = DETAIL_TABS;
+  const [preview, docs, source] = DETAIL_TABS;
 
+  useCommand({
+    handler: () => {
+      onSelect(preview.id);
+    },
+    hotkey: preview.hotkey,
+    id: "detail.tab-preview",
+    modes: ["cursor"],
+    title: "Show live preview",
+  });
   useCommand({
     handler: () => {
       onSelect(docs.id);
@@ -43,20 +52,11 @@ const useTabCommands = function useTabCommands(onSelect: (tab: DetailTab) => voi
     modes: ["cursor"],
     title: "Show source",
   });
-  useCommand({
-    handler: () => {
-      onSelect(preview.id);
-    },
-    hotkey: preview.hotkey,
-    id: "detail.tab-preview",
-    modes: ["cursor"],
-    title: "Show live preview",
-  });
 };
 
 export const DetailPanel = function DetailPanel({ entry }: DetailPanelProps): ReactNode {
   const { client } = useTermcn();
-  const [tab, setTab] = useState<DetailTab>("docs");
+  const [tab, setTab] = useState<DetailTab>(DEFAULT_DETAIL_TAB);
   const docs = useResource(`docs:${entry.name}`, async () => await client.loadDocs(entry));
 
   const source = useResource(
@@ -83,9 +83,9 @@ export const DetailPanel = function DetailPanel({ entry }: DetailPanelProps): Re
     <box flexDirection="column" flexGrow={1}>
       <DetailHeader entry={entry} tab={tab} />
       <box flexDirection="column" flexGrow={1} marginTop={1}>
+        {tab === "preview" && <PreviewTab key={entry.name} entry={entry} previews={previews} />}
         {tab === "docs" && <DocsTab docs={docs.resource} />}
         {tab === "source" && <SourceTab source={source.resource} />}
-        {tab === "preview" && <PreviewTab key={entry.name} entry={entry} previews={previews} />}
       </box>
     </box>
   );

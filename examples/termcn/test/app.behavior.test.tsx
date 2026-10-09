@@ -47,12 +47,11 @@ const mount = async function mount(
   return session;
 };
 
-/** Move to the key-echo row, open the detail panel, and show the Preview tab. */
+/** Move to the key-echo row and open the detail panel. Preview is the first tab. */
 const openPreview = async function openPreview(current: TestSession): Promise<void> {
   await press(current, "j");
   await settle(current);
   await pressEnter(current);
-  await press(current, "3");
   await settle(current);
 };
 
@@ -97,11 +96,15 @@ describe("termcn browser", () => {
 
     expect(frame()).toContain("Prints the keys it receives");
     expect(frame()).toContain("npx shadcn@latest add @termcn/opentui/key-echo");
-    expect(frame()).toContain("Usage");
-    expect(frame()).not.toContain("<ComponentPreview");
 
     await pressTab(current);
     await press(current, "2");
+    await settle(current);
+
+    expect(frame()).toContain("Usage");
+    expect(frame()).not.toContain("<ComponentPreview");
+
+    await press(current, "3");
     await settle(current);
 
     expect(frame()).toContain("components/ui/key-echo.tsx");
@@ -128,6 +131,17 @@ describe("termcn browser", () => {
 });
 
 describe("live preview", () => {
+  test("opens the Preview tab first", async () => {
+    const current = await mount(await createFixtureClient(), FIXTURE_VENDOR_DIR);
+
+    await press(current, "j");
+    await settle(current);
+
+    expect(frame()).toMatch(/1 Preview .* 2 Docs .* 3 Source/u);
+    expect(frame()).toContain("Demo 1/2");
+    expect(frame()).not.toContain("Usage");
+  });
+
   test("keeps demo keys gated until interact mode", async () => {
     const current = await mount(await createFixtureClient(), FIXTURE_VENDOR_DIR);
 

@@ -9,7 +9,7 @@ bun --conditions=@tooee/source examples/termcn/main.tsx
 ## Layers
 
 - **Browser.** Reads `https://www.termcn.dev/r/registry.json` and lists the OpenTUI UI components by category, with a fuzzy filter. The detail panel shows the description, dependencies, the `npx shadcn@latest add @termcn/opentui/<name>` command (press `y` to copy it), the docs page, and the highlighted source. Fetches are cached in `~/.cache/tooee-termcn` for 24 hours. `$TOOEE_TERMCN_CACHE` or `$XDG_CACHE_HOME` moves the cache. When the network fails, the app uses an expired cached copy if one exists.
-- **Live showcase.** The Preview tab (`3`) mounts termcn's own demos from `vendor/`. Press `n` and `p` to cycle the demos, `Enter` to send keys to the demo, and `Ctrl+G` to give the keys back to Tooee. The demos use the colours of the active Tooee theme.
+- **Live showcase.** The Preview tab (`1`) opens first and mounts termcn's own demos from `vendor/`. Press `n` and `p` to cycle the demos, `Enter` to send keys to the demo, and `Ctrl+G` to give the keys back to Tooee. The demos use the colours of the active Tooee theme.
 
 ## Vendored termcn source
 
