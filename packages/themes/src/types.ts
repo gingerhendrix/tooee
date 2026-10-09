@@ -1,5 +1,7 @@
 import type { ColorMode } from "@tooee/config";
 
+import { mixColors } from "./color-mix.js";
+
 // ---------------------------------------------------------------------------
 // Theme JSON format (OpenCode-compatible)
 // ---------------------------------------------------------------------------
@@ -69,6 +71,15 @@ export interface ResolvedTheme {
   // Cursor/Selection
   cursorLine: string;
   selection: string;
+  // Search
+  /** Row background for every search match. */
+  searchMatchBg: string;
+  /** Row background for the current search match. */
+  searchCurrentMatchBg: string;
+  /** Gutter sign colour for every search match. */
+  searchMatchFg: string;
+  /** Gutter sign colour for the current search match. */
+  searchCurrentMatchFg: string;
   // Syntax
   syntaxComment: string;
   syntaxKeyword: string;
@@ -120,6 +131,10 @@ export const FALLBACKS = {
   markdownStrong: "#808080",
   markdownText: "#d4d4d4",
   primary: "#808080",
+  searchCurrentMatchBg: "#4a4a4a",
+  searchCurrentMatchFg: "#808080",
+  searchMatchBg: "#3a3a3a",
+  searchMatchFg: "#808080",
   secondary: "#808080",
   selection: "#1e1e1e",
   success: "#808080",
@@ -145,6 +160,12 @@ export const RESOLVED_KEYS =
 // ---------------------------------------------------------------------------
 // Resolution
 // ---------------------------------------------------------------------------
+
+/** Share of `warning` blended over `background` for a derived `searchMatchBg`. */
+const SEARCH_MATCH_TINT = 0.22;
+
+/** Share of `primary` blended over `background` for a derived `searchCurrentMatchBg`. */
+const SEARCH_CURRENT_MATCH_TINT = 0.35;
 
 /** A mode-specific colour pair is an object; a single colour is a string. */
 const isVariant = function isVariant(value: ColorValue): value is Variant {
@@ -200,6 +221,27 @@ export const resolveTheme = function resolveTheme(json: ThemeJSON, mode: ColorMo
 
   if (json.theme.selection === undefined) {
     result.selection = result.backgroundPanel;
+  }
+
+  // Search highlights tint the background, so matched text stays readable.
+  if (json.theme.searchMatchBg === undefined) {
+    result.searchMatchBg = mixColors(result.background, result.warning, SEARCH_MATCH_TINT);
+  }
+
+  if (json.theme.searchCurrentMatchBg === undefined) {
+    result.searchCurrentMatchBg = mixColors(
+      result.background,
+      result.primary,
+      SEARCH_CURRENT_MATCH_TINT
+    );
+  }
+
+  if (json.theme.searchMatchFg === undefined) {
+    result.searchMatchFg = result.warning;
+  }
+
+  if (json.theme.searchCurrentMatchFg === undefined) {
+    result.searchCurrentMatchFg = result.primary;
   }
 
   return result;
