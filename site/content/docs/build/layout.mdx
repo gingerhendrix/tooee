@@ -124,6 +124,46 @@ The log grows five lines a second and the view stays on the newest line. The whe
 
 `AppLayout` takes its scrollbox ref and options through the `scroll` prop. Leave `scroll` unset when the content is a `Document` or a `MarkdownView`: the row document is a scrollbox of its own and follows the cursor.
 
+## Side region
+
+`aside` takes a node that `AppLayout` draws to the right of the content. The title bar and the status bar stay full width, and the overlay covers the content and the aside together. Give the aside a `width`; the content takes the rest.
+
+```tsx title="release-notes.tsx"
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
+
+const sections = ["Fixes", "Features", "Upgrade notes"];
+
+const ReleaseNotes = function ReleaseNotes(): ReactNode {
+  const { theme } = useTheme();
+  useQuitCommand();
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Release notes" }}
+      statusBar={{ items: [{ label: "", value: "q quit" }] }}
+      aside={
+        <box width={24} flexDirection="column" border={["left"]} borderColor={theme.border}>
+          {sections.map(
+            (section): ReactNode => (
+              <text key={section} content={section} fg={theme.textMuted} paddingLeft={1} />
+            ),
+          )}
+        </box>
+      }
+    >
+      <text content="Tooee 0.12 adds folds and a heading outline to View." paddingLeft={1} />
+    </AppLayout>
+  );
+};
+
+await launchCli(<ReleaseNotes />);
+```
+
+`DocumentScreen` takes the same `aside` prop and passes it on. View draws its heading outline in this region.
+
 ## Search bar
 
 `searchBar` takes a `SearchState`, the object `controller.search` holds on a [document](/docs/build/documents#search) or `useSearch` returns. While `searchActive` is `true`, `AppLayout` draws `SearchBar` from `@tooee/search` in place of the status bar: a `/` prompt, a focused input bound to `setSearchQuery`, `Enter` bound to `submitSearch`, and a count such as `2/5` or `No matches`. `DocumentScreen` passes `controller.search` for you.

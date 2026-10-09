@@ -26,6 +26,8 @@ In cursor mode the cursor is the highlighted row.
 
 `g g` is a sequence: press `g` twice. After the first `g`, a hint bar lists the keys that complete the sequence. The same bar appears after `y`.
 
+After you scroll with the mouse wheel, `g g` and `G` scroll the first or last row back into view, also when the cursor is already on it.
+
 Click a row to move the cursor there. Drag with the mouse to select text; on Linux, Tooee copies the dragged text to the primary selection.
 
 ## Search
@@ -39,6 +41,20 @@ Click a row to move the cursor there. Drag with the mouse to select text; on Lin
 | `Escape` | any    | Clear the search                               |
 
 Matches are highlighted in the rows. The status bar shows the query while a search is open.
+
+## Fold and outline
+
+Markdown in View adds these keys in cursor mode:
+
+| Key          | Action                                                             |
+| ------------ | ------------------------------------------------------------------ |
+| `z a`        | Open or close the fold at the cursor                               |
+| `z c`, `z o` | Close or open the fold at the cursor                               |
+| `z z`        | Open the fold at the cursor when it is closed, else close it       |
+| `z M`, `z R` | Close or open all folds                                            |
+| `g o`        | Open the heading outline and move into it, or close it from inside |
+
+A fold hides the blocks under a heading. [View](/docs/cli/view#fold-sections) covers folds and the keys inside the outline.
 
 ## Select and copy
 

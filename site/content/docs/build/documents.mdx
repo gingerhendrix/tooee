@@ -122,6 +122,7 @@ Give `getKey` a value from your domain when rows can be sorted, filtered, or rel
 | `copy`                | `true`  | Registers `y y` and `y v`. `false` registers neither.                                                                                                                       |
 | `decorations`         | `[]`    | Extra `DecorationLayer` values painted with the cursor, selection, and search layers. [Marks and decorations](/docs/build/marks) covers the layer contract.                 |
 | `preserveCursorByKey` | `false` | When `rows` changes, keep the cursor on the row with the same key. Otherwise the cursor keeps its index, clamped to the new length.                                         |
+| `followTail`          | `false` | Keep the view on the newest row while rows stream in. See [Follow streamed rows](#follow-streamed-rows).                                                                     |
 | `onRowPress`          |         | Called after a left click with `{ row, index, key, event }`.                                                                                                                |
 | `contextMenu`         |         | What a right click opens. See [Mouse](#mouse).                                                                                                                              |
 
@@ -143,6 +144,8 @@ The hook returns one object. Read it in your component:
 | `getRow(index)`, `getRowKey(index)`, `getAnchor(index)` | Look up any row. `getRow` returns `undefined` and `getAnchor` returns `null` when the index is out of range.  |
 | `getRowAtScreenY(y)`                                    | The row drawn at a terminal row, or `null` for the gap below the last row.                                    |
 | `selectRow(index)`                                      | Move the cursor from a mouse handler of your own. Does nothing while a modal overlay is open.                 |
+| `revealRow(index, { align, margin })`                   | Scroll a row to a place in the view. See [Place a row in the view](#place-a-row-in-the-view).                  |
+| `followTail`                                            | The `followTail` option, as passed.                                                                           |
 | `ref`, `decorations`, `onMouseDown`                     | The bindings a `row-document` element takes. See [Bind a renderer of your own](#bind-a-renderer-of-your-own). |
 
 Command handlers get the same state through `ctx.document`, with rows typed `unknown`. [View: actions and command context](/docs/apps/view/actions#read-the-cursor-row) lists its fields. The `Merge` action above reads `selectedAnchors` and `activeAnchor` from it and uses `key`, which `getKey` set to the pull request number. The `context` prop on `DocumentScreen` adds `kind`, `title`, `reload`, and `extras` to that object.
@@ -159,7 +162,7 @@ Command handlers get the same state through `ctx.document`, with rows typed `unk
 | `signColumnWidth` | `0`     | Columns for signs. The cursor sign and the search signs need at least `1`.         |
 | `palette`         |         | `{ gutterFg, gutterBg }` colours for the gutter.                                   |
 
-The row document paints the cursor row, the selection, the toggled rows, and the search matches under your rows, follows the cursor when it leaves the viewport, and scrolls with the wheel.
+The row document paints the cursor row, the selection, the toggled rows, and the search matches under your rows, follows the cursor when it leaves the viewport, and scrolls with the wheel. When `rows` changes, a wheel-scrolled view stays where it is; the view moves when the cursor moves. `g g` and `G` scroll their row back into view, also when the cursor is already on it.
 
 `DocumentScreen` wraps [AppLayout](/docs/build/layout) for a document:
 
@@ -174,6 +177,85 @@ The row document paints the cursor row, the selection, the toggled rows, and the
 | `context`       |         | `{ kind, title, reload, extras }` merged into `ctx.document`.                           |
 
 The status bar reads `Theme:`, your items, `Mode:`, `Cursor:`, and `Selected:` while rows are selected. While the search bar is open it takes the place of the status bar.
+
+## Follow streamed rows
+
+Pass `followTail: true` for rows that arrive over time, such as a log:
+
+```tsx title="deploy-log.tsx"
+import { useCommand } from "@tooee/commands";
+import { Document, DocumentScreen, launchCli, useDocumentController } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
+
+const DeployLog = function DeployLog(): ReactNode {
+  const { theme } = useTheme();
+  const [lines, setLines] = useState<string[]>([]);
+  const controller = useDocumentController({
+    adapter: { getText: (line: string) => line },
+    followTail: true,
+    rows: lines,
+    search: {},
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setLines((previous) => {
+        const step = previous.length + 1;
+        const line = step % 10 === 0 ? `[${step}] error: upload retried` : `[${step}] uploaded chunk`;
+        return [...previous, line];
+      });
+    }, 200);
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  useCommand({
+    handler: () => {
+      const index = lines.findIndex((line) => line.includes("error:"));
+      if (index === -1) {
+        return;
+      }
+      controller.navigation.setCursor(index);
+      controller.revealRow(index, { align: "start", margin: 2 });
+    },
+    hotkey: "e",
+    id: "deploy.first-error",
+    title: "Jump to the first error",
+  });
+
+  return (
+    <DocumentScreen controller={controller} titleBar={{ title: "Deploy log" }}>
+      <Document
+        controller={controller}
+        style={{ flexGrow: 1 }}
+        renderRow={(line): ReactNode => (
+          <text content={line} fg={line.includes("error:") ? theme.error : theme.text} />
+        )}
+      />
+    </DocumentScreen>
+  );
+};
+
+await launchCli(<DeployLog />);
+```
+
+Run it with `bun deploy-log.tsx`. The document opens on its last row and stays at the bottom as lines arrive. A cursor on the last row moves to each new last row. Scroll up with the wheel and the view stays where you leave it. Move the cursor up and it stays on its row. Scroll back to the bottom, or press `G`, to follow again. `Document` turns on the sticky-bottom scroll of the row document for you.
+
+`RowDocumentRenderable`, the element behind `controller.ref`, has `isScrolledToBottom()`. It returns `true` when the view shows the last line, and when all rows fit.
+
+## Place a row in the view
+
+`e` in the example above moves the cursor to the first error and calls `revealRow`. `revealRow(index, options)` scrolls a row into view, also when the cursor is already on it. Call it next to `setCursor`: the reveal runs after the cursor follow and wins over it.
+
+| Option   | Default     | Meaning                                                                                                     |
+| -------- | ----------- | ----------------------------------------------------------------------------------------------------------- |
+| `align`  | `"nearest"` | A `RowScrollAlign`: `"start"`, `"center"`, `"end"`, or `"nearest"`, which scrolls only as far as it must.   |
+| `margin` | `0`         | Lines kept between the row and the edge it aligns to. `"center"` ignores it.                                |
+
+The example puts the error two lines below the top of the view. `RowScrollAlign` is exported from `@tooee/renderers`, and the options type is `DocumentRevealOptions` from `@tooee/shell`.
 
 ## Search
 
@@ -298,6 +380,8 @@ await launchCli(<ReadmeBlocks markdown={await Bun.file("README.md").text()} />);
 ```
 
 `Enter` on a block shows its line range in the file. Pass the same `blocks` array to the controller and to `MarkdownView`; when `MarkdownView` flattens the text itself, its rows can differ from the controller's. `getFlatBlockText` returns the source of the block, and the bullet text for a list marker that a nested list produces; that row's `source` is the marker.
+
+`MarkdownView` also takes `rowNumbers`, the gutter number for each block, and `foldedBlocks`, a map from the index of a heading block to the number of blocks it hides. Pass both when `blocks` is a filtered list, as View does for folds: the gutter keeps the numbers of the whole document, and each folded heading shows `⋯ N blocks`. `width` limits the columns the view uses when a side panel shares the terminal. `getPlainText(tokens)` returns the text of inline `marked` tokens without styling.
 
 `SourceIndex` from `@tooee/renderers` builds spans for rows of your own: `new SourceIndex(text, sourceId).span(startOffset, endOffset)`.
 

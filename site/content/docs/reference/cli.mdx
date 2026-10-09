@@ -24,13 +24,14 @@ When process stdin or stdout already points at a terminal, Tooee uses that strea
 ## tooee view
 
 ```text
-tooee view [file] [--renderer <name>]
+tooee view [file] [--renderer <name>] [--outline]
 ```
 
 | Argument or flag | Meaning |
 | --- | --- |
 | `file` | A file or a directory. When omitted, View reads stdin. |
 | `--renderer <name>`, `-r <name>`, `--renderer=<name>` | Force a renderer: `markdown`, `code`, `text`, `table`, `diff`. |
+| `--outline` | Open the heading outline beside Markdown content at start. Other formats ignore it. |
 
 | Case | Behaviour |
 | --- | --- |

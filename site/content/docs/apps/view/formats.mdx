@@ -21,6 +21,8 @@ Every content value has a `format` and the fields for that format. [View: conten
 
 `markdown` holds the source text. View splits it into blocks: a heading, a paragraph, a list item, a code block, a table, a blockquote, or a rule. Each block is one row. `j` and `k` move block by block, search matches a block's source text, and `y y` copies it. Nested lists flatten into indented rows. HTML blocks are dropped. `L` toggles the gutter, which numbers blocks, and `Lines:` in the status bar counts source lines.
 
+`z a` and the other `z` keys fold the blocks under a heading, and `g o` opens an outline of the headings on the right. While a fold is closed, the gutter keeps the block numbers of the whole document. [View](/docs/cli/view#fold-sections) lists the keys. Pass `outline: true` to `launch()` or `View` to open the outline at start.
+
 A fenced code block draws in a bordered box with syntax colours for the fence language. Its lines never wrap. When the block is wider than the terminal and the cursor is on it, `h` and `l` pan the block four columns at a time. `Shift` with the mouse wheel pans as well.
 
 A `mermaid` fence draws the diagram with box characters. A diagram that fails to parse, runs past 300 lines, or is a flowchart with more than 32 edges falls back to the plain code block. A `diff` or `patch` fence draws as a Hunk block; [View: diffs](/docs/apps/view/diffs#diff-fences-in-markdown) has the options. [View: custom renderers](/docs/apps/view/custom-renderers#render-a-fence-type) shows how to register a fence type of your own.
@@ -40,7 +42,34 @@ An image is 12 rows tall and as wide as the paragraph unless the embed sets a si
 
 ### Links in markdown
 
-Link text draws underlined. The `View` component takes `onMarkdownLinkActivate`, a handler for a left click on link text. It receives the `href` and the command context:
+Link text draws underlined, in table cells too. `launch()` follows links to local files when you pass `filePath`, the path the content came from. A click on a link, or `Enter` on its line, opens the file in the same session, and `Backspace` goes back. [View](/docs/cli/view#follow-local-links) in the CLI section describes the behaviour. Without `filePath`, a link shows `Links need a source file`.
+
+`linkHandlers` adds handlers that run before the local file handler. A handler is synchronous: it gets the link and a context, and returns `true` to consume the link or `false` to pass it on:
+
+```ts title="open-web-links.ts"
+import { createFileProvider, launch } from "@tooee/view";
+import type { LinkHandler } from "@tooee/view";
+
+const opener = process.platform === "darwin" ? "open" : "xdg-open";
+
+const openWebLinks: LinkHandler = (link) => {
+  if (!/^https?:\/\//u.test(link.href)) {
+    return false;
+  }
+  Bun.spawn([opener, link.href]);
+  return true;
+};
+
+await launch({
+  contentProvider: createFileProvider("README.md"),
+  filePath: "README.md",
+  linkHandlers: [openWebLinks],
+});
+```
+
+`link` holds `href`, `baseDir`, the folder that relative links resolve from, and `currentPath`, the file on screen. The context holds `command`, the command context, plus `navigate` and `documentRoute` for opening another file in the session. A link that no handler consumes and that is no local file shows `Unsupported link`.
+
+A `View` that you mount yourself leaves link clicks to `onMarkdownLinkActivate`, a handler for a left click on link text. It receives the `href` and the command context:
 
 ```tsx title="open-links.tsx"
 import { runCliSession } from "@tooee/shell";
@@ -58,7 +87,7 @@ await runCliSession((): ReactNode => (
 ));
 ```
 
-Return `true` to mark the click as handled, so it does not move the cursor. `launch()` has no option for the handler in Tooee 0.9.0, so mount `View` with `runCliSession` from [Write a launcher](/docs/apps#run-your-own-session).
+Return `true` to mark the click as handled, so it does not move the cursor.
 
 ## Code and text
 

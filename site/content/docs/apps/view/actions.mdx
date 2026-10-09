@@ -44,7 +44,7 @@ Run it with `bun pick-commit.ts`. Move to a commit, press `Enter`, and quit with
 
 `actions` is accepted by `launch()`, `launchDirectory()`, and the `View` component. Each entry is an `ActionDefinition` with `id`, `title`, and `handler`, plus the optional `hotkey`, `modes`, `when`, `category`, `group`, `icon`, and `hidden` from [Commands and modes](/docs/build/commands-and-modes#register-commands). Without `modes`, an action runs in cursor mode. View lists the actions in the `:` palette and in the right-click menu on a row; the menu leaves out actions with `hidden` and actions whose `when` rejects the current context. A custom format has no right-click menu.
 
-View owns the keys in [Keyboard basics](/docs/start/keyboard-basics), plus `L` for line numbers, `y g` for copying the whole document, `h` and `l` on wide blocks and diffs, and the keys on [View: diffs](/docs/apps/view/diffs#keys). Pick other keys for your actions.
+View owns the keys in [Keyboard basics](/docs/start/keyboard-basics), plus `L` for line numbers, `y g` for copying the whole document, `h` and `l` on wide blocks and diffs, and the keys on [View: diffs](/docs/apps/view/diffs#keys). Markdown content adds `g o` and the `z` fold keys, and `launch()` adds `Enter` to follow a link and `Backspace` to go back. Pick other keys for your actions.
 
 A handler cannot end the session in Tooee 0.12: `ctx.exit` does nothing inside View. Store what the handler learned, as `picked` does above, and act after `launch()` resolves.
 
