@@ -57,6 +57,10 @@
     "syntaxNumber": "orange",
     "syntaxType": "yellow",
     "syntaxOperator": "cyan",
-    "syntaxPunctuation": "step12"
+    "syntaxPunctuation": "step12",
+    "searchMatchBg": "#f6e6cf",
+    "searchCurrentMatchBg": "#bad2f1",
+    "searchMatchFg": "warning",
+    "searchCurrentMatchFg": "primary"
   }
 }

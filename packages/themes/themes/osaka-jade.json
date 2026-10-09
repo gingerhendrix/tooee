@@ -88,6 +88,10 @@
     "syntaxNumber": { "dark": "darkMagenta", "light": "lightMagenta" },
     "syntaxType": { "dark": "darkGreen", "light": "lightGreen" },
     "syntaxOperator": { "dark": "darkYellow", "light": "lightYellow" },
-    "syntaxPunctuation": { "dark": "darkFg0", "light": "lightFg0" }
+    "syntaxPunctuation": { "dark": "darkFg0", "light": "lightFg0" },
+    "searchMatchBg": { "dark": "#40421f", "light": "#e8e2b3" },
+    "searchCurrentMatchBg": { "dark": "#1b5d50", "light": "#abdbc2" },
+    "searchMatchFg": "warning",
+    "searchCurrentMatchFg": "primary"
   }
 }

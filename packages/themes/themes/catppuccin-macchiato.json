@@ -228,6 +228,10 @@
     "syntaxPunctuation": {
       "dark": "macText",
       "light": "macText"
-    }
+    },
+    "searchMatchBg": "#504d50",
+    "searchCurrentMatchBg": "#48567b",
+    "searchMatchFg": "warning",
+    "searchCurrentMatchFg": "primary"
   }
 }

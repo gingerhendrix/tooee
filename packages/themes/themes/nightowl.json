@@ -216,6 +216,10 @@
     "syntaxPunctuation": {
       "dark": "nightOwlFg",
       "light": "nightOwlFg"
-    }
+    },
+    "searchMatchBg": "#353c3d",
+    "searchCurrentMatchBg": "#2e4a73",
+    "searchMatchFg": "warning",
+    "searchCurrentMatchFg": "primary"
   }
 }

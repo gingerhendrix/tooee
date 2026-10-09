@@ -228,6 +228,10 @@
     "syntaxPunctuation": {
       "dark": "frappeText",
       "light": "frappeText"
-    }
+    },
+    "searchMatchBg": "#585556",
+    "searchCurrentMatchBg": "#515b7d",
+    "searchMatchFg": "warning",
+    "searchCurrentMatchFg": "primary"
   }
 }
