@@ -1,29 +1,25 @@
 ---
 title: Troubleshooting
-description: Symptoms you can meet with Tooee 0.9.0, what causes each one, and what to do.
+description: Symptoms you can meet with Tooee 0.12, what causes each one, and what to do.
 ---
 
-Each section starts with a symptom as you see it, gives the cause, and names what to do. The versions are Tooee 0.9.0, OpenTUI 0.5, and Bun 1.4.
+Each section starts with a symptom as you see it, gives the cause, and names what to do. The versions are Tooee 0.12, OpenTUI 0.5, and Bun 1.4.
 
 ## Install and typecheck
 
-**`bun add` prints `warn: incorrect peer dependency "@opentui/core@0.5.10"`, and the same line for `@opentui/react`.** Every `@tooee/*` package declares `^0.5.1` for both, which 0.5.10 satisfies; Bun 1.4 prints the warning anyway. The install completes and the packages run. A third line, `incorrect peer dependency "typescript@7.0.2"`, comes from `bun-ffi-structs`, a dependency of OpenTUI that declares `typescript@^5`; TypeScript 7 typechecks Tooee projects. Ignore all three.
+**`bun install` prints `warn: incorrect peer dependency "typescript@7.0.2"`.** The warning comes from `bun-ffi-structs`, a dependency of OpenTUI that declares `typescript@^5`. TypeScript 7 typechecks Tooee projects. Ignore the warning.
 
 **`tsc` reports `error TS17004: Cannot use JSX unless the '--jsx' flag is provided.`** The file holds a component and `tsconfig.json` has no `jsx` option. Add `"jsx": "react-jsx"`.
 
 **`tsc` reports `Property 'content' does not exist on type 'SVGTextElementAttributes<SVGTextElement>'`.** TypeScript resolved `<text>` to the SVG element from the DOM types because `jsxImportSource` is missing. Add `"jsxImportSource": "@opentui/react"` next to `jsx`. [Install](/docs/start/install#set-the-jsx-options) shows the full file.
 
-**`node_modules` is 445 MB after `bun add @tooee/view`.** `@tooee/view` depends on `@tooee/diff`, which pins `hunkdiff@0.18.0`. Hunk installs a binary for your platform, 134 MB on Linux x64, and a copy of the `bun` package, 76 MB, for a command-line tool that Tooee never runs. Hunk also declares `@opentui/core` and `@opentui/react` `^0.4.3` as peers and runs with the 0.5 versions Tooee installs. The size is disk only; there is no setting to change.
+**`node_modules` is over 300 MB after `bun add @tooee/view`.** `@tooee/view` depends on `@tooee/diff`, which pins `hunkdiff@0.22.0`. Hunk installs a binary for your platform, 158 MB on Linux x64, for a command-line tool that Tooee never runs. A new project with `@tooee/view` 0.12.0 measured 315 MB on Linux x64 with Bun 1.4.2. The size is disk only; there is no setting to change.
 
 ## Pipes and stdin
 
-**`cat notes.md | tooee view` exits at once and draws nothing.** View reads keys from the process stdin, and `guardTerminalHealth` in `@tooee/shell` ends the session when that stream closes, which a pipe does as soon as its content is delivered. Give View a path instead. In bash and zsh, process substitution keeps the pipeline:
+**`tooee view`, `tooee ask`, or `tooee choose` prints `Unable to start Tooee: ENXIO: no such device or address, open '/dev/tty'` and exits with code 2.** When stdin or stdout is not a terminal, Tooee opens the controlling terminal, `/dev/tty`, in its place, and the process has none. A CI job, a cron job, or a harness that starts the command without a terminal gets this error. Run the command from a terminal. In tests, start it in a pseudo-terminal, as [Testing](/docs/ship/testing#test-end-to-end-with-tuistory) shows.
 
-```bash
-tooee view <(git diff)
-```
-
-In a script of your own, mount `View` with `runCliSession` and the `tty-if-piped` policy. The renderer then reads keys from `/dev/tty` and leaves stdin to the content provider:
+**A script that mounts `View` with `runCliSession` exits at once when you pipe content into it.** `runCliSession` reads keys from process stdin by default, and `guardTerminalHealth` in `@tooee/shell` ends the session when that stream closes. A pipe closes as soon as its content is delivered. Pass the `tty-if-piped` policy, as `launch()` from `@tooee/view` does. The renderer then reads keys from `/dev/tty` and leaves stdin to the content provider:
 
 ```tsx title="view-stdin.tsx"
 import { runCliSession } from "@tooee/shell";
@@ -35,11 +31,7 @@ await runCliSession((): ReactNode => <View contentProvider={createStdinProvider(
 });
 ```
 
-`git diff | bun view-stdin.tsx` draws the patch and `q` quits. `tooee choose` uses the same policy, so `printf 'a\nb\n' | tooee choose` works as `--help` says.
-
-**`echo hi | tooee ask` exits at once.** Same cause. Ask has no stdin content to read, so run it with the terminal on stdin and pass the text as the prompt or through `defaultValue` in `launch()`.
-
-**`name=$(tooee ask -s "Name:")` leaves the terminal blank and `$name` holds escape sequences.** The CLI draws the screen on stdout, the stream the substitution captures. Keep the flow in one Bun script and call `launch()`, which returns the value; [Use the result in a script](/docs/cli/ask#use-the-result-in-a-script) shows it.
+`git diff | bun view-stdin.tsx` draws the patch and `q` quits. When you also redirect the stdout of the script, add `stdoutPolicy: "tty-if-redirected"` so the screen draws on the terminal and stays out of the output. [CLI reference](/docs/reference/cli) lists the terminal channels of the `tooee` commands.
 
 ## Keys
 
@@ -51,7 +43,7 @@ await runCliSession((): ReactNode => <View contentProvider={createStdinProvider(
 
 **`ctx.exit()` in a handler leaves the app open.** The shell installs no `exit` in the command context; Ask and Choose supply their own, and View and `launchCli` apps do not. Quit with `useQuitCommand`, and for a View action store what the handler learned and act after `launch()` resolves. [View: actions and command context](/docs/apps/view/actions) shows the pattern.
 
-**A key from `keys` in the config runs the command, but the palette still lists the old key.** The palette and the which-key bar show the default hotkey in 0.9.0. The remap works; only the hint is stale. [Configuration](/docs/customize/configuration#remap-keys) shows how to build hints from the config.
+**A key from `keys` in the config runs the command, but the palette still lists the old key.** The palette and the which-key bar show the default hotkey in Tooee 0.12. The remap works; only the hint is stale. [Configuration](/docs/customize/configuration#remap-keys) shows how to build hints from the config.
 
 ## Copy and paste
 
