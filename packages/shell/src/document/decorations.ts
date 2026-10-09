@@ -63,8 +63,8 @@ export const buildInteractionDecorations = function buildInteractionDecorations(
 
     for (const row of matchingLines) {
       rows.set(row, {
-        background: theme.warning,
-        sign: { fg: theme.warning, text: SEARCH_SIGN },
+        background: theme.searchMatchBg,
+        sign: { fg: theme.searchMatchFg, text: SEARCH_SIGN },
       });
     }
 
@@ -96,8 +96,8 @@ export const buildInteractionDecorations = function buildInteractionDecorations(
   if (currentMatch !== null && currentMatch !== undefined) {
     layers.push(
       singleRowLayer(DocumentDecorationPriorities.CURRENT_MATCH, currentMatch, {
-        background: theme.primary,
-        sign: { fg: theme.primary, text: SEARCH_SIGN },
+        background: theme.searchCurrentMatchBg,
+        sign: { fg: theme.searchCurrentMatchFg, text: SEARCH_SIGN },
       })
     );
   }
