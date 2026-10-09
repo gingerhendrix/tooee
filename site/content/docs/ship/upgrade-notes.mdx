@@ -1,11 +1,41 @@
 ---
-title: Upgrade to 0.9
-description: Move a Tooee 0.8 app to the retained 0.9 APIs.
+title: Upgrade notes
+description: Move a Tooee 0.9 app to 0.12, and a Tooee 0.8 app to 0.9.
 ---
+
+```bash
+bun add @tooee/view@^0.12.0 @opentui/core@^0.5.12 @opentui/react@^0.5.12
+```
+
+Upgrade every `@tooee/*` package to the same version. Each section lists the changes you can meet on the way, newest first.
+
+## Upgrade from 0.9 to 0.12
+
+### Install OpenTUI 0.5.12 or later
+
+Every `@tooee/*` package now declares `@opentui/core` and `@opentui/react` `^0.5.12` as peers. Raise both in your `package.json` when you pin an older 0.5 release. Tooee builds and tests with React 19.3; the `react` peer range is unchanged.
+
+The CLI installs OpenTUI and React as its own dependencies since 0.10.2. A global install of `@tooee/cli` needs no separate runtime packages.
+
+### Expect heading rows to copy the heading line alone
+
+Markdown parsing moved to `marked` 18. A heading row in the Markdown view now searches and copies as the heading line, without the blank lines after it. Update tests or scripts that compare the text of a copied heading.
+
+### Expect documents to keep their scroll position
+
+A document built on `useDocumentController` no longer scrolls back to the cursor row when its rows change. A wheel-scrolled view stays where it is while rows stream in or update. The view still follows the cursor when the cursor moves. Pass `followTail: true` for a log that stays on its newest row, or call `revealRow` to scroll a row into view. [Documents](/docs/build/documents#follow-streamed-rows) covers both.
+
+`g g` and `G` now scroll their row back into view when the cursor is already on it. The nav-search store of `@tooee/search` emits `jumped` for every jump that lands on a row, also when the cursor does not move. A subscriber to `jumped` gets these extra events.
+
+### Move app actions off the new View keys
+
+Markdown content in View registers the fold keys `z a`, `z c`, `z o`, `z z`, `z M`, and `z R`, and `g o` for the heading outline, all in cursor mode. Give your own actions other keys. [Keyboard basics](/docs/start/keyboard-basics#fold-and-outline) lists what the keys do.
+
+## Upgrade from 0.8 to 0.9
 
 Tooee 0.9 removes the compatibility APIs that were deprecated in 0.8. Update these calls before you install the new release.
 
-## Pass direct props to Choose
+### Pass direct props to Choose
 
 The `Choose` component now accepts chooser options as top-level props. Pass action definitions through `actions`:
 
@@ -15,7 +45,7 @@ The `Choose` component now accepts chooser options as top-level props. Pass acti
 
 The `launch()` function still takes its chooser fields under `options`. Lower-level chooser primitives still use `commands` for their extra actions.
 
-## Nest launchCli provider settings
+### Nest launchCli provider settings
 
 Put provider settings under `provider` when you call `launchCli` or `runCliSession`:
 
@@ -32,7 +62,7 @@ await launchCli(<App />, {
 
 The top-level aliases for `config`, `initialMode`, `leader`, and `sequenceTimeoutMs` have been removed.
 
-## Select the table renderer through View
+### Select the table renderer through View
 
 The `tooee table` command has been removed. Use the View renderer option:
 
@@ -40,7 +70,7 @@ The `tooee table` command has been removed. Use the View renderer option:
 tooee view --renderer table data.csv
 ```
 
-## Put AppLayout scrolling in one object
+### Put AppLayout scrolling in one object
 
 `AppLayout` now accepts its scrollbox ref and settings through `scroll`:
 
@@ -55,7 +85,7 @@ tooee view --renderer table data.csv
 
 The separate `scrollRef` and `scrollProps` props have been removed.
 
-## Import ColorMode from config
+### Import ColorMode from config
 
 Replace the removed config `Mode` alias with `ColorMode`:
 
@@ -65,7 +95,7 @@ import type { ColorMode } from "@tooee/config";
 
 The command input type named `Mode` remains available from `@tooee/commands`.
 
-## Read commands with useSurfaceInvoke
+### Read commands with useSurfaceInvoke
 
 Replace `useCommandContext()` with `useSurfaceInvoke()`:
 
@@ -75,7 +105,7 @@ const { commands, invoke } = useSurfaceInvoke();
 
 It reads the commands and invocation function for the nearest command surface.
 
-## Keep overlay handles
+### Keep overlay handles
 
 Overlay controllers now use `open`, handles, and state hooks. Keep the handle returned by `open()` so you can close or update that entry:
 
@@ -95,7 +125,7 @@ handle.close();
 
 Use `useOverlayState().stack.includes(id)` when a component needs to know whether a named overlay is open. Use `useHasOverlay()` when it only needs to know whether the stack has an entry. The controller still has `update(id, next)` and `closeTop()`.
 
-## Reuse chooser behavior
+### Reuse chooser behavior
 
 `@tooee/renderers` now exports the chooser controller, store, source, filter, list, highlighting, and fuzzy-match primitives. The command palette and theme picker use these primitives, so their filtering, navigation, input, and selection behavior matches `@tooee/choose`.
 
