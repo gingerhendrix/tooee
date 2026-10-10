@@ -1,76 +1,70 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/view\":\n    type: minor\n  \"@tooee/layout\":\n    type: minor\n  \"@tooee/shell\":\n    type: minor\n  \"@tooee/renderers\":\n    type: minor\n  \"@tooee/cli\":\n    type: minor\n---\n\n## Markdown heading outline beside the document\n\nThe Markdown view can show an outline of its headings in a panel on the right. `g o` opens the outline and gives it focus. In the outline, `j` and `k` move, `g g` and `G` go to the first and last heading, `enter` moves the document cursor to the heading and returns to the document, `escape` returns to the document, and `g o` closes the outline. The heading that contains the cursor is marked, so the outline follows the document. A jump to a heading inside closed folds opens them. Below 60 columns the outline is hidden. `tab` keeps its multi-select meaning.\n\nA jump from the outline puts the heading three lines below the top of the document view. While the outline has focus, the fold keys `z a`, `z c` and `z o` act on the section of the selected heading. The new `z z` key opens the fold at the cursor or selected heading when it is closed, and closes it when it is open.\n\n`tooee view --outline` and the `outline` option on `View` and `launch()` open the outline at start. `AppLayout` and `DocumentScreen` accept an `aside` region beside the content. `MarkdownView` accepts a `width`, and `@tooee/renderers` exports `getPlainText` and `RowScrollAlign`. The document controller in `@tooee/shell` gains `revealRow(index, { align, margin })`, which scrolls a row to a given place in the view.\n"
-    filename: markdown-outline-panel.md
+  - content: "---\npackages:\n  \"@tooee/themes\":\n    type: minor\n  \"@tooee/shell\":\n    type: patch\n---\n\n## Add search highlight theme tokens\n\nThemes have four new keys: `searchMatchBg`, `searchCurrentMatchBg`, `searchMatchFg`, and `searchCurrentMatchFg`. Every bundled theme sets them.\n\nSearch matches in row documents now use a background tinted from `warning`, and the current match uses a background tinted from `primary`. Before, both used the full `warning` and `primary` colours, which made the matched text hard to read. The gutter signs keep their old colours.\n\nA custom theme that leaves out the new keys gets derived values: 22% of `warning` over `background` for `searchMatchBg`, 35% of `primary` over `background` for `searchCurrentMatchBg`, and `warning` and `primary` for the signs. Over a transparent `background`, the derived backgrounds are translucent.\n"
+    filename: search-highlight-theme-tokens.md
     v: 0.0.0
 core:packages:
-  - changelogIds:
-      - markdown-outline-panel.md
-    id: npm:@tooee/cli
-    updated: true
-  - id: npm:@tooee/ask
+  - id: npm:@tooee/cli
     updated: true
   - id: npm:@tooee/choose
     updated: true
-  - id: npm:@tooee/clipboard
+  - id: npm:@tooee/ask
     updated: true
   - id: npm:@tooee/commands
+    updated: true
+  - id: npm:@tooee/clipboard
     updated: true
   - id: npm:@tooee/config
     updated: true
   - id: npm:@tooee/diff
     updated: true
-  - changelogIds:
-      - markdown-outline-panel.md
-    id: npm:@tooee/layout
-    updated: true
   - id: npm:@tooee/fuzzy
+    updated: true
+  - id: npm:@tooee/layout
     updated: true
   - id: npm:@tooee/marks
     updated: true
   - id: npm:@tooee/overlays
     updated: true
   - id: npm:@tooee/panels
-    updated: true
-  - changelogIds:
-      - markdown-outline-panel.md
-    id: npm:@tooee/renderers
-    updated: true
-  - id: npm:@tooee/router
     updated: true
   - id: npm:@tooee/search
     updated: true
   - id: npm:@tooee/test-support
     updated: false
+  - id: npm:@tooee/renderers
+    updated: true
   - changelogIds:
-      - markdown-outline-panel.md
+      - search-highlight-theme-tokens.md
     id: npm:@tooee/shell
     updated: true
-  - id: npm:@tooee/themes
+  - id: npm:@tooee/router
+    updated: true
+  - changelogIds:
+      - search-highlight-theme-tokens.md
+    id: npm:@tooee/themes
     updated: true
   - id: npm:@tooee/toasts
     updated: true
-  - changelogIds:
-      - markdown-outline-panel.md
-    id: npm:@tooee/view
+  - id: npm:@tooee/view
     updated: true
 npm:packages:
   - id: npm:@tooee/cli
-  - id: npm:@tooee/ask
   - id: npm:@tooee/choose
-  - id: npm:@tooee/clipboard
+  - id: npm:@tooee/ask
   - id: npm:@tooee/commands
+  - id: npm:@tooee/clipboard
   - id: npm:@tooee/config
   - id: npm:@tooee/diff
-  - id: npm:@tooee/layout
   - id: npm:@tooee/fuzzy
+  - id: npm:@tooee/layout
   - id: npm:@tooee/marks
   - id: npm:@tooee/overlays
   - id: npm:@tooee/panels
-  - id: npm:@tooee/renderers
-  - id: npm:@tooee/router
   - id: npm:@tooee/search
   - id: npm:@tooee/test-support
+  - id: npm:@tooee/renderers
   - id: npm:@tooee/shell
+  - id: npm:@tooee/router
   - id: npm:@tooee/themes
   - id: npm:@tooee/toasts
   - id: npm:@tooee/view
