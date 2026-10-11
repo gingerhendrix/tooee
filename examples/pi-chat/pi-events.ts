@@ -1,11 +1,15 @@
 /**
- * Maps Pi SDK session events onto chat actions. Events the demo does not
- * show (tool calls, compaction, queue updates) map to `undefined`.
+ * Maps Pi SDK session events onto chat actions. Assistant messages become
+ * display parts (text, thinking, tool calls). Tool events set the status and
+ * result of their tool call. Thinking level changes (from a cycle or a model
+ * switch) update the status bar. Events the demo does not show (compaction,
+ * queue updates) map to `undefined`.
  */
 
 import type { AgentSessionEvent } from "@earendil-works/pi-coding-agent";
 
 import type { ChatAction } from "./chat-state.js";
+import { assistantParts, toolResultView } from "./content-parts.js";
 
 type MessageEvent = Extract<AgentSessionEvent, { type: "message_end" }>;
 
@@ -15,24 +19,27 @@ const isAssistant = function isAssistant(message: AgentMessage): boolean {
   return "role" in message && message.role === "assistant";
 };
 
-/** Joins the text parts of an assistant message (thinking and tool calls are skipped). */
-export const assistantText = function assistantText(message: AgentMessage): string {
-  if (!("role" in message) || message.role !== "assistant") {
-    return "";
+const endAction = function endAction(message: AgentMessage): ChatAction | undefined {
+  if (!("role" in message)) {
+    return undefined;
   }
 
-  return message.content.flatMap((part) => (part.type === "text" ? [part.text] : [])).join("");
-};
+  if (message.role === "toolResult") {
+    return {
+      result: toolResultView(message),
+      toolCallId: message.toolCallId,
+      type: "toolFinished",
+    };
+  }
 
-const endAction = function endAction(message: AgentMessage): ChatAction {
-  if (!("role" in message) || message.role !== "assistant") {
-    return { text: "", type: "assistantEnded" };
+  if (message.role !== "assistant") {
+    return undefined;
   }
 
   return {
     errorMessage: message.errorMessage,
+    parts: assistantParts(message),
     stopReason: message.stopReason,
-    text: assistantText(message),
     type: "assistantEnded",
   };
 };
@@ -45,13 +52,22 @@ export const toChatAction = function toChatAction(
   }
 
   if (event.type === "message_update") {
-    const update = event.assistantMessageEvent;
-
-    return update.type === "text_delta" ? { delta: update.delta, type: "textDelta" } : undefined;
+    // The update carries the whole partial message, so rebuild all parts.
+    return isAssistant(event.message)
+      ? { parts: assistantParts(event.message), type: "assistantUpdated" }
+      : undefined;
   }
 
   if (event.type === "message_end") {
-    return isAssistant(event.message) ? endAction(event.message) : undefined;
+    return endAction(event.message);
+  }
+
+  if (event.type === "tool_execution_start") {
+    return { toolCallId: event.toolCallId, type: "toolStarted" };
+  }
+
+  if (event.type === "thinking_level_changed") {
+    return { thinkingLevel: event.level, type: "thinkingLevelChanged" };
   }
 
   return event.type === "agent_settled" ? { type: "runSettled" } : undefined;

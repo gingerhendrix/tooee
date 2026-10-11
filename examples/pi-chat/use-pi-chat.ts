@@ -1,7 +1,7 @@
 /**
  * React side of the Pi session: boots it once, feeds session events into the
- * chat reducer, exposes send/abort/model actions, and disposes the session on
- * unmount (quit destroys the renderer, which unmounts the tree).
+ * chat reducer, exposes send/abort/model/thinking actions, and disposes the
+ * session on unmount (quit destroys the renderer, which unmounts the tree).
  */
 
 import type { AgentSession, ModelRuntime } from "@earendil-works/pi-coding-agent";
@@ -9,6 +9,8 @@ import { useCallback, useEffect, useReducer, useRef } from "react";
 
 import { chatReducer, initialChatState } from "./chat-state.js";
 import type { ChatState } from "./chat-state.js";
+import { imagePart, userParts } from "./content-parts.js";
+import { loadImageAttachments } from "./image-attachments.js";
 import { modelLabel } from "./initial-model.js";
 import type { PiModel } from "./initial-model.js";
 import { toChatAction } from "./pi-events.js";
@@ -16,9 +18,15 @@ import { bootPiSession, errorText } from "./pi-session.js";
 
 export interface PiChat {
   state: ChatState;
-  /** Starts a prompt. Returns false when the session cannot take input now. */
+  /**
+   * Starts a prompt. `@path.png` words attach images. Returns false when the
+   * session cannot take input now.
+   */
   send: (text: string) => boolean;
   abort: () => void;
+  /** Moves to the next thinking level. Returns undefined when the model has none. */
+  cycleThinking: () => string | undefined;
+  toggleDetails: () => void;
   listModels: () => Promise<readonly PiModel[]>;
   selectModel: (model: PiModel) => Promise<void>;
 }
@@ -64,7 +72,11 @@ export const usePiChat = function usePiChat(): PiChat {
           dispatch(action);
         }
       });
-      dispatch({ modelLabel: modelLabel(result.model), type: "booted" });
+      dispatch({
+        modelLabel: modelLabel(result.model),
+        thinkingLevel: result.session.thinkingLevel,
+        type: "booted",
+      });
     };
 
     void start();
@@ -79,7 +91,17 @@ export const usePiChat = function usePiChat(): PiChat {
 
   const runPrompt = useCallback(async (session: AgentSession, text: string): Promise<void> => {
     try {
-      await session.prompt(text);
+      const attachments = await loadImageAttachments(text);
+
+      if (!attachments.ok) {
+        dispatch({ message: attachments.message, type: "runFailed" });
+
+        return;
+      }
+
+      const { images } = attachments;
+      dispatch({ images: images.map(imagePart), type: "imagesAttached" });
+      await session.prompt(text, { images });
       dispatch({ type: "runSettled" });
     } catch (error) {
       dispatch({ message: errorText(error), type: "runFailed" });
@@ -95,7 +117,7 @@ export const usePiChat = function usePiChat(): PiChat {
       }
 
       phaseRef.current = "streaming";
-      dispatch({ text, type: "userSent" });
+      dispatch({ parts: userParts(text), type: "userSent" });
       void runPrompt(session, text);
 
       return true;
@@ -121,11 +143,23 @@ export const usePiChat = function usePiChat(): PiChat {
 
     try {
       await session.setModel(model);
+      // Pi clamps the thinking level for the new model and emits
+      // thinking_level_changed, which pi-events maps to the reducer.
       dispatch({ modelLabel: modelLabel(model), type: "modelChanged" });
     } catch (error) {
       dispatch({ message: `Could not switch model: ${errorText(error)}`, type: "error" });
     }
   }, []);
 
-  return { abort, listModels, selectModel, send, state };
+  // The session emits thinking_level_changed, so the reducer needs no dispatch here.
+  const cycleThinking = useCallback(
+    (): string | undefined => sessionRef.current?.cycleThinkingLevel(),
+    []
+  );
+
+  const toggleDetails = useCallback(() => {
+    dispatch({ type: "detailsToggled" });
+  }, []);
+
+  return { abort, cycleThinking, listModels, selectModel, send, state, toggleDetails };
 };

@@ -70,7 +70,9 @@ export const MessageHistory = function MessageHistory({ state }: { state: ChatSt
       {state.turns.length === 0 ? (
         <EmptyState state={state} />
       ) : (
-        state.turns.map((turn): ReactNode => <MessageItem key={turn.id} turn={turn} />)
+        state.turns.map((turn): ReactNode => (
+          <MessageItem key={turn.id} turn={turn} showDetails={state.showDetails} />
+        ))
       )}
     </scrollbox>
   );

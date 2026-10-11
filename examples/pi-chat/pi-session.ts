@@ -1,6 +1,8 @@
 /**
  * Boots a Pi SDK chat session: model runtime from ~/.pi/agent, start model,
- * and an in-memory session with no tools. Nothing here writes to ~/.pi/agent.
+ * and an in-memory session with the read-only built-in tools (read, grep,
+ * find, ls) in the current directory. The assistant can read files but
+ * cannot run commands or change files. Nothing here writes to ~/.pi/agent.
  */
 
 import { ModelRuntime, SessionManager, createAgentSession } from "@earendil-works/pi-coding-agent";
@@ -11,6 +13,9 @@ import type { PiModel } from "./initial-model.js";
 
 const NO_MODELS_MESSAGE =
   "No Pi models are available. Add credentials to ~/.pi/agent/auth.json (for example with `pi` and /login), then restart the demo.";
+
+/** Pi's read-only built-in tools. bash, edit, and write stay off. */
+export const READ_ONLY_TOOLS = ["read", "grep", "find", "ls"];
 
 export type BootResult =
   | { ok: true; runtime: ModelRuntime; session: AgentSession; model: PiModel }
@@ -34,9 +39,9 @@ const startSession = async function startSession(): Promise<BootResult> {
   const { session } = await createAgentSession({
     model,
     modelRuntime: runtime,
-    noTools: "all",
     sessionManager: SessionManager.inMemory(),
     settingsManager: settings,
+    tools: READ_ONLY_TOOLS,
   });
 
   return { model, ok: true, runtime, session };

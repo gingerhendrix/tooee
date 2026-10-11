@@ -19,6 +19,7 @@
     "react": "^19.3.0"
   },
   "devDependencies": {
+    "@tooee/test-support": "workspace:*",
     "@types/react": "^19.3.0"
   }
 }
