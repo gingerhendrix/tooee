@@ -11,7 +11,7 @@ import type { ReactNode } from "react";
 
 import type { ChatTurn, ChatTurnRole } from "./chat-state.js";
 import type { TurnPart } from "./content-parts.js";
-import { ImageChip, ThinkingBlock, ToolCallBlock } from "./turn-parts.js";
+import { ImageBlock, ThinkingBlock, ToolCallBlock } from "./turn-parts.js";
 
 const assistantSuffix = function assistantSuffix(turn: ChatTurn): string {
   if (turn.streaming) {
@@ -70,7 +70,7 @@ const PartView = function PartView({ turn, part, live, showDetails }: PartViewPr
     }
 
     case "image": {
-      return <ImageChip image={part} />;
+      return <ImageBlock image={part} />;
     }
 
     default: {

@@ -14,14 +14,27 @@ describe("content parts", () => {
     ]);
   });
 
-  test("user text becomes one text part, and images become size placeholders", () => {
+  test("user text becomes one text part, and images decode to bytes and a pixel size", () => {
     expect(userParts("hi")).toEqual([{ kind: "text", text: "hi" }]);
     expect(userParts("")).toEqual([]);
-    expect(imagePart({ data: PNG_BASE64, mimeType: "image/png", type: "image" })).toEqual({
+
+    const image = imagePart({ data: PNG_BASE64, mimeType: "image/png", type: "image" });
+
+    expect(image).toMatchObject({
       bytes: 70,
       kind: "image",
       mimeType: "image/png",
+      size: { height: 1, width: 1 },
     });
+    expect(image.data).toBeInstanceOf(Uint8Array);
+    expect(image.data).toHaveLength(70);
+  });
+
+  test("an image that OpenTUI cannot read has no pixel size", () => {
+    const image = imagePart({ data: "bm9wZQ==", mimeType: "image/png", type: "image" });
+
+    expect(image.bytes).toBe(4);
+    expect(image.size).toBeUndefined();
   });
 
   test("keepToolProgress leaves calls with a new id as pending", () => {

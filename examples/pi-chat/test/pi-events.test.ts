@@ -39,9 +39,11 @@ describe("toChatAction", () => {
   });
 
   test("a tool result message finishes the call with its text and images", () => {
-    expect(toChatAction({ message: toolResult, type: "message_end" })).toEqual({
+    expect(toChatAction({ message: toolResult, type: "message_end" })).toMatchObject({
       result: {
-        images: [{ bytes: 70, kind: "image", mimeType: "image/png" }],
+        images: [
+          { bytes: 70, kind: "image", mimeType: "image/png", size: { height: 1, width: 1 } },
+        ],
         isError: false,
         text: "line 1\nline 2",
       },

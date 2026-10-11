@@ -1,15 +1,24 @@
 /**
  * Views for the parts of a chat turn: thinking, tool calls with their
- * results, and image placeholders. Text parts render in message-item.tsx.
+ * results, and images. Text parts render in message-item.tsx. Images draw
+ * with the OpenTUI `<image>` element: Kitty graphics or sixel when the
+ * terminal has them, otherwise colored half blocks.
  * By default thinking and tool output show a short preview; the details
  * toggle (ctrl+e) shows all of it.
  */
 
 import { useTheme } from "@tooee/themes";
+import { useState } from "react";
 import type { ReactNode } from "react";
 
 import type { ImagePart, ToolCallPart, ToolCallStatus, TurnPart } from "./content-parts.js";
-import { argsSummary, imageLabel, previewLines, TOOL_STATUS_LABEL } from "./part-format.js";
+import {
+  argsSummary,
+  imageCells,
+  imageLabel,
+  previewLines,
+  TOOL_STATUS_LABEL,
+} from "./part-format.js";
 import type { Preview } from "./part-format.js";
 import { DETAILS_HOTKEY } from "./use-chat-commands.js";
 
@@ -42,10 +51,35 @@ const HiddenLines = function HiddenLines({ preview }: { preview: Preview }): Rea
   );
 };
 
-export const ImageChip = function ImageChip({ image }: { image: ImagePart }): ReactNode {
+/**
+ * The image label as a caption, then the picture. When OpenTUI cannot read
+ * the header or decode the data, the caption says so and no picture shows.
+ */
+export const ImageBlock = function ImageBlock({ image }: { image: ImagePart }): ReactNode {
   const { theme } = useTheme();
+  const [failed, setFailed] = useState(false);
+  const label = imageLabel(image);
 
-  return <text content={imageLabel(image)} fg={theme.info} />;
+  if (image.size === undefined || failed) {
+    return <text content={`${label} cannot be drawn`} fg={theme.textMuted} />;
+  }
+
+  const cells = imageCells(image.size);
+
+  return (
+    <box flexDirection="column">
+      <text content={label} fg={theme.info} />
+      <image
+        source={image.data}
+        fit="fit"
+        protocol="auto"
+        onError={() => {
+          setFailed(true);
+        }}
+        style={{ height: cells.height, maxWidth: "100%", width: cells.width }}
+      />
+    </box>
+  );
 };
 
 export const ThinkingBlock = function ThinkingBlock({
@@ -106,7 +140,7 @@ const ToolResult = function ToolResult({
       )}
       <HiddenLines preview={preview} />
       {result.images.map((image, index): ReactNode => (
-        <ImageChip key={index} image={image} />
+        <ImageBlock key={index} image={image} />
       ))}
     </box>
   );

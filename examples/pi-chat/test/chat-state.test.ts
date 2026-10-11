@@ -129,7 +129,13 @@ describe("chatReducer", () => {
   });
 
   test("attached images follow the text of the newest user turn", () => {
-    const image: TurnPart = { bytes: 2048, kind: "image", mimeType: "image/png" };
+    const image: TurnPart = {
+      bytes: 2048,
+      data: new Uint8Array(),
+      kind: "image",
+      mimeType: "image/png",
+    };
+
     const state = run(booted, sent, { images: [image], type: "imagesAttached" });
 
     expect(state.turns[0]?.parts).toEqual([...text("hi"), image]);

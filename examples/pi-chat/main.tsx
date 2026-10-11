@@ -6,7 +6,7 @@
  * in memory. It has Pi's read-only tools (read, grep, find, ls) in the current
  * directory, so the assistant can read files but cannot run commands or
  * change files. Replies show thinking, tool calls, and tool results. Images
- * show as placeholders such as `[image png · 12.3 KB]`.
+ * draw in the history under a caption such as `[image png · 12.3 KB]`.
  *
  * Run:  bun examples/pi-chat/main.tsx
  *

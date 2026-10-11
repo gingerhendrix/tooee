@@ -1,10 +1,12 @@
 /**
  * Display parts for chat turns: text, thinking, tool calls, and images.
  * Converts Pi message content into small plain objects the reducer and the
- * views use. Images keep only their type and size, never the base64 data.
+ * views use. Images decode their base64 data once, here, so the views can
+ * draw the pixels with the OpenTUI `<image>` element.
  */
 
 import type { AgentSessionEvent } from "@earendil-works/pi-coding-agent";
+import { imageInfo } from "@opentui/core";
 
 type AgentMessage = Extract<AgentSessionEvent, { type: "message_end" }>["message"];
 
@@ -19,8 +21,12 @@ export type ToolCallStatus = "pending" | "running" | "done" | "error" | "cancell
 export interface ImagePart {
   kind: "image";
   mimeType: string;
-  /** Decoded size in bytes, estimated from the base64 length. */
+  /** Decoded size in bytes. */
   bytes: number;
+  /** The decoded image file. The `<image>` element reads it as its source. */
+  data: Uint8Array;
+  /** Pixel size from the image header. Not set when OpenTUI cannot read the header. */
+  size?: { width: number; height: number };
 }
 
 export interface ToolResultView {
@@ -45,14 +51,27 @@ export type TurnPart =
 
 export type ToolCallPart = Extract<TurnPart, { kind: "toolCall" }>;
 
-const base64Bytes = function base64Bytes(data: string): number {
-  const padding = data.endsWith("==") ? 2 : Number(data.endsWith("="));
+const pixelSize = function pixelSize(data: Uint8Array): ImagePart["size"] {
+  try {
+    const { width, height } = imageInfo(data);
 
-  return Math.max(0, Math.floor((data.length * 3) / 4) - padding);
+    return { height, width };
+  } catch {
+    // Not a PNG, JPEG, WebP, or GIF that OpenTUI can read. The view shows the label only.
+    return undefined;
+  }
 };
 
 export const imagePart = function imagePart(image: PiImageContent): ImagePart {
-  return { bytes: base64Bytes(image.data), kind: "image", mimeType: image.mimeType };
+  const data = new Uint8Array(Buffer.from(image.data, "base64"));
+
+  return {
+    bytes: data.length,
+    data,
+    kind: "image",
+    mimeType: image.mimeType,
+    size: pixelSize(data),
+  };
 };
 
 const assistantPart = function assistantPart(

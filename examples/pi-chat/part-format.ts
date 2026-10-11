@@ -40,11 +40,43 @@ export const formatBytes = function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-/** For example `[image png · 12.3 KB]`. Terminals here cannot draw the pixels. */
-export const imageLabel = function imageLabel(image: ImagePart): string {
+/** For example `[image png · 12.3 KB]`. The caption above a drawn image. */
+export const imageLabel = function imageLabel(
+  image: Pick<ImagePart, "bytes" | "mimeType">
+): string {
   const format = image.mimeType.replace(/^image\//u, "");
 
   return `[image ${format} · ${formatBytes(image.bytes)}]`;
+};
+
+/** The tallest image in the history, in terminal rows. */
+export const IMAGE_MAX_ROWS = 12;
+
+/** Source pixels for one terminal row, so small images stay small. */
+const PIXELS_PER_ROW = 20;
+
+/** A terminal cell is about twice as tall as it is wide. */
+const CELL_ASPECT = 2;
+
+/** An image box in terminal cells. */
+export interface ImageCells {
+  width: number;
+  height: number;
+}
+
+/**
+ * The cell box for an image: at most `maxRows` rows high, and as wide as the
+ * image's aspect ratio needs. The `<image>` element centers the picture in
+ * its box, so a box that matches the aspect ratio keeps the image at the left.
+ */
+export const imageCells = function imageCells(
+  size: NonNullable<ImagePart["size"]>,
+  maxRows = IMAGE_MAX_ROWS
+): ImageCells {
+  const height = Math.min(maxRows, Math.max(1, Math.ceil(size.height / PIXELS_PER_ROW)));
+  const width = Math.max(1, Math.round((height * size.width * CELL_ASPECT) / size.height));
+
+  return { height, width };
 };
 
 /** One-line tool arguments, cut to `max` characters. */

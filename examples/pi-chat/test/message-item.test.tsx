@@ -4,7 +4,9 @@ import { testRender } from "@tooee/test-support";
 import { ThemeSwitcherProvider } from "@tooee/themes";
 
 import type { ChatTurn } from "../chat-state.js";
+import { imagePart } from "../content-parts.js";
 import { MessageItem } from "../message-item.js";
+import { PNG_BASE64 } from "./fixtures.js";
 
 const RENDER_PASSES = 10;
 
@@ -34,6 +36,8 @@ const renderTurn = async function renderTurn(turn: ChatTurn, showDetails = false
   return testSetup.captureCharFrame();
 };
 
+const dot = imagePart({ data: PNG_BASE64, mimeType: "image/png", type: "image" });
+
 const longOutput = Array.from({ length: 8 }, (_, index) => `line ${index + 1}`).join("\n");
 
 const assistantTurn: ChatTurn = {
@@ -56,7 +60,7 @@ const assistantTurn: ChatTurn = {
       kind: "toolCall",
       name: "read",
       result: {
-        images: [{ bytes: 70, kind: "image", mimeType: "image/png" }],
+        images: [dot],
         isError: false,
         text: "Read image file [image/png]",
       },
@@ -70,7 +74,7 @@ const assistantTurn: ChatTurn = {
 };
 
 describe("MessageItem", () => {
-  test("shows thinking, tool calls with status and results, image chips, and text", async () => {
+  test("shows thinking, tool calls with status and results, images, and text", async () => {
     const frame = await renderTurn(assistantTurn);
 
     expect(frame).toContain("openrouter/flash");
@@ -96,16 +100,30 @@ describe("MessageItem", () => {
     const frame = await renderTurn({
       aborted: false,
       id: 1,
-      parts: [
-        { kind: "text", text: "what is @dot.png" },
-        { bytes: 2048, kind: "image", mimeType: "image/png" },
-      ],
+      parts: [{ kind: "text", text: "what is @dot.png" }, dot],
       role: "user",
       streaming: false,
     });
 
+    const lines = frame.split("\n");
+    const caption = lines.findIndex((line) => line.startsWith("[image png · 70 B]"));
+
     expect(frame).toContain("You");
     expect(frame).toContain("what is @dot.png");
-    expect(frame).toContain("[image png · 2.0 KB]");
+    // The 1x1 image draws as one row of two cells under its caption.
+    expect(caption).toBeGreaterThan(-1);
+    expect(lines[caption + 1]?.trimEnd()).toBe("██");
+  });
+
+  test("an image that cannot be decoded shows its caption and no picture", async () => {
+    const frame = await renderTurn({
+      aborted: false,
+      id: 1,
+      parts: [imagePart({ data: "bm9wZQ==", mimeType: "image/png", type: "image" })],
+      role: "user",
+      streaming: false,
+    });
+
+    expect(frame).toContain("[image png · 4 B] cannot be drawn");
   });
 });
