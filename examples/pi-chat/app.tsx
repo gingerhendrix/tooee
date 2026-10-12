@@ -14,6 +14,9 @@ import { statusItems } from "./status-items.js";
 import { useChatCommands } from "./use-chat-commands.js";
 import { usePiChat } from "./use-pi-chat.js";
 
+/** Two border rows, five editor rows, and one hint row. */
+const INPUT_PANEL_HEIGHT = 8;
+
 export const PiChatApp = function PiChatApp(): ReactNode {
   const chat = usePiChat();
 
@@ -31,7 +34,12 @@ export const PiChatApp = function PiChatApp(): ReactNode {
           <Panel id="history" title="Messages" style={{ flexGrow: 1 }}>
             <MessageHistory state={chat.state} />
           </Panel>
-          <Panel id="input" title="Input" initialMode="insert" style={{ height: 4 }}>
+          <Panel
+            id="input"
+            title="Input"
+            initialMode="insert"
+            style={{ height: INPUT_PANEL_HEIGHT }}
+          >
             <ChatInput chat={chat} />
           </Panel>
         </PanelGroup>

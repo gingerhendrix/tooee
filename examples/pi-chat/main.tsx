@@ -10,10 +10,10 @@
  *
  * Run:  bun --conditions=@tooee/source examples/pi-chat/main.tsx
  *
- * Type in the input panel and press Enter. A word like @shots/a.png attaches
- * that image. Press Esc for cursor mode, then Tab to move to the Messages
- * panel and : for the command palette. The palette and which-key list every
- * command with its hotkey.
+ * Type in the input panel and press shift+Enter to send. Enter starts a new
+ * line. A word like @shots/a.png attaches that image. Press Esc for cursor
+ * mode, then Tab to move to the Messages panel and : for the command palette.
+ * The palette and which-key list every command with its hotkey.
  */
 
 import { launchCli } from "@tooee/shell";

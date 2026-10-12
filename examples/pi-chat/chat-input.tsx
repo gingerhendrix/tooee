@@ -1,8 +1,8 @@
 /**
- * Input panel body: the @tooee/ask single-line editor. Enter submits; the
- * buffer clears when the session takes the prompt. `@path.png` words attach
- * images. While a reply streams,
- * Enter keeps the text and shows a toast instead.
+ * Input panel body: the @tooee/ask multiline editor. Enter starts a new line
+ * and shift+Enter sends. In cursor mode (Esc), Enter also sends. The buffer
+ * clears when the session takes the prompt. `@path.png` words attach images.
+ * While a reply streams, a send keeps the text and shows a toast instead.
  */
 
 import { AskEditor, useAskEditor } from "@tooee/ask";
@@ -30,6 +30,7 @@ export const ChatInput = function ChatInput({ chat }: { chat: PiChat }): ReactNo
   const { controller, editor } = useAskEditor({
     commandScope: "chat-input",
     disable: ["cancel"],
+    multiline: true,
     onSubmit: (value) => {
       const text = value.trim();
 
@@ -56,10 +57,16 @@ export const ChatInput = function ChatInput({ chat }: { chat: PiChat }): ReactNo
   const handleMouseDown = editor.onMouseDown;
 
   return (
-    <box flexDirection="column" paddingLeft={1} paddingRight={1} onMouseDown={handleMouseDown}>
+    <box
+      flexDirection="column"
+      flexGrow={1}
+      paddingLeft={1}
+      paddingRight={1}
+      onMouseDown={handleMouseDown}
+    >
       <AskEditor editor={editor} />
       <text
-        content={`Enter send · ${ABORT_HOTKEY} abort · Esc then : lists all commands`}
+        content={`shift+Enter send · Enter new line · ${ABORT_HOTKEY} abort · Esc : commands`}
         fg={theme.textMuted}
       />
     </box>
