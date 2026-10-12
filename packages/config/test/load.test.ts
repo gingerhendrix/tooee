@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { loadConfig } from "../src/load.js";
+import { loadConfig, writeGlobalConfig } from "../src/load.js";
 
 const originalCwd = process.cwd();
 
@@ -160,5 +160,53 @@ describe("config document decoding", () => {
     process.chdir(project);
 
     expect(loadConfig().theme).toEqual({ mode: "dark", name: "gruvbox" });
+  });
+});
+
+const readGlobalText = function readGlobalText(): string {
+  return readFileSync(globalConfigPath(), "utf-8");
+};
+
+/** A config document in a test, including keys that the decoder does not know. */
+type ConfigDocument = Record<string, string | Record<string, string | boolean>>;
+
+const asConfigText = function asConfigText(value: ConfigDocument): string {
+  return `${JSON.stringify(value, null, 2)}\n`;
+};
+
+describe("writeGlobalConfig", () => {
+  test("keeps keys that it does not decode", () => {
+    writeConfigText(
+      globalConfigPath(),
+      JSON.stringify({
+        editor: "nvim",
+        theme: { mode: "light", name: "nord", variant: "soft" },
+        view: { wrap: true },
+      })
+    );
+
+    writeGlobalConfig({ theme: { name: "gruvbox" } });
+
+    expect(readGlobalText()).toBe(
+      asConfigText({
+        editor: "nvim",
+        theme: { mode: "light", name: "gruvbox", variant: "soft" },
+        view: { wrap: true },
+      })
+    );
+  });
+
+  test("creates the file when it does not exist", () => {
+    writeGlobalConfig({ view: { gutter: false } });
+
+    expect(readGlobalText()).toBe(asConfigText({ view: { gutter: false } }));
+  });
+
+  test("leaves a file that is not JSON unchanged", () => {
+    writeConfigText(globalConfigPath(), "{ broken");
+
+    writeGlobalConfig({ theme: { name: "gruvbox" } });
+
+    expect(readGlobalText()).toBe("{ broken");
   });
 });

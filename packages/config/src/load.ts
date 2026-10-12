@@ -218,15 +218,76 @@ export const loadConfig = function loadConfig(overrides?: Partial<TooeeConfig>):
   return config;
 };
 
+/**
+ * Read the global config document as raw JSON, so a write can keep keys that
+ * this version does not decode. Returns `undefined` when the file exists but
+ * is not a JSON object: a write must not replace a file the user can still fix.
+ */
+const readRawConfigObject = function readRawConfigObject(
+  configPath: string
+): JsonObject | undefined {
+  if (!existsSync(configPath)) {
+    return {};
+  }
+
+  try {
+    const json = parseJsonDocument(readFileSync(configPath, "utf-8"));
+
+    return isJsonObject(json) ? json : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+const SECTION_NAMES = ["theme", "keys", "view"] as const;
+
+/** A JSON object that a write can still change. */
+type MutableJsonObject = Record<string, JsonValue | undefined>;
+
+/** Merge a decoded section update over the raw section from the file. */
+const mergeSection = function mergeSection(
+  current: JsonValue | undefined,
+  update: Readonly<MutableJsonObject>
+): JsonObject {
+  const merged: MutableJsonObject = {};
+
+  if (isJsonObject(current)) {
+    Object.assign(merged, current);
+  }
+
+  Object.assign(merged, update);
+
+  return merged;
+};
+
+/**
+ * Merge `partial` into the global config file. Each known section merges
+ * field by field. Keys that this version does not know, at the top level or
+ * inside a section, stay in the file unchanged.
+ */
 export const writeGlobalConfig = function writeGlobalConfig(partial: Partial<TooeeConfig>): void {
   const configPath = getGlobalConfigPath();
   const dir = path.dirname(configPath);
 
   try {
-    const existing = readJsonFile(configPath);
-    const merged = mergeConfig(existing, partial);
+    const existing = readRawConfigObject(configPath);
+
+    if (existing === undefined) {
+      return;
+    }
+
+    const next = { ...existing } satisfies MutableJsonObject;
+
+    for (const name of SECTION_NAMES) {
+      const update = partial[name];
+
+      if (update !== undefined) {
+        next[name] = mergeSection(existing[name], update);
+      }
+    }
+
     mkdirSync(dir, { recursive: true });
-    writeFileSync(configPath, `${JSON.stringify(merged, null, 2)}\n`);
+    writeFileSync(configPath, `${JSON.stringify(next, null, 2)}\n`);
   } catch {
     // ignore write errors
   }
