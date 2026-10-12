@@ -1,7 +1,7 @@
 import { useRenderer } from "@opentui/react";
 import { useActions, useProvideCommandContext } from "@tooee/commands";
 import type { ActionDefinition } from "@tooee/commands";
-import { AppLayout } from "@tooee/layout";
+import { AppLayout, StatusPriority } from "@tooee/layout";
 import { useHasOverlay } from "@tooee/overlays";
 import { useThemeCommands, useQuitCommand, usePasteCommands } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
@@ -79,9 +79,15 @@ export const Ask = function Ask({
       titleBar={title !== undefined && title !== "" ? { title } : undefined}
       statusBar={{
         items: [
-          { label: "Mode:", value: mode },
-          { label: "Theme:", value: themeName },
-          { label: "", value: hintParts.join("  ") },
+          { id: "mode", label: "Mode:", priority: StatusPriority.position, value: mode },
+          { id: "theme", label: "Theme:", priority: StatusPriority.background, value: themeName },
+          {
+            compact: { value: mode === "insert" ? "Esc commands" : ": palette" },
+            id: "hints",
+            label: "",
+            priority: StatusPriority.hint,
+            value: hintParts.join("  "),
+          },
         ],
       }}
     >

@@ -80,7 +80,8 @@ const press = async function press(key: string, modifiers?: { shift?: boolean })
  * by pattern rather than by exact `label:value` text.
  */
 const cursorIndex = function cursorIndex(frame: string): number {
-  const match = /Cursor:?\s*(?<index>\d+)/u.exec(frame);
+  // The status bar shows "Ln" when it needs the room.
+  const match = /(?:Cursor:?|Ln)\s*(?<index>\d+)/u.exec(frame);
 
   return Number(match?.groups?.index ?? -1);
 };
@@ -119,7 +120,7 @@ describe("diff navigation", () => {
 
     await press("j");
     expect(cursorIndex(testSetup.captureCharFrame())).toBe(1);
-    expect(testSetup.captureCharFrame()).toContain("At:src/a.ts:");
+    expect(testSetup.captureCharFrame()).toMatch(/At:\s*src\/a\.ts:1/u);
     await press("j");
     expect(cursorIndex(testSetup.captureCharFrame())).toBe(2);
   });

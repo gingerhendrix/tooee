@@ -1,5 +1,5 @@
 import type { ActionDefinition } from "@tooee/commands";
-import { AppLayout } from "@tooee/layout";
+import { AppLayout, StatusPriority } from "@tooee/layout";
 import { useHasOverlay, useHasModalOverlay } from "@tooee/overlays";
 import { useThemeCommands, useQuitCommand } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
@@ -99,19 +99,29 @@ export const Choose = function Choose({
       statusBar={{
         items: [
           {
+            id: "matches",
             label: "Matches:",
+            priority: StatusPriority.position,
             value: `${choose.state.matches.length}/${choose.state.items.length}`,
           },
           ...(multi
             ? [
                 {
+                  id: "selected",
                   label: "Selected:",
+                  priority: StatusPriority.focus,
                   value: String(choose.state.selectedOriginalIndices.size),
                 },
               ]
             : []),
-          { label: "Theme:", value: themeName },
-          { label: "", value: hints.join("  ") },
+          { id: "theme", label: "Theme:", priority: StatusPriority.background, value: themeName },
+          {
+            compact: { value: choose.view.mode === "insert" ? "Esc commands" : "Esc/q cancel" },
+            id: "hints",
+            label: "",
+            priority: StatusPriority.hint,
+            value: hints.join("  "),
+          },
         ],
       }}
     >

@@ -1,3 +1,4 @@
+import { StatusPriority } from "@tooee/layout";
 import { sourceLineAdapter, sourceLines } from "@tooee/renderers";
 import type { SourceLineRow } from "@tooee/renderers";
 import { useEffect, useMemo, useState } from "react";
@@ -33,7 +34,7 @@ export const ImageSubview = function ImageSubview({
     { actions, content, decorations, textContent },
     {
       multiSelect: false,
-      statusItems: [{ label: "Format:", value: content.format }],
+      statusItems: [{ label: "Format:", priority: StatusPriority.content, value: content.format }],
     }
   );
 
