@@ -6,7 +6,7 @@ Terminal micro-apps built on OpenTUI, published under the `@tooee` npm org.
 
 ```bash
 bun install          # Install dependencies
-bun run check        # Type check packages and examples (TypeScript 7, local tsc)
+bun run check        # Type check packages and every examples/* package (TypeScript 7, local tsc)
 bun test             # Run tests
 bun run lint         # Lint with oxlint
 ```

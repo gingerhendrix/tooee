@@ -32,16 +32,16 @@ import { PanelGroup, Panel } from "@tooee/panels";
 Run any example from the repository root:
 
 ```bash
-bun examples/panels.tsx
-bun examples/panels-controlled.tsx
-bun examples/panels-custom-chrome.tsx
-bun examples/panels-disabled.tsx
+bun examples/panels/panels.tsx
+bun examples/panels/panels-controlled.tsx
+bun examples/panels/panels-custom-chrome.tsx
+bun examples/panels/panels-disabled.tsx
 ```
 
-- [`panels.tsx`](../../examples/panels.tsx) — complete composition with panel-owned commands, a panel-local router, and a suspending modal.
-- [`panels-controlled.tsx`](../../examples/panels-controlled.tsx) — controlled activation, direct selection, and group state through `usePanels()`.
-- [`panels-custom-chrome.tsx`](../../examples/panels-custom-chrome.tsx) — `chrome="none"`, app-defined active cues, click activation, and `usePanelState()`.
-- [`panels-disabled.tsx`](../../examples/panels-disabled.tsx) — a disabled panel, `switchKeys={null}`, and app-owned previous/next commands that skip it.
+- [`panels.tsx`](../../examples/panels/panels.tsx) — complete composition with panel-owned commands, a panel-local router, and a suspending modal.
+- [`panels-controlled.tsx`](../../examples/panels/panels-controlled.tsx) — controlled activation, direct selection, and group state through `usePanels()`.
+- [`panels-custom-chrome.tsx`](../../examples/panels/panels-custom-chrome.tsx) — `chrome="none"`, app-defined active cues, click activation, and `usePanelState()`.
+- [`panels-disabled.tsx`](../../examples/panels/panels-disabled.tsx) — a disabled panel, `switchKeys={null}`, and app-owned previous/next commands that skip it.
 
 ## `PanelGroup`
 

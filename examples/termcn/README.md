@@ -22,7 +22,7 @@ bun examples/termcn/scripts/sync-vendor.ts --source <dir>  # or copies from a lo
 
 The script copies `apps/web/registry/bases/opentui`, `apps/web/examples/opentui`, and the files they import (a few shared Ink hooks and `constants/site.ts`) into `vendor/`. It rewrites the `@/` aliases to relative paths, replaces the `ink` and `@/registry/bases` imports with small shims, and keeps termcn's MIT `LICENSE` and a `VENDORED.json` record of the commit. The pinned commit is `TERMCN_COMMIT` in `sync/vendor-files.ts`.
 
-`vendor/` is git-ignored, so the Tooee repository does not carry third-party source. `examples/tsconfig.json` excludes it, and lint skips it because git ignores it. To commit it instead, remove `/vendor/` from `.gitignore` and add `examples/termcn/vendor/**` to `ignorePatterns` in `oxlint.config.ts`.
+`vendor/` is git-ignored, so the Tooee repository does not carry third-party source. `examples/termcn/tsconfig.json` excludes it, and lint skips it because git ignores it. To commit it instead, remove `/vendor/` from `.gitignore` and add `examples/termcn/vendor/**` to `ignorePatterns` in `oxlint.config.ts`.
 
 After a sync, check which demos render:
 
