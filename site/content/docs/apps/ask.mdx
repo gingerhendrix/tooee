@@ -1,0 +1,228 @@
+---
+title: Ask
+description: Collect text with Ask as a full screen, as a dialog inside your app, or as an editor inside your own layout.
+---
+
+```ts title="rename-branch.ts"
+import { $ } from "bun";
+import { launch } from "@tooee/ask";
+
+const current = (await $`git branch --show-current`.text()).trim();
+const name = await launch({ defaultValue: current, multiline: false, prompt: "Branch name:" });
+if (name === null || name === current) {
+  process.exit(0);
+}
+await $`git branch -m ${name}`;
+```
+
+Ask opens an editor with the prompt above it and resolves with the submitted text, or `null` when the reader cancels. [ask-basic.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/ask-basic.ts) adds a placeholder and a submit action.
+
+## Launch options
+
+| Option | Type | Meaning |
+| --- | --- | --- |
+| `title` | `string` | Title bar text. No title bar when omitted. |
+| `prompt` | `string` | Bold line above the editor. |
+| `placeholder` | `string` | Muted text shown while the editor is empty. |
+| `defaultValue` | `string` | Initial text. The cursor starts at its end. |
+| `multiline` | `boolean` | `true` gives a textarea, `false` a one-line input. Defaults to `true`. |
+| `actions` | `ActionDefinition[]` | Commands added to the screen. See [Add actions](#add-actions). |
+| `onSubmit` | `(value: string) => void` | Runs with the submitted text before the promise resolves. |
+
+## How editing works
+
+The editor has two modes. Ask starts in insert mode, where keys type into the editor. `Escape` switches to cursor mode, where keys move the text cursor with vim motions: `h`, `j`, `k`, `l`, `w`, `b`, `0`, `$`, `g g`, and `G`. `i` and `a` return to insert mode at or after the cursor. In the multiline editor, `o` and `O` open a line below or above. The key table is on [Ask](/docs/cli/ask#keys) in the CLI section.
+
+The submit key follows `multiline`:
+
+| Editor                        | Insert mode   | Cursor mode              |
+| ----------------------------- | ------------- | ------------------------ |
+| One line (`multiline: false`) | `Enter`       | `Enter` or `Shift+Enter` |
+| Multiline (default)           | `Shift+Enter` | `Enter` or `Shift+Enter` |
+
+In the multiline editor, `Enter` in insert mode adds a line.
+
+`q` in cursor mode cancels and `ctrl+c` cancels from any mode. `y y`, `y g`, and `y v` copy the current line, the whole text, or the editor selection, and a toast confirms each copy. `p` pastes from the clipboard. `:` opens the command palette.
+
+`defaultValue` fills the editor and puts the cursor at the end. `placeholder` shows muted text while the editor is empty.
+
+## Add actions
+
+`actions` registers commands on the Ask screen. A handler reads the current text from `ctx.ask?.value`:
+
+```ts title="ask-word-count.ts"
+import { launch } from "@tooee/ask";
+
+const summary = await launch({
+  actions: [
+    {
+      handler: (ctx) => {
+        const words = ctx.ask?.value.trim().split(/\s+/).filter(Boolean).length ?? 0;
+        ctx.toast?.toast({ level: "info", message: `${words} words` });
+      },
+      hotkey: "ctrl+w",
+      id: "word-count",
+      modes: ["insert", "cursor"],
+      title: "Count words",
+    },
+  ],
+  prompt: "Summary:",
+});
+```
+
+`ctx.ask` and `ctx.toast` are optional on the command context, so guard them. Without `modes`, a command runs in every mode.
+
+Ask reserves these keys in cursor mode: `h j k l 0 $ w b g G i a o O q y Escape Enter Shift+Enter`, the arrow keys, `home`, and `end`. Insert mode reserves `Escape` and the submit keys. Pick control chords for your own commands.
+
+An action with the id `submit` replaces the built-in submit. Ask then invokes that action instead of resolving, and `launch()` resolves `null` when the handler calls `ctx.exit()`. Use `onSubmit` or the returned value when you need the text.
+
+## Open Ask as a dialog
+
+Inside an app built on the Tooee shell, `useAskDialog` opens the same editor as a modal overlay and resolves the text:
+
+```tsx title="notes-app.tsx"
+import { useState } from "react";
+import type { ReactNode } from "react";
+import { useAskDialog } from "@tooee/ask";
+import { useCommand } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+
+const Notes = function Notes(): ReactNode {
+  const ask = useAskDialog();
+  const [notes, setNotes] = useState<string[]>([]);
+  useQuitCommand();
+  useCommand({
+    handler: async () => {
+      const note = await ask.open({ multiline: false, prompt: "New note" });
+      if (note !== null) {
+        setNotes((previous) => [...previous, note]);
+      }
+    },
+    hotkey: "a",
+    id: "notes.add",
+    modes: ["cursor"],
+    title: "Add note",
+  });
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Notes" }}
+      statusBar={{ items: [{ label: "", value: "a add  q quit" }] }}
+    >
+      <box flexDirection="column" paddingLeft={1}>
+        {notes.map((note, index) => (
+          <text key={`${index}-${note}`} content={`${index + 1}. ${note}`} />
+        ))}
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<Notes />);
+```
+
+Press `a`, type a note, and press `Enter`. The dialog closes and the note appears in the list. `launchCli` and `AppLayout` come from the shell packages; [Your first Tooee app](/docs/build/first-app) introduces them.
+
+`open()` takes:
+
+| Option | Meaning |
+| --- | --- |
+| `prompt` | Required. Title of the dialog panel, or the line above the editor when `title` is set. |
+| `title` | Title of the dialog panel. |
+| `multiline` | Textarea when `true`. Defaults to a one-line input. |
+| `defaultValue` | Initial text. |
+| `placeholder` | Muted text while the editor is empty. |
+| `commands` | Extra `ActionDefinition[]` on the dialog. A handler may open another dialog on top. |
+| `controllerRef` | A ref that receives the editor controller while the dialog is open. |
+| `hints`, `statusRight`, `footer`, `inset` | Panel chrome. `inset` sets the distance from each screen edge; the default is 20%. |
+
+Each `open()` mounts one modal overlay with its own command surface. The host's commands pause and the host's mode stays as it was. The promise settles once: with the text on submit, or with `null` when the reader presses `q` in cursor mode, clicks the close button, the component unmounts, or a nested dialog replaces it. The overlay renders wherever the host shows overlay content; `AppLayout` does this, and a custom layout renders `useCurrentOverlay()` from `@tooee/overlays`. [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) covers the overlay stack. [typed-dialogs-app.tsx](https://github.com/gingerhendrix/tooee/blob/main/packages/e2e/shell/fixtures/typed-dialogs-app.tsx) opens a Choose dialog from an Ask dialog command.
+
+## Embed the editor in a panel
+
+`useAskEditor` is the editor without the screen. It owns the text, registers the editing commands on the nearest command surface, and returns a `controller` and an `editor` view model. `AskEditor` draws the input and `AskPanel` draws the bordered chrome with a title and a hint bar. Put them inside a `Panel` from `@tooee/panels` to give a screen an editing region next to other regions:
+
+```tsx title="chat-panels.tsx"
+import { useState } from "react";
+import type { ReactNode } from "react";
+import { AskEditor, AskPanel, useAskEditor } from "@tooee/ask";
+import { AppLayout } from "@tooee/layout";
+import { Panel, PanelGroup } from "@tooee/panels";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+
+const Composer = function Composer({ onSend }: { onSend: (text: string) => void }): ReactNode {
+  const { controller, editor } = useAskEditor({
+    multiline: false,
+    onSubmit: (text) => {
+      onSend(text);
+      controller.setText("");
+    },
+    placeholder: "Type a message",
+  });
+
+  return (
+    <box style={{ flexShrink: 0, width: 40 }} height="100%">
+      <AskPanel
+        title="Compose"
+        multiline={false}
+        inset={{ bottom: 0, left: 0, right: 0, top: 0 }}
+        onMouseDown={editor.onMouseDown}
+      >
+        <AskEditor editor={editor} />
+      </AskPanel>
+    </box>
+  );
+};
+
+const Chat = function Chat(): ReactNode {
+  const [messages, setMessages] = useState<string[]>([]);
+  useQuitCommand();
+
+  return (
+    <AppLayout statusBar={{ items: [{ label: "", value: "Esc then Tab switch panel  q quit" }] }}>
+      <box flexDirection="row" style={{ flexGrow: 1 }}>
+        <PanelGroup defaultActivePanelId="compose">
+          <Panel id="log" title="Messages" style={{ flexGrow: 1 }}>
+            <box flexDirection="column" paddingLeft={1}>
+              {messages.map((message, index) => (
+                <text key={`${index}-${message}`} content={`${index + 1}. ${message}`} />
+              ))}
+            </box>
+          </Panel>
+          <Panel id="compose" chrome="none" initialMode="insert">
+            <Composer onSend={(text) => setMessages((previous) => [...previous, text])} />
+          </Panel>
+        </PanelGroup>
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<Chat />);
+```
+
+The compose panel starts in insert mode, so typing goes into the editor as soon as the app opens. `Escape` switches that panel to cursor mode, and `Tab` then moves to the messages panel. Only the active panel's commands run, so the editor keys stop when another panel is active. `chrome="none"` leaves the drawing to `AskPanel`; a zero `inset` makes it fill the wrapper box. [Panels](/docs/build/panels) explains panel groups and their chrome.
+
+`useAskEditor` options:
+
+| Option | Meaning |
+| --- | --- |
+| `multiline` | Textarea when `true`. Defaults to `false`. |
+| `defaultValue` | Initial text. |
+| `placeholder` | Muted text while empty. |
+| `onSubmit` | Runs with the text on submit. |
+| `onCancel` | Runs on `q` in cursor mode. Without it, `q` is not registered. |
+| `submitKey` | `"enter"`, `"shift+enter"`, or `"none"`. Defaults from `multiline`. |
+| `commandScope` | Prefix for the command ids. Defaults to `ask`. |
+| `disable` | Built-in groups to drop: `motions`, `insert-commands`, `copy`, `submit`, `cancel`, `escape`. |
+| `suspended` | Blur the editor while something else owns the keyboard. |
+
+The `controller` has `getText`, `setText`, `insertText`, `setCursorToEnd`, `submit`, `mode`, and `setMode`. Pass it up through a ref when a parent needs to fill or read the editor.
+
+## Next
+
+- [Choose](/docs/apps/choose)
+- [Write a launcher](/docs/apps)
+- [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts)
+- [Panels](/docs/build/panels)

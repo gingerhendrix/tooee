@@ -1,0 +1,111 @@
+---
+title: Diffs
+description: Show a unified patch as a navigable diff, and use diff fences inside Markdown.
+---
+
+```ts title="review-changes.ts"
+import { launch } from "@tooee/view";
+
+const patch = await new Response(Bun.spawn(["git", "diff", "HEAD~3"]).stdout).text();
+
+await launch({
+  contentProvider: { load: () => ({ format: "diff", patch, title: "HEAD~3..HEAD" }) },
+});
+```
+
+View parses the patch, draws it with [Hunk](https://github.com/modem-dev/hunk), and puts the cursor on the first file. `patch` takes a unified diff for one file or many, with or without `diff --git` headers. `layout` sets the first layout, `split` or `stack`; stack is the unified form. [git-diff.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/git-diff.ts) shows the unstaged changes, or the staged changes with `--staged`.
+
+## Rows are files and hunks
+
+Each file header is one row and each `@@` hunk is one row, so `j` and `k` step hunk by hunk and the cursor lands on a hunk rather than a file. A file that Hunk draws without hunks, such as a binary or a file that is too large, gets one body row with Hunk's notice. Line numbers, word-level highlights, and the `··· N unchanged lines ···` counts resolve against the whole file.
+
+Search matches the patch text of a row, `y y` copies the hunk under the cursor as patch text, and `y g` copies the whole patch. The status bar shows `Files:`, `Changes:` as `+added -deleted`, `Layout:`, and `At:` with the file path and the hunk number under the cursor.
+
+A mark on a diff row shows as its gutter sign. Hunk draws its own backgrounds over the row, so the mark's background colour is covered. [Marks and decorations](/docs/build/marks) covers marks.
+
+When a provider streams, send the whole patch in a `replace` chunk each time it changes. An `append` chunk does not accept the diff format. [Stream chunks](/docs/apps/view/content-and-providers#stream-chunks) lists the chunk types.
+
+## Keys
+
+The diff renderer registers these commands on top of the keys in [Keyboard basics](/docs/start/keyboard-basics):
+
+| Key | Command id | Action |
+| --- | --- | --- |
+| `s` | `diff.toggle-layout` | Switch between split and stack |
+| `w` | `diff.toggle-wrap` | Wrap long lines, or clip them |
+| `]` | `diff.next-file` | Move the cursor to the next file header |
+| `[` | `diff.prev-file` | Move the cursor to the previous file header |
+| `f` | `diff.file-picker` | Open a fuzzy list of files; `Enter` moves the cursor to the picked file |
+| `h`, `l` | `diff.scroll-left`, `diff.scroll-right` | Pan four columns while wrapping is off |
+| `L` | `toggle-line-numbers` | Toggle the row gutter |
+
+`s`, `w`, `]`, `[`, and `f` work in cursor and select mode. `h` and `l` work in cursor mode. The file picker lists each file as its path with `+added -deleted`; a rename shows `old -> new`. A config file remaps any of them by command id, as [Configuration](/docs/customize/configuration) describes.
+
+`L` toggles the row numbers Tooee draws in the gutter, which count rows. The line numbers inside each hunk belong to Hunk and stay on.
+
+## Layout and wrapping
+
+The first layout comes from `layout` on the content, then from `view.diffLayout` in the config, then `stack`. Split needs 80 columns of content width; below that View draws stack, and `s` has no visible effect until the terminal is wider. The first wrap state comes from `view.wrap` in the config and defaults to off.
+
+Hunk sizes its line-number columns from the hunk it is given, and each row holds one hunk, so two hunks of one file can differ by a column when their line numbers differ in digit count.
+
+Hunk draws with one of its bundled palettes. Each Tooee theme is mapped to the closest one; a theme you install yourself falls back to GitHub's palette on the same light or dark side as its background. [Themes](/docs/customize/themes) has the theme list.
+
+## Detect a patch in text
+
+`isDiffPatch(text)` from `@tooee/diff` reports whether text is a unified patch. It needs a hunk header that starts `@@ -` and either a `diff --git` line or a `---` line followed by a `+++` line. `createFileProvider` uses it for a file without a diff extension and `createStdinProvider` uses it for piped input, so both open a patch as a diff without a `renderer` option.
+
+## Diff fences in Markdown
+
+```ts title="release-notes.ts"
+import { launch } from "@tooee/view";
+
+const markdown = `# Release notes
+
+The retry limit moves into the config file:
+
+\`\`\`diff split
+--- a/src/retry.ts
++++ b/src/retry.ts
+@@ -1,3 +1,3 @@
+-const MAX_RETRIES = 3;
++import { config } from "./config";
+ 
+-export const retries = MAX_RETRIES;
++export const retries = config.retries;
+\`\`\`
+
+Set \`retries\` in \`.tooee/config.json\` to change it.
+`;
+
+await launch({
+  contentProvider: { load: () => ({ format: "markdown", markdown, title: "Release notes" }) },
+});
+```
+
+A `diff` or `patch` fence whose body is a unified diff draws as a Hunk block inside the Markdown. Words after the fence type set options:
+
+| Word      | Effect                                                                        |
+| --------- | ----------------------------------------------------------------------------- |
+| `split`   | Side by side. Falls back to stack when the block is narrower than 80 columns. |
+| `nolines` | Hides the line-number columns.                                                |
+| `wrap`    | Wraps long lines instead of clipping them.                                    |
+
+Other words are ignored, so a fence such as ` ```diff retry.patch ` still draws. A fence with one file hides the file header; a fence with several files shows each header. A fence body that is not a unified diff, such as prose with `+` and `-` bullets, draws as an ordinary code block.
+
+The fence stays one Markdown block. The cursor lands on the whole block, search matches the raw fence text, and `y y` copies it. A wide block pans with `h` and `l` like any other code block.
+
+`View` registers the renderer under `diff` and `patch`. An entry with the same key in `codeBlockRenderers` replaces it. [diff-showcase.md](https://github.com/gingerhendrix/tooee/blob/main/examples/diff-showcase.md) exercises each option, and [view-markdown-diffs.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view-markdown-diffs.ts) opens it.
+
+## Use the diff renderer in your own screen
+
+`@tooee/diff` exports the pieces View composes. `buildDiffModel(patch)` returns `{ files, rows, stats, patch }`. `diffRowAdapter` is the row adapter for `useDocumentController`. `DiffView` draws the rows; it takes the controller as `document`, plus `activeIndex`, `layout`, `wrapLines`, `showHunkLineNumbers`, `horizontalOffset`, `highlight`, `tabWidth`, and `theme`. `diffCodeBlockRenderer` is the fence renderer for `MarkdownView`. [Documents](/docs/build/documents) explains the controller these plug into.
+
+`@tooee/view` depends on `@tooee/diff`, which pins `hunkdiff@0.22.0` and `@pierre/diffs@1.3.5`. The OpenTUI peers of Hunk accept the 0.5.12 runtime that Tooee needs, so the install prints no peer warning for Hunk. Hunk also installs a binary for a command-line tool that Tooee does not use, 158 MB on Linux x64. [Troubleshooting](/docs/ship/troubleshooting#install-and-typecheck) covers the install size.
+
+## Next
+
+- [View: content and providers](/docs/apps/view/content-and-providers)
+- [View: content formats](/docs/apps/view/formats)
+- [View in the CLI](/docs/cli/view#read-a-diff)
+- [View: actions and command context](/docs/apps/view/actions)

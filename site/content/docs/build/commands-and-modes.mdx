@@ -1,0 +1,282 @@
+---
+title: Commands and modes
+description: Register commands with hotkeys, sequences, and a leader key, switch modes, and extend the command context.
+---
+
+```tsx title="deploy-console.tsx"
+import { useActions, useCommandGroup, useMode, useSurfaceInvoke } from "@tooee/commands";
+import type { ActionDefinition } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const DeployConsole = function DeployConsole(): ReactNode {
+  const [status, setStatus] = useState("idle");
+  const mode = useMode();
+  const { commands } = useSurfaceInvoke();
+  useQuitCommand();
+  useCommandGroup({ id: "deploy.go", prefix: "space g", title: "Go" });
+
+  const actions: ActionDefinition[] = [
+    {
+      category: "Deploy",
+      handler: () => setStatus("deployed"),
+      hotkey: "d",
+      id: "deploy.run",
+      title: "Deploy",
+    },
+    {
+      category: "Deploy",
+      handler: () => setStatus("rolled back"),
+      hotkey: "ctrl+r",
+      id: "deploy.rollback",
+      title: "Roll back",
+    },
+    {
+      category: "Deploy",
+      handler: () => setStatus("tests running"),
+      hotkey: "t t",
+      id: "deploy.test",
+      title: "Run tests",
+    },
+    {
+      category: "Deploy",
+      handler: () => setStatus("tailing logs"),
+      hotkey: "<leader>l",
+      id: "deploy.logs",
+      title: "Tail logs",
+    },
+    {
+      category: "Deploy",
+      handler: () => setStatus("dashboard"),
+      hotkey: "space g d",
+      id: "deploy.go.dashboard",
+      title: "Go to dashboard",
+    },
+    {
+      category: "Deploy",
+      handler: () => setStatus("alerts"),
+      hotkey: "space g a",
+      id: "deploy.go.alerts",
+      title: "Go to alerts",
+    },
+  ];
+  useActions(actions);
+
+  const hints = commands
+    .filter((command) => command.category === "Deploy")
+    .map((command) => `${command.defaultHotkey} ${command.title}`)
+    .join("  ");
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Deploy console" }}
+      statusBar={{
+        items: [
+          { label: "Mode:", value: mode },
+          { label: "", value: hints },
+        ],
+      }}
+    >
+      <box paddingLeft={1}>
+        <text content={`status: ${status}`} />
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<DeployConsole />, { provider: { leader: "space" } });
+```
+
+Run it with `bun deploy-console.tsx`. Press `d`, `ctrl+r`, `t` twice, `space` then `l`, or `space` `g` `d`, and the status line changes. After `space`, a bar at the bottom lists the keys that can follow. Press `:` to see the same commands in the palette.
+
+## Register commands
+
+`useCommand(options)` registers one command from a component. `useActions(actions)` registers an array of `ActionDefinition` values with the same fields, which is the shape View, Ask, Choose, and `DocumentScreen` accept as their `actions` prop. Both register on mount and unregister on unmount.
+
+| Field      | Meaning                                                                                                             |
+| ---------- | ------------------------------------------------------------------------------------------------------------------- |
+| `id`       | Unique name. Config files remap hotkeys by this id. A later registration with the same id replaces the earlier one. |
+| `title`    | Text shown in the palette and the which-key bar.                                                                    |
+| `handler`  | `(ctx) => void \| Promise<void>`. Receives the command context.                                                     |
+| `hotkey`   | Key binding. Optional; a command without one runs from the palette or `ctx.commands.invoke(id)`.                    |
+| `modes`    | Modes the command runs in. Defaults to `["cursor"]`.                                                                |
+| `when`     | `(ctx) => boolean`. The command is skipped while it returns `false`.                                                |
+| `enabled`  | `useCommand` only. `false` registers nothing.                                                                       |
+| `hidden`   | Keeps the command out of the palette and the which-key bar. The hotkey still works.                                 |
+| `category` | Group label in the palette.                                                                                         |
+| `group`    | Label the which-key bar shows for a multi-step sequence that has no `useCommandGroup` entry.                        |
+| `icon`     | Short text drawn before the title in the palette.                                                                   |
+
+Use `when` for a command that depends on state, such as a row being selected. Use `enabled: false` for a feature that is off.
+
+## Hotkeys
+
+| Form       | Example             | Rule                                                                                                      |
+| ---------- | ------------------- | --------------------------------------------------------------------------------------------------------- |
+| Single key | `d`, `/`, `escape`  | One key name. Named keys include `escape`, `return`, `tab`, `space`, `backspace`, `delete`, `up`, `down`. |
+| Chord      | `ctrl+r`, `shift+g` | Modifiers joined with `+`: `ctrl`, `shift`, `alt`, `option`, `super`. `control` and `meta` are aliases.   |
+| Sequence   | `t t`, `space g d`  | Steps separated by spaces. Each step may be a chord.                                                      |
+| Leader     | `<leader>l`         | The leader key, then one key.                                                                             |
+
+Hotkeys are case-insensitive, so write `shift+g` for `G`. `enter`, `esc`, `cr`, and `del` are aliases for `return`, `escape`, `return`, and `delete`. A sequence has 1500 ms between steps before it resets; `sequenceTimeoutMs` under `provider` changes that. `<leader>` accepts one key after it. For a deeper leader sequence, write the leader key out, as `space g d` does above.
+
+A config file remaps a hotkey by command id, so the `d` above becomes `shift+d` with:
+
+```json title=".tooee/config.json"
+{
+  "keys": {
+    "deploy.run": "shift+d"
+  }
+}
+```
+
+[Configuration](/docs/customize/configuration) covers the config layers and the `config` provider option.
+
+## The leader key
+
+`provider.leader` on `launchCli` or `runCliSession` sets the leader; the example uses `space`. `<leader>l` then means `space` followed by `l`. Without a leader, a `<leader>` hotkey is disabled and Tooee logs one warning. The renderer captures console output, so press `ctrl+shift+j` to read it in the OpenTUI debug console.
+
+## Modes
+
+Every command surface has a mode: `cursor`, `insert`, or `select`. The mode starts as `cursor`, or as `provider.initialMode`. A command runs only in the modes it lists, and the default is cursor mode alone. In insert mode, keys that match no command reach the focused input:
+
+```tsx title="search-mode.tsx"
+import { useCommand, useMode } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const Search = function Search(): ReactNode {
+  const mode = useMode();
+  const [query, setQuery] = useState("");
+  useQuitCommand();
+  useCommand({
+    handler: (ctx) => ctx.setMode("insert"),
+    hotkey: "/",
+    id: "search.start",
+    title: "Search",
+  });
+  useCommand({
+    handler: (ctx) => ctx.setMode("cursor"),
+    hotkey: "escape",
+    id: "search.done",
+    modes: ["insert"],
+    title: "Leave search",
+  });
+
+  return (
+    <AppLayout statusBar={{ items: [{ label: "Mode:", value: mode }] }}>
+      <box flexDirection="column" paddingLeft={1}>
+        <input focused={mode === "insert"} placeholder="Press / to search" onInput={setQuery} />
+        <text content={`query: ${query}`} />
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<Search />);
+```
+
+`/` switches to insert mode and the input takes focus. Typed keys go into the input because no insert-mode command claims them. `Escape` runs `search.done`, which returns to cursor mode, and `q` quits again. `useMode` reads the mode in a component; `useSetMode` returns a setter for code outside a handler. A mode change clears any sequence in progress. `<input>` is an [OpenTUI](https://opentui.com) element.
+
+## The which-key bar and the palette
+
+After the first step of a sequence, Tooee opens a bar at the bottom that lists each key that can follow with the title of its command. With a leader set, the bar opens only for sequences that start with the leader, so `t` alone shows nothing in the deploy console. Without a leader it opens for every prefix, as it does after `g` and `y` in View.
+
+`useCommandGroup({ id, prefix, title })` names a prefix. The deploy console registers `space g` as `Go`, so the bar after `space` reads `g → Go` in place of the first command's title. Commands with `hidden: true` never appear. [which-key-groups.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/which-key-groups.ts) puts actions into groups under the leader with `useCommandGroup` and the `group` field.
+
+`:` opens the command palette in cursor or select mode. It lists the commands of the current mode with their titles, hotkeys, categories, and icons. Type to filter and press `Enter` to run one. [Keyboard basics](/docs/start/keyboard-basics#commands-and-the-palette) shows the palette keys.
+
+## Command context
+
+A handler receives `ctx`:
+
+| Field      | Meaning                                                                                                                       |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `mode`     | The mode of the surface the command belongs to.                                                                               |
+| `setMode`  | Switch that surface's mode.                                                                                                   |
+| `commands` | `list()` returns the registered commands; `invoke(id)` runs one.                                                              |
+| `exit`     | Ends the session in Ask and Choose. In your own app it does nothing until a provider supplies it; quit with `useQuitCommand`. |
+
+Packages add fields to the context, and each one is optional because its provider is not mounted on every surface:
+
+| Field      | Provided by                           |
+| ---------- | ------------------------------------- |
+| `toast`    | `TooeeProvider`, so every app has it  |
+| `document` | `DocumentScreen`                      |
+| `view`     | View                                  |
+| `ask`      | Ask and the Ask dialog                |
+| `choose`   | Choose and the Choose dialog          |
+| `overlay`  | The overlay provider inside the shell |
+
+Read them with a guard: `ctx.toast?.toast({ level: "info", message: "Deployed" })`.
+
+Add a field of your own with a module augmentation and `useProvideCommandContextKey`:
+
+```tsx title="deploy-target.tsx"
+import { useCommand, useProvideCommandContextKey } from "@tooee/commands";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+declare module "@tooee/commands" {
+  interface CommandContext {
+    deploy?: { target: string };
+  }
+}
+
+const DeployTarget = function DeployTarget({
+  target,
+  children,
+}: {
+  target: string;
+  children: ReactNode;
+}): ReactNode {
+  useProvideCommandContextKey("deploy", () => ({ target }));
+  return children;
+};
+
+const DeployButton = function DeployButton(): ReactNode {
+  const [status, setStatus] = useState("idle");
+  useQuitCommand();
+  useCommand({
+    handler: (ctx) => {
+      const target = ctx.deploy?.target;
+      if (target === undefined) {
+        return;
+      }
+      setStatus(`deploying to ${target}`);
+    },
+    hotkey: "d",
+    id: "deploy.run",
+    title: "Deploy",
+  });
+  return <text content={`status: ${status}`} />;
+};
+
+await launchCli(
+  <DeployTarget target="staging">
+    <DeployButton />
+  </DeployTarget>,
+);
+```
+
+The `declare module` block makes `ctx.deploy` typecheck everywhere `@tooee/commands` is imported. The getter runs each time a context is built, so it always returns the current value. Use a key named after your app or package; `view`, `ask`, `choose`, `overlay`, `toast`, and `document` belong to Tooee. When two providers supply the same key, the later one wins.
+
+## Read the registered commands
+
+`useSurfaceInvoke()` returns `{ commands, invoke }` for the surface the component belongs to. The deploy console builds its status-bar hints from `commands`, filtered by `category`, and `invoke(id)` runs a command from a click or a menu. Each entry is a `Command` with `id`, `title`, `defaultHotkey`, `modes`, `category`, `icon`, and `hidden`.
+
+## Command surfaces
+
+Commands register on a surface. Your app is the root surface. A modal overlay such as a dialog, the palette, or the theme picker mounts a surface of its own with its own registry and mode: while it is on top, it receives every key and the root commands pause. A panel in a panel group is also a surface; it gets the key first while active, and a key it does not match falls through to the root. [Command surfaces](/docs/build/command-surfaces) covers the arbitration in full. [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) and [Panels](/docs/build/panels) show the two kinds in use.
+
+## Next
+
+- [Your first Tooee app](/docs/build/first-app)
+- [Keyboard basics](/docs/start/keyboard-basics)
+- [Command surfaces](/docs/build/command-surfaces)
+- [Configuration](/docs/customize/configuration)

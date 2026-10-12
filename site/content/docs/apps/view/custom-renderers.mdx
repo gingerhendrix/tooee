@@ -1,0 +1,198 @@
+---
+title: Custom renderers
+description: Render a content format of your own inside View and keep navigation, search, and copy.
+---
+
+```tsx title="deploy-log.tsx"
+import { Document } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { launch } from "@tooee/view";
+import type { ContentProvider, ContentRenderer, CustomContent } from "@tooee/view";
+import type { ReactNode } from "react";
+
+interface Deploy {
+  service: string;
+  status: "ok" | "failed" | "running";
+  seconds: number;
+}
+
+const deploys: Deploy[] = [
+  { seconds: 42, service: "api", status: "ok" },
+  { seconds: 118, service: "web", status: "failed" },
+  { seconds: 0, service: "worker", status: "running" },
+];
+
+const deployLog: ContentProvider = {
+  load: (): CustomContent<Deploy[]> => ({
+    data: deploys,
+    format: "deploy-log",
+    getTextContent: () =>
+      deploys.map((deploy) => `${deploy.service} ${deploy.status} ${deploy.seconds}s`).join("\n"),
+    title: "Deploys",
+  }),
+};
+
+const DeployLogRenderer: ContentRenderer = ({ document }): ReactNode => {
+  const { theme } = useTheme();
+  const statusColor = { failed: theme.error, ok: theme.success, running: theme.warning };
+  return (
+    <Document
+      controller={document}
+      style={{ flexGrow: 1 }}
+      renderRow={(_row, index): ReactNode => {
+        const deploy = deploys[index];
+        return (
+          <text>
+            <span fg={theme.text}>{` ${deploy.service.padEnd(8)}`}</span>
+            <span fg={statusColor[deploy.status]}>{deploy.status.padEnd(8)}</span>
+            <span fg={theme.textMuted}>{`${deploy.seconds}s`}</span>
+          </text>
+        );
+      }}
+    />
+  );
+};
+
+await launch({ contentProvider: deployLog, renderers: { "deploy-log": DeployLogRenderer } });
+```
+
+Run it with `bun deploy-log.tsx`. `j` and `k` move between deploys, `/` searches the text lines, `y y` copies `web failed 118s`, and `y g` copies all three lines. The status bar reads `Format: deploy-log  Lines: 3`.
+
+## The renderer contract
+
+`renderers` on `launch()` and on the `View` component maps a `format` string to a `ContentRenderer`, a function from `{ content, document }` to a React node. View calls it as a plain function during render, inside the chrome every format gets: the title bar, the status bar, the search bar, the `q` and `t` commands, `ctx.document`, and `ctx.view`. Hooks are allowed; the renderer for a format must call the same hooks on every render. A custom format with no renderer draws `getTextContent()` as plain text.
+
+Custom content has four fields:
+
+| Field | Meaning |
+| --- | --- |
+| `format` | Any string other than `markdown`, `code`, `text`, `table`, `diff`, and `image`. |
+| `data` | Any value. The renderer registered for the format knows its shape; on the props it is typed `unknown`. |
+| `title` | Title bar text. |
+| `getTextContent` | Returns the text of the content, one line per row. Without it the document has one empty row. |
+
+The text from `getTextContent` is what search matches, what `y y` and `y g` copy, and what the fallback draws. Return one line per item you want the cursor to land on. [custom-renderer.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/custom-renderer.ts) draws a kanban board from custom content.
+
+## Rows, cursor, and mouse
+
+`document` is a `DocumentController<SourceLineRow>` from `@tooee/shell`. Its rows are the lines of `getTextContent()`; each row has `text` and `source`, the span of that line.
+
+| Member | Use |
+| --- | --- |
+| `rows` | The line rows. |
+| `activeIndex`, `activeRow` | The cursor row. |
+| `navigation.selection` | `{ start, end }` in select mode, or `null`. |
+| `toggledIndices` | Rows toggled with `Tab`. |
+| `selectRow(index)` | Moves the cursor from a mouse handler. Does nothing while a modal overlay is open. |
+| `ref`, `decorations`, `onMouseDown` | The bindings a `row-document` element takes. |
+
+`Document` from `@tooee/shell` wires the bindings for you and draws one host element per row with your `renderRow`. The row document then paints the cursor, search matches, and the selection under your rows, follows the cursor when it scrolls, and moves the cursor on a click. The built-in renderers bind the same three members to their own `row-document` element. [Documents](/docs/build/documents) covers the controller and `Document` in full.
+
+## Draw your own markup
+
+A renderer can skip the row document and draw what it likes. The rows still exist behind it, so `j` and `k` move `activeIndex`, `/` searches the lines, and `y y` copies. Read `activeIndex` to mark the cursor and call `selectRow` from a mouse handler:
+
+```tsx title="pipeline.tsx"
+import { useTheme } from "@tooee/themes";
+import { launch } from "@tooee/view";
+import type { ContentProvider, ContentRenderer } from "@tooee/view";
+import type { ReactNode } from "react";
+
+const stages = ["build", "test", "deploy"];
+
+const pipeline: ContentProvider = {
+  load: () => ({
+    data: stages,
+    format: "pipeline",
+    getTextContent: () => stages.join("\n"),
+    title: "Pipeline",
+  }),
+};
+
+const PipelineRenderer: ContentRenderer = ({ document }): ReactNode => {
+  const { theme } = useTheme();
+  return (
+    <box flexDirection="row" paddingLeft={1}>
+      {document.rows.map((row, index): ReactNode => (
+        <box
+          key={row.text}
+          border
+          borderColor={index === document.activeIndex ? theme.primary : theme.border}
+          paddingLeft={1}
+          paddingRight={1}
+          onMouseDown={() => {
+            document.selectRow(index);
+          }}
+        >
+          <text content={row.text} />
+        </box>
+      ))}
+    </box>
+  );
+};
+
+await launch({ contentProvider: pipeline, renderers: { pipeline: PipelineRenderer } });
+```
+
+What you give up is the painting the row document does: the cursor and search highlights, the selection, and scroll follow. `selectRow` stands down while the theme picker or the palette is open, so wire it without a guard. `<box>` and `<text>` are [OpenTUI](https://opentui.com) elements.
+
+## Render a fence type
+
+`codeBlockRenderers` on `launch()` and on `View` maps a fence type to a `CodeBlockRenderer`. The key is the first word of the fence info string, lowercased, so `callout` matches ` ```callout warning ` and ` ```Callout `:
+
+````markdown title="NOTES.md"
+# Release day
+
+```callout warning
+The rollback window closes at 18:00 UTC.
+```
+````
+
+```tsx title="callouts.tsx"
+import { CodeBlockChrome, createFileProvider, launch } from "@tooee/view";
+import type { CodeBlockRenderer } from "@tooee/view";
+import type { ReactNode } from "react";
+
+const CalloutRenderer: CodeBlockRenderer = ({ text, info, theme, indent }): ReactNode => {
+  const kind = info.split(/\s+/u)[1] ?? "note";
+  const color = kind === "warning" ? theme.warning : theme.info;
+  return (
+    <CodeBlockChrome theme={theme} indent={indent}>
+      <text content={kind.toUpperCase()} fg={color} />
+      <text content={text.trimEnd()} fg={theme.text} />
+    </CodeBlockChrome>
+  );
+};
+
+await launch({
+  codeBlockRenderers: { callout: CalloutRenderer },
+  contentProvider: createFileProvider("NOTES.md"),
+});
+```
+
+The renderer receives:
+
+| Prop | Meaning |
+| --- | --- |
+| `text` | The fence body. |
+| `lang` | The matched fence type, lowercased. |
+| `info` | The whole info string, for options such as `warning` above. |
+| `theme` | The resolved theme. |
+| `syntax` | The syntax style for a `<code>` element. |
+| `indent` | Columns of indent when the block sits inside a list. |
+| `width` | Columns available inside `CodeBlockChrome`. Kept current when the terminal resizes. |
+| `blockIndex` | Position of the block in the document. |
+| `hScroll` | `register` and `onMouseScroll` for a wide block. |
+
+`CodeBlockChrome` draws the bordered box the built-in code block uses. Return `null` to fall back to the syntax-highlighted code block; a renderer that throws falls back the same way. The block stays one row in the document, so the cursor, search, and copy work on the raw fence text.
+
+For a block wider than the terminal, put the content in a `<text wrapMode="none">` element, pass `hScroll.register` as its `ref` and `hScroll.onMouseScroll` as its `onMouseScroll`, and the block pans with `h` and `l` under the cursor and with `Shift` and the wheel, as code blocks do. [custom-code-block-app.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/custom-code-block-app.ts) has a timeline block that does this.
+
+View registers `mermaid`, `diff`, and `patch` itself. An entry with one of those keys replaces the built-in renderer. The same rule about hooks applies: the renderer for a fence type must call the same hooks on every render.
+
+## Next
+
+- [Documents](/docs/build/documents)
+- [View: actions and command context](/docs/apps/view/actions)
+- [View: content formats](/docs/apps/view/formats)
+- [Commands and modes](/docs/build/commands-and-modes)

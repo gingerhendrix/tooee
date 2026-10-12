@@ -1,0 +1,571 @@
+---
+title: Overlays, dialogs, and toasts
+description: Open stacked overlays with a handle, own the keyboard from an overlay, build promise-based dialogs, show context menus, and send toasts.
+---
+
+```tsx title="deploy-progress.tsx"
+import { useCommand } from "@tooee/commands";
+import { AppLayout, OverlayPanel } from "@tooee/layout";
+import { overlayValue, useOverlay } from "@tooee/overlays";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const steps = ["Build", "Upload", "Restart"];
+
+const Deploy = function Deploy(): ReactNode {
+  const overlay = useOverlay();
+  const [outcome, setOutcome] = useState("not started");
+  useQuitCommand();
+
+  useCommand({
+    handler: () => {
+      let step = 0;
+      let running = true;
+      const handle = overlay.open(
+        "deploy",
+        ({ payload }): ReactNode => (
+          <OverlayPanel
+            title="Deploying"
+            hints="Escape cancels"
+            inset={{ bottom: "35%", left: "25%", right: "25%", top: "35%" }}
+          >
+            <box paddingLeft={1}>
+              <text content={`Step ${payload + 1} of ${steps.length}: ${steps[payload]}`} />
+            </box>
+          </OverlayPanel>
+        ),
+        step,
+        {
+          onClose: (reason) => {
+            running = false;
+            setOutcome(reason === "escape" ? "cancelled" : "deployed");
+          },
+        },
+      );
+      const timer = setInterval(() => {
+        if (!running) {
+          clearInterval(timer);
+          return;
+        }
+        step += 1;
+        if (step < steps.length) {
+          handle.update(overlayValue(step));
+        } else {
+          clearInterval(timer);
+          handle.close();
+        }
+      }, 700);
+    },
+    hotkey: "d",
+    id: "deploy.run",
+    title: "Deploy",
+  });
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Deploy" }}
+      statusBar={{
+        items: [
+          { label: "Last deploy:", value: outcome },
+          { label: "", value: "d deploy  q quit" },
+        ],
+      }}
+    >
+      <box paddingLeft={1}>
+        <text content="Press d to deploy." />
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<Deploy />);
+```
+
+Run it with `bun deploy-progress.tsx` and press `d`. A panel opens over the content and counts through the three steps, then closes, and the status bar reads `Last deploy: deployed`. Press `d` again and `Escape` during a step: the panel closes early and the status bar reads `cancelled`.
+
+`useOverlay()` from `@tooee/overlays` returns the controller. `open(id, render, payload, options)` pushes one entry on the overlay stack and returns a handle. `render` is called with `{ id, payload, isTop, close, update }` and returns what to draw; the handle carries `id`, `close(reason?)`, and `update(next)`. `update` takes `overlayValue(value)` to replace the payload or `overlayUpdater(previous => next)` to derive it, and the overlay re-renders with the new payload. `AppLayout` draws the stack over the content area; [Layout and chrome](/docs/build/layout#overlays-and-toasts) shows what a layout of your own has to render. `OverlayPanel` is the bordered chrome from the same page.
+
+The `id` is the entry's identity on the stack. A second `open` with the same id closes the first entry with reason `"replaced"` and puts the new one in its place. `closeTop(reason?)` closes whatever is on top, and `topId` is its id or `null`.
+
+## Open options
+
+The fourth argument to `open`:
+
+| Option            | Default    | Meaning                                                                                                       |
+| ----------------- | ---------- | ------------------------------------------------------------------------------------------------------------- |
+| `mode`            | `"insert"` | The mode to set on the host while the overlay is open. `null` leaves the mode alone.                          |
+| `restoreMode`     | `true`     | Put the host mode back on close.                                                                              |
+| `dismissOnEscape` | `true`     | Let the host close the overlay on `Escape`.                                                                   |
+| `ownCommands`     | `false`    | Mount the overlay as a command surface of its own. See [Own the keyboard](#own-the-keyboard-from-an-overlay). |
+| `role`            | `"modal"`  | `"modal"` or `"passive"`. Only read with `ownCommands`.                                                       |
+| `surfaceMode`     | `"cursor"` | The initial local mode of an owned surface.                                                                   |
+| `onClose`         |            | Called once with the close reason when the entry leaves the stack.                                            |
+
+The deploy panel uses the defaults. The host switches to insert mode on open, so cursor-mode commands such as `d` and `q` stop matching while the panel is up, and the host's `Escape` command closes it. Commands registered by components inside such an overlay register on the host surface, in whatever modes they name; the [context menu](#context-menus) works this way.
+
+The close reason is one of:
+
+| Reason        | Cause                                                                            |
+| ------------- | -------------------------------------------------------------------------------- |
+| `"close"`     | `close()` on the handle or in the render args with no argument, or `closeTop()`. |
+| `"escape"`    | The host's `Escape` command.                                                     |
+| `"replaced"`  | Another `open` with the same id.                                                 |
+| `"unmounted"` | A dialog's owner unmounted. See [Promise dialogs](#promise-dialogs).             |
+
+## Own the keyboard from an overlay
+
+Pass `ownCommands: true` and the overlay mounts a command surface of its own, with its own registry and its own mode. The role decides what that surface does with keys:
+
+| Role        | Keys                                                                                                                 |
+| ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| `"modal"`   | While the overlay is on top, it receives every key. Keys it does not match go nowhere. The host mode is not touched. |
+| `"passive"` | The overlay never receives keys. It draws help or status while the host keeps working. The which-key bar is one.     |
+
+This app confirms a delete in a modal overlay and shows its keys in a passive one:
+
+```tsx title="branch-cleanup.tsx"
+import { useCommand } from "@tooee/commands";
+import { AppLayout, OverlayPanel } from "@tooee/layout";
+import { useHasModalOverlay, useOverlay } from "@tooee/overlays";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const ConfirmDelete = function ConfirmDelete({
+  branch,
+  close,
+  onConfirm,
+}: {
+  branch: string;
+  close: () => void;
+  onConfirm: () => void;
+}): ReactNode {
+  useCommand({
+    handler: () => {
+      onConfirm();
+      close();
+    },
+    hotkey: "y",
+    id: "confirm.delete",
+    title: "Delete",
+  });
+  useCommand({
+    handler: () => {
+      close();
+    },
+    hotkey: "n",
+    id: "confirm.keep",
+    title: "Keep",
+  });
+  useCommand({
+    handler: () => {
+      close();
+    },
+    hotkey: "Escape",
+    id: "confirm.cancel",
+    title: "Cancel",
+  });
+
+  return (
+    <OverlayPanel
+      title="Delete branch"
+      hints="y delete  n keep"
+      inset={{ bottom: "35%", left: "25%", right: "25%", top: "35%" }}
+    >
+      <box paddingLeft={1}>
+        <text content={`Delete ${branch}? The list keys are paused.`} />
+      </box>
+    </OverlayPanel>
+  );
+};
+
+const KeyHelp = function KeyHelp(): ReactNode {
+  return (
+    <OverlayPanel
+      title="Keys"
+      hints="Escape closes"
+      inset={{ bottom: 1, left: "55%", right: 1, top: "55%" }}
+    >
+      <box flexDirection="column" paddingLeft={1}>
+        <text content="j/k move  x delete  q quit" />
+        <text content="The list keeps working while this is open." />
+      </box>
+    </OverlayPanel>
+  );
+};
+
+const BranchCleanup = function BranchCleanup(): ReactNode {
+  const { theme } = useTheme();
+  const overlay = useOverlay();
+  const hasModal = useHasModalOverlay();
+  const [branches, setBranches] = useState(["main", "spike-panels", "fix-search", "old-release"]);
+  const [cursor, setCursor] = useState(0);
+  useQuitCommand();
+
+  useCommand({
+    handler: () => {
+      setCursor((current) => Math.min(current + 1, branches.length - 1));
+    },
+    hotkey: "j",
+    id: "branches.down",
+    title: "Down",
+  });
+  useCommand({
+    handler: () => {
+      setCursor((current) => Math.max(current - 1, 0));
+    },
+    hotkey: "k",
+    id: "branches.up",
+    title: "Up",
+  });
+  useCommand({
+    handler: () => {
+      const branch = branches[cursor];
+      overlay.open(
+        "confirm-delete",
+        ({ close }): ReactNode => (
+          <ConfirmDelete
+            branch={branch}
+            close={close}
+            onConfirm={() => {
+              setBranches((current) => current.filter((name) => name !== branch));
+              setCursor((current) => Math.max(0, Math.min(current, branches.length - 2)));
+            }}
+          />
+        ),
+        null,
+        { ownCommands: true, role: "modal" },
+      );
+    },
+    hotkey: "x",
+    id: "branches.delete",
+    title: "Delete branch",
+  });
+  useCommand({
+    handler: () => {
+      overlay.open("keys", (): ReactNode => <KeyHelp />, null, {
+        ownCommands: true,
+        role: "passive",
+      });
+    },
+    hotkey: "?",
+    id: "branches.help",
+    title: "Keys",
+  });
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Branches" }}
+      statusBar={{
+        items: [
+          { label: "Modal:", value: `${hasModal}` },
+          { label: "", value: "x delete  ? keys  q quit" },
+        ],
+      }}
+    >
+      <box flexDirection="column" paddingLeft={1}>
+        {branches.map(
+          (name, index): ReactNode => (
+            <text
+              key={name}
+              content={`${index === cursor ? ">" : " "} ${name}`}
+              fg={index === cursor ? theme.primary : theme.text}
+            />
+          ),
+        )}
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<BranchCleanup />);
+```
+
+Press `?`: the key panel appears in the corner, `Modal:` stays `false`, and `j` still moves the marker. Press `x`: the confirm panel appears, `Modal:` reads `true`, and `j` does nothing until `y`, `n`, or `Escape` closes it. `Escape` once more closes the key panel.
+
+A modal surface swallows every key, so the host's `Escape` command cannot reach it. Register `Escape` inside the overlay, as `ConfirmDelete` does; `dismissOnEscape` only applies to overlays without `ownCommands` and to passive ones. An owned surface starts in cursor mode unless `surfaceMode` says otherwise, so commands with the default `modes` match at once. `useMode` and `useSetMode` inside the overlay read and set the local mode, and the host mode stays where it was. Modal overlays stack: a second modal opened from the first takes the keys until it closes, then the first has them again.
+
+[overlay-command-surfaces.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/overlay-command-surfaces.ts) runs a modal overlay with a local insert mode, a nested modal, and a passive overlay side by side.
+
+## Read the overlay state
+
+`useOverlayState()` returns:
+
+| Field             | Meaning                                                                                                    |
+| ----------------- | ---------------------------------------------------------------------------------------------------------- |
+| `current`         | The rendered stack, or `null`. `AppLayout` draws it; `useCurrentOverlay()` returns this field alone.       |
+| `hasOverlay`      | `true` while the stack has an entry. `useHasOverlay()` returns this field alone.                           |
+| `hasModalOverlay` | `true` while an entry other than a passive owned surface is open. `useHasModalOverlay()` returns it alone. |
+| `stack`           | The ids in stack order.                                                                                    |
+
+Use `hasModalOverlay` to stand down mouse handlers and raw `useKeyboard` listeners while a modal is up, and `stack.includes(id)` to know whether one of your entries is open. The controller is also available on the command context as the optional `ctx.overlay` field.
+
+## Promise dialogs
+
+`useAskDialog` from `@tooee/ask` and `useChooseDialog` from `@tooee/choose` open a modal overlay and resolve with the text or the pick. [Ask](/docs/apps/ask#open-ask-as-a-dialog) and [Choose](/docs/apps/choose#open-choose-as-a-dialog) cover their options. Both are built on `useOverlayDialog<TResult>()` from `@tooee/overlays`, and so is this yes-or-no dialog:
+
+```tsx title="publish-confirm.tsx"
+import { useCommand } from "@tooee/commands";
+import { AppLayout, OverlayPanel } from "@tooee/layout";
+import { useOverlayDialog } from "@tooee/overlays";
+import type { OverlayDialogSettle } from "@tooee/overlays";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const ConfirmPanel = function ConfirmPanel({
+  question,
+  settle,
+}: {
+  question: string;
+  settle: OverlayDialogSettle<boolean>;
+}): ReactNode {
+  useCommand({
+    handler: () => {
+      settle(true);
+    },
+    hotkey: "y",
+    id: "confirm.yes",
+    modes: ["insert"],
+    title: "Yes",
+  });
+  useCommand({
+    handler: () => {
+      settle(false);
+    },
+    hotkey: "n",
+    id: "confirm.no",
+    modes: ["insert"],
+    title: "No",
+  });
+  useCommand({
+    handler: () => {
+      settle(null);
+    },
+    hotkey: "Escape",
+    id: "confirm.cancel",
+    modes: ["insert"],
+    title: "Cancel",
+  });
+
+  return (
+    <OverlayPanel
+      title="Confirm"
+      hints="y yes  n no  Escape cancel"
+      inset={{ bottom: "35%", left: "25%", right: "25%", top: "35%" }}
+    >
+      <box paddingLeft={1}>
+        <text content={question} />
+      </box>
+    </OverlayPanel>
+  );
+};
+
+const useConfirm = function useConfirm(): (question: string) => Promise<boolean | null> {
+  const dialog = useOverlayDialog<boolean>();
+  return async (question) =>
+    await dialog.open(
+      "confirm",
+      (settle): ReactNode => <ConfirmPanel question={question} settle={settle} />,
+    );
+};
+
+const outcomeText = function outcomeText(answer: boolean | null): string {
+  if (answer === null) {
+    return "cancelled";
+  }
+  return answer ? "published 1.4.0" : "kept 1.3.2";
+};
+
+const Publish = function Publish(): ReactNode {
+  const confirm = useConfirm();
+  const [log, setLog] = useState<string[]>([]);
+  useQuitCommand();
+  useCommand({
+    handler: async () => {
+      const answer = await confirm("Publish 1.4.0 to npm?");
+      setLog((current) => [...current, outcomeText(answer)]);
+    },
+    hotkey: "p",
+    id: "release.publish",
+    title: "Publish",
+  });
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Release" }}
+      statusBar={{ items: [{ label: "", value: "p publish  q quit" }] }}
+    >
+      <box flexDirection="column" paddingLeft={1}>
+        {log.map(
+          (line, index): ReactNode => (
+            <text key={`${index}-${line}`} content={`${index + 1}. ${line}`} />
+          ),
+        )}
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<Publish />);
+```
+
+Press `p` and answer with `y`, `n`, or `Escape`. Each answer adds a line.
+
+`dialog.open(idPrefix, render)` opens one owned modal surface with `surfaceMode: "insert"`, so the dialog's commands name `modes: ["insert"]`; a text input inside the dialog gets typed keys the same way. `render` receives `settle`, a function that resolves the promise with a value or `null` and closes the overlay. The promise settles once: the first `settle` call wins, and a close from anywhere else, such as a replacement with the same prefix or the owning component unmounting, resolves `null`. The id on the stack is the prefix plus a counter, so two dialogs opened from the same hook do not replace each other.
+
+## Context menus
+
+`useContextMenu()` from `@tooee/shell` opens the menu that a right-click on a [document](/docs/build/documents#mouse) shows, at any position and with any entries:
+
+```tsx title="host-menu.tsx"
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useContextMenu, useQuitCommand } from "@tooee/shell";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const hosts = ["alpha.internal", "beta.internal", "gamma.internal"];
+
+const Hosts = function Hosts(): ReactNode {
+  const menu = useContextMenu();
+  const [status, setStatus] = useState("right-click a host");
+  useQuitCommand();
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Hosts" }}
+      statusBar={{ items: [{ label: "Status:", value: status }] }}
+    >
+      <box flexDirection="column" paddingLeft={1}>
+        {hosts.map(
+          (host): ReactNode => (
+            <box
+              key={host}
+              onMouseDown={(event) => {
+                if (event.button !== 2) {
+                  return;
+                }
+                menu.open(
+                  event.x,
+                  event.y,
+                  [
+                    { hotkey: "r", id: "host.restart", title: "Restart" },
+                    { id: "host.drain", title: "Drain" },
+                  ],
+                  (id) => {
+                    setStatus(`${id} on ${host}`);
+                  },
+                );
+              }}
+            >
+              <text content={host} />
+            </box>
+          ),
+        )}
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<Hosts />);
+```
+
+Right-click a host: a two-entry menu opens at the pointer. `j`, `k`, and the arrow keys move the highlight, `Enter` or a left click picks an entry, and `Escape` or a click outside closes the menu. The status bar shows the id and the host.
+
+`open(x, y, entries, onSelect)` takes screen coordinates and `ContextMenuEntry` values, `{ id, title, hotkey? }` from `@tooee/renderers`. `hotkey` is a label in the right column; the menu binds its own keys only. `onSelect` receives the id of the picked entry. The menu is an overlay with the id `context-menu` in insert mode, and `close()` on the controller closes it. `actionsToContextMenuEntries(actions, ctx?)` from `@tooee/shell` turns an `ActionDefinition[]` into entries, drops hidden actions, and with a context drops the ones whose `when` rejects it.
+
+## Toasts
+
+`useToast()` from `@tooee/toasts` returns `{ toast, dismiss, currentToast }`. The same controller is available on the command context as the optional `ctx.toast` field:
+
+```tsx title="sync-toasts.tsx"
+import { useCommand } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useToast } from "@tooee/toasts";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const Sync = function Sync(): ReactNode {
+  const { currentToast, dismiss, toast } = useToast();
+  const [synced, setSynced] = useState(0);
+  useQuitCommand();
+
+  useCommand({
+    handler: () => {
+      const count = synced + 1;
+      setSynced(count);
+      toast({ id: "sync", level: "success", message: `Synced ${count} files` });
+    },
+    hotkey: "s",
+    id: "sync.run",
+    title: "Sync a file",
+  });
+  useCommand({
+    handler: (ctx) => {
+      ctx.toast?.toast({
+        duration: 6000,
+        level: "error",
+        message: "Sync failed: connection reset",
+      });
+    },
+    hotkey: "f",
+    id: "sync.fail",
+    title: "Fail a sync",
+  });
+  useCommand({
+    handler: () => {
+      dismiss();
+    },
+    hotkey: "x",
+    id: "sync.dismiss",
+    title: "Dismiss the toast",
+  });
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Sync" }}
+      statusBar={{
+        items: [
+          { label: "Toast:", value: currentToast?.id ?? "none" },
+          { label: "", value: "s sync  f fail  x dismiss  q quit" },
+        ],
+      }}
+    >
+      <box paddingLeft={1}>
+        <text content={`Synced ${synced} files`} />
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<Sync />);
+```
+
+Press `s` a few times: one toast in the bottom right corner updates its count in place, because every call reuses the id `sync`. Press `f`: the error toast replaces it and stays for six seconds. Press `x` to dismiss it early. [toasts-demo.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/toasts-demo.ts) sends each level, a deduplicated toast, and a custom duration.
+
+`toast(options)` takes:
+
+| Option     | Default            | Meaning                                                                     |
+| ---------- | ------------------ | --------------------------------------------------------------------------- |
+| `message`  |                    | Required. One line of text.                                                 |
+| `level`    | `"info"`           | `"info"`, `"success"`, `"warning"`, or `"error"`. Sets the icon and colour. |
+| `duration` | Depends on `level` | Milliseconds before the toast goes away.                                    |
+| `id`       | Generated          | Reuse an id to replace a toast without a fresh entry.                       |
+
+The default durations are 2000 ms for `info`, 1500 ms for `success`, 3000 ms for `warning`, and 5000 ms for `error`. One toast shows at a time; a new call replaces the current one and restarts the timer. `currentToast` is the `{ id, message, level, duration }` on screen or `null`.
+
+`ToastContainer` draws the toast in a bordered box, at most 50 columns wide, one row up from the bottom right corner. `AppLayout` mounts it; a layout of your own mounts it once, inside the box that holds the content. `TooeeProvider` mounts `ToastProvider`, so `useToast` works anywhere under `launchCli`.
+
+## Which surface has the keyboard
+
+Key dispatch tries the topmost modal surface first, then the active panel, then the root. A modal overlay with `ownCommands` is a modal surface; an overlay without it shares the root surface and relies on the mode switch to quiet the host's cursor-mode commands. Passive overlays are never tried. [Command surfaces](/docs/build/command-surfaces) covers fall-through, shadowing, and the raw `useKeyboard` rule; [Panels](/docs/build/panels) covers the panel role.
+
+## Next
+
+- [Ask](/docs/apps/ask)
+- [Choose](/docs/apps/choose)
+- [Panels](/docs/build/panels)
+- [Command surfaces](/docs/build/command-surfaces)

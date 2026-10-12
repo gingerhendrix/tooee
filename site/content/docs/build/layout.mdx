@@ -1,0 +1,349 @@
+---
+title: Layout and chrome
+description: Compose AppLayout, the title bar, the status bar, and the search bar around your content.
+---
+
+```tsx title="service-status.tsx"
+import { useMode } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useQuitCommand, useThemeCommands } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
+
+interface Service {
+  name: string;
+  healthy: boolean;
+}
+
+const services: Service[] = [
+  { healthy: true, name: "api" },
+  { healthy: true, name: "web" },
+  { healthy: false, name: "worker" },
+];
+
+const ServiceStatus = function ServiceStatus(): ReactNode {
+  const { theme } = useTheme();
+  const mode = useMode();
+  const { name: themeName } = useThemeCommands();
+  useQuitCommand();
+
+  return (
+    <AppLayout
+      titleBar={{ subtitle: "eu-west", title: "Service status" }}
+      statusBar={{
+        items: [
+          { label: "Theme:", value: themeName },
+          { label: "Mode:", value: mode },
+          { label: "", value: "t theme  q quit" },
+        ],
+      }}
+    >
+      <box flexDirection="column" paddingLeft={1}>
+        {services.map(
+          (service): ReactNode => (
+            <text
+              key={service.name}
+              content={`${service.name.padEnd(8)} ${service.healthy ? "ok" : "degraded"}`}
+              fg={service.healthy ? theme.success : theme.warning}
+            />
+          ),
+        )}
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<ServiceStatus />);
+```
+
+Run it with `bun service-status.tsx`. The title bar reads `Service status — eu-west`, the three services fill the middle, and the status bar shows the theme and the mode. Press `t`: the theme picker opens over the content, and the `Theme:` item follows your choice. `q` quits.
+
+`AppLayout` from `@tooee/layout` is a column the size of the terminal: the title bar, a content area that takes the remaining height, and the status bar or the search bar at the bottom. The current overlay and the toasts draw over the content area. `useThemeCommands` and `useQuitCommand` come from `@tooee/shell`; [Your first Tooee app](/docs/build/first-app#add-the-chrome) introduces them. `<box>` and `<text>` are [OpenTUI](https://opentui.com) elements.
+
+## Title bar
+
+`titleBar` takes `{ title, subtitle }`. The title draws in `theme.primary`, then a dash and the subtitle in `theme.textMuted`, all on `theme.backgroundPanel`. Omit the prop and the content area starts on the first line. `TitleBar` is exported for a layout of your own and takes the same two props.
+
+## Status bar
+
+`statusBar` is required and takes `{ items }`. Each item is `{ label, value }`: the label draws muted, the value follows it in the text colour, and two columns separate one item from the next. An empty `label` with a `value` draws plain text, which is how the example shows its key hints. `StatusBar` is exported and takes `items`.
+
+`DocumentScreen` fills this bar itself with the theme, the mode, and the cursor, and puts its `statusItems` between the theme and the mode. [Documents](/docs/build/documents#draw-the-rows) lists the order.
+
+## Scroll the content
+
+Without `scroll`, the content area is a box that clips what does not fit. Pass `scroll` to put the content in a scrollbox:
+
+| Field          | Default | Meaning                                                                         |
+| -------------- | ------- | ------------------------------------------------------------------------------- |
+| `ref`          |         | Required. A `RefObject<ScrollBoxRenderable>` for reading or setting the scroll. |
+| `stickyScroll` | `false` | Follow new content at the end until you scroll away from it.                    |
+| `stickyStart`  |         | `"bottom"` or `"top"`: the end the sticky view starts at.                       |
+| `focused`      | `true`  | Give the scrollbox keyboard focus, so the arrow keys and page keys scroll it.   |
+
+```tsx title="build-log.tsx"
+import type { ScrollBoxRenderable } from "@opentui/core";
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
+
+const BuildLog = function BuildLog(): ReactNode {
+  const scrollRef = useRef<ScrollBoxRenderable | null>(null);
+  const [lines, setLines] = useState<string[]>([]);
+  useQuitCommand();
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setLines((previous) => [...previous, `[${previous.length + 1}] compiled module`]);
+    }, 200);
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Build log" }}
+      statusBar={{ items: [{ label: "Lines:", value: String(lines.length) }] }}
+      scroll={{ ref: scrollRef, stickyScroll: true, stickyStart: "bottom" }}
+    >
+      {lines.map(
+        (line): ReactNode => (
+          <text key={line} content={line} />
+        ),
+      )}
+    </AppLayout>
+  );
+};
+
+await launchCli(<BuildLog />);
+```
+
+The log grows five lines a second and the view stays on the newest line. The wheel scrolls it, and the `Lines:` count keeps rising in the status bar.
+
+`AppLayout` takes its scrollbox ref and options through the `scroll` prop. Leave `scroll` unset when the content is a `Document` or a `MarkdownView`: the row document is a scrollbox of its own and follows the cursor.
+
+## Side region
+
+`aside` takes a node that `AppLayout` draws to the right of the content. The title bar and the status bar stay full width, and the overlay covers the content and the aside together. Give the aside a `width`; the content takes the rest.
+
+```tsx title="release-notes.tsx"
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
+
+const sections = ["Fixes", "Features", "Upgrade notes"];
+
+const ReleaseNotes = function ReleaseNotes(): ReactNode {
+  const { theme } = useTheme();
+  useQuitCommand();
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Release notes" }}
+      statusBar={{ items: [{ label: "", value: "q quit" }] }}
+      aside={
+        <box width={24} flexDirection="column" border={["left"]} borderColor={theme.border}>
+          {sections.map(
+            (section): ReactNode => (
+              <text key={section} content={section} fg={theme.textMuted} paddingLeft={1} />
+            ),
+          )}
+        </box>
+      }
+    >
+      <text content="Tooee 0.12 adds folds and a heading outline to View." paddingLeft={1} />
+    </AppLayout>
+  );
+};
+
+await launchCli(<ReleaseNotes />);
+```
+
+`DocumentScreen` takes the same `aside` prop and passes it on. View draws its heading outline in this region.
+
+## Search bar
+
+`searchBar` takes a `SearchState`, the object `controller.search` holds on a [document](/docs/build/documents#search) or `useSearch` returns. While `searchActive` is `true`, `AppLayout` draws `SearchBar` from `@tooee/search` in place of the status bar: a `/` prompt, a focused input bound to `setSearchQuery`, `Enter` bound to `submitSearch`, and a count such as `2/5` or `No matches`. `DocumentScreen` passes `controller.search` for you.
+
+A layout of your own mounts `SearchBar` with these props:
+
+| Prop            | Meaning                                                                                                     |
+| --------------- | ----------------------------------------------------------------------------------------------------------- |
+| `query`         | The text in the input.                                                                                      |
+| `onQueryChange` | Called with the new text on every keystroke.                                                                |
+| `onSubmit`      | Called on `Enter`.                                                                                          |
+| `onCancel`      | Accepted for the interface. In 0.12 the bar does not call it; `Escape` cancels through the search command. |
+| `matchCount`    | Number of matches. `0` with a non-empty query draws `No matches`.                                           |
+| `currentMatch`  | Index of the current match, drawn one-based.                                                                |
+
+## Overlays and toasts
+
+`AppLayout` calls `useCurrentOverlay()` from `@tooee/overlays` and draws the result in a box the size of the content area, above the content. The command palette, the which-key bar, the theme picker, the context menu, the Ask and Choose dialogs, and any overlay you open with `useOverlay().open` land there. `ToastContainer` from `@tooee/toasts` sits in the bottom right corner of the same area and draws the toast that `ctx.toast?.toast(...)` sends.
+
+`AppLayout` has no `overlay` prop in 0.12. The `@tooee/layout` README still describes one as deprecated; code that passed an element to it opens the overlay through the store instead. [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) covers `open`, roles, and dialogs.
+
+A layout of your own has to mount both. This one keeps the title bar and the status bar from `@tooee/layout`, adds the search bar, and draws the overlay and the toasts over a document:
+
+```tsx title="custom-chrome.tsx"
+import { useMode } from "@tooee/commands";
+import { StatusBar, TitleBar } from "@tooee/layout";
+import { useCurrentOverlay } from "@tooee/overlays";
+import { SearchBar } from "@tooee/search";
+import {
+  Document,
+  launchCli,
+  useDocumentController,
+  useQuitCommand,
+  useThemeCommands,
+} from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { ToastContainer } from "@tooee/toasts";
+import type { ReactNode } from "react";
+
+const hosts = ["alpha.internal", "beta.internal", "gamma.internal", "delta.internal"];
+
+const HostList = function HostList(): ReactNode {
+  const { theme } = useTheme();
+  const mode = useMode();
+  const overlay = useCurrentOverlay();
+  useThemeCommands();
+  useQuitCommand();
+  const controller = useDocumentController({
+    adapter: { getText: (host: string) => host },
+    rows: hosts,
+    search: {},
+  });
+  const { search } = controller;
+  const handleSearchQueryChange = (query: string): void => {
+    search?.setSearchQuery(query);
+  };
+  const handleSearchSubmit = (): void => {
+    search?.submitSearch();
+  };
+  const handleSearchCancel = (): void => {
+    search?.setSearchQuery("");
+  };
+
+  return (
+    <box flexDirection="column" width="100%" height="100%" backgroundColor={theme.background}>
+      <TitleBar title="Hosts" />
+      <box style={{ flexGrow: 1, position: "relative" }}>
+        <Document
+          controller={controller}
+          style={{ flexGrow: 1 }}
+          renderRow={(host): ReactNode => <text content={` ${host}`} />}
+        />
+        {overlay !== null && (
+          <box position="absolute" left={0} top={0} width="100%" height="100%">
+            {overlay}
+          </box>
+        )}
+        <ToastContainer />
+      </box>
+      {search?.searchActive === true ? (
+        <SearchBar
+          query={search.searchQuery}
+          onQueryChange={handleSearchQueryChange}
+          onSubmit={handleSearchSubmit}
+          onCancel={handleSearchCancel}
+          matchCount={search.matchingLines.length}
+          currentMatch={search.currentMatchIndex}
+        />
+      ) : (
+        <StatusBar
+          items={[
+            { label: "Mode:", value: mode },
+            { label: "Rows:", value: String(hosts.length) },
+          ]}
+        />
+      )}
+    </box>
+  );
+};
+
+await launchCli(<HostList />);
+```
+
+`/` swaps the status bar for the search bar, `t` opens the theme picker inside the relative box, and `y y` shows its toast in the corner. Overlays position themselves with percentages, so the box that holds them needs `position: "relative"` and the full content size.
+
+## Overlay panels and the close button
+
+`OverlayPanel` from `@tooee/layout` is the bordered panel the Ask and Choose dialogs and panels draw. Use it for an overlay of your own:
+
+```tsx title="shortcuts-panel.tsx"
+import { useCommand } from "@tooee/commands";
+import { AppLayout, OverlayPanel } from "@tooee/layout";
+import { useOverlay } from "@tooee/overlays";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import type { ReactNode } from "react";
+
+const Shortcuts = function Shortcuts(): ReactNode {
+  const overlay = useOverlay();
+  useQuitCommand();
+  useCommand({
+    handler: () => {
+      overlay.open(
+        "shortcuts",
+        ({ close }): ReactNode => (
+          <OverlayPanel
+            title="Shortcuts"
+            hints="Escape closes"
+            inset={{ bottom: "30%", left: "25%", right: "25%", top: "30%" }}
+            onClose={() => {
+              close();
+            }}
+          >
+            <box flexDirection="column" paddingLeft={1}>
+              <text content="?   show this panel" />
+              <text content="q   quit" />
+            </box>
+          </OverlayPanel>
+        ),
+        null,
+      );
+    },
+    hotkey: "?",
+    id: "help.shortcuts",
+    title: "Shortcuts",
+  });
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Shortcuts demo" }}
+      statusBar={{ items: [{ label: "", value: "? help  q quit" }] }}
+    >
+      <box paddingLeft={1}>
+        <text content="Press ? for the shortcut list." />
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<Shortcuts />);
+```
+
+`?` opens the panel over the content. `Escape` closes it, and so does a click on the `✕` in its title row. The panel props:
+
+| Prop          | Meaning                                                                                                      |
+| ------------- | ------------------------------------------------------------------------------------------------------------ |
+| `title`       | Title row content. A string draws in `theme.accent`; a node draws as given.                                  |
+| `prompt`      | Bold text, or a node, between the title row and the body.                                                    |
+| `children`    | The body.                                                                                                    |
+| `footer`      | One row below the body.                                                                                      |
+| `hints`       | Left side of the bottom row, muted.                                                                          |
+| `statusRight` | Right side of the bottom row, muted.                                                                         |
+| `inset`       | `{ left, right, top, bottom }` as a number, a percentage string, or `"auto"`. Each side defaults to `"20%"`. |
+| `onClose`     | Shows a `CloseButton` in the title row and runs when it is clicked.                                          |
+| `onMouseDown` | Mouse handler for the whole panel.                                                                           |
+
+`CloseButton` takes `onClose`, an optional `glyph` in place of `✕`, and an optional `color`. It reacts to the left button only and stops the click from reaching the panel behind it. Tooee 0.8 moved it from `@tooee/themes` to `@tooee/layout`; the palette, the theme picker, and the Choose filter draw the same button. [Panels](/docs/build/panels) covers panel groups, which have chrome of their own.
+
+## Next
+
+- [Documents](/docs/build/documents)
+- [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts)
+- [Panels](/docs/build/panels)
+- [Your first Tooee app](/docs/build/first-app)

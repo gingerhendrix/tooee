@@ -1,0 +1,4 @@
+{
+  "title": "View",
+  "pages": ["content-and-providers", "formats", "diffs", "actions", "custom-renderers"]
+}

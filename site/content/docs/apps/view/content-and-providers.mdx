@@ -1,0 +1,137 @@
+---
+title: Content and providers
+description: Give View content through a provider that returns it at once, resolves it later, or streams it in chunks.
+---
+
+```ts title="recent-commits.ts"
+import { launch } from "@tooee/view";
+import type { ContentProvider } from "@tooee/view";
+
+const recentCommits: ContentProvider = {
+  async load() {
+    const proc = Bun.spawn(["git", "log", "--oneline", "-50"]);
+    const text = await new Response(proc.stdout).text();
+    return { format: "text", text, title: "Recent commits" };
+  },
+};
+
+await launch({ contentProvider: recentCommits });
+```
+
+A content provider is an object with a `load` method. View calls `load()` once when it mounts, shows `Loading...` until content arrives, and shows `Error: <message>` when `load` throws or rejects.
+
+## The provider contract
+
+| Field | Meaning |
+| --- | --- |
+| `load` | Returns content, a promise of content, or an async iterable of `ContentChunk` values. |
+| `format` | Format of the empty content View shows while a stream has sent no chunk yet. Defaults to `markdown`. |
+| `title` | Title of that empty content. |
+| `marks` | Mark sets to draw over the rows. The mark model has its own guide in the Build a custom app section. |
+
+`format` and `title` on the provider only matter for streams. Returned content carries its own `title`.
+
+## Content formats
+
+Every content value has a `format` and the fields for that format:
+
+| Format     | Fields                      |
+| ---------- | --------------------------- |
+| `markdown` | `markdown`, `imageBasePath` |
+| `code`     | `code`, `language`          |
+| `text`     | `text`                      |
+| `table`    | `columns`, `rows`           |
+| `diff`     | `patch`, `layout`           |
+| `image`    | `src`, `fit`, `protocol`    |
+
+All formats accept `title` for the title bar and `getTextContent`, a function that returns the text `y g` copies. [View: content formats](/docs/apps/view/formats) explains what each renderer draws. [View: diffs](/docs/apps/view/diffs) covers `patch` and `layout`. Any other `format` string with a `data` field is custom content for [View: custom renderers](/docs/apps/view/custom-renderers).
+
+A table needs `columns` with a `key` per column and `rows` keyed the same way:
+
+```ts title="package-scripts.ts"
+import { launch } from "@tooee/view";
+import type { ContentProvider } from "@tooee/view";
+
+const packageScripts: ContentProvider = {
+  async load() {
+    const pkg: { scripts?: Record<string, string> } = await Bun.file("package.json").json();
+    const rows = Object.entries(pkg.scripts ?? {}).map(([name, command]) => ({ command, name }));
+    return {
+      columns: [
+        { header: "Script", key: "name" },
+        { header: "Command", key: "command" },
+      ],
+      format: "table",
+      rows,
+      title: "package.json scripts",
+    };
+  },
+};
+
+await launch({ contentProvider: packageScripts });
+```
+
+`header` is optional; the column falls back to its `key`. [git-log.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/git-log.ts) builds a wider table from a process, and [gh-prs.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/gh-prs.ts) builds one from `gh pr list`.
+
+## Load a file or stdin
+
+```ts title="view-notes.ts"
+import { createFileProvider, launch } from "@tooee/view";
+
+await launch({ contentProvider: createFileProvider("notes.txt", { renderer: "markdown" }) });
+```
+
+`createFileProvider(path, options)` reads the file when View mounts. It picks the format from the extension with the table in [View](/docs/cli/view#open-a-file) in the CLI section, opens a text file that holds a unified patch as a diff, sets `title` to the file name, and gives markdown an `imageBasePath` of the file's folder. `options.renderer` forces a format.
+
+`createStdinProvider(options)` reads all of stdin and renders it as markdown, or as a diff when it is a patch. `launch()` from `@tooee/view` reads keys from the controlling terminal while stdin supplies the content. A `View` that you mount yourself with `runCliSession` needs `stdinPolicy: "tty-if-piped"`, as [Run your own session](/docs/apps#run-your-own-session) shows.
+
+`createTableFileProvider(path)` and `createTableStdinProvider()` are the same providers with `renderer: "table"`.
+
+## Load later
+
+Return a promise, as `recentCommits` does above, when the content comes from a process, a file, or a request. View shows `Loading...` until the promise settles. A rejected promise shows its message as the error. View ignores a result that arrives after the provider was replaced, so a slow first load cannot overwrite a newer one.
+
+## Stream chunks
+
+Return an async iterable from `load` to build the content over time:
+
+```ts title="ping-log.ts"
+import { launch } from "@tooee/view";
+import type { ContentProvider } from "@tooee/view";
+
+const pingLog: ContentProvider = {
+  format: "text",
+  title: "ping 127.0.0.1",
+  async *load() {
+    const proc = Bun.spawn(["ping", "-c", "10", "127.0.0.1"]);
+    const decoder = new TextDecoder();
+    try {
+      for await (const bytes of proc.stdout) {
+        yield { data: decoder.decode(bytes), format: "text", type: "append" };
+      }
+    } finally {
+      proc.kill();
+    }
+  },
+};
+
+await launch({ contentProvider: pingLog });
+```
+
+View starts with empty content of the provider's `format` and `title`, then applies each chunk as it arrives. When the reader quits during the stream, View calls `return()` on the iterator, so the `finally` block runs and stops the process.
+
+| Chunk `type` | Fields | Effect |
+| --- | --- | --- |
+| `append` | `format`, `data`, `language` | Appends `data` to markdown, code, or text content. When the current format differs, starts fresh content. |
+| `replace` | `content` | Replaces the whole content with any content value, including table, image, diff, and custom formats. |
+| `patch` | `apply` | Calls `apply(current)` and shows what it returns. `current` is `null` before the first chunk. |
+| `marks` | `set` | Adds or replaces the mark set with that namespace. Leaves the content alone. |
+
+`append` accepts `markdown`, `code`, and `text`. Diff content is replace-only: send the full patch in a `replace` chunk each time it changes. [request-echo.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/request-echo.ts) streams markdown one character at a time.
+
+## Next
+
+- [View: content formats](/docs/apps/view/formats)
+- [View: diffs](/docs/apps/view/diffs)
+- [View: actions and command context](/docs/apps/view/actions)
+- [Write a launcher](/docs/apps)

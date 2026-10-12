@@ -1,0 +1,162 @@
+---
+title: Content formats
+description: What the markdown, code, text, table, and image formats accept, and how View draws each one.
+---
+
+```ts title="view-source.ts"
+import { launch } from "@tooee/view";
+
+const code = await Bun.file("src/index.ts").text();
+
+await launch({
+  contentProvider: {
+    load: () => ({ code, format: "code", language: "typescript", title: "index.ts" }),
+  },
+});
+```
+
+Every content value has a `format` and the fields for that format. [View: content and providers](/docs/apps/view/content-and-providers#content-formats) lists the fields per format. This page covers what each renderer draws, the keys it adds, and the limits you meet on the way. `title` goes in the title bar with the format as its subtitle, and the status bar starts with `Format:`.
+
+## Markdown
+
+`markdown` holds the source text. View splits it into blocks: a heading, a paragraph, a list item, a code block, a table, a blockquote, or a rule. Each block is one row. `j` and `k` move block by block, search matches a block's source text, and `y y` copies it. Nested lists flatten into indented rows. HTML blocks are dropped. `L` toggles the gutter, which numbers blocks, and `Lines:` in the status bar counts source lines.
+
+`z a` and the other `z` keys fold the blocks under a heading, and `g o` opens an outline of the headings on the right. While a fold is closed, the gutter keeps the block numbers of the whole document. [View](/docs/cli/view#fold-sections) lists the keys. Pass `outline: true` to `launch()` or `View` to open the outline at start.
+
+A fenced code block draws in a bordered box with syntax colours for the fence language. Its lines never wrap. When the block is wider than the terminal and the cursor is on it, `h` and `l` pan the block four columns at a time. `Shift` with the mouse wheel pans as well.
+
+A `mermaid` fence draws the diagram with box characters. A diagram falls back to the plain code block when it fails to parse, or when its source is longer than 300 lines or 20,000 characters. A flowchart or a state diagram also falls back when it has more than 32 edges, or when one cycle holds a node with 3 or more incoming edges and a node with 3 or more outgoing edges. One node can be both. Such a graph can block the terminal while Tooee routes its edges. The cycle rule arrived in 0.9.1. [view-mermaid.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view-mermaid.ts) draws a flowchart and a sequence diagram. A `diff` or `patch` fence draws as a Hunk block; [View: diffs](/docs/apps/view/diffs#diff-fences-in-markdown) has the options. [View: custom renderers](/docs/apps/view/custom-renderers#render-a-fence-type) shows how to register a fence type of your own.
+
+### Images in markdown
+
+```markdown
+![Build graph](./assets/build-graph.png)
+![[assets/build-graph.png]]
+![[assets/build-graph.png|40x12]]
+![[assets/build-graph.png|Build graph]]
+```
+
+The first line is standard Markdown. The other three are Obsidian embeds; the text after `|` is either a `width` or a `widthxheight` in terminal cells, or alternative text. A relative path resolves from `imageBasePath` on the content, or from the working directory when it is unset. `createFileProvider` sets `imageBasePath` to the folder of the file. An absolute path or a URL with a scheme is used as it is.
+
+An image is 12 rows tall and as wide as the paragraph unless the embed sets a size. While it loads, the row shows `Loading image:` and the alt text. When it fails, the row shows `Image failed to load:` and the alt text or the path. The protocol is chosen the same way as for the [image format](#image).
+
+### Links in markdown
+
+Link text draws underlined, in table cells too. `launch()` follows links to local files when you pass `filePath`, the path the content came from. A click on a link, or `Enter` on its line, opens the file in the same session, and `Backspace` goes back. [View](/docs/cli/view#follow-local-links) in the CLI section describes the behaviour. Without `filePath`, a link shows `Links need a source file`.
+
+`linkHandlers` adds handlers that run before the local file handler. A handler is synchronous: it gets the link and a context, and returns `true` to consume the link or `false` to pass it on:
+
+```ts title="open-web-links.ts"
+import { createFileProvider, launch } from "@tooee/view";
+import type { LinkHandler } from "@tooee/view";
+
+const opener = process.platform === "darwin" ? "open" : "xdg-open";
+
+const openWebLinks: LinkHandler = (link) => {
+  if (!/^https?:\/\//u.test(link.href)) {
+    return false;
+  }
+  Bun.spawn([opener, link.href]);
+  return true;
+};
+
+await launch({
+  contentProvider: createFileProvider("README.md"),
+  filePath: "README.md",
+  linkHandlers: [openWebLinks],
+});
+```
+
+`link` holds `href`, `baseDir`, the folder that relative links resolve from, and `currentPath`, the file on screen. The context holds `command`, the command context, plus `navigate` and `documentRoute` for opening another file in the session. A link that no handler consumes and that is no local file shows `Unsupported link`.
+
+A `View` that you mount yourself leaves link clicks to `onMarkdownLinkActivate`, a handler for a left click on link text. It receives the `href` and the command context:
+
+```tsx title="open-links.tsx"
+import { runCliSession } from "@tooee/shell";
+import { View, createFileProvider } from "@tooee/view";
+import type { ReactNode } from "react";
+
+await runCliSession((): ReactNode => (
+  <View
+    contentProvider={createFileProvider("README.md")}
+    onMarkdownLinkActivate={(href, ctx) => {
+      ctx.toast?.toast({ level: "info", message: href });
+      return true;
+    }}
+  />
+));
+```
+
+Return `true` to mark the click as handled, so it does not move the cursor.
+
+## Code and text
+
+`code` takes `code` and an optional `language`. `text` takes `text`. Both draw one row per line with line numbers in the gutter; `L` toggles them. Search matches one line, `y y` copies the line under the cursor, and `v` with `j` or `k` selects lines for `y v`. `Cursor:` in the status bar is the zero-based line index.
+
+`language` picks the tree-sitter grammar for the colours. OpenTUI 0.5 bundles grammars for `typescript`, `javascript`, `markdown`, and `zig`. Any other value draws plain text. [View](/docs/cli/view#open-a-file) in the CLI section lists the extensions `createFileProvider` maps to a language. The text format is the code renderer without a language. [view-code.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view-code.ts) opens a TypeScript snippet with `format: "code"`.
+
+## Table
+
+```ts title="recent-commits.ts"
+import { parseTSV } from "@tooee/renderers";
+import { launch } from "@tooee/view";
+
+const log = await new Response(
+  Bun.spawn(["git", "log", "-20", "--format=%h%x09%as%x09%an%x09%s"]).stdout
+).text();
+const { columns, rows } = parseTSV(`sha\tdate\tauthor\tsubject\n${log}`);
+
+await launch({
+  contentProvider: { load: () => ({ columns, format: "table", rows, title: "Recent commits" }) },
+});
+```
+
+`columns` is a list of `{ key, header?, align? }` and `rows` a list of objects keyed by `key`. The header row stays fixed while the rows scroll. Each row is one navigation row: `j` and `k` move between rows, search matches the tab-joined cells, `y y` copies one row as tab-separated text, and `y g` copies the whole table with its header line. The status bar shows `Rows:` and `Cols:`.
+
+[table-inline.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/table-inline.ts) defines the columns and rows inline, and [table-wide.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/table-wide.ts) has more than 10 columns of mixed widths. A cell can hold any JavaScript value. Strings, numbers, and booleans draw as text. A `Date` draws as its ISO string. `null` and `undefined` draw as empty cells. Other objects draw as JSON.
+
+Column widths come from the header and a sample of up to 100 rows spread evenly across the table, clamped between 4 and 80 characters plus one space of padding on each side. When the columns overflow the terminal, columns of 20 characters or less keep their width and the wider columns share the rest in proportion. A column whose first ten values are mostly numbers is right-aligned; `align: "left"` or `align: "right"` on the column overrides the guess.
+
+`parseTSV`, `parseCSV`, and `parseJSON` from `@tooee/renderers` turn text into `columns` and `rows`. `parseAuto` picks one: JSON when the text starts with `[` and parses as an array, TSV when the first line has a tab, and CSV otherwise. `tooee view --renderer table` and `createTableFileProvider` use `parseAuto`.
+
+| Parser | Rule |
+| --- | --- |
+| `parseCSV` | The first line names the columns. A field may be quoted with `"`, and a quote inside a quoted field is written `""`. |
+| `parseTSV` | The first line names the columns. Fields split on tabs. |
+| `parseJSON` | An array of objects. The columns are the union of the keys in the order they first appear; a missing key gives an empty cell. |
+
+An empty header becomes `column_N`. A repeated header gets a `_2` or `_3` suffix so every key stays unique. Blank lines are skipped.
+
+## Image
+
+```ts title="view-logo.ts"
+import { launch } from "@tooee/view";
+
+await launch({
+  contentProvider: {
+    load: () => ({
+      fit: "cover",
+      format: "image",
+      src: "examples/assets/tooee-native-image.png",
+      title: "tooee-native-image.png",
+    }),
+  },
+});
+```
+
+| Field | Values |
+| --- | --- |
+| `src` | A file path, a `URL`, a `Uint8Array`, an `ArrayBuffer`, a `Blob`, or a `Response`. |
+| `fit` | `fit` keeps the aspect ratio inside the area and is the default. `cover` fills the area and crops. `fill` stretches. |
+| `protocol` | `auto` is the default. `kitty`, `sixel`, and `blocks` force one protocol. |
+
+With `auto`, OpenTUI uses the kitty graphics protocol when the terminal reports it, sixel when the terminal reports it and the cell size in pixels is known, and half-block characters otherwise. Inside tmux it uses blocks. A terminal that does not answer the capability query gets blocks too. `sixel` without a known cell size falls back to `blocks`.
+
+The image fills the content area. The document behind it has one row that holds the path, so `y g` copies the path and the status bar shows `Format: image` alone. A file that cannot be read shows `Image failed to load:` and the path above the empty area. `createFileProvider` picks this format for `.png`, `.jpg`, `.jpeg`, `.gif`, and `.webp`.
+
+## Next
+
+- [View: content and providers](/docs/apps/view/content-and-providers)
+- [View: diffs](/docs/apps/view/diffs)
+- [View: custom renderers](/docs/apps/view/custom-renderers)
+- [View in the CLI](/docs/cli/view)

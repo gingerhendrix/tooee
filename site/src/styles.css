@@ -35,20 +35,20 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: "Geist Pixel Grid";
-  src: url("../node_modules/geist/dist/fonts/geist-pixel/GeistPixel-Grid.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
 @theme {
   --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
   --font-mono:
     "Geist Mono", ui-monospace, "SFMono-Regular", "Roboto Mono", Menlo, Monaco, "Liberation Mono",
     "DejaVu Sans Mono", "Courier New", monospace;
-  --font-logotype: "Geist Pixel Grid", "Geist Mono", ui-monospace, monospace;
+}
+
+.tooee-logotype {
+  display: block;
+  width: 232px;
+  height: 64px;
+  background: currentColor;
+  -webkit-mask: url("/tooee-logo.svg") center / contain no-repeat;
+  mask: url("/tooee-logo.svg") center / contain no-repeat;
 }
 
 html {
