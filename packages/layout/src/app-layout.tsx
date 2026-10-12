@@ -91,9 +91,6 @@ export const AppLayout = function AppLayout({
           query={searchBar.searchQuery}
           onQueryChange={handleSearchQueryChange}
           onSubmit={handleSearchSubmit}
-          onCancel={() => {
-            searchBar.setSearchQuery("");
-          }}
           matchCount={searchBar.matchingLines.length}
           currentMatch={searchBar.currentMatchIndex}
         />

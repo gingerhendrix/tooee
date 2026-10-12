@@ -5,7 +5,12 @@ export interface SearchBarProps {
   query: string;
   onQueryChange: (query: string) => void;
   onSubmit: () => void;
-  onCancel: () => void;
+  /**
+   * @deprecated The bar never calls this. Escape reaches the `search-cancel`
+   * command that `useSearchBindings` registers, and that command cancels the
+   * search. The prop will be removed in a later release.
+   */
+  onCancel?: () => void;
   matchCount?: number;
   currentMatch?: number;
 }
@@ -14,7 +19,6 @@ export const SearchBar = function SearchBar({
   query,
   onQueryChange,
   onSubmit,
-  onCancel: _onCancel,
   matchCount,
   currentMatch,
 }: SearchBarProps): ReactNode {
