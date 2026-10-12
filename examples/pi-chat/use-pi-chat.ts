@@ -7,10 +7,10 @@
 import type { AgentSession, ModelRuntime } from "@earendil-works/pi-coding-agent";
 import { useCallback, useEffect, useReducer, useRef } from "react";
 
+import { loadAttachments, promptWithFiles } from "./attachments.js";
 import { chatReducer, initialChatState } from "./chat-state.js";
 import type { ChatState } from "./chat-state.js";
-import { imagePart, userParts } from "./content-parts.js";
-import { loadImageAttachments } from "./image-attachments.js";
+import { attachmentParts, userParts } from "./content-parts.js";
 import { modelLabel } from "./initial-model.js";
 import type { PiModel } from "./initial-model.js";
 import { toChatAction } from "./pi-events.js";
@@ -19,8 +19,8 @@ import { bootPiSession, errorText } from "./pi-session.js";
 export interface PiChat {
   state: ChatState;
   /**
-   * Starts a prompt. `@path.png` words attach images. Returns false when the
-   * session cannot take input now.
+   * Starts a prompt. `@path` words attach text files and images. Returns
+   * false when the session cannot take input now.
    */
   send: (text: string) => boolean;
   abort: () => void;
@@ -91,7 +91,7 @@ export const usePiChat = function usePiChat(): PiChat {
 
   const runPrompt = useCallback(async (session: AgentSession, text: string): Promise<void> => {
     try {
-      const attachments = await loadImageAttachments(text);
+      const attachments = await loadAttachments(text);
 
       if (!attachments.ok) {
         dispatch({ message: attachments.message, type: "runFailed" });
@@ -99,9 +99,9 @@ export const usePiChat = function usePiChat(): PiChat {
         return;
       }
 
-      const { images } = attachments;
-      dispatch({ images: images.map(imagePart), type: "imagesAttached" });
-      await session.prompt(text, { images });
+      const { files, images } = attachments;
+      dispatch({ parts: attachmentParts(files, images), type: "attached" });
+      await session.prompt(promptWithFiles(text, files), { images });
       dispatch({ type: "runSettled" });
     } catch (error) {
       dispatch({ message: errorText(error), type: "runFailed" });

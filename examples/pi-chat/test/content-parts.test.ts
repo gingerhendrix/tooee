@@ -1,6 +1,12 @@
 import { describe, expect, test } from "bun:test";
 
-import { assistantParts, imagePart, keepToolProgress, userParts } from "../content-parts.js";
+import {
+  assistantParts,
+  attachmentParts,
+  imagePart,
+  keepToolProgress,
+  userParts,
+} from "../content-parts.js";
 import type { TurnPart } from "../content-parts.js";
 import { mixed, PNG_BASE64 } from "./fixtures.js";
 
@@ -52,5 +58,23 @@ describe("content parts", () => {
       running,
       fresh,
     ]);
+  });
+});
+
+describe("attachmentParts", () => {
+  test("gives one note for each text file, then the images", () => {
+    const parts = attachmentParts(
+      [
+        { ref: "a.md", text: "one\ntwo\n" },
+        { ref: "b.txt", text: "solo" },
+      ],
+      [{ data: PNG_BASE64, mimeType: "image/png", type: "image" }]
+    );
+
+    expect(parts.slice(0, 2)).toEqual([
+      { kind: "text", text: "Attached `a.md` (2 lines)" },
+      { kind: "text", text: "Attached `b.txt` (1 line)" },
+    ]);
+    expect(parts[2]).toMatchObject({ kind: "image", mimeType: "image/png" });
   });
 });

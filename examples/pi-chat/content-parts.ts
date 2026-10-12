@@ -8,6 +8,8 @@
 import type { AgentSessionEvent } from "@earendil-works/pi-coding-agent";
 import { imageInfo } from "@opentui/core";
 
+import type { TextAttachment } from "./attachments.js";
+
 type AgentMessage = Extract<AgentSessionEvent, { type: "message_end" }>["message"];
 
 type PiAssistantMessage = Extract<AgentMessage, { role: "assistant" }>;
@@ -122,6 +124,34 @@ export const assistantParts = function assistantParts(message: AgentMessage): Tu
 /** Display parts of a prompt the user typed. Images join later as image parts. */
 export const userParts = function userParts(text: string): TurnPart[] {
   return text === "" ? [] : [{ kind: "text", text }];
+};
+
+const lineCount = function lineCount(text: string): number {
+  if (text === "") {
+    return 0;
+  }
+
+  return text.split("\n").length - (text.endsWith("\n") ? 1 : 0);
+};
+
+/**
+ * Parts for the files a prompt attaches: one short text line for each text
+ * file (its content goes to Pi, not to the history), then the images.
+ */
+export const attachmentParts = function attachmentParts(
+  files: readonly TextAttachment[],
+  images: readonly PiImageContent[]
+): TurnPart[] {
+  const notes = files.map((file): TurnPart => {
+    const lines = lineCount(file.text);
+
+    return {
+      kind: "text",
+      text: `Attached \`${file.ref}\` (${lines} ${lines === 1 ? "line" : "lines"})`,
+    };
+  });
+
+  return [...notes, ...images.map(imagePart)];
 };
 
 export const toolResultView = function toolResultView(

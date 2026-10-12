@@ -128,7 +128,7 @@ describe("chatReducer", () => {
     expect(state.turns.at(-1)).toMatchObject({ parts: text("No API key"), role: "error" });
   });
 
-  test("attached images follow the text of the newest user turn", () => {
+  test("attachment parts follow the text of the newest user turn", () => {
     const image: TurnPart = {
       bytes: 2048,
       data: new Uint8Array(),
@@ -136,9 +136,10 @@ describe("chatReducer", () => {
       mimeType: "image/png",
     };
 
-    const state = run(booted, sent, { images: [image], type: "imagesAttached" });
+    const note: TurnPart = { kind: "text", text: "Attached `a.md` (1 line)" };
+    const state = run(booted, sent, { parts: [note, image], type: "attached" });
 
-    expect(state.turns[0]?.parts).toEqual([...text("hi"), image]);
+    expect(state.turns[0]?.parts).toEqual([...text("hi"), note, image]);
   });
 
   test("tool events set the status and result of their call", () => {

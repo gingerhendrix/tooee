@@ -6,7 +6,7 @@
  */
 
 import { keepToolProgress } from "./content-parts.js";
-import type { ImagePart, ToolCallPart, ToolResultView, TurnPart } from "./content-parts.js";
+import type { ToolCallPart, ToolResultView, TurnPart } from "./content-parts.js";
 
 export type ChatPhase = "booting" | "ready" | "streaming" | "failed";
 
@@ -41,7 +41,7 @@ export type ChatAction =
   | { type: "booted"; modelLabel: string; thinkingLevel?: string }
   | { type: "bootFailed"; message: string }
   | { type: "userSent"; parts: readonly TurnPart[] }
-  | { type: "imagesAttached"; images: readonly ImagePart[] }
+  | { type: "attached"; parts: readonly TurnPart[] }
   | { type: "assistantStarted" }
   | { type: "assistantUpdated"; parts: readonly TurnPart[] }
   | {
@@ -126,17 +126,18 @@ const updateToolCall = function updateToolCall(
 };
 
 /** Adds image parts to the newest user turn, after its text. */
-const attachImages = function attachImages(
+/** Adds the attachment parts to the last user turn. */
+const addAttachments = function addAttachments(
   state: ChatState,
-  images: readonly ImagePart[]
+  parts: readonly TurnPart[]
 ): ChatState {
   const index = state.turns.findLastIndex((turn) => turn.role === "user");
 
-  if (images.length === 0) {
+  if (parts.length === 0) {
     return state;
   }
 
-  return replaceTurn(state, index, (turn) => ({ ...turn, parts: [...turn.parts, ...images] }));
+  return replaceTurn(state, index, (turn) => ({ ...turn, parts: [...turn.parts, ...parts] }));
 };
 
 const isOpenToolCall = function isOpenToolCall(part: TurnPart): boolean {
@@ -206,8 +207,8 @@ export const chatReducer = function chatReducer(state: ChatState, action: ChatAc
       return appendTurn({ ...state, phase: "streaming" }, { parts: action.parts, role: "user" });
     }
 
-    case "imagesAttached": {
-      return attachImages(state, action.images);
+    case "attached": {
+      return addAttachments(state, action.parts);
     }
 
     case "assistantStarted": {
