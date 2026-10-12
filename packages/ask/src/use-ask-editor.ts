@@ -115,6 +115,22 @@ interface AskEditorKeymapDefinition extends Omit<ActionDefinition, "group" | "wh
   when?: () => boolean;
 }
 
+const COPY_FAILED_MESSAGE = "Copy failed: no clipboard tool found (wl-copy, xclip or xsel)";
+
+const copyAndReport = async function copyAndReport(
+  text: string,
+  successMessage: string,
+  ctx: CommandContext
+): Promise<void> {
+  const copied = await copyToClipboard(text);
+
+  ctx.toast?.toast(
+    copied
+      ? { level: "success", message: successMessage }
+      : { level: "error", message: COPY_FAILED_MESSAGE }
+  );
+};
+
 /**
  * Headless ask editor core: owns editor state and registers all editing
  * commands (vim motions, insert entries, submit/cancel/escape) on the nearest
@@ -226,8 +242,7 @@ export const useAskEditor = function useAskEditor(
         return;
       }
 
-      void copyToClipboard(text);
-      ctx.toast?.toast({ level: "success", message: successMessage });
+      void copyAndReport(text, successMessage, ctx);
     },
     []
   );

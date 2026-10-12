@@ -8,10 +8,19 @@
  */
 export const copied: string[] = [];
 
+/** Set `available` to false to make the mock report that no clipboard tool exists. */
+export const clipboardMockState = { available: true };
+
 export const clipboardStub = function clipboardStub() {
   return {
-    copyToClipboard: (text: string) => {
+    copyToClipboard: async (text: string) => {
+      if (!clipboardMockState.available) {
+        return await Promise.resolve(false);
+      }
+
       copied.push(text);
+
+      return await Promise.resolve(true);
     },
     copyToPrimary: async () => {
       // The mock intentionally performs no primary-selection I/O.

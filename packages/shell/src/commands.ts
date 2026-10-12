@@ -1,9 +1,10 @@
 import { useRenderer } from "@opentui/react";
-import { copyToClipboard, readClipboardText, readPrimaryText } from "@tooee/clipboard";
+import { readClipboardText, readPrimaryText } from "@tooee/clipboard";
 import { useCommand } from "@tooee/commands";
 import type { CommandWhen, Mode } from "@tooee/commands";
 import { useToast } from "@tooee/toasts";
 
+import { copyAndReport } from "./copy-report.js";
 import { useThemePicker } from "./theme-picker/use-theme-picker.js";
 import type { ThemePickerState } from "./theme-picker/use-theme-picker.js";
 
@@ -107,8 +108,7 @@ export const useCopyCommand = function useCopyCommand(opts: UseCopyCommandOption
       const text = opts.getText();
 
       if (text !== undefined && text !== "") {
-        void copyToClipboard(text);
-        ctx.toast?.toast({ level: "success", message: "Copied to clipboard" });
+        void copyAndReport(ctx, text, "Copied to clipboard");
       } else {
         ctx.toast?.toast({ level: "warning", message: "Nothing to copy" });
       }

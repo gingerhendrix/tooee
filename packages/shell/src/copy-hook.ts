@@ -1,5 +1,6 @@
-import { copyToClipboard } from "@tooee/clipboard";
 import { useCommand, useSetMode } from "@tooee/commands";
+
+import { copyAndReport } from "./copy-report.js";
 
 export interface UseCopyOptions {
   getRowText: (index: number) => string;
@@ -25,8 +26,7 @@ export const useCopy = function useCopy({
       const text = cursor === null ? "" : getRowText(cursor);
 
       if (text) {
-        void copyToClipboard(text);
-        ctx.toast?.toast({ level: "success", message: "Copied line to clipboard" });
+        void copyAndReport(ctx, text, "Copied line to clipboard");
       } else {
         ctx.toast?.toast({ level: "warning", message: "Nothing to copy" });
       }
@@ -58,8 +58,7 @@ export const useCopy = function useCopy({
       }
 
       if (text) {
-        void copyToClipboard(text);
-        ctx.toast?.toast({ level: "success", message: "Copied selection to clipboard" });
+        void copyAndReport(ctx, text, "Copied selection to clipboard");
       } else {
         ctx.toast?.toast({ level: "warning", message: "Nothing selected" });
       }
