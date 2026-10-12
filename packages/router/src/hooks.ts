@@ -50,7 +50,7 @@ export const useNavigate = function useNavigate(): NavigateHandle {
 
 /** Is `routeId` the active route, or an ancestor of it (nested layouts)? */
 const isActiveRoute = function isActiveRoute(
-  router: RouterInstance,
+  router: RouterInstance<unknown>,
   activeRouteId: string,
   routeId: string
 ): boolean {
@@ -118,7 +118,11 @@ export const useCanGoBack = function useCanGoBack(): boolean {
   return stack.length > 1;
 };
 
-export const useRouter = function useRouter(): RouterInstance {
+/**
+ * The router from the nearest `RouterProvider`. Its `context` is `unknown`,
+ * because the provider accepts a router made with any `context` type.
+ */
+export const useRouter = function useRouter(): RouterInstance<unknown> {
   return useRouterInstance();
 };
 
