@@ -1,5 +1,6 @@
 /** Status bar content: catalogue size, demo source, and key hints. */
 
+import { StatusPriority } from "@tooee/layout";
 import type { StatusBarItem } from "@tooee/layout";
 
 import type { Loaded } from "./data/client.js";
@@ -28,8 +29,13 @@ export const statusItems = function statusItems(
   vendor: Resource<VendorStatus>
 ): StatusBarItem[] {
   return [
-    { label: "components", value: registryLabel(registry) },
-    { label: "demos", value: vendorLabel(vendor) },
-    { label: "keys", value: "Tab panel · i filter · y copy · 1-3 tabs · : palette · q quit" },
+    { label: "components", priority: StatusPriority.content, value: registryLabel(registry) },
+    { label: "demos", priority: StatusPriority.content, value: vendorLabel(vendor) },
+    {
+      compact: { value: ": palette · q quit" },
+      label: "keys",
+      priority: StatusPriority.hint,
+      value: "Tab panel · i filter · y copy · 1-3 tabs · : palette · q quit",
+    },
   ];
 };

@@ -29,7 +29,7 @@
  */
 
 import { CommandSurfaceProvider, useCommand } from "@tooee/commands";
-import { AppLayout } from "@tooee/layout";
+import { AppLayout, StatusPriority } from "@tooee/layout";
 import { Panel, PanelGroup } from "@tooee/panels";
 import {
   Outlet,
@@ -185,7 +185,9 @@ const PanelsDemo = function PanelsDemo(): ReactNode {
       statusBar={{
         items: [
           {
+            compact: { value: ": palette · q quit" },
             label: "keys",
+            priority: StatusPriority.hint,
             value: "Tab switch · j/k list · v detail · o modal · : palette · q quit",
           },
         ],
