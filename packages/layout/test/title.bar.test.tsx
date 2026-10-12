@@ -60,3 +60,35 @@ test("snapshot", async () => {
   const frame = testSetup.captureCharFrame();
   expect(frame).toMatchSnapshot();
 });
+
+test("stays on one row when the title is wider than the bar", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <TitleBar
+        title="A very long document title that will not fit in the bar"
+        subtitle="markdown"
+      />
+    </ThemeSwitcherProvider>,
+    { height: 3, width: 30 }
+  );
+  await testSetup.renderOnce();
+  const rows = testSetup.captureCharFrame().split("\n");
+
+  expect(rows[0]).toContain("A very long document title …");
+  expect(rows[0]).not.toContain("markdown");
+  expect(rows[1]?.trim()).toBe("");
+});
+
+test("shortens the subtitle before the title", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <TitleBar title="notes.md" subtitle="/home/user/projects/notes" />
+    </ThemeSwitcherProvider>,
+    { height: 3, width: 30 }
+  );
+  await testSetup.renderOnce();
+  const rows = testSetup.captureCharFrame().split("\n");
+
+  expect(rows[0]).toContain("notes.md — /home/user/proje…");
+  expect(rows[1]?.trim()).toBe("");
+});

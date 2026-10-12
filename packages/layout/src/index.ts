@@ -32,6 +32,10 @@ export type {
   StatusBarTruncate,
 } from "./fit-status-bar.js";
 
+export { fitTitleBar } from "./fit-title-bar.js";
+
+export type { TitleBarText } from "./fit-title-bar.js";
+
 export { StatusBar } from "./status-bar.js";
 
 export type { StatusBarProps } from "./status-bar.js";
