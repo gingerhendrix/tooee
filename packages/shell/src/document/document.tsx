@@ -1,4 +1,5 @@
 import type { ExtendedComponentProps } from "@opentui/react";
+import { useGutterPalette } from "@tooee/renderers";
 import type { RowDocumentRenderable } from "@tooee/renderers";
 import type { ReactNode } from "react";
 import "@tooee/renderers/row-document";
@@ -19,13 +20,16 @@ export interface DocumentProps<T> extends Omit<
 /**
  * The bound multi-child `row-document`: one direct host child per model row,
  * with the controller's ref, decorations, and mouse handler wired in. Callers
- * cannot remember navigation but forget scroll-follow or mouse binding.
+ * cannot remember navigation but forget scroll-follow or mouse binding. The
+ * gutter takes the theme colours unless the caller passes a `palette`.
  */
 export const Document = function Document<T>({
   controller,
   renderRow,
+  palette,
   ...rowDocumentProps
 }: DocumentProps<T>): ReactNode {
+  const themePalette = useGutterPalette();
   const handleMouseDown = controller.onMouseDown;
 
   // Tail follow pins the viewport with the scroll box's own sticky scroll. It
@@ -38,6 +42,7 @@ export const Document = function Document<T>({
     <row-document
       {...rowDocumentProps}
       {...stickyProps}
+      palette={palette ?? themePalette}
       ref={controller.ref}
       decorations={controller.decorations}
       onMouseDown={handleMouseDown}
