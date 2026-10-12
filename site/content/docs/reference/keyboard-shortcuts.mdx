@@ -1,0 +1,247 @@
+---
+title: Keyboard shortcuts
+description: Every default key in Tooee 0.12, with its command id and its mode.
+---
+
+This page lists every default key in Tooee 0.12 with the id of its command. [Keyboard basics](/docs/start/keyboard-basics) teaches the common keys. To give a command another key, put its id in `keys`, as [Configuration](/docs/customize/configuration#remap-keys) shows.
+
+Each key is written in the hotkey grammar that `keys` accepts. Letter case does not matter, so `escape` and `Escape` are the same key. `shift+g` is `G`, and `g g` is a sequence: press `g` twice. A command with the key "none" has no default key. Run it from the `:` palette, or give it a key in `keys`.
+
+## Every app
+
+`TooeeProvider` registers these commands, so every app started with `launchCli` or `runCliSession` has them.
+
+| Key | Id | Mode | Action |
+| --- | --- | --- | --- |
+| `:` | `command-palette` | cursor, select | Open the command palette |
+| `ctrl+shift+j` | `toggle-debug-console` | cursor | Toggle the OpenTUI debug console |
+| `escape` | `overlay.close-top` | any | Close the top overlay. Modal overlays with commands of their own handle `escape` themselves. |
+| `ctrl+c` | no id | any | End the process. `exitOnCtrlC: false` on the session turns it off. |
+
+The apps add two more. View, Ask, Choose, and `DocumentScreen` register both through `useThemeCommands` and `useQuitCommand`.
+
+| Key | Id            | Mode   | Action                                      |
+| --- | ------------- | ------ | ------------------------------------------- |
+| `t` | `cycle-theme` | cursor | Open the theme picker                       |
+| `q` | `quit`        | cursor | Quit. In Ask and Choose, cancel the prompt. |
+
+## Documents
+
+Every document from `useDocumentController` has these keys, and View is one. `copy: false` on the controller drops the two copy commands.
+
+| Key | Id | Mode | Action |
+| --- | --- | --- | --- |
+| `j` | `cursor-down` | cursor | Cursor down |
+| `k` | `cursor-up` | cursor | Cursor up |
+| `ctrl+d` | `cursor-half-down` | cursor | Half a page down |
+| `ctrl+u` | `cursor-half-up` | cursor | Half a page up |
+| `g g` | `cursor-top` | cursor | First row |
+| `shift+g` | `cursor-bottom` | cursor | Last row |
+| `v` | `enter-select` | cursor | Start a selection and switch to select mode |
+| `j` | `select-down` | select | Extend the selection down |
+| `k` | `select-up` | select | Extend the selection up |
+| `escape` | `select-cancel` | select | Cancel the selection and return to cursor mode |
+| `y y` | `copy-line` | cursor, select | Copy the cursor row |
+| `y v` | `copy-selection` | cursor, select | Copy the selection or the toggled rows, then return to cursor mode |
+
+With `multiSelect` on, a document also toggles rows:
+
+| Key         | Id                 | Mode   | Action                            |
+| ----------- | ------------------ | ------ | --------------------------------- |
+| `tab`       | `cursor-toggle`    | cursor | Toggle the cursor row             |
+| `shift+tab` | `cursor-toggle-up` | cursor | Toggle the cursor row and move up |
+| `tab`       | `select-toggle`    | select | Toggle the cursor row             |
+
+## Search
+
+Every document has these keys unless its controller has `search: false`. `enter` in the search bar runs the search. That key belongs to the input and has no id.
+
+| Key | Id | Mode | Action |
+| --- | --- | --- | --- |
+| `/` | `cursor-search-start` | cursor | Open the search bar and switch to insert mode |
+| `n` | `cursor-search-next` | cursor | Next match |
+| `shift+n` | `cursor-search-prev` | cursor | Previous match |
+| `escape` | `search-cancel` | any, while the search bar is open | Close the search bar, clear the query, and return to the previous mode |
+
+## View and Markdown
+
+View adds these keys to the document keys. The `fold.*`, `outline.toggle`, and `block-scroll-*` commands exist only while View shows Markdown.
+
+| Key | Id | Mode | Action |
+| --- | --- | --- | --- |
+| `y g` | `copy` | cursor, select | Copy the whole document |
+| `shift+l` | `toggle-line-numbers` | cursor | Show or hide line numbers |
+| `enter` | `view.follow-link` | cursor | Follow the Markdown link on the cursor line. Several links open a chooser. |
+| `backspace` | `router.back` | cursor | Return to the previous file after a link |
+| `g o` | `outline.toggle` | cursor | Open the heading outline and move into it, or close it from inside |
+| `z a` | `fold.toggle` | cursor | Open or close the fold at the cursor |
+| `z c` | `fold.close` | cursor | Close the fold at the cursor |
+| `z o` | `fold.open` | cursor | Open the fold at the cursor |
+| `z z` | `fold.toggle-block` | cursor | Open the fold at the cursor when it is closed, else close it |
+| `z shift+m` | `fold.close-all` | cursor | Close all folds |
+| `z shift+r` | `fold.open-all` | cursor | Open all folds |
+| `h` | `block-scroll-left` | cursor, on a wide code block | Scroll the code block left |
+| `l` | `block-scroll-right` | cursor, on a wide code block | Scroll the code block right |
+
+`view.follow-link` and `router.back` come from `launch()` in `@tooee/view` and from `tooee view` with a file or stdin. A `View` that you mount yourself does not register them. [View](/docs/cli/view#follow-local-links) describes links, folds, and the outline.
+
+## Outline
+
+These keys work while the outline panel has the focus.
+
+| Key | Id | Mode | Action |
+| --- | --- | --- | --- |
+| `j`, `down` | `outline.down`, `outline.down-arrow` | cursor | Next heading |
+| `k`, `up` | `outline.up`, `outline.up-arrow` | cursor | Previous heading |
+| `g g` | `outline.first` | cursor | First heading |
+| `shift+g` | `outline.last` | cursor | Last heading |
+| `enter` | `outline.jump` | cursor | Move the document cursor to the heading and return to the document |
+| `escape` | `outline.focus-content` | cursor | Return to the document and keep the outline open |
+| `g o` | `outline.close` | cursor | Close the outline |
+| `z a`, `z c`, `z o`, `z z`, `z shift+m`, `z shift+r` | `outline.fold.toggle`, `outline.fold.close`, `outline.fold.open`, `outline.fold.toggle-block`, `outline.fold.close-all`, `outline.fold.open-all` | cursor | The fold commands, for the selected heading |
+
+The outline is a panel with `switchKeys={null}`, so `panels.next` and `panels.previous` do not apply to it.
+
+## Diffs
+
+| Key | Id                   | Mode                 | Action                                  |
+| --- | -------------------- | -------------------- | --------------------------------------- |
+| `s` | `diff.toggle-layout` | cursor, select       | Switch between split and unified layout |
+| `w` | `diff.toggle-wrap`   | cursor, select       | Toggle line wrapping                    |
+| `]` | `diff.next-file`     | cursor, select       | Next file                               |
+| `[` | `diff.prev-file`     | cursor, select       | Previous file                           |
+| `f` | `diff.file-picker`   | cursor, select       | Open the file picker                    |
+| `h` | `diff.scroll-left`   | cursor, wrapping off | Pan left                                |
+| `l` | `diff.scroll-right`  | cursor, wrapping off | Pan right                               |
+
+[View: diffs](/docs/apps/view/diffs#keys) explains layout and wrapping.
+
+## Directory view
+
+`tooee view <directory>` and `launch()` with `dirPath` add these keys.
+
+| Key | Id              | Mode   | Action        |
+| --- | --------------- | ------ | ------------- |
+| `l` | `dir.next-file` | cursor | Next file     |
+| `h` | `dir.prev-file` | cursor | Previous file |
+
+Each file opens in View, so a wide code block or an unwrapped diff also uses `h` and `l`. Give `dir.next-file` and `dir.prev-file` other keys when you read those files in a directory.
+
+## Ask
+
+The Ask app starts in insert mode. Its editor ids start with `ask:`. An Ask dialog from `useAskDialog` has the same keys, with ids that start with `ask-overlay:`.
+
+| Key | Id | Mode | Action |
+| --- | --- | --- | --- |
+| `escape` | `ask:leave-insert-mode` | insert | Switch to cursor mode |
+| `enter` | `ask:submit-insert` | insert | Submit. Single-line editor only. |
+| `shift+enter` | `ask:submit-multiline` | insert, cursor | Submit |
+| `enter` | `ask:submit-cursor` | cursor | Submit |
+| `i` | `ask:insert-mode-i` | cursor | Insert at the text cursor |
+| `a` | `ask:insert-mode-a` | cursor | Insert after the text cursor |
+| `o` | `ask:open-line-below` | cursor | Open a line below. Multiline editor only. |
+| `shift+o` | `ask:open-line-above` | cursor | Open a line above. Multiline editor only. |
+| `h`, `left` | `ask:move-left`, `ask:move-left-arrow` | cursor | Move left |
+| `l`, `right` | `ask:move-right`, `ask:move-right-arrow` | cursor | Move right |
+| `j`, `down` | `ask:move-down`, `ask:move-down-arrow` | cursor | Move down |
+| `k`, `up` | `ask:move-up`, `ask:move-up-arrow` | cursor | Move up |
+| `0`, `home` | `ask:line-home`, `ask:line-home-key` | cursor | Start of the line |
+| `shift+4` (`$`), `end` | `ask:line-end`, `ask:line-end-key` | cursor | End of the line |
+| `w` | `ask:word-forward` | cursor | Next word |
+| `b` | `ask:word-backward` | cursor | Previous word |
+| `g g` | `ask:buffer-home` | cursor | Start of the text |
+| `shift+g` | `ask:buffer-end` | cursor | End of the text |
+| `y y` | `ask:copy-line` | cursor | Copy the line at the text cursor |
+| `y g` | `ask:copy-document` | cursor | Copy the whole text |
+| `y v` | `ask:copy-selection` | cursor | Copy the text selected with the mouse |
+| `q` | `ask:cancel` | cursor | Cancel. Only when the editor has an `onCancel`, as the dialog does. |
+| `p` | `paste-clipboard` | cursor | Paste from the clipboard |
+| none | `paste-primary` | cursor | Paste from the primary selection. The palette lists it as "Paste from selection". |
+
+`paste-clipboard` and `paste-primary` belong to the Ask app. The dialog does not have them. The Ask app cancels with `q` through `quit`, from the table in [Every app](#every-app). `submitKey: "none"` on `useAskEditor` turns off the three submit commands.
+
+## Choose
+
+The Choose app starts in insert mode with the filter focused. Its ids start with `choose:`. A Choose dialog from `useChooseDialog` has the same keys, with ids that start with `choose-overlay:`.
+
+| Key | Id | Mode | Action |
+| --- | --- | --- | --- |
+| `escape` | `choose:escape` | insert, cursor | In insert mode, switch to cursor mode. In cursor mode, cancel. |
+| `enter` | `choose:confirm` | insert, cursor | Confirm |
+| `up`, `ctrl+p` | `choose:move-up`, `choose:move-up-ctrl-p` | insert, cursor | Move up |
+| `down`, `ctrl+n` | `choose:move-down`, `choose:move-down-ctrl-n` | insert, cursor | Move down |
+| `tab` | `choose:toggle-next` | insert, cursor | Toggle the item and move down. Multi-select only. |
+| `shift+tab` | `choose:toggle-previous` | insert, cursor | Toggle the item and move up. Multi-select only. |
+| `j` | `choose:move-down-vim` | cursor | Move down |
+| `k` | `choose:move-up-vim` | cursor | Move up |
+| `i` | `choose:insert-mode-i` | cursor | Return to the filter |
+| `a` | `choose:insert-mode-a` | cursor | Return to the filter |
+| `q` | `choose:cancel` | cursor | Cancel |
+
+In the Choose app, `quit` also has `q` and also cancels. Give both ids a new key to move cancel off `q`.
+
+## Command palette
+
+`:` opens the palette. It lists the visible commands of the current mode with their default keys. Hidden commands do not show, and every id with a colon on this page is hidden. The palette opens in insert mode with the filter focused, and its ids start with `command-palette:`.
+
+| Key | Id | Action |
+| --- | --- | --- |
+| `enter` | `command-palette:confirm` | Run the highlighted command |
+| `escape` | `command-palette:escape` | Close the palette |
+| `up`, `ctrl+p` | `command-palette:move-up`, `command-palette:move-up-ctrl-p` | Move up |
+| `down`, `ctrl+n` | `command-palette:move-down`, `command-palette:move-down-ctrl-n` | Move down |
+
+The palette and the pickers below use the Choose commands with `escape` set to close. The other chooser commands need cursor mode or multi-select. The palette has neither, because `escape` closes it before it can reach cursor mode.
+
+## Pickers
+
+| Picker | Opened by | Id prefix |
+| --- | --- | --- |
+| Theme picker | `t` (`cycle-theme`) | `theme-picker:` |
+| Diff file picker | `f` (`diff.file-picker`) | `command-palette:` |
+| Link chooser | `enter` (`view.follow-link`) on a line with several links | `choose-overlay:` |
+
+The theme picker and the diff file picker have the palette keys: `enter`, `escape`, `up`, `down`, `ctrl+p`, and `ctrl+n`. In the theme picker the ids are `theme-picker:confirm`, `theme-picker:escape`, and so on. The link chooser is a Choose dialog and has the keys from [Choose](#choose).
+
+## Overlays
+
+`overlay.close-top` closes the top overlay on `escape`, as [Every app](#every-app) lists. It works for overlays opened without `ownCommands` and for passive ones. It skips an overlay opened with `dismissOnEscape: false`. A modal overlay with `ownCommands` takes every key, so it must register its own `escape` command. The palette, the pickers, and the dialogs on this page do this. [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts#own-the-keyboard-from-an-overlay) explains the two kinds.
+
+## Context menus
+
+A context menu from `useContextMenu` switches the app to insert mode while it is open. Its commands register on the app surface.
+
+| Key      | Id                           | Mode           | Action                    |
+| -------- | ---------------------------- | -------------- | ------------------------- |
+| `up`     | `context-menu:move-up`       | insert, cursor | Move up                   |
+| `k`      | `context-menu:move-up-vim`   | insert, cursor | Move up                   |
+| `down`   | `context-menu:move-down`     | insert, cursor | Move down                 |
+| `j`      | `context-menu:move-down-vim` | insert, cursor | Move down                 |
+| `enter`  | `context-menu:select`        | insert, cursor | Run the highlighted entry |
+| `escape` | `overlay.close-top`          | insert, cursor | Close the menu            |
+
+## Panels
+
+Each panel in a `PanelGroup` registers these commands on its own surface. They run while that panel is active.
+
+| Key         | Id                | Mode           | Action                      |
+| ----------- | ----------------- | -------------- | --------------------------- |
+| `tab`       | `panels.next`     | cursor, select | Activate the next panel     |
+| `shift+tab` | `panels.previous` | cursor, select | Activate the previous panel |
+
+`switchKeys` on the group sets other keys, and `switchKeys={null}` removes both commands. `switchModes` sets the modes. [Panels](/docs/build/panels#group-props) lists the group props.
+
+## Router
+
+| Key         | Id            | Mode   | Action                                            |
+| ----------- | ------------- | ------ | ------------------------------------------------- |
+| `backspace` | `router.back` | cursor | Go back one screen, while `canGoBack()` is `true` |
+
+`useRouterCommands()` registers it on the current surface. [Routing](/docs/build/routing#router-commands) covers the router.
+
+## Next
+
+- [Keyboard basics](/docs/start/keyboard-basics)
+- [Configuration](/docs/customize/configuration#remap-keys)
+- [Commands and modes](/docs/build/commands-and-modes)
+- [Command surfaces](/docs/build/command-surfaces)
