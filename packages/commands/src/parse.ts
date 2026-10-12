@@ -27,9 +27,35 @@ const warnOnce = function warnOnce(message: string): void {
   console.warn(message);
 };
 
+/** A hotkey step split at `+`, before modifiers are read. */
+interface SplitStep {
+  parts: string[];
+  /** True when the step's key is `+` itself. */
+  plusKey: boolean;
+}
+
+/**
+ * Split a step into modifier parts and a key. `+` joins modifiers, so a `+`
+ * key needs care: a bare `+`, or a trailing `++` as in `ctrl++`, is the `+`
+ * key itself.
+ */
+const splitStep = function splitStep(step: string): SplitStep {
+  const lower = step.toLowerCase().trim();
+
+  if (lower === "+") {
+    return { parts: [], plusKey: true };
+  }
+
+  if (lower.endsWith("++")) {
+    return { parts: lower.slice(0, -2).split("+"), plusKey: true };
+  }
+
+  return { parts: lower.split("+"), plusKey: false };
+};
+
 const parseStep = function parseStep(step: string): ParsedStep {
-  const parts = step.toLowerCase().split("+");
-  let key = "";
+  const { parts, plusKey } = splitStep(step);
+  let key = plusKey ? "+" : "";
   let ctrl = false;
   let meta = false;
   let shift = false;

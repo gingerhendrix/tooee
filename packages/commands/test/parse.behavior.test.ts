@@ -49,3 +49,23 @@ describe("parseHotkey leader handling (R-06)", () => {
     expect(parsed.steps).toHaveLength(0);
   });
 });
+
+describe("parseHotkey plus key", () => {
+  test("a bare + is the plus key", () => {
+    const parsed = parseHotkey("+");
+    expect(parsed.steps).toHaveLength(1);
+    expect(parsed.steps[0].key).toBe("+");
+    expect(matchStep(key("+"), parsed.steps[0])).toBe(true);
+  });
+
+  test("ctrl++ is ctrl with the plus key", () => {
+    const [step] = parseHotkey("ctrl++").steps;
+    expect(step.key).toBe("+");
+    expect(step.ctrl).toBe(true);
+  });
+
+  test("+ works as a step in a sequence", () => {
+    const parsed = parseHotkey("z +");
+    expect(parsed.steps.map((step) => step.key)).toEqual(["z", "+"]);
+  });
+});
