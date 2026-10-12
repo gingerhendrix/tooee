@@ -1,44 +1,28 @@
 /**
- * Message history panel body: a bottom-sticky scrollbox of chat turns, or a
- * status message while the session boots or after it fails. j/k and
- * ctrl+d/ctrl+u scroll while this panel is active.
+ * Message history panel body: a Tooee row document of chat turns, or a
+ * status message while the session boots or after it fails. The document
+ * follows the tail while a reply streams, and gives the panel a row cursor,
+ * search (/), and copy. The history actions work on the row at the cursor.
  */
 
-import type { ScrollBoxRenderable } from "@opentui/core";
-import { useCommand } from "@tooee/commands";
+import { SearchBar } from "@tooee/search";
+import type { SearchState } from "@tooee/search";
+import { Document, useDocumentController } from "@tooee/shell";
 import { useTheme } from "@tooee/themes";
-import { useRef } from "react";
+import { useMemo } from "react";
 import type { ReactNode } from "react";
 
 import type { ChatState } from "./chat-state.js";
-import { MessageItem } from "./message-item.js";
-
-const PAGE = 10;
-
-const useScrollCommands = function useScrollCommands(ref: {
-  current: ScrollBoxRenderable | null;
-}): void {
-  const scroll = (delta: number) => () => {
-    ref.current?.scrollBy(delta);
-  };
-
-  useCommand({ handler: scroll(1), hotkey: "j", id: "history.down", title: "Scroll down" });
-  useCommand({ handler: scroll(-1), hotkey: "k", id: "history.up", title: "Scroll up" });
-  useCommand({
-    handler: scroll(PAGE),
-    hotkey: "ctrl+d",
-    id: "history.page-down",
-    title: "Page down",
-  });
-  useCommand({ handler: scroll(-PAGE), hotkey: "ctrl+u", id: "history.page-up", title: "Page up" });
-};
+import { HistoryRowView } from "./history-row.js";
+import { historyRowAdapter, historyRows } from "./history-rows.js";
+import { useHistoryActions } from "./use-history-actions.js";
 
 const EmptyState = function EmptyState({ state }: { state: ChatState }): ReactNode {
   const { theme } = useTheme();
 
   if (state.phase === "failed") {
     return (
-      <box flexDirection="column">
+      <box flexDirection="column" paddingLeft={1} paddingRight={1}>
         <text fg={theme.error}>
           <strong>Pi is not available</strong>
         </text>
@@ -52,28 +36,59 @@ const EmptyState = function EmptyState({ state }: { state: ChatState }): ReactNo
       ? "Starting Pi session…"
       : "No messages yet. Type in the input panel and press Enter.";
 
-  return <text content={message} fg={theme.textMuted} />;
+  return <text content={message} fg={theme.textMuted} paddingLeft={1} />;
+};
+
+const HistorySearchBar = function HistorySearchBar({ search }: { search: SearchState }): ReactNode {
+  const handleQueryChange = search.setSearchQuery;
+  const handleSubmit = search.submitSearch;
+
+  const handleCancel = (): void => {
+    search.setSearchQuery("");
+  };
+
+  return (
+    <SearchBar
+      query={search.searchQuery}
+      onQueryChange={handleQueryChange}
+      onSubmit={handleSubmit}
+      onCancel={handleCancel}
+      matchCount={search.matchingLines.length}
+      currentMatch={search.currentMatchIndex}
+    />
+  );
 };
 
 export const MessageHistory = function MessageHistory({ state }: { state: ChatState }): ReactNode {
-  const scrollRef = useRef<ScrollBoxRenderable>(null);
-  useScrollCommands(scrollRef);
+  const rows = useMemo(() => historyRows(state.turns), [state.turns]);
+
+  const controller = useDocumentController({
+    adapter: historyRowAdapter,
+    followTail: true,
+    preserveCursorByKey: true,
+    rows,
+  });
+
+  const { expanded } = useHistoryActions(controller);
+  const { search } = controller;
 
   return (
-    <scrollbox
-      ref={scrollRef}
-      stickyScroll
-      stickyStart="bottom"
-      focused={false}
-      style={{ flexGrow: 1, paddingLeft: 1, paddingRight: 1 }}
-    >
-      {state.turns.length === 0 ? (
+    <box flexDirection="column" flexGrow={1}>
+      {rows.length === 0 ? (
         <EmptyState state={state} />
       ) : (
-        state.turns.map((turn): ReactNode => (
-          <MessageItem key={turn.id} turn={turn} showDetails={state.showDetails} />
-        ))
+        <Document
+          controller={controller}
+          showLineNumbers={false}
+          // One column for the cursor and search-match signs.
+          signColumnWidth={1}
+          style={{ flexGrow: 1, paddingRight: 1 }}
+          renderRow={(row): ReactNode => (
+            <HistoryRowView row={row} showDetails={state.showDetails || expanded.has(row.key)} />
+          )}
+        />
       )}
-    </scrollbox>
+      {search?.searchActive === true ? <HistorySearchBar search={search} /> : null}
+    </box>
   );
 };

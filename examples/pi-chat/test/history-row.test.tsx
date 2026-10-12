@@ -2,10 +2,12 @@ import { afterEach, describe, expect, test } from "bun:test";
 
 import { testRender } from "@tooee/test-support";
 import { ThemeSwitcherProvider } from "@tooee/themes";
+import type { ReactNode } from "react";
 
 import type { ChatTurn } from "../chat-state.js";
 import { imagePart } from "../content-parts.js";
-import { MessageItem } from "../message-item.js";
+import { HistoryRowView } from "../history-row.js";
+import { historyRows } from "../history-rows.js";
 import { PNG_BASE64 } from "./fixtures.js";
 
 const RENDER_PASSES = 10;
@@ -20,7 +22,11 @@ afterEach(() => {
 const renderTurn = async function renderTurn(turn: ChatTurn, showDetails = false): Promise<string> {
   testSetup = await testRender(
     <ThemeSwitcherProvider>
-      <MessageItem turn={turn} showDetails={showDetails} />
+      <box flexDirection="column">
+        {historyRows([turn]).map((row): ReactNode => (
+          <HistoryRowView key={row.key} row={row} showDetails={showDetails} />
+        ))}
+      </box>
     </ThemeSwitcherProvider>,
     { height: 30, width: 90 }
   );
@@ -73,7 +79,7 @@ const assistantTurn: ChatTurn = {
   streaming: false,
 };
 
-describe("MessageItem", () => {
+describe("HistoryRowView", () => {
   test("shows thinking, tool calls with status and results, images, and text", async () => {
     const frame = await renderTurn(assistantTurn);
 
