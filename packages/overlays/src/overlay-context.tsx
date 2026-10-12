@@ -8,7 +8,12 @@ export type OverlayId = string;
 
 export type OverlayCloseReason = "close" | "escape" | "replaced" | "unmounted";
 
-export type OverlayRole = CommandSurfaceRole;
+/**
+ * Interaction role of an owned overlay surface. A `panel` surface needs a
+ * panel group to become active, and overlays have none, so overlays take only
+ * `modal` or `passive`. Use `@tooee/panels` for panel surfaces.
+ */
+export type OverlayRole = Exclude<CommandSurfaceRole, "panel">;
 
 export interface OverlayOpenOptions {
   /** Mode to set while overlay is active (default: "insert"). null = don't change mode. */
