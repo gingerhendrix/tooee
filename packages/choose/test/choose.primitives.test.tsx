@@ -387,10 +387,10 @@ describe("shared commands, context, and surfaces", () => {
     expect(selected[0]?.text).toBe("beta");
   });
 
-  test("fullscreen submit actions retain precedence over onConfirm", async () => {
+  test("a fullscreen submit action does not replace onConfirm", async () => {
     const provider: ChooseContentProvider = { load: () => [{ text: "alpha" }] };
     let actionItem = "";
-    let confirms = 0;
+    let confirmed = "";
     testSetup = await setup(
       <Choose
         contentProvider={provider}
@@ -403,15 +403,15 @@ describe("shared commands, context, and surfaces", () => {
             title: "Submit",
           },
         ]}
-        onConfirm={() => {
-          confirms += 1;
+        onConfirm={(result) => {
+          confirmed = result.items[0]?.text ?? "";
         }}
       />
     );
 
     await pressEnter();
-    expect(actionItem).toBe("alpha");
-    expect(confirms).toBe(0);
+    expect(confirmed).toBe("alpha");
+    expect(actionItem).toBe("");
   });
 });
 

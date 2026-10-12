@@ -8,7 +8,7 @@
  * change files. Replies show thinking, tool calls, and tool results. Images
  * draw in the history under a caption such as `[image png · 12.3 KB]`.
  *
- * Run:  bun examples/pi-chat/main.tsx
+ * Run:  bun --conditions=@tooee/source examples/pi-chat/main.tsx
  *
  * Type in the input panel and press Enter. A word like @shots/a.png attaches
  * that image. Press Esc for cursor mode, then Tab to move to the Messages

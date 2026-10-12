@@ -1,0 +1,55 @@
+---
+title: Ask
+description: Collect one line or many lines of text with tooee ask, and read what it prints.
+---
+
+```bash
+tooee ask "Release note:"
+```
+
+The words after `ask` form the prompt. Ask opens an editor in insert mode. `Enter` adds a line and `Shift+Enter` submits. On submit, Ask prints the text followed by a newline and exits with code 0.
+
+`--single-line` (`-s`) gives a one-line input where `Enter` submits:
+
+```bash
+tooee ask --single-line "Search for:"
+```
+
+`--multiline` (`-m`) is the default and can be passed for clarity.
+
+To cancel, press `Escape` to reach cursor mode, then `q`. `ctrl+c` cancels from any mode. A cancelled Ask prints nothing and exits with code 1.
+
+## Keys
+
+| Key | Mode | Action |
+| --- | --- | --- |
+| `Escape` | insert | Switch to cursor mode |
+| `i` | cursor | Insert at the text cursor |
+| `a` | cursor | Insert after the text cursor |
+| `o`, `O` | cursor | Open a line below or above (multiline) |
+| `h`, `j`, `k`, `l`, `w`, `b`, `0`, `$`, `g g`, `G` | cursor | Move the text cursor |
+| `Enter`, `Shift+Enter` | cursor | Submit |
+| `y y`, `y g`, `y v` | cursor | Copy the line, the whole text, or the selection |
+| `p` | cursor | Paste from the clipboard |
+| `:` | cursor | Open the command palette |
+| `q` | cursor | Cancel |
+
+## Use the result in a script
+
+Ask draws its screen on the controlling terminal and prints the submitted text on stdout. Command substitution captures the text alone:
+
+```bash
+name=$(tooee ask --single-line "Branch name:") || exit
+git switch -c "$name"
+```
+
+Piped text on stdin is not used as an initial value. Ask reads keys from the terminal in that case. [CLI reference](/docs/reference/cli) lists the terminal channels and exit codes.
+
+Call `launch()` from `@tooee/ask` when a script needs a default value, a placeholder, or its own commands. [Ask from TypeScript](/docs/apps/ask) covers that path.
+
+## Next
+
+- [Choose](/docs/cli/choose)
+- [View](/docs/cli/view)
+- [CLI reference](/docs/reference/cli)
+- [Ask from TypeScript](/docs/apps/ask)

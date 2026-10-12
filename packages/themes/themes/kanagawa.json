@@ -72,6 +72,10 @@
     "syntaxNumber": { "dark": "roninYellow", "light": "roninYellow" },
     "syntaxType": { "dark": "carpYellow", "light": "carpYellow" },
     "syntaxOperator": { "dark": "sakuraPink", "light": "sakuraPink" },
-    "syntaxPunctuation": { "dark": "fujiWhite", "light": "lightText" }
+    "syntaxPunctuation": { "dark": "fujiWhite", "light": "lightText" },
+    "searchMatchBg": { "dark": "#473d32", "light": "#ecdac0" },
+    "searchCurrentMatchBg": { "dark": "#404b66", "light": "#adb3b4" },
+    "searchMatchFg": "warning",
+    "searchCurrentMatchFg": "primary"
   }
 }

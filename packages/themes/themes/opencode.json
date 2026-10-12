@@ -240,6 +240,16 @@
     "syntaxPunctuation": {
       "dark": "darkStep12",
       "light": "lightStep12"
-    }
+    },
+    "searchMatchBg": {
+      "dark": "#3e2d16",
+      "light": "#f6e6cf"
+    },
+    "searchCurrentMatchBg": {
+      "dark": "#5e4534",
+      "light": "#bad2f1"
+    },
+    "searchMatchFg": "warning",
+    "searchCurrentMatchFg": "primary"
   }
 }

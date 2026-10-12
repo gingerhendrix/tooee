@@ -112,6 +112,7 @@ const toggle = function toggle(ctx: NavSearchContext): NavSearchContext {
 const searchStep = function searchStep(
   ctx: NavSearchContext,
   delta: 1 | -1,
+  isSelectable: (index: number) => boolean,
   enqueue: { emit: { jumped: (event: { index: number }) => void } }
 ): NavSearchContext {
   if (ctx.search.matches.length === 0) {
@@ -121,7 +122,18 @@ const searchStep = function searchStep(
   const currentMatchIndex =
     (ctx.search.currentMatchIndex + delta + ctx.search.matches.length) % ctx.search.matches.length;
 
-  const cursor = ctx.search.matches[currentMatchIndex];
+  const match = ctx.search.matches[currentMatchIndex];
+
+  // A match can sit on a row that the cursor may not stop on, for example a
+  // heading. Resolve it the same way typing and Enter do. A store with no rows
+  // (a standalone `useSearch`) cannot check rows, so it keeps the match.
+  const cursor =
+    ctx.rowKeys.length === 0 ? match : resolveIndex(match, delta, ctx.rowKeys.length, isSelectable);
+
+  if (cursor === null) {
+    return { ...ctx, search: { ...ctx.search, currentMatchIndex } };
+  }
+
   enqueue.emit.jumped({ index: cursor });
 
   return { ...ctx, cursor, search: { ...ctx.search, currentMatchIndex } };
@@ -275,8 +287,8 @@ export const createNavSearchStore = function createNavSearchStore(
           },
         };
       },
-      searchNext: (ctx, _event, enqueue) => searchStep(ctx, 1, enqueue),
-      searchPrevious: (ctx, _event, enqueue) => searchStep(ctx, -1, enqueue),
+      searchNext: (ctx, _event, enqueue) => searchStep(ctx, 1, deps.isSelectable, enqueue),
+      searchPrevious: (ctx, _event, enqueue) => searchStep(ctx, -1, deps.isSelectable, enqueue),
       searchStarted: (ctx, event) => ({
         ...ctx,
         search: {

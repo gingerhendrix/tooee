@@ -222,6 +222,10 @@
     "syntaxPunctuation": {
       "dark": "darkStep12",
       "light": "lightStep12"
-    }
+    },
+    "searchMatchBg": "#ec5b2b38",
+    "searchCurrentMatchBg": "#ec5b2b59",
+    "searchMatchFg": "warning",
+    "searchCurrentMatchFg": "primary"
   }
 }

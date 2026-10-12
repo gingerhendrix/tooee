@@ -17,7 +17,7 @@ export type {
   UseToggleLineNumbersCommandOptions,
 } from "./commands.js";
 
-export { useNavigation } from "./navigation.js";
+export { useNavigation, useNavigationBindings } from "./navigation.js";
 
 export type { UseNavigationOptions, NavigationState } from "./navigation.js";
 

@@ -74,4 +74,3 @@ npm:packages:
   - id: npm:@tooee/themes
   - id: npm:@tooee/toasts
   - id: npm:@tooee/view
-  - id: npm:@tooee/examples

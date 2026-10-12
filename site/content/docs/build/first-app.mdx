@@ -1,0 +1,275 @@
+---
+title: Your first Tooee app
+description: Write a screen with a row list, a hotkey, and chrome on the Tooee shell, then run it with bun.
+---
+
+```tsx title="app.tsx"
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import type { ReactNode } from "react";
+
+const ReleaseChecklist = function ReleaseChecklist(): ReactNode {
+  useQuitCommand();
+  return <text content="Release checklist. Press q to quit." />;
+};
+
+await launchCli(<ReleaseChecklist />);
+```
+
+```bash
+bun add @tooee/shell @tooee/commands @tooee/layout @tooee/themes
+bun app.tsx
+```
+
+`launchCli` creates an OpenTUI renderer, mounts `TooeeProvider` around your component, and returns when the renderer is ready. The provider gives the tree modes, commands, themes, overlays, toasts, and config. `useQuitCommand` registers `q` in cursor mode; `ctrl+c` ends the process from any mode. `<text>` is an [OpenTUI](https://opentui.com) element; the JSX options from [Install](/docs/start/install#set-the-jsx-options) make it typecheck.
+
+The rest of this page grows `app.tsx` until it has a row list with a cursor, a hotkey, and a title bar and status bar.
+
+## Add rows and a cursor
+
+```tsx title="app.tsx"
+import { launchCli, useNavigation, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
+
+const checklist = ["Run the tests", "Bump the version", "Write the changelog", "Tag the release"];
+
+const ReleaseChecklist = function ReleaseChecklist(): ReactNode {
+  const { theme } = useTheme();
+  const { cursor } = useNavigation({ rowCount: checklist.length });
+  useQuitCommand();
+
+  return (
+    <box flexDirection="column" paddingLeft={1}>
+      {checklist.map(
+        (item, index): ReactNode => (
+          <text
+            key={item}
+            content={`${index === cursor ? ">" : " "} ${item}`}
+            fg={index === cursor ? theme.primary : theme.text}
+          />
+        ),
+      )}
+    </box>
+  );
+};
+
+await launchCli(<ReleaseChecklist />);
+```
+
+`useNavigation({ rowCount })` registers the cursor keys from [Keyboard basics](/docs/start/keyboard-basics#move): `j`, `k`, `ctrl+d`, `ctrl+u`, `g g`, `G`, and `v` for select mode. It returns the state your component draws from:
+
+| Field            | Type                                     | Meaning                                                  |
+| ---------------- | ---------------------------------------- | -------------------------------------------------------- |
+| `cursor`         | `number \| null`                         | Index of the cursor row. Starts at `0`.                  |
+| `selection`      | `{ start: number; end: number } \| null` | The row range in select mode.                            |
+| `toggledIndices` | `Set<number>`                            | Rows toggled with `Tab` when `multiSelect` is on.        |
+| `setCursor`      | `(index: number) => void`                | Move the cursor from code, for example on a mouse click. |
+
+The hook owns the cursor and the keys. Your component owns the rows and the way a row looks. `useTheme` from `@tooee/themes` returns the active theme, and `theme.primary` and `theme.text` follow the theme picker.
+
+Options: `isSelectable(index)` returns `false` for rows the cursor skips, `multiSelect: true` turns on `Tab` toggling, and `viewportHeight` sets the size of a half page for `ctrl+d` and `ctrl+u`.
+
+## Add a command with a hotkey
+
+```tsx title="app.tsx"
+import { useCommand } from "@tooee/commands";
+import { launchCli, useNavigation, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const checklist = ["Run the tests", "Bump the version", "Write the changelog", "Tag the release"];
+
+const ReleaseChecklist = function ReleaseChecklist(): ReactNode {
+  const { theme } = useTheme();
+  const { cursor } = useNavigation({ rowCount: checklist.length });
+  const [done, setDone] = useState<ReadonlySet<number>>(new Set());
+  useQuitCommand();
+  useCommand({
+    handler: () => {
+      if (cursor === null) {
+        return;
+      }
+      setDone((previous) => {
+        const next = new Set(previous);
+        if (next.has(cursor)) {
+          next.delete(cursor);
+        } else {
+          next.add(cursor);
+        }
+        return next;
+      });
+    },
+    hotkey: "x",
+    id: "checklist.toggle",
+    modes: ["cursor"],
+    title: "Toggle done",
+  });
+
+  return (
+    <box flexDirection="column" paddingLeft={1}>
+      {checklist.map(
+        (item, index): ReactNode => (
+          <text
+            key={item}
+            content={`${index === cursor ? ">" : " "} [${done.has(index) ? "x" : " "}] ${item}`}
+            fg={index === cursor ? theme.primary : theme.text}
+          />
+        ),
+      )}
+    </box>
+  );
+};
+
+await launchCli(<ReleaseChecklist />);
+```
+
+`useCommand` registers one command for as long as the component is mounted. `id` names it, `title` is the text the command palette shows, `hotkey` binds a key, and `modes` limits it to cursor mode. The handler reads `cursor` from the render it was registered in; Tooee calls the latest handler, so the closure is never stale. Press `:` and type `tog` to find `Toggle done` in the palette. [Commands and modes](/docs/build/commands-and-modes) covers the hotkey grammar, sequences, leader keys, and modes.
+
+## Add the chrome
+
+```tsx title="app.tsx"
+import { useCommand, useMode } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useNavigation, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const checklist = ["Run the tests", "Bump the version", "Write the changelog", "Tag the release"];
+
+const ReleaseChecklist = function ReleaseChecklist(): ReactNode {
+  const { theme } = useTheme();
+  const mode = useMode();
+  const { cursor } = useNavigation({ rowCount: checklist.length });
+  const [done, setDone] = useState<ReadonlySet<number>>(new Set());
+  useQuitCommand();
+  useCommand({
+    handler: () => {
+      if (cursor === null) {
+        return;
+      }
+      setDone((previous) => {
+        const next = new Set(previous);
+        if (next.has(cursor)) {
+          next.delete(cursor);
+        } else {
+          next.add(cursor);
+        }
+        return next;
+      });
+    },
+    hotkey: "x",
+    id: "checklist.toggle",
+    modes: ["cursor"],
+    title: "Toggle done",
+  });
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Release checklist", subtitle: "0.9.0" }}
+      statusBar={{
+        items: [
+          { label: "Done:", value: `${done.size}/${checklist.length}` },
+          { label: "Mode:", value: mode },
+          { label: "", value: "j/k move  x toggle  q quit" },
+        ],
+      }}
+    >
+      <box flexDirection="column" paddingLeft={1}>
+        {checklist.map(
+          (item, index): ReactNode => (
+            <text
+              key={item}
+              content={`${index === cursor ? ">" : " "} [${done.has(index) ? "x" : " "}] ${item}`}
+              fg={index === cursor ? theme.primary : theme.text}
+            />
+          ),
+        )}
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<ReleaseChecklist />);
+```
+
+This is the complete file. `AppLayout` from `@tooee/layout` draws a title bar at the top, your content in the middle, and a status bar at the bottom. It also draws the current overlay and the toasts, so the command palette opens inside it. `titleBar` takes `title` and an optional `subtitle`. `statusBar.items` is a list of `{ label, value }` pairs; a muted label sits before each value. `useMode` from `@tooee/commands` returns the current mode, `cursor` here until you press `v`. [Layout and chrome](/docs/build/layout) covers the scroll and search bar options.
+
+Run it:
+
+```bash
+bun app.tsx
+```
+
+Move with `j` and `k`, press `x` on a row, and watch the `Done:` count change. Press `v` and the status bar shows `select`; `Escape` returns to cursor mode. Press `:` for the palette and `q` to quit.
+
+## Grow into a document
+
+`useNavigation` stops at the cursor and the selection. When rows need search, copy, mouse clicks, and a right-click menu, hand them to the document controller instead:
+
+```tsx title="checklist-document.tsx"
+import { Document, DocumentScreen, launchCli, useDocumentController } from "@tooee/shell";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const checklist = ["Run the tests", "Bump the version", "Write the changelog", "Tag the release"];
+
+const ReleaseChecklist = function ReleaseChecklist(): ReactNode {
+  const [done, setDone] = useState<ReadonlySet<number>>(new Set());
+  const controller = useDocumentController({
+    adapter: { getText: (item: string) => item },
+    rows: checklist,
+    search: {},
+  });
+
+  return (
+    <DocumentScreen
+      controller={controller}
+      titleBar={{ title: "Release checklist" }}
+      statusItems={[{ label: "Done:", value: `${done.size}/${checklist.length}` }]}
+      actions={[
+        {
+          handler: () => {
+            const index = controller.activeIndex;
+            if (index === null) {
+              return;
+            }
+            setDone((previous) => {
+              const next = new Set(previous);
+              if (next.has(index)) {
+                next.delete(index);
+              } else {
+                next.add(index);
+              }
+              return next;
+            });
+          },
+          hotkey: "x",
+          id: "checklist.toggle",
+          title: "Toggle done",
+        },
+      ]}
+    >
+      <Document
+        controller={controller}
+        style={{ flexGrow: 1 }}
+        renderRow={(item, index): ReactNode => (
+          <text content={` [${done.has(index) ? "x" : " "}] ${item}`} />
+        )}
+      />
+    </DocumentScreen>
+  );
+};
+
+await launchCli(<ReleaseChecklist />);
+```
+
+`useDocumentController` takes the rows and an adapter that says how to read each row as text. It registers the same cursor keys plus `/` search, `n` and `N`, and `y y` copy, and it highlights the cursor row itself. `DocumentScreen` wraps `AppLayout`, registers your `actions`, adds the `q` and `t` commands, and fills the status bar with the theme, the mode, and the cursor. `Document` draws one row per item with your `renderRow`. [Documents](/docs/build/documents) explains the adapter, row keys, search, and mouse options. [source-aware-document.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/shell/source-aware-document.tsx) is the same shape with rows that remember their source lines.
+
+## Next
+
+- [Commands and modes](/docs/build/commands-and-modes)
+- [Keyboard basics](/docs/start/keyboard-basics)
+- [Documents](/docs/build/documents)
+- [Layout and chrome](/docs/build/layout)

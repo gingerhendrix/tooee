@@ -1,0 +1,313 @@
+---
+title: Marks and decorations
+description: Highlight rows with mark sets, gutter signs, priorities, and decoration layers of your own.
+---
+
+```ts title="lint-report.ts"
+import type { ActionDefinition } from "@tooee/commands";
+import { MarkPriorities, MarkSetBuilder } from "@tooee/marks";
+import { launch } from "@tooee/view";
+
+interface Diagnostic {
+  line: number;
+  severity: "error" | "warning";
+  message: string;
+}
+
+const path = "src/server.ts";
+
+const diagnostics: Diagnostic[] = [
+  { line: 7, message: "maxConnections is never read", severity: "warning" },
+  { line: 30, message: "users is null, return an empty array", severity: "error" },
+];
+
+const lint = new MarkSetBuilder();
+for (const diagnostic of diagnostics) {
+  const style =
+    diagnostic.severity === "error"
+      ? { background: "#4a0000", foreground: "#f85149", signBefore: "E" }
+      : { background: "#4a3800", foreground: "#d29922", signBefore: "W" };
+  lint.addLine(diagnostic.line - 1, style, diagnostic);
+}
+
+const actions: ActionDefinition[] = [
+  {
+    handler: (ctx) => {
+      const row = ctx.document?.cursor;
+      const set = ctx.view?.marks.providerMarks.find((markSet) => markSet.namespace === "lint");
+      if (row === null || row === undefined || set === undefined) {
+        return;
+      }
+      const [mark] = set.marksAtLine(row);
+      if (mark === undefined) {
+        return;
+      }
+      const diagnostic = mark.data as Diagnostic;
+      ctx.toast?.toast({ level: diagnostic.severity, message: diagnostic.message });
+    },
+    hotkey: "i",
+    id: "lint.show",
+    title: "Show diagnostic",
+  },
+];
+
+await launch({
+  actions,
+  contentProvider: {
+    load: async () => ({
+      code: await Bun.file(path).text(),
+      format: "code",
+      language: "typescript",
+      title: path,
+    }),
+    marks: [lint.build("lint", MarkPriorities.DIAGNOSTIC)],
+  },
+});
+```
+
+Run it with `bun lint-report.ts` in a project that has `src/server.ts`. View shows the file with a dark red background on line 30 and an `E` in the gutter, and a brown background and a `W` on line 7. Move the cursor to one of them and press `i`: a toast shows the message.
+
+A mark is a style on a range of rows. A mark set is a group of marks with a namespace and a priority. View paints each set as a decoration layer, together with the layers for the cursor, the selection, and search. The priority of each layer decides which one paints on top. `@tooee/marks` holds the mark model, and `@tooee/renderers` holds the layer contract.
+
+## Build a mark set
+
+`MarkSetBuilder` collects marks and returns a `MarkSet`:
+
+| Method | Adds |
+| --- | --- |
+| `addLine(line, style, data)` | A mark on one row. |
+| `addRange(from, to, style, data)` | A mark from row `from.line` to row `to.line`. Both ends are included. |
+| `addMark(mark)` | A `Mark` value that you built yourself. |
+| `build(namespace, priority)` | Returns the `MarkSet`. |
+
+The three `add` methods return the builder, so you can chain them. `data` is optional and can hold any value. A mark returns it as `unknown`, so cast it to the type you stored, as the `lint.show` handler does. `new MarkSet(namespace, priority, marks)` builds a set from a `Mark[]` without the builder.
+
+A `Mark` is `{ range, style, data, id, priority }`. `range` is a `MarkRange`, `{ from: { line }, to: { line } }`. Only `range` and `style` are required. The painter reads neither `id` nor `priority` of a single mark. The set's priority applies to all of its marks.
+
+A `MarkSet` cannot change. Its constructor sorts the marks by start row and freezes them. To change the marks, build a new set with the same namespace and send it to View. View replaces the old set.
+
+## Rows, not source lines
+
+`line` is the index of a row in the document, and it counts from `0`. The diagnostics above subtract `1` from an editor line number for this reason. What a row is depends on the format:
+
+| Format | One row is |
+| --- | --- |
+| `code`, `text` | One line of the text. |
+| `markdown` | One rendered block, such as a heading, a paragraph, a list item, or a code block. |
+| `table` | One data row. The header is not a row. |
+| `diff` | One file header or one `@@` hunk. |
+
+For Markdown, `line` counts blocks across the whole document, and closed folds do not change it. View moves each decoration to the row that shows it. It drops the decorations on rows that a closed fold hides. On a diff row, Hunk draws its own backgrounds over the row, so only the sign of a mark shows. [View: diffs](/docs/apps/view/diffs) has the details.
+
+## Mark styles
+
+`MarkStyle` sets how the rows of a mark look. Every field is optional:
+
+| Field | Effect |
+| --- | --- |
+| `background` | Fills the full width of the row behind your content. |
+| `gutterBackground` | Fills the gutter of the row: the line number and the sign column. |
+| `signBefore`, `signAfter` | Joined into one sign for the sign column. |
+| `foreground` | Colour of the sign. It does not colour the row text. Without it, the sign takes the gutter text colour. |
+| `themeColor`, `className` | Kept on the mark. No Tooee renderer reads them in 0.12. |
+
+Colours are hex strings such as `#4a0000`. An empty string has the same effect as an omitted field. Theme colours are hex strings too, so a component can pass `theme.error` from [`useTheme`](/docs/customize/themes).
+
+The sign column holds as many characters as `signColumnWidth` allows. The renderer cuts a longer sign to fit. The code, text, Markdown, table, and diff renderers in View use a width of `3`, which is `DEFAULT_SIGN_COLUMN_WIDTH` from `@tooee/renderers`. `Document` uses `0` unless you set `signColumnWidth`, and a width of `0` shows no signs. Each row shows one sign at most. Signs from different layers are not joined.
+
+## Priorities
+
+`MarkPriorities` holds the standard priorities. A higher number paints above a lower one:
+
+| Key | Value | Used by |
+| --- | --- | --- |
+| `SEARCH_MATCH` | `100` | Search matches |
+| `DIAGNOSTIC` | `150` | Errors and warnings from a provider |
+| `TOGGLED` | `200` | Rows toggled with `Tab` |
+| `USER` | `250` | Marks that a user adds, such as bookmarks |
+| `SELECTION` | `300` | The select-mode range |
+| `CURRENT_MATCH` | `400` | The search match under the cursor |
+| `CURSOR` | `500` | The cursor row |
+
+`MarkPriority` is the type of these values. Any number is a valid priority, so use `MarkPriorities.USER + 10` to put one user set above another. [custom-marks.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/custom-marks.ts) uses `50` and `75` for analysis marks that paint below everything else.
+
+The document controller paints the cursor, the selection, toggled rows, and search matches as its own layers. `DocumentDecorationPriorities` from `@tooee/shell` holds their priorities, with the same values as the keys above:
+
+| Layer | Priority | Background | Sign |
+| --- | --- | --- | --- |
+| Search matches | `100` | `theme.warning` | `●` in `theme.warning` |
+| Toggled rows | `200` | `theme.backgroundPanel` | none |
+| Selection | `300` | `theme.selection` | none |
+| Current match | `400` | `theme.primary` | `●` in `theme.primary` |
+| Cursor | `500` | `theme.cursorLine` | `▸` in `theme.primary` |
+
+None of these layers sets `gutterBackground`.
+
+## Which layer wins on a row
+
+The row document paints all layers on each frame with these rules:
+
+1. It sorts the layers by priority, lowest first. Layers with the same priority keep their order in the list.
+2. It applies the layers in that order. For each row, a decoration from a later layer replaces the earlier value of each field that it sets.
+3. It resolves the three fields of a row separately: `background`, `gutterBackground`, and `sign`. A layer that does not set a field leaves the value from the layers below.
+4. Inside one mark set, it applies the marks in order of their start row. Marks with the same start row keep the order you added them in. When two marks of one set cover a row, the mark that starts later wins.
+
+The order of the list sets the result for equal priorities. The controller puts its own layers first and your `decorations` after them. View passes the provider's mark sets and then the user's mark sets. A set that replaces another goes to the end of its group. Thus at equal priority a user set wins over a provider set, and both win over the controller's layer. A set at `MarkPriorities.SELECTION` paints over the selection.
+
+Some results of these rules for marks at the standard priorities:
+
+- A `DIAGNOSTIC` mark covers a search match on its row. Its sign replaces the `●` when it has a sign. When it has no sign, the `●` stays.
+- On the cursor row, the cursor colour replaces the mark background, and `▸` replaces the mark sign. The `gutterBackground` of the mark stays, because the cursor layer does not set it.
+- Inside the select-mode range, the selection colour replaces a `USER` or `DIAGNOSTIC` background. The signs of those marks stay.
+- A mark with only `gutterBackground` stays visible under every built-in layer.
+
+## Add marks in View
+
+View takes mark sets from three places:
+
+| Source | How |
+| --- | --- |
+| The provider | `marks` on the content provider. View applies them when the load starts. |
+| A stream | A `{ type: "marks", set }` chunk from `load()`. It adds the set, or replaces the set with the same namespace. |
+| An action | `ctx.view?.marks.setMarkSet(set)`. It adds the set, or replaces the set with the same namespace. |
+
+The first two give provider marks. The third gives user marks. `ctx.view.marks.providerMarks` and `ctx.view.marks.userMarks` list the sets now in use. `clearNamespace(namespace)` and `clearAll()` remove user marks only. `reload()` restores the provider marks to the provider's `marks` and drops the sets that stream chunks added. The user marks stay. [View: actions and command context](/docs/apps/view/actions#read-the-content) has a bookmark toggle, and [Content providers](/docs/apps/view/content-and-providers#stream-chunks) lists the chunk types.
+
+`ctx.view` is optional on the command context, so guard it with `?.`. A screen that is not View can publish `ctx.view` with `useProvideViewCommandContext` and supply its own `marks` functions.
+
+## Write a decoration layer
+
+A mark set is one kind of decoration layer. A layer of your own computes its rows when the document paints, without a mark set. It is any object with this shape:
+
+```ts title="packages/renderers/src/decoration-layer.ts"
+export interface RowDecoration {
+  row: number;
+  background?: string;
+  gutterBackground?: string;
+  sign?: { text: string; fg?: string };
+}
+
+export interface DecorationLayer {
+  readonly priority: number;
+  forVisibleRows: (from: number, to: number) => Iterable<RowDecoration>;
+}
+```
+
+This is the full [source file](https://github.com/gingerhendrix/tooee/blob/main/packages/renderers/src/decoration-layer.ts). Import both types from `@tooee/renderers`. `@tooee/marks` exports a `RowDecoration` of the same shape. The row document calls `forVisibleRows` with the first and last visible rows, both included. Yield one `RowDecoration` for each row that needs a style. Pass layers to `useDocumentController` as `decorations`:
+
+```tsx title="service-health.tsx"
+import type { DecorationLayer, RowDecoration } from "@tooee/renderers";
+import {
+  Document,
+  DocumentDecorationPriorities,
+  DocumentScreen,
+  launchCli,
+  useDocumentController,
+} from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { useMemo } from "react";
+import type { ReactNode } from "react";
+
+interface Service {
+  name: string;
+  healthy: boolean;
+}
+
+const services: Service[] = [
+  { healthy: true, name: "api" },
+  { healthy: false, name: "billing" },
+  { healthy: true, name: "web" },
+  { healthy: false, name: "worker" },
+];
+
+const ServiceHealth = function ServiceHealth(): ReactNode {
+  const { theme } = useTheme();
+  const decorations = useMemo((): DecorationLayer[] => {
+    const failing: DecorationLayer = {
+      *forVisibleRows(from: number, to: number): Generator<RowDecoration> {
+        for (let row = from; row <= Math.min(to, services.length - 1); row += 1) {
+          if (!services[row].healthy) {
+            yield { gutterBackground: theme.error, row, sign: { fg: theme.error, text: "!" } };
+          }
+        }
+      },
+      priority: DocumentDecorationPriorities.CURRENT_MATCH + 50,
+    };
+    return [failing];
+  }, [theme]);
+  const controller = useDocumentController({
+    adapter: { getText: (service: Service) => service.name },
+    decorations,
+    rows: services,
+    search: {},
+  });
+
+  return (
+    <DocumentScreen controller={controller} titleBar={{ title: "Services" }}>
+      <Document
+        controller={controller}
+        style={{ flexGrow: 1 }}
+        signColumnWidth={1}
+        renderRow={(service): ReactNode => <text content={` ${service.name}`} />}
+      />
+    </DocumentScreen>
+  );
+};
+
+await launchCli(<ServiceHealth />);
+```
+
+Run it with `bun service-health.tsx`. `billing` and `worker` get a red gutter and a red `!`. Move the cursor onto `billing`: `▸` replaces the `!`, because the cursor layer has a higher priority, and the gutter stays red. Give the layer a priority above `CURSOR` to keep the `!` on the cursor row.
+
+The row document calls `forVisibleRows` on each frame, so keep it fast and yield only rows in the range. Keep the `decorations` array stable with `useMemo`. The controller builds a new layer list each time the array changes. A `MarkSet` has the same shape, so you can pass mark sets in `decorations` too. To bind layers to a `row-document` element of your own, see [Documents](/docs/build/documents#bind-a-renderer-of-your-own).
+
+## Query marks
+
+A `MarkSet` answers questions about its marks:
+
+| Member | Returns |
+| --- | --- |
+| `namespace`, `priority` | The values given to `build`. |
+| `size` | The number of marks. |
+| `marksAtLine(line)` | The marks that cover a row. |
+| `marksInRange(from, to)` | The marks that overlap the rows from `from` to `to`. |
+| `forVisibleRows(from, to)` | One `RowDecoration` for each covered row. This is what the painter reads. |
+| `[Symbol.iterator]` | All marks, sorted by start row. |
+
+`MarkState` combines several sets so that you can query them as one. `createMarkState(sets)` builds it, and `updateMarkState(state, namespace, set)` returns a new state with that namespace replaced, or removed when `set` is `null`:
+
+```ts title="review-state.ts"
+import { MarkPriorities, MarkSetBuilder, createMarkState, updateMarkState } from "@tooee/marks";
+
+const review = new MarkSetBuilder()
+  .addRange({ line: 10 }, { line: 14 }, { signBefore: "C" }, { author: "mara" })
+  .build("review", MarkPriorities.USER);
+const lint = new MarkSetBuilder()
+  .addLine(12, { background: "#4a0000", signBefore: "E" })
+  .build("lint", MarkPriorities.DIAGNOSTIC);
+
+const state = createMarkState([review, lint]);
+console.log(state.namespaces);
+console.log(state.marksAtLine(12).map((mark) => mark.priority));
+console.log(state.effectiveStyleAtLine(12));
+
+const withoutLint = updateMarkState(state, "lint", null);
+console.log(withoutLint.namespaces);
+```
+
+```text
+[ "lint", "review" ]
+[ 150, 250 ]
+{
+  signBefore: "C",
+}
+[ "review" ]
+```
+
+`namespaces` and `sets` are in priority order, lowest first. `marksAtLine` sorts the marks by priority. Each returned mark carries `priority`, from the mark or else from its set. `getSet(namespace)` finds one set. `effectiveStyleAtLine` returns the whole style of the mark with the highest priority, or `null`. It does not merge fields, so its result can differ from what the row document paints. In the example, the row shows the `#4a0000` background from `lint` and the `C` sign from `review`. View does not use `MarkState` to paint.
+
+## Next
+
+- [Documents](/docs/build/documents)
+- [View: actions and command context](/docs/apps/view/actions)
+- [Search and fuzzy filtering](/docs/build/search-and-fuzzy)

@@ -7,7 +7,7 @@ import type { Session } from "tuistory";
 
 const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
 
-const DEMO = path.resolve(REPO_ROOT, "examples/toasts-demo.ts");
+const DEMO = path.resolve(REPO_ROOT, "examples/view/toasts-demo.ts");
 
 const CONFIG_NAMESPACE = "toasts-e2e";
 

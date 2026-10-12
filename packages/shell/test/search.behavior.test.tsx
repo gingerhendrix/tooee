@@ -1,9 +1,9 @@
 import { test, expect, afterEach, describe } from "bun:test";
 
 import { useMode } from "@tooee/commands";
-import { findMatchingLines, useSearch } from "@tooee/search";
+import { findMatchingLines, useNavSearchStore, useSearch, useSearchBindings } from "@tooee/search";
 import type { SearchState } from "@tooee/search";
-import { TooeeProvider, useNavigation } from "@tooee/shell";
+import { TooeeProvider, useNavigation, useNavigationBindings } from "@tooee/shell";
 import { testRender, expectDefined, press, pressEscape } from "@tooee/test-support";
 import type { TestSession } from "@tooee/test-support";
 import { act, useState } from "react";
@@ -314,5 +314,43 @@ describe("search over changing content", () => {
     await testSetup.renderOnce();
 
     expect(testSetup.captureCharFrame()).toContain("matches:[0]");
+  });
+});
+
+const ROW_KEYS = TEST_TEXT.split("\n").map((_line, index) => index);
+
+const SharedStoreHarness = function SharedStoreHarness(): ReactNode {
+  const store = useNavSearchStore({ keys: ROW_KEYS });
+  const nav = useNavigationBindings(store, { viewportHeight: 3 });
+
+  const search = useSearchBindings(store, {
+    match: (query) => findMatchingLines(TEST_TEXT, query),
+  });
+
+  searchHandle = search;
+
+  return <text content={`cursor:${nav.cursor ?? "null"}`} />;
+};
+
+describe("useNavigationBindings with a shared store", () => {
+  test("j moves the cursor, and search moves the same cursor", async () => {
+    testSetup = await testRender(
+      <TooeeProvider>
+        <SharedStoreHarness />
+      </TooeeProvider>,
+      { height: 10, kittyKeyboard: true, width: 40 }
+    );
+    await testSetup.renderOnce();
+
+    await press(testSetup, "j");
+    expect(testSetup.captureCharFrame()).toContain("cursor:1");
+
+    await act(async () => {
+      expectDefined(searchHandle).setSearchQuery("delta");
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
+
+    expect(testSetup.captureCharFrame()).toContain("cursor:4");
   });
 });

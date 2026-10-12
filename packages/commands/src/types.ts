@@ -30,6 +30,7 @@ export interface CommandContext {
   mode: Mode;
   setMode: (mode: Mode) => void;
   commands: CommandCommands;
+  /** Close the app. By default this destroys the renderer. */
   exit: () => void;
 }
 

@@ -1,0 +1,316 @@
+---
+title: Command surfaces
+description: Find out which surface gets each key when overlays, panels, and the root app are mounted together.
+---
+
+```tsx title="triage.tsx"
+import { useActiveCommandSurface, useCommand } from "@tooee/commands";
+import { AppLayout, OverlayPanel } from "@tooee/layout";
+import { useOverlay } from "@tooee/overlays";
+import { Panel, PanelGroup } from "@tooee/panels";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const tickets = ["Login fails on Safari", "Export times out", "Typo on pricing page"];
+
+const ConfirmClose = function ConfirmClose({
+  ticket,
+  close,
+  onConfirm,
+}: {
+  ticket: string;
+  close: () => void;
+  onConfirm: () => void;
+}): ReactNode {
+  useCommand({
+    handler: () => {
+      onConfirm();
+      close();
+    },
+    hotkey: "y",
+    id: "confirm.close-ticket",
+    title: "Close the ticket",
+  });
+  useCommand({
+    handler: () => {
+      close();
+    },
+    hotkey: "Escape",
+    id: "confirm.cancel",
+    title: "Cancel",
+  });
+
+  return (
+    <OverlayPanel
+      title="Close ticket"
+      hints="y close  Escape cancel"
+      inset={{ bottom: "35%", left: "20%", right: "20%", top: "35%" }}
+    >
+      <box paddingLeft={1}>
+        <text content={`Close "${ticket}"?`} />
+      </box>
+    </OverlayPanel>
+  );
+};
+
+const Queue = function Queue({ onLog }: { onLog: (line: string) => void }): ReactNode {
+  const overlay = useOverlay();
+  const [cursor, setCursor] = useState(0);
+  const ticket = tickets[cursor];
+
+  useCommand({
+    handler: () => {
+      setCursor((index) => (index + 1) % tickets.length);
+    },
+    hotkey: "j",
+    id: "queue.next",
+    title: "Next ticket",
+  });
+  useCommand({
+    handler: () => {
+      onLog(`replied to ${ticket}`);
+    },
+    hotkey: "r",
+    id: "queue.reply",
+    title: "Reply",
+  });
+  useCommand({
+    handler: () => {
+      overlay.open(
+        "confirm-close",
+        ({ close }) => (
+          <ConfirmClose ticket={ticket} close={close} onConfirm={() => onLog(`closed ${ticket}`)} />
+        ),
+        null,
+        { ownCommands: true, role: "modal" }
+      );
+    },
+    hotkey: "x",
+    id: "queue.close",
+    title: "Close ticket",
+  });
+
+  return (
+    <box flexDirection="column" paddingLeft={1}>
+      {tickets.map((title, index) => (
+        <text key={title} content={`${index === cursor ? ">" : " "} ${title}`} />
+      ))}
+    </box>
+  );
+};
+
+const Triage = function Triage(): ReactNode {
+  const owner = useActiveCommandSurface();
+  const [log, setLog] = useState<string[]>([]);
+  const addLine = (line: string): void => {
+    setLog((lines) => [...lines, line]);
+  };
+
+  useQuitCommand();
+  useCommand({
+    handler: () => {
+      addLine("refreshed");
+    },
+    hotkey: "r",
+    id: "triage.refresh",
+    title: "Refresh",
+  });
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Triage" }}
+      statusBar={{
+        items: [
+          { label: "Owner:", value: owner ? `${owner.role} ${owner.id}` : "root" },
+          { label: "", value: "Tab switch  j next  r reply/refresh  x close  q quit" },
+        ],
+      }}
+    >
+      <box flexDirection="row" width="100%" height="100%">
+        <PanelGroup defaultActivePanelId="queue">
+          <Panel id="queue" title="Queue" style={{ width: 32 }}>
+            <Queue onLog={addLine} />
+          </Panel>
+          <Panel id="log" title="Log" style={{ flexGrow: 1 }}>
+            <box flexDirection="column" paddingLeft={1}>
+              {log.map((line, index) => (
+                <text key={`${index}-${line}`} content={line} />
+              ))}
+            </box>
+          </Panel>
+        </PanelGroup>
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<Triage />);
+```
+
+Run it with `bun triage.tsx`. The status bar reads `Owner: panel queue`. Press `r` and the log reads `replied to Login fails on Safari`, because the queue panel binds `r` too. Press `Tab` to make the log panel active, then `r`: the log panel has no `r`, so the key falls through to the root and the log reads `refreshed`. Press `Tab`, then `x`. The confirm overlay opens and the owner becomes `modal confirm-close`. Now `j`, `r`, `Tab`, and `q` do nothing. `Escape` closes the overlay and the queue panel has the keys again.
+
+## Surface roles
+
+A surface is a command registry with its own local mode. `useCommand` registers on the nearest surface above the component. Each surface has one role:
+
+| Role      | Created by                                                                    | Gets keys                                                                   |
+| --------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| root      | `CommandProvider`, which `launchCli` and `TooeeProvider` mount for you        | When no modal is open and no active panel matches the key                   |
+| `modal`   | An overlay opened with `ownCommands: true`, or `CommandSurfaceProvider`       | Every key while it is the topmost modal, also keys it does not match        |
+| `panel`   | `Panel` from `@tooee/panels`                                                  | Keys it matches while it is the active panel of its group. In insert mode, every key. |
+| `passive` | An overlay opened with `ownCommands: true, role: "passive"`                   | No keys. It draws help or status. The which-key bar is a passive surface.   |
+
+The root surface has the id `ROOT_SURFACE_ID` (`"__root"`). A modal or passive overlay uses the overlay id as its surface id. A panel uses its `id` prop.
+
+An overlay opened without `ownCommands` makes no surface. Its commands register on the root, and the host switches the root mode to insert while it is open, so cursor-mode root commands stop matching. That mode switch does not reach panels. Each panel keeps its local mode, so an active panel keeps its keys under such an overlay. The [context menu](/docs/build/overlays-dialogs-toasts#context-menus) is an overlay of this kind. Use `ownCommands: true` when the panel keys must stop.
+
+The palette, the theme picker, the Ask and Choose dialogs, and `useOverlayDialog` all open modal surfaces.
+
+## How Tooee picks the owner
+
+The command dispatcher reads each key once and gives it to one surface. It checks these rules in order:
+
+1. A pending chord. When a surface has matched the first steps of a sequence such as `g g`, it gets the next keys until the chord runs, fails, or times out.
+2. The topmost modal. The modal with the greatest nesting depth wins, and the most recently mounted one breaks a tie. The overlay host mounts all overlays side by side, so the last modal you open wins. The modal gets the key even when no command matches. The key then goes nowhere.
+3. The active panel. If it matches the key, or starts a chord with it, it wins. If it does not match, the key falls through to the root. In insert mode the panel keeps every key, so typed text never reaches root commands.
+4. The root.
+
+On each surface, a command matches only when the surface's local mode is in the command's `modes` (default `["cursor"]`) and its `when` returns `true`. Hotkeys come from the user keymap first, then from the command's `hotkey`.
+
+A panel command shadows a root command with the same hotkey while that panel is active. In `triage.tsx`, `r` is Reply in the queue and Refresh everywhere else.
+
+Tooee clears a pending chord and the key buffer when the owner changes, for example on a panel switch or when a modal opens or closes. A mode change on any surface clears them too.
+
+### Nested panel groups
+
+A `PanelGroup` inside a `Panel` publishes its active panel only while the outer panel is active. When groups nest, the deepest active panel owns the keys. An inner group in an inactive outer panel cannot take input.
+
+## Close an owned modal with Escape
+
+The shell registers `overlay.close-top` on the root surface. It binds `Escape` in cursor, select, and insert mode, and closes the top overlay when that overlay allows `dismissOnEscape`. A modal surface keeps every key, so `Escape` never reaches that root command while the modal is on top.
+
+Register `Escape` inside every owned modal, as `ConfirmClose` does. An owned modal starts in cursor mode unless `surfaceMode` sets another mode. When the overlay changes its local mode, give the `Escape` command the modes it needs. The repo example [overlay-command-surfaces.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/shell/overlay-command-surfaces.ts) binds `Escape` twice in its Ask overlay: in insert mode it returns to cursor mode, and in cursor mode it closes the overlay.
+
+`dismissOnEscape` applies to overlays without `ownCommands` and to passive overlays, because there `Escape` reaches the root. An active panel that binds `Escape` in its current mode shadows `overlay.close-top`. In that case the panel command runs and the overlay stays open.
+
+## Read the active surface
+
+`useActiveCommandSurface()` returns the surface that owns the keyboard as `{ id, role, commands }`. `role` is `"modal"` or `"panel"`. It returns `null` when the root owns the keyboard. `commands` updates when commands register or unregister. `triage.tsx` uses it for the `Owner:` label.
+
+`useCommandSurfaceId()` returns the id of the surface that the calling component registers on. Compare the two to blur an input while a modal above it owns the keys:
+
+```tsx title="filter-input.tsx"
+import { useActiveCommandSurface, useCommandSurfaceId } from "@tooee/commands";
+import type { ReactNode } from "react";
+
+export const FilterInput = function FilterInput(): ReactNode {
+  const surfaceId = useCommandSurfaceId();
+  const owner = useActiveCommandSurface();
+  const covered = owner?.role === "modal" && owner.id !== surfaceId;
+
+  return <input focused={!covered} placeholder="Filter tickets" />;
+};
+```
+
+The surface stack does not move OpenTUI focus. An `<input>` that has focus gets typed characters from the renderer, whatever surface owns the commands. The Ask editor and the Choose filter compare the two ids in the same way. Check `role` as `FilterInput` does: at the root, an active panel is also the owner, and root commands still get the keys that panel does not match.
+
+Outside a `CommandProvider`, `useActiveCommandSurface` returns `null` and `useSurfaceCommands` returns an empty list. `useCommandSurfaceId`, `useSurfaceInvoke`, `useEffectiveCommands`, and `useCommandRegistry` throw there.
+
+## Choose a command hook
+
+| Hook                            | Returns                                                                                               | Use it for                                                    |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `useSurfaceInvoke()`            | `{ commands, invoke }` for the surface the component registers on                                     | Hints and buttons inside one surface                          |
+| `useSurfaceCommands(surfaceId?)` | The commands on one surface. With no id, the owner surface, else the root.                           | Help that follows the keyboard owner, or one surface by id    |
+| `useEffectiveCommands()`        | `{ commands, invoke }` for the active panel plus the root, with shadowing applied                     | A palette or a hint bar that matches what the keys do         |
+| `useCommandRegistry()`          | `{ registry, groups, contextSources, leaderKey }` for the nearest surface                             | Bridges that need groups, context sources, or the leader key  |
+
+`useEffectiveCommands` lists the active panel's commands first, then the root commands. It drops a root command whose id the panel also registers. When a panel command shadows the hotkey of a root command, the root command stays in the list without its `defaultHotkey`, because the key does not reach it. `invoke(id)` runs the command on the panel that owns it, else on the root. With no active panel, the result is the root commands. The shadow check reads `defaultHotkey`, so a keymap that remaps a hotkey can leave a stale hint. Dispatch itself uses the remapped key.
+
+This hint bar shows the keys that work now:
+
+```tsx title="key-hints.tsx"
+import { useEffectiveCommands } from "@tooee/commands";
+import type { ReactNode } from "react";
+
+export const KeyHints = function KeyHints(): ReactNode {
+  const { commands } = useEffectiveCommands();
+  const hints = commands
+    .filter((command) => command.hidden !== true && command.defaultHotkey !== undefined)
+    .map((command) => `${command.defaultHotkey} ${command.title}`)
+    .join("  ");
+
+  return <text content={hints} />;
+};
+```
+
+The shell palette uses `useEffectiveCommands`. When it opens while the active panel is in insert mode, it lists only that panel's commands, to match the insert-mode rule.
+
+## Pause work in an inactive panel
+
+`useScreenScope()` returns `{ isFocused }`. Each `Panel` wraps its children in a `ScreenScopeProvider` that is active only while the panel is active. Scopes nest: `isFocused` is `true` only when every enclosing scope is active. With no scope above the component, it is `true`.
+
+`useScreenFocus` and `useScreenEffect` from `@tooee/router` build on this scope. Use them in app code. [Panels](/docs/build/panels#screen-focus-in-a-panel) and [Routing](/docs/build/routing#nested-routes-and-screen-focus) show both. The screen scope follows panels only. A modal overlay does not change it.
+
+## Mount a surface yourself
+
+`CommandSurfaceProvider` takes these props:
+
+| Prop          | Default    | Meaning                                                                       |
+| ------------- | ---------- | ----------------------------------------------------------------------------- |
+| `id`          |            | Required. The surface id.                                                     |
+| `role`        | `"modal"`  | `"modal"`, `"panel"`, or `"passive"`.                                         |
+| `groupId`     |            | For `"panel"`: the panel group id. The surface is active only when the group's active panel is this `id`. |
+| `initialMode` | `"cursor"` | The first local mode.                                                         |
+
+It must sit inside a `CommandProvider`. `useMode` and `useSetMode` below it read and set its local mode. Overlays and panels mount it for you, so most apps never use it. A `"panel"` surface becomes active only when its group is published to the command store, and `@tooee/panels` does that work. Use `PanelGroup` and `Panel` for panels.
+
+## Guard raw `useKeyboard` handlers
+
+The [OpenTUI](https://opentui.com) `useKeyboard` hook sees every key before the command dispatcher. A modal surface cannot stop it. Guard each app-level handler with `useHasOverlay()`:
+
+```ts title="use-back-on-escape.ts"
+import { useKeyboard } from "@opentui/react";
+import { useHasOverlay } from "@tooee/overlays";
+
+export const useBackOnEscape = function useBackOnEscape(onBack: () => void): void {
+  const hasOverlay = useHasOverlay();
+
+  useKeyboard((key) => {
+    if (hasOverlay || key.name !== "escape") {
+      return;
+    }
+    onBack();
+  });
+};
+```
+
+Without the guard, `Escape` closes the open picker and also runs `onBack` underneath it. A better fix is to port the handler to a command, so the dispatcher decides who gets the key:
+
+```ts title="use-back-on-escape.ts"
+import { useCommand } from "@tooee/commands";
+
+export const useBackOnEscape = function useBackOnEscape(onBack: () => void): void {
+  useCommand({
+    handler: onBack,
+    hotkey: "Escape",
+    id: "report.back",
+    title: "Back",
+  });
+};
+```
+
+`key.preventDefault()` does not protect a raw handler, for two reasons:
+
+- `useKeyboard` subscribes in an effect. React runs child effects before parent effects, so an app handler subscribes, and runs, before the dispatcher in `TooeeProvider`.
+- The dispatcher calls `preventDefault()` only on keys that a command matches. A key that a modal keeps without a match is never marked.
+
+`useHasOverlay()` is `true` while any overlay is open, passive ones too. `useHasModalOverlay()` ignores passive overlays, so a handler guarded with it keeps working under the which-key bar. Inside code that depends on `@tooee/commands` only, `useActiveCommandSurface()` can serve as the guard. It does not see overlays opened without `ownCommands`.
+
+## Next
+
+- [Commands and modes](/docs/build/commands-and-modes)
+- [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts)
+- [Panels](/docs/build/panels)
+- [Keyboard shortcuts](/docs/reference/keyboard-shortcuts)

@@ -1,4 +1,4 @@
-export { clipboardStub, copied } from "./clipboard-mock.js";
+export { clipboardMockState, clipboardStub, copied } from "./clipboard-mock.js";
 
 export { expectDefined } from "./expect-defined.js";
 

@@ -12,8 +12,32 @@ export { decodeReactContent } from "./react-content.js";
 
 export type { DecodedReactContent } from "./react-content.js";
 
+export { truncateCells } from "./cell-text.js";
+
+export type { TruncateMode } from "./cell-text.js";
+
+export {
+  fitStatusBar,
+  STATUS_BAR_GAP,
+  STATUS_BAR_HIDDEN_MARKER,
+  StatusPriority,
+} from "./fit-status-bar.js";
+
+export type {
+  FitStatusBarOptions,
+  PlacedStatusItem,
+  StatusBarAlign,
+  StatusBarItem,
+  StatusBarLayout,
+  StatusBarTruncate,
+} from "./fit-status-bar.js";
+
+export { fitTitleBar } from "./fit-title-bar.js";
+
+export type { TitleBarText } from "./fit-title-bar.js";
+
 export { StatusBar } from "./status-bar.js";
 
-export type { StatusBarItem } from "./status-bar.js";
+export type { StatusBarProps } from "./status-bar.js";
 
 export { TitleBar } from "./title-bar.js";

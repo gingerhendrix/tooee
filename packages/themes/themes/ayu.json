@@ -75,6 +75,10 @@
     "syntaxNumber": "darkConstant",
     "syntaxType": "darkSpecial",
     "syntaxOperator": "darkOperator",
-    "syntaxPunctuation": "darkFg"
+    "syntaxPunctuation": "darkFg",
+    "searchMatchBg": "#3b3329",
+    "searchCurrentMatchBg": "#264d66",
+    "searchMatchFg": "warning",
+    "searchCurrentMatchFg": "primary"
   }
 }

@@ -78,6 +78,8 @@ interface ThemeSwitcherContextValue extends ThemeContextValue {
   nextTheme: () => void;
   prevTheme: () => void;
   setTheme: (name: string, opts?: { persist?: boolean }) => void;
+  /** Switch between the light and dark variants of the current theme. */
+  setMode: (mode: ColorMode, opts?: { persist?: boolean }) => void;
   allThemes: string[];
 }
 
@@ -97,7 +99,6 @@ export const ThemeSwitcherProvider = function ThemeSwitcherProvider({
   const allThemes = useMemo(() => getThemeNames(), []);
   const [themeName, setThemeName] = useState(initialTheme ?? DEFAULT_THEME_NAME);
   const [mode, setMode] = useState<ColorMode>(initialMode ?? DEFAULT_MODE);
-  void setMode;
 
   const theme = useMemo(() => buildTheme(themeName, mode), [themeName, mode]);
 
@@ -126,6 +127,17 @@ export const ThemeSwitcherProvider = function ThemeSwitcherProvider({
     [mode]
   );
 
+  const setModeByName = useCallback(
+    (nextMode: ColorMode, opts?: { persist?: boolean }) => {
+      setMode(nextMode);
+
+      if (opts?.persist === true) {
+        writeGlobalConfig({ theme: { mode: nextMode, name: themeName } });
+      }
+    },
+    [themeName]
+  );
+
   const value = useMemo<ThemeSwitcherContextValue>(
     () => ({
       allThemes,
@@ -133,11 +145,12 @@ export const ThemeSwitcherProvider = function ThemeSwitcherProvider({
       name: theme.name,
       nextTheme,
       prevTheme,
+      setMode: setModeByName,
       setTheme: setThemeByName,
       syntax: theme.syntax,
       theme: theme.colors,
     }),
-    [theme, mode, nextTheme, prevTheme, setThemeByName, allThemes]
+    [theme, mode, nextTheme, prevTheme, setModeByName, setThemeByName, allThemes]
   );
 
   const themeValue = useMemo<ThemeContextValue>(

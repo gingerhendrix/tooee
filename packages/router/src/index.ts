@@ -3,6 +3,7 @@ export type {
   RouteParams,
   RouteConfig,
   RouteDefinition,
+  RouteErrorProps,
   StackEntry,
   RouterState,
   RouterAction,

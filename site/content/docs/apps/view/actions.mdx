@@ -1,0 +1,226 @@
+---
+title: Actions and command context
+description: Add your own commands to View, and read the cursor row, the content, and the marks inside a handler.
+---
+
+```ts title="pick-commit.ts"
+import type { ActionDefinition } from "@tooee/commands";
+import { launch } from "@tooee/view";
+
+const log = await new Response(Bun.spawn(["git", "log", "--oneline", "-30"]).stdout).text();
+const picked: string[] = [];
+
+const actions: ActionDefinition[] = [
+  {
+    handler: (ctx) => {
+      const line = ctx.document?.activeAnchor?.text;
+      if (line === undefined) {
+        return;
+      }
+      const [sha] = line.split(" ");
+      picked.push(sha);
+      ctx.toast?.toast({ level: "info", message: `Picked ${sha}` });
+    },
+    hotkey: "return",
+    id: "log.pick",
+    title: "Pick commit",
+  },
+];
+
+await launch({
+  actions,
+  contentProvider: { load: () => ({ format: "text", text: log, title: "git log" }) },
+});
+
+const sha = picked.at(-1);
+if (sha !== undefined) {
+  await Bun.spawn(["git", "show", "--stat", sha], { stdout: "inherit" }).exited;
+}
+```
+
+Run it with `bun pick-commit.ts`. Move to a commit, press `Enter`, and quit with `q`. The script then runs `git show --stat` for the last commit you picked.
+
+## Register actions
+
+`actions` is accepted by `launch()`, `launchDirectory()`, and the `View` component. Each entry is an `ActionDefinition` with `id`, `title`, and `handler`, plus the optional `hotkey`, `modes`, `when`, `category`, `group`, `icon`, and `hidden` from [Commands and modes](/docs/build/commands-and-modes#register-commands). Without `modes`, an action runs in cursor mode. View lists the actions in the `:` palette and in the right-click menu on a row; the menu leaves out actions with `hidden` and actions whose `when` rejects the current context. A custom format has no right-click menu.
+
+View owns the keys in [Keyboard basics](/docs/start/keyboard-basics), plus `L` for line numbers, `y g` for copying the whole document, `h` and `l` on wide blocks and diffs, and the keys on [View: diffs](/docs/apps/view/diffs#keys). Markdown content adds `g o` and the `z` fold keys, and `launch()` adds `Enter` to follow a link and `Backspace` to go back. Pick other keys for your actions.
+
+A handler cannot end the session in Tooee 0.12: `ctx.exit` does nothing inside View. Store what the handler learned, as `picked` does above, and act after `launch()` resolves.
+
+`ctx.toast?.toast({ message, level, duration, id })` shows a toast. `level` is `info`, `success`, `warning`, or `error`. A toast with the same `id` as the one on screen replaces it.
+
+## Read the cursor row
+
+`ctx.document` comes from the document screen behind every format:
+
+| Field | Meaning |
+| --- | --- |
+| `cursor` | Row index under the cursor, or `null`. |
+| `rowCount` | Number of rows. |
+| `activeRow` | The row object under the cursor, typed `unknown`. |
+| `activeKey` | The key of that row. |
+| `activeAnchor` | `{ row, index, key, text, source }` for the cursor row, or `null`. |
+| `selection` | `{ start, end }` in select mode, or `null`. |
+| `selectedRows`, `selectedAnchors` | The rows in the selection, or the rows toggled with `Tab`. |
+| `toggledIndices` | The set of toggled row indices. |
+| `kind`, `title` | The content format and title. |
+| `reload` | Runs the provider's `load()` again. |
+
+What a row is depends on the format:
+
+| Format | Row type | `text` |
+| --- | --- | --- |
+| markdown | `FlatBlock` from `@tooee/renderers` | The source text of the block |
+| code, text, image, custom | `SourceLineRow` | One line |
+| table | `TableRow` | The cells joined with tabs |
+| diff | `DiffRow` from `@tooee/diff` | The patch text of the file header or the hunk |
+
+`activeRow` is `unknown`, so read the anchor instead. `text` is the text search and copy use. `source.primary` is the position in the original content: `start.line`, `lastLine`, and the exact `text`. Lines are zero-based. This action reports the block under the cursor with its line range:
+
+```ts title="quote-block.ts"
+import type { ActionDefinition } from "@tooee/commands";
+import { createFileProvider, launch } from "@tooee/view";
+
+const actions: ActionDefinition[] = [
+  {
+    handler: (ctx) => {
+      const anchor = ctx.document?.activeAnchor;
+      const span = anchor?.source?.primary;
+      if (anchor === null || anchor === undefined || span === undefined) {
+        return;
+      }
+      ctx.toast?.toast({
+        level: "info",
+        message: `Lines ${span.start.line + 1}-${span.lastLine + 1}: ${anchor.text.slice(0, 40)}`,
+      });
+    },
+    hotkey: "c",
+    id: "notes.quote",
+    title: "Quote block",
+  },
+];
+
+await launch({ actions, contentProvider: createFileProvider("README.md") });
+```
+
+`source` is `null` for a row with no place in the content, such as a bullet row that a nested list produces.
+
+## Read the content
+
+`ctx.view` is the slice View adds on top:
+
+| Field | Meaning |
+| --- | --- |
+| `content` | The content value the provider returned. |
+| `format`, `title` | Its format and title. |
+| `data` | The `data` of custom content; `undefined` for a built-in format. |
+| `reload` | Runs the provider's `load()` again. |
+| `marks.setMarkSet(set)` | Adds a mark set, or replaces the set with the same namespace. |
+| `marks.clearNamespace(namespace)` | Removes one user mark set. |
+| `marks.clearAll()` | Removes every user mark set. |
+| `marks.userMarks`, `marks.providerMarks` | The current sets from actions and from the provider. |
+
+`ctx.document` and `ctx.view` are optional on the context, so guard both. This example toggles a bookmark sign on the cursor row and reloads the file on `r`:
+
+```ts title="bookmarks.ts"
+import type { ActionDefinition } from "@tooee/commands";
+import { MarkPriorities, MarkSetBuilder } from "@tooee/marks";
+import { createFileProvider, launch } from "@tooee/view";
+
+const bookmarks = new Set<number>();
+
+const actions: ActionDefinition[] = [
+  {
+    handler: (ctx) => {
+      const line = ctx.document?.cursor;
+      if (line === null || line === undefined) {
+        return;
+      }
+      if (bookmarks.has(line)) {
+        bookmarks.delete(line);
+      } else {
+        bookmarks.add(line);
+      }
+      const builder = new MarkSetBuilder();
+      for (const row of bookmarks) {
+        builder.addLine(row, { signBefore: "*" });
+      }
+      ctx.view?.marks.setMarkSet(builder.build("bookmarks", MarkPriorities.USER));
+    },
+    hotkey: "b",
+    id: "bookmarks.toggle",
+    title: "Toggle bookmark",
+  },
+  {
+    handler: (ctx) => ctx.view?.reload(),
+    hotkey: "r",
+    id: "view.reload",
+    title: "Reload",
+  },
+];
+
+await launch({ actions, contentProvider: createFileProvider("README.md") });
+```
+
+A mark set is identified by its namespace. The handler rebuilds the whole `bookmarks` set and `setMarkSet` replaces the earlier one, so a removed bookmark disappears. `MarkPriorities.USER` paints above search matches and below the selection and the cursor. Marks from the provider stay in `providerMarks` and are not touched by `clearAll`. [Marks and decorations](/docs/build/marks) covers ranges, colours, and priorities; [custom-marks.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/custom-marks.ts) streams marks from a provider as well.
+
+`reload` calls the provider's `load()` again and replaces the content when it resolves.
+
+## Publish `ctx.view` from your own screen
+
+A screen built on `DocumentScreen` already provides `ctx.document`. `useProvideViewCommandContext` from `@tooee/view` adds `ctx.view` without the `View` component, so the same action code works on both:
+
+```tsx title="deploy-board.tsx"
+import type { ActionDefinition } from "@tooee/commands";
+import { Document, DocumentScreen, launchCli, useDocumentController } from "@tooee/shell";
+import { useProvideViewCommandContext } from "@tooee/view";
+import type { ReactNode } from "react";
+
+const services = ["api", "web", "worker", "mobile"];
+
+const actions: ActionDefinition[] = [
+  {
+    handler: (ctx) => {
+      const service = ctx.document?.activeAnchor?.text;
+      if (ctx.view?.format !== "deploy-board" || service === undefined) {
+        return;
+      }
+      ctx.toast?.toast({ level: "success", message: `Deploying ${service} to ${ctx.view.title}` });
+    },
+    hotkey: "d",
+    id: "deploy.run",
+    title: "Deploy",
+  },
+];
+
+const DeployBoard = function DeployBoard(): ReactNode {
+  const controller = useDocumentController({
+    adapter: { getText: (service: string) => service },
+    rows: services,
+    search: {},
+  });
+  useProvideViewCommandContext({ format: "deploy-board", title: "eu-west" });
+
+  return (
+    <DocumentScreen controller={controller} titleBar={{ title: "Deploy board" }} actions={actions}>
+      <Document
+        controller={controller}
+        style={{ flexGrow: 1 }}
+        renderRow={(service): ReactNode => <text content={` ${service}`} />}
+      />
+    </DocumentScreen>
+  );
+};
+
+await launchCli(<DeployBoard />);
+```
+
+`useProvideViewCommandContext` takes `content`, `format`, `title`, `data`, `reload`, and `marks`, all optional, or a function that returns them. A missing field gets a safe default: content built from `format`, `title`, and `data`, empty mark lists, and a `reload` that does nothing. `createViewCommandContext` builds the same object outside React, for tests. [Documents](/docs/build/documents) explains `useDocumentController` and `DocumentScreen`.
+
+## Next
+
+- [Commands and modes](/docs/build/commands-and-modes)
+- [View: custom renderers](/docs/apps/view/custom-renderers)
+- [Marks and decorations](/docs/build/marks)
+- [Documents](/docs/build/documents)

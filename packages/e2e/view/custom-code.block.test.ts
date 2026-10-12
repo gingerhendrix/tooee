@@ -7,7 +7,7 @@ import type { Session } from "tuistory";
 
 const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
 
-const DEMO = path.resolve(REPO_ROOT, "examples/custom-code-block.ts");
+const DEMO = path.resolve(REPO_ROOT, "examples/view/custom-code-block.ts");
 
 const CONFIG_NAMESPACE = "custom-code-block-e2e";
 

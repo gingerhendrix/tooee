@@ -1,0 +1,624 @@
+---
+title: Routing
+description: Define routes with typed params, start a router, navigate with guards, and react to screen focus.
+---
+
+```tsx title="issue-tracker.tsx"
+import { useCommand } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import {
+  Outlet,
+  RouterProvider,
+  createRoute,
+  createRouter,
+  useCanGoBack,
+  useNavigate,
+  useParams,
+  useRouterCommands,
+  useScreenState,
+} from "@tooee/router";
+import type { Codec } from "@tooee/router";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
+
+interface Issue {
+  number: number;
+  title: string;
+  body: string;
+}
+
+const issues: Issue[] = [
+  { body: "The filter line matches case.", number: 41, title: "Search ignores case" },
+  { body: "The cursor row changes after a resize.", number: 42, title: "Cursor jumps on resize" },
+  {
+    body: "A patch loses its last newline.",
+    number: 45,
+    title: "Diff view drops the trailing newline",
+  },
+];
+
+const issueParams: Codec<{ number: number }> = {
+  parse: (value) => {
+    if (value instanceof Object && "number" in value) {
+      const number = Number(value.number);
+      if (Number.isInteger(number)) {
+        return { number };
+      }
+    }
+    throw new TypeError("Expected params { number }");
+  },
+};
+
+const rowIndex: Codec<number> = {
+  parse: (value) => {
+    const index = Number(value);
+    if (Number.isInteger(index)) {
+      return index;
+    }
+    throw new TypeError("Expected a row index");
+  },
+};
+
+const listSpec = { id: "list", screenState: rowIndex } as const;
+const detailSpec = { id: "detail", params: issueParams } as const;
+
+const IssueDetail = function IssueDetail(): ReactNode {
+  const { theme } = useTheme();
+  const { number } = useParams(detailSpec);
+  const issue = issues.find((candidate) => candidate.number === number);
+  useRouterCommands();
+  useQuitCommand();
+
+  return (
+    <box flexDirection="column" paddingLeft={1}>
+      <text content={`#${number} ${issue?.title ?? "not found"}`} fg={theme.primary} />
+      <text content={issue?.body ?? ""} />
+    </box>
+  );
+};
+
+const detailRoute = createRoute({ ...detailSpec, component: IssueDetail });
+
+const IssueList = function IssueList(): ReactNode {
+  const { theme } = useTheme();
+  const navigate = useNavigate();
+  const { savedState, saveState } = useScreenState(listSpec);
+  const [cursor, setCursor] = useState(savedState ?? 0);
+  useRouterCommands();
+  useQuitCommand();
+
+  useEffect(() => {
+    saveState(cursor);
+  }, [cursor, saveState]);
+
+  useCommand({
+    handler: () => {
+      setCursor((current) => Math.min(current + 1, issues.length - 1));
+    },
+    hotkey: "j",
+    id: "list.down",
+    title: "Down",
+  });
+  useCommand({
+    handler: () => {
+      setCursor((current) => Math.max(current - 1, 0));
+    },
+    hotkey: "k",
+    id: "list.up",
+    title: "Up",
+  });
+  useCommand({
+    handler: () => {
+      void navigate.push(detailRoute, { number: issues[cursor].number });
+    },
+    hotkey: "Enter",
+    id: "list.open",
+    title: "Open issue",
+  });
+
+  return (
+    <box flexDirection="column" paddingLeft={1}>
+      {issues.map(
+        (issue, index): ReactNode => (
+          <text
+            key={issue.number}
+            content={`${index === cursor ? ">" : " "} #${issue.number} ${issue.title}`}
+            fg={index === cursor ? theme.primary : theme.text}
+          />
+        ),
+      )}
+    </box>
+  );
+};
+
+const listRoute = createRoute({ ...listSpec, component: IssueList });
+
+const router = createRouter({
+  initial: { routeId: "list" },
+  routes: [listRoute, detailRoute],
+});
+await router.start();
+
+const IssueTracker = function IssueTracker(): ReactNode {
+  const canGoBack = useCanGoBack();
+  return (
+    <AppLayout
+      titleBar={{ title: "Issues" }}
+      statusBar={{
+        items: [
+          {
+            label: "",
+            value: canGoBack ? "Backspace back  q quit" : "j/k move  Enter open  q quit",
+          },
+        ],
+      }}
+    >
+      <Outlet />
+    </AppLayout>
+  );
+};
+
+await launchCli(
+  <RouterProvider router={router}>
+    <IssueTracker />
+  </RouterProvider>,
+);
+```
+
+Run it with `bun issue-tracker.tsx`. The list screen shows three issues. `j` and `k` move the marker, `Enter` opens the issue under it, and `Backspace` returns to the list with the marker where you left it. `q` quits from either screen.
+
+A router holds a stack of screens. `createRoute` pairs a route id with a component and the codecs that type its params and its saved state. `createRouter` takes the routes and the first entry; `start()` commits that entry and must settle before `RouterProvider` mounts. `Outlet` draws the component of the top entry. `useNavigate` returns `push`, `replace`, `reset`, and `pop`. `useRouterCommands` binds `Backspace` to `pop` while there is a screen to go back to. `useParams` decodes the params of the top entry through the route's own codec, and `useScreenState` saves a value that the same entry gets back after `pop`. `<box>` and `<text>` are [OpenTUI](https://opentui.com) elements; [Your first Tooee app](/docs/build/first-app) introduces `launchCli` and `AppLayout`.
+
+## Define routes
+
+`createRoute` takes:
+
+| Field              | Meaning                                                                                                           |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `id`               | Required. Unique within the router.                                                                               |
+| `component`        | Required. The screen. It takes no props; it reads params and data through hooks.                                  |
+| `params`           | A `Codec` for the params. Without one, the route accepts any object and `useParams` returns it unchanged.         |
+| `canonicalize`     | Maps decoded params to their canonical form before guards run, for example by trimming an id.                     |
+| `loader`           | `async ({ params }) => data`. Runs when the screen mounts. See [Load data for a screen](#load-data-for-a-screen). |
+| `data`             | A `Codec` for the loader result. Required by `useRouteData`.                                                      |
+| `screenState`      | A `Codec` for the value saved with `useScreenState`.                                                              |
+| `parent`           | A layout route whose component draws an `Outlet` for this one.                                                    |
+| `pendingComponent` | Drawn while the loader runs.                                                                                      |
+| `errorComponent`   | Drawn with `{ error }` when the loader throws.                                                                    |
+| `title`            | A string or `({ params }) => string`, stored on the route for your own chrome to read.                            |
+
+A screen and its route refer to each other: the route names the component, and the component calls `useParams` for that route. `useParams`, `useRouteData`, and `useScreenState` need only the `id` and the codec, so the example puts those in a spec object, creates the screen from the spec, and spreads the spec into `createRoute` afterwards. `navigate.push` needs the route object itself, so a screen that pushes another comes after that route in the file.
+
+## Typed params
+
+A `Codec<T>` is `{ parse: (value: unknown) => T }`. Params cross a serialized boundary: the stack stores them as plain objects, and a screen only ever reads them back through the codec. `parse` throws for a value it does not accept, and the router reports the throw as a failed navigation. Write the codec against `unknown`, as `issueParams` does, and return a fresh object. A schema library's `parse` function fits the interface as it is.
+
+`useParams(route)` throws when `route` is neither the top entry nor one of its parents. A component that renders under the wrong route gets an error instead of another screen's params.
+
+## Start the router
+
+`createRouter` takes:
+
+| Option              | Meaning                                                                                                                                                                                                                                                   |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `routes`            | Required. Every route the router may show. A duplicate id throws.                                                                                                                                                                                         |
+| `initial`           | Required. `{ routeId, params }` for the first entry.                                                                                                                                                                                                      |
+| `context`           | A value passed to every guard as its second argument. In 0.12 `RouterProvider` accepts a router without one: its `router` prop is typed `RouterInstance<undefined>`. A guard that closes over the value, as the draft guard below does, avoids the prop. |
+| `beforeNavigate`    | One guard or a list of guards. See [Guard a navigation](#guard-a-navigation).                                                                                                                                                                             |
+| `onNavigationError` | Called with the error and `{ id, intent, navigation }` when a navigation fails.                                                                                                                                                                           |
+| `onSubscriberError` | Called when a stack or navigation listener throws. The navigation result is not affected.                                                                                                                                                                 |
+
+`start()` submits the initial entry as a `reset` and resolves with a `NavigationResult`. Mount `RouterProvider` after it resolves with `status: "committed"`; the provider throws when the router has not started. Concurrent `start()` calls share one attempt, and a failed or cancelled start can be tried again.
+
+## Navigate
+
+`useNavigate()` returns four methods bound to the router. Each takes a route object and, when the route has a params codec, the params:
+
+| Method                    | Stack after the call                                |
+| ------------------------- | --------------------------------------------------- |
+| `push(route, params?)`    | The new entry on top of the current stack.          |
+| `replace(route, params?)` | The new entry in place of the top entry.            |
+| `reset(route, params?)`   | The new entry alone. Saved screen state is cleared. |
+| `pop()`                   | The current stack without its top entry.            |
+
+Every method returns a promise that resolves with a `NavigationResult` and never rejects:
+
+| `status`      | Fields                   | Meaning                                                                                                                                  |
+| ------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `"committed"` | `from`, `to`             | The stack changed. Listeners have already run.                                                                                           |
+| `"cancelled"` | `reason`                 | `"guard"` when a guard returned `false`, `"superseded"` when a newer call replaced this one, `"aborted"` when the caller's signal fired. |
+| `"noop"`      | `reason: "stack-bottom"` | `pop()` with one entry on the stack.                                                                                                     |
+| `"failed"`    | `error`                  | An unknown route id, a codec that threw, or a guard that threw.                                                                          |
+
+Navigation is switch-latest. A second call while one is in flight cancels the first with `"superseded"`, and only the newest queued call is kept. A route object that belongs to another router, or a call before `start()` settles, throws at once instead of returning a promise.
+
+`useRouter()` returns the instance behind the hooks. Its `navigate({ type, routeId, params })` takes a string id, for intents that arrive serialized, and `useActionResultHandler()` turns a `{ type: "navigate" }` or `{ type: "back" }` result from an action into a call. `useCurrentRoute()` returns the top `{ routeId, params }`, and `useCanGoBack()` is `true` when the stack has more than one entry.
+
+## Guard a navigation
+
+A guard sees the resolved target before the stack changes and can cancel or rewrite it. This one blocks `pop` while a draft has unsaved changes:
+
+```tsx title="draft-guard.tsx"
+import { useCommand } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import {
+  Outlet,
+  RouterProvider,
+  createRoute,
+  createRouter,
+  useNavigate,
+  useRouterCommands,
+} from "@tooee/router";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
+
+const draft = { unsaved: false };
+
+const Compose = function Compose(): ReactNode {
+  const navigate = useNavigate();
+  const [saved, setSaved] = useState(true);
+  useQuitCommand();
+
+  useEffect(() => {
+    draft.unsaved = !saved;
+  }, [saved]);
+
+  useCommand({
+    handler: () => {
+      setSaved(false);
+    },
+    hotkey: "e",
+    id: "compose.edit",
+    title: "Edit the draft",
+  });
+  useCommand({
+    handler: () => {
+      setSaved(true);
+    },
+    hotkey: "s",
+    id: "compose.save",
+    title: "Save the draft",
+  });
+  useCommand({
+    handler: async (ctx) => {
+      const result = await navigate.pop();
+      if (result.status === "cancelled") {
+        ctx.toast?.toast({ level: "warning", message: `Blocked by ${result.reason}: save first` });
+      }
+    },
+    hotkey: "Escape",
+    id: "compose.leave",
+    title: "Back to the inbox",
+  });
+
+  return (
+    <box flexDirection="column" paddingLeft={1}>
+      <text content={saved ? "Draft: saved" : "Draft: unsaved changes"} />
+      <text content="e edit  s save  Escape back" />
+    </box>
+  );
+};
+
+const composeRoute = createRoute({ component: Compose, id: "compose" });
+
+const Inbox = function Inbox(): ReactNode {
+  const navigate = useNavigate();
+  useRouterCommands();
+  useQuitCommand();
+  useCommand({
+    handler: () => {
+      void navigate.push(composeRoute);
+    },
+    hotkey: "c",
+    id: "inbox.compose",
+    title: "Compose",
+  });
+
+  return (
+    <box paddingLeft={1}>
+      <text content="Inbox: 3 messages. c compose  q quit" />
+    </box>
+  );
+};
+
+const inboxRoute = createRoute({ component: Inbox, id: "inbox" });
+
+const router = createRouter({
+  beforeNavigate: (navigation) => {
+    const leavingDraft = navigation.intent.type === "pop" && draft.unsaved;
+    return leavingDraft ? false : undefined;
+  },
+  initial: { routeId: "inbox" },
+  routes: [inboxRoute, composeRoute],
+});
+await router.start();
+
+await launchCli(
+  <RouterProvider router={router}>
+    <AppLayout titleBar={{ title: "Mail" }} statusBar={{ items: [{ label: "", value: "q quit" }] }}>
+      <Outlet />
+    </AppLayout>
+  </RouterProvider>,
+);
+```
+
+Press `c`, then `e`, then `Escape`: the screen stays and a toast reads `Blocked by guard: save first`. Press `s`, then `Escape`: the inbox returns. The compose screen updates `draft.unsaved` in an effect, and the guard reads the same object.
+
+A guard is `(navigation, context) => result`, sync or async. `navigation` is a `ResolvedNavigation`: `intent` is the serialized `{ type, routeId, params }` or `{ type: "pop" }`, `from` is the stack before, `target` is the decoded and canonicalized entry, `next` is the stack after, and `signal` fires when the navigation is superseded or aborted. The return value decides what happens:
+
+| Return             | Effect                                                                                                   |
+| ------------------ | -------------------------------------------------------------------------------------------------------- |
+| `undefined`        | Allow.                                                                                                   |
+| `false`            | Cancel with `reason: "guard"`.                                                                           |
+| `{ target }`       | Replace the target with another `{ routeId, params }`. The next guard sees it decoded and canonicalized. |
+| `{ beforeCommit }` | A sync callback that runs in guard order right before the stack changes.                                 |
+| `{ abort }`        | A callback that runs, in reverse guard order, when the navigation does not commit.                       |
+
+Guards run in registration order, and `pop` runs them too, with the entry that `pop` reveals as the target. `router.addNavigationGuard(guard)` adds one at run time and returns a function that removes it. `router.subscribeNavigation` reports `started` and `settled` events for every navigation, and `router.pendingNavigation` is the one in flight.
+
+## Load data for a screen
+
+A route with a `loader` mounts its `pendingComponent` first, runs the loader with the decoded params, then mounts the screen with the result. `useRouteData(route)` decodes that result through the route's `data` codec:
+
+```tsx title="manifest-viewer.tsx"
+import { useCommand } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import {
+  Outlet,
+  RouterProvider,
+  createRoute,
+  createRouter,
+  useNavigate,
+  useParams,
+  useRouteData,
+  useRouterCommands,
+} from "@tooee/router";
+import type { Codec } from "@tooee/router";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+interface Manifest {
+  name: string;
+  version: string;
+}
+
+const pathParams: Codec<{ path: string }> = {
+  parse: (value) => {
+    if (value instanceof Object && "path" in value) {
+      return { path: String(value.path) };
+    }
+    throw new TypeError("Expected params { path }");
+  },
+};
+
+const manifestData: Codec<Manifest> = {
+  parse: (value) => {
+    if (value instanceof Object && "name" in value && "version" in value) {
+      return { name: String(value.name), version: String(value.version) };
+    }
+    throw new TypeError("Expected a manifest with name and version");
+  },
+};
+
+const manifestSpec = { data: manifestData, id: "manifest", params: pathParams } as const;
+
+const ManifestScreen = function ManifestScreen(): ReactNode {
+  const { path } = useParams(manifestSpec);
+  const manifest = useRouteData(manifestSpec);
+
+  return (
+    <box flexDirection="column" paddingLeft={1}>
+      <text content={path} />
+      <text content={manifest === undefined ? "" : `${manifest.name} ${manifest.version}`} />
+    </box>
+  );
+};
+
+const Reading = function Reading(): ReactNode {
+  return <text content="Reading..." />;
+};
+
+const ReadFailed = function ReadFailed({ error }: { error: Error }): ReactNode {
+  return <text content={`Could not read the manifest: ${error.message}`} />;
+};
+
+const manifestRoute = createRoute({
+  ...manifestSpec,
+  component: ManifestScreen,
+  errorComponent: ReadFailed,
+  loader: async ({ params }) => {
+    await Bun.sleep(400);
+    return manifestData.parse(await Bun.file(params.path).json());
+  },
+  pendingComponent: Reading,
+});
+
+const files = ["package.json", "missing.json"];
+
+const FileList = function FileList(): ReactNode {
+  const navigate = useNavigate();
+  const [cursor, setCursor] = useState(0);
+  useCommand({
+    handler: () => {
+      setCursor((current) => (current + 1) % files.length);
+    },
+    hotkey: "j",
+    id: "files.next",
+    title: "Next file",
+  });
+  useCommand({
+    handler: () => {
+      void navigate.push(manifestRoute, { path: files[cursor] });
+    },
+    hotkey: "Enter",
+    id: "files.open",
+    title: "Open",
+  });
+
+  return (
+    <box flexDirection="column" paddingLeft={1}>
+      {files.map(
+        (file, index): ReactNode => (
+          <text key={file} content={`${index === cursor ? ">" : " "} ${file}`} />
+        ),
+      )}
+    </box>
+  );
+};
+
+const filesRoute = createRoute({ component: FileList, id: "files" });
+
+const router = createRouter({
+  initial: { routeId: "files" },
+  routes: [filesRoute, manifestRoute],
+});
+await router.start();
+
+const Manifests = function Manifests(): ReactNode {
+  useRouterCommands();
+  useQuitCommand();
+  return (
+    <AppLayout
+      titleBar={{ title: "Manifests" }}
+      statusBar={{ items: [{ label: "", value: "j next  Enter open  Backspace back  q quit" }] }}
+    >
+      <Outlet />
+    </AppLayout>
+  );
+};
+
+await launchCli(
+  <RouterProvider router={router}>
+    <Manifests />
+  </RouterProvider>,
+);
+```
+
+`Enter` on `package.json` shows `Reading...` for a moment, then the name and version. `Enter` on `missing.json` shows the error line instead. `Backspace` returns to the list in both cases.
+
+The loader runs in an effect after the navigation commits, so a `committed` result does not mean the data is there. The pending and error components render in place of the screen, so a command registered inside the screen is absent while they show. `Manifests` registers `Backspace` and `q` above the `Outlet`, where they stay live on every screen. The loader decodes the file itself, because `Bun.file().json()` returns an untyped value, and `useRouteData` decodes the stored result again with the same codec. `useRouteData` returns `undefined` for a route that did not produce the data in context, such as a parent in a nested chain.
+
+## Nested routes and screen focus
+
+A route with a `parent` renders inside that parent's component, at the parent's `Outlet`. The parent stays mounted while its children change:
+
+```tsx title="nested-layout.tsx"
+import { useCommand } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import {
+  Outlet,
+  RouterProvider,
+  createRoute,
+  createRouter,
+  useNavigate,
+  useRouterCommands,
+  useScreenEffect,
+  useScreenFocus,
+} from "@tooee/router";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const Dashboard = function Dashboard(): ReactNode {
+  const { theme } = useTheme();
+  const { isFocused } = useScreenFocus();
+  return (
+    <box flexDirection="column" paddingLeft={1}>
+      <text content={`Dashboard  focused: ${isFocused}`} fg={theme.textMuted} />
+      <Outlet />
+    </box>
+  );
+};
+
+const dashboardRoute = createRoute({ component: Dashboard, id: "dashboard" });
+
+const Alerts = function Alerts(): ReactNode {
+  const { isFocused } = useScreenFocus();
+  const [polls, setPolls] = useState(0);
+  useRouterCommands();
+  useQuitCommand();
+  useScreenEffect(() => {
+    const timer = setInterval(() => {
+      setPolls((current) => current + 1);
+    }, 500);
+    return () => {
+      clearInterval(timer);
+    };
+  });
+
+  return <text content={`Alerts  focused: ${isFocused}  polls: ${polls}`} />;
+};
+
+const alertsRoute = createRoute({ component: Alerts, id: "alerts", parent: dashboardRoute });
+
+const Overview = function Overview(): ReactNode {
+  const { isFocused } = useScreenFocus();
+  const navigate = useNavigate();
+  useQuitCommand();
+  useCommand({
+    handler: () => {
+      void navigate.push(alertsRoute);
+    },
+    hotkey: "a",
+    id: "overview.alerts",
+    title: "Show alerts",
+  });
+
+  return <text content={`Overview  focused: ${isFocused}  a alerts`} />;
+};
+
+const overviewRoute = createRoute({ component: Overview, id: "overview", parent: dashboardRoute });
+
+const router = createRouter({
+  initial: { routeId: "overview" },
+  routes: [dashboardRoute, overviewRoute, alertsRoute],
+});
+await router.start();
+
+await launchCli(
+  <RouterProvider router={router}>
+    <AppLayout titleBar={{ title: "Ops" }} statusBar={{ items: [{ label: "", value: "q quit" }] }}>
+      <Outlet />
+    </AppLayout>
+  </RouterProvider>,
+);
+```
+
+The dashboard line stays at the top while `a` and `Backspace` swap the overview and the alerts below it. The dashboard reads `focused: false` and the child reads `focused: true`.
+
+`useScreenFocus()` returns `{ isFocused }`. Inside a router it is `true` for the leaf of the top entry and `false` for a parent layout. Inside a [panel](/docs/build/panels), an inactive panel makes it `false` for everything the panel contains. Outside both it is `true`. `useScreenEffect(effect)` is `useEffect` gated on that flag: the effect runs when the screen gains focus and its cleanup runs when the screen loses it. The alerts poll runs while the alerts screen is the leaf, and a router mounted inside a panel pauses it when another panel becomes active.
+
+## Keep screen state across navigation
+
+Only the top entry renders, so a screen unmounts on `push` and mounts again on `pop`. `useScreenState(route)` returns `{ savedState, saveState }` for the current stack entry, typed by the route's `screenState` codec. The issue tracker saves the cursor in an effect and reads `savedState` as the initial state, so the marker survives a trip to the detail screen.
+
+The router keeps the values in a `StateCache` keyed by stack position and route id, and clears them with the stack:
+
+| Navigation | Cache                                                   |
+| ---------- | ------------------------------------------------------- |
+| `push`     | Kept.                                                   |
+| `pop`      | The entry that left the stack is cleared.               |
+| `replace`  | The replaced entry is cleared, even for the same route. |
+| `reset`    | Everything is cleared.                                  |
+
+A navigation that fails or is cancelled changes nothing. `router.stateCache` exposes the cache, and `createStateKey(name, codec)` builds a typed key for values of your own.
+
+## Router commands
+
+`useRouterCommands()` registers one command on the current surface: `router.back`, bound to `Backspace` in cursor mode, enabled while `canGoBack()` is `true`. Call it in each screen that should go back on `Backspace`; at the bottom of the stack the key does nothing. The id is stable, so a [config](/docs/customize/configuration) file can rebind it.
+
+## Routers inside panels
+
+A router does not need to own the whole screen. `RouterProvider` mounted inside a `Panel` keeps its stack while other panels are active, and its screens only receive keys while that panel is active. A router mounted outside a `PanelGroup` replaces the whole group on navigation. [Panels](/docs/build/panels) covers the group, and [panels.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/panels/panels.tsx) runs a panel-local router next to a list.
+
+## Next
+
+- [Panels](/docs/build/panels)
+- [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts)
+- [Commands and modes](/docs/build/commands-and-modes)
+- [Testing](/docs/ship/testing)

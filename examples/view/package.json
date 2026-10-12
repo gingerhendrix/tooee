@@ -1,0 +1,15 @@
+{
+  "name": "@tooee/example-view",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@tooee/commands": "workspace:*",
+    "@tooee/marks": "workspace:*",
+    "@tooee/themes": "workspace:*",
+    "@tooee/view": "workspace:*",
+    "react": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0"
+  }
+}

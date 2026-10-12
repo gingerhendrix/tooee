@@ -42,20 +42,23 @@ describe("directory mode e2e", () => {
     expect(text).toContain("1/3");
   }, 20_000);
 
-  test("l switches to next file", async () => {
+  test("g n switches to next file", async () => {
     session = await launchViewDir();
-    await session.press("l");
+    await session.press("g");
+    await session.press("n");
     await session.waitForText("beta.ts", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("beta.ts");
     expect(text).toContain("2/3");
   }, 20_000);
 
-  test("h goes back to previous file", async () => {
+  test("g p goes back to previous file", async () => {
     session = await launchViewDir();
-    await session.press("l");
+    await session.press("g");
+    await session.press("n");
     await session.waitForText("beta.ts", { timeout: 5000 });
-    await session.press("h");
+    await session.press("g");
+    await session.press("p");
     await session.waitForText("alpha.md", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("alpha.md");
@@ -64,9 +67,11 @@ describe("directory mode e2e", () => {
 
   test("shows file count in title", async () => {
     session = await launchViewDir();
-    await session.press("l");
+    await session.press("g");
+    await session.press("n");
     await session.waitForText("2/3", { timeout: 5000 });
-    await session.press("l");
+    await session.press("g");
+    await session.press("n");
     await session.waitForText("3/3", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("gamma.txt");

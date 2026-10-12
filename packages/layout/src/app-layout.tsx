@@ -19,7 +19,11 @@ export interface AppLayoutScroll {
 
 export interface AppLayoutProps {
   titleBar?: { title: string; subtitle?: string };
-  statusBar: { items: StatusBarItem[] };
+  statusBar: {
+    items: readonly StatusBarItem[];
+    /** Glyph that shows when items hide. `false` turns it off. Default `"⋯"`. */
+    hiddenMarker?: string | false;
+  };
   /** Configure the optional scrollbox used for the main content. */
   scroll?: AppLayoutScroll;
   searchBar?: SearchState;
@@ -91,14 +95,11 @@ export const AppLayout = function AppLayout({
           query={searchBar.searchQuery}
           onQueryChange={handleSearchQueryChange}
           onSubmit={handleSearchSubmit}
-          onCancel={() => {
-            searchBar.setSearchQuery("");
-          }}
           matchCount={searchBar.matchingLines.length}
           currentMatch={searchBar.currentMatchIndex}
         />
       ) : (
-        <StatusBar items={statusBar.items} />
+        <StatusBar items={statusBar.items} hiddenMarker={statusBar.hiddenMarker} />
       )}
     </box>
   );

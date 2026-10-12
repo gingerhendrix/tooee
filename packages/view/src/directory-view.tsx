@@ -53,11 +53,14 @@ export const DirectoryView = function DirectoryView({
     [files, currentIndex]
   );
 
+  // File keys use a `g` sequence. `h` and `l` belong to horizontal scroll in
+  // the markdown and diff subviews, and two commands on one key let mount
+  // order pick the winner.
   useCommand({
     handler: () => {
       setCurrentIndex((i) => Math.min(i + 1, files.length - 1));
     },
-    hotkey: "l",
+    hotkey: "g n",
     id: "dir.next-file",
     modes: ["cursor"],
     title: "Next file",
@@ -67,7 +70,7 @@ export const DirectoryView = function DirectoryView({
     handler: () => {
       setCurrentIndex((i) => Math.max(i - 1, 0));
     },
-    hotkey: "h",
+    hotkey: "g p",
     id: "dir.prev-file",
     modes: ["cursor"],
     title: "Previous file",

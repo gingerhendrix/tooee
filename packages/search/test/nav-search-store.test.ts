@@ -110,6 +110,26 @@ describe("search", () => {
     expect(context(store).cursor).toBe(1);
   });
 
+  test("next and previous skip to a selectable row", () => {
+    const deps = { isSelectable: (index: number) => index !== 2 };
+    const store = createNavSearchStore({ deps, keys: [0, 1, 2, 3, 4] });
+    const jumped: number[] = [];
+    store.on("jumped", ({ index }) => {
+      jumped.push(index);
+    });
+    store.trigger.searchStarted({ mode: "cursor" });
+    store.trigger.searchChanged({ matches: [0, 2], query: "x" });
+
+    store.trigger.searchNext({});
+    expect(context(store).cursor).toBe(3);
+    expect(context(store).search.currentMatchIndex).toBe(1);
+
+    store.trigger.searchPrevious({});
+    store.trigger.searchPrevious({});
+    expect(context(store).cursor).toBe(1);
+    expect(jumped).toEqual([0, 3, 0, 1]);
+  });
+
   test("ignores an unchanged result without resetting the current match", () => {
     const store = createNavSearchStore({ keys: [0, 1, 2, 3] });
     store.trigger.searchStarted({ mode: "cursor" });

@@ -1,3 +1,4 @@
+import { StatusPriority } from "@tooee/layout";
 import { Table, formatTableCell } from "@tooee/renderers";
 import type { TableRow } from "@tooee/renderers";
 import { useMemo } from "react";
@@ -37,9 +38,9 @@ export const TableSubview = function TableSubview({
     {
       multiSelect: true,
       statusItems: [
-        { label: "Format:", value: content.format },
-        { label: "Rows:", value: String(rows.length) },
-        { label: "Cols:", value: String(columns.length) },
+        { label: "Format:", priority: StatusPriority.content, value: content.format },
+        { label: "Rows:", priority: StatusPriority.content, value: String(rows.length) },
+        { label: "Cols:", priority: StatusPriority.content, value: String(columns.length) },
       ],
     }
   );

@@ -213,6 +213,16 @@
     "syntaxPunctuation": {
       "dark": "vesperFg",
       "light": "vesperBg"
-    }
+    },
+    "searchMatchBg": {
+      "dark": "#45382e",
+      "light": "#fff3e9"
+    },
+    "searchCurrentMatchBg": {
+      "dark": "#645040",
+      "light": "#ffebdb"
+    },
+    "searchMatchFg": "warning",
+    "searchCurrentMatchFg": "primary"
   }
 }

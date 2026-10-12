@@ -1,5 +1,5 @@
 /** Compile-time checks for the handle-based 0.9 overlay controller. */
-import type { OverlayController, OverlayHandle } from "./overlay-context.js";
+import type { OverlayController, OverlayHandle, OverlayRole } from "./overlay-context.js";
 
 type Assert<T extends true> = T;
 
@@ -19,8 +19,14 @@ type RemovedControllerAliases = Assert<
 
 type RetainedHandle = Assert<Has<HandleKeys, "close" | "update">>;
 
+type OverlayRolesWithoutPanel = Assert<IsNever<Extract<OverlayRole, "panel">>>;
+
+type OverlayRolesKept = Assert<Has<OverlayRole, "modal" | "passive">>;
+
 export type OverlayControllerPublicContractChecks = [
   RetainedController,
   RemovedControllerAliases,
   RetainedHandle,
+  OverlayRolesWithoutPanel,
+  OverlayRolesKept,
 ];

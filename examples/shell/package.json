@@ -1,0 +1,17 @@
+{
+  "name": "@tooee/example-shell",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@tooee/commands": "workspace:*",
+    "@tooee/layout": "workspace:*",
+    "@tooee/overlays": "workspace:*",
+    "@tooee/renderers": "workspace:*",
+    "@tooee/shell": "workspace:*",
+    "@tooee/themes": "workspace:*",
+    "react": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0"
+  }
+}

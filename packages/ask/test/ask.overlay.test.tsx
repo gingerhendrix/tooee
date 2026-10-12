@@ -28,13 +28,7 @@ const setupAsk = async function setupAsk(
         prompt="Question"
         multiline={opts.multiline}
         defaultValue={opts.defaultValue}
-        actions={[
-          {
-            handler: (ctx) => opts.onSubmit?.(ctx.ask?.value ?? ""),
-            id: "submit",
-            title: "Submit",
-          },
-        ]}
+        onSubmit={opts.onSubmit ?? (() => {})}
       />
     </TooeeProvider>,
     { height: 24, kittyKeyboard: true, width: 80 }
@@ -206,6 +200,39 @@ describe("Ask default value cursor", () => {
     await pressEnter();
 
     expect(submitted).toBe("hello");
+  });
+
+  test("a submit action does not replace onSubmit", async () => {
+    let submitted = "";
+    let actionRuns = 0;
+    testSetup = await testRender(
+      <TooeeProvider initialMode="insert">
+        <Ask
+          prompt="Question"
+          multiline={false}
+          defaultValue="hello"
+          actions={[
+            {
+              handler: () => {
+                actionRuns += 1;
+              },
+              id: "submit",
+              title: "Submit",
+            },
+          ]}
+          onSubmit={(value) => {
+            submitted = value;
+          }}
+        />
+      </TooeeProvider>,
+      { height: 24, kittyKeyboard: true, width: 80 }
+    );
+    await testSetup.renderOnce();
+
+    await pressEnter();
+
+    expect(submitted).toBe("hello");
+    expect(actionRuns).toBe(0);
   });
 
   test("multiline cursor starts at the end of the default value", async () => {

@@ -1,6 +1,6 @@
 import { test, expect, afterEach, beforeEach, describe } from "bun:test";
 
-import { testRender, copied } from "@tooee/test-support";
+import { testRender, copied, clipboardMockState } from "@tooee/test-support";
 import type { ReactNode } from "react";
 
 const { TooeeProvider, useDocumentController, Document } = await import("@tooee/shell");
@@ -63,6 +63,7 @@ let session: TestSession;
 
 beforeEach(() => {
   copied.length = 0;
+  clipboardMockState.available = true;
 });
 
 afterEach(() => {
@@ -126,6 +127,27 @@ describe("copy", () => {
 
     expect(copied).toEqual([]);
     expect(session.captureCharFrame()).toContain("Nothing selected");
+  });
+
+  test("yy reports an error when no clipboard tool takes the text", async () => {
+    clipboardMockState.available = false;
+    await setup();
+    await press(session, "y");
+    await press(session, "y");
+    await session.renderOnce();
+
+    const frame = session.captureCharFrame();
+    expect(frame).toContain("Copy failed");
+    expect(frame).not.toContain("Copied");
+  });
+
+  test("yy reports success when the clipboard takes the text", async () => {
+    await setup();
+    await press(session, "y");
+    await press(session, "y");
+    await session.renderOnce();
+
+    expect(session.captureCharFrame()).toContain("Copied line");
   });
 
   test("yy reports an empty document instead of invoking the clipboard", async () => {

@@ -1,6 +1,7 @@
 import type { TextBufferRenderable } from "@opentui/core";
 import { useTerminalDimensions } from "@opentui/react";
 import { useBuildCommandContext, useCommand } from "@tooee/commands";
+import { StatusPriority } from "@tooee/layout";
 import { MarkdownView, flattenMarkdown, getFlatBlockText } from "@tooee/renderers";
 import type { CodeBlockRenderer, FlatBlock } from "@tooee/renderers";
 import type { DocumentRowAdapter } from "@tooee/shell";
@@ -72,8 +73,8 @@ export const MarkdownSubview = function MarkdownSubview({
       multiSelect: true,
       preserveCursorByKey: true,
       statusItems: [
-        { label: "Format:", value: content.format },
-        { label: "Lines:", value: String(lineCount) },
+        { label: "Format:", priority: StatusPriority.content, value: content.format },
+        { label: "Lines:", priority: StatusPriority.content, value: String(lineCount) },
       ],
     }
   );

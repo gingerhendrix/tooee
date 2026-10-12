@@ -1,3 +1,4 @@
+import { useCommand, useHasCommandProvider } from "@tooee/commands";
 import { createContext, createElement, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
@@ -27,6 +28,58 @@ export const getRouteChain = function getRouteChain(
   return chain;
 };
 
+// Fallback commands while a pending or error component replaces the screen.
+// The screen's own commands are unmounted then, so without these an app that
+// binds `q` only inside its screens has no way out of a failed load. They mount
+// after the pending or error component, so that component's own commands, and
+// any app commands registered earlier on the same surface, take precedence.
+
+const RouteFallbackCommands = function RouteFallbackCommands({
+  retry,
+}: {
+  retry?: () => void;
+}): ReactNode {
+  useCommand({
+    handler: (ctx) => {
+      ctx.exit();
+    },
+    hotkey: "q",
+    id: "router.fallback-quit",
+    modes: ["cursor"],
+    title: "Quit",
+  });
+
+  useCommand({
+    enabled: retry !== undefined,
+    handler: () => {
+      retry?.();
+    },
+    hotkey: "r",
+    id: "router.retry",
+    modes: ["cursor"],
+    title: "Retry",
+  });
+
+  return null;
+};
+
+const WithFallbackCommands = function WithFallbackCommands({
+  children,
+  retry,
+}: {
+  children: ReactNode;
+  retry?: () => void;
+}): ReactNode {
+  const hasCommands = useHasCommandProvider();
+
+  return (
+    <>
+      {children}
+      {hasCommands && <RouteFallbackCommands retry={retry} />}
+    </>
+  );
+};
+
 // RouteRenderer: handles loader lifecycle for a route
 
 const RouteRenderer = function RouteRenderer({
@@ -41,6 +94,11 @@ const RouteRenderer = function RouteRenderer({
   const [data, setData] = useState<unknown>();
   const [loading, setLoading] = useState(routeDef.load !== undefined);
   const [loaderError, setLoaderError] = useState<Error | null>(null);
+  const [attempt, setAttempt] = useState(0);
+
+  const retry = () => {
+    setAttempt((value) => value + 1);
+  };
 
   useEffect(() => {
     const { load } = routeDef;
@@ -69,18 +127,24 @@ const RouteRenderer = function RouteRenderer({
     return () => {
       cancelled = true;
     };
-  }, [entry, routeDef]);
-
-  if (loaderError && routeDef.errorComponent) {
-    return createElement(routeDef.errorComponent, { error: loaderError });
-  }
+  }, [entry, routeDef, attempt]);
 
   if (loaderError) {
-    return null;
+    return (
+      <WithFallbackCommands retry={retry}>
+        {routeDef.errorComponent
+          ? createElement(routeDef.errorComponent, { error: loaderError, retry })
+          : null}
+      </WithFallbackCommands>
+    );
   }
 
   if (loading) {
-    return routeDef.pendingComponent ? createElement(routeDef.pendingComponent) : null;
+    return (
+      <WithFallbackCommands>
+        {routeDef.pendingComponent ? createElement(routeDef.pendingComponent) : null}
+      </WithFallbackCommands>
+    );
   }
 
   return (

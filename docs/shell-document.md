@@ -6,7 +6,7 @@ This guide describes the API shipped in Tooee 0.2.1.
 
 ## A minimal source-aware document
 
-The complete, CI-typechecked version is [`../examples/source-aware-document.tsx`](../examples/source-aware-document.tsx).
+The complete, CI-typechecked version is [`../examples/shell/source-aware-document.tsx`](../examples/shell/source-aware-document.tsx).
 
 ```tsx
 import { sourceLines, sourceLineAdapter } from "@tooee/renderers";

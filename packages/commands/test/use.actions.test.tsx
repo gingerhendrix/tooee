@@ -114,3 +114,68 @@ describe("useActions re-registration key (R-07)", () => {
     expect(testSetup.captureCharFrame()).toContain("count:1");
   });
 });
+
+const ExitHarness = function ExitHarness(): ReactNode {
+  useActions([
+    {
+      handler: (ctx) => {
+        ctx.exit();
+      },
+      hotkey: "x",
+      id: "leave",
+      title: "Leave",
+    },
+  ]);
+
+  return <text content="exit harness" />;
+};
+
+describe("ctx.exit", () => {
+  test("destroys the renderer when no context source supplies exit", async () => {
+    testSetup = await testRender(
+      <CommandProvider>
+        <ExitHarness />
+      </CommandProvider>,
+      { height: 5, width: 40 }
+    );
+    await testSetup.renderOnce();
+    expect(testSetup.renderer.isDestroyed).toBe(false);
+
+    await act(async () => {
+      testSetup.mockInput.pressKey("x");
+      await Promise.resolve();
+    });
+
+    expect(testSetup.renderer.isDestroyed).toBe(true);
+  });
+});
+
+const PlusHarness = function PlusHarness(): ReactNode {
+  const [count, setCount] = useState(0);
+  useCommand({
+    handler: () => {
+      setCount((n) => n + 1);
+    },
+    hotkey: "+",
+    id: "grow",
+    title: "Grow",
+  });
+
+  return <text content={`count:${count}`} />;
+};
+
+describe("plus hotkey", () => {
+  test("a + keypress runs a command bound to +", async () => {
+    testSetup = await testRender(
+      <CommandProvider>
+        <PlusHarness />
+      </CommandProvider>,
+      { height: 5, kittyKeyboard: true, width: 40 }
+    );
+    await testSetup.renderOnce();
+
+    await press(testSetup, "+");
+
+    expect(testSetup.captureCharFrame()).toContain("count:1");
+  });
+});

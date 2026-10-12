@@ -1,0 +1,9 @@
+{
+  "name": "@tooee/example-choose",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@tooee/choose": "workspace:*",
+    "@tooee/view": "workspace:*"
+  }
+}

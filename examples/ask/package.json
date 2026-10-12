@@ -1,0 +1,8 @@
+{
+  "name": "@tooee/example-ask",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@tooee/ask": "workspace:*"
+  }
+}

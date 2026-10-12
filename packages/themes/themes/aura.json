@@ -64,6 +64,10 @@
     "syntaxNumber": "green",
     "syntaxType": "purple",
     "syntaxOperator": "pink",
-    "syntaxPunctuation": "darkFg"
+    "syntaxPunctuation": "darkFg",
+    "searchMatchBg": "#443829",
+    "searchCurrentMatchBg": "#423363",
+    "searchMatchFg": "warning",
+    "searchCurrentMatchFg": "primary"
   }
 }

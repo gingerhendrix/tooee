@@ -6,3 +6,19 @@ exports[`snapshot 1`] = `
                                                             
 "
 `;
+
+exports[`chat items snapshot at 120 columns 1`] = `" Model: openrouter/google/gemini-3.6-flash  Thinking: medium  : palette                                       Pi: ready "`;
+
+exports[`document items snapshot at 120 columns 1`] = `" Theme: tokyonight  Format: markdown  Lines: 1284  Search: status bar overflow rules          Mode: cursor  Cursor: 412 "`;
+
+exports[`chat items snapshot at 80 columns 1`] = `" Model: openrouter/google/gemini-3.6-flash  Think: medium  : palette  Pi: ready "`;
+
+exports[`document items snapshot at 80 columns 1`] = `" Format: markdown  Search: status bar overflow rules  ⋯    Mode: cursor  Ln 412 "`;
+
+exports[`chat items snapshot at 60 columns 1`] = `" Model: openrouter/google/gemini-3.6-flash  ⋯     Pi: ready "`;
+
+exports[`document items snapshot at 60 columns 1`] = `" Search: status bar overflow rules  ⋯  Mode: cursor  Ln 412 "`;
+
+exports[`chat items snapshot at 40 columns 1`] = `" openrouter/g…i-3.6-flash  ⋯  Pi: ready "`;
+
+exports[`document items snapshot at 40 columns 1`] = `" ⋯            Mode: cursor  Cursor: 412 "`;

@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import { DirectoryView } from "./directory-view.js";
 import type { LinkHandler } from "./link-handlers.js";
 import { createStandaloneRouter } from "./standalone-router.js";
-import type { ContentProvider, ContentRenderer } from "./types.js";
+import type { ContentProvider, ContentRenderer, MarkdownLinkActivateHandler } from "./types.js";
 
 export interface ViewLaunchOptions {
   contentProvider: ContentProvider;
@@ -15,6 +15,12 @@ export interface ViewLaunchOptions {
   filePath?: string;
   /** Synchronous handlers tried before local file navigation. */
   linkHandlers?: readonly LinkHandler[];
+  /**
+   * Handles activation of a Markdown link, by mouse or by Enter on the cursor
+   * line. When set, it replaces the default handling: `linkHandlers`, local
+   * file navigation, and the stdin "Links need a source file" toast.
+   */
+  onMarkdownLinkActivate?: MarkdownLinkActivateHandler;
   actions?: ActionDefinition[];
   renderers?: Record<string, ContentRenderer>;
   /**

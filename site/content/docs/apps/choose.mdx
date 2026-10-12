@@ -1,0 +1,292 @@
+---
+title: Choose
+description: Give Choose a list, pick one or many items with fuzzy filtering, and use it as a dialog or inside a panel.
+---
+
+```ts title="deploy-target.ts"
+import { createStaticProvider, launch } from "@tooee/choose";
+
+const picked = await launch({
+  contentProvider: createStaticProvider([
+    { description: "pre-release checks", text: "staging", value: "https://staging.example.com" },
+    { description: "live traffic", text: "production", value: "https://example.com" },
+  ]),
+  options: { prompt: "Deploy target" },
+});
+if (picked === null) {
+  process.exit(1);
+}
+process.stdout.write(`${picked.items[0].value}\n`);
+```
+
+Choose shows a filter line and a list, and resolves with `{ items }` when the reader confirms, or `null` on cancel. [choose-static.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/choose/choose-static.ts) gives items with icons and descriptions.
+
+<video
+  aria-label="Screen recording of Tooee Choose filtering five colors to Blue and confirming the selected value."
+  controls
+  poster="/docs-media/tooee-choose-filtered.png"
+  preload="metadata"
+  src="/docs-media/tooee-choose-filter-selection.mp4"
+/>
+
+_The filter narrows five colors to Blue. Enter confirms it, and the app prints `You chose: Blue (blue)`._
+
+## Launch options
+
+| Option | Type | Meaning |
+| --- | --- | --- |
+| `contentProvider` | `ChooseContentProvider` | An object whose `load()` returns `ChooseItem[]` or a promise of it. |
+| `options` | `ChooseOptions` | `title`, `prompt`, `placeholder`, `multi`, and `emptyMessage`. |
+| `actions` | `ActionDefinition[]` | Commands added to the screen. See [Add actions](#add-actions). |
+
+The `launch()` options keep `title`, `prompt`, and the rest nested under `options`. The `Choose` component takes the same fields as flat props.
+
+## Give Choose a list
+
+Each row is a `ChooseItem`:
+
+| Field         | Meaning                                                        |
+| ------------- | -------------------------------------------------------------- |
+| `text`        | The row text. The filter matches against it.                   |
+| `value`       | A string for your own use. Comes back unchanged in the result. |
+| `icon`        | Text drawn before `text`.                                      |
+| `description` | Muted text drawn after `text`.                                 |
+
+A content provider is an object whose `load()` returns the items or a promise of them. `createStaticProvider(items)` wraps an array. Write your own when the list comes from a process or a file:
+
+```ts title="run-script.ts"
+import { $ } from "bun";
+import { launch } from "@tooee/choose";
+import type { ChooseItem } from "@tooee/choose";
+
+const scriptProvider = {
+  async load(): Promise<ChooseItem[]> {
+    const pkg: { scripts?: Record<string, string> } = await Bun.file("package.json").json();
+    return Object.entries(pkg.scripts ?? {}).map(([name, command]) => ({
+      description: command,
+      text: name,
+    }));
+  },
+};
+
+const picked = await launch({
+  contentProvider: scriptProvider,
+  options: { prompt: "Run a script" },
+});
+if (picked === null) {
+  process.exit(1);
+}
+await $`bun run ${picked.items[0].text}`;
+```
+
+Choose shows `Loading...` until the promise settles and `Error: <message>` when it rejects. `options.emptyMessage` is the text shown when no item matches the filter.
+
+`createStdinChooseProvider()` reads one item per line from stdin and drops empty lines. Choose reads keys from `/dev/tty` while stdin is a pipe, so `git branch --format='%(refname:short)' | bun pick.ts` works with that provider. [git-branches.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/choose/git-branches.ts) and [gh-issues.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/choose/gh-issues.ts) build items from `git` and `gh`.
+
+## Filter the list
+
+Typing in insert mode filters the list. Choose ranks items with `rankBy` from `@tooee/fuzzy` against `text`: every character of the query must appear in order, closer and earlier matches score higher, and the matched characters are highlighted in the row. An empty query keeps the source order. The status bar shows `Matches: 3/12`.
+
+`fuzzyFilter(items, query)` from `@tooee/choose` runs the same ranking on a `ChooseItem[]` and returns each match with its `originalIndex`, `score`, and `positions`.
+
+## Pick one or many
+
+In single mode, `Enter` confirms the highlighted item and `items` holds that one item. `Enter` with nothing under the filter cancels.
+
+Pass `options: { multi: true }` to pick several. `Tab` toggles the highlighted item and moves down, `Shift+Tab` toggles it and moves up, and a `✓` marks toggled rows. `Enter` returns the toggled items in the order they were toggled. With nothing toggled, it returns the highlighted item. The status bar adds a `Selected:` count. The key table is on [Choose](/docs/cli/choose#keys) in the CLI section.
+
+## Add actions
+
+`actions` registers commands on the Choose screen. A handler reads the list state from `ctx.choose`:
+
+```ts title="choose-with-actions.ts"
+import { createStaticProvider, launch } from "@tooee/choose";
+
+const picked = await launch({
+  actions: [
+    {
+      handler: (ctx) => {
+        const item = ctx.choose?.activeItem;
+        if (item !== undefined) {
+          ctx.toast?.toast({ level: "info", message: item.description ?? item.text });
+        }
+      },
+      hotkey: "ctrl+d",
+      id: "describe",
+      modes: ["insert", "cursor"],
+      title: "Describe item",
+    },
+  ],
+  contentProvider: createStaticProvider([
+    { description: "Runs every test file", text: "test" },
+    { description: "Typechecks every package", text: "check" },
+  ]),
+  options: { prompt: "Task" },
+});
+```
+
+`ctx.choose` has `activeItem`, `selectedItems`, and `filterQuery`. It is optional on the command context, so guard it.
+
+Choose reserves `up`, `down`, `ctrl+p`, `ctrl+n`, and `Enter` in both modes; `Escape` in insert mode; and `j`, `k`, `i`, `a`, `q`, and `Escape` in cursor mode. With `multi`, `Tab` and `Shift+Tab` are reserved in both modes. Pick control chords for your own commands.
+
+An action with the id `submit` replaces the built-in confirm. Choose then invokes that action instead of resolving, and `launch()` resolves `null` when the handler calls `ctx.exit()`. Use the returned `items` when you need the selection.
+
+## Open Choose as a dialog
+
+Inside an app built on the Tooee shell, `useChooseDialog<T>()` opens the list as a modal overlay and resolves one of your own values:
+
+```tsx title="branch-picker.tsx"
+import { useState } from "react";
+import type { ReactNode } from "react";
+import { useChooseDialog } from "@tooee/choose";
+import { useCommand } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+
+interface Branch {
+  name: string;
+  upstream?: string;
+}
+
+const branches: Branch[] = [
+  { name: "main", upstream: "origin/main" },
+  { name: "develop", upstream: "origin/develop" },
+  { name: "spike-panels" },
+];
+
+const BranchPicker = function BranchPicker(): ReactNode {
+  const choose = useChooseDialog<Branch>();
+  const [current, setCurrent] = useState<Branch>(branches[0]);
+  useQuitCommand();
+  useCommand({
+    handler: async () => {
+      const branch = await choose.open({
+        items: branches,
+        prompt: "Switch branch",
+        toItem: (item) => ({ description: item.upstream, text: item.name }),
+      });
+      if (branch !== null) {
+        setCurrent(branch);
+      }
+    },
+    hotkey: "b",
+    id: "branch.switch",
+    modes: ["cursor"],
+    title: "Switch branch",
+  });
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Branches" }}
+      statusBar={{ items: [{ label: "", value: "b switch  q quit" }] }}
+    >
+      <box paddingLeft={1}>
+        <text content={`current: ${current.name}`} />
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<BranchPicker />);
+```
+
+Press `b`, type part of a name, and press `Enter`. The dialog resolves the `Branch` object, so `current` updates without a lookup.
+
+`open()` takes:
+
+| Option | Meaning |
+| --- | --- |
+| `items` | Required. A `readonly T[]`, or a function that returns the array or a promise of it when the dialog opens. |
+| `toItem` | Maps a `T` to a `ChooseItem`. Required unless `T` is a `ChooseItem`. |
+| `multi` | `true` resolves `T[]`. Defaults to `false`, which resolves one `T`. |
+| `prompt` | Title of the dialog panel. |
+| `placeholder` | Filter placeholder. |
+| `emptyMessage` | Text shown when nothing matches. |
+| `commands` | Extra `ActionDefinition[]` on the dialog. A handler may open another dialog on top. |
+| `renderItem` | Draws a row from its render context in place of the default row. |
+| `hints`, `statusRight`, `footer`, `inset` | Panel chrome. `inset` sets the distance from each screen edge; the default is 20%. |
+
+Each `open()` mounts one modal overlay with its own command surface. The host's commands pause and the host's mode stays as it was. The promise settles once: with the selection, or with `null` when the reader presses `Escape` or `q` in cursor mode, clicks the close button, the component unmounts, or a nested dialog replaces it. The overlay renders wherever the host shows overlay content; `AppLayout` does this, and a custom layout renders `useCurrentOverlay()` from `@tooee/overlays`. [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) covers the overlay stack.
+
+## Use the chooser inside a panel
+
+`useChoose` is the chooser without the screen. It loads the source, filters, tracks the active and toggled rows, and registers the built-in keys on the nearest command surface. `ChooseFilter` draws the filter line, `ChooseList` draws the rows, and `ChoosePanel` draws the bordered chrome. Put them inside a `Panel` from `@tooee/panels` to give a screen a picker region next to other regions:
+
+```tsx title="stream-panels.tsx"
+import { useState } from "react";
+import type { ReactNode } from "react";
+import { ChooseFilter, ChooseList, ChoosePanel, useChoose } from "@tooee/choose";
+import type { ChooseItem } from "@tooee/choose";
+import { AppLayout } from "@tooee/layout";
+import { Panel, PanelGroup } from "@tooee/panels";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+
+const streams: ChooseItem[] = [
+  { description: "3 open tasks", text: "alpha" },
+  { description: "idle", text: "beta" },
+  { description: "1 open task", text: "gamma" },
+];
+
+const StreamPicker = function StreamPicker({
+  onPick,
+}: {
+  onPick: (name: string) => void;
+}): ReactNode {
+  const choose = useChoose({
+    onSubmit: (result) => {
+      const [item] = result.items;
+      if (item !== undefined) {
+        onPick(item.text);
+      }
+    },
+    source: streams,
+  });
+
+  return (
+    <box style={{ flexShrink: 0, width: 40 }} height="100%">
+      <ChoosePanel
+        title="Streams"
+        filter={<ChooseFilter choose={choose} />}
+        inset={{ bottom: 0, left: 0, right: 0, top: 0 }}
+      >
+        <ChooseList choose={choose} rowClick="submit" />
+      </ChoosePanel>
+    </box>
+  );
+};
+
+const Streams = function Streams(): ReactNode {
+  const [picked, setPicked] = useState("none");
+  useQuitCommand();
+
+  return (
+    <AppLayout statusBar={{ items: [{ label: "", value: "Esc then Tab switch panel  q quit" }] }}>
+      <box flexDirection="row" style={{ flexGrow: 1 }}>
+        <PanelGroup defaultActivePanelId="picker">
+          <Panel id="picker" chrome="none" initialMode="insert">
+            <StreamPicker onPick={setPicked} />
+          </Panel>
+          <Panel id="detail" title="Detail" style={{ flexGrow: 1 }}>
+            <box paddingLeft={1}>
+              <text content={`picked: ${picked}`} />
+            </box>
+          </Panel>
+        </PanelGroup>
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<Streams />);
+```
+
+The picker panel starts in insert mode with the filter focused. `Enter` submits the highlighted row, `Escape` switches that panel to cursor mode, and `Tab` then moves to the detail panel. Only the active panel's commands run. `chrome="none"` leaves the drawing to `ChoosePanel`; a zero `inset` makes it fill the wrapper box. [Panels](/docs/build/panels) explains panel groups and their chrome.
+
+`source` accepts an item array, a content provider, or a function that returns items or a promise of them. Keep the array identity stable across renders, as the module-level `streams` array is here; a new array on every render reloads on every render. `useChoose` also takes `multi`, `initialFilter`, `onCancel`, `commands`, `commandScope`, `disable`, and `suspended`, and returns a `controller` with `setFilter`, `moveUp`, `moveDown`, `toggleActive`, `submit`, `cancel`, and `reload`. Tooee 0.9 also exports the reusable chooser primitives from `@tooee/renderers`; the shell uses them for the command palette and theme picker.
+
+## Next
+
+- [Ask](/docs/apps/ask)
+- [Write a launcher](/docs/apps)
+- [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts)
+- [Panels](/docs/build/panels)

@@ -61,6 +61,30 @@ interface OverlayBridge {
   resetSequence: () => void;
 }
 
+/**
+ * Escape for an overlay that owns its commands. While a modal surface is on
+ * top, root dispatch is suspended, so the root `overlay.close-top` command
+ * cannot see Escape. This command sits on the overlay's own surface. It
+ * mounts after the overlay content, so an Escape command that the content
+ * registers itself runs first.
+ */
+const OwnedOverlayEscape = function OwnedOverlayEscape({
+  onEscape,
+}: {
+  onEscape: () => void;
+}): ReactNode {
+  useCommand({
+    handler: onEscape,
+    hidden: true,
+    hotkey: "Escape",
+    id: "overlay.close-self",
+    modes: ["insert", "cursor", "select"],
+    title: "Close overlay",
+  });
+
+  return null;
+};
+
 export const OverlayProvider = function OverlayProvider({
   children,
 }: {
@@ -238,6 +262,13 @@ export const OverlayProvider = function OverlayProvider({
                 initialMode={entry.options.surfaceMode ?? "cursor"}
               >
                 {node}
+                {entry.options.dismissOnEscape !== false && (
+                  <OwnedOverlayEscape
+                    onEscape={() => {
+                      removeEntry(entry.id, "escape");
+                    }}
+                  />
+                )}
               </CommandSurfaceProvider>
             );
           }

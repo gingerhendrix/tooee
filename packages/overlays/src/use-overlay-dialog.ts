@@ -19,6 +19,11 @@ export interface OverlayDialogHandle<TResult> {
 /**
  * Shared promise lifecycle for dialogs backed by the overlay controller.
  * Each open receives a unique overlay id and settles exactly once.
+ *
+ * The dialog mounts as an owned modal command surface that starts in insert
+ * mode (`surfaceMode: "insert"`), so a text field in the dialog takes typing
+ * at once. Commands that the dialog registers for cursor mode run only after
+ * the user leaves insert mode.
  */
 export const useOverlayDialog = function useOverlayDialog<TResult>(): OverlayDialogHandle<TResult> {
   const overlay = useOverlay();

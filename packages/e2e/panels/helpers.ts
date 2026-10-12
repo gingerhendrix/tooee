@@ -6,7 +6,7 @@ import type { Session } from "tuistory";
 
 const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
 
-const EXAMPLE_APP = path.resolve(REPO_ROOT, "examples/panels.tsx");
+const EXAMPLE_APP = path.resolve(REPO_ROOT, "examples/panels/panels.tsx");
 
 const INSERT_PANEL_FIXTURE = path.resolve(import.meta.dir, "fixtures/insert-panel.tsx");
 

@@ -1,0 +1,133 @@
+---
+title: Configuration
+description: Where Tooee reads its config files, how the layers merge, and how to remap keys by command id.
+---
+
+```json title=".tooee/config.json"
+{
+  "theme": { "name": "gruvbox" },
+  "keys": {
+    "cursor-down": "down",
+    "cursor-up": "up",
+    "quit": "ctrl+x"
+  },
+  "view": { "gutter": false }
+}
+```
+
+Run `tooee view README.md` from the folder that holds `.tooee/`. View starts in gruvbox with the gutter off. `down` and `up` move the cursor, `j` and `k` do nothing, and `ctrl+x` quits. The file applies to every Tooee app started from that folder or from a folder below it, including apps you build on `@tooee/shell`.
+
+## Config files
+
+| Layer | Location | Applies to |
+| --- | --- | --- |
+| Global | `~/.config/tooee/config.json`. When `XDG_CONFIG_HOME` is set, it replaces `~/.config`. | Every Tooee app you run. |
+| Project | `.tooee/config.json` in the working directory, or in the nearest parent directory that has one. | Apps started inside that directory. |
+| Overrides | `provider.config` on `launchCli` or `runCliSession`. | One app. |
+
+Tooee starts from its defaults, `tokyonight` in dark mode, then applies the global file, the project file, and the overrides in that order. Each of `theme`, `keys`, and `view` merges key by key, so a project file that sets `keys.quit` keeps the `keys.cursor-down` from the global file. The search for a project file stops at the first `.tooee/config.json` it meets on the way up.
+
+A file that fails to parse is skipped. A key Tooee does not know is dropped, so the file cannot carry settings of your own. A value of the wrong type is dropped as well; in `keys`, one value that is not a string drops the whole `keys` map of that file.
+
+## Settings
+
+| Key | Values | Effect |
+| --- | --- | --- |
+| `theme.name` | A theme name | The theme at start. Default `tokyonight`. [Themes](/docs/customize/themes) lists the names. |
+| `theme.mode` | `dark`, `light` | Which colour variant of the theme to resolve. Default `dark`. |
+| `keys` | `{ "<command id>": "<hotkey>" }` | Replaces the default hotkey of each named command. |
+| `view.gutter` | `true`, `false` | Line numbers in View at start. Default `true`. `L` toggles them. |
+| `view.wrap` | `true`, `false` | Wrap long diff lines at start. Default `false`. `w` toggles it. |
+| `view.diffLayout` | `split`, `stack` | The first diff layout. Default `stack`. `s` toggles it. |
+| `view.copyOnSelect` | `true`, `false`, `"primary"`, `"clipboard"` | Where text dragged with the mouse goes. Default: the primary selection on Linux, off on other platforms. `true` means `"primary"`. |
+
+`TooeeConfig` from `@tooee/config` is the type of the merged result. `ColorMode` is the type of `theme.mode`.
+
+## Remap keys
+
+Every command has an id. `keys` maps an id to a new hotkey in the grammar from [Commands and modes](/docs/build/commands-and-modes#hotkeys): a key, a chord such as `ctrl+x`, or a sequence such as `g d`. The new hotkey replaces the default, so the old key is free for another command.
+
+| Id | Default | Registered by |
+| --- | --- | --- |
+| `cursor-down`, `cursor-up` | `j`, `k` | Every document |
+| `cursor-half-down`, `cursor-half-up` | `ctrl+d`, `ctrl+u` | Every document |
+| `cursor-top`, `cursor-bottom` | `g g`, `shift+g` | Every document |
+| `enter-select`, `select-down`, `select-up`, `select-cancel` | `v`, `j`, `k`, `escape` | Every document |
+| `cursor-toggle`, `cursor-toggle-up`, `select-toggle` | `tab`, `shift+tab`, `tab` | Documents with multi-select |
+| `cursor-search-start`, `cursor-search-next`, `cursor-search-prev`, `search-cancel` | `/`, `n`, `shift+n`, `escape` | Every document with search |
+| `copy-line`, `copy-selection` | `y y`, `y v` | Every document |
+| `copy` | `y g` | View, and any screen that calls `useCopyCommand` |
+| `quit` | `q` | View, Ask, Choose, `DocumentScreen`, and `useQuitCommand` |
+| `cycle-theme` | `t` | The same screens, through `useThemeCommands` |
+| `toggle-line-numbers` | `shift+l` | View |
+| `toggle-debug-console` | `ctrl+shift+j` | Every app |
+| `command-palette` | `:` | Every app |
+| `overlay.close-top` | `escape` | Every app, while an overlay that allows `Escape` is open |
+| `outline.toggle` | `g o` | View with Markdown content, [heading outline](/docs/cli/view#show-the-heading-outline) |
+| `fold.toggle`, `fold.close`, `fold.open`, `fold.toggle-block`, `fold.close-all`, `fold.open-all` | `z a`, `z c`, `z o`, `z z`, `z shift+m`, `z shift+r` | View with Markdown content, [fold sections](/docs/cli/view#fold-sections) |
+| `outline.fold.toggle`, `outline.fold.close`, `outline.fold.open`, `outline.fold.toggle-block`, `outline.fold.close-all`, `outline.fold.open-all` | The same as the `fold.*` keys | The heading outline, while it has the focus |
+| `view.follow-link` | `enter` | View with Markdown content, [follow local links](/docs/cli/view#follow-local-links) |
+| `block-scroll-left`, `block-scroll-right` | `h`, `l` | View, when the cursor is on a wide code block in Markdown |
+| `dir.next-file`, `dir.prev-file` | `l`, `h` | View, [directory view](/docs/cli/view#open-a-directory) |
+| `paste-clipboard`, `paste-primary` | `p`, none | Ask. `paste-primary` reads the primary selection on Linux. Without a key, it runs from the palette as "Paste from selection". |
+| `context-menu:select`, `context-menu:move-up`, `context-menu:move-down`, `context-menu:move-up-vim`, `context-menu:move-down-vim` | `enter`, `up`, `down`, `k`, `j` | [Context menus](/docs/build/overlays-dialogs-toasts#context-menus) |
+| `diff.toggle-layout`, `diff.toggle-wrap`, `diff.next-file`, `diff.prev-file`, `diff.file-picker`, `diff.scroll-left`, `diff.scroll-right` | `s`, `w`, `]`, `[`, `f`, `h`, `l` | [View: diffs](/docs/apps/view/diffs#keys) |
+| `router.back` | `backspace` | [Routing](/docs/build/routing#router-commands) |
+| `panels.next`, `panels.previous` | `tab`, `shift+tab` | [Panels](/docs/build/panels) |
+
+Commands of your own remap by the id you gave them. The deploy console on [Commands and modes](/docs/build/commands-and-modes#hotkeys) registers `deploy.run` on `d`, and `{ "keys": { "deploy.run": "shift+d" } }` moves it to `D`.
+
+The remap changes the key that runs the command. The palette and the which-key bar keep showing the default hotkey in Tooee 0.12, so build your own hints from the config when a remap matters, as the next example does.
+
+## Read the config in your app
+
+```tsx title="deploy.tsx"
+import { useCommand } from "@tooee/commands";
+import { useKeymapConfig } from "@tooee/config";
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const Deploy = function Deploy(): ReactNode {
+  const keymap = useKeymapConfig();
+  const [status, setStatus] = useState("idle");
+  useQuitCommand();
+  useCommand({
+    handler: () => {
+      setStatus("deployed");
+    },
+    hotkey: "d",
+    id: "deploy.run",
+    title: "Deploy",
+  });
+  const hints = `${keymap["deploy.run"] ?? "d"} deploy  ${keymap.quit ?? "q"} quit`;
+
+  return (
+    <AppLayout statusBar={{ items: [{ label: "", value: hints }] }}>
+      <box paddingLeft={1}>
+        <text content={`status: ${status}`} />
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<Deploy />, {
+  provider: { config: { keys: { "deploy.run": "shift+d" } } },
+});
+```
+
+Run it from the folder that holds the config file at the top of this page. The status bar reads `shift+d deploy  ctrl+x quit`: the `deploy.run` key comes from the overrides and the `quit` key from the project file. `D` deploys and `ctrl+x` quits.
+
+`useConfig()` returns the merged `TooeeConfig`. `useKeymapConfig()` returns `keys`, or an empty object. `useThemeConfig()` returns `theme`. All three come from `@tooee/config` and read the `ConfigProvider` that `TooeeProvider` mounts, so they work in any app started with `launchCli` or `runCliSession`. Outside React, `loadConfig(overrides)` reads the same layers and returns the merged result.
+
+## What the theme picker writes
+
+`Enter` in the theme picker calls `writeGlobalConfig({ theme: { mode, name } })` from `@tooee/config`. The function reads the global file, merges the new theme into it, and writes the file back with two-space indentation. The project file and the overrides are left alone, so a `theme.name` in `.tooee/config.json` still wins over the saved choice. The write keeps the keys Tooee knows and drops the rest.
+
+## Next
+
+- [Themes](/docs/customize/themes)
+- [Commands and modes](/docs/build/commands-and-modes)
+- [Keyboard basics](/docs/start/keyboard-basics)
+- [Keyboard shortcuts](/docs/reference/keyboard-shortcuts)

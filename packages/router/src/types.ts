@@ -31,13 +31,21 @@ export interface Codec<T> {
   parse: (value: unknown) => T;
 }
 
+/** Props for a route's `errorComponent`. */
+export interface RouteErrorProps {
+  /** The error that the route loader threw. */
+  error: Error;
+  /** Run the route loader again. */
+  retry: () => void;
+}
+
 /** Runtime-safe shape used by the heterogeneous route registry. */
 export interface AnyRoute {
   readonly id: string;
   readonly parent?: AnyRoute;
   readonly component: ComponentType;
   readonly pendingComponent?: ComponentType;
-  readonly errorComponent?: ComponentType<{ error: Error }>;
+  readonly errorComponent?: ComponentType<RouteErrorProps>;
   readonly params: Codec<RouteParams>;
   // oxlint-disable-next-line anti-slop/no-unknown-parameters -- the registry decodes a stored stack entry through the route's own codec
   readonly resolveParams: (value: unknown) => RouteParams;
@@ -68,7 +76,7 @@ export interface RouteConfig<
   parent?: AnyRoute;
   component: ComponentType;
   pendingComponent?: ComponentType;
-  errorComponent?: ComponentType<{ error: Error }>;
+  errorComponent?: ComponentType<RouteErrorProps>;
   title?: string | ((opts: { params: TParams }) => string);
   loader?: (opts: { params: TParams }) => Promise<TData>;
   params?: Codec<TParams>;

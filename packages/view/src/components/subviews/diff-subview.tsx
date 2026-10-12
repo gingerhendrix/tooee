@@ -2,6 +2,7 @@ import { useCommand } from "@tooee/commands";
 import { useConfig } from "@tooee/config";
 import { DiffView, buildDiffModel, diffRowAdapter } from "@tooee/diff";
 import type { DiffRow } from "@tooee/diff";
+import { StatusPriority } from "@tooee/layout";
 import { useOverlay } from "@tooee/overlays";
 import type { OverlayCloseReason } from "@tooee/overlays";
 import type { DocumentRowAdapter } from "@tooee/shell";
@@ -67,14 +68,25 @@ export const DiffSubview = function DiffSubview({
             : model.rows[currentDocument.activeIndex];
 
         return [
-          { label: "Format:", value: content.format },
-          { label: "Files:", value: String(model.files.length) },
-          { label: "Changes:", value: `+${model.stats.additions} -${model.stats.deletions}` },
-          { label: "Layout:", value: layout },
+          { label: "Format:", priority: StatusPriority.content, value: content.format },
+          {
+            label: "Files:",
+            priority: StatusPriority.content,
+            value: String(model.files.length),
+          },
+          {
+            label: "Changes:",
+            priority: StatusPriority.content,
+            value: `+${model.stats.additions} -${model.stats.deletions}`,
+          },
+          { label: "Layout:", priority: StatusPriority.content, value: layout },
           ...(activeRow
             ? [
                 {
                   label: "At:",
+                  minValueWidth: 12,
+                  priority: StatusPriority.focus,
+                  truncate: "start" as const,
                   value:
                     activeRow.hunkIndex >= 0
                       ? `${activeRow.parent.path ?? activeRow.fileId}:${activeRow.hunkIndex + 1}`

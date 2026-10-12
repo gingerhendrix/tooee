@@ -84,3 +84,44 @@ describe("resolveTheme", () => {
     expect(resolveTheme(json, "light").primary).toBe("#eeeeee");
   });
 });
+
+describe("search tokens", () => {
+  const base: ThemeJSON = {
+    theme: { background: "#000000", primary: "#0000ff", warning: "#ff8000" },
+  };
+
+  test("derive tinted backgrounds and sign colours when the theme omits them", () => {
+    const resolved = resolveTheme(base, "dark");
+
+    expect(resolved.searchMatchBg).toBe("#381c00");
+    expect(resolved.searchCurrentMatchBg).toBe("#000059");
+    expect(resolved.searchMatchFg).toBe("#ff8000");
+    expect(resolved.searchCurrentMatchFg).toBe("#0000ff");
+  });
+
+  test("use explicit theme values over the derived ones", () => {
+    const json: ThemeJSON = {
+      theme: {
+        ...base.theme,
+        searchCurrentMatchBg: "#222222",
+        searchCurrentMatchFg: "#444444",
+        searchMatchBg: "#111111",
+        searchMatchFg: "warning",
+      },
+    };
+
+    const resolved = resolveTheme(json, "dark");
+    expect(resolved.searchMatchBg).toBe("#111111");
+    expect(resolved.searchCurrentMatchBg).toBe("#222222");
+    expect(resolved.searchMatchFg).toBe("#ff8000");
+    expect(resolved.searchCurrentMatchFg).toBe("#444444");
+  });
+
+  test("derive translucent backgrounds over a transparent theme background", () => {
+    const json: ThemeJSON = { theme: { ...base.theme, background: "transparent" } };
+
+    const resolved = resolveTheme(json, "dark");
+    expect(resolved.searchMatchBg).toBe("#ff800038");
+    expect(resolved.searchCurrentMatchBg).toBe("#0000ff59");
+  });
+});

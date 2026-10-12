@@ -1,4 +1,4 @@
-import { useKeyboard } from "@opentui/react";
+import { useKeyboard, useRenderer } from "@opentui/react";
 import { useSelector } from "@xstate/store-react";
 import { createContext, useContext, useCallback, useEffect, useMemo } from "react";
 import type { ReactNode } from "react";
@@ -44,6 +44,8 @@ interface CommandStoreContextValue {
   /** The surface record `useCommand` registrations under this subtree target. */
   surface: SurfaceRecord;
   leaderKey?: string;
+  /** User key remaps by command id, from the provider's `keymap` prop. */
+  keymap?: Record<string, string>;
 }
 
 const CommandStoreReactContext = createContext<CommandStoreContextValue | null>(null);
@@ -170,16 +172,20 @@ const CommandDispatcher = function CommandDispatcher({
   const mode = useMode();
   const modeRef = useLatest(mode);
   const setMode = useSetMode();
+  const renderer = useRenderer();
 
   const buildCtx = useCallback(
     (): CommandContext =>
       buildCommandContext({
         commands: commandsFromRegistry(commandStore.registryFor(commandStore.rootRecord)),
         contributions: commandStore.store.getSnapshot().context.contextSources.values(),
+        exit: () => {
+          renderer.destroy();
+        },
         mode: modeRef.current,
         setMode,
       }),
-    [commandStore, modeRef, setMode]
+    [commandStore, modeRef, renderer, setMode]
   );
 
   const buildCtxRef = useLatest(buildCtx);
@@ -217,10 +223,11 @@ const CommandDispatcher = function CommandDispatcher({
   const ctxValue = useMemo<CommandStoreContextValue>(
     () => ({
       commandStore,
+      keymap,
       leaderKey: leader,
       surface: commandStore.rootRecord,
     }),
-    [commandStore, leader]
+    [commandStore, keymap, leader]
   );
 
   return (
@@ -312,6 +319,7 @@ const CommandSurfaceInner = function CommandSurfaceInner({
   const mode = useMode();
   const setMode = useSetMode();
   const modeRef = useLatest(mode);
+  const renderer = useRenderer();
 
   const recordRef = useLazyRef<SurfaceRecord>(() => ({
     // oxlint-disable-next-line no-use-before-define -- buildCtxRef is initialized before this callback can run
@@ -330,6 +338,9 @@ const CommandSurfaceInner = function CommandSurfaceInner({
     return buildCommandContext({
       commands: commandsFromRegistry(registry),
       contributions: commandStore.store.getSnapshot().context.contextSources.values(),
+      exit: () => {
+        renderer.destroy();
+      },
       mode: modeRef.current,
       setMode,
     });
@@ -363,10 +374,11 @@ const CommandSurfaceInner = function CommandSurfaceInner({
   const ctxValue = useMemo<CommandStoreContextValue>(
     () => ({
       commandStore,
+      keymap: parent.keymap,
       leaderKey: parent.leaderKey,
       surface: record,
     }),
-    [commandStore, record, parent.leaderKey]
+    [commandStore, record, parent.keymap, parent.leaderKey]
   );
 
   return (
@@ -405,6 +417,15 @@ export const useSurfaceInvoke = function useSurfaceInvoke(): {
     }),
     [commandMap, registry]
   );
+};
+
+/**
+ * Whether a `CommandProvider` is above this component. Packages that work with
+ * or without commands (for example the router) use this to decide whether to
+ * mount a component that registers commands.
+ */
+export const useHasCommandProvider = function useHasCommandProvider(): boolean {
+  return useContext(CommandStoreReactContext) !== null;
 };
 
 /**
@@ -548,6 +569,17 @@ export interface EffectiveCommands {
   commands: Command[];
   /** Invoke by id, routed to the surface that owns the command (panel, else root). */
   invoke: (id: string) => void;
+  /**
+   * The key that runs the command now: the `keymap` remap, else
+   * `defaultHotkey`. Undefined when the command has no key, or when an active
+   * panel command shadows its root key.
+   */
+  hotkeyFor: (id: string) => string | undefined;
+  /**
+   * Whether the command's `when` passes, checked against the context of the
+   * surface that owns it. Evaluated on each call.
+   */
+  isAvailable: (id: string) => boolean;
 }
 
 /**
@@ -557,9 +589,9 @@ export interface EffectiveCommands {
  * invocable there) but drops the now-misleading hotkey hint. With no active
  * panel this is exactly the root command set, so non-panel apps are unchanged.
  *
- * Shadowing is computed on `defaultHotkey` — matching what the palette renders —
- * so a `keymap`-remapped shadow is not reflected in the hint (a display-only
- * edge; dispatch itself shadows correctly via the store).
+ * Shadowing is computed on the effective key (the `keymap` remap, else
+ * `defaultHotkey`), the same key dispatch uses. `hotkeyFor` gives that key for
+ * display, and `isAvailable` applies each command's `when`.
  */
 export const useEffectiveCommands = function useEffectiveCommands(): EffectiveCommands {
   const ctx = useContext(CommandStoreReactContext);
@@ -568,7 +600,7 @@ export const useEffectiveCommands = function useEffectiveCommands(): EffectiveCo
     throw new Error("useEffectiveCommands must be used within a CommandProvider");
   }
 
-  const { commandStore } = ctx;
+  const { commandStore, keymap } = ctx;
   const { store } = commandStore;
 
   const panelMap = useSelector(store, (s) => {
@@ -582,48 +614,73 @@ export const useEffectiveCommands = function useEffectiveCommands(): EffectiveCo
 
   return useMemo(() => {
     const rootCommands = rootMap ? [...rootMap.values()] : [];
-
-    const rootInvoke = (id: string): void => {
-      commandStore.registryFor(commandStore.rootRecord).invoke(id);
-    };
-
-    if (!hasPanel) {
-      return { commands: rootCommands, invoke: rootInvoke };
-    }
-
-    const panelCommands = panelMap ? [...panelMap.values()] : [];
+    const panelCommands = hasPanel && panelMap ? [...panelMap.values()] : [];
     const panelIds = new Set(panelCommands.map((command) => command.id));
 
+    const resolveHotkey = (command: Command): string | undefined => {
+      const hotkey = keymap?.[command.id] ?? command.defaultHotkey;
+
+      return hotkey === "" ? undefined : hotkey;
+    };
+
     const shadowed = new Set(
-      panelCommands
-        .map((command) => command.defaultHotkey)
-        .filter((hotkey): hotkey is string => hotkey !== undefined && hotkey !== "")
+      panelCommands.map(resolveHotkey).filter((hotkey): hotkey is string => hotkey !== undefined)
     );
+
+    const isShadowed = (command: Command): boolean => {
+      const hotkey = resolveHotkey(command);
+
+      return hotkey !== undefined && shadowed.has(hotkey);
+    };
+
+    const ownerOf = (id: string): { command: Command; record: SurfaceRecord } | undefined => {
+      const panel = selectActivePanelSurface(store.getSnapshot().context);
+      const panelCommand = panel ? panelMap?.get(id) : undefined;
+
+      if (panel && panelCommand) {
+        return { command: panelCommand, record: panel };
+      }
+
+      const rootCommand = rootMap?.get(id);
+
+      return rootCommand ? { command: rootCommand, record: commandStore.rootRecord } : undefined;
+    };
+
+    const invoke = (id: string): void => {
+      const owner = ownerOf(id);
+      commandStore.registryFor(owner?.record ?? commandStore.rootRecord).invoke(id);
+    };
+
+    const hotkeyFor = (id: string): string | undefined => {
+      const owner = ownerOf(id);
+
+      if (!owner) {
+        return undefined;
+      }
+
+      if (owner.record === commandStore.rootRecord && isShadowed(owner.command)) {
+        return undefined;
+      }
+
+      return resolveHotkey(owner.command);
+    };
+
+    const isAvailable = (id: string): boolean => {
+      const owner = ownerOf(id);
+
+      if (!owner) {
+        return false;
+      }
+
+      return !owner.command.when || owner.command.when(owner.record.buildCtx());
+    };
 
     const effectiveRoot = rootCommands
       .filter((command) => !panelIds.has(command.id))
-      .map((command) =>
-        command.defaultHotkey !== undefined && shadowed.has(command.defaultHotkey)
-          ? { ...command, defaultHotkey: undefined }
-          : command
-      );
+      .map((command) => (isShadowed(command) ? { ...command, defaultHotkey: undefined } : command));
 
-    const invoke = (id: string): void => {
-      if (panelIds.has(id)) {
-        const panel = selectActivePanelSurface(store.getSnapshot().context);
-
-        if (panel) {
-          commandStore.registryFor(panel).invoke(id);
-
-          return;
-        }
-      }
-
-      rootInvoke(id);
-    };
-
-    return { commands: [...panelCommands, ...effectiveRoot], invoke };
-  }, [panelMap, rootMap, hasPanel, commandStore, store]);
+    return { commands: [...panelCommands, ...effectiveRoot], hotkeyFor, invoke, isAvailable };
+  }, [panelMap, rootMap, hasPanel, commandStore, store, keymap]);
 };
 
 /**

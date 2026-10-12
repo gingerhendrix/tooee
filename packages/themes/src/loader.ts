@@ -57,6 +57,31 @@ const loadJsonThemesFromDir = function loadJsonThemesFromDir(
   }
 };
 
+/**
+ * The project `.tooee/themes` folders for `cwd`, in load order: the
+ * filesystem root first and `cwd` last. A later folder replaces a theme of
+ * the same name, so the folder nearest to `cwd` wins, as config files do.
+ */
+export const projectThemeDirs = function projectThemeDirs(cwd: string): string[] {
+  const dirs: string[] = [];
+  let dir = cwd;
+  const seen = new Set<string>();
+
+  while (dir && !seen.has(dir)) {
+    seen.add(dir);
+    dirs.push(path.join(dir, ".tooee", "themes"));
+    const parent = path.dirname(dir);
+
+    if (parent === dir) {
+      break;
+    }
+
+    dir = parent;
+  }
+
+  return dirs.toReversed();
+};
+
 /** Load all bundled themes from packages/themes/themes/ */
 const loadBundledThemes = function loadBundledThemes(): Map<string, ThemeJSON> {
   if (themeJsonCache.size > 0) {
@@ -71,20 +96,9 @@ const loadBundledThemes = function loadBundledThemes(): Map<string, ThemeJSON> {
   const xdgConfig = process.env.XDG_CONFIG_HOME ?? path.join(process.env.HOME ?? "", ".config");
   loadJsonThemesFromDir(path.join(xdgConfig, "tooee", "themes"), themeJsonCache);
 
-  // Project-local: search upward for .tooee/themes/
-  let dir = process.cwd();
-  const seen = new Set<string>();
-
-  while (dir && !seen.has(dir)) {
-    seen.add(dir);
-    loadJsonThemesFromDir(path.join(dir, ".tooee", "themes"), themeJsonCache);
-    const parent = path.dirname(dir);
-
-    if (parent === dir) {
-      break;
-    }
-
-    dir = parent;
+  // Project-local: every .tooee/themes/ from the filesystem root down to cwd
+  for (const themesDir of projectThemeDirs(process.cwd())) {
+    loadJsonThemesFromDir(themesDir, themeJsonCache);
   }
 
   return themeJsonCache;

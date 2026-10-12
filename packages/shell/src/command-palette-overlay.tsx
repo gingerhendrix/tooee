@@ -7,11 +7,14 @@ const DEFAULT_MODES: Mode[] = ["cursor"];
 
 export const CommandPaletteOverlay = function CommandPaletteOverlay({
   commands,
+  hotkeyFor,
   invoke,
   launchMode,
   close,
 }: {
   commands: Command[];
+  /** The key that runs a command now, after `keymap` remaps. */
+  hotkeyFor: (id: string) => string | undefined;
   invoke: (id: string) => void;
   launchMode: Mode;
   close: () => void;
@@ -27,12 +30,12 @@ export const CommandPaletteOverlay = function CommandPaletteOverlay({
         })
         .map((cmd) => ({
           category: cmd.category,
-          hotkey: cmd.defaultHotkey,
+          hotkey: hotkeyFor(cmd.id),
           icon: cmd.icon,
           id: cmd.id,
           title: cmd.title,
         })),
-    [commands, launchMode]
+    [commands, hotkeyFor, launchMode]
   );
 
   return createElement(CommandPalette, {

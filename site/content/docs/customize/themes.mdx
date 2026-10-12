@@ -1,0 +1,186 @@
+---
+title: Themes
+description: Switch themes with the picker or the config file, list the bundled themes, and write and install a theme of your own.
+---
+
+Press `t` in View, Ask, Choose, or any screen built on `DocumentScreen` to open the theme picker. Type to filter the list. Move with `up` and `down`, and the screen behind the picker previews each theme as you move. `Enter` keeps the highlighted theme and saves it to `~/.config/tooee/config.json`, so the next Tooee app starts with it. `Escape` restores the theme you started with. The status bar shows the current theme after `Theme:`.
+
+To set a theme without the picker, name it in a config file:
+
+```json title="~/.config/tooee/config.json"
+{
+  "theme": { "name": "catppuccin", "mode": "dark" }
+}
+```
+
+`mode` picks the light or the dark colours of the theme. The picker changes `name` and leaves `mode` as it is. [Configuration](/docs/customize/configuration) covers the file locations and the layers.
+
+## Bundled themes
+
+Tooee ships 34 themes. Each name is a file under `packages/themes/themes/` in the OpenCode JSON format. The two right-hand columns name the [Hunk](https://github.com/modem-dev/hunk) palette that draws diffs for the theme in each mode; the [Diff palettes](#diff-palettes) section explains the mapping.
+
+| Theme                  | Dark diff palette          | Light diff palette       |
+| ---------------------- | -------------------------- | ------------------------ |
+| `aura`                 | `laserwave`                | `min-light`              |
+| `ayu`                  | `ayu-dark`                 | `ayu-light`              |
+| `catppuccin`           | `catppuccin-mocha`         | `catppuccin-latte`       |
+| `catppuccin-frappe`    | `catppuccin-frappe`        | `catppuccin-latte`       |
+| `catppuccin-macchiato` | `catppuccin-macchiato`     | `catppuccin-latte`       |
+| `cobalt2`              | `dark-plus`                | `light-plus`             |
+| `cursor`               | `vitesse-dark`             | `vitesse-light`          |
+| `dracula`              | `dracula`                  | `min-light`              |
+| `everforest`           | `everforest-dark`          | `everforest-light`       |
+| `flexoki`              | `vitesse-dark`             | `vitesse-light`          |
+| `github`               | `github-dark`              | `github-light`           |
+| `github-light`         | `github-dark`              | `github-light`           |
+| `gruvbox`              | `gruvbox-dark-medium`      | `gruvbox-light-medium`   |
+| `kanagawa`             | `kanagawa-wave`            | `kanagawa-lotus`         |
+| `lucent-orng`          | `vesper`                   | `min-light`              |
+| `material`             | `material-theme`           | `material-theme-lighter` |
+| `matrix`               | `vitesse-black`            | `min-light`              |
+| `mercury`              | `min-dark`                 | `min-light`              |
+| `monokai`              | `monokai`                  | `min-light`              |
+| `nightowl`             | `night-owl`                | `night-owl-light`        |
+| `nord`                 | `nord`                     | `min-light`              |
+| `one-dark`             | `one-dark-pro`             | `one-light`              |
+| `opencode`             | `vitesse-dark`             | `vitesse-light`          |
+| `opencode-light`       | `vitesse-dark`             | `vitesse-light`          |
+| `orng`                 | `vesper`                   | `min-light`              |
+| `osaka-jade`           | `everforest-dark`          | `everforest-light`       |
+| `palenight`            | `material-theme-palenight` | `material-theme-lighter` |
+| `rosepine`             | `rose-pine`                | `rose-pine-dawn`         |
+| `solarized`            | `solarized-dark`           | `solarized-light`        |
+| `synthwave84`          | `synthwave-84`             | `min-light`              |
+| `tokyonight`           | `tokyo-night`              | `min-light`              |
+| `vercel`               | `vitesse-black`            | `vitesse-light`          |
+| `vesper`               | `vesper`                   | `min-light`              |
+| `zenburn`              | `gruvbox-dark-soft`        | `gruvbox-light-soft`     |
+
+`aura`, `ayu`, `github-light`, and `opencode-light` define one set of colours, so `mode` changes nothing for them. The other thirty carry a dark and a light value for each colour.
+
+## Write a theme
+
+```json title="~/.config/tooee/themes/deploy-dark.json"
+{
+  "$schema": "https://opencode.ai/theme.json",
+  "defs": {
+    "ink": "#1b1f27",
+    "paper": "#e6e9ef",
+    "amber": "#f5a742",
+    "moss": "#7fd88f",
+    "rose": "#e06c75"
+  },
+  "theme": {
+    "primary": "amber",
+    "accent": "amber",
+    "error": "rose",
+    "success": "moss",
+    "text": { "dark": "paper", "light": "ink" },
+    "textMuted": "#8a90a0",
+    "background": { "dark": "ink", "light": "paper" },
+    "backgroundPanel": { "dark": "#232834", "light": "#d9dde5" },
+    "backgroundElement": { "dark": "#2c3240", "light": "#cdd2db" },
+    "border": "#3c4250",
+    "syntaxKeyword": "amber",
+    "syntaxString": "moss"
+  }
+}
+```
+
+The file name is the theme name, so this file adds `deploy-dark` to the picker. `theme` maps Tooee colour keys to values. A value is one of:
+
+| Value | Meaning |
+| --- | --- |
+| `"#f5a742"` | A hex colour. |
+| `"amber"` | The name of an entry in `defs`, or of another key in `theme`. |
+| `{ "dark": "ink", "light": "paper" }` | One value per mode. `theme.mode` in the config picks one. |
+| `"transparent"` or `"none"` | No colour. |
+
+A key you leave out takes a fallback: `#808080` for most colours, `#1e1e1e` for the backgrounds, `#d4d4d4` for `text`, `markdownText`, and `markdownCodeBlock`. `cursorLine` falls back to `backgroundElement` and `selection` to `backgroundPanel`, so set those two backgrounds when you set `background`. A name that refers back to itself resolves to `#808080`.
+
+| Group | Keys |
+| --- | --- |
+| UI | `primary`, `secondary`, `accent`, `error`, `warning`, `success`, `info`, `text`, `textMuted`, `background`, `backgroundPanel`, `backgroundElement`, `border`, `borderActive`, `borderSubtle` |
+| Cursor | `cursorLine`, `selection` |
+| Markdown | `markdownText`, `markdownHeading`, `markdownLink`, `markdownLinkText`, `markdownCode`, `markdownBlockQuote`, `markdownEmph`, `markdownStrong`, `markdownHorizontalRule`, `markdownListItem`, `markdownListEnumeration`, `markdownImage`, `markdownImageText`, `markdownCodeBlock` |
+| Syntax | `syntaxComment`, `syntaxKeyword`, `syntaxFunction`, `syntaxVariable`, `syntaxString`, `syntaxNumber`, `syntaxType`, `syntaxOperator`, `syntaxPunctuation` |
+| Diff | `diffAdded`, `diffRemoved`, `diffContext`, `diffHunkHeader`, `diffHighlightAdded`, `diffHighlightRemoved`, `diffAddedBg`, `diffRemovedBg`, `diffContextBg`, `diffLineNumber`, `diffAddedLineNumberBg`, `diffRemovedLineNumberBg` |
+
+The Diff keys feed the `diff` syntax scopes. OpenTUI 0.5 bundles no `diff` grammar and Hunk draws diffs from its own palette, so these keys have no visible effect in Tooee 0.12.
+
+## Install a theme
+
+Put the file in `~/.config/tooee/themes/` to have it in every app, or in `.tooee/themes/` inside a project. Tooee reads the bundled folder, then the global folder, then `.tooee/themes/` in the working directory, then the same folder in each parent directory up to the root. A later file with the same name replaces an earlier one: a `dracula.json` in your global folder replaces the bundled Dracula, and a project file replaces a global one. Between two project folders, the one higher up the tree wins. The folders are read once per process; restart the app after you add a file.
+
+```ts title="list-themes.ts"
+import { getThemeNames } from "@tooee/themes";
+
+console.log(getThemeNames().join("\n"));
+```
+
+`bun list-themes.ts` prints the sorted names, with `deploy-dark` between `cursor` and `dracula` once the file above is in place. `loadThemes()` returns the parsed JSON of each theme by name.
+
+## Use the theme in your components
+
+```tsx title="theme-cycle.tsx"
+import { useCommand } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { launchCli, useQuitCommand, useThemeCommands } from "@tooee/shell";
+import { useTheme, useThemeSwitcher } from "@tooee/themes";
+import type { ReactNode } from "react";
+
+const Swatches = function Swatches(): ReactNode {
+  const { theme, name, mode } = useTheme();
+  const { nextTheme } = useThemeSwitcher();
+  useQuitCommand();
+  useThemeCommands();
+  useCommand({ handler: nextTheme, hotkey: "n", id: "theme.next", title: "Next theme" });
+
+  return (
+    <AppLayout
+      statusBar={{
+        items: [
+          { label: "Theme:", value: `${name} ${mode}` },
+          { label: "", value: "t pick  n next  q quit" },
+        ],
+      }}
+    >
+      <box flexDirection="column" paddingLeft={1}>
+        <text content="primary" fg={theme.primary} />
+        <text content="accent" fg={theme.accent} />
+        <text content="error" fg={theme.error} />
+        <text content="success" fg={theme.success} />
+        <text content="textMuted" fg={theme.textMuted} />
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<Swatches />);
+```
+
+`n` steps to the next theme in the sorted list and `t` opens the picker. Both save the theme to the global config file.
+
+| Hook | Package | Returns |
+| --- | --- | --- |
+| `useTheme()` | `@tooee/themes` | `{ theme, syntax, name, mode }`. `theme` is a `ResolvedTheme`: every key from the table above as a hex string. |
+| `useThemeSwitcher()` | `@tooee/themes` | The same fields plus `setTheme(name, { persist })`, `nextTheme()`, `prevTheme()`, and `allThemes`. |
+| `useThemePicker()` | `@tooee/shell` | `{ isOpen, open, close, confirm, preview, entries, currentTheme, originalTheme }` for the picker overlay. |
+| `useThemeCommands()` | `@tooee/shell` | Registers `t` with the id `cycle-theme` and returns `{ name, picker }`. Pass `{ enabled: false }` to keep the live name without the key. |
+
+`TooeeProvider` mounts `ThemeSwitcherProvider` with the theme from the config, so every hook works in an app started with `launchCli` or `runCliSession`. `DocumentScreen` calls `useThemeCommands` for you unless `themeCommands` is `false`; a screen of your own calls it to get `t`. `nextTheme`, `prevTheme`, and `setTheme` with `persist: true` write the global config file, as `Enter` in the picker does; `setTheme(name)` alone changes the screen and writes nothing. `useThemePicker` lives in `@tooee/shell` since 0.8; `@tooee/themes` exports the loading and context APIs only. The colour props on `<text>` and `<box>` belong to [OpenTUI](https://opentui.com).
+
+## Syntax colours
+
+The `syntax*` and `markdown*` keys build the `SyntaxStyle` that colours code blocks and code files; `useTheme().syntax` returns it for a code element of your own. Colours appear for the four grammars OpenTUI 0.5 bundles, `typescript`, `javascript`, `markdown`, and `zig`. [View: content formats](/docs/apps/view/formats#code-and-text) covers the rule.
+
+## Diff palettes
+
+Hunk accepts no colour table, so a diff is drawn with one of Hunk's bundled palettes. `resolveHunkDiffTheme(name, theme)` from `@tooee/diff` looks the theme name up in the table at the top of this page and returns the dark or the light entry by the brightness of `theme.background`. A name that is not in the table, such as `deploy-dark`, gets `github-dark` or `github-light` on the same side. A file of yours that replaces a bundled theme keeps that theme's row. `HUNK_THEME_MAP` exports the table.
+
+## Next
+
+- [Configuration](/docs/customize/configuration)
+- [Keyboard basics](/docs/start/keyboard-basics#themes)
+- [View: diffs](/docs/apps/view/diffs)
+- [View: content formats](/docs/apps/view/formats)

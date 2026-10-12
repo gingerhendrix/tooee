@@ -1,0 +1,23 @@
+{
+  "name": "@tooee/example-pi-chat",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "1.1.0",
+    "@tooee/ask": "workspace:*",
+    "@tooee/choose": "workspace:*",
+    "@tooee/clipboard": "workspace:*",
+    "@tooee/commands": "workspace:*",
+    "@tooee/layout": "workspace:*",
+    "@tooee/panels": "workspace:*",
+    "@tooee/search": "workspace:*",
+    "@tooee/shell": "workspace:*",
+    "@tooee/themes": "workspace:*",
+    "@tooee/toasts": "workspace:*",
+    "react": "^19.3.0"
+  },
+  "devDependencies": {
+    "@tooee/test-support": "workspace:*",
+    "@types/react": "^19.3.0"
+  }
+}

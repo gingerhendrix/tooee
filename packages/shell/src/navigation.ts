@@ -37,6 +37,12 @@ interface NavigationKeymapDefinition extends Omit<ActionDefinition, "group" | "w
   group: NavigationCommandGroup;
 }
 
+/**
+ * Register cursor, select and multi-select keys for a nav-search store that
+ * you own. Use it when a screen shares one store between navigation and
+ * `useSearchBindings`, so that search moves the same cursor. `useNavigation`
+ * calls this with a store that it creates.
+ */
 export const useNavigationBindings = function useNavigationBindings(
   store: NavSearchStore,
   {

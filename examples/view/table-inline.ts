@@ -1,0 +1,59 @@
+#!/usr/bin/env bun
+/**
+ * table-inline.ts - Demonstrates table viewing with inline data
+ *
+ * This example shows:
+ * - Creating a ViewContentProvider with inline table data
+ * - Defining columns and rows inline
+ * - Navigation and scrolling through table data
+ *
+ * Run: bun examples/view/table-inline.ts
+ * Controls: j/k scroll rows, h/l scroll columns, q quit, t/T cycle themes
+ */
+
+import { launch } from "@tooee/view";
+import type { ContentProvider, Content } from "@tooee/view";
+
+const headers = ["Language", "Year", "Creator", "Paradigm"];
+
+const columnKeys = ["language", "year", "creator", "paradigm"] as const;
+
+const rows = [
+  ["TypeScript", "2012", "Anders Hejlsberg", "Multi-paradigm"],
+  ["Rust", "2010", "Graydon Hoare", "Multi-paradigm"],
+  ["Go", "2009", "Robert Griesemer", "Concurrent"],
+  ["Swift", "2014", "Chris Lattner", "Multi-paradigm"],
+  ["Kotlin", "2011", "JetBrains", "Multi-paradigm"],
+  ["Zig", "2016", "Andrew Kelley", "Imperative"],
+  ["Python", "1991", "Guido van Rossum", "Multi-paradigm"],
+  ["JavaScript", "1995", "Brendan Eich", "Multi-paradigm"],
+  ["Ruby", "1995", "Yukihiro Matsumoto", "Object-oriented"],
+  ["Elixir", "2011", "Jose Valim", "Functional"],
+];
+
+const columns = headers.map((header, index) => ({
+  header,
+  key: columnKeys[index],
+}));
+
+const tableRows = rows.map((row) => {
+  const record = {
+    creator: row[2] ?? "",
+    language: row[0] ?? "",
+    paradigm: row[3] ?? "",
+    year: row[1] ?? "",
+  };
+
+  return record;
+});
+
+const contentProvider: ContentProvider = {
+  load: (): Content => ({
+    columns,
+    format: "table",
+    rows: tableRows,
+    title: "Programming Languages",
+  }),
+};
+
+await launch({ contentProvider });

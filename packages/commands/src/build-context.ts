@@ -13,6 +13,11 @@ export interface BuildCommandContextInput {
   setMode: (mode: Mode) => void;
   /** Registered context sources, in registration order (later sources win). */
   contributions?: Iterable<ContextGetter>;
+  /**
+   * Default `exit` before context sources apply. The command provider passes
+   * the renderer's `destroy`. A context source can still replace it.
+   */
+  exit?: () => void;
 }
 
 /** The `commands` slice of a context, backed by a live surface registry. */
@@ -41,9 +46,11 @@ export const buildCommandContext = function buildCommandContext(
 ): CommandContext {
   const base: CommandContextBase = {
     commands: input.commands,
-    exit: () => {
-      // Default until a registered context source supplies the real exit.
-    },
+    exit:
+      input.exit ??
+      (() => {
+        // No renderer: the placeholder context has nothing to close.
+      }),
     mode: input.mode,
     setMode: input.setMode,
   };

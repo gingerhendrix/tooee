@@ -1,4 +1,5 @@
 import type { ActionDefinition } from "@tooee/commands";
+import { StatusPriority } from "@tooee/layout";
 import type { StatusBarItem } from "@tooee/layout";
 import type { DecorationLayer } from "@tooee/renderers";
 import { useDocumentController } from "@tooee/shell";
@@ -49,8 +50,8 @@ export const useContentDocument = function useContentDocument<T>(
 
   const statusItems = options.buildStatusItems?.(document) ??
     options.statusItems ?? [
-      { label: "Format:", value: content.format },
-      { label: "Lines:", value: String(rows.length) },
+      { label: "Format:", priority: StatusPriority.content, value: content.format },
+      { label: "Lines:", priority: StatusPriority.content, value: String(rows.length) },
     ];
 
   return { document, showLineNumbers, statusItems };

@@ -43,16 +43,11 @@ const HistorySearchBar = function HistorySearchBar({ search }: { search: SearchS
   const handleQueryChange = search.setSearchQuery;
   const handleSubmit = search.submitSearch;
 
-  const handleCancel = (): void => {
-    search.setSearchQuery("");
-  };
-
   return (
     <SearchBar
       query={search.searchQuery}
       onQueryChange={handleQueryChange}
       onSubmit={handleSubmit}
-      onCancel={handleCancel}
       matchCount={search.matchingLines.length}
       currentMatch={search.currentMatchIndex}
     />

@@ -184,9 +184,44 @@ export const readPrimaryText = async function readPrimaryText(): Promise<string 
   return await readClipboardText();
 };
 
-let copyMethod: ((text: string) => Promise<void>) | null = null;
+type CopyMethod = (text: string) => Promise<boolean>;
 
-const getCopyMethod = function getCopyMethod(): (text: string) => Promise<void> {
+let copyMethod: CopyMethod | null = null;
+
+const pipeToCommand = async function pipeToCommand(
+  command: string[],
+  text: string
+): Promise<boolean> {
+  const proc = Bun.spawn(command, {
+    stderr: "ignore",
+    stdin: "pipe",
+    stdout: "ignore",
+  });
+
+  await proc.stdin.write(text);
+  await proc.stdin.end();
+  const exitCode = await proc.exited.catch(() => null);
+
+  return exitCode === 0;
+};
+
+const findLinuxCopyCommand = function findLinuxCopyCommand(): string[] | undefined {
+  if ((process.env.WAYLAND_DISPLAY?.length ?? 0) > 0 && (Bun.which("wl-copy")?.length ?? 0) > 0) {
+    return ["wl-copy"];
+  }
+
+  if ((Bun.which("xclip")?.length ?? 0) > 0) {
+    return ["xclip", "-selection", "clipboard"];
+  }
+
+  if ((Bun.which("xsel")?.length ?? 0) > 0) {
+    return ["xsel", "--clipboard", "--input"];
+  }
+
+  return undefined;
+};
+
+const getCopyMethod = function getCopyMethod(): CopyMethod {
   if (copyMethod) {
     return copyMethod;
   }
@@ -196,80 +231,48 @@ const getCopyMethod = function getCopyMethod(): (text: string) => Promise<void> 
   if (os === "darwin" && (Bun.which("osascript")?.length ?? 0) > 0) {
     copyMethod = async (text: string) => {
       const escaped = text.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
-      await $`osascript -e 'set the clipboard to "${escaped}"'`.nothrow().quiet();
+      const result = await $`osascript -e 'set the clipboard to "${escaped}"'`.nothrow().quiet();
+
+      return result.exitCode === 0;
     };
 
     return copyMethod;
   }
 
-  if (os === "linux") {
-    if ((process.env.WAYLAND_DISPLAY?.length ?? 0) > 0 && (Bun.which("wl-copy")?.length ?? 0) > 0) {
-      copyMethod = async (text: string) => {
-        const proc = Bun.spawn(["wl-copy"], {
-          stderr: "ignore",
-          stdin: "pipe",
-          stdout: "ignore",
-        });
+  const linuxCommand = os === "linux" ? findLinuxCopyCommand() : undefined;
 
-        await proc.stdin.write(text);
-        await proc.stdin.end();
-        await proc.exited.catch(() => null);
-      };
+  if (linuxCommand) {
+    copyMethod = async (text: string) => await pipeToCommand(linuxCommand, text);
 
-      return copyMethod;
-    }
-
-    if ((Bun.which("xclip")?.length ?? 0) > 0) {
-      copyMethod = async (text: string) => {
-        const proc = Bun.spawn(["xclip", "-selection", "clipboard"], {
-          stderr: "ignore",
-          stdin: "pipe",
-          stdout: "ignore",
-        });
-
-        await proc.stdin.write(text);
-        await proc.stdin.end();
-        await proc.exited.catch(() => null);
-      };
-
-      return copyMethod;
-    }
-
-    if ((Bun.which("xsel")?.length ?? 0) > 0) {
-      copyMethod = async (text: string) => {
-        const proc = Bun.spawn(["xsel", "--clipboard", "--input"], {
-          stderr: "ignore",
-          stdin: "pipe",
-          stdout: "ignore",
-        });
-
-        await proc.stdin.write(text);
-        await proc.stdin.end();
-        await proc.exited.catch(() => null);
-      };
-
-      return copyMethod;
-    }
+    return copyMethod;
   }
 
   if (os === "win32") {
     copyMethod = async (text: string) => {
       const escaped = text.replaceAll('"', '""');
-      await $`powershell -command "Set-Clipboard -Value \"${escaped}\""`.nothrow().quiet();
+
+      const result = await $`powershell -command "Set-Clipboard -Value \"${escaped}\""`
+        .nothrow()
+        .quiet();
+
+      return result.exitCode === 0;
     };
 
     return copyMethod;
   }
 
-  copyMethod = async () => {
-    // Silent no-op — no clipboard support available
-  };
+  // No clipboard tool: report the failure so callers can tell the user.
+  copyMethod = async () => await Promise.resolve(false);
 
   return copyMethod;
 };
 
-export const copyToClipboard = async function copyToClipboard(text: string): Promise<void> {
-  await getCopyMethod()(text);
+/**
+ * Copy text to the system clipboard. Resolves `true` when a clipboard tool
+ * took the text, and `false` when no tool is installed or the tool failed.
+ */
+export const copyToClipboard = async function copyToClipboard(text: string): Promise<boolean> {
+  return await getCopyMethod()(text);
 };
 
 let primaryCopyMethod: ((text: string) => Promise<void>) | null = null;
@@ -332,7 +335,10 @@ const getPrimaryCopyMethod = function getPrimaryCopyMethod(): (text: string) => 
   }
 
   // macOS/Windows don't have PRIMARY selection — fall back to clipboard
-  primaryCopyMethod = getCopyMethod();
+  const copyToSystemClipboard = getCopyMethod();
+  primaryCopyMethod = async (text: string) => {
+    await copyToSystemClipboard(text);
+  };
 
   return primaryCopyMethod;
 };

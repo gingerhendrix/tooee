@@ -5,7 +5,13 @@ import type { RouterInstance, StackEntry } from "./types.js";
 
 // Contexts
 
-const RouterInstanceContext = createContext<RouterInstance | null>(null);
+/**
+ * The router in context, with its app context type erased. A router made
+ * with any `context` type fits here, so `RouterProvider` accepts it.
+ */
+export type AnyRouterInstance = RouterInstance<unknown>;
+
+const RouterInstanceContext = createContext<AnyRouterInstance | null>(null);
 
 const RouterStackContext = createContext<readonly StackEntry[]>([]);
 
@@ -14,7 +20,8 @@ export const StackEntryIndexContext = createContext<number>(0);
 // Provider
 
 export interface RouterProviderProps {
-  router: RouterInstance;
+  /** A started router. It can carry any `context` type. */
+  router: AnyRouterInstance;
   children: ReactNode;
 }
 
@@ -40,7 +47,7 @@ export const RouterProvider = function RouterProvider({
 
 // Internal hooks
 
-export const useRouterInstance = function useRouterInstance(): RouterInstance {
+export const useRouterInstance = function useRouterInstance(): AnyRouterInstance {
   const ctx = useContext(RouterInstanceContext);
 
   if (!ctx) {

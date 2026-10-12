@@ -1,4 +1,5 @@
 import type { ActionDefinition } from "@tooee/commands";
+import { StatusPriority } from "@tooee/layout";
 import type { StatusBarItem } from "@tooee/layout";
 import type { MarkSet } from "@tooee/marks";
 import { DocumentScreen } from "@tooee/shell";
@@ -60,7 +61,16 @@ export const ViewScreen = function ViewScreen<T>({
 
   const items: StatusBarItem[] = [
     ...(statusItems ?? []),
-    ...(streaming ? [{ label: "Status:", value: "streaming" }] : []),
+    ...(streaming
+      ? [
+          {
+            id: "streaming",
+            label: "Status:",
+            priority: StatusPriority.critical,
+            value: "streaming",
+          },
+        ]
+      : []),
   ];
 
   return (

@@ -1,5 +1,6 @@
 import { test, expect, describe, afterEach } from "bun:test";
 
+import { CommandProvider } from "@tooee/commands";
 import { createRoute, createRouter, RouterProvider, Outlet, useRouteData } from "@tooee/router";
 import type { RouteParams } from "@tooee/router";
 import { testRender } from "@tooee/test-support";
@@ -530,5 +531,79 @@ describe("route loaders", () => {
     const frame = testSetup.captureCharFrame();
     expect(frame).toContain("screen:param:42");
     expect(receivedParams).toEqual({ id: "42" });
+  });
+});
+
+const pressKey = async function pressKey(key: string) {
+  await act(async () => {
+    testSetup.mockInput.pressKey(key);
+    await Promise.resolve();
+  });
+  await testSetup.renderOnce();
+};
+
+const setupFailingRoute = async function setupFailingRoute() {
+  let calls = 0;
+
+  const failingRoute = createRoute({
+    ...dataSpec,
+    component: DataScreen,
+    errorComponent: ErrorScreen,
+    loader: async () => {
+      calls += 1;
+
+      if (calls === 1) {
+        throw new Error("load failed");
+      }
+
+      return await Promise.resolve({ message: "second try" });
+    },
+  });
+
+  const router = createRouter({ initial: { routeId: "data" }, routes: [failingRoute] });
+  await router.start();
+
+  testSetup = await testRender(
+    <CommandProvider>
+      <RouterProvider router={router}>
+        <Outlet />
+      </RouterProvider>
+    </CommandProvider>,
+    { height: 10, kittyKeyboard: true, width: 60 }
+  );
+
+  await act(async () => {
+    await Promise.resolve();
+  });
+  await testSetup.renderOnce();
+
+  return { calls: () => calls };
+};
+
+describe("fallback commands while a loader fails", () => {
+  test("r runs the loader again", async () => {
+    const loader = await setupFailingRoute();
+    expect(testSetup.captureCharFrame()).toContain("screen:error:load failed");
+
+    await pressKey("r");
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await testSetup.renderOnce();
+
+    expect(loader.calls()).toBe(2);
+    expect(testSetup.captureCharFrame()).toContain("screen:data:second try");
+  });
+
+  test("q closes the app from the error screen", async () => {
+    await setupFailingRoute();
+    expect(testSetup.captureCharFrame()).toContain("screen:error:load failed");
+
+    await act(async () => {
+      testSetup.mockInput.pressKey("q");
+      await Promise.resolve();
+    });
+
+    expect(testSetup.renderer.isDestroyed).toBe(true);
   });
 });
