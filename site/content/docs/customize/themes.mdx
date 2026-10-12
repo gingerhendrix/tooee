@@ -102,15 +102,27 @@ A key you leave out takes a fallback: `#808080` for most colours, `#1e1e1e` for 
 | --- | --- |
 | UI | `primary`, `secondary`, `accent`, `error`, `warning`, `success`, `info`, `text`, `textMuted`, `background`, `backgroundPanel`, `backgroundElement`, `border`, `borderActive`, `borderSubtle` |
 | Cursor | `cursorLine`, `selection` |
+| Search | `searchMatchBg`, `searchCurrentMatchBg`, `searchMatchFg`, `searchCurrentMatchFg` |
 | Markdown | `markdownText`, `markdownHeading`, `markdownLink`, `markdownLinkText`, `markdownCode`, `markdownBlockQuote`, `markdownEmph`, `markdownStrong`, `markdownHorizontalRule`, `markdownListItem`, `markdownListEnumeration`, `markdownImage`, `markdownImageText`, `markdownCodeBlock` |
 | Syntax | `syntaxComment`, `syntaxKeyword`, `syntaxFunction`, `syntaxVariable`, `syntaxString`, `syntaxNumber`, `syntaxType`, `syntaxOperator`, `syntaxPunctuation` |
 | Diff | `diffAdded`, `diffRemoved`, `diffContext`, `diffHunkHeader`, `diffHighlightAdded`, `diffHighlightRemoved`, `diffAddedBg`, `diffRemovedBg`, `diffContextBg`, `diffLineNumber`, `diffAddedLineNumberBg`, `diffRemovedLineNumberBg` |
+
+The Search keys colour search matches in a row document. `searchMatchBg` is the row background of every match, and `searchCurrentMatchBg` is the row background of the current match. `searchMatchFg` and `searchCurrentMatchFg` colour the gutter signs of those rows. Every bundled theme sets all four. A theme that leaves them out gets derived values:
+
+| Key                    | Derived value                      |
+| ---------------------- | ---------------------------------- |
+| `searchMatchBg`        | 22% of `warning` over `background` |
+| `searchCurrentMatchBg` | 35% of `primary` over `background` |
+| `searchMatchFg`        | `warning`                          |
+| `searchCurrentMatchFg` | `primary`                          |
+
+Over a transparent `background`, the derived backgrounds are translucent. Tooee 0.12 and earlier have no Search keys. They paint the match rows with the full `warning` and `primary` colours.
 
 The Diff keys feed the `diff` syntax scopes. OpenTUI 0.5 bundles no `diff` grammar and Hunk draws diffs from its own palette, so these keys have no visible effect in Tooee 0.12.
 
 ## Install a theme
 
-Put the file in `~/.config/tooee/themes/` to have it in every app, or in `.tooee/themes/` inside a project. Tooee reads the bundled folder, then the global folder, then `.tooee/themes/` in the working directory, then the same folder in each parent directory up to the root. A later file with the same name replaces an earlier one: a `dracula.json` in your global folder replaces the bundled Dracula, and a project file replaces a global one. Between two project folders, the one higher up the tree wins. The folders are read once per process; restart the app after you add a file.
+Put the file in `~/.config/tooee/themes/` to have it in every app, or in `.tooee/themes/` inside a project. Tooee reads the bundled folder, then the global folder, then `.tooee/themes/` in each directory from the filesystem root down to the working directory. A later file with the same name replaces an earlier one: a `dracula.json` in your global folder replaces the bundled Dracula, and a project file replaces a global one. Between two project folders, the one nearest to the working directory wins, as it does for config files. In Tooee 0.12 and earlier, the one higher up the tree won. The folders are read once per process; restart the app after you add a file.
 
 ```ts title="list-themes.ts"
 import { getThemeNames } from "@tooee/themes";
@@ -164,11 +176,11 @@ await launchCli(<Swatches />);
 | Hook | Package | Returns |
 | --- | --- | --- |
 | `useTheme()` | `@tooee/themes` | `{ theme, syntax, name, mode }`. `theme` is a `ResolvedTheme`: every key from the table above as a hex string. |
-| `useThemeSwitcher()` | `@tooee/themes` | The same fields plus `setTheme(name, { persist })`, `nextTheme()`, `prevTheme()`, and `allThemes`. |
+| `useThemeSwitcher()` | `@tooee/themes` | The same fields plus `setTheme(name, { persist })`, `setMode(mode, { persist })`, `nextTheme()`, `prevTheme()`, and `allThemes`. |
 | `useThemePicker()` | `@tooee/shell` | `{ isOpen, open, close, confirm, preview, entries, currentTheme, originalTheme }` for the picker overlay. |
 | `useThemeCommands()` | `@tooee/shell` | Registers `t` with the id `cycle-theme` and returns `{ name, picker }`. Pass `{ enabled: false }` to keep the live name without the key. |
 
-`TooeeProvider` mounts `ThemeSwitcherProvider` with the theme from the config, so every hook works in an app started with `launchCli` or `runCliSession`. `DocumentScreen` calls `useThemeCommands` for you unless `themeCommands` is `false`; a screen of your own calls it to get `t`. `nextTheme`, `prevTheme`, and `setTheme` with `persist: true` write the global config file, as `Enter` in the picker does; `setTheme(name)` alone changes the screen and writes nothing. `useThemePicker` lives in `@tooee/shell` since 0.8; `@tooee/themes` exports the loading and context APIs only. The colour props on `<text>` and `<box>` belong to [OpenTUI](https://opentui.com).
+`TooeeProvider` mounts `ThemeSwitcherProvider` with the theme from the config, so every hook works in an app started with `launchCli` or `runCliSession`. `DocumentScreen` calls `useThemeCommands` for you unless `themeCommands` is `false`; a screen of your own calls it to get `t`. `nextTheme`, `prevTheme`, and `setTheme` with `persist: true` write the global config file, as `Enter` in the picker does; `setTheme(name)` alone changes the screen and writes nothing. `setMode("light")` or `setMode("dark")` switches the current theme to that variant while the app runs, and `persist: true` also writes the mode to the global config file. Tooee 0.12 and earlier have no `setMode`. `useThemePicker` lives in `@tooee/shell` since 0.8; `@tooee/themes` exports the loading and context APIs only. The colour props on `<text>` and `<box>` belong to [OpenTUI](https://opentui.com).
 
 ## Syntax colours
 

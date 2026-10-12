@@ -65,7 +65,7 @@ Types: `ChooseProps`, `ChooseOverlayProps`, `ChoosePanelProps`, `ChoosePanelInse
 
 | Export | Signature | Behaviour |
 | --- | --- | --- |
-| `copyToClipboard` | `(text: string) => Promise<void>` | Writes the system clipboard. Uses `wl-copy` on Wayland, then `xclip` or `xsel` on Linux, `osascript` on macOS, and PowerShell on Windows. Does nothing when no tool is found. |
+| `copyToClipboard` | `(text: string) => Promise<boolean>` | Writes the system clipboard. Uses `wl-copy` on Wayland, then `xclip` or `xsel` on Linux, `osascript` on macOS, and PowerShell on Windows. Resolves `false` when no tool is found or the tool exits with an error. Tooee 0.12 and earlier resolve `void`. |
 | `copyToPrimary` | `(text: string) => Promise<void>` | Writes the primary selection on Linux with `wl-copy --primary`, `xclip`, or `xsel`. Writes the system clipboard on other platforms, or when no primary tool is found. |
 | `readClipboardText` | `() => Promise<string \| undefined>` | Reads the clipboard as text. |
 | `readClipboard` | `() => Promise<ClipboardContent \| undefined>` | Reads an image from the clipboard first, then text. The result has `data` and `mime`; text comes back as `text/plain`. |
@@ -81,7 +81,7 @@ Types: `ClipboardContent`.
 | --- | --- |
 | Register commands | `useCommand`, `useCommandGroup`, `useActions` |
 | Modes | `useMode`, `useSetMode` |
-| Providers | `CommandProvider`, `CommandSurfaceProvider`, `ScreenScopeProvider` |
+| Providers | `CommandProvider`, `CommandSurfaceProvider`, `ScreenScopeProvider`, `useHasCommandProvider` |
 | Command context | `useProvideCommandContext`, `useProvideCommandContextKey`, `useBuildCommandContext`, `useSurfaceInvoke` |
 | Surfaces and state | `useActiveCommandSurface`, `useCommandSurfaceId`, `useSurfaceCommands`, `useEffectiveCommands`, `useCommandRegistry`, `useCommandSequenceState`, `useCommandStore`, `useScreenScope` |
 | Store selectors | `ROOT_SURFACE_ID`, `selectActiveModalSurface`, `selectActivePanelSurface`, `selectKeyboardOwnerSurface`, `selectSequence`, `selectSurfaceCommands` |
@@ -194,7 +194,7 @@ Types: `MarkdownLinkHandler`, `FlatBlock`, `FlattenMarkdownOptions`, `MarkdownIm
 | Commands | `useRouterCommands` |
 | Stack | `stackReducer` |
 
-Types: `Codec`, `RouteParams`, `RouteConfig`, `RouteDefinition`, `StackEntry`, `RouterState`, `RouterAction`, `RouterOptions`, `RouterInstance`, `SerializedNavigationIntent`, `ResolvedNavigation`, `NavigationResult`, `NavigationGuardResult`, `NavigationGuard`, `NavigationEvent`, `NavigationFailureContext`, `RouterProviderProps`, `NavigateResult`, `BackResult`, `ActionNavigationResult`, `ScreenFocus`, `ActionResultHandler`, `NavigateHandle`, `ScreenStateHandle`, `StateKey`.
+Types: `Codec`, `RouteParams`, `RouteConfig`, `RouteDefinition`, `StackEntry`, `RouterState`, `RouterAction`, `RouterOptions`, `RouterInstance`, `SerializedNavigationIntent`, `ResolvedNavigation`, `NavigationResult`, `NavigationGuardResult`, `NavigationGuard`, `NavigationEvent`, `NavigationFailureContext`, `RouterProviderProps`, `RouteErrorProps`, `NavigateResult`, `BackResult`, `ActionNavigationResult`, `ScreenFocus`, `ActionResultHandler`, `NavigateHandle`, `ScreenStateHandle`, `StateKey`.
 
 ## @tooee/search
 
@@ -213,7 +213,7 @@ Types: `NavSearchStore`, `NavSearchContext`, `NavSearchEvents`, `RowKey`, `UseSe
 | --- | --- |
 | Provider and sessions | `TooeeProvider`, `launchCli`, `runCliSession`, `mountTooee`, `guardTerminalHealth` |
 | Documents | `Document`, `DocumentScreen`, `useDocumentController`, `useProvideDocumentCommandContext`, `buildInteractionDecorations`, `DocumentDecorationPriorities` |
-| Navigation | `useNavigation` |
+| Navigation | `useNavigation`, `useNavigationBindings` |
 | Built-in commands | `useThemeCommands`, `useQuitCommand`, `useCopyCommand`, `usePasteCommands`, `useToggleLineNumbersCommand`, `useDebugConsoleCommand` |
 | Copy | `useCopy`, `useCopyOnSelect` |
 | Overlays and menus | `OverlayProvider`, `CommandPaletteProvider`, `WhichKeyProvider`, `WhichKeyOverlay`, `useContextMenu`, `actionsToContextMenuEntries` |

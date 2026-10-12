@@ -194,12 +194,12 @@ After the first step of a sequence, Tooee opens a bar at the bottom that lists e
 
 A handler receives `ctx`:
 
-| Field      | Meaning                                                                                                                       |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `mode`     | The mode of the surface the command belongs to.                                                                               |
-| `setMode`  | Switch that surface's mode.                                                                                                   |
-| `commands` | `list()` returns the registered commands; `invoke(id)` runs one.                                                              |
-| `exit`     | Ends the session in Ask and Choose. In your own app it does nothing until a provider supplies it; quit with `useQuitCommand`. |
+| Field      | Meaning                                                                                                     |
+| ---------- | ----------------------------------------------------------------------------------------------------------- |
+| `mode`     | The mode of the surface the command belongs to.                                                             |
+| `setMode`  | Switch that surface's mode.                                                                                 |
+| `commands` | `list()` returns the registered commands; `invoke(id)` runs one.                                            |
+| `exit`     | Closes the app. By default it destroys the renderer. Ask and Choose supply their own `exit` to end the session. |
 
 Packages add fields to the context, and each one is optional because its provider is not mounted on every surface:
 

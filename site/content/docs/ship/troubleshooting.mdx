@@ -37,17 +37,15 @@ await runCliSession((): ReactNode => <View contentProvider={createStdinProvider(
 
 **`Escape` does nothing under a test harness.** OpenTUI enables the kitty keyboard protocol, under which a terminal sends `Escape` as `\u001B[27u`, and OpenTUI 0.5.1 reads the bare `0x1b` byte as `Escape` too. The checks for this page left select mode with the bare byte in a scripted PTY and under tuistory 0.0.16. A harness that still drops the key can send the encoded form with `writeRaw`, as [Testing](/docs/ship/testing#test-end-to-end-with-tuistory) shows.
 
-**A command with `hotkey: "+"` never fires.** The hotkey parser splits each step on `+` to find modifiers, so `"+"` parses to an empty key. Write `"plus"`.
+**A command with `hotkey: "+"` never fires.** In Tooee 0.12 and earlier, the hotkey parser splits each step on `+` to find modifiers, so `"+"` parses to an empty key. Later releases accept `"+"`, `"ctrl++"`, and `+` as one step in a sequence such as `"z +"`. Write `"plus"` to support every version.
 
 **A `<leader>` hotkey never fires.** No leader is set. Tooee logs `[tooee/commands] Hotkey "<leader>l" uses <leader> but no leader key is configured; the hotkey is disabled.` once, and the renderer routes console output to the OpenTUI debug console, so press `ctrl+shift+j` to read it. Pass `provider: { leader: "space" }` to `launchCli` or `runCliSession`; [The leader key](/docs/build/commands-and-modes#the-leader-key) covers it.
 
-**`ctx.exit()` in a handler leaves the app open.** The shell installs no `exit` in the command context; Ask and Choose supply their own, and View and `launchCli` apps do not. Quit with `useQuitCommand`, and for a View action store what the handler learned and act after `launch()` resolves. [View: actions and command context](/docs/apps/view/actions) shows the pattern.
-
-**A key from `keys` in the config runs the command, but the palette still lists the old key.** The palette and the which-key bar show the default hotkey in Tooee 0.12. The remap works; only the hint is stale. [Configuration](/docs/customize/configuration#remap-keys) shows how to build hints from the config.
+**`ctx.exit()` in a handler leaves the app open.** In Tooee 0.12 and earlier, the shell installs no `exit` in the command context. Ask and Choose supply their own, and View and `launchCli` apps do not. Later releases destroy the renderer by default, so `ctx.exit()` closes every app. On 0.12, quit with `useQuitCommand`, and for a View action store what the handler learned and act after `launch()` resolves. [View: actions and command context](/docs/apps/view/actions) shows the pattern.
 
 ## Copy and paste
 
-**The toast says `Copied` but the clipboard is unchanged.** Tooee found no clipboard tool on `PATH` and the copy was a silent no-op; the toast reports success either way. Install one of the tools it looks for:
+**The toast says `Copy failed: no clipboard tool found (wl-copy, xclip or xsel)`.** Tooee found no clipboard tool on `PATH`, or the tool exited with an error. In Tooee 0.12 and earlier, the copy was a silent no-op and the toast said `Copied` either way. Install one of the tools it looks for:
 
 | Platform | Copy | Paste and primary selection |
 | --- | --- | --- |
