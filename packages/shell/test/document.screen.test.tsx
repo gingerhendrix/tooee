@@ -4,8 +4,9 @@ import { useSurfaceInvoke } from "@tooee/commands";
 import type { ActionDefinition, CommandContext } from "@tooee/commands";
 import { Document, DocumentScreen, TooeeProvider, useDocumentController } from "@tooee/shell";
 import type { DocumentCommandContext, DocumentScreenProps } from "@tooee/shell";
-import { testRender, expectDefined, press, pressTab } from "@tooee/test-support";
+import { testRender, expectDefined, press, pressEnter, pressTab } from "@tooee/test-support";
 import type { TestSession } from "@tooee/test-support";
+import { act } from "react";
 import type { ReactNode } from "react";
 
 interface Row {
@@ -216,6 +217,21 @@ describe("status bar", () => {
     const [cursor, selected] = orderOf(line, ["Cursor:", "Selected:"]);
     expect(selected).toBeGreaterThan(expectDefined(cursor));
     expect(line).toMatch(/Selected:\s*1/u);
+  });
+
+  test("the search bar replaces the status bar, and no Search item follows it", async () => {
+    await setup();
+    await press(session, "/");
+    await act(async () => {
+      await session.mockInput.typeText("beta");
+    });
+    await session.renderOnce();
+    expect(statusLine()).toBe("");
+
+    await pressEnter(session);
+
+    expect(statusLine()).toContain("Cursor:");
+    expect(statusLine()).not.toContain("Search:");
   });
 
   test("Cursor renders a dash when there is no active row", async () => {
