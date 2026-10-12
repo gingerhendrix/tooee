@@ -1,8 +1,8 @@
 node_modules/
 dist/
 *.tsbuildinfo
-examples/*.d.ts
-examples/*.d.ts.map
+examples/*/*.d.ts
+examples/*/*.d.ts.map
 packages/*/test/**/*.d.ts
 packages/*/test/**/*.d.ts.map
 .tmp/

@@ -50,29 +50,81 @@
         "typescript": "^7.0.2",
       },
     },
-    "examples": {
-      "name": "@tooee/examples",
+    "examples/ask": {
+      "name": "@tooee/example-ask",
       "dependencies": {
         "@tooee/ask": "workspace:*",
+      },
+    },
+    "examples/choose": {
+      "name": "@tooee/example-choose",
+      "dependencies": {
+        "@tooee/choose": "workspace:*",
+        "@tooee/view": "workspace:*",
+      },
+    },
+    "examples/panels": {
+      "name": "@tooee/example-panels",
+      "dependencies": {
+        "@tooee/commands": "workspace:*",
+        "@tooee/layout": "workspace:*",
+        "@tooee/panels": "workspace:*",
+        "@tooee/router": "workspace:*",
+        "@tooee/shell": "workspace:*",
+        "@tooee/themes": "workspace:*",
+        "react": "^19.3.0",
+      },
+      "devDependencies": {
+        "@types/react": "^19.3.0",
+      },
+    },
+    "examples/shell": {
+      "name": "@tooee/example-shell",
+      "dependencies": {
+        "@tooee/commands": "workspace:*",
+        "@tooee/layout": "workspace:*",
+        "@tooee/overlays": "workspace:*",
+        "@tooee/renderers": "workspace:*",
+        "@tooee/shell": "workspace:*",
+        "@tooee/themes": "workspace:*",
+        "react": "^19.3.0",
+      },
+      "devDependencies": {
+        "@types/react": "^19.3.0",
+      },
+    },
+    "examples/termcn": {
+      "name": "@tooee/example-termcn",
+      "dependencies": {
         "@tooee/choose": "workspace:*",
         "@tooee/clipboard": "workspace:*",
         "@tooee/commands": "workspace:*",
         "@tooee/layout": "workspace:*",
-        "@tooee/marks": "workspace:*",
         "@tooee/overlays": "workspace:*",
         "@tooee/panels": "workspace:*",
         "@tooee/renderers": "workspace:*",
-        "@tooee/router": "workspace:*",
         "@tooee/shell": "workspace:*",
         "@tooee/themes": "workspace:*",
         "@tooee/toasts": "workspace:*",
-        "@tooee/view": "workspace:*",
         "cli-spinners": "^3.4.0",
         "react": "^19.3.0",
         "strip-ansi": "^7.2.0",
       },
       "devDependencies": {
         "@tooee/test-support": "workspace:*",
+        "@types/react": "^19.3.0",
+      },
+    },
+    "examples/view": {
+      "name": "@tooee/example-view",
+      "dependencies": {
+        "@tooee/commands": "workspace:*",
+        "@tooee/marks": "workspace:*",
+        "@tooee/themes": "workspace:*",
+        "@tooee/view": "workspace:*",
+        "react": "^19.3.0",
+      },
+      "devDependencies": {
         "@types/react": "^19.3.0",
       },
     },
@@ -842,7 +894,17 @@
 
     "@tooee/e2e": ["@tooee/e2e@workspace:packages/e2e"],
 
-    "@tooee/examples": ["@tooee/examples@workspace:examples"],
+    "@tooee/example-ask": ["@tooee/example-ask@workspace:examples/ask"],
+
+    "@tooee/example-choose": ["@tooee/example-choose@workspace:examples/choose"],
+
+    "@tooee/example-panels": ["@tooee/example-panels@workspace:examples/panels"],
+
+    "@tooee/example-shell": ["@tooee/example-shell@workspace:examples/shell"],
+
+    "@tooee/example-termcn": ["@tooee/example-termcn@workspace:examples/termcn"],
+
+    "@tooee/example-view": ["@tooee/example-view@workspace:examples/view"],
 
     "@tooee/fuzzy": ["@tooee/fuzzy@workspace:packages/fuzzy"],
 

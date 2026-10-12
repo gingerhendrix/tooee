@@ -1,0 +1,52 @@
+#!/usr/bin/env bun
+/**
+ * git-diff.ts - View staged or unstaged git diff
+ *
+ * Shows the diff with syntax highlighting. Pass --staged for staged changes.
+ *
+ * Run: bun examples/view/git-diff.ts           # unstaged changes
+ * Run: bun examples/view/git-diff.ts --staged  # staged changes
+ * Controls: j/k scroll, q quit, t/T themes
+ */
+
+import { launch } from "@tooee/view";
+import type { ContentProvider } from "@tooee/view";
+
+const staged = process.argv.includes("--staged");
+
+const contentProvider: ContentProvider = {
+  async load() {
+    const args = staged ? ["git", "diff", "--staged"] : ["git", "diff"];
+    const proc = Bun.spawn(args);
+
+    const text = await new Response(proc.stdout).text();
+    const exitCode = await proc.exited;
+
+    if (exitCode !== 0) {
+      return {
+        format: "text" as const,
+        text: "Not a git repository or git not installed",
+        title: "Git Diff",
+      };
+    }
+
+    if (!text.trim()) {
+      return {
+        format: "text" as const,
+        text: staged
+          ? "No staged changes. Stage files with `git add`."
+          : "No unstaged changes. Working tree is clean.",
+        title: "Git Diff",
+      };
+    }
+
+    return {
+      code: text,
+      format: "code" as const,
+      language: "diff",
+      title: staged ? "Staged Changes" : "Unstaged Changes",
+    };
+  },
+};
+
+await launch({ contentProvider });

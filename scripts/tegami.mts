@@ -37,7 +37,7 @@ const paper = tegami({
       syncGitTag: true,
     },
   },
-  ignore: ["tooee", "@tooee/e2e", "@tooee/examples"],
+  ignore: ["tooee", "@tooee/e2e", /^@tooee\/example-/u],
   npm: {
     client: "bun",
     trustedPublish: {

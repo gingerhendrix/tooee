@@ -1,0 +1,24 @@
+{
+  "name": "@tooee/example-termcn",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@tooee/choose": "workspace:*",
+    "@tooee/clipboard": "workspace:*",
+    "@tooee/commands": "workspace:*",
+    "@tooee/layout": "workspace:*",
+    "@tooee/overlays": "workspace:*",
+    "@tooee/panels": "workspace:*",
+    "@tooee/renderers": "workspace:*",
+    "@tooee/shell": "workspace:*",
+    "@tooee/themes": "workspace:*",
+    "@tooee/toasts": "workspace:*",
+    "cli-spinners": "^3.4.0",
+    "react": "^19.3.0",
+    "strip-ansi": "^7.2.0"
+  },
+  "devDependencies": {
+    "@tooee/test-support": "workspace:*",
+    "@types/react": "^19.3.0"
+  }
+}

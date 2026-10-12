@@ -13,7 +13,7 @@
   "workspaces": [
     "packages/*",
     "apps/*",
-    "examples"
+    "examples/*"
   ],
   "type": "module",
   "scripts": {
@@ -28,7 +28,7 @@
     "bench:heavy:interaction": "bun --conditions=@tooee/source benchmarks/heavy-interaction.tsx",
     "bench:data-prep": "bun --conditions=@tooee/source benchmarks/data-prep.ts",
     "bench:compare": "bun --conditions=@tooee/source benchmarks/compare.ts",
-    "check": "tsc -b && tsc -p examples",
+    "check": "tsc -b && tsc -p examples/ask && tsc -p examples/choose && tsc -p examples/view && tsc -p examples/shell && tsc -p examples/panels && tsc -p examples/termcn",
     "lint": "ultracite fix",
     "lint:check": "ultracite check --no-error-on-unmatched-pattern",
     "lint:staged": "bun run lint:check",
