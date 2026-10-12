@@ -68,24 +68,9 @@ The title bar stays on one row. When the terminal is narrow, the subtitle shorte
 
 ## Status bar
 
-`statusBar` is required and takes `{ items }`. Each item is `{ label, value }`: the label draws muted, the value follows it in the text colour, and two columns separate one item from the next. An empty `label` with a `value` draws plain text, which is how the example shows its key hints. `StatusBar` is exported. It takes `items`, `hiddenMarker`, and an optional `width` in cells, which defaults to the terminal width.
+`statusBar` is required and takes `{ items }`. Each item is `{ label, value }`: the label draws muted, the value follows it in the text colour, and two columns separate one item from the next. An empty `label` with a `value` draws plain text, which is how the example shows its key hints.
 
-The status bar stays on one row. These optional item fields control what happens when the items do not fit:
-
-| Field           | Meaning                                                                                                         |
-| --------------- | --------------------------------------------------------------------------------------------------------------- |
-| `priority`      | A number. Items with a higher value stay longer. The default is `0`. `StatusPriority` names a shared scale.    |
-| `align`         | `"end"` puts the item in a group at the right edge. The default is `"start"`.                                  |
-| `compact`       | `{ label?, value? }`, a shorter form that the bar uses before it shortens or hides an item.                    |
-| `truncate`      | `"end"`, `"start"`, or `"middle"`: where the ellipsis goes when the value shortens. Without it the value keeps its full length. |
-| `minValueWidth` | The smallest value width in cells after truncation. The default is `8`.                                        |
-| `id`            | A stable React key.                                                                                             |
-
-When the items are too wide, the bar first switches items to their `compact` form, lowest priority first. Then, lowest priority first, it shortens a value that has `truncate` down to `minValueWidth`, and hides the item if the bar still overflows. On equal priority the item further right goes first. One item always stays, and its value shortens to fit. Last, visible items get their full form back where there is room. A `⋯` after the start group shows that items are hidden. Pass `hiddenMarker` to `statusBar` or to `StatusBar` to use another glyph, or `false` to show none.
-
-`StatusPriority` holds the values `critical` (4), `position` (3), `focus` (2), `content` (1), `background` (0), and `hint` (-1). Give key hints `hint`, so they go first. Use `truncate: "start"` for file paths, `"middle"` for ids such as model names, and `"end"` for free text. `fitStatusBar(items, width)` returns the layout that the bar draws, so a test can check it without a renderer. `truncateCells(text, width, mode)` is the helper both bars use to shorten text by terminal cells.
-
-`DocumentScreen` fills this bar itself. It draws the theme and its `statusItems` at the start, and the mode and the cursor at the right edge. [Documents](/docs/build/documents#draw-the-rows) lists the order. In Tooee 0.12 and earlier, the bar wraps onto a second row when the items do not fit, and the item fields above do not exist.
+The bar stays on one row. When the items do not fit, it uses their compact forms, then shortens or hides them, lowest `priority` first. [Status bar](/docs/build/status-bar) covers the item fields, `StatusPriority`, the fitting rules, `StatusBar`, `fitStatusBar`, and the items that `DocumentScreen` adds. In Tooee 0.12 and earlier, the bar wraps onto a second row when the items do not fit.
 
 ## Scroll the content
 
@@ -360,6 +345,7 @@ await launchCli(<Shortcuts />);
 
 ## Next
 
+- [Status bar](/docs/build/status-bar)
 - [Documents](/docs/build/documents)
 - [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts)
 - [Panels](/docs/build/panels)
