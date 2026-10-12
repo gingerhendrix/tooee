@@ -90,6 +90,16 @@ const press = async function press(
   await s.renderOnce();
 };
 
+const nextFile = async function nextFile(s: Awaited<ReturnType<typeof testRender>>) {
+  await press(s, "g");
+  await press(s, "n");
+};
+
+const prevFile = async function prevFile(s: Awaited<ReturnType<typeof testRender>>) {
+  await press(s, "g");
+  await press(s, "p");
+};
+
 test("shows first file on load", async () => {
   testSetup = await setup();
   const frame = testSetup.captureCharFrame();
@@ -97,36 +107,36 @@ test("shows first file on load", async () => {
   expect(frame).toContain("1/3");
 });
 
-test("l switches to next file", async () => {
+test("g n switches to next file", async () => {
   testSetup = await setup();
-  await press(testSetup, "l");
+  await nextFile(testSetup);
   const frame = testSetup.captureCharFrame();
   expect(frame).toContain("beta.ts");
   expect(frame).toContain("2/3");
 });
 
-test("h switches to previous file", async () => {
+test("g p switches to previous file", async () => {
   testSetup = await setup();
-  await press(testSetup, "l");
-  await press(testSetup, "h");
+  await nextFile(testSetup);
+  await prevFile(testSetup);
   const frame = testSetup.captureCharFrame();
   expect(frame).toContain("alpha.md");
   expect(frame).toContain("1/3");
 });
 
-test("l at last file stays on last file", async () => {
+test("g n at last file stays on last file", async () => {
   testSetup = await setup();
-  await press(testSetup, "l");
-  await press(testSetup, "l");
-  await press(testSetup, "l");
+  await nextFile(testSetup);
+  await nextFile(testSetup);
+  await nextFile(testSetup);
   const frame = testSetup.captureCharFrame();
   expect(frame).toContain("gamma.txt");
   expect(frame).toContain("3/3");
 });
 
-test("h at first file stays on first file", async () => {
+test("g p at first file stays on first file", async () => {
   testSetup = await setup();
-  await press(testSetup, "h");
+  await prevFile(testSetup);
   const frame = testSetup.captureCharFrame();
   expect(frame).toContain("alpha.md");
   expect(frame).toContain("1/3");
@@ -135,8 +145,18 @@ test("h at first file stays on first file", async () => {
 test("file position indicator updates through navigation", async () => {
   testSetup = await setup();
   expect(testSetup.captureCharFrame()).toContain("1/3");
-  await press(testSetup, "l");
+  await nextFile(testSetup);
   expect(testSetup.captureCharFrame()).toContain("2/3");
-  await press(testSetup, "l");
+  await nextFile(testSetup);
   expect(testSetup.captureCharFrame()).toContain("3/3");
+});
+
+test("h and l do not change file", async () => {
+  testSetup = await setup();
+  await press(testSetup, "l");
+  await press(testSetup, "h");
+  await press(testSetup, "l");
+  const frame = testSetup.captureCharFrame();
+  expect(frame).toContain("alpha.md");
+  expect(frame).toContain("1/3");
 });
