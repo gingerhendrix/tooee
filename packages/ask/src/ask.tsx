@@ -1,5 +1,5 @@
 import { useRenderer } from "@opentui/react";
-import { useActions, useProvideCommandContext, useSurfaceInvoke } from "@tooee/commands";
+import { useActions, useProvideCommandContext } from "@tooee/commands";
 import type { ActionDefinition } from "@tooee/commands";
 import { AppLayout } from "@tooee/layout";
 import { useHasOverlay } from "@tooee/overlays";
@@ -16,7 +16,8 @@ export interface AskProps extends AskOptions {
   actions?: ActionDefinition[];
   /**
    * Called with the submitted text. Without a callback, submission destroys
-   * the renderer. A `submit` action takes precedence over the callback.
+   * the renderer. An action with the id `submit` is an ordinary command: it
+   * runs from the palette or its hotkey, and Enter still calls this callback.
    */
   onSubmit?: (value: string) => void;
 }
@@ -31,8 +32,6 @@ export const Ask = function Ask({
   onSubmit,
 }: AskProps): ReactNode {
   const renderer = useRenderer();
-  const { invoke } = useSurfaceInvoke();
-
   const { theme } = useTheme();
   const { name: themeName } = useThemeCommands();
   useQuitCommand();
@@ -42,12 +41,6 @@ export const Ask = function Ask({
   const hasOverlay = useHasOverlay();
 
   const handleSubmit = (text: string) => {
-    if (actions?.some((a) => a.id === "submit") === true) {
-      invoke("submit");
-
-      return;
-    }
-
     if (onSubmit) {
       onSubmit(text);
 

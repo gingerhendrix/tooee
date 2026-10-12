@@ -1,4 +1,3 @@
-import { useSurfaceInvoke } from "@tooee/commands";
 import type { ActionDefinition } from "@tooee/commands";
 import { AppLayout } from "@tooee/layout";
 import { useHasOverlay, useHasModalOverlay } from "@tooee/overlays";
@@ -23,10 +22,9 @@ export interface ChooseProps extends ChooseOptions {
   /**
    * Called with the selection when the chooser is submitted. This is the
    * component-level equivalent of `useChoose`'s `onSubmit` and is how a host
-   * (including `launch()`) receives a `ChooseResult`. A registered command with
-   * the id `submit` still takes precedence, because a command can express its
-   * own submit behaviour — but commands receive a `CommandContext`, not a
-   * result, so they are not a replacement for this callback.
+   * (including `launch()`) receives a `ChooseResult`. An action with the id
+   * `submit` is an ordinary command: it runs from the palette or its hotkey,
+   * and submitting the chooser still calls this callback.
    */
   onConfirm?: (result: ChooseResult) => void;
   /** Called when the chooser is cancelled (quit, or submit with no selection). */
@@ -47,8 +45,6 @@ export const Choose = function Choose({
   title,
 }: ChooseProps): ReactNode {
   const { theme } = useTheme();
-  const { invoke } = useSurfaceInvoke();
-
   const { name: themeName } = useThemeCommands();
   useQuitCommand({ onQuit: () => onCancel?.() });
 
@@ -60,14 +56,6 @@ export const Choose = function Choose({
     multi,
     onCancel,
     onSubmit: (result) => {
-      // Standalone behaviour: a command named `submit` wins over `onConfirm`, so
-      // action-driven CLIs keep their own submit semantics.
-      if (actions?.some((action) => action.id === "submit") === true) {
-        invoke("submit");
-
-        return;
-      }
-
       if (multi || result.items.length > 0) {
         onConfirm?.(result);
       } else {
