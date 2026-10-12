@@ -176,7 +176,7 @@ The row document paints the cursor row, the selection, the toggled rows, and the
 | `themeCommands` | `true`  | Register `t` for the theme picker.                                                      |
 | `context`       |         | `{ kind, title, reload, extras }` merged into `ctx.document`.                           |
 
-The status bar reads `Theme:`, your items, and `Selected:` while rows are selected. `Mode:` and `Cursor:` sit at the right edge. When the bar is narrow, `Cursor:` shortens to `Ln`, and items with a lower priority hide first. `Theme:` has the `background` priority and `Selected:` has `focus`. Your items default to `background` too, and on a tie the item further right hides first, so give an item a `priority` to keep it longer. [Status bar](/docs/build/status-bar) lists the fitting rules. While the search bar is open it takes the place of the status bar. In Tooee 0.12 and earlier, `Mode:` and `Cursor:` follow your items, and `Selected:` comes last.
+The status bar reads `Theme:`, your items, and `Selected:` while rows are selected. `Mode:` and `Cursor:` sit at the right edge. When the bar is narrow, `Cursor:` shortens to `Ln`, and items with a lower priority hide first. `Theme:` has the `background` priority and `Selected:` has `focus`. Your items default to `background` too, and on a tie the item further right hides first, so give an item a `priority` to keep it longer. [Status bar](/docs/build/status-bar) lists the fitting rules. While the search bar is open it takes the place of the status bar.
 
 ## Follow streamed rows
 
@@ -297,7 +297,7 @@ Pass it as `search: authorSearch`. `controller.search` exposes the state the sea
 
 `y g` belongs to the screen, not the controller. Register it with `useCopyCommand` from `@tooee/shell`, as the example does, with a `getText` that returns the whole document. Its command id is `copy`, and without `hotkey` it binds `y`.
 
-Copy runs a clipboard tool: `wl-copy` under Wayland, then `xclip`, then `xsel` on Linux; `osascript` on macOS; PowerShell on Windows. When no tool is installed, or the tool exits with an error, the toast reports `Copy failed: no clipboard tool found (wl-copy, xclip or xsel)`. In Tooee 0.12 and earlier, the copy did nothing and the toast still reported success. [Troubleshooting](/docs/ship/troubleshooting) lists the tools.
+Copy runs a clipboard tool: `wl-copy` under Wayland, then `xclip`, then `xsel` on Linux; `osascript` on macOS; PowerShell on Windows. When no tool is installed, or the tool exits with an error, the toast reports `Copy failed: no clipboard tool found (wl-copy, xclip or xsel)`. [Troubleshooting](/docs/ship/troubleshooting) lists the tools.
 
 Dragging with the mouse selects text through OpenTUI. `TooeeProvider` mounts `useCopyOnSelect`, which copies the dragged text to the primary selection on Linux and does nothing on other platforms. `view.copyOnSelect` in the config file changes that: `"clipboard"` copies to the clipboard, `false` turns it off. [Configuration](/docs/customize/configuration) shows the file.
 

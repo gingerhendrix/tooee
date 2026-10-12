@@ -70,7 +70,7 @@ The title bar stays on one row. When the terminal is narrow, the subtitle shorte
 
 `statusBar` is required and takes `{ items }`. Each item is `{ label, value }`: the label draws muted, the value follows it in the text colour, and two columns separate one item from the next. An empty `label` with a `value` draws plain text, which is how the example shows its key hints.
 
-The bar stays on one row. When the items do not fit, it uses their compact forms, then shortens or hides them, lowest `priority` first. [Status bar](/docs/build/status-bar) covers the item fields, `StatusPriority`, the fitting rules, `StatusBar`, `fitStatusBar`, and the items that `DocumentScreen` adds. In Tooee 0.12 and earlier, the bar wraps onto a second row when the items do not fit.
+The bar stays on one row. When the items do not fit, it uses their compact forms, then shortens or hides them, lowest `priority` first. [Status bar](/docs/build/status-bar) covers the item fields, `StatusPriority`, the fitting rules, `StatusBar`, `fitStatusBar`, and the items that `DocumentScreen` adds.
 
 ## Scroll the content
 
@@ -156,7 +156,7 @@ const ReleaseNotes = function ReleaseNotes(): ReactNode {
         </box>
       }
     >
-      <text content="Tooee 0.12 adds folds and a heading outline to View." paddingLeft={1} />
+      <text content="View folds sections and draws a heading outline." paddingLeft={1} />
     </AppLayout>
   );
 };
@@ -177,7 +177,7 @@ A layout of your own mounts `SearchBar` with these props:
 | `query`         | The text in the input.                                                                                      |
 | `onQueryChange` | Called with the new text on every keystroke.                                                                |
 | `onSubmit`      | Called on `Enter`.                                                                                          |
-| `onCancel`      | Optional and deprecated. The bar never calls it; `Escape` cancels through the `search-cancel` command. A later release removes it. In 0.12 and earlier the prop is required. |
+| `onCancel`      | Optional and deprecated. The bar never calls it; `Escape` cancels through the `search-cancel` command. |
 | `matchCount`    | Number of matches. `0` with a non-empty query draws `No matches`.                                           |
 | `currentMatch`  | Index of the current match, drawn one-based.                                                                |
 
@@ -185,7 +185,7 @@ A layout of your own mounts `SearchBar` with these props:
 
 `AppLayout` calls `useCurrentOverlay()` from `@tooee/overlays` and draws the result in a box the size of the content area, above the content. The command palette, the which-key bar, the theme picker, the context menu, the Ask and Choose dialogs, and any overlay you open with `useOverlay().open` land there. `ToastContainer` from `@tooee/toasts` sits in the bottom right corner of the same area and draws the toast that `ctx.toast?.toast(...)` sends.
 
-`AppLayout` has no `overlay` prop in 0.13. The `@tooee/layout` README still describes one as deprecated; code that passed an element to it opens the overlay through the store instead. [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) covers `open`, roles, and dialogs.
+`AppLayout` has no `overlay` prop. Open an overlay through the overlay store. [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) covers `open`, roles, and dialogs.
 
 A layout of your own has to mount both. This one keeps the title bar and the status bar from `@tooee/layout`, adds the search bar, and draws the overlay and the toasts over a document:
 
@@ -341,7 +341,7 @@ await launchCli(<Shortcuts />);
 | `onClose`     | Shows a `CloseButton` in the title row and runs when it is clicked.                                          |
 | `onMouseDown` | Mouse handler for the whole panel.                                                                           |
 
-`CloseButton` takes `onClose`, an optional `glyph` in place of `✕`, and an optional `color`. It reacts to the left button only and stops the click from reaching the panel behind it. Tooee 0.8 moved it from `@tooee/themes` to `@tooee/layout`; the palette, the theme picker, and the Choose filter draw the same button. [Panels](/docs/build/panels) covers panel groups, which have chrome of their own.
+`CloseButton` takes `onClose`, an optional `glyph` in place of `✕`, and an optional `color`. It reacts to the left button only and stops the click from reaching the panel behind it. The palette, the theme picker, and the Choose filter draw the same button. [Panels](/docs/build/panels) covers panel groups, which have chrome of their own.
 
 ## Next
 

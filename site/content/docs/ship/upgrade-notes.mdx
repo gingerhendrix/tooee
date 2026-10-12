@@ -47,6 +47,30 @@ Inside a `CommandProvider`, the router registers `q` (quit) and `r` (retry, erro
 
 The status bar and the title bar no longer wrap onto a second row. When the items do not fit, the bar hides the items with the lowest priority first and shows `⋯`. `DocumentScreen` now puts `Mode:` and `Cursor:` at the right edge, and `Cursor:` shortens to `Ln` on a narrow bar. Your `statusItems` default to the lowest priority after key hints, so give an item a `priority` from `StatusPriority` to keep it in view. Update frame snapshots of narrow screens, and tests that expect `Mode:` after your items. Items with only `label` and `value` look the same as before when they fit. [Status bar](/docs/build/status-bar) lists the fitting rules.
 
+### Expect `Escape` to close an owned modal
+
+`dismissOnEscape` now works on a modal overlay with its own command surface. Before, it had no effect there, so each modal registered its own `Escape`. Those commands still run first, so you can keep them or remove them. [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) describes the order.
+
+### Expect `n` and `N` to land on selectable rows
+
+In a nav-search store, `n` and `N` now move to the nearest row that `isSelectable` accepts. Before, they put the cursor on the match index. A `match` function that already returns only selectable rows behaves the same.
+
+### Check which project theme wins
+
+When two `.tooee/themes/` folders hold a theme with the same name, the folder nearest to the working directory now wins, as it does for config files. Before, the folder higher up the tree won.
+
+### Check custom themes for the search highlight keys
+
+Themes gain `searchMatchBg`, `searchCurrentMatchBg`, `searchMatchFg`, and `searchCurrentMatchFg`. A theme that leaves them out gets values derived from `warning` and `primary`, so match rows look softer than before. Set the keys to keep the old full colours. [Themes](/docs/customize/themes) lists the derived values.
+
+### Drop `onCancel` from `SearchBar`
+
+The `onCancel` prop of `SearchBar` is now optional and deprecated. The bar never calls it. `Escape` cancels through the `search-cancel` command.
+
+### Write `+` as a hotkey
+
+The hotkey parser now accepts `"+"`, `"ctrl++"`, and `+` as one step of a sequence such as `"z +"`. Before, `"+"` parsed to an empty key and never fired. `"plus"` still works.
+
 ## Upgrade from 0.9 to 0.12
 
 ### Install OpenTUI 0.5.12 or later

@@ -129,7 +129,7 @@ const picked = await launch({
 
 Choose reserves `up`, `down`, `ctrl+p`, `ctrl+n`, and `Enter` in both modes; `Escape` in insert mode; and `j`, `k`, `i`, `a`, `q`, and `Escape` in cursor mode. With `multi`, `Tab` and `Shift+Tab` are reserved in both modes. Pick control chords for your own commands.
 
-`Enter` always calls `onConfirm` and resolves with the selection. An action with the id `submit` is an ordinary command that runs from the palette or from its own hotkey. In Tooee 0.12 and earlier, such an action replaced the built-in confirm, and `launch()` resolved `null`.
+`Enter` always calls `onConfirm` and resolves with the selection. An action with the id `submit` is an ordinary command that runs from the palette or from its own hotkey.
 
 ## Open Choose as a dialog
 
@@ -282,7 +282,7 @@ await launchCli(<Streams />);
 
 The picker panel starts in insert mode with the filter focused. `Enter` submits the highlighted row, `Escape` switches that panel to cursor mode, and `Tab` then moves to the detail panel. Only the active panel's commands run. `chrome="none"` leaves the drawing to `ChoosePanel`; a zero `inset` makes it fill the wrapper box. [Panels](/docs/build/panels) explains panel groups and their chrome.
 
-`source` accepts an item array, a content provider, or a function that returns items or a promise of them. Keep the array identity stable across renders, as the module-level `streams` array is here; a new array on every render reloads on every render. `useChoose` also takes `multi`, `initialFilter`, `onCancel`, `commands`, `commandScope`, `disable`, and `suspended`, and returns a `controller` with `setFilter`, `moveUp`, `moveDown`, `toggleActive`, `submit`, `cancel`, and `reload`. Tooee 0.9 also exports the reusable chooser primitives from `@tooee/renderers`; the shell uses them for the command palette and theme picker.
+`source` accepts an item array, a content provider, or a function that returns items or a promise of them. Keep the array identity stable across renders, as the module-level `streams` array is here; a new array on every render reloads on every render. `useChoose` also takes `multi`, `initialFilter`, `onCancel`, `commands`, `commandScope`, `disable`, and `suspended`, and returns a `controller` with `setFilter`, `moveUp`, `moveDown`, `toggleActive`, `submit`, `cancel`, and `reload`. `@tooee/renderers` exports the reusable chooser primitives too; the shell uses them for the command palette and theme picker.
 
 ## Next
 

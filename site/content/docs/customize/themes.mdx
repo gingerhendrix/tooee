@@ -116,13 +116,13 @@ The Search keys colour search matches in a row document. `searchMatchBg` is the 
 | `searchMatchFg`        | `warning`                          |
 | `searchCurrentMatchFg` | `primary`                          |
 
-Over a transparent `background`, the derived backgrounds are translucent. Tooee 0.12 and earlier have no Search keys. They paint the match rows with the full `warning` and `primary` colours.
+Over a transparent `background`, the derived backgrounds are translucent.
 
-The Diff keys feed the `diff` syntax scopes. OpenTUI 0.5 bundles no `diff` grammar and Hunk draws diffs from its own palette, so these keys have no visible effect in Tooee 0.13.
+The Diff keys feed the `diff` syntax scopes. OpenTUI bundles no `diff` grammar and Hunk draws diffs from its own palette, so these keys have no visible effect.
 
 ## Install a theme
 
-Put the file in `~/.config/tooee/themes/` to have it in every app, or in `.tooee/themes/` inside a project. Tooee reads the bundled folder, then the global folder, then `.tooee/themes/` in each directory from the filesystem root down to the working directory. A later file with the same name replaces an earlier one: a `dracula.json` in your global folder replaces the bundled Dracula, and a project file replaces a global one. Between two project folders, the one nearest to the working directory wins, as it does for config files. In Tooee 0.12 and earlier, the one higher up the tree won. The folders are read once per process; restart the app after you add a file.
+Put the file in `~/.config/tooee/themes/` to have it in every app, or in `.tooee/themes/` inside a project. Tooee reads the bundled folder, then the global folder, then `.tooee/themes/` in each directory from the filesystem root down to the working directory. A later file with the same name replaces an earlier one: a `dracula.json` in your global folder replaces the bundled Dracula, and a project file replaces a global one. Between two project folders, the one nearest to the working directory wins, as it does for config files. The folders are read once per process; restart the app after you add a file.
 
 ```ts title="list-themes.ts"
 import { getThemeNames } from "@tooee/themes";
@@ -180,11 +180,11 @@ await launchCli(<Swatches />);
 | `useThemePicker()` | `@tooee/shell` | `{ isOpen, open, close, confirm, preview, entries, currentTheme, originalTheme }` for the picker overlay. |
 | `useThemeCommands()` | `@tooee/shell` | Registers `t` with the id `cycle-theme` and returns `{ name, picker }`. Pass `{ enabled: false }` to keep the live name without the key. |
 
-`TooeeProvider` mounts `ThemeSwitcherProvider` with the theme from the config, so every hook works in an app started with `launchCli` or `runCliSession`. `DocumentScreen` calls `useThemeCommands` for you unless `themeCommands` is `false`; a screen of your own calls it to get `t`. `nextTheme`, `prevTheme`, and `setTheme` with `persist: true` write the global config file, as `Enter` in the picker does; `setTheme(name)` alone changes the screen and writes nothing. `setMode("light")` or `setMode("dark")` switches the current theme to that variant while the app runs, and `persist: true` also writes the mode to the global config file. Tooee 0.12 and earlier have no `setMode`. `useThemePicker` lives in `@tooee/shell` since 0.8; `@tooee/themes` exports the loading and context APIs only. The colour props on `<text>` and `<box>` belong to [OpenTUI](https://opentui.com).
+`TooeeProvider` mounts `ThemeSwitcherProvider` with the theme from the config, so every hook works in an app started with `launchCli` or `runCliSession`. `DocumentScreen` calls `useThemeCommands` for you unless `themeCommands` is `false`; a screen of your own calls it to get `t`. `nextTheme`, `prevTheme`, and `setTheme` with `persist: true` write the global config file, as `Enter` in the picker does; `setTheme(name)` alone changes the screen and writes nothing. `setMode("light")` or `setMode("dark")` switches the current theme to that variant while the app runs, and `persist: true` also writes the mode to the global config file. `useThemePicker` lives in `@tooee/shell`; `@tooee/themes` exports the loading and context APIs only. The colour props on `<text>` and `<box>` belong to [OpenTUI](https://opentui.com).
 
 ## Syntax colours
 
-The `syntax*` and `markdown*` keys build the `SyntaxStyle` that colours code blocks and code files; `useTheme().syntax` returns it for a code element of your own. Colours appear for the four grammars OpenTUI 0.5 bundles, `typescript`, `javascript`, `markdown`, and `zig`. [View: content formats](/docs/apps/view/formats#code-and-text) covers the rule.
+The `syntax*` and `markdown*` keys build the `SyntaxStyle` that colours code blocks and code files; `useTheme().syntax` returns it for a code element of your own. Colours appear for the four grammars OpenTUI bundles, `typescript`, `javascript`, `markdown`, and `zig`. [View: content formats](/docs/apps/view/formats#code-and-text) covers the rule.
 
 ## Diff palettes
 

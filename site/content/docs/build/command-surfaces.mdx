@@ -192,7 +192,7 @@ The shell registers `overlay.close-top` on the root surface. It binds `Escape` i
 
 For an owned modal, the shell registers a hidden `overlay.close-self` command on the modal's own surface instead. It binds `Escape` in the same three modes and closes the overlay with the reason `"escape"`. Pass `dismissOnEscape: false` to leave it out. It mounts after the overlay content, so an `Escape` command that the modal registers itself runs first. `ConfirmClose` registers `confirm.cancel` on `Escape`, so that command runs, and `overlay.close-self` does not. The repo example [overlay-command-surfaces.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/shell/overlay-command-surfaces.ts) binds `Escape` twice in its Ask overlay: in insert mode it returns to cursor mode, and in cursor mode it closes the overlay.
 
-An overlay without `ownCommands` and a passive overlay use the root command, because there `Escape` reaches the root. An active panel that binds `Escape` in its current mode shadows `overlay.close-top`. In that case the panel command runs and the overlay stays open. In Tooee 0.12 and earlier, `dismissOnEscape` had no effect on an owned modal, so each one had to register its own `Escape`.
+An overlay without `ownCommands` and a passive overlay use the root command, because there `Escape` reaches the root. An active panel that binds `Escape` in its current mode shadows `overlay.close-top`. In that case the panel command runs and the overlay stays open.
 
 ## Read the active surface
 
