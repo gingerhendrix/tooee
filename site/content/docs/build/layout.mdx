@@ -175,7 +175,7 @@ A layout of your own mounts `SearchBar` with these props:
 | `query`         | The text in the input.                                                                                      |
 | `onQueryChange` | Called with the new text on every keystroke.                                                                |
 | `onSubmit`      | Called on `Enter`.                                                                                          |
-| `onCancel`      | Accepted for the interface. In 0.12 the bar does not call it; `Escape` cancels through the search command. |
+| `onCancel`      | Optional and deprecated. The bar never calls it; `Escape` cancels through the `search-cancel` command. A later release removes it. In 0.12 and earlier the prop is required. |
 | `matchCount`    | Number of matches. `0` with a non-empty query draws `No matches`.                                           |
 | `currentMatch`  | Index of the current match, drawn one-based.                                                                |
 

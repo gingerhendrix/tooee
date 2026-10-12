@@ -190,9 +190,9 @@ A `PanelGroup` inside a `Panel` publishes its active panel only while the outer 
 
 The shell registers `overlay.close-top` on the root surface. It binds `Escape` in cursor, select, and insert mode, and closes the top overlay when that overlay allows `dismissOnEscape`. A modal surface keeps every key, so `Escape` never reaches that root command while the modal is on top.
 
-Register `Escape` inside every owned modal, as `ConfirmClose` does. An owned modal starts in cursor mode unless `surfaceMode` sets another mode. When the overlay changes its local mode, give the `Escape` command the modes it needs. The repo example [overlay-command-surfaces.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/shell/overlay-command-surfaces.ts) binds `Escape` twice in its Ask overlay: in insert mode it returns to cursor mode, and in cursor mode it closes the overlay.
+For an owned modal, the shell registers a hidden `overlay.close-self` command on the modal's own surface instead. It binds `Escape` in the same three modes and closes the overlay with the reason `"escape"`. Pass `dismissOnEscape: false` to leave it out. It mounts after the overlay content, so an `Escape` command that the modal registers itself runs first. `ConfirmClose` registers `confirm.cancel` on `Escape`, so that command runs, and `overlay.close-self` does not. The repo example [overlay-command-surfaces.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/shell/overlay-command-surfaces.ts) binds `Escape` twice in its Ask overlay: in insert mode it returns to cursor mode, and in cursor mode it closes the overlay.
 
-`dismissOnEscape` applies to overlays without `ownCommands` and to passive overlays, because there `Escape` reaches the root. An active panel that binds `Escape` in its current mode shadows `overlay.close-top`. In that case the panel command runs and the overlay stays open.
+An overlay without `ownCommands` and a passive overlay use the root command, because there `Escape` reaches the root. An active panel that binds `Escape` in its current mode shadows `overlay.close-top`. In that case the panel command runs and the overlay stays open. In Tooee 0.12 and earlier, `dismissOnEscape` had no effect on an owned modal, so each one had to register its own `Escape`.
 
 ## Read the active surface
 
@@ -223,10 +223,10 @@ Outside a `CommandProvider`, `useActiveCommandSurface` returns `null` and `useSu
 | ------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
 | `useSurfaceInvoke()`            | `{ commands, invoke }` for the surface the component registers on                                     | Hints and buttons inside one surface                          |
 | `useSurfaceCommands(surfaceId?)` | The commands on one surface. With no id, the owner surface, else the root.                           | Help that follows the keyboard owner, or one surface by id    |
-| `useEffectiveCommands()`        | `{ commands, invoke }` for the active panel plus the root, with shadowing applied                     | A palette or a hint bar that matches what the keys do         |
+| `useEffectiveCommands()`        | `{ commands, invoke, hotkeyFor, isAvailable }` for the active panel plus the root, with shadowing applied | A palette or a hint bar that matches what the keys do         |
 | `useCommandRegistry()`          | `{ registry, groups, contextSources, leaderKey }` for the nearest surface                             | Bridges that need groups, context sources, or the leader key  |
 
-`useEffectiveCommands` lists the active panel's commands first, then the root commands. It drops a root command whose id the panel also registers. When a panel command shadows the hotkey of a root command, the root command stays in the list without its `defaultHotkey`, because the key does not reach it. `invoke(id)` runs the command on the panel that owns it, else on the root. With no active panel, the result is the root commands. The shadow check reads `defaultHotkey`, so a keymap that remaps a hotkey can leave a stale hint. Dispatch itself uses the remapped key.
+`useEffectiveCommands` lists the active panel's commands first, then the root commands. It drops a root command whose id the panel also registers. When a panel command shadows the hotkey of a root command, the root command stays in the list without its `defaultHotkey`, because the key does not reach it. `invoke(id)` runs the command on the panel that owns it, else on the root. With no active panel, the result is the root commands. The shadow check uses the key that dispatch uses: the remap from `keys`, else `defaultHotkey`. `hotkeyFor(id)` returns that key, or `undefined` when the command has no key or a panel command shadows it. `defaultHotkey` on each command stays the declared default, so build hints with `hotkeyFor`. `isAvailable(id)` runs the command's `when` against the context of the surface that owns it.
 
 This hint bar shows the keys that work now:
 
@@ -235,17 +235,20 @@ import { useEffectiveCommands } from "@tooee/commands";
 import type { ReactNode } from "react";
 
 export const KeyHints = function KeyHints(): ReactNode {
-  const { commands } = useEffectiveCommands();
+  const { commands, hotkeyFor, isAvailable } = useEffectiveCommands();
   const hints = commands
-    .filter((command) => command.hidden !== true && command.defaultHotkey !== undefined)
-    .map((command) => `${command.defaultHotkey} ${command.title}`)
+    .filter((command) => command.hidden !== true && isAvailable(command.id))
+    .flatMap((command) => {
+      const hotkey = hotkeyFor(command.id);
+      return hotkey === undefined ? [] : [`${hotkey} ${command.title}`];
+    })
     .join("  ");
 
   return <text content={hints} />;
 };
 ```
 
-The shell palette uses `useEffectiveCommands`. When it opens while the active panel is in insert mode, it lists only that panel's commands, to match the insert-mode rule.
+The shell palette uses `useEffectiveCommands`. When it opens while the active panel is in insert mode, it lists only that panel's commands, to match the insert-mode rule. It checks `when` once, when it opens, and leaves out each command whose `when` returns `false`. It shows the key from `hotkeyFor`, so a remap from `keys` shows in the palette.
 
 ## Pause work in an inactive panel
 

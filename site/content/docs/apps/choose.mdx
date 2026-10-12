@@ -129,7 +129,7 @@ const picked = await launch({
 
 Choose reserves `up`, `down`, `ctrl+p`, `ctrl+n`, and `Enter` in both modes; `Escape` in insert mode; and `j`, `k`, `i`, `a`, `q`, and `Escape` in cursor mode. With `multi`, `Tab` and `Shift+Tab` are reserved in both modes. Pick control chords for your own commands.
 
-An action with the id `submit` replaces the built-in confirm. Choose then invokes that action instead of resolving, and `launch()` resolves `null` when the handler calls `ctx.exit()`. Use the returned `items` when you need the selection.
+`Enter` always calls `onConfirm` and resolves with the selection. An action with the id `submit` is an ordinary command that runs from the palette or from its own hotkey. In Tooee 0.12 and earlier, such an action replaced the built-in confirm, and `launch()` resolved `null`.
 
 ## Open Choose as a dialog
 

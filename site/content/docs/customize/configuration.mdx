@@ -63,12 +63,13 @@ Every command has an id. `keys` maps an id to a new hotkey in the grammar from [
 | `toggle-debug-console` | `ctrl+shift+j` | Every app |
 | `command-palette` | `:` | Every app |
 | `overlay.close-top` | `escape` | Every app, while an overlay that allows `Escape` is open |
+| `overlay.close-self` | `escape` | An overlay with `ownCommands` that allows `Escape` |
 | `outline.toggle` | `g o` | View with Markdown content, [heading outline](/docs/cli/view#show-the-heading-outline) |
 | `fold.toggle`, `fold.close`, `fold.open`, `fold.toggle-block`, `fold.close-all`, `fold.open-all` | `z a`, `z c`, `z o`, `z z`, `z shift+m`, `z shift+r` | View with Markdown content, [fold sections](/docs/cli/view#fold-sections) |
 | `outline.fold.toggle`, `outline.fold.close`, `outline.fold.open`, `outline.fold.toggle-block`, `outline.fold.close-all`, `outline.fold.open-all` | The same as the `fold.*` keys | The heading outline, while it has the focus |
 | `view.follow-link` | `enter` | View with Markdown content, [follow local links](/docs/cli/view#follow-local-links) |
 | `block-scroll-left`, `block-scroll-right` | `h`, `l` | View, when the cursor is on a wide code block in Markdown |
-| `dir.next-file`, `dir.prev-file` | `l`, `h` | View, [directory view](/docs/cli/view#open-a-directory) |
+| `dir.next-file`, `dir.prev-file` | `g n`, `g p` | View, [directory view](/docs/cli/view#open-a-directory) |
 | `paste-clipboard`, `paste-primary` | `p`, none | Ask. `paste-primary` reads the primary selection on Linux. Without a key, it runs from the palette as "Paste from selection". |
 | `context-menu:select`, `context-menu:move-up`, `context-menu:move-down`, `context-menu:move-up-vim`, `context-menu:move-down-vim` | `enter`, `up`, `down`, `k`, `j` | [Context menus](/docs/build/overlays-dialogs-toasts#context-menus) |
 | `diff.toggle-layout`, `diff.toggle-wrap`, `diff.next-file`, `diff.prev-file`, `diff.file-picker`, `diff.scroll-left`, `diff.scroll-right` | `s`, `w`, `]`, `[`, `f`, `h`, `l` | [View: diffs](/docs/apps/view/diffs#keys) |
@@ -77,7 +78,7 @@ Every command has an id. `keys` maps an id to a new hotkey in the grammar from [
 
 Commands of your own remap by the id you gave them. The deploy console on [Commands and modes](/docs/build/commands-and-modes#hotkeys) registers `deploy.run` on `d`, and `{ "keys": { "deploy.run": "shift+d" } }` moves it to `D`.
 
-The remap changes the key that runs the command. The palette and the which-key bar keep showing the default hotkey in Tooee 0.12, so build your own hints from the config when a remap matters, as the next example does.
+The remap changes the key that runs the command. The palette and the which-key bar show the new key. In Tooee 0.12 and earlier, the palette still showed the default key. Hints that your app draws itself must read the config, as the next example does.
 
 ## Read the config in your app
 
@@ -123,7 +124,7 @@ Run it from the folder that holds the config file at the top of this page. The s
 
 ## What the theme picker writes
 
-`Enter` in the theme picker calls `writeGlobalConfig({ theme: { mode, name } })` from `@tooee/config`. The function reads the global file, merges the new theme into it, and writes the file back with two-space indentation. The project file and the overrides are left alone, so a `theme.name` in `.tooee/config.json` still wins over the saved choice. The write keeps the keys Tooee knows and drops the rest.
+`Enter` in the theme picker calls `writeGlobalConfig({ theme: { mode, name } })` from `@tooee/config`. The function reads the global file, merges the new theme into it, and writes the file back with two-space indentation. The project file and the overrides are left alone, so a `theme.name` in `.tooee/config.json` still wins over the saved choice. The write merges into the raw JSON, so keys that Tooee does not know stay in the file, at the top level and inside `theme`, `keys`, and `view`. When the global file is not valid JSON, the write leaves it unchanged. Tooee 0.12 and earlier dropped unknown keys and replaced a file that was not valid JSON.
 
 ## Next
 

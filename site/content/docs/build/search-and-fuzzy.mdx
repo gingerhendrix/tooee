@@ -212,9 +212,9 @@ bun release-notes.tsx
 
 The cursor starts on the first change, `j` and `k` skip the version headings, and `/` searches the changes. `useSelector` from `@xstate/store-react` reads the store in a component. `@tooee/search` 0.12 builds on `@xstate/store` 4 and `@xstate/store-react` 2.
 
-`useNavigation` from `@tooee/shell` also keeps a store of its own, and it does not expose that store. With a shared store, you register the movement commands yourself, as the example does with `j` and `k`.
+`useNavigation` from `@tooee/shell` also keeps a store of its own, and it does not expose that store. For a store that you own, `@tooee/shell` exports `useNavigationBindings(store, { viewportHeight, multiSelect })`. It registers the cursor, select, and multi-select keys of `useNavigation` on your store, under the same ids. Call it in place of the `j` and `k` commands in the example. Tooee 0.12 and earlier do not export it, so there you register the movement commands yourself, as the example does.
 
-Typing and `Enter` move the cursor to the first match, or to the next selectable row after it. `n` and `N` put the cursor on the match index without the `isSelectable` check. Return only selectable rows from `match`, as `matchChanges` does.
+Typing and `Enter` move the cursor to the first match, or to the next selectable row after it. `n` and `N` move to the next or previous match, and then to the nearest selectable row in that direction. In Tooee 0.12 and earlier, `n` and `N` put the cursor on the match index without the `isSelectable` check. Return only selectable rows from `match`, as `matchChanges` does, to support those versions.
 
 `useNavSearchStore` takes these options:
 

@@ -74,7 +74,7 @@ const summary = await launch({
 
 Ask reserves these keys in cursor mode: `h j k l 0 $ w b g G i a o O q y Escape Enter Shift+Enter`, the arrow keys, `home`, and `end`. Insert mode reserves `Escape` and the submit keys. Pick control chords for your own commands.
 
-An action with the id `submit` replaces the built-in submit. Ask then invokes that action instead of resolving, and `launch()` resolves `null` when the handler calls `ctx.exit()`. Use `onSubmit` or the returned value when you need the text.
+The submit key always calls `onSubmit` and resolves with the text. An action with the id `submit` is an ordinary command that runs from the palette or from its own hotkey. In Tooee 0.12 and earlier, such an action replaced the built-in submit, and `launch()` resolved `null`.
 
 ## Open Ask as a dialog
 

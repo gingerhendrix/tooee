@@ -1,6 +1,6 @@
 ---
 title: Upgrade notes
-description: Move a Tooee 0.9 app to 0.12, and a Tooee 0.8 app to 0.9.
+description: Move a Tooee 0.12 app to 0.13, a Tooee 0.9 app to 0.12, and a Tooee 0.8 app to 0.9.
 ---
 
 ```bash
@@ -8,6 +8,40 @@ bun add @tooee/view@^0.12.0 @opentui/core@^0.5.12 @opentui/react@^0.5.12
 ```
 
 Upgrade every `@tooee/*` package to the same version. Each section lists the changes you can meet on the way, newest first.
+
+## Upgrade from 0.12 to 0.13
+
+### Read the value in `onSubmit` or `onConfirm`
+
+`Enter` in Ask always calls `onSubmit`, and `Enter` in Choose always calls `onConfirm`. `launch()` from `@tooee/ask` and `@tooee/choose` now resolves with the value. Before, an action with the id `submit` took the place of the callback, and `launch()` resolved `null`. That action is now an ordinary command that runs from the palette or from its own hotkey. Move code that read the value in a `submit` action into `onSubmit` or `onConfirm`. [Ask](/docs/apps/ask) and [Choose](/docs/apps/choose) show the callbacks.
+
+### Expect `ctx.exit()` to close the app
+
+The command context now uses the renderer's `destroy` as the default `exit`. `ctx.exit()` closes View and every `launchCli` app, where it did nothing before. A context source can still supply its own `exit`, as Ask and Choose do.
+
+### Move off the old directory keys
+
+In the directory view, `dir.next-file` is now `g n` and `dir.prev-file` is `g p`. `h` and `l` only scroll wide blocks and diffs. To keep the old keys, set `"dir.next-file": "l"` and `"dir.prev-file": "h"` in `keys`.
+
+### Use `@tooee/panels` for panel overlays
+
+`OverlayRole` is now `"modal" | "passive"`. An overlay opened with `role: "panel"` never became active, and TypeScript now rejects it. Use `PanelGroup` and `Panel` from `@tooee/panels` for panel surfaces.
+
+### Check the router context from `useRouter()`
+
+`RouterProvider` accepts a router made with `createRouter({ context })`. In return, `useRouter()` now returns `RouterInstance<unknown>`. Check `useRouter().context` before you use it.
+
+### Expect fallback `q` and `r` on route pending and error screens
+
+Inside a `CommandProvider`, the router registers `q` (quit) and `r` (retry, error screen only) while a pending or error component shows. An app that binds those keys at the root keeps its own commands, because they register first. [Routing](/docs/build/routing#load-data-for-a-screen) describes the fallbacks.
+
+### Expect a config write to keep unknown keys
+
+`writeGlobalConfig` now keeps keys that Tooee does not know. When the global config file is not valid JSON, the write leaves the file unchanged. Before, the write replaced it.
+
+### Check the result of `copyToClipboard`
+
+`copyToClipboard` from `@tooee/clipboard` now resolves `true` or `false`. Copy commands show an error toast when no clipboard tool is installed. Code that typed the result as `void` still works.
 
 ## Upgrade from 0.9 to 0.12
 

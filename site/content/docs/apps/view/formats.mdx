@@ -89,6 +89,8 @@ await runCliSession((): ReactNode => (
 
 Return `true` to mark the click as handled, so it does not move the cursor.
 
+`launch()` takes the same `onMarkdownLinkActivate` option. There the handler runs on a click on a link or on `Enter` on the cursor line. It replaces the default handling: `linkHandlers`, local file navigation, and the `Links need a source file` toast. Tooee 0.12 and earlier accept the option on `View` only.
+
 ## Code and text
 
 `code` takes `code` and an optional `language`. `text` takes `text`. Both draw one row per line with line numbers in the gutter; `L` toggles them. Search matches one line, `y y` copies the line under the cursor, and `v` with `j` or `k` selects lines for `y v`. `Cursor:` in the status bar is the zero-based line index.

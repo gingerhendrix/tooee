@@ -107,7 +107,7 @@ The diff renderer adds keys of its own:
 tooee view packages/view/src
 ```
 
-View lists the files in the directory that it can open, sorted by name, and shows the first one. It skips hidden files and subdirectories. The title bar shows the file name and its position, for example `view.tsx  (5/9)`. In cursor mode, `l` moves to the next file and `h` to the previous one. A directory with no openable files shows `No viewable files in directory`; `q` quits.
+View lists the files in the directory that it can open, sorted by name, and shows the first one. It skips hidden files and subdirectories. The title bar shows the file name and its position, for example `view.tsx  (5/9)`. In cursor mode, `g n` moves to the next file and `g p` to the previous one. Tooee 0.12 and earlier used `l` and `h`. A directory with no openable files shows `No viewable files in directory`; `q` quits.
 
 `--renderer` and a directory together print an error and exit with code 2.
 
