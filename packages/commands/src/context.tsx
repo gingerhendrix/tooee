@@ -1,4 +1,4 @@
-import { useKeyboard } from "@opentui/react";
+import { useKeyboard, useRenderer } from "@opentui/react";
 import { useSelector } from "@xstate/store-react";
 import { createContext, useContext, useCallback, useEffect, useMemo } from "react";
 import type { ReactNode } from "react";
@@ -170,16 +170,20 @@ const CommandDispatcher = function CommandDispatcher({
   const mode = useMode();
   const modeRef = useLatest(mode);
   const setMode = useSetMode();
+  const renderer = useRenderer();
 
   const buildCtx = useCallback(
     (): CommandContext =>
       buildCommandContext({
         commands: commandsFromRegistry(commandStore.registryFor(commandStore.rootRecord)),
         contributions: commandStore.store.getSnapshot().context.contextSources.values(),
+        exit: () => {
+          renderer.destroy();
+        },
         mode: modeRef.current,
         setMode,
       }),
-    [commandStore, modeRef, setMode]
+    [commandStore, modeRef, renderer, setMode]
   );
 
   const buildCtxRef = useLatest(buildCtx);
@@ -312,6 +316,7 @@ const CommandSurfaceInner = function CommandSurfaceInner({
   const mode = useMode();
   const setMode = useSetMode();
   const modeRef = useLatest(mode);
+  const renderer = useRenderer();
 
   const recordRef = useLazyRef<SurfaceRecord>(() => ({
     // oxlint-disable-next-line no-use-before-define -- buildCtxRef is initialized before this callback can run
@@ -330,6 +335,9 @@ const CommandSurfaceInner = function CommandSurfaceInner({
     return buildCommandContext({
       commands: commandsFromRegistry(registry),
       contributions: commandStore.store.getSnapshot().context.contextSources.values(),
+      exit: () => {
+        renderer.destroy();
+      },
       mode: modeRef.current,
       setMode,
     });

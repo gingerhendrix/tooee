@@ -114,3 +114,38 @@ describe("useActions re-registration key (R-07)", () => {
     expect(testSetup.captureCharFrame()).toContain("count:1");
   });
 });
+
+const ExitHarness = function ExitHarness(): ReactNode {
+  useActions([
+    {
+      handler: (ctx) => {
+        ctx.exit();
+      },
+      hotkey: "x",
+      id: "leave",
+      title: "Leave",
+    },
+  ]);
+
+  return <text content="exit harness" />;
+};
+
+describe("ctx.exit", () => {
+  test("destroys the renderer when no context source supplies exit", async () => {
+    testSetup = await testRender(
+      <CommandProvider>
+        <ExitHarness />
+      </CommandProvider>,
+      { height: 5, width: 40 }
+    );
+    await testSetup.renderOnce();
+    expect(testSetup.renderer.isDestroyed).toBe(false);
+
+    await act(async () => {
+      testSetup.mockInput.pressKey("x");
+      await Promise.resolve();
+    });
+
+    expect(testSetup.renderer.isDestroyed).toBe(true);
+  });
+});
