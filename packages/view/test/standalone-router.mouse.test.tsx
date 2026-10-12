@@ -132,3 +132,35 @@ test("stdin consumes links with an info toast without running custom handlers", 
   expect(handler).not.toHaveBeenCalled();
   expect(router.stack).toHaveLength(1);
 });
+
+test("onMarkdownLinkActivate replaces the default link handling", async () => {
+  const filePath = `${import.meta.dir}/fixtures/links/start.md`;
+  const handler = mock(() => true);
+  const activated: string[] = [];
+
+  const { router } = createStandaloneRouter({
+    contentProvider: createFileProvider(filePath),
+    filePath,
+    linkHandlers: [handler],
+    onMarkdownLinkActivate: (href) => {
+      activated.push(href);
+    },
+  });
+
+  await router.start();
+  setup = await testRender(
+    <TooeeProvider initialMode="cursor">
+      <RouterProvider router={router}>
+        <Outlet />
+      </RouterProvider>
+    </TooeeProvider>,
+    { height: 24, kittyKeyboard: true, width: 80 }
+  );
+  await settle();
+  await click("Open linked document");
+
+  expect(activated).toHaveLength(1);
+  expect(activated[0]).toContain("target.md");
+  expect(handler).not.toHaveBeenCalled();
+  expect(router.stack).toHaveLength(1);
+});

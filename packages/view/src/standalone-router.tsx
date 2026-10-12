@@ -2,7 +2,6 @@ import path from "node:path";
 
 import { useChooseDialog } from "@tooee/choose";
 import { useCommand } from "@tooee/commands";
-import type { CommandContext } from "@tooee/commands";
 import {
   createRoute,
   createRouter,
@@ -22,6 +21,7 @@ import { runLinkHandlers } from "./link-handlers.js";
 import { markdownLinks } from "./markdown-links.js";
 import type { MarkdownLink } from "./markdown-links.js";
 import { getTextContent } from "./types.js";
+import type { MarkdownLinkActivateHandler } from "./types.js";
 import { View } from "./view.js";
 
 const documentParams: Codec<{ path?: string }> = {
@@ -65,7 +65,11 @@ export const createStandaloneRouter = function createStandaloneRouter(
       [documentPath]
     );
 
-    const activate = (href: string, command: CommandContext): boolean => {
+    const activate: MarkdownLinkActivateHandler = (href, command) => {
+      if (options.onMarkdownLinkActivate) {
+        return options.onMarkdownLinkActivate(href, command);
+      }
+
       if (options.filePath === undefined) {
         command.toast?.toast({ level: "info", message: "Links need a source file" });
 
