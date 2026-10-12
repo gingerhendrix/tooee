@@ -11,7 +11,7 @@ import { useToast } from "@tooee/toasts";
 import type { ReactNode } from "react";
 
 import type { ChatPhase } from "./chat-state.js";
-import { ABORT_HOTKEY, DETAILS_HOTKEY, useChatCommands } from "./use-chat-commands.js";
+import { ABORT_HOTKEY, useChatCommands } from "./use-chat-commands.js";
 import type { PiChat } from "./use-pi-chat.js";
 
 const PLACEHOLDER: Record<ChatPhase, string> = {
@@ -59,7 +59,7 @@ export const ChatInput = function ChatInput({ chat }: { chat: PiChat }): ReactNo
     <box flexDirection="column" paddingLeft={1} paddingRight={1} onMouseDown={handleMouseDown}>
       <AskEditor editor={editor} />
       <text
-        content={`Enter send · ${ABORT_HOTKEY} abort · ${DETAILS_HOTKEY} details · Esc commands · Tab panel`}
+        content={`Enter send · ${ABORT_HOTKEY} abort · Esc then : lists all commands`}
         fg={theme.textMuted}
       />
     </box>

@@ -10,17 +10,10 @@
  *
  * Run:  bun examples/pi-chat/main.tsx
  *
- * Input panel (insert mode):
- *   Enter        send the prompt (blocked while a reply streams);
- *                a word like @shots/a.png attaches that image
- *   ctrl+o       select model
- *   ctrl+t       cycle the thinking level
- *   ctrl+e       show or hide full thinking and tool output
- *   ctrl+x       abort the reply
- *   Esc          cursor mode (then Tab switches panel, : palette, q quits)
- *
- * Messages panel (cursor mode):
- *   j / k        scroll; ctrl+d / ctrl+u page
+ * Type in the input panel and press Enter. A word like @shots/a.png attaches
+ * that image. Press Esc for cursor mode, then Tab to move to the Messages
+ * panel and : for the command palette. The palette and which-key list every
+ * command with its hotkey.
  */
 
 import { launchCli } from "@tooee/shell";
