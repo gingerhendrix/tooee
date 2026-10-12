@@ -4,7 +4,7 @@ description: Move a Tooee 0.12 app to 0.13, a Tooee 0.9 app to 0.12, and a Tooee
 ---
 
 ```bash
-bun add @tooee/view@^0.12.0 @opentui/core@^0.5.12 @opentui/react@^0.5.12
+bun add @tooee/view@^0.13.0 @opentui/core@^0.5.12 @opentui/react@^0.5.12
 ```
 
 Upgrade every `@tooee/*` package to the same version. Each section lists the changes you can meet on the way, newest first.
@@ -42,6 +42,10 @@ Inside a `CommandProvider`, the router registers `q` (quit) and `r` (retry, erro
 ### Check the result of `copyToClipboard`
 
 `copyToClipboard` from `@tooee/clipboard` now resolves `true` or `false`. Copy commands show an error toast when no clipboard tool is installed. Code that typed the result as `void` still works.
+
+### Expect a one-row status bar
+
+The status bar and the title bar no longer wrap onto a second row. When the items do not fit, the bar hides the items with the lowest priority first and shows `⋯`. `DocumentScreen` now puts `Mode:` and `Cursor:` at the right edge, and `Cursor:` shortens to `Ln` on a narrow bar. Your `statusItems` default to the lowest priority after key hints, so give an item a `priority` from `StatusPriority` to keep it in view. Update frame snapshots of narrow screens, and tests that expect `Mode:` after your items. Items with only `label` and `value` look the same as before when they fit. [Layout: status bar](/docs/build/layout#status-bar) lists the fitting rules.
 
 ## Upgrade from 0.9 to 0.12
 

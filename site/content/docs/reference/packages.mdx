@@ -1,9 +1,9 @@
 ---
 title: Packages
-description: The runtime exports of each Tooee 0.12 package and the guide that explains them.
+description: The runtime exports of each Tooee 0.13 package and the guide that explains them.
 ---
 
-Tooee publishes 19 packages to npm under `@tooee/*`: the CLI and 18 libraries. Each one is at version 0.12.0. The repository holds two more packages that are private.
+Tooee publishes 19 packages to npm under `@tooee/*`: the CLI and 18 libraries. Each one is at version 0.13.0. The repository holds two more packages that are private.
 
 | Package | For | Main runtime exports | Guide |
 | --- | --- | --- | --- |
@@ -127,12 +127,13 @@ Types: `FuzzyMatch`.
 
 ## @tooee/layout
 
-| Group           | Runtime exports                                     |
-| --------------- | --------------------------------------------------- |
-| Chrome          | `AppLayout`, `TitleBar`, `StatusBar`, `CloseButton` |
-| Overlay content | `OverlayPanel`, `decodeReactContent`                |
+| Group | Runtime exports |
+| --- | --- |
+| Chrome | `AppLayout`, `TitleBar`, `StatusBar`, `CloseButton` |
+| Bar fitting | `fitStatusBar`, `fitTitleBar`, `truncateCells`, `StatusPriority`, `STATUS_BAR_GAP`, `STATUS_BAR_HIDDEN_MARKER` |
+| Overlay content | `OverlayPanel`, `decodeReactContent` |
 
-Types: `AppLayoutProps`, `AppLayoutScroll`, `OverlayPanelProps`, `PanelInset`, `PanelInsetValue`, `DecodedReactContent`, `StatusBarItem`.
+Types: `AppLayoutProps`, `AppLayoutScroll`, `OverlayPanelProps`, `PanelInset`, `PanelInsetValue`, `DecodedReactContent`, `StatusBarItem`, `StatusBarProps`, `StatusBarAlign`, `StatusBarTruncate`, `StatusBarLayout`, `PlacedStatusItem`, `FitStatusBarOptions`, `TitleBarText`, `TruncateMode`. Tooee 0.12 and earlier export `StatusBarItem` alone, and have no bar fitting exports.
 
 ## @tooee/marks
 
@@ -231,7 +232,7 @@ Private: `package.json` sets `private: true`, and npm has no copy. The Tooee rep
 | -------------- | -------------------------------------------------------------------------- |
 | Render         | `testRender`                                                               |
 | Input          | `press`, `pressArrow`, `pressEnter`, `pressEscape`, `pressTab`, `keyEvent` |
-| Clipboard mock | `clipboardStub`, `copied`                                                  |
+| Clipboard mock | `clipboardStub`, `copied`, `clipboardMockState`                            |
 | Config         | `ensureTestConfigHome`, `resetTestConfig`                                  |
 | Assertions     | `expectDefined`                                                            |
 

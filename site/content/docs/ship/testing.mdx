@@ -206,7 +206,7 @@ bun test --update-snapshots
 
 `bun test` runs every `*.test.ts` and `*.test.tsx` file under the project. Name a file to run it alone. `--update-snapshots` rewrites the snapshots a `toMatchSnapshot` assertion compares against.
 
-Inside the Tooee repository, run one file with `bun --conditions=@tooee/source test <file>`. The condition resolves each `@tooee/*` import to the package source instead of its build. The repository's `packages/test-support` holds a private `@tooee/test-support` package with a `testRender` wrapper, `press`, `pressEscape`, `pressEnter`, `pressTab`, `pressArrow`, a clipboard mock, and `ensureTestConfigHome` for an isolated `XDG_CONFIG_HOME`; `packages/e2e` holds the tuistory tests and their fixture apps. [Contributing](/docs/reference/contributing) covers the repository layout.
+Inside the Tooee repository, run one file with `bun --conditions=@tooee/source test <file>`. The condition resolves each `@tooee/*` import to the package source instead of its build. The repository's `packages/test-support` holds a private `@tooee/test-support` package with a `testRender` wrapper, `press`, `pressEscape`, `pressEnter`, `pressTab`, `pressArrow`, a clipboard mock, and `ensureTestConfigHome` for an isolated `XDG_CONFIG_HOME`; `packages/e2e` holds the tuistory tests and their fixture apps. The repository's [testing notes](https://github.com/gingerhendrix/tooee/blob/main/docs/testing.md) list the test files and what each one covers.
 
 ## Test a routed app
 
@@ -217,4 +217,4 @@ A router keeps state that a frame does not show, so a routed fixture draws it. [
 - [Your first Tooee app](/docs/build/first-app)
 - [Routing](/docs/build/routing)
 - [Troubleshooting](/docs/ship/troubleshooting)
-- [Contributing](/docs/reference/contributing)
+- [Testing notes in the repository](https://github.com/gingerhendrix/tooee/blob/main/docs/testing.md)

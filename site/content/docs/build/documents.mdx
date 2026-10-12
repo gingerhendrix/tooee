@@ -170,13 +170,13 @@ The row document paints the cursor row, the selection, the toggled rows, and the
 | --------------- | ------- | --------------------------------------------------------------------------------------- |
 | `controller`    |         | The controller.                                                                         |
 | `titleBar`      |         | `{ title, subtitle }` for the title bar.                                                |
-| `statusItems`   | `[]`    | Your status items, drawn after `Theme:` and before `Mode:`.                             |
+| `statusItems`   | `[]`    | Your status items, drawn after `Theme:`. `Mode:` and `Cursor:` sit at the right edge.   |
 | `actions`       |         | `ActionDefinition` values registered while the screen is mounted.                       |
 | `quit`          | `true`  | Register `q`. `false` removes it; an options object sets `hotkey`, `when`, or `onQuit`. |
 | `themeCommands` | `true`  | Register `t` for the theme picker.                                                      |
 | `context`       |         | `{ kind, title, reload, extras }` merged into `ctx.document`.                           |
 
-The status bar reads `Theme:`, your items, `Mode:`, `Cursor:`, and `Selected:` while rows are selected. While the search bar is open it takes the place of the status bar.
+The status bar reads `Theme:`, your items, and `Selected:` while rows are selected. `Mode:` and `Cursor:` sit at the right edge. When the bar is narrow, `Cursor:` shortens to `Ln`, and items with a lower priority hide first. `Theme:` has the `background` priority and `Selected:` has `focus`. Your items default to `background` too, and on a tie the item further right hides first, so give an item a `priority` to keep it longer. [Layout: status bar](/docs/build/layout#status-bar) lists the fitting rules. While the search bar is open it takes the place of the status bar. In Tooee 0.12 and earlier, `Mode:` and `Cursor:` follow your items, and `Selected:` comes last.
 
 ## Follow streamed rows
 
