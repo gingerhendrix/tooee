@@ -23,7 +23,8 @@ Use the shared `testRender` wrapper from `@tooee/test-support`. It builds on Ope
 | File | Covers |
 | --- | --- |
 | `layout/test/title.bar.test.tsx` | Title and subtitle rendering |
-| `layout/test/status.bar.test.tsx` | Label:value pairs |
+| `layout/test/status.bar.test.tsx` | Label:value pairs, one row at every width, width snapshots |
+| `layout/test/fit.status.bar.test.ts` | Status bar fitting rules: priority, compact forms, truncation, hidden marker |
 | `layout/test/app.layout.test.tsx` | Full layout chrome (title bar, status bar, scroll area) |
 | `renderers/test/markdown.view.test.tsx` | Heading, list, code block rendering |
 | `renderers/test/code.view.test.tsx` | Code content and line numbers |
