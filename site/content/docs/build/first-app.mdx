@@ -265,7 +265,7 @@ const ReleaseChecklist = function ReleaseChecklist(): ReactNode {
 await launchCli(<ReleaseChecklist />);
 ```
 
-`useDocumentController` takes the rows and an adapter that says how to read each row as text. It registers the same cursor keys plus `/` search, `n` and `N`, and `y y` copy, and it highlights the cursor row itself. `DocumentScreen` wraps `AppLayout`, registers your `actions`, adds the `q` and `t` commands, and fills the status bar with the theme, the mode, and the cursor. `Document` draws one row per item with your `renderRow`. [Documents](/docs/build/documents) explains the adapter, row keys, search, and mouse options. [source-aware-document.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/source-aware-document.tsx) is the same shape with rows that remember their source lines.
+`useDocumentController` takes the rows and an adapter that says how to read each row as text. It registers the same cursor keys plus `/` search, `n` and `N`, and `y y` copy, and it highlights the cursor row itself. `DocumentScreen` wraps `AppLayout`, registers your `actions`, adds the `q` and `t` commands, and fills the status bar with the theme, the mode, and the cursor. `Document` draws one row per item with your `renderRow`. [Documents](/docs/build/documents) explains the adapter, row keys, search, and mouse options. [source-aware-document.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/shell/source-aware-document.tsx) is the same shape with rows that remember their source lines.
 
 ## Next
 

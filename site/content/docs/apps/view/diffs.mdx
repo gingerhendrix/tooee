@@ -13,7 +13,7 @@ await launch({
 });
 ```
 
-View parses the patch, draws it with [Hunk](https://github.com/modem-dev/hunk), and puts the cursor on the first file. `patch` takes a unified diff for one file or many, with or without `diff --git` headers. `layout` sets the first layout, `split` or `stack`; stack is the unified form. [git-diff.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/git-diff.ts) shows the unstaged changes, or the staged changes with `--staged`.
+View parses the patch, draws it with [Hunk](https://github.com/modem-dev/hunk), and puts the cursor on the first file. `patch` takes a unified diff for one file or many, with or without `diff --git` headers. `layout` sets the first layout, `split` or `stack`; stack is the unified form. [git-diff.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/git-diff.ts) shows the unstaged changes, or the staged changes with `--staged`.
 
 ## Rows are files and hunks
 
@@ -95,7 +95,7 @@ Other words are ignored, so a fence such as ` ```diff retry.patch ` still draws.
 
 The fence stays one Markdown block. The cursor lands on the whole block, search matches the raw fence text, and `y y` copies it. A wide block pans with `h` and `l` like any other code block.
 
-`View` registers the renderer under `diff` and `patch`. An entry with the same key in `codeBlockRenderers` replaces it. [diff-showcase.md](https://github.com/gingerhendrix/tooee/blob/main/examples/diff-showcase.md) exercises each option, and [view-markdown-diffs.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view-markdown-diffs.ts) opens it.
+`View` registers the renderer under `diff` and `patch`. An entry with the same key in `codeBlockRenderers` replaces it. [diff-showcase.md](https://github.com/gingerhendrix/tooee/blob/main/examples/view/diff-showcase.md) exercises each option, and [view-markdown-diffs.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/view-markdown-diffs.ts) opens it.
 
 ## Use the diff renderer in your own screen
 

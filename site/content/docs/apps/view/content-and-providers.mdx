@@ -71,7 +71,7 @@ const packageScripts: ContentProvider = {
 await launch({ contentProvider: packageScripts });
 ```
 
-`header` is optional; the column falls back to its `key`. [git-log.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/git-log.ts) builds a wider table from a process, and [gh-prs.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/gh-prs.ts) builds one from `gh pr list`.
+`header` is optional; the column falls back to its `key`. [git-log.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/git-log.ts) builds a wider table from a process, and [gh-prs.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/gh-prs.ts) builds one from `gh pr list`.
 
 ## Load a file or stdin
 
@@ -127,7 +127,7 @@ View starts with empty content of the provider's `format` and `title`, then appl
 | `patch` | `apply` | Calls `apply(current)` and shows what it returns. `current` is `null` before the first chunk. |
 | `marks` | `set` | Adds or replaces the mark set with that namespace. Leaves the content alone. |
 
-`append` accepts `markdown`, `code`, and `text`. Diff content is replace-only: send the full patch in a `replace` chunk each time it changes. [request-echo.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/request-echo.ts) streams markdown one character at a time.
+`append` accepts `markdown`, `code`, and `text`. Diff content is replace-only: send the full patch in a `replace` chunk each time it changes. [request-echo.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/request-echo.ts) streams markdown one character at a time.
 
 ## Next
 

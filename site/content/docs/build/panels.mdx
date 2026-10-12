@@ -246,7 +246,7 @@ const Workbench = function Workbench(): ReactNode {
 await launchCli(<Workbench />);
 ```
 
-`1` and `2` are root commands. The active panel has no command on those keys, so they fall through and set the state. `Tab` asks the group for the next panel and the group reports it through `onActivePanelChange`. `Escape` sets `null`: both panels draw inactive, the root owns every key, and `Tab` does nothing until `1` or `2` activates a panel again. [panels-controlled.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/panels-controlled.tsx) does the same with three panels.
+`1` and `2` are root commands. The active panel has no command on those keys, so they fall through and set the state. `Tab` asks the group for the next panel and the group reports it through `onActivePanelChange`. `Escape` sets `null`: both panels draw inactive, the root owns every key, and `Tab` does nothing until `1` or `2` activates a panel again. [panels-controlled.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/panels/panels-controlled.tsx) does the same with three panels.
 
 An uncontrolled group calls `onActivePanelChange` with each resolved change, including the first panel it picks at mount. When the active panel unmounts or becomes disabled, an uncontrolled group moves to the next panel in source order, or the previous one when there is none after it. A controlled group is never repaired; an id that is missing or disabled activates no panel. The callback never receives `null`; read `usePanels().activePanelId` for that.
 
@@ -318,7 +318,7 @@ const Counters = function Counters(): ReactNode {
 await launchCli(<Counters />);
 ```
 
-The active counter has a filled marker and a lighter background. `a` adds to the active counter only. A click on a counter activates it, because the box binds `onMouseDown` to `activate`; with `chrome="none"` the group's `activateOnMouseDown` has nothing to bind, so that click handler is yours to add. [panels-custom-chrome.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/panels-custom-chrome.tsx) is the same shape with a border. The [Ask](/docs/apps/ask#embed-the-editor-in-a-panel) and [Choose](/docs/apps/choose#use-the-chooser-inside-a-panel) pages use `chrome="none"` to let `AskPanel` and `ChoosePanel` draw the box instead.
+The active counter has a filled marker and a lighter background. `a` adds to the active counter only. A click on a counter activates it, because the box binds `onMouseDown` to `activate`; with `chrome="none"` the group's `activateOnMouseDown` has nothing to bind, so that click handler is yours to add. [panels-custom-chrome.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/panels/panels-custom-chrome.tsx) is the same shape with a border. The [Ask](/docs/apps/ask#embed-the-editor-in-a-panel) and [Choose](/docs/apps/choose#use-the-chooser-inside-a-panel) pages use `chrome="none"` to let `AskPanel` and `ChoosePanel` draw the box instead.
 
 ## Disable a panel
 
@@ -376,7 +376,7 @@ const Pipeline = function Pipeline(): ReactNode {
 await launchCli(<Pipeline />);
 ```
 
-`l` moves from Build to Deploy over the disabled Test panel, and `h` moves back. `Tab` does nothing. `StageKeys` sits inside the group and outside any panel, so its commands live on the root surface and run whichever panel is active. [panels-disabled.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/panels-disabled.tsx) is the repo's version.
+`l` moves from Build to Deploy over the disabled Test panel, and `h` moves back. `Tab` does nothing. `StageKeys` sits inside the group and outside any panel, so its commands live on the root surface and run whichever panel is active. [panels-disabled.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/panels/panels-disabled.tsx) is the repo's version.
 
 ## Modes inside a panel
 
@@ -470,7 +470,7 @@ await launchCli(<Ops />);
 
 The log panel starts active and its line count climbs. `Tab` activates the services panel: the log reads `paused`, the count stops, and `j` moves the service marker. `Tab` again resumes the count where it stopped.
 
-A router mounted inside a panel gets the same scope. Its stack survives switches, its screens receive keys only while the panel is active, and `useScreenEffect` in a leaf pauses with the panel. [Routing](/docs/build/routing#nested-routes-and-screen-focus) covers the hooks, and [panels.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/panels.tsx) runs a panel-local router next to a list, with a modal overlay that suspends both panels.
+A router mounted inside a panel gets the same scope. Its stack survives switches, its screens receive keys only while the panel is active, and `useScreenEffect` in a leaf pauses with the panel. [Routing](/docs/build/routing#nested-routes-and-screen-focus) covers the hooks, and [panels.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/panels/panels.tsx) runs a panel-local router next to a list, with a modal overlay that suspends both panels.
 
 ## Which surface has the keyboard
 

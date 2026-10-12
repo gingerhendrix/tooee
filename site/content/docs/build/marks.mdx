@@ -129,7 +129,7 @@ The sign column holds as many characters as `signColumnWidth` allows. The render
 | `CURRENT_MATCH` | `400` | The search match under the cursor |
 | `CURSOR` | `500` | The cursor row |
 
-`MarkPriority` is the type of these values. Any number is a valid priority, so use `MarkPriorities.USER + 10` to put one user set above another. [custom-marks.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/custom-marks.ts) uses `50` and `75` for analysis marks that paint below everything else.
+`MarkPriority` is the type of these values. Any number is a valid priority, so use `MarkPriorities.USER + 10` to put one user set above another. [custom-marks.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/custom-marks.ts) uses `50` and `75` for analysis marks that paint below everything else.
 
 The document controller paints the cursor, the selection, toggled rows, and search matches as its own layers. `DocumentDecorationPriorities` from `@tooee/shell` holds their priorities, with the same values as the keys above:
 

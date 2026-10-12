@@ -163,7 +163,7 @@ const actions: ActionDefinition[] = [
 await launch({ actions, contentProvider: createFileProvider("README.md") });
 ```
 
-A mark set is identified by its namespace. The handler rebuilds the whole `bookmarks` set and `setMarkSet` replaces the earlier one, so a removed bookmark disappears. `MarkPriorities.USER` paints above search matches and below the selection and the cursor. Marks from the provider stay in `providerMarks` and are not touched by `clearAll`. [Marks and decorations](/docs/build/marks) covers ranges, colours, and priorities; [custom-marks.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/custom-marks.ts) streams marks from a provider as well.
+A mark set is identified by its namespace. The handler rebuilds the whole `bookmarks` set and `setMarkSet` replaces the earlier one, so a removed bookmark disappears. `MarkPriorities.USER` paints above search matches and below the selection and the cursor. Marks from the provider stay in `providerMarks` and are not touched by `clearAll`. [Marks and decorations](/docs/build/marks) covers ranges, colours, and priorities; [custom-marks.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/custom-marks.ts) streams marks from a provider as well.
 
 `reload` calls the provider's `load()` again and replaces the content when it resolves.
 

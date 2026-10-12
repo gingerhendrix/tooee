@@ -71,7 +71,7 @@ Custom content has four fields:
 | `title` | Title bar text. |
 | `getTextContent` | Returns the text of the content, one line per row. Without it the document has one empty row. |
 
-The text from `getTextContent` is what search matches, what `y y` and `y g` copy, and what the fallback draws. Return one line per item you want the cursor to land on. [custom-renderer.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/custom-renderer.ts) draws a kanban board from custom content.
+The text from `getTextContent` is what search matches, what `y y` and `y g` copy, and what the fallback draws. Return one line per item you want the cursor to land on. [custom-renderer.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/custom-renderer.ts) draws a kanban board from custom content.
 
 ## Rows, cursor, and mouse
 
@@ -186,7 +186,7 @@ The renderer receives:
 
 `CodeBlockChrome` draws the bordered box the built-in code block uses. Return `null` to fall back to the syntax-highlighted code block; a renderer that throws falls back the same way. The block stays one row in the document, so the cursor, search, and copy work on the raw fence text.
 
-For a block wider than the terminal, put the content in a `<text wrapMode="none">` element, pass `hScroll.register` as its `ref` and `hScroll.onMouseScroll` as its `onMouseScroll`, and the block pans with `h` and `l` under the cursor and with `Shift` and the wheel, as code blocks do. [custom-code-block-app.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/custom-code-block-app.ts) has a timeline block that does this.
+For a block wider than the terminal, put the content in a `<text wrapMode="none">` element, pass `hScroll.register` as its `ref` and `hScroll.onMouseScroll` as its `onMouseScroll`, and the block pans with `h` and `l` under the cursor and with `Shift` and the wheel, as code blocks do. [custom-code-block-app.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/custom-code-block-app.ts) has a timeline block that does this.
 
 View registers `mermaid`, `diff`, and `patch` itself. An entry with one of those keys replaces the built-in renderer. The same rule about hooks applies: the renderer for a fence type must call the same hooks on every render.
 

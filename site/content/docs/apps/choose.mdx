@@ -19,7 +19,7 @@ if (picked === null) {
 process.stdout.write(`${picked.items[0].value}\n`);
 ```
 
-Choose shows a filter line and a list, and resolves with `{ items }` when the reader confirms, or `null` on cancel. [choose-static.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/choose-static.ts) gives items with icons and descriptions.
+Choose shows a filter line and a list, and resolves with `{ items }` when the reader confirms, or `null` on cancel. [choose-static.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/choose/choose-static.ts) gives items with icons and descriptions.
 
 <video
   aria-label="Screen recording of Tooee Choose filtering five colors to Blue and confirming the selected value."
@@ -81,7 +81,7 @@ await $`bun run ${picked.items[0].text}`;
 
 Choose shows `Loading...` until the promise settles and `Error: <message>` when it rejects. `options.emptyMessage` is the text shown when no item matches the filter.
 
-`createStdinChooseProvider()` reads one item per line from stdin and drops empty lines. Choose reads keys from `/dev/tty` while stdin is a pipe, so `git branch --format='%(refname:short)' | bun pick.ts` works with that provider. [git-branches.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/git-branches.ts) and [gh-issues.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/gh-issues.ts) build items from `git` and `gh`.
+`createStdinChooseProvider()` reads one item per line from stdin and drops empty lines. Choose reads keys from `/dev/tty` while stdin is a pipe, so `git branch --format='%(refname:short)' | bun pick.ts` works with that provider. [git-branches.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/choose/git-branches.ts) and [gh-issues.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/choose/gh-issues.ts) build items from `git` and `gh`.
 
 ## Filter the list
 

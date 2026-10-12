@@ -316,7 +316,7 @@ A right click selects the row and opens a context menu from `contextMenu`:
 
 Choosing an entry runs that command on the current surface. The menu is an overlay in insert mode at the click position; `Escape` and a click outside close it. Every mouse handler on the document stands down while a modal overlay such as the palette or the theme picker is open. [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) covers `useContextMenu` for menus outside a document.
 
-For markup of your own, `selectRow(index)` and `getRowAtScreenY(y)` give a click handler the same behaviour. [View: custom renderers](/docs/apps/view/custom-renderers#draw-your-own-markup) shows it. [mouse-demo.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/mouse-demo.ts) uses click, right-click, and the close button in a table, and [mouse-choose.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/mouse-choose.ts) clicks rows in Choose.
+For markup of your own, `selectRow(index)` and `getRowAtScreenY(y)` give a click handler the same behaviour. [View: custom renderers](/docs/apps/view/custom-renderers#draw-your-own-markup) shows it. [mouse-demo.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/mouse-demo.ts) uses click, right-click, and the close button in a table, and [mouse-choose.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/choose/mouse-choose.ts) clicks rows in Choose.
 
 ## Source anchors
 
@@ -331,7 +331,7 @@ An anchor is `{ row, index, key, text, source }`. `source` is `null` for a row w
 | `text`     | The exact substring of the source.                                                                 |
 | `lineText` | The full lines from `start.line` to `lastLine`.                                                    |
 
-Offsets and columns are UTF-16 code units, and `\r\n` counts as one line break. Two builders in `@tooee/renderers` make source-mapped rows. `sourceLines(text, { sourceId })` returns one row per line with `text` and `source`, and `sourceLineAdapter` reads both; [source-aware-document.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/source-aware-document.tsx) shows it with a `Source:` status item. `flattenMarkdown(markdown, { sourceId })` returns one `FlatBlock` per rendered block, and `MarkdownView` draws the same blocks:
+Offsets and columns are UTF-16 code units, and `\r\n` counts as one line break. Two builders in `@tooee/renderers` make source-mapped rows. `sourceLines(text, { sourceId })` returns one row per line with `text` and `source`, and `sourceLineAdapter` reads both; [source-aware-document.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/shell/source-aware-document.tsx) shows it with a `Source:` status item. `flattenMarkdown(markdown, { sourceId })` returns one `FlatBlock` per rendered block, and `MarkdownView` draws the same blocks:
 
 ```tsx title="readme-blocks.tsx"
 import type { ActionDefinition } from "@tooee/commands";

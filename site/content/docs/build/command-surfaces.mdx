@@ -190,7 +190,7 @@ A `PanelGroup` inside a `Panel` publishes its active panel only while the outer 
 
 The shell registers `overlay.close-top` on the root surface. It binds `Escape` in cursor, select, and insert mode, and closes the top overlay when that overlay allows `dismissOnEscape`. A modal surface keeps every key, so `Escape` never reaches that root command while the modal is on top.
 
-Register `Escape` inside every owned modal, as `ConfirmClose` does. An owned modal starts in cursor mode unless `surfaceMode` sets another mode. When the overlay changes its local mode, give the `Escape` command the modes it needs. The repo example [overlay-command-surfaces.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/overlay-command-surfaces.ts) binds `Escape` twice in its Ask overlay: in insert mode it returns to cursor mode, and in cursor mode it closes the overlay.
+Register `Escape` inside every owned modal, as `ConfirmClose` does. An owned modal starts in cursor mode unless `surfaceMode` sets another mode. When the overlay changes its local mode, give the `Escape` command the modes it needs. The repo example [overlay-command-surfaces.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/shell/overlay-command-surfaces.ts) binds `Escape` twice in its Ask overlay: in insert mode it returns to cursor mode, and in cursor mode it closes the overlay.
 
 `dismissOnEscape` applies to overlays without `ownCommands` and to passive overlays, because there `Escape` reaches the root. An active panel that binds `Escape` in its current mode shadows `overlay.close-top`. In that case the panel command runs and the overlay stays open.
 

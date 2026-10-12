@@ -287,7 +287,7 @@ Press `?`: the key panel appears in the corner, `Modal:` stays `false`, and `j` 
 
 A modal surface swallows every key, so the host's `Escape` command cannot reach it. Register `Escape` inside the overlay, as `ConfirmDelete` does; `dismissOnEscape` only applies to overlays without `ownCommands` and to passive ones. An owned surface starts in cursor mode unless `surfaceMode` says otherwise, so commands with the default `modes` match at once. `useMode` and `useSetMode` inside the overlay read and set the local mode, and the host mode stays where it was. Modal overlays stack: a second modal opened from the first takes the keys until it closes, then the first has them again.
 
-[overlay-command-surfaces.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/overlay-command-surfaces.ts) runs a modal overlay with a local insert mode, a nested modal, and a passive overlay side by side.
+[overlay-command-surfaces.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/shell/overlay-command-surfaces.ts) runs a modal overlay with a local insert mode, a nested modal, and a passive overlay side by side.
 
 ## Read the overlay state
 
@@ -544,7 +544,7 @@ const Sync = function Sync(): ReactNode {
 await launchCli(<Sync />);
 ```
 
-Press `s` a few times: one toast in the bottom right corner updates its count in place, because every call reuses the id `sync`. Press `f`: the error toast replaces it and stays for six seconds. Press `x` to dismiss it early. [toasts-demo.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/toasts-demo.ts) sends each level, a deduplicated toast, and a custom duration.
+Press `s` a few times: one toast in the bottom right corner updates its count in place, because every call reuses the id `sync`. Press `f`: the error toast replaces it and stays for six seconds. Press `x` to dismiss it early. [toasts-demo.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/toasts-demo.ts) sends each level, a deduplicated toast, and a custom duration.
 
 `toast(options)` takes:
 
