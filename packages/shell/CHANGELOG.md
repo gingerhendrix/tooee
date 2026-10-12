@@ -1,3 +1,53 @@
+## @tooee/shell@0.13.0
+
+### Copy tells you when no clipboard tool is installed
+
+`copyToClipboard` now resolves `true` when a clipboard tool took the text, and `false` when no tool is installed or the tool exits with an error. Before, it resolved nothing, and the copy commands always showed "Copied".
+
+The copy commands in `@tooee/shell` and the Ask editor now show an error toast when the copy fails. On Linux, install `wl-copy`, `xclip` or `xsel`.
+
+### Remove the unused `Search:` status item from `DocumentScreen`
+
+`DocumentScreen` built a `Search:` status item only while the search bar was open. The search bar replaces the status bar then, so the item never showed. The dead item is gone. The search bar still shows the query and the match count while it is open.
+
+### Export `useNavigationBindings`
+
+`@tooee/shell` now exports `useNavigationBindings(store, options)`. It registers the cursor, select and multi-select keys for a nav-search store that you own. Use it with `useNavSearchStore` and `useSearchBindings` from `@tooee/search` when one screen shares a store between navigation and search. Before, such a screen had to register its own movement keys.
+
+### Escape closes an `ownCommands` modal
+
+An overlay opened with `ownCommands: true` and the default `dismissOnEscape` now closes on Escape, with the close reason `"escape"`. Before, the modal surface suspended root dispatch, so the root Escape command never ran, and `dismissOnEscape` had no effect. An Escape command that the overlay registers itself still runs first.
+
+### The command palette hides unavailable commands and shows remapped keys
+
+The palette now leaves out a command whose `when` returns false when the palette opens. Before, it listed the command, and choosing it did nothing.
+
+The palette now shows the key from the `keys` config, not the command's default key. A root command that a panel command shadows under its remapped key loses its key hint, as dispatch does.
+
+`useEffectiveCommands()` returns two new functions: `hotkeyFor(id)` gives the key that runs a command now, and `isAvailable(id)` checks the command's `when` against the context of the surface that owns it.
+
+### Add search highlight theme tokens
+
+Themes have four new keys: `searchMatchBg`, `searchCurrentMatchBg`, `searchMatchFg`, and `searchCurrentMatchFg`. Every bundled theme sets them.
+
+Search matches in row documents now use a background tinted from `warning`, and the current match uses a background tinted from `primary`. Before, both used the full `warning` and `primary` colours, which made the matched text hard to read. The gutter signs keep their old colours.
+
+A custom theme that leaves out the new keys gets derived values: 22% of `warning` over `background` for `searchMatchBg`, 35% of `primary` over `background` for `searchCurrentMatchBg`, and `warning` and `primary` for the signs. Over a transparent `background`, the derived backgrounds are translucent.
+
+### Keep the status bar and title bar on one row
+
+The status bar and the title bar no longer wrap onto a second row when the terminal is narrow. Before, a label could also lose its gap to its value.
+
+`StatusBarItem` has new optional fields. `priority` sets which items stay longest. `align: "end"` puts an item at the right edge. `compact` gives a shorter form. `truncate` and `minValueWidth` let a value shorten with an ellipsis. When items do not fit, the bar uses compact forms first. Then it shortens or hides items, lowest priority first. A `⋯` glyph shows when items hide. Pass `hiddenMarker` to `StatusBar` or `AppLayout.statusBar` to change the glyph, or `false` to turn it off.
+
+`StatusPriority` names the shared scale: `critical`, `position`, `focus`, `content`, `background` (the default), and `hint`. `fitStatusBar`, `fitTitleBar`, and `truncateCells` are exported for apps and tests.
+
+`DocumentScreen` now shows `Mode:` and `Cursor:` at the right edge. `Cursor:` shortens to `Ln` when the bar is narrow. Built-in items in `@tooee/view`, `@tooee/ask`, and `@tooee/choose` have priorities, and their key hints go first.
+
+The title bar shortens its subtitle first, hides it below 8 cells, and then shortens the title.
+
+Items with only `label` and `value` look the same as before when they fit.
+
 ## @tooee/shell@0.12.0
 
 ### Markdown heading outline beside the document

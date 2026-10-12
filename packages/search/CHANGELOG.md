@@ -1,3 +1,13 @@
+## @tooee/search@0.13.0
+
+### `SearchBar.onCancel` is optional and deprecated
+
+`SearchBar` never called `onCancel`. Escape reaches the `search-cancel` command that `useSearchBindings` registers, and that command cancels the search. The prop is now optional and marked deprecated, and `AppLayout` no longer passes it. A later release will remove it.
+
+### `n` and `N` skip rows the cursor cannot stop on
+
+`searchNext` and `searchPrevious` now move the cursor to the nearest selectable row in the search direction, the same way typing and Enter already do. Before, `n` and `N` could put the cursor on a row that `isSelectable` rejects.
+
 ## @tooee/search@0.10.2
 
 ### Update OpenTUI to 0.5.12 and refresh dependencies
