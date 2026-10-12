@@ -1,0 +1,277 @@
+---
+title: Packages
+description: The runtime exports of each Tooee 0.12 package and the guide that explains them.
+---
+
+Tooee publishes 19 packages to npm under `@tooee/*`: the CLI and 18 libraries. Each one is at version 0.12.0. The repository holds two more packages that are private.
+
+| Package | For | Main runtime exports | Guide |
+| --- | --- | --- | --- |
+| `@tooee/ask` | Ask: text input as a launcher, a component, a panel, or a dialog | `launch`, `Ask`, `AskPanel`, `useAskDialog` | [Ask](/docs/apps/ask) |
+| `@tooee/choose` | Choose: a fuzzy-filtered picker as a launcher, a component, a panel, or a dialog | `launch`, `Choose`, `ChoosePanel`, `useChooseDialog` | [Choose](/docs/apps/choose) |
+| `@tooee/cli` | The `tooee` binary | none | [CLI reference](/docs/reference/cli) |
+| `@tooee/clipboard` | Read and write the system clipboard and the primary selection | `copyToClipboard`, `readClipboardText` | [README](https://github.com/gingerhendrix/tooee/blob/main/packages/clipboard/README.md) |
+| `@tooee/commands` | Commands, hotkeys, modes, and command surfaces | `useCommand`, `useMode`, `CommandSurfaceProvider` | [Commands and modes](/docs/build/commands-and-modes), [Command surfaces](/docs/build/command-surfaces) |
+| `@tooee/config` | Load and write the config files | `loadConfig`, `ConfigProvider`, `useConfig` | [Configuration](/docs/customize/configuration) |
+| `@tooee/diff` | Unified and split diff rendering | `DiffView`, `buildDiffModel`, `isDiffPatch` | [View: diffs](/docs/apps/view/diffs) |
+| `@tooee/e2e` | Private. End-to-end tests and their fixture apps | none | [Testing](/docs/ship/testing) |
+| `@tooee/fuzzy` | Fuzzy string matching and ranking | `fuzzyMatch`, `rankBy` | [Search and fuzzy filtering](/docs/build/search-and-fuzzy) |
+| `@tooee/layout` | App chrome: title bar, status bar, overlay panel | `AppLayout`, `TitleBar`, `StatusBar` | [Layout and chrome](/docs/build/layout) |
+| `@tooee/marks` | Row marks and decorations | `MarkSet`, `MarkPriorities`, `MarkSetBuilder` | [Marks and decorations](/docs/build/marks) |
+| `@tooee/overlays` | The overlay stack | `useOverlay`, `useCurrentOverlay`, `useOverlayDialog` | [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) |
+| `@tooee/panels` | Panel groups that share the keyboard | `PanelGroup`, `Panel`, `usePanels` | [Panels](/docs/build/panels) |
+| `@tooee/renderers` | Markdown, code, table, and chooser renderers, and the row document element | `MarkdownView`, `CodeView`, `Table`, `parseAuto` | [View: content formats](/docs/apps/view/formats), [View: custom renderers](/docs/apps/view/custom-renderers) |
+| `@tooee/router` | A stack router for screens | `createRouter`, `createRoute`, `RouterProvider`, `useNavigate` | [Routing](/docs/build/routing) |
+| `@tooee/search` | Search state, search bindings, and the search bar | `useSearch`, `SearchBar`, `findMatchingLines` | [Search and fuzzy filtering](/docs/build/search-and-fuzzy) |
+| `@tooee/shell` | The provider stack, sessions, documents, and built-in commands | `TooeeProvider`, `launchCli`, `Document`, `useDocumentController` | [Your first Tooee app](/docs/build/first-app), [Documents](/docs/build/documents) |
+| `@tooee/test-support` | Private. Test helpers for the Tooee repository | `testRender`, `press`, `clipboardStub` | [Testing](/docs/ship/testing) |
+| `@tooee/themes` | Bundled themes and theme state | `ThemeProvider`, `useTheme`, `loadThemes` | [Themes](/docs/customize/themes) |
+| `@tooee/toasts` | Toast notifications | `ToastProvider`, `useToast` | [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) |
+| `@tooee/view` | View: content as a launcher or a component | `launch`, `View`, `createFileProvider` | [View](/docs/apps/view) |
+
+The sections below list the runtime exports of each package, from `packages/<name>/src/index.ts` and the subpaths in its `package.json`. Each section ends with one line that names the exported types.
+
+## @tooee/ask
+
+| Group               | Runtime exports                                                   |
+| ------------------- | ----------------------------------------------------------------- |
+| Launcher            | `launch`                                                          |
+| Components          | `Ask`, `AskOverlay`, `AskPanel`, `AskEditor`                      |
+| Hooks               | `useAskEditor`, `useAskDialog`                                    |
+| Hints               | `buildAskHints`                                                   |
+| Vim editing helpers | `appendAtCursor`, `handleEditBufferVimMotion`, `openLineAtCursor` |
+
+Types: `AskProps`, `AskOverlayProps`, `AskPanelProps`, `AskPanelInset`, `AskPanelInsetValue`, `AskEditorProps`, `AskEditorCommandGroup`, `AskEditorController`, `AskEditorViewModel`, `AskSubmitKey`, `UseAskEditorOptions`, `UseAskEditorResult`, `AskDialogHandle`, `AskDialogOptions`, `AskLaunchOptions`, `AskOptions`, `EditableInsertTarget`, `VimMotionState`.
+
+## @tooee/choose
+
+| Group | Runtime exports |
+| --- | --- |
+| Launcher | `launch` |
+| Components | `Choose`, `ChooseOverlay`, `ChoosePanel`, `ChooseFilter`, `ChooseList`, `ChooseHighlightedText` |
+| Hooks | `useChoose`, `useChooseDialog` |
+| Providers | `createStdinChooseProvider`, `createStaticProvider`, `loadChooseSource` |
+| Filtering and hints | `fuzzyFilter`, `buildChooseHints` |
+
+`ChooseFilter`, `ChooseList`, `ChooseHighlightedText`, `useChoose`, `loadChooseSource`, and `fuzzyFilter` are re-exports from `@tooee/renderers`.
+
+Types: `ChooseProps`, `ChooseOverlayProps`, `ChoosePanelProps`, `ChoosePanelInset`, `ChoosePanelInsetValue`, `ChooseFilterProps`, `ChooseItemRenderContext`, `ChooseListProps`, `ChooseHighlightedTextProps`, `ChooseCommandGroup`, `ChooseController`, `ChooseState`, `ChooseViewModel`, `UseChooseOptions`, `UseChooseResult`, `ChooseDialogHandle`, `ChooseDialogItems`, `ChooseDialogOptions`, `ChooseDialogOptionsBase`, `ChooseDialogToItem`, `ChooseLaunchOptions`, `FuzzyMatch`, `ChooseItem`, `ChooseContentProvider`, `ChooseSource`, `ChooseResult`, `ChooseOptions`.
+
+## @tooee/cli
+
+`@tooee/cli` installs the `tooee` binary. It has no library exports. The [CLI reference](/docs/reference/cli) lists its commands, flags, and exit codes.
+
+## @tooee/clipboard
+
+| Export | Signature | Behaviour |
+| --- | --- | --- |
+| `copyToClipboard` | `(text: string) => Promise<void>` | Writes the system clipboard. Uses `wl-copy` on Wayland, then `xclip` or `xsel` on Linux, `osascript` on macOS, and PowerShell on Windows. Does nothing when no tool is found. |
+| `copyToPrimary` | `(text: string) => Promise<void>` | Writes the primary selection on Linux with `wl-copy --primary`, `xclip`, or `xsel`. Writes the system clipboard on other platforms, or when no primary tool is found. |
+| `readClipboardText` | `() => Promise<string \| undefined>` | Reads the clipboard as text. |
+| `readClipboard` | `() => Promise<ClipboardContent \| undefined>` | Reads an image from the clipboard first, then text. The result has `data` and `mime`; text comes back as `text/plain`. |
+| `readPrimaryText` | `() => Promise<string \| undefined>` | Reads the primary selection on Linux. Reads the clipboard on macOS and Windows. |
+
+The `y` copy command and the paste commands in `@tooee/shell` call these functions. Call them yourself from a command handler that copies or pastes text of its own. [Documents](/docs/build/documents#copy) covers the built-in copy.
+
+Types: `ClipboardContent`.
+
+## @tooee/commands
+
+| Group | Runtime exports |
+| --- | --- |
+| Register commands | `useCommand`, `useCommandGroup`, `useActions` |
+| Modes | `useMode`, `useSetMode` |
+| Providers | `CommandProvider`, `CommandSurfaceProvider`, `ScreenScopeProvider` |
+| Command context | `useProvideCommandContext`, `useProvideCommandContextKey`, `useBuildCommandContext`, `useSurfaceInvoke` |
+| Surfaces and state | `useActiveCommandSurface`, `useCommandSurfaceId`, `useSurfaceCommands`, `useEffectiveCommands`, `useCommandRegistry`, `useCommandSequenceState`, `useCommandStore`, `useScreenScope` |
+| Store selectors | `ROOT_SURFACE_ID`, `selectActiveModalSurface`, `selectActivePanelSurface`, `selectKeyboardOwnerSurface`, `selectSequence`, `selectSurfaceCommands` |
+| Hotkey parsing | `parseHotkey`, `matchStep`, `formatStepKey` |
+| React helpers | `useLatest`, `useLazyRef` |
+
+The `@tooee/commands/store` subpath holds the low-level store: `createCommandStore`, `createBaseStore`, `selectGroups`, `selectSurfaceCommandMap`, `ModeProvider`, `SequenceTracker`, and `DEFAULT_SEQUENCE_TIMEOUT_MS`.
+
+Types: `ActiveCommandSurface`, `Command`, `CommandContext`, `CommandCommands`, `CommandContextBase`, `CommandGroup`, `CommandHandler`, `CommandSequenceCandidate`, `CommandSequenceState`, `CommandSurfaceEntry`, `CommandSurfaceRole`, `CommandWhen`, `ParsedHotkey`, `ParsedStep`, `RegisteredCommandGroup`, `Mode`, `ScreenScopeState`, `CommandStoreContext`, `SurfaceRecord`, `CommandStore`, `CommandStoreConfig`, `CommandProviderProps`, `CommandSurfaceProviderProps`, `EffectiveCommands`, `UseCommandOptions`, `ActionDefinition`. The store subpath adds `ModeProviderProps`, `SequenceFeedResult`, `SequencePendingMatch`, `SequenceTrackerOptions`, `CommandStoreInstance`, `ContextGetter`, `CreateCommandStoreOptions`, `KeyDispatchResult`.
+
+## @tooee/config
+
+| Group | Runtime exports                                                    |
+| ----- | ------------------------------------------------------------------ |
+| Files | `loadConfig`, `writeGlobalConfig`                                  |
+| React | `ConfigProvider`, `useConfig`, `useThemeConfig`, `useKeymapConfig` |
+
+Types: `ColorMode`, `TooeeConfig`.
+
+## @tooee/diff
+
+| Group | Runtime exports |
+| --- | --- |
+| Model | `buildDiffModel`, `diffRowAdapter`, `scanPatchSections`, `countHunkDiffStats`, `isDiffPatch` |
+| Components | `DiffView`, `DiffRowView`, `effectiveLayout`, `MIN_SPLIT_WIDTH` |
+| Markdown fences | `diffCodeBlockRenderer`, `parseDiffFenceOptions`, `DIFF_CODE_BLOCK_RENDERERS` |
+| Themes | `resolveHunkDiffTheme`, `isLightBackground`, `HUNK_THEME_MAP` |
+
+Types: `DiffModel`, `DiffRow`, `DiffRowKind`, `DiffViewProps`, `DiffRowViewProps`, `DiffRenderOptions`, `DiffFenceOptions`, `HunkThemePair`, `HunkDiffFile`, `HunkDiffLayout`, `HunkDiffStats`, `HunkDiffThemeName`.
+
+## @tooee/e2e
+
+Private: `package.json` sets `private: true`, and npm has no copy. The package has no exports. It holds the tuistory end-to-end tests and the fixture apps under `cli/`, `panels/`, `router/`, `shell/`, and `view/`. [Testing](/docs/ship/testing) shows the pattern.
+
+## @tooee/fuzzy
+
+| Group    | Runtime exports                     |
+| -------- | ----------------------------------- |
+| Matching | `fuzzyMatch`, `fuzzyMatchPositions` |
+| Ranking  | `rankBy`                            |
+
+Types: `FuzzyMatch`.
+
+## @tooee/layout
+
+| Group           | Runtime exports                                     |
+| --------------- | --------------------------------------------------- |
+| Chrome          | `AppLayout`, `TitleBar`, `StatusBar`, `CloseButton` |
+| Overlay content | `OverlayPanel`, `decodeReactContent`                |
+
+Types: `AppLayoutProps`, `AppLayoutScroll`, `OverlayPanelProps`, `PanelInset`, `PanelInsetValue`, `DecodedReactContent`, `StatusBarItem`.
+
+## @tooee/marks
+
+| Group      | Runtime exports                      |
+| ---------- | ------------------------------------ |
+| Mark sets  | `MarkSet`, `MarkSetBuilder`          |
+| Priorities | `MarkPriorities`                     |
+| Mark state | `createMarkState`, `updateMarkState` |
+
+Types: `MarkPosition`, `MarkRange`, `MarkStyle`, `Mark`, `MarkPriority`, `RowDecoration`, `MarkState`.
+
+## @tooee/overlays
+
+| Group | Runtime exports |
+| --- | --- |
+| Hooks | `useOverlay`, `useOverlayState`, `useCurrentOverlay`, `useHasOverlay`, `useHasModalOverlay`, `useOverlayDialog` |
+| Payload updates | `overlayValue`, `overlayUpdater` |
+| Contexts | `OverlayControllerContext`, `OverlayStateContext` |
+| Store | `createOverlayStore`, `selectHasOverlay`, `selectIsOpen`, `selectStack`, `selectStackIds`, `selectTop` |
+
+`OverlayProvider`, which mounts the stack, is in `@tooee/shell`.
+
+Types: `OverlayId`, `OverlayCloseReason`, `OverlayOpenOptions`, `OverlayRole`, `OverlayRenderArgs`, `OverlayRenderer`, `OverlayHandle`, `OverlayController`, `OverlayState`, `OverlayUpdate`, `OverlayDialogHandle`, `OverlayDialogSettle`, `OverlayRecord`, `OverlayStore`, `OverlayStoreContext`.
+
+## @tooee/panels
+
+| Group      | Runtime exports                                |
+| ---------- | ---------------------------------------------- |
+| Components | `PanelGroup`, `Panel`                          |
+| Hooks      | `usePanels`, `usePanelState`, `usePanelActive` |
+
+Types: `PanelGroupProps`, `PanelProps`, `PanelSwitchKeys`, `PanelState`, `PanelsControls`, `PanelGroupContextValue`, `PanelContextValue`.
+
+## @tooee/renderers
+
+| Group | Runtime exports |
+| --- | --- |
+| Markdown | `MarkdownView`, `flattenMarkdown`, `getFlatBlockText`, `getPlainText`, `parseObsidianImageEmbed`, `resolveMarkdownImageSource`, `splitMarkdownImages` |
+| Code blocks | `CodeBlockChrome`, `defaultCodeBlockRenderer`, `mermaidCodeBlockRenderer`, `DEFAULT_CODE_BLOCK_RENDERERS`, `getFenceType` |
+| Code | `CodeView` |
+| Tables | `Table`, `computeColumnWidths`, `formatTableCell`, `isNumeric`, `sampleRows`, `parseCSV`, `parseTSV`, `parseJSON`, `parseAuto`, `detectFormat` |
+| Source lines | `sourceLines`, `sourceLineAdapter`, `SourceIndex` |
+| Row document | `RowDocumentRenderable`, `DEFAULT_SIGN_COLUMN_WIDTH`, `computeRowDocumentGutterWidth`, `useGutterPalette` |
+| Pickers and menus | `CommandPalette`, `ContextMenu`, `Chooser` |
+| Chooser parts | `ChooseFilter`, `ChooseList`, `ChooseHighlightedText`, `useChoose`, `loadChooseSource`, `fuzzyFilter` |
+| Chooser store | `createChooseStore`, `selectActiveIndex`, `selectError`, `selectFilterQuery`, `selectItems`, `selectLoading`, `selectMatches`, `selectReloadRevision`, `selectSelectedOriginalIndices` |
+
+The `@tooee/renderers/row-document` subpath has no exports. Import it for its side effect: it registers the `row-document` JSX element with OpenTUI. `Document` in `@tooee/shell` and `DiffView` in `@tooee/diff` import it for you.
+
+Types: `MarkdownLinkHandler`, `FlatBlock`, `FlattenMarkdownOptions`, `MarkdownImageEmbed`, `MarkdownInlineSegment`, `DocumentRowAnchor`, `DocumentRowSource`, `SourceLineRow`, `SourcePoint`, `SourceSpan`, `CodeBlockRenderer`, `CodeBlockRendererProps`, `CodeBlockHScroll`, `TableProps`, `ColumnWidthOptions`, `ColumnDef`, `TableRow`, `CommandPaletteEntry`, `ChooserProps`, `ChooseFilterProps`, `ChooseHighlightedTextProps`, `ChooseItemRenderContext`, `ChooseListProps`, `ChooseStore`, `ChooseStoreContext`, `ChooseStoreEvents`, `FuzzyMatch`, `ChooseCommandGroup`, `ChooseController`, `ChooseState`, `ChooseViewModel`, `UseChooseOptions`, `UseChooseResult`, `ChooseContentProvider`, `ChooseItem`, `ChooseOptions`, `ChooseResult`, `ChooseSource`, `ContextMenuEntry`, `Format`, `ParsedTable`, `TableData`, `RowDocumentOptions`, `RowDocumentPalette`, `RowScrollAlign`, `VisibleRowRange`, `DecorationLayer`, `RowDecoration`, `DocumentBindings`.
+
+## @tooee/router
+
+| Group | Runtime exports |
+| --- | --- |
+| Setup | `createRoute`, `createRouter`, `RouterProvider`, `Outlet` |
+| Navigation hooks | `useNavigate`, `useParams`, `useRouteData`, `useCurrentRoute`, `useCanGoBack`, `useRouter`, `useActionResultHandler` |
+| Screen state and focus | `useScreenState`, `useScreenFocus`, `useScreenEffect`, `StateCache`, `createStateKey` |
+| Commands | `useRouterCommands` |
+| Stack | `stackReducer` |
+
+Types: `Codec`, `RouteParams`, `RouteConfig`, `RouteDefinition`, `StackEntry`, `RouterState`, `RouterAction`, `RouterOptions`, `RouterInstance`, `SerializedNavigationIntent`, `ResolvedNavigation`, `NavigationResult`, `NavigationGuardResult`, `NavigationGuard`, `NavigationEvent`, `NavigationFailureContext`, `RouterProviderProps`, `NavigateResult`, `BackResult`, `ActionNavigationResult`, `ScreenFocus`, `ActionResultHandler`, `NavigateHandle`, `ScreenStateHandle`, `StateKey`.
+
+## @tooee/search
+
+| Group | Runtime exports |
+| --- | --- |
+| Hooks | `useSearch`, `useSearchBindings`, `useNavSearchStore` |
+| Component | `SearchBar` |
+| Matching | `findMatchingLines` |
+| Navigation and search store | `createNavSearchStore`, `selectCursor`, `selectRowKeys`, `selectSelectionAnchor`, `selectToggledKeys`, `selectSearchStatus`, `selectSearchActive`, `selectSearchQuery`, `selectMatches`, `selectCurrentMatchIndex`, `deriveSelection`, `resolveIndex` |
+
+Types: `NavSearchStore`, `NavSearchContext`, `NavSearchEvents`, `RowKey`, `UseSearchOptions`, `SearchState`, `SearchBarProps`.
+
+## @tooee/shell
+
+| Group | Runtime exports |
+| --- | --- |
+| Provider and sessions | `TooeeProvider`, `launchCli`, `runCliSession`, `mountTooee`, `guardTerminalHealth` |
+| Documents | `Document`, `DocumentScreen`, `useDocumentController`, `useProvideDocumentCommandContext`, `buildInteractionDecorations`, `DocumentDecorationPriorities` |
+| Navigation | `useNavigation` |
+| Built-in commands | `useThemeCommands`, `useQuitCommand`, `useCopyCommand`, `usePasteCommands`, `useToggleLineNumbersCommand`, `useDebugConsoleCommand` |
+| Copy | `useCopy`, `useCopyOnSelect` |
+| Overlays and menus | `OverlayProvider`, `CommandPaletteProvider`, `WhichKeyProvider`, `WhichKeyOverlay`, `useContextMenu`, `actionsToContextMenuEntries` |
+| Themes | `useThemePicker` |
+
+The README covers [sessions, mounts, and stdin policies](https://github.com/gingerhendrix/tooee/blob/main/packages/shell/README.md).
+
+Types: `ThemeCommandsResult`, `UseCopyCommandOptions`, `UseDebugConsoleCommandOptions`, `UsePasteCommandsOptions`, `UseQuitCommandOptions`, `UseThemeCommandsOptions`, `UseToggleLineNumbersCommandOptions`, `UseNavigationOptions`, `NavigationState`, `UseCopyOptions`, `TooeeProviderProps`, `CliSessionController`, `CliSessionRender`, `CliStdinPolicy`, `CliStdoutPolicy`, `LaunchCliOptions`, `MountTooeeOptions`, `TerminalHealthGuardOptions`, `TooeeMount`, `TooeeProviderOptions`, `TooeeSessionHandle`, `ThemePickerState`, `ThemePickerEntry`, `ContextMenuController`, `DocumentProps`, `RowDocumentProps`, `DocumentScreenProps`, `InteractionDecorationInput`, `DocumentCommandContext`, `ProvideDocumentCommandContextOptions`, `DocumentBindings`, `DocumentContextMenuEvent`, `DocumentContextMenuItems`, `DocumentController`, `DocumentRevealOptions`, `DocumentRowAdapter`, `DocumentRowAnchor`, `DocumentRowEvent`, `DocumentRowSource`, `DocumentSearchOptions`, `SourcePoint`, `SourceSpan`, `UseDocumentControllerOptions`.
+
+## @tooee/test-support
+
+Private: `package.json` sets `private: true`, and npm has no copy. The Tooee repository uses it in its own tests.
+
+| Group          | Runtime exports                                                            |
+| -------------- | -------------------------------------------------------------------------- |
+| Render         | `testRender`                                                               |
+| Input          | `press`, `pressArrow`, `pressEnter`, `pressEscape`, `pressTab`, `keyEvent` |
+| Clipboard mock | `clipboardStub`, `copied`                                                  |
+| Config         | `ensureTestConfigHome`, `resetTestConfig`                                  |
+| Assertions     | `expectDefined`                                                            |
+
+Types: `TestSession`.
+
+## @tooee/themes
+
+| Group     | Runtime exports                                                          |
+| --------- | ------------------------------------------------------------------------ |
+| React     | `ThemeProvider`, `ThemeSwitcherProvider`, `useTheme`, `useThemeSwitcher` |
+| Loading   | `loadThemes`, `getThemeNames`, `defaultTheme`                            |
+| Resolving | `resolveTheme`, `buildSyntaxStyle`, `FALLBACKS`, `RESOLVED_KEYS`         |
+
+Types: `ThemeJSON`, `ResolvedTheme`, `Theme`, `ThemeProviderProps`, `ThemeSwitcherProviderProps`.
+
+## @tooee/toasts
+
+| Group | Runtime exports                               |
+| ----- | --------------------------------------------- |
+| React | `ToastProvider`, `useToast`, `ToastContainer` |
+
+Types: `ToastLevel`, `ToastOptions`, `ToastEntry`, `ToastController`.
+
+## @tooee/view
+
+| Group | Runtime exports |
+| --- | --- |
+| Launchers | `launch`, `launchDirectory` |
+| Components | `View`, `DirectoryView`, `CodeBlockChrome` |
+| Content providers | `createFileProvider`, `createStdinProvider`, `createTableFileProvider`, `createTableStdinProvider`, `listDirectoryFiles` |
+| Command context | `createViewCommandContext`, `useProvideViewCommandContext` |
+| Content helpers | `getTextContent`, `isBuiltinContent`, `isCustomContent` |
+| Links | `localFileLinkHandler` |
+
+`CodeBlockChrome` is a re-export from `@tooee/renderers`.
+
+Types: `ViewLaunchOptions`, `CreateProviderOptions`, `DirectoryEntry`, `CreateViewCommandContextOptions`, `ProvideViewCommandContextOptions`, `ViewCommandContext`, `ContentLoaderState`, `ContentCommandsResult`, `AnyContent`, `Content`, `ContentChunk`, `ContentFormat`, `ContentProvider`, `ContentRenderer`, `ContentRendererProps`, `CustomContent`, `DiffContent`, `ImageContent`, `MarkdownContent`, `MarkdownLinkActivateHandler`, `CodeContent`, `TextContent`, `TableContent`, `ViewContent`, `ViewContentProvider`, `ColumnDef`, `TableRow`, `CodeBlockRenderer`, `CodeBlockRendererProps`, `CodeBlockHScroll`, `LinkHandler`, `LinkHandlerContext`, `LinkTarget`.
+
+## Next
+
+- [Install](/docs/start/install)
+- [Your first Tooee app](/docs/build/first-app)
+- [CLI reference](/docs/reference/cli)
