@@ -420,6 +420,15 @@ export const useSurfaceInvoke = function useSurfaceInvoke(): {
 };
 
 /**
+ * Whether a `CommandProvider` is above this component. Packages that work with
+ * or without commands (for example the router) use this to decide whether to
+ * mount a component that registers commands.
+ */
+export const useHasCommandProvider = function useHasCommandProvider(): boolean {
+  return useContext(CommandStoreReactContext) !== null;
+};
+
+/**
  * Builds the live command context of the nearest surface — the same value
  * command handlers receive. For callers that must hand a context to something
  * outside the dispatch path (e.g. a context-menu entry resolver).
