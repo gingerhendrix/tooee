@@ -275,3 +275,72 @@ describe("command palette mouse", () => {
     expect(testSetup.captureCharFrame()).toContain("open:true");
   });
 });
+
+const FilterHarness = function FilterHarness(): ReactNode {
+  const current = useCurrentOverlay();
+  useCommand({
+    handler: () => {},
+    hotkey: "t",
+    id: "test.remappable",
+    modes: ["cursor"],
+    title: "Remappable Command",
+  });
+
+  useCommand({
+    handler: () => {},
+    hotkey: "u",
+    id: "test.unavailable",
+    modes: ["cursor"],
+    title: "Unavailable Command",
+    when: () => false,
+  });
+
+  return (
+    <box flexDirection="column">
+      <text content="filter harness" />
+      {current}
+    </box>
+  );
+};
+
+describe("command palette entries", () => {
+  test("leaves out commands whose when returns false", async () => {
+    testSetup = await testRender(
+      <TooeeProvider>
+        <FilterHarness />
+      </TooeeProvider>,
+      { height: 24, kittyKeyboard: true, width: 80 }
+    );
+    await testSetup.renderOnce();
+
+    await press(testSetup, ":");
+    expect(testSetup.captureCharFrame()).toContain("Remappable Command");
+
+    await act(async () => {
+      await testSetup.mockInput.typeText("unavail");
+    });
+    await testSetup.renderOnce();
+
+    expect(testSetup.captureCharFrame()).not.toContain("Unavailable Command");
+  });
+
+  test("shows the remapped key from config keys", async () => {
+    testSetup = await testRender(
+      <TooeeProvider config={{ keys: { "test.remappable": "z" } }}>
+        <FilterHarness />
+      </TooeeProvider>,
+      { height: 24, kittyKeyboard: true, width: 80 }
+    );
+    await testSetup.renderOnce();
+
+    await press(testSetup, ":");
+
+    const line = testSetup
+      .captureCharFrame()
+      .split("\n")
+      .find((row) => row.includes("Remappable Command"));
+
+    expect(line?.trimEnd().endsWith(" z")).toBe(true);
+    expect(line?.trimEnd().endsWith(" t")).toBe(false);
+  });
+});

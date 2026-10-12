@@ -27,7 +27,7 @@ export const CommandPaletteProvider = function CommandPaletteProvider({
   // current command set. Under panels this is the effective set — the active
   // panel's commands plus non-shadowed root commands, with invocation routed to
   // the owning surface — so the palette can reach panel-local commands.
-  const { commands, invoke } = useEffectiveCommands();
+  const { commands, hotkeyFor, invoke, isAvailable } = useEffectiveCommands();
 
   const open = useCallback(() => {
     const storeContext = commandStore.store.getSnapshot().context;
@@ -38,10 +38,14 @@ export const CommandPaletteProvider = function CommandPaletteProvider({
     // a programmatically opened palette faithful to that boundary too: show
     // only the active editor panel's commands, never root commands that typed
     // input could not invoke.
-    const paletteCommands =
+    const candidates =
       panel && launchMode === "insert"
         ? [...(storeContext.commandsBySurface.get(panel.id)?.values() ?? [])]
         : commands;
+
+    // Check `when` once, when the palette opens. A command whose `when` fails
+    // would do nothing if chosen, so it is not listed.
+    const paletteCommands = candidates.filter((command) => isAvailable(command.id));
 
     overlay.open(
       OVERLAY_ID,
@@ -51,13 +55,14 @@ export const CommandPaletteProvider = function CommandPaletteProvider({
             close();
           },
           commands: paletteCommands,
+          hotkeyFor,
           invoke,
           launchMode,
         }),
       null,
       { ownCommands: true, role: "modal", surfaceMode: "insert" }
     );
-  }, [overlay, mode, commands, invoke, commandStore]);
+  }, [overlay, mode, commands, hotkeyFor, invoke, isAvailable, commandStore]);
 
   useCommand({
     handler: open,

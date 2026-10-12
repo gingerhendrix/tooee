@@ -227,3 +227,21 @@ describe("which-key", () => {
     expect(frame).toContain("s → Stream");
   });
 });
+
+describe("which-key with remapped keys", () => {
+  test("lists a command under its remapped key", async () => {
+    testSetup = await testRender(
+      <TooeeProvider config={{ keys: { "go.search": "g x" } }}>
+        <WhichKeyHarness />
+      </TooeeProvider>,
+      { height: 24, kittyKeyboard: true, width: 80 }
+    );
+    await testSetup.renderOnce();
+
+    await press(testSetup, "g");
+
+    const frame = testSetup.captureCharFrame();
+    expect(frame).toContain("x → Go search");
+    expect(frame).not.toContain("s → Go search");
+  });
+});
