@@ -544,7 +544,7 @@ const Sync = function Sync(): ReactNode {
 await launchCli(<Sync />);
 ```
 
-Press `s` a few times: one toast in the bottom right corner updates its count in place, because every call reuses the id `sync`. Press `f`: the error toast replaces it and stays for six seconds. Press `x` to dismiss it early.
+Press `s` a few times: one toast in the bottom right corner updates its count in place, because every call reuses the id `sync`. Press `f`: the error toast replaces it and stays for six seconds. Press `x` to dismiss it early. [toasts-demo.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/toasts-demo.ts) sends each level, a deduplicated toast, and a custom duration.
 
 `toast(options)` takes:
 

@@ -246,7 +246,7 @@ const Workbench = function Workbench(): ReactNode {
 await launchCli(<Workbench />);
 ```
 
-`1` and `2` are root commands. The active panel has no command on those keys, so they fall through and set the state. `Tab` asks the group for the next panel and the group reports it through `onActivePanelChange`. `Escape` sets `null`: both panels draw inactive, the root owns every key, and `Tab` does nothing until `1` or `2` activates a panel again.
+`1` and `2` are root commands. The active panel has no command on those keys, so they fall through and set the state. `Tab` asks the group for the next panel and the group reports it through `onActivePanelChange`. `Escape` sets `null`: both panels draw inactive, the root owns every key, and `Tab` does nothing until `1` or `2` activates a panel again. [panels-controlled.tsx](https://github.com/gingerhendrix/tooee/blob/main/examples/panels-controlled.tsx) does the same with three panels.
 
 An uncontrolled group calls `onActivePanelChange` with each resolved change, including the first panel it picks at mount. When the active panel unmounts or becomes disabled, an uncontrolled group moves to the next panel in source order, or the previous one when there is none after it. A controlled group is never repaired; an id that is missing or disabled activates no panel. The callback never receives `null`; read `usePanels().activePanelId` for that.
 

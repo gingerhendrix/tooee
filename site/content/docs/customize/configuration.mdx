@@ -61,6 +61,16 @@ Every command has an id. `keys` maps an id to a new hotkey in the grammar from [
 | `cycle-theme` | `t` | The same screens, through `useThemeCommands` |
 | `toggle-line-numbers` | `shift+l` | View |
 | `toggle-debug-console` | `ctrl+shift+j` | Every app |
+| `command-palette` | `:` | Every app |
+| `overlay.close-top` | `escape` | Every app, while an overlay that allows `Escape` is open |
+| `outline.toggle` | `g o` | View with Markdown content, [heading outline](/docs/cli/view#show-the-heading-outline) |
+| `fold.toggle`, `fold.close`, `fold.open`, `fold.toggle-block`, `fold.close-all`, `fold.open-all` | `z a`, `z c`, `z o`, `z z`, `z shift+m`, `z shift+r` | View with Markdown content, [fold sections](/docs/cli/view#fold-sections) |
+| `outline.fold.toggle`, `outline.fold.close`, `outline.fold.open`, `outline.fold.toggle-block`, `outline.fold.close-all`, `outline.fold.open-all` | The same as the `fold.*` keys | The heading outline, while it has the focus |
+| `view.follow-link` | `enter` | View with Markdown content, [follow local links](/docs/cli/view#follow-local-links) |
+| `block-scroll-left`, `block-scroll-right` | `h`, `l` | View, when the cursor is on a wide code block in Markdown |
+| `dir.next-file`, `dir.prev-file` | `l`, `h` | View, [directory view](/docs/cli/view#open-a-directory) |
+| `paste-clipboard`, `paste-primary` | `p`, none | Ask. `paste-primary` reads the primary selection on Linux. Without a key, it runs from the palette as "Paste from selection". |
+| `context-menu:select`, `context-menu:move-up`, `context-menu:move-down`, `context-menu:move-up-vim`, `context-menu:move-down-vim` | `enter`, `up`, `down`, `k`, `j` | [Context menus](/docs/build/overlays-dialogs-toasts#context-menus) |
 | `diff.toggle-layout`, `diff.toggle-wrap`, `diff.next-file`, `diff.prev-file`, `diff.file-picker`, `diff.scroll-left`, `diff.scroll-right` | `s`, `w`, `]`, `[`, `f`, `h`, `l` | [View: diffs](/docs/apps/view/diffs#keys) |
 | `router.back` | `backspace` | [Routing](/docs/build/routing#router-commands) |
 | `panels.next`, `panels.previous` | `tab`, `shift+tab` | [Panels](/docs/build/panels) |

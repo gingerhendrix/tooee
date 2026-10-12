@@ -13,7 +13,7 @@ await launch({
 });
 ```
 
-View parses the patch, draws it with [Hunk](https://github.com/modem-dev/hunk), and puts the cursor on the first file. `patch` takes a unified diff for one file or many, with or without `diff --git` headers. `layout` sets the first layout, `split` or `stack`; stack is the unified form.
+View parses the patch, draws it with [Hunk](https://github.com/modem-dev/hunk), and puts the cursor on the first file. `patch` takes a unified diff for one file or many, with or without `diff --git` headers. `layout` sets the first layout, `split` or `stack`; stack is the unified form. [git-diff.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/git-diff.ts) shows the unstaged changes, or the staged changes with `--staged`.
 
 ## Rows are files and hunks
 

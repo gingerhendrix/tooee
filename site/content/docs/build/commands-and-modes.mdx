@@ -186,7 +186,7 @@ await launchCli(<Search />);
 
 After the first step of a sequence, Tooee opens a bar at the bottom that lists each key that can follow with the title of its command. With a leader set, the bar opens only for sequences that start with the leader, so `t` alone shows nothing in the deploy console. Without a leader it opens for every prefix, as it does after `g` and `y` in View.
 
-`useCommandGroup({ id, prefix, title })` names a prefix. The deploy console registers `space g` as `Go`, so the bar after `space` reads `g → Go` in place of the first command's title. Commands with `hidden: true` never appear.
+`useCommandGroup({ id, prefix, title })` names a prefix. The deploy console registers `space g` as `Go`, so the bar after `space` reads `g → Go` in place of the first command's title. Commands with `hidden: true` never appear. [which-key-groups.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/which-key-groups.ts) puts actions into groups under the leader with `useCommandGroup` and the `group` field.
 
 `:` opens the command palette in cursor or select mode. It lists the commands of the current mode with their titles, hotkeys, categories, and icons. Type to filter and press `Enter` to run one. [Keyboard basics](/docs/start/keyboard-basics#commands-and-the-palette) shows the palette keys.
 
