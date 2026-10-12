@@ -214,3 +214,87 @@ describe("overlay-owned command surfaces", () => {
     expect(frame).toContain("passiveAction:0");
   });
 });
+
+const PlainSurface = function PlainSurface(): ReactNode {
+  useCommand({ handler: () => {}, hotkey: "x", id: "plain.noop", title: "No-op" });
+
+  return <text content="PLAIN_OVERLAY" />;
+};
+
+const EscapeHarness = function EscapeHarness({
+  dismissOnEscape,
+  onClose,
+}: {
+  dismissOnEscape?: boolean;
+  onClose: (reason: OverlayCloseReason) => void;
+}): ReactNode {
+  const overlay = useOverlay();
+  const current = useCurrentOverlay();
+
+  useCommand({
+    handler: () => {
+      overlay.open("plain", (): ReactNode => <PlainSurface />, null, {
+        dismissOnEscape,
+        onClose,
+        ownCommands: true,
+        role: "modal",
+      });
+    },
+    hotkey: "o",
+    id: "open-plain",
+    title: "Open plain",
+  });
+
+  return (
+    <box flexDirection="column">
+      <text content="ROOT" />
+      {current}
+    </box>
+  );
+};
+
+describe("Escape on an owned modal without its own Escape command", () => {
+  test("closes the overlay with reason escape", async () => {
+    const reasons: OverlayCloseReason[] = [];
+    testSetup = await testRender(
+      <TooeeProvider>
+        <EscapeHarness
+          onClose={(reason) => {
+            reasons.push(reason);
+          }}
+        />
+      </TooeeProvider>,
+      { height: 10, kittyKeyboard: true, width: 40 }
+    );
+    await testSetup.renderOnce();
+    await press(testSetup, "o");
+    expect(testSetup.captureCharFrame()).toContain("PLAIN_OVERLAY");
+
+    await pressEscape(testSetup);
+
+    expect(testSetup.captureCharFrame()).not.toContain("PLAIN_OVERLAY");
+    expect(reasons).toEqual(["escape"]);
+  });
+
+  test("stays open when dismissOnEscape is false", async () => {
+    const reasons: OverlayCloseReason[] = [];
+    testSetup = await testRender(
+      <TooeeProvider>
+        <EscapeHarness
+          dismissOnEscape={false}
+          onClose={(reason) => {
+            reasons.push(reason);
+          }}
+        />
+      </TooeeProvider>,
+      { height: 10, kittyKeyboard: true, width: 40 }
+    );
+    await testSetup.renderOnce();
+    await press(testSetup, "o");
+
+    await pressEscape(testSetup);
+
+    expect(testSetup.captureCharFrame()).toContain("PLAIN_OVERLAY");
+    expect(reasons).toEqual([]);
+  });
+});

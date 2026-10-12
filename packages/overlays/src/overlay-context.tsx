@@ -15,7 +15,10 @@ export interface OverlayOpenOptions {
   mode?: Mode | null;
   /** Restore previous mode on close (default: true) */
   restoreMode?: boolean;
-  /** Allow Escape to close this overlay (default: true) */
+  /**
+   * Allow Escape to close this overlay (default: true). For an `ownCommands`
+   * overlay, an Escape command that the overlay registers itself runs first.
+   */
   dismissOnEscape?: boolean;
   /**
    * Mount the overlay as an owned command surface: it gets a local command
