@@ -83,7 +83,7 @@ await launch({ contentProvider: createFileProvider("notes.txt", { renderer: "mar
 
 `createFileProvider(path, options)` reads the file when View mounts. It picks the format from the extension with the table in [View](/docs/cli/view#open-a-file) in the CLI section, opens a text file that holds a unified patch as a diff, sets `title` to the file name, and gives markdown an `imageBasePath` of the file's folder. `options.renderer` forces a format.
 
-`createStdinProvider(options)` reads all of stdin and renders it as markdown, or as a diff when it is a patch. With `launch()` from `@tooee/view` the session ends when the pipe closes, before the content is drawn, because View reads keys from the same stdin. [Run your own session](/docs/apps#run-your-own-session) shows how `runCliSession` with `stdinPolicy: "tty-if-piped"` makes the piped form work.
+`createStdinProvider(options)` reads all of stdin and renders it as markdown, or as a diff when it is a patch. `launch()` from `@tooee/view` reads keys from the controlling terminal while stdin supplies the content. A `View` that you mount yourself with `runCliSession` needs `stdinPolicy: "tty-if-piped"`, as [Run your own session](/docs/apps#run-your-own-session) shows.
 
 `createTableFileProvider(path)` and `createTableStdinProvider()` are the same providers with `renderer: "table"`.
 
