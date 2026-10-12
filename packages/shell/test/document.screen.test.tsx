@@ -208,14 +208,20 @@ describe("status bar", () => {
     expect(positions).toEqual(positions.toSorted((a, b) => a - b));
   });
 
-  test("the selection count follows Cursor and only appears when non-empty", async () => {
+  test("Mode and Cursor sit at the right edge", async () => {
+    await setup();
+
+    expect(statusLine().trimEnd()).toMatch(/Mode:\s*\S+\s+Cursor:\s*0$/u);
+  });
+
+  test("the selection count sits before Mode and only appears when non-empty", async () => {
     await setup();
     expect(statusLine()).not.toContain("Selected:");
 
     await pressTab(session);
     const line = statusLine();
-    const [cursor, selected] = orderOf(line, ["Cursor:", "Selected:"]);
-    expect(selected).toBeGreaterThan(expectDefined(cursor));
+    const [selected, mode] = orderOf(line, ["Selected:", "Mode:"]);
+    expect(expectDefined(mode)).toBeGreaterThan(expectDefined(selected));
     expect(line).toMatch(/Selected:\s*1/u);
   });
 

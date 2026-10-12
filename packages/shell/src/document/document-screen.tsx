@@ -1,6 +1,6 @@
 import { useActions, useMode } from "@tooee/commands";
 import type { ActionDefinition } from "@tooee/commands";
-import { AppLayout } from "@tooee/layout";
+import { AppLayout, StatusPriority } from "@tooee/layout";
 import type { AppLayoutProps, StatusBarItem } from "@tooee/layout";
 import type { ReactNode } from "react";
 
@@ -13,7 +13,7 @@ import type { DocumentController } from "./types.js";
 export interface DocumentScreenProps<T> {
   controller: DocumentController<T>;
   titleBar?: AppLayoutProps["titleBar"];
-  /** Domain status, rendered between Theme and Mode. */
+  /** Domain status, rendered after Theme. Mode and Cursor sit at the right edge. */
   statusItems?: readonly StatusBarItem[];
   actions?: ActionDefinition[];
   quit?: boolean | UseQuitCommandOptions;
@@ -65,14 +65,27 @@ export const DocumentScreen = function DocumentScreen<T>({
   }
 
   const items: StatusBarItem[] = [
-    { label: "Theme:", value: themeName },
+    { id: "theme", label: "Theme:", priority: StatusPriority.background, value: themeName },
     ...(statusItems ?? []),
-    { label: "Mode:", value: mode },
+    ...(selectionCount > 0
+      ? [
+          {
+            id: "selected",
+            label: "Selected:",
+            priority: StatusPriority.focus,
+            value: String(selectionCount),
+          },
+        ]
+      : []),
+    { align: "end", id: "mode", label: "Mode:", priority: StatusPriority.position, value: mode },
     {
+      align: "end",
+      compact: { label: "Ln" },
+      id: "cursor",
       label: "Cursor:",
+      priority: StatusPriority.position,
       value: controller.activeIndex === null ? "-" : String(controller.activeIndex),
     },
-    ...(selectionCount > 0 ? [{ label: "Selected:", value: String(selectionCount) }] : []),
   ];
 
   return (
