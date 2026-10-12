@@ -2,13 +2,13 @@
   "title": "Build a custom app",
   "pages": [
     "first-app",
-    "shell-and-sessions",
     "commands-and-modes",
     "command-surfaces",
     "documents",
     "routing",
     "panels",
     "layout",
+    "status-bar",
     "overlays-dialogs-toasts",
     "marks",
     "search-and-fuzzy"

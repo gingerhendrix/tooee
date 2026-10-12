@@ -188,7 +188,7 @@ test("x marks the cursor step as done", async () => {
 
 Give each test 20 seconds: the first frame waits for Bun to start and for the renderer to draw. A test that presses `q` should then wait for the process to exit before it reads the screen, or wrap the app in a shell command that prints a marker after it exits.
 
-`press("escape")` sends the bare `0x1b` byte. OpenTUI enables the kitty keyboard protocol, under which a terminal sends `Escape` as `\u001B[27u`, and OpenTUI 0.5.1 accepts the bare byte as well: the run for this page left select mode with `press("escape")` under tuistory 0.0.16. Several of the repository's end-to-end tests send the encoded form instead, which works in both cases:
+`press("escape")` sends the bare `0x1b` byte. OpenTUI enables the kitty keyboard protocol, under which a terminal sends `Escape` as `\u001B[27u`, and OpenTUI accepts the bare byte as well. Several of the repository's end-to-end tests send the encoded form instead, which works in both cases:
 
 ```ts
 session.writeRaw("\u001B[27u");
@@ -206,7 +206,7 @@ bun test --update-snapshots
 
 `bun test` runs every `*.test.ts` and `*.test.tsx` file under the project. Name a file to run it alone. `--update-snapshots` rewrites the snapshots a `toMatchSnapshot` assertion compares against.
 
-Inside the Tooee repository, run one file with `bun --conditions=@tooee/source test <file>`. The condition resolves each `@tooee/*` import to the package source instead of its build. The repository's `packages/test-support` holds a private `@tooee/test-support` package with a `testRender` wrapper, `press`, `pressEscape`, `pressEnter`, `pressTab`, `pressArrow`, a clipboard mock, and `ensureTestConfigHome` for an isolated `XDG_CONFIG_HOME`; `packages/e2e` holds the tuistory tests and their fixture apps. [Contributing](/docs/reference/contributing) covers the repository layout.
+Inside the Tooee repository, run one file with `bun --conditions=@tooee/source test <file>`. The condition resolves each `@tooee/*` import to the package source instead of its build. The repository's `packages/test-support` holds a private `@tooee/test-support` package with a `testRender` wrapper, `press`, `pressEscape`, `pressEnter`, `pressTab`, `pressArrow`, a clipboard mock, and `ensureTestConfigHome` for an isolated `XDG_CONFIG_HOME`; `packages/e2e` holds the tuistory tests and their fixture apps. The repository's [testing notes](https://github.com/gingerhendrix/tooee/blob/main/docs/testing.md) list the test files and what each one covers.
 
 ## Test a routed app
 
@@ -217,4 +217,4 @@ A router keeps state that a frame does not show, so a routed fixture draws it. [
 - [Your first Tooee app](/docs/build/first-app)
 - [Routing](/docs/build/routing)
 - [Troubleshooting](/docs/ship/troubleshooting)
-- [Contributing](/docs/reference/contributing)
+- [Testing notes in the repository](https://github.com/gingerhendrix/tooee/blob/main/docs/testing.md)

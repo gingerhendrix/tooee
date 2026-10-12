@@ -1,9 +1,9 @@
 ---
 title: Keyboard shortcuts
-description: Every default key in Tooee 0.12, with its command id and its mode.
+description: Every default key in Tooee, with its command id and its mode.
 ---
 
-This page lists every default key in Tooee 0.12 with the id of its command. [Keyboard basics](/docs/start/keyboard-basics) teaches the common keys. To give a command another key, put its id in `keys`, as [Configuration](/docs/customize/configuration#remap-keys) shows.
+This page lists every default key in Tooee with the id of its command. [Keyboard basics](/docs/start/keyboard-basics) teaches the common keys. To give a command another key, put its id in `keys`, as [Configuration](/docs/customize/configuration#remap-keys) shows.
 
 Each key is written in the hotkey grammar that `keys` accepts. Letter case does not matter, so `escape` and `Escape` are the same key. `shift+g` is `G`, and `g g` is a sequence: press `g` twice. A command with the key "none" has no default key. Run it from the `:` palette, or give it a key in `keys`.
 
@@ -15,7 +15,7 @@ Each key is written in the hotkey grammar that `keys` accepts. Letter case does 
 | --- | --- | --- | --- |
 | `:` | `command-palette` | cursor, select | Open the command palette |
 | `ctrl+shift+j` | `toggle-debug-console` | cursor | Toggle the OpenTUI debug console |
-| `escape` | `overlay.close-top` | any | Close the top overlay. Modal overlays with commands of their own handle `escape` themselves. |
+| `escape` | `overlay.close-top` | any | Close the top overlay. A modal overlay with commands of its own gets `overlay.close-self` instead. |
 | `ctrl+c` | no id | any | End the process. `exitOnCtrlC: false` on the session turns it off. |
 
 The apps add two more. View, Ask, Choose, and `DocumentScreen` register both through `useThemeCommands` and `useQuitCommand`.
@@ -120,12 +120,12 @@ The outline is a panel with `switchKeys={null}`, so `panels.next` and `panels.pr
 
 `tooee view <directory>` and `launch()` with `dirPath` add these keys.
 
-| Key | Id              | Mode   | Action        |
-| --- | --------------- | ------ | ------------- |
-| `l` | `dir.next-file` | cursor | Next file     |
-| `h` | `dir.prev-file` | cursor | Previous file |
+| Key   | Id              | Mode   | Action        |
+| ----- | --------------- | ------ | ------------- |
+| `g n` | `dir.next-file` | cursor | Next file     |
+| `g p` | `dir.prev-file` | cursor | Previous file |
 
-Each file opens in View, so a wide code block or an unwrapped diff also uses `h` and `l`. Give `dir.next-file` and `dir.prev-file` other keys when you read those files in a directory.
+Each file opens in View, so `h` and `l` scroll a wide code block or an unwrapped diff. To move between files with `l` and `h` and give up those scroll keys, set `"dir.next-file": "l"` and `"dir.prev-file": "h"` in `keys`.
 
 ## Ask
 
@@ -182,7 +182,7 @@ In the Choose app, `quit` also has `q` and also cancels. Give both ids a new key
 
 ## Command palette
 
-`:` opens the palette. It lists the visible commands of the current mode with their default keys. Hidden commands do not show, and every id with a colon on this page is hidden. The palette opens in insert mode with the filter focused, and its ids start with `command-palette:`.
+`:` opens the palette. It lists the visible commands of the current mode with the keys that run them, so a remap from `keys` shows. It leaves out a command whose `when` returns `false` when the palette opens. Hidden commands do not show, and every id with a colon on this page is hidden. The palette opens in insert mode with the filter focused, and its ids start with `command-palette:`.
 
 | Key | Id | Action |
 | --- | --- | --- |
@@ -205,7 +205,7 @@ The theme picker and the diff file picker have the palette keys: `enter`, `escap
 
 ## Overlays
 
-`overlay.close-top` closes the top overlay on `escape`, as [Every app](#every-app) lists. It works for overlays opened without `ownCommands` and for passive ones. It skips an overlay opened with `dismissOnEscape: false`. A modal overlay with `ownCommands` takes every key, so it must register its own `escape` command. The palette, the pickers, and the dialogs on this page do this. [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts#own-the-keyboard-from-an-overlay) explains the two kinds.
+`overlay.close-top` closes the top overlay on `escape`, as [Every app](#every-app) lists. It works for overlays opened without `ownCommands` and for passive ones. It skips an overlay opened with `dismissOnEscape: false`. A modal overlay with `ownCommands` takes every key, so the shell registers the hidden `overlay.close-self` command on the overlay's own surface. It binds `escape` in insert, cursor, and select mode, unless the overlay sets `dismissOnEscape: false`. An `escape` command that the overlay registers itself runs first. The palette, the pickers, and the dialogs on this page register their own. [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts#own-the-keyboard-from-an-overlay) explains the two kinds.
 
 ## Context menus
 

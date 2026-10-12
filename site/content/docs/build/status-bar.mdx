@@ -1,0 +1,200 @@
+---
+title: Status bar
+description: Fill the status bar, and choose which items stay when the terminal is narrow.
+---
+
+```tsx title="deploy-watch.tsx"
+import { useCommand, useMode } from "@tooee/commands";
+import { AppLayout, StatusPriority } from "@tooee/layout";
+import type { StatusBarItem } from "@tooee/layout";
+import { launchCli, useQuitCommand, useThemeCommands } from "@tooee/shell";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const phases = ["idle", "building", "live"];
+
+const DeployWatch = function DeployWatch(): ReactNode {
+  const mode = useMode();
+  const { name: themeName } = useThemeCommands();
+  const [phase, setPhase] = useState(0);
+  useQuitCommand();
+
+  useCommand({
+    handler: () => {
+      setPhase((previous) => (previous + 1) % phases.length);
+    },
+    hotkey: "d",
+    id: "deploy.next-phase",
+    title: "Next deploy phase",
+  });
+
+  const items: StatusBarItem[] = [
+    {
+      id: "file",
+      label: "File:",
+      minValueWidth: 12,
+      priority: StatusPriority.focus,
+      truncate: "start",
+      value: "services/billing/src/invoices/render.ts",
+    },
+    { id: "lines", label: "Lines:", priority: StatusPriority.content, value: "412" },
+    { id: "theme", label: "Theme:", value: themeName },
+    {
+      compact: { value: "q quit" },
+      id: "hints",
+      label: "",
+      priority: StatusPriority.hint,
+      value: "d deploy  t theme  q quit",
+    },
+    {
+      align: "end",
+      id: "deploy",
+      label: "Deploy:",
+      priority: StatusPriority.critical,
+      value: phases[phase] ?? "idle",
+    },
+    {
+      align: "end",
+      compact: { label: "M" },
+      id: "mode",
+      label: "Mode:",
+      priority: StatusPriority.position,
+      value: mode,
+    },
+  ];
+
+  return (
+    <AppLayout titleBar={{ title: "Deploy watch" }} statusBar={{ items }}>
+      <text content="Make the terminal narrower and watch the status bar." />
+    </AppLayout>
+  );
+};
+
+await launchCli(<DeployWatch />);
+```
+
+Run it with `bun deploy-watch.tsx`. Press `d` to move the `Deploy:` item through `idle`, `building`, and `live`. Then make the terminal narrower. The bar stays on one row. The items with the lowest priority go first, and `Deploy:` stays to the end. `q` quits.
+
+These are the rows the bar draws with the default theme in cursor mode. The bar has one column of padding on each side, so a terminal 80 columns wide gives 78 cells for items.
+
+| Terminal | Status bar |
+| --- | --- |
+| 120 | `File: services/billing/src/invoices/render.ts  Lines: 412  Theme: tokyonight  q quit        Deploy: idle  Mode: cursor` |
+| 100 | `File: services/billing/src/invoices/render.ts  Lines: 412  ⋯            Deploy: idle  Mode: cursor` |
+| 80 | `File: services/billing/src/invoices/render.ts  ⋯    Deploy: idle  Mode: cursor` |
+| 60 | `File: …g/src/invoices/render.ts  ⋯  Deploy: idle  M cursor` |
+| 40 | `⋯           Deploy: idle  Mode: cursor` |
+| 24 | `⋯         Deploy: idle` |
+
+At 120 columns the full key hints do not fit, so the hints use their compact form `q quit`. At 100 columns the hints hide, and then `Theme:` hides. At 60 columns the file path loses its start, and `Mode:` uses its compact label `M`. At 40 columns the file path cannot shorten below 12 cells, so it hides, and `Mode:` gets its full label back. At 24 columns only `Deploy:` stays.
+
+`AppLayout` from `@tooee/layout` draws the bar at the bottom of the screen. While the search bar is open, it takes the place of the status bar. [Layout and chrome](/docs/build/layout) covers the rest of `AppLayout`. `useThemeCommands` and `useQuitCommand` come from `@tooee/shell`, and `useCommand` and `useMode` come from `@tooee/commands`.
+
+## Items
+
+`statusBar` on `AppLayout` is required and takes `{ items, hiddenMarker }`. Each item is a `StatusBarItem`:
+
+| Field           | Default     | Meaning                                                                                       |
+| --------------- | ----------- | --------------------------------------------------------------------------------------------- |
+| `label`         |             | Required. Draws in `theme.textMuted`.                                                          |
+| `value`         | `""`        | Draws in `theme.text`, one space after the label.                                             |
+| `priority`      | `0`         | Items with a higher value stay longer. See [Priorities](#priorities).                         |
+| `align`         | `"start"`   | `"end"` puts the item in a group at the right edge.                                           |
+| `compact`       |             | `{ label?, value? }`, a shorter form. A field you leave out keeps its full text.              |
+| `truncate`      |             | `"end"`, `"start"`, or `"middle"`: where the `…` goes when the value shortens. Without it the value keeps its full length until the item hides. |
+| `minValueWidth` | `8`         | The smallest value width in cells after truncation.                                           |
+| `id`            |             | A stable React key. Without it the key is the position and the label.                         |
+
+Two cells separate one item from the next. An item with an empty `label` draws its `value` as plain text, which suits key hints. The start group begins at the left edge. The end group sits at the right edge, with at least two cells between the groups. Widths count terminal cells, so wide characters and emoji take two cells.
+
+## Priorities
+
+`StatusPriority` names a shared scale. Any number works, but the built-in apps use these values, so your items fit in with theirs.
+
+| Name         | Value | Use                                                                 |
+| ------------ | ----- | ------------------------------------------------------------------- |
+| `critical`   | 4     | Must always show, such as a session phase or an error state.        |
+| `position`   | 3     | The current mode and position.                                      |
+| `focus`      | 2     | State the user acts on, such as a selection or the current file.    |
+| `content`    | 1     | Facts about the content, such as the format or the line count.      |
+| `background` | 0     | The default. Background facts, such as the theme name.              |
+| `hint`       | -1    | Key hints. They go first.                                           |
+
+Use `truncate: "start"` for file paths, so the file name stays. Use `"middle"` for ids such as model names, and `"end"` for free text.
+
+## How the bar fits the items
+
+When all the items fit, the bar draws them in full. When they do not fit, it works in this order:
+
+1. Items switch to their `compact` form, lowest priority first, until the items fit.
+2. Lowest priority first, an item with `truncate` shortens its value down to `minValueWidth`. If the items still do not fit, that item hides. An item without `truncate` hides at once.
+3. The last visible item never hides. Its value shortens to fit the bar, even without `truncate`.
+4. Visible items in compact form get their full form back where there is room, highest priority first.
+
+On equal priority, the item further right gives way first. When items hide, a `⋯` shows after the start group. Pass `hiddenMarker` to use another glyph, or `false` to show none. If the last item cannot fit beside the marker, the marker goes.
+
+## Use the bar outside AppLayout
+
+`StatusBar` from `@tooee/layout` is the component that `AppLayout` draws. It takes `items`, `hiddenMarker`, and an optional `width` in cells, which defaults to the terminal width. Use it in a layout of your own, or in a panel narrower than the terminal.
+
+`fitStatusBar(items, width, options)` is the pure function behind the bar. It takes the width for the items, without the padding, and returns a `StatusBarLayout`:
+
+| Field    | Meaning                                                      |
+| -------- | ------------------------------------------------------------ |
+| `start`  | The visible start items, each `{ key, label, value }`.       |
+| `end`    | The visible end items.                                       |
+| `hidden` | The number of items that did not fit.                        |
+| `marker` | The glyph that shows after the start group, or `null`.       |
+
+A test can check the bar without a renderer:
+
+```ts title="status-items.test.ts"
+import { fitStatusBar, StatusPriority } from "@tooee/layout";
+import type { StatusBarItem } from "@tooee/layout";
+import { expect, test } from "bun:test";
+
+const items: StatusBarItem[] = [
+  { id: "lines", label: "Lines:", priority: StatusPriority.content, value: "412" },
+  { id: "hints", label: "", priority: StatusPriority.hint, value: "d deploy  q quit" },
+  { align: "end", id: "deploy", label: "Deploy:", priority: StatusPriority.critical, value: "live" },
+];
+
+test("the deploy phase outlasts the hints", () => {
+  const layout = fitStatusBar(items, 30);
+
+  expect(layout.start.map((item) => item.key)).toEqual(["lines"]);
+  expect(layout.end.map((item) => item.key)).toEqual(["deploy"]);
+  expect(layout.hidden).toBe(1);
+  expect(layout.marker).toBe("⋯");
+});
+```
+
+`truncateCells(text, width, mode)` shortens text to a number of terminal cells with a `…` at the `"end"`, `"start"`, or `"middle"`. The status bar and the title bar both use it.
+
+## Status bars in the built-in screens
+
+`DocumentScreen` from `@tooee/shell` fills the bar itself. Pass your items as `statusItems`:
+
+| Item        | Group | Priority     | Notes                                                       |
+| ----------- | ----- | ------------ | ----------------------------------------------------------- |
+| `Theme:`    | start | `background` | First.                                                      |
+| your items  | start | your choice  | `background` when you give none.                            |
+| `Selected:` | start | `focus`      | Only while rows are selected.                               |
+| `Mode:`     | end   | `position`   |                                                             |
+| `Cursor:`   | end   | `position`   | Shortens to `Ln` on a narrow bar. `-` when there is no row. |
+
+Your items tie with `Theme:` when you give no priority. They sit to the right of it, so they hide before it. Give them `content` or `focus` to keep them longer.
+
+View, Ask, and Choose give their items these priorities:
+
+| Screen      | Items                                                                                                                   |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------- |
+| View        | `Format:`, `Lines:`, `Rows:`, `Cols:`, `Files:`, `Changes:`, and `Layout:` are `content`. `At:` in a diff is `focus` and shortens from the start. `Status: streaming` is `critical`. |
+| Ask         | `Mode:` is `position`. `Theme:` is `background`. The key hints are `hint`, with a compact form of `: palette`, or `Esc commands` in insert mode. |
+| Choose      | `Matches:` is `position`. `Selected:` is `focus`. `Theme:` is `background`. The key hints are `hint`, with a compact form of `Esc/q cancel`, or `Esc commands` in insert mode. |
+
+## Next
+
+- [Layout and chrome](/docs/build/layout)
+- [Documents](/docs/build/documents)
+- [Testing](/docs/ship/testing)

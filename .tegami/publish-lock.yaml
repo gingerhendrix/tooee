@@ -1,56 +1,147 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/view\":\n    type: minor\n  \"@tooee/layout\":\n    type: minor\n  \"@tooee/shell\":\n    type: minor\n  \"@tooee/renderers\":\n    type: minor\n  \"@tooee/cli\":\n    type: minor\n---\n\n## Markdown heading outline beside the document\n\nThe Markdown view can show an outline of its headings in a panel on the right. `g o` opens the outline and gives it focus. In the outline, `j` and `k` move, `g g` and `G` go to the first and last heading, `enter` moves the document cursor to the heading and returns to the document, `escape` returns to the document, and `g o` closes the outline. The heading that contains the cursor is marked, so the outline follows the document. A jump to a heading inside closed folds opens them. Below 60 columns the outline is hidden. `tab` keeps its multi-select meaning.\n\nA jump from the outline puts the heading three lines below the top of the document view. While the outline has focus, the fold keys `z a`, `z c` and `z o` act on the section of the selected heading. The new `z z` key opens the fold at the cursor or selected heading when it is closed, and closes it when it is open.\n\n`tooee view --outline` and the `outline` option on `View` and `launch()` open the outline at start. `AppLayout` and `DocumentScreen` accept an `aside` region beside the content. `MarkdownView` accepts a `width`, and `@tooee/renderers` exports `getPlainText` and `RowScrollAlign`. The document controller in `@tooee/shell` gains `revealRow(index, { align, margin })`, which scrolls a row to a given place in the view.\n"
-    filename: markdown-outline-panel.md
+  - content: "---\npackages:\n  \"@tooee/clipboard\":\n    type: minor\n  \"@tooee/shell\":\n    type: patch\n  \"@tooee/ask\":\n    type: patch\n---\n\n## Copy tells you when no clipboard tool is installed\n\n`copyToClipboard` now resolves `true` when a clipboard tool took the text, and `false` when no tool is installed or the tool exits with an error. Before, it resolved nothing, and the copy commands always showed \"Copied\".\n\nThe copy commands in `@tooee/shell` and the Ask editor now show an error toast when the copy fails. On Linux, install `wl-copy`, `xclip` or `xsel`.\n"
+    filename: copy-reports-failure.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/ask\":\n    type: minor\n  \"@tooee/choose\":\n    type: minor\n---\n\n## Enter always calls `onSubmit` and `onConfirm`\n\nBefore, an action with the id `submit` took the place of the `onSubmit` callback in `Ask` and the `onConfirm` callback in `Choose`. Enter ran the action and skipped the callback, so `launch()` from `@tooee/ask` and `@tooee/choose` resolved `null` when a caller passed a `submit` action.\n\nNow Enter always calls the callback, and `launch()` returns the value. An action with the id `submit` is an ordinary command. It runs from the command palette or from its own hotkey. `AskOverlay`, `ChooseOverlay` and the dialog hooks already worked this way.\n\nIf your app used a `submit` action to read the value, move that code into `onSubmit` or `onConfirm`.\n"
+    filename: submit-action-no-precedence.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/layout\":\n    type: minor\n  \"@tooee/shell\":\n    type: minor\n  \"@tooee/view\":\n    type: patch\n  \"@tooee/ask\":\n    type: patch\n  \"@tooee/choose\":\n    type: patch\n---\n\n## Keep the status bar and title bar on one row\n\nThe status bar and the title bar no longer wrap onto a second row when the terminal is narrow. Before, a label could also lose its gap to its value.\n\n`StatusBarItem` has new optional fields. `priority` sets which items stay longest. `align: \"end\"` puts an item at the right edge. `compact` gives a shorter form. `truncate` and `minValueWidth` let a value shorten with an ellipsis. When items do not fit, the bar uses compact forms first. Then it shortens or hides items, lowest priority first. A `⋯` glyph shows when items hide. Pass `hiddenMarker` to `StatusBar` or `AppLayout.statusBar` to change the glyph, or `false` to turn it off.\n\n`StatusPriority` names the shared scale: `critical`, `position`, `focus`, `content`, `background` (the default), and `hint`. `fitStatusBar`, `fitTitleBar`, and `truncateCells` are exported for apps and tests.\n\n`DocumentScreen` now shows `Mode:` and `Cursor:` at the right edge. `Cursor:` shortens to `Ln` when the bar is narrow. Built-in items in `@tooee/view`, `@tooee/ask`, and `@tooee/choose` have priorities, and their key hints go first.\n\nThe title bar shortens its subtitle first, hides it below 8 cells, and then shortens the title.\n\nItems with only `label` and `value` look the same as before when they fit.\n"
+    filename: width-aware-status-bar.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/commands\":\n    type: patch\n---\n\n## `ctx.exit()` closes the app everywhere\n\n`ctx.exit()` did nothing in a `launchCli` app or in View, because only Ask and Choose supplied an `exit`. The command provider now uses the renderer's `destroy` as the default `exit`. A context source can still supply its own `exit`.\n"
+    filename: command-context-exit.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/commands\":\n    type: minor\n  \"@tooee/shell\":\n    type: patch\n---\n\n## The command palette hides unavailable commands and shows remapped keys\n\nThe palette now leaves out a command whose `when` returns false when the palette opens. Before, it listed the command, and choosing it did nothing.\n\nThe palette now shows the key from the `keys` config, not the command's default key. A root command that a panel command shadows under its remapped key loses its key hint, as dispatch does.\n\n`useEffectiveCommands()` returns two new functions: `hotkeyFor(id)` gives the key that runs a command now, and `isAvailable(id)` checks the command's `when` against the context of the surface that owns it.\n"
+    filename: palette-when-and-remaps.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/commands\":\n    type: patch\n---\n\n## A `+` hotkey works\n\nA command bound to `\"+\"` now runs when you press `+`. Before, the parser split the step on `+` and the hotkey never matched. `\"ctrl++\"` binds `ctrl` with the `+` key, and `+` also works as one step in a sequence such as `\"z +\"`.\n"
+    filename: plus-hotkey.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/router\":\n    type: minor\n  \"@tooee/commands\":\n    type: minor\n---\n\n## Quit and retry from a route's pending or error screen\n\nWhile a route's pending or error component replaces the screen, the screen's own commands are unmounted. Before, an app that bound `q` only inside its screens could not quit from a failed load. Now, inside a `CommandProvider`, the router registers two fallback commands while the pending or error component shows:\n\n- `q` calls `ctx.exit()`.\n- `r` runs the route loader again. This command exists only on the error screen.\n\nCommands that the app or the error component registers on the same keys run first.\n\nThe `errorComponent` now gets a `retry` prop next to `error`. The props type is exported as `RouteErrorProps`.\n\n`@tooee/commands` exports `useHasCommandProvider()`, which tells a component whether a `CommandProvider` is above it.\n"
+    filename: router-fallback-commands.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/config\":\n    type: patch\n---\n\n## `writeGlobalConfig` keeps keys it does not know\n\n`writeGlobalConfig` used to decode the global config file, merge the update, and write the decoded result back. Any key that Tooee does not decode, for example `\"editor\"`, went away. Now the write merges into the raw JSON document. Unknown keys stay, at the top level and inside `theme`, `keys` and `view`.\n\nIf the global config file is not valid JSON, the write now leaves it unchanged. Before, the write replaced the file.\n"
+    filename: config-write-keeps-unknown-keys.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/search\":\n    type: patch\n  \"@tooee/layout\":\n    type: patch\n---\n\n## `SearchBar.onCancel` is optional and deprecated\n\n`SearchBar` never called `onCancel`. Escape reaches the `search-cancel` command that `useSearchBindings` registers, and that command cancels the search. The prop is now optional and marked deprecated, and `AppLayout` no longer passes it. A later release will remove it.\n"
+    filename: search-bar-on-cancel.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/overlays\":\n    type: minor\n---\n\n## `OverlayRole` no longer accepts `\"panel\"`\n\nAn owned overlay opened with `role: \"panel\"` never became active, because a panel surface needs a panel group and overlays have none. `OverlayRole` is now `\"modal\" | \"passive\"`, so TypeScript rejects `\"panel\"`. Use `@tooee/panels` for panel surfaces.\n"
+    filename: overlay-role-without-panel.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/shell\":\n    type: patch\n  \"@tooee/overlays\":\n    type: patch\n---\n\n## Escape closes an `ownCommands` modal\n\nAn overlay opened with `ownCommands: true` and the default `dismissOnEscape` now closes on Escape, with the close reason `\"escape\"`. Before, the modal surface suspended root dispatch, so the root Escape command never ran, and `dismissOnEscape` had no effect. An Escape command that the overlay registers itself still runs first.\n"
+    filename: owned-overlay-escape.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/router\":\n    type: minor\n---\n\n## `RouterProvider` accepts a router made with `context`\n\n`RouterProvider` now accepts a router created with `createRouter({ context })`. Before, the `router` prop had the type `RouterInstance` with no type argument, so TypeScript rejected a router with an app context.\n\n`useRouter()` now returns `RouterInstance<unknown>`, because the provider can hold a router with any context type. Code that reads `useRouter().context` must check the value before use.\n"
+    filename: router-provider-context.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/search\":\n    type: patch\n---\n\n## `n` and `N` skip rows the cursor cannot stop on\n\n`searchNext` and `searchPrevious` now move the cursor to the nearest selectable row in the search direction, the same way typing and Enter already do. Before, `n` and `N` could put the cursor on a row that `isSelectable` rejects.\n"
+    filename: search-next-selectable.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/shell\":\n    type: patch\n---\n\n## Remove the unused `Search:` status item from `DocumentScreen`\n\n`DocumentScreen` built a `Search:` status item only while the search bar was open. The search bar replaces the status bar then, so the item never showed. The dead item is gone. The search bar still shows the query and the match count while it is open.\n"
+    filename: document-screen-search-status.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/shell\":\n    type: minor\n---\n\n## Export `useNavigationBindings`\n\n`@tooee/shell` now exports `useNavigationBindings(store, options)`. It registers the cursor, select and multi-select keys for a nav-search store that you own. Use it with `useNavSearchStore` and `useSearchBindings` from `@tooee/search` when one screen shares a store between navigation and search. Before, such a screen had to register its own movement keys.\n"
+    filename: export-use-navigation-bindings.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/themes\":\n    type: minor\n  \"@tooee/shell\":\n    type: patch\n---\n\n## Add search highlight theme tokens\n\nThemes have four new keys: `searchMatchBg`, `searchCurrentMatchBg`, `searchMatchFg`, and `searchCurrentMatchFg`. Every bundled theme sets them.\n\nSearch matches in row documents now use a background tinted from `warning`, and the current match uses a background tinted from `primary`. Before, both used the full `warning` and `primary` colours, which made the matched text hard to read. The gutter signs keep their old colours.\n\nA custom theme that leaves out the new keys gets derived values: 22% of `warning` over `background` for `searchMatchBg`, 35% of `primary` over `background` for `searchCurrentMatchBg`, and `warning` and `primary` for the signs. Over a transparent `background`, the derived backgrounds are translucent.\n"
+    filename: search-highlight-theme-tokens.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/themes\":\n    type: patch\n---\n\n## The nearest project theme folder wins\n\nTooee loads `.tooee/themes/` folders from the filesystem root down to the current folder. When two folders have a theme with the same name, the theme in the folder nearest to the current folder is used. Before, the parent folder's theme replaced the child's. Config files already used nearest wins.\n"
+    filename: project-themes-nearest-wins.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/themes\":\n    type: minor\n---\n\n## `useThemeSwitcher` can change light or dark mode\n\n`useThemeSwitcher()` returns a new `setMode(mode, { persist })` function. It switches the current theme between its light and dark variants while the app runs. With `persist: true`, it also writes the mode to the global config, as `setTheme` does.\n"
+    filename: theme-switcher-set-mode.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/view\":\n    type: minor\n---\n\n## Directory view moves file keys to `g n` and `g p`\n\nIn the directory view, `g n` opens the next file and `g p` opens the previous file. Before, these commands used `l` and `h`. The markdown and diff subviews also use `h` and `l` for horizontal scroll, so the command that registered first ran, and mount order decided which one that was. Now `h` and `l` only scroll.\n\nTo keep the old keys, set `\"dir.next-file\": \"l\"` and `\"dir.prev-file\": \"h\"` in the `keys` config.\n"
+    filename: directory-file-keys.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/view\":\n    type: minor\n---\n\n## `launch()` accepts `onMarkdownLinkActivate`\n\n`launch()` from `@tooee/view` now takes the `onMarkdownLinkActivate` option that the `View` component already had. The handler runs when the user activates a Markdown link with the mouse or with Enter on the cursor line. It replaces the default handling: `linkHandlers`, local file navigation, and the stdin \"Links need a source file\" toast.\n"
+    filename: view-launch-link-activate.md
     v: 0.0.0
 core:packages:
+  - id: npm:@tooee/cli
+    updated: true
   - changelogIds:
-      - markdown-outline-panel.md
-    id: npm:@tooee/cli
+      - copy-reports-failure.md
+      - submit-action-no-precedence.md
+      - width-aware-status-bar.md
+    id: npm:@tooee/ask
     updated: true
-  - id: npm:@tooee/ask
+  - changelogIds:
+      - submit-action-no-precedence.md
+      - width-aware-status-bar.md
+    id: npm:@tooee/choose
     updated: true
-  - id: npm:@tooee/choose
+  - changelogIds:
+      - copy-reports-failure.md
+    id: npm:@tooee/clipboard
     updated: true
-  - id: npm:@tooee/clipboard
+  - changelogIds:
+      - command-context-exit.md
+      - palette-when-and-remaps.md
+      - plus-hotkey.md
+      - router-fallback-commands.md
+    id: npm:@tooee/commands
     updated: true
-  - id: npm:@tooee/commands
-    updated: true
-  - id: npm:@tooee/config
+  - changelogIds:
+      - config-write-keeps-unknown-keys.md
+    id: npm:@tooee/config
     updated: true
   - id: npm:@tooee/diff
-    updated: true
-  - changelogIds:
-      - markdown-outline-panel.md
-    id: npm:@tooee/layout
     updated: true
   - id: npm:@tooee/fuzzy
     updated: true
   - id: npm:@tooee/marks
     updated: true
-  - id: npm:@tooee/overlays
+  - changelogIds:
+      - search-bar-on-cancel.md
+      - width-aware-status-bar.md
+    id: npm:@tooee/layout
+    updated: true
+  - changelogIds:
+      - overlay-role-without-panel.md
+      - owned-overlay-escape.md
+    id: npm:@tooee/overlays
     updated: true
   - id: npm:@tooee/panels
     updated: true
+  - id: npm:@tooee/renderers
+    updated: true
   - changelogIds:
-      - markdown-outline-panel.md
-    id: npm:@tooee/renderers
+      - router-fallback-commands.md
+      - router-provider-context.md
+    id: npm:@tooee/router
     updated: true
-  - id: npm:@tooee/router
+  - changelogIds:
+      - search-bar-on-cancel.md
+      - search-next-selectable.md
+    id: npm:@tooee/search
     updated: true
-  - id: npm:@tooee/search
+  - changelogIds:
+      - copy-reports-failure.md
+      - document-screen-search-status.md
+      - export-use-navigation-bindings.md
+      - owned-overlay-escape.md
+      - palette-when-and-remaps.md
+      - search-highlight-theme-tokens.md
+      - width-aware-status-bar.md
+    id: npm:@tooee/shell
     updated: true
   - id: npm:@tooee/test-support
     updated: false
   - changelogIds:
-      - markdown-outline-panel.md
-    id: npm:@tooee/shell
-    updated: true
-  - id: npm:@tooee/themes
+      - project-themes-nearest-wins.md
+      - search-highlight-theme-tokens.md
+      - theme-switcher-set-mode.md
+    id: npm:@tooee/themes
     updated: true
   - id: npm:@tooee/toasts
     updated: true
   - changelogIds:
-      - markdown-outline-panel.md
+      - directory-file-keys.md
+      - view-launch-link-activate.md
+      - width-aware-status-bar.md
     id: npm:@tooee/view
     updated: true
 npm:packages:
@@ -61,16 +152,22 @@ npm:packages:
   - id: npm:@tooee/commands
   - id: npm:@tooee/config
   - id: npm:@tooee/diff
-  - id: npm:@tooee/layout
   - id: npm:@tooee/fuzzy
   - id: npm:@tooee/marks
+  - id: npm:@tooee/layout
   - id: npm:@tooee/overlays
   - id: npm:@tooee/panels
   - id: npm:@tooee/renderers
   - id: npm:@tooee/router
   - id: npm:@tooee/search
-  - id: npm:@tooee/test-support
   - id: npm:@tooee/shell
+  - id: npm:@tooee/test-support
   - id: npm:@tooee/themes
   - id: npm:@tooee/toasts
   - id: npm:@tooee/view
+  - id: npm:@tooee/example-choose
+  - id: npm:@tooee/example-view
+  - id: npm:@tooee/example-termcn
+  - id: npm:@tooee/example-panels
+  - id: npm:@tooee/example-shell
+  - id: npm:@tooee/example-ask

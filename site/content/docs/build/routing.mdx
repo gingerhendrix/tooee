@@ -186,7 +186,7 @@ A router holds a stack of screens. `createRoute` pairs a route id with a compone
 | `screenState`      | A `Codec` for the value saved with `useScreenState`.                                                              |
 | `parent`           | A layout route whose component draws an `Outlet` for this one.                                                    |
 | `pendingComponent` | Drawn while the loader runs.                                                                                      |
-| `errorComponent`   | Drawn with `{ error }` when the loader throws.                                                                    |
+| `errorComponent`   | Drawn with `{ error, retry }` when the loader throws. `retry()` runs the loader again. The props type is `RouteErrorProps`. |
 | `title`            | A string or `({ params }) => string`, stored on the route for your own chrome to read.                            |
 
 A screen and its route refer to each other: the route names the component, and the component calls `useParams` for that route. `useParams`, `useRouteData`, and `useScreenState` need only the `id` and the codec, so the example puts those in a spec object, creates the screen from the spec, and spreads the spec into `createRoute` afterwards. `navigate.push` needs the route object itself, so a screen that pushes another comes after that route in the file.
@@ -205,7 +205,7 @@ A `Codec<T>` is `{ parse: (value: unknown) => T }`. Params cross a serialized bo
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `routes`            | Required. Every route the router may show. A duplicate id throws.                                                                                                                                                                                         |
 | `initial`           | Required. `{ routeId, params }` for the first entry.                                                                                                                                                                                                      |
-| `context`           | A value passed to every guard as its second argument. In 0.12 `RouterProvider` accepts a router without one: its `router` prop is typed `RouterInstance<undefined>`. A guard that closes over the value, as the draft guard below does, avoids the prop. |
+| `context`           | A value passed to every guard as its second argument. `RouterProvider` accepts a router with any `context`. |
 | `beforeNavigate`    | One guard or a list of guards. See [Guard a navigation](#guard-a-navigation).                                                                                                                                                                             |
 | `onNavigationError` | Called with the error and `{ id, intent, navigation }` when a navigation fails.                                                                                                                                                                           |
 | `onSubscriberError` | Called when a stack or navigation listener throws. The navigation result is not affected.                                                                                                                                                                 |
@@ -234,7 +234,7 @@ Every method returns a promise that resolves with a `NavigationResult` and never
 
 Navigation is switch-latest. A second call while one is in flight cancels the first with `"superseded"`, and only the newest queued call is kept. A route object that belongs to another router, or a call before `start()` settles, throws at once instead of returning a promise.
 
-`useRouter()` returns the instance behind the hooks. Its `navigate({ type, routeId, params })` takes a string id, for intents that arrive serialized, and `useActionResultHandler()` turns a `{ type: "navigate" }` or `{ type: "back" }` result from an action into a call. `useCurrentRoute()` returns the top `{ routeId, params }`, and `useCanGoBack()` is `true` when the stack has more than one entry.
+`useRouter()` returns the instance behind the hooks, typed `RouterInstance<unknown>`, so check `useRouter().context` before you use it. Its `navigate({ type, routeId, params })` takes a string id, for intents that arrive serialized, and `useActionResultHandler()` turns a `{ type: "navigate" }` or `{ type: "back" }` result from an action into a call. `useCurrentRoute()` returns the top `{ routeId, params }`, and `useCanGoBack()` is `true` when the stack has more than one entry.
 
 ## Guard a navigation
 
@@ -500,7 +500,7 @@ await launchCli(
 
 `Enter` on `package.json` shows `Reading...` for a moment, then the name and version. `Enter` on `missing.json` shows the error line instead. `Backspace` returns to the list in both cases.
 
-The loader runs in an effect after the navigation commits, so a `committed` result does not mean the data is there. The pending and error components render in place of the screen, so a command registered inside the screen is absent while they show. `Manifests` registers `Backspace` and `q` above the `Outlet`, where they stay live on every screen. The loader decodes the file itself, because `Bun.file().json()` returns an untyped value, and `useRouteData` decodes the stored result again with the same codec. `useRouteData` returns `undefined` for a route that did not produce the data in context, such as a parent in a nested chain.
+The loader runs in an effect after the navigation commits, so a `committed` result does not mean the data is there. The pending and error components render in place of the screen, so a command registered inside the screen is absent while they show. `Manifests` registers `Backspace` and `q` above the `Outlet`, where they stay live on every screen. Inside a `CommandProvider`, the router also registers two fallback commands while a pending or error component shows: `q` calls `ctx.exit()`, and `r` runs the loader again on the error screen. A command that the app or the error component registers on the same key runs first. The loader decodes the file itself, because `Bun.file().json()` returns an untyped value, and `useRouteData` decodes the stored result again with the same codec. `useRouteData` returns `undefined` for a route that did not produce the data in context, such as a parent in a nested chain.
 
 ## Nested routes and screen focus
 

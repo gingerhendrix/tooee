@@ -1,3 +1,11 @@
+## @tooee/clipboard@0.13.0
+
+### Copy tells you when no clipboard tool is installed
+
+`copyToClipboard` now resolves `true` when a clipboard tool took the text, and `false` when no tool is installed or the tool exits with an error. Before, it resolved nothing, and the copy commands always showed "Copied".
+
+The copy commands in `@tooee/shell` and the Ask editor now show an error toast when the copy fails. On Linux, install `wl-copy`, `xclip` or `xsel`.
+
 ## @tooee/clipboard@0.10.2
 
 ### Update OpenTUI to 0.5.12 and refresh dependencies

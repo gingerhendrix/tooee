@@ -101,7 +101,7 @@ await runCliSession(() => <View contentProvider={createStdinProvider()} />, {
 git diff | bun pipe-view.tsx
 ```
 
-Put `initialMode`, `leader`, `config`, and `sequenceTimeoutMs` under `provider`. Tooee 0.9 no longer accepts these settings at the top level.
+Put `initialMode`, `leader`, `config`, and `sequenceTimeoutMs` under `provider`. The top level of the session options does not accept them.
 
 ## Next
 

@@ -46,7 +46,7 @@ Run it with `bun pick-commit.ts`. Move to a commit, press `Enter`, and quit with
 
 View owns the keys in [Keyboard basics](/docs/start/keyboard-basics), plus `L` for line numbers, `y g` for copying the whole document, `h` and `l` on wide blocks and diffs, and the keys on [View: diffs](/docs/apps/view/diffs#keys). Markdown content adds `g o` and the `z` fold keys, and `launch()` adds `Enter` to follow a link and `Backspace` to go back. Pick other keys for your actions.
 
-A handler cannot end the session in Tooee 0.12: `ctx.exit` does nothing inside View. Store what the handler learned, as `picked` does above, and act after `launch()` resolves.
+A handler can end the session with `ctx.exit()`. Then `launch()` resolves. Store what the handler learned, as `picked` does above, and act after `launch()` resolves.
 
 `ctx.toast?.toast({ message, level, duration, id })` shows a toast. `level` is `info`, `success`, `warning`, or `error`. A toast with the same `id` as the one on screen replaces it.
 

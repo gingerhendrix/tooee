@@ -25,7 +25,7 @@ Every content value has a `format` and the fields for that format. [View: conten
 
 A fenced code block draws in a bordered box with syntax colours for the fence language. Its lines never wrap. When the block is wider than the terminal and the cursor is on it, `h` and `l` pan the block four columns at a time. `Shift` with the mouse wheel pans as well.
 
-A `mermaid` fence draws the diagram with box characters. A diagram falls back to the plain code block when it fails to parse, or when its source is longer than 300 lines or 20,000 characters. A flowchart or a state diagram also falls back when it has more than 32 edges, or when one cycle holds a node with 3 or more incoming edges and a node with 3 or more outgoing edges. One node can be both. Such a graph can block the terminal while Tooee routes its edges. The cycle rule arrived in 0.9.1. [view-mermaid.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/view-mermaid.ts) draws a flowchart and a sequence diagram. A `diff` or `patch` fence draws as a Hunk block; [View: diffs](/docs/apps/view/diffs#diff-fences-in-markdown) has the options. [View: custom renderers](/docs/apps/view/custom-renderers#render-a-fence-type) shows how to register a fence type of your own.
+A `mermaid` fence draws the diagram with box characters. A diagram falls back to the plain code block when it fails to parse, or when its source is longer than 300 lines or 20,000 characters. A flowchart or a state diagram also falls back when it has more than 32 edges, or when one cycle holds a node with 3 or more incoming edges and a node with 3 or more outgoing edges. One node can be both. Such a graph can block the terminal while Tooee routes its edges. [view-mermaid.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/view-mermaid.ts) draws a flowchart and a sequence diagram. A `diff` or `patch` fence draws as a Hunk block; [View: diffs](/docs/apps/view/diffs#diff-fences-in-markdown) has the options. [View: custom renderers](/docs/apps/view/custom-renderers#render-a-fence-type) shows how to register a fence type of your own.
 
 ### Images in markdown
 
@@ -89,11 +89,13 @@ await runCliSession((): ReactNode => (
 
 Return `true` to mark the click as handled, so it does not move the cursor.
 
+`launch()` takes the same `onMarkdownLinkActivate` option. There the handler runs on a click on a link or on `Enter` on the cursor line. It replaces the default handling: `linkHandlers`, local file navigation, and the `Links need a source file` toast.
+
 ## Code and text
 
 `code` takes `code` and an optional `language`. `text` takes `text`. Both draw one row per line with line numbers in the gutter; `L` toggles them. Search matches one line, `y y` copies the line under the cursor, and `v` with `j` or `k` selects lines for `y v`. `Cursor:` in the status bar is the zero-based line index.
 
-`language` picks the tree-sitter grammar for the colours. OpenTUI 0.5 bundles grammars for `typescript`, `javascript`, `markdown`, and `zig`. Any other value draws plain text. [View](/docs/cli/view#open-a-file) in the CLI section lists the extensions `createFileProvider` maps to a language. The text format is the code renderer without a language. [view-code.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/view-code.ts) opens a TypeScript snippet with `format: "code"`.
+`language` picks the tree-sitter grammar for the colours. OpenTUI bundles grammars for `typescript`, `javascript`, `markdown`, and `zig`. Any other value draws plain text. [View](/docs/cli/view#open-a-file) in the CLI section lists the extensions `createFileProvider` maps to a language. The text format is the code renderer without a language. [view-code.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/view/view-code.ts) opens a TypeScript snippet with `format: "code"`.
 
 ## Table
 
