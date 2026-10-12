@@ -1,3 +1,21 @@
+## @tooee/themes@0.13.0
+
+### The nearest project theme folder wins
+
+Tooee loads `.tooee/themes/` folders from the filesystem root down to the current folder. When two folders have a theme with the same name, the theme in the folder nearest to the current folder is used. Before, the parent folder's theme replaced the child's. Config files already used nearest wins.
+
+### Add search highlight theme tokens
+
+Themes have four new keys: `searchMatchBg`, `searchCurrentMatchBg`, `searchMatchFg`, and `searchCurrentMatchFg`. Every bundled theme sets them.
+
+Search matches in row documents now use a background tinted from `warning`, and the current match uses a background tinted from `primary`. Before, both used the full `warning` and `primary` colours, which made the matched text hard to read. The gutter signs keep their old colours.
+
+A custom theme that leaves out the new keys gets derived values: 22% of `warning` over `background` for `searchMatchBg`, 35% of `primary` over `background` for `searchCurrentMatchBg`, and `warning` and `primary` for the signs. Over a transparent `background`, the derived backgrounds are translucent.
+
+### `useThemeSwitcher` can change light or dark mode
+
+`useThemeSwitcher()` returns a new `setMode(mode, { persist })` function. It switches the current theme between its light and dark variants while the app runs. With `persist: true`, it also writes the mode to the global config, as `setTheme` does.
+
 ## @tooee/themes@0.10.2
 
 ### Update OpenTUI to 0.5.12 and refresh dependencies

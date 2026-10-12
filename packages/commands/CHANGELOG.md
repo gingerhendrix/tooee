@@ -1,3 +1,34 @@
+## @tooee/commands@0.13.0
+
+### `ctx.exit()` closes the app everywhere
+
+`ctx.exit()` did nothing in a `launchCli` app or in View, because only Ask and Choose supplied an `exit`. The command provider now uses the renderer's `destroy` as the default `exit`. A context source can still supply its own `exit`.
+
+### The command palette hides unavailable commands and shows remapped keys
+
+The palette now leaves out a command whose `when` returns false when the palette opens. Before, it listed the command, and choosing it did nothing.
+
+The palette now shows the key from the `keys` config, not the command's default key. A root command that a panel command shadows under its remapped key loses its key hint, as dispatch does.
+
+`useEffectiveCommands()` returns two new functions: `hotkeyFor(id)` gives the key that runs a command now, and `isAvailable(id)` checks the command's `when` against the context of the surface that owns it.
+
+### A `+` hotkey works
+
+A command bound to `"+"` now runs when you press `+`. Before, the parser split the step on `+` and the hotkey never matched. `"ctrl++"` binds `ctrl` with the `+` key, and `+` also works as one step in a sequence such as `"z +"`.
+
+### Quit and retry from a route's pending or error screen
+
+While a route's pending or error component replaces the screen, the screen's own commands are unmounted. Before, an app that bound `q` only inside its screens could not quit from a failed load. Now, inside a `CommandProvider`, the router registers two fallback commands while the pending or error component shows:
+
+- `q` calls `ctx.exit()`.
+- `r` runs the route loader again. This command exists only on the error screen.
+
+Commands that the app or the error component registers on the same keys run first.
+
+The `errorComponent` now gets a `retry` prop next to `error`. The props type is exported as `RouteErrorProps`.
+
+`@tooee/commands` exports `useHasCommandProvider()`, which tells a component whether a `CommandProvider` is above it.
+
 ## @tooee/commands@0.10.2
 
 ### Update OpenTUI to 0.5.12 and refresh dependencies

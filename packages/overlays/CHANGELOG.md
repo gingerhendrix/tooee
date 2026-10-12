@@ -1,3 +1,13 @@
+## @tooee/overlays@0.13.0
+
+### `OverlayRole` no longer accepts `"panel"`
+
+An owned overlay opened with `role: "panel"` never became active, because a panel surface needs a panel group and overlays have none. `OverlayRole` is now `"modal" | "passive"`, so TypeScript rejects `"panel"`. Use `@tooee/panels` for panel surfaces.
+
+### Escape closes an `ownCommands` modal
+
+An overlay opened with `ownCommands: true` and the default `dismissOnEscape` now closes on Escape, with the close reason `"escape"`. Before, the modal surface suspended root dispatch, so the root Escape command never ran, and `dismissOnEscape` had no effect. An Escape command that the overlay registers itself still runs first.
+
 ## @tooee/overlays@0.10.2
 
 ### Update OpenTUI to 0.5.12 and refresh dependencies
