@@ -1,0 +1,395 @@
+---
+title: Search and fuzzy filtering
+description: Add search to a screen of your own with @tooee/search, and rank lists with @tooee/fuzzy.
+---
+
+```tsx title="build-log.tsx"
+import { AppLayout } from "@tooee/layout";
+import { findMatchingLines, useSearch } from "@tooee/search";
+import { launchCli, useNavigation, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import type { ReactNode } from "react";
+
+const buildLog = [
+  "$ bun install",
+  "Resolved 412 packages",
+  "$ bun run typecheck",
+  "error TS2307: Cannot find module './config.js'",
+  "$ bun test",
+  "42 pass",
+  "1 fail: config loader > reads the user file",
+].join("\n");
+
+const logLines = buildLog.split("\n");
+
+const BuildLog = function BuildLog(): ReactNode {
+  const { theme } = useTheme();
+  const { cursor, setCursor } = useNavigation({ rowCount: logLines.length });
+
+  const search = useSearch({
+    match: (query) => findMatchingLines(buildLog, query),
+    onJump: setCursor,
+  });
+
+  const matches = new Set(search.matchingLines);
+  useQuitCommand();
+
+  return (
+    <AppLayout
+      titleBar={{ title: "build.log" }}
+      statusBar={{ items: [{ label: "Matches:", value: String(matches.size) }] }}
+      searchBar={search}
+    >
+      <box flexDirection="column">
+        {logLines.map(
+          (line, index): ReactNode => (
+            <text
+              key={line}
+              content={line}
+              fg={matches.has(index) ? theme.warning : theme.text}
+              bg={index === cursor ? theme.cursorLine : undefined}
+            />
+          ),
+        )}
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<BuildLog />);
+```
+
+```bash
+bun add @tooee/search @tooee/shell @tooee/layout @tooee/themes
+bun build-log.tsx
+```
+
+Press `/` and type `bun`. The search bar replaces the status bar and shows `1/3`. `Enter` closes the bar. `n` moves the cursor to `$ bun run typecheck`, and `N` moves it back. `q` quits.
+
+A [document](/docs/build/documents#search) gets search from its controller. Use `useSearch` when your screen draws rows without one. The hook registers the search keys and keeps the query and the matches. The cursor stays yours: the hook calls `onJump` with a row index, and your code moves the cursor there. `useSearch` returns a `SearchState`. [Documents](/docs/build/documents#search) lists its fields, and `AppLayout` draws the bar from it through `searchBar`. A layout of your own mounts `SearchBar` with the props in [Layout and chrome](/docs/build/layout#search-bar).
+
+Your rows paint their own matches. The example colours them with `theme.warning`. The document controller uses the same colour for matches and `theme.primary` for the current match.
+
+## Keys and command ids
+
+`useSearch` registers four commands:
+
+| Key       | Command id            | Modes                  | What it does                                                                                    |
+| --------- | --------------------- | ---------------------- | ----------------------------------------------------------------------------------------------- |
+| `/`       | `cursor-search-start` | cursor                 | Opens the bar with an empty query, saves the mode, and switches to insert mode.                 |
+| `n`       | `cursor-search-next`  | cursor                 | Jumps to the next match while the bar is closed. Wraps from the last match to the first.        |
+| `shift+n` | `cursor-search-prev`  | cursor                 | Jumps to the previous match while the bar is closed. Wraps from the first match to the last.    |
+| `escape`  | `search-cancel`       | cursor, select, insert | Runs only while the bar is open. Clears the query and the matches, and restores the saved mode. |
+
+Each keystroke in the bar calls `match` again and jumps to the first match. `Enter` calls `submitSearch()`: the query stays, the cursor jumps to the first match, and the saved mode comes back. After `Escape` the cursor stays on the row of the last jump. An empty query has no matches, and the hook does not call `match` for it.
+
+Remap these keys by id in the [config](/docs/customize/configuration#remap-keys). [Keyboard shortcuts](/docs/reference/keyboard-shortcuts) lists them with the other default keys.
+
+## Write a matcher
+
+`match(query)` returns the indices of the matching rows. `n` and `N` step through them in the order that you return them, so return them sorted when the reader expects top to bottom.
+
+`findMatchingLines(text, query)` splits `text` on `\n` and returns the 0-based index of each line that contains `query`. The match ignores case. An empty query returns `[]`. The document controller applies the same rule to the text of each row.
+
+Return a different order when it helps the reader. This `match` in `build-log.tsx` ranks the lines with `rankBy` from [`@tooee/fuzzy`](#rank-a-list-with-tooeefuzzy), so `Enter` jumps to the best match and `n` moves down the ranking:
+
+```tsx title="build-log.tsx"
+import { rankBy } from "@tooee/fuzzy";
+
+const search = useSearch({
+  match: (query) => rankBy(logLines, query, (line) => line).map((ranked) => ranked.originalIndex),
+  onJump: setCursor,
+});
+```
+
+`useSearch` takes these options:
+
+| Option    | Default | Meaning                                                                                                                                                 |
+| --------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `match`   |         | Required. `(query) => number[]`. The hook always calls the latest function that you pass.                                                               |
+| `onJump`  |         | Required. Called with the row index of each jump: while you type, on `Enter`, on `n` and `N`, and after a re-match.                                      |
+| `enabled` | `true`  | `false` registers none of the four commands.                                                                                                            |
+| `deps`    | `[]`    | Values that the content depends on. When one of them changes, the hook calls `match` again for the current query. See [Re-match new content](#re-match-new-content). |
+
+## Re-match new content
+
+The hook calls `match` only when the query changes. When your rows change under a committed query, the matches keep their old indices. Pass the content in `deps`, for example `deps: [logLines]`. The hook compares each value with `Object.is`. When one differs, it calls `match` again for the current query. When the new matches differ, the cursor jumps to the first one and the current match goes back to the first.
+
+The document controller passes its `rows` as `deps` for you.
+
+## Share one store with your own cursor
+
+`useSearch` keeps a store of its own. A screen that also owns its cursor can keep the cursor and the search in one store with `useNavSearchStore` and `useSearchBindings`. The document controller works this way. The search then moves the cursor in the store:
+
+```tsx title="release-notes.tsx"
+import { useCommand } from "@tooee/commands";
+import { AppLayout } from "@tooee/layout";
+import { selectCursor, useNavSearchStore, useSearchBindings } from "@tooee/search";
+import { launchCli, useQuitCommand } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { useSelector } from "@xstate/store-react";
+import type { ReactNode } from "react";
+
+interface ReleaseRow {
+  key: string;
+  text: string;
+  heading: boolean;
+}
+
+const releaseRows: ReleaseRow[] = [
+  { heading: true, key: "0.12.0", text: "0.12.0" },
+  { heading: false, key: "0.12.0/search", text: "Search re-matches when rows change" },
+  { heading: false, key: "0.12.0/panels", text: "Panels keep focus after a resize" },
+  { heading: true, key: "0.11.0", text: "0.11.0" },
+  { heading: false, key: "0.11.0/fuzzy", text: "Move rankBy to @tooee/fuzzy" },
+];
+
+const releaseKeys = releaseRows.map((row) => row.key);
+
+const changeIndices = new Set(releaseRows.flatMap((row, index) => (row.heading ? [] : [index])));
+
+const isChange = (index: number): boolean => changeIndices.has(index);
+
+const matchChanges = (query: string): number[] =>
+  releaseRows.flatMap((row, index) =>
+    isChange(index) && row.text.toLowerCase().includes(query.toLowerCase()) ? [index] : [],
+  );
+
+const ReleaseNotes = function ReleaseNotes(): ReactNode {
+  const { theme } = useTheme();
+  const store = useNavSearchStore({ isSelectable: isChange, keys: releaseKeys });
+  const cursor = useSelector(store, (snapshot) => selectCursor(snapshot.context));
+  const search = useSearchBindings(store, { match: matchChanges });
+  useQuitCommand();
+  useCommand({
+    handler: () => {
+      store.trigger.move({ delta: 1 });
+    },
+    hotkey: "j",
+    id: "release-notes.next",
+    modes: ["cursor"],
+    title: "Next change",
+  });
+  useCommand({
+    handler: () => {
+      store.trigger.move({ delta: -1 });
+    },
+    hotkey: "k",
+    id: "release-notes.previous",
+    modes: ["cursor"],
+    title: "Previous change",
+  });
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Release notes" }}
+      statusBar={{ items: [{ label: "Cursor:", value: String(cursor) }] }}
+      searchBar={search}
+    >
+      <box flexDirection="column">
+        {releaseRows.map(
+          (row, index): ReactNode => (
+            <text
+              key={row.key}
+              content={row.heading ? row.text : `  ${row.text}`}
+              fg={row.heading ? theme.accent : theme.text}
+              bg={index === cursor ? theme.cursorLine : undefined}
+            />
+          ),
+        )}
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<ReleaseNotes />);
+```
+
+```bash
+bun add @tooee/search @tooee/commands @tooee/shell @tooee/layout @tooee/themes @xstate/store-react
+bun release-notes.tsx
+```
+
+The cursor starts on the first change, `j` and `k` skip the version headings, and `/` searches the changes. `useSelector` from `@xstate/store-react` reads the store in a component. `@tooee/search` 0.12 builds on `@xstate/store` 4 and `@xstate/store-react` 2.
+
+`useNavigation` from `@tooee/shell` also keeps a store of its own, and it does not expose that store. With a shared store, you register the movement commands yourself, as the example does with `j` and `k`.
+
+Typing and `Enter` move the cursor to the first match, or to the next selectable row after it. `n` and `N` put the cursor on the match index without the `isSelectable` check. Return only selectable rows from `match`, as `matchChanges` does.
+
+`useNavSearchStore` takes these options:
+
+| Option                | Default    | Meaning                                                                                                                                                                                                                    |
+| --------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `keys`                |            | Required. One `RowKey` per row: a `string`, `number`, or `bigint`. The hook compares the keys one by one on each render, so a new array with the same keys changes nothing.                                                  |
+| `isSelectable(index)` | every row  | Returns `false` for rows that the cursor skips.                                                                                                                                                                            |
+| `preserveCursorByKey` | off        | When the keys change, the cursor follows the key of its row. When that key is gone, or when this option is off, the cursor keeps its index. Past the end it moves to the last selectable row. |
+
+When the keys change, toggled keys that are no longer in the rows drop out. `useSearchBindings(store, options)` takes the options of `useSearch`, with `onJump` optional, and returns the same `SearchState`.
+
+### Store events
+
+Send an event with `store.trigger.<event>(payload)`:
+
+| Event           | Payload                        | Effect                                                                                                              |
+| --------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `move`          | `{ delta }`                    | Moves the cursor `delta` rows and past the rows that `isSelectable` rejects. Stops at the first and last selectable rows.
+| `jump`          | `{ index, direction }`         | Puts the cursor on `index`, or on the nearest selectable row in `direction` (`1` or `-1`). Emits `jumped`.         |
+| `setCursor`     | `{ index }`                    | Puts the cursor on `index`, or on the nearest selectable row. Emits nothing.                                        |
+| `enterSelect`   | `{}`                           | Sets the selection anchor at the cursor.                                                                            |
+| `cancelSelect`  | `{}`                           | Clears the selection anchor.                                                                                        |
+| `toggleCurrent` | `{}`                           | Adds the key of the cursor row to the toggled keys, or removes it.                                                  |
+| `toggleAndMove` | `{ delta }`                    | Toggles the cursor row, then moves.                                                                                 |
+| `rowsChanged`   | `{ keys, preserveCursorByKey? }` | Replaces the keys. `useNavSearchStore` sends it for you.                                                           |
+
+`useSearchBindings` sends the search events: `searchStarted`, `searchChanged`, `searchSubmitted`, `searchCancelled`, `searchNext`, and `searchPrevious`. The store emits `jumped` with `{ index }` on each jump, also when the cursor is already on that row. It emits `restoreMode` with `{ mode }` when the search ends. Listen with `store.on("jumped", handler)`, for example to scroll the row into view. `store.on` returns a subscription with `unsubscribe()`.
+
+### Selectors
+
+Each selector reads the store context: `snapshot.context` inside `useSelector`, or `store.getSnapshot().context` in a command handler.
+
+| Selector                  | Returns                                                                                                    |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `selectCursor`            | The cursor index, or `null` when the store has no selectable row.                                          |
+| `selectRowKeys`           | The current keys.                                                                                          |
+| `selectSelectionAnchor`   | The anchor index, or `null`.                                                                               |
+| `selectToggledKeys`       | A `ReadonlySet<RowKey>` of the toggled rows.                                                               |
+| `selectSearchStatus`      | `"idle"` before `/` and after `Escape`, `"editing"` while the bar is open, `"committed"` after `Enter`.    |
+| `selectSearchActive`      | `true` while the status is `"editing"`.                                                                    |
+| `selectSearchQuery`       | The text in the bar while editing, or the committed query.                                                 |
+| `selectMatches`           | The match indices.                                                                                         |
+| `selectCurrentMatchIndex` | The position in the matches of the current match.                                                          |
+
+`deriveSelection(context, mode)` returns `{ start, end }` in select mode when an anchor is set, and `null` in the other cases. `resolveIndex(target, direction, rowCount, isSelectable)` returns the selectable row that a jump to `target` lands on, or `null`. `createNavSearchStore({ keys, deps: { isSelectable } })` makes a store outside React, for example in a test. `useNavSearchStore` calls it for you. The types are `NavSearchStore`, `NavSearchContext`, `NavSearchEvents`, and `RowKey`.
+
+## Rank a list with @tooee/fuzzy
+
+```ts title="branch-rank.ts"
+import { rankBy } from "@tooee/fuzzy";
+
+interface Branch {
+  name: string;
+  ahead: number;
+}
+
+const branches: Branch[] = [
+  { ahead: 0, name: "main" },
+  { ahead: 3, name: "fix/search-bar" },
+  { ahead: 1, name: "feature/fuzzy-sort" },
+  { ahead: 7, name: "docs/site-content" },
+];
+
+for (const match of rankBy(branches, "fs", (branch) => branch.name)) {
+  console.log(match.score, match.originalIndex, match.item.name, match.positions);
+}
+```
+
+```bash
+bun add @tooee/fuzzy
+bun branch-rank.ts
+```
+
+```text
+5 1 fix/search-bar [ 0, 4 ]
+5 2 feature/fuzzy-sort [ 0, 14 ]
+```
+
+`@tooee/fuzzy` has no dependencies and no React code. `rankBy(items, query, getText)` matches `query` against `getText(item)` and returns a `FuzzyMatch<T>` for each item that matches:
+
+| Field           | Meaning                                                    |
+| --------------- | ---------------------------------------------------------- |
+| `item`          | The item.                                                  |
+| `originalIndex` | The index of the item in `items`.                          |
+| `positions`     | The indices of the matched characters in the text.         |
+| `score`         | The match score. A higher score ranks first.               |
+
+Every character of the query must occur in the text in order. Case does not matter. Items that do not match drop out. The result is sorted by score, highest first, and items with the same score keep their source order. An empty query returns every item in source order with score `0` and no positions.
+
+Each matched character adds to the score:
+
+| Matched character                                                  | Points |
+| ------------------------------------------------------------------ | ------ |
+| The first character of the text                                   | 3      |
+| The character after a space, `-`, `_`, `.`, or `/`                 | 2      |
+| The character directly after the previous matched character        | 1      |
+| Any other character                                                | 0      |
+
+The matcher takes the first occurrence of each query character from left to right. It does not look for a placement with a higher score. `fb` on `feat/rebuild-bar` matches the `b` of `rebuild` at index 7 and scores 3. The `b` of `bar` would score 5.
+
+Two functions match one string:
+
+| Function                            | Returns                                                   |
+| ----------------------------------- | --------------------------------------------------------- |
+| `fuzzyMatch(query, text)`           | The score, or `null` when the text does not match.        |
+| `fuzzyMatchPositions(query, text)`  | `{ score, positions }`, or `null`.                        |
+
+A score of `0` is a match: `fuzzyMatch("b", "abc")` returns `0`. Compare the result with `null`.
+
+Choose, the command palette, and the theme picker rank their items with `rankBy`. `fuzzyFilter(items, query)` from `@tooee/choose` runs it on the `text` of each `ChooseItem`. [Choose](/docs/apps/choose#filter-the-list) describes that filter.
+
+## Filter a list on screen
+
+```tsx title="branch-filter.tsx"
+import { rankBy } from "@tooee/fuzzy";
+import { AppLayout } from "@tooee/layout";
+import { launchCli } from "@tooee/shell";
+import { useTheme } from "@tooee/themes";
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+const branches = ["main", "fix/search-bar", "feature/fuzzy-sort", "docs/site-content"];
+
+const highlight = (text: string, positions: readonly number[], color: string): ReactNode[] => {
+  const matched = new Set(positions);
+
+  return text
+    .split("")
+    .map((char, index): ReactNode =>
+      matched.has(index) ? (
+        <span key={index} fg={color}>
+          {char}
+        </span>
+      ) : (
+        char
+      ),
+    );
+};
+
+const BranchFilter = function BranchFilter(): ReactNode {
+  const { theme } = useTheme();
+  const [query, setQuery] = useState("");
+  const ranked = rankBy(branches, query, (branch) => branch);
+
+  return (
+    <AppLayout
+      titleBar={{ title: "Branches" }}
+      statusBar={{
+        items: [{ label: "Matches:", value: `${ranked.length}/${branches.length}` }],
+      }}
+    >
+      <box flexDirection="column">
+        <input focused placeholder="Filter branches" onInput={setQuery} />
+        {ranked.map(
+          (match): ReactNode => (
+            <text key={match.item} fg={theme.text}>
+              {highlight(match.item, match.positions, theme.accent)}
+            </text>
+          ),
+        )}
+      </box>
+    </AppLayout>
+  );
+};
+
+await launchCli(<BranchFilter />, { provider: { initialMode: "insert" } });
+```
+
+Run it with `bun branch-filter.tsx` and type `fs`. Two branches stay, the status bar reads `Matches: 2/4`, and the matched characters take the accent colour. `ctrl+c` quits.
+
+`initialMode: "insert"` sends the keys to the focused `<input>`. `positions` are indices into the string, the same indices that `split("")` gives. `<input>` and `<span>` are [OpenTUI](https://opentui.com) elements. For a filtered list with a cursor, `Enter`, and multi-select, use [Choose](/docs/apps/choose), which can also run inside a panel.
+
+## Next
+
+- [Documents](/docs/build/documents)
+- [Layout and chrome](/docs/build/layout)
+- [Choose](/docs/apps/choose)
+- [Keyboard shortcuts](/docs/reference/keyboard-shortcuts)
