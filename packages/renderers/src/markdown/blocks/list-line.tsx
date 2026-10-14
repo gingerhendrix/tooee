@@ -3,28 +3,25 @@ import type { Token } from "marked";
 import type { ReactNode } from "react";
 
 import { checkboxMarker } from "../../markdown-blocks.js";
-import type { FlatBlock } from "../../markdown-blocks.js";
+import type { FlatListLineBlock } from "../../markdown-blocks.js";
 import { InlineTokens } from "../inline.js";
 import { linkMouseHandler } from "../links.js";
 import type { MarkdownLinkHandler } from "../links.js";
-import { hasMarkedText } from "../tokens.js";
 
 export const ListLineRenderer = function ListLineRenderer({
   block,
   theme,
   onLinkActivate,
 }: {
-  block: FlatBlock;
+  block: FlatListLineBlock;
   theme: ResolvedTheme;
   onLinkActivate?: MarkdownLinkHandler;
 }): ReactNode {
   const { token, indent, bullet, checked } = block;
   const checkboxPrefix = checkboxMarker(checked);
 
-  const inlineTokens: Token[] =
-    "tokens" in token && Array.isArray(token.tokens) ? token.tokens : [];
-
-  const tokenText = hasMarkedText(token) ? token.text : "";
+  const inlineTokens: Token[] = token.tokens ?? [];
+  const tokenText = token.text;
   const hasContent = inlineTokens.length > 0 || tokenText.length > 0;
 
   let content: ReactNode = null;

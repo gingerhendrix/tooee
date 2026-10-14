@@ -1,20 +1,49 @@
 import type { SyntaxStyle, TextBufferRenderable } from "@opentui/core";
 import type { ResolvedTheme } from "@tooee/themes";
+import type { Token } from "marked";
 import type { ReactNode, RefObject } from "react";
 
 import { CodeBlock } from "../../code-blocks.js";
 import type { CodeBlockRenderer } from "../../code-blocks.js";
 import type { FlatBlock } from "../../markdown-blocks.js";
 import type { MarkdownLinkHandler } from "../links.js";
-import { hasMarkedText, narrowToken } from "../tokens.js";
+import { hasMarkedText } from "../tokens.js";
 import { BlockquoteRenderer } from "./blockquote.js";
 import { HeadingRenderer } from "./heading.js";
 import { HorizontalRule } from "./horizontal-rule.js";
 import { ListLineRenderer } from "./list-line.js";
 import { ParagraphRenderer } from "./paragraph.js";
-import { MarkdownTableRenderer, MarkdownTableRowRenderer } from "./table.js";
+import { MarkdownTableRowRenderer } from "./table.js";
 
 type CodeBlockRendererRegistry = Record<string, CodeBlockRenderer>;
+
+/** A block with no dedicated renderer: its plain text, when the token has any. */
+const OtherBlockRenderer = function OtherBlockRenderer({
+  token,
+  theme,
+  indent,
+}: {
+  token: Token;
+  theme: ResolvedTheme;
+  indent: number;
+}): ReactNode {
+  if (!hasMarkedText(token)) {
+    return null;
+  }
+
+  return (
+    <text
+      content={token.text}
+      style={{
+        fg: theme.markdownText,
+        marginBottom: 1,
+        marginLeft: 1 + indent,
+        marginRight: 1,
+        marginTop: 0,
+      }}
+    />
+  );
+};
 
 export const FlatBlockRenderer = function FlatBlockRenderer({
   block,
@@ -40,119 +69,89 @@ export const FlatBlockRenderer = function FlatBlockRenderer({
   onLinkActivate?: MarkdownLinkHandler;
   imageBasePath?: string;
 }): ReactNode {
-  const { token, indent, bullet, tableRow } = block;
+  const { indent } = block;
 
-  if (tableRow !== undefined) {
-    return (
-      <MarkdownTableRowRenderer
-        table={tableRow.table}
-        index={tableRow.index}
-        indent={indent}
-        theme={theme}
-        contentWidth={contentWidth}
-        onLinkActivate={onLinkActivate}
-      />
-    );
+  switch (block.kind) {
+    case "table-row": {
+      return (
+        <MarkdownTableRowRenderer
+          table={block.row.table}
+          index={block.row.index}
+          indent={indent}
+          theme={theme}
+          contentWidth={contentWidth}
+          onLinkActivate={onLinkActivate}
+        />
+      );
+    }
+
+    case "list-line": {
+      return <ListLineRenderer block={block} theme={theme} onLinkActivate={onLinkActivate} />;
+    }
+
+    case "heading": {
+      return (
+        <HeadingRenderer
+          token={block.token}
+          theme={theme}
+          indent={indent}
+          hiddenCount={hiddenCount}
+          onLinkActivate={onLinkActivate}
+        />
+      );
+    }
+
+    case "paragraph": {
+      return (
+        <ParagraphRenderer
+          token={block.token}
+          theme={theme}
+          indent={indent}
+          onLinkActivate={onLinkActivate}
+          imageBasePath={imageBasePath}
+        />
+      );
+    }
+
+    case "code": {
+      return (
+        <CodeBlock
+          token={block.token}
+          blockIndex={blockIndex}
+          theme={theme}
+          syntax={syntax}
+          indent={indent}
+          contentWidth={contentWidth}
+          hScrollableBlocksRef={hScrollableBlocksRef}
+          renderers={codeBlockRenderers}
+        />
+      );
+    }
+
+    case "blockquote": {
+      return (
+        <BlockquoteRenderer
+          token={block.token}
+          theme={theme}
+          indent={indent}
+          onLinkActivate={onLinkActivate}
+        />
+      );
+    }
+
+    case "hr": {
+      return <HorizontalRule theme={theme} indent={indent} />;
+    }
+
+    case "other": {
+      return <OtherBlockRenderer token={block.token} theme={theme} indent={indent} />;
+    }
+
+    default: {
+      // A new `FlatBlock` kind without a case here fails to compile.
+      const unhandled: never = block;
+
+      return unhandled;
+    }
   }
-
-  if (bullet !== undefined) {
-    return <ListLineRenderer block={block} theme={theme} onLinkActivate={onLinkActivate} />;
-  }
-
-  const heading = narrowToken(token, "heading");
-
-  if (heading !== null) {
-    return (
-      <HeadingRenderer
-        token={heading}
-        theme={theme}
-        indent={indent}
-        hiddenCount={hiddenCount}
-        onLinkActivate={onLinkActivate}
-      />
-    );
-  }
-
-  const paragraph = narrowToken(token, "paragraph");
-
-  if (paragraph !== null) {
-    return (
-      <ParagraphRenderer
-        token={paragraph}
-        theme={theme}
-        indent={indent}
-        onLinkActivate={onLinkActivate}
-        imageBasePath={imageBasePath}
-      />
-    );
-  }
-
-  const code = narrowToken(token, "code");
-
-  if (code !== null) {
-    return (
-      <CodeBlock
-        token={code}
-        blockIndex={blockIndex}
-        theme={theme}
-        syntax={syntax}
-        indent={indent}
-        contentWidth={contentWidth}
-        hScrollableBlocksRef={hScrollableBlocksRef}
-        renderers={codeBlockRenderers}
-      />
-    );
-  }
-
-  const blockquote = narrowToken(token, "blockquote");
-
-  if (blockquote !== null) {
-    return (
-      <BlockquoteRenderer
-        token={blockquote}
-        theme={theme}
-        indent={indent}
-        onLinkActivate={onLinkActivate}
-      />
-    );
-  }
-
-  const table = narrowToken(token, "table");
-
-  if (table !== null) {
-    return (
-      <MarkdownTableRenderer
-        token={table}
-        indent={indent}
-        theme={theme}
-        contentWidth={contentWidth}
-        onLinkActivate={onLinkActivate}
-      />
-    );
-  }
-
-  if (token.type === "hr") {
-    return <HorizontalRule theme={theme} indent={indent} />;
-  }
-
-  if (token.type === "space" || token.type === "html") {
-    return null;
-  }
-
-  if (!hasMarkedText(token)) {
-    return null;
-  }
-
-  return (
-    <text
-      content={token.text}
-      style={{
-        fg: theme.markdownText,
-        marginBottom: 1,
-        marginLeft: 1 + indent,
-        marginRight: 1,
-        marginTop: 0,
-      }}
-    />
-  );
 };

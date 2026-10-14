@@ -9,6 +9,7 @@ interface KnownTokenByType {
   em: Tokens.Em;
   escape: Tokens.Escape;
   heading: Tokens.Heading;
+  hr: Tokens.Hr;
   image: Tokens.Image;
   link: Tokens.Link;
   list: Tokens.List;

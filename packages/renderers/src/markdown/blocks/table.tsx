@@ -98,20 +98,3 @@ export const MarkdownTableRowRenderer = function MarkdownTableRowRenderer({
     </box>
   );
 };
-
-/**
- * A whole table in one block, for a `FlatBlock` that has a `table` token but no
- * `tableRow`, such as one built by hand. `flattenMarkdown` never makes one.
- */
-export const MarkdownTableRenderer = function MarkdownTableRenderer({
-  token,
-  ...props
-}: Omit<TableRowProps, "table" | "index"> & { token: Tokens.Table }): ReactNode {
-  return (
-    <box style={{ flexDirection: "column" }}>
-      {Array.from({ length: token.rows.length + 1 }, (_row, index): ReactNode => (
-        <MarkdownTableRowRenderer key={index} table={token} index={index} {...props} />
-      ))}
-    </box>
-  );
-};

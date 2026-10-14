@@ -6,7 +6,20 @@ export { flattenMarkdown, getFlatBlockText } from "./markdown-blocks.js";
 
 export { getPlainText } from "./markdown/plain-text.js";
 
-export type { FlatBlock, FlatTableRow, FlattenMarkdownOptions } from "./markdown-blocks.js";
+export type {
+  FlatBlock,
+  FlatBlockKind,
+  FlatBlockquoteBlock,
+  FlatCodeBlock,
+  FlatHeadingBlock,
+  FlatListLineBlock,
+  FlatOtherBlock,
+  FlatParagraphBlock,
+  FlatRuleBlock,
+  FlatTableRow,
+  FlatTableRowBlock,
+  FlattenMarkdownOptions,
+} from "./markdown-blocks.js";
 
 export {
   parseObsidianImageEmbed,

@@ -3,7 +3,7 @@ import { test, expect, describe } from "bun:test";
 import { expectDefined } from "@tooee/test-support";
 
 import { flattenMarkdown, getFlatBlockText } from "../src/markdown-blocks.js";
-import type { FlatBlock } from "../src/markdown-blocks.js";
+import type { FlatBlock, FlatTableRowBlock } from "../src/markdown-blocks.js";
 
 /** Compact per-row projection: order, kind, bullet/checkbox, semantic text, and exact source. */
 interface RowProjection {
@@ -42,18 +42,22 @@ const projectRow = function projectRow(block: FlatBlock): RowProjection {
         }
       : null,
     text: getFlatBlockText(block),
-    type: block.token.type,
+    type: block.kind === "table-row" ? "table" : block.token.type,
   };
 
-  if (block.bullet !== undefined) {
+  if (block.kind === "list-line") {
     row.bullet = block.bullet;
-  }
 
-  if (block.checked !== undefined) {
-    row.checked = block.checked;
+    if (block.checked !== undefined) {
+      row.checked = block.checked;
+    }
   }
 
   return row;
+};
+
+const tableRowBlocks = function tableRowBlocks(blocks: readonly FlatBlock[]): FlatTableRowBlock[] {
+  return blocks.filter((block): block is FlatTableRowBlock => block.kind === "table-row");
 };
 
 const rows = function rows(markdown: string, options?: { sourceId?: string }): RowProjection[] {
@@ -387,7 +391,7 @@ describe("flattenMarkdown row order and provenance", () => {
 
     const result = flattenMarkdown(markdown);
     expect(result).toHaveLength(2);
-    expect(result.map((block) => block.token.type)).toEqual(["paragraph", "paragraph"]);
+    expect(rows(markdown).map((row) => row.type)).toEqual(["paragraph", "paragraph"]);
     expect(result.map((block) => block.source?.primary.start.offset)).toEqual([
       markdown.indexOf("Same line"),
       markdown.lastIndexOf("Same line"),
@@ -399,7 +403,7 @@ describe("flattenMarkdown row order and provenance", () => {
   test("HTML inside a list is skipped while visible bullet rows retain their source", () => {
     const markdown = "- before\n\n  <!-- hidden -->\n\n  after\n\n- <!-- hidden-only item -->";
     const result = flattenMarkdown(markdown);
-    expect(result.map((block) => block.token.type)).toEqual(["paragraph", "paragraph", "text"]);
+    expect(rows(markdown).map((row) => row.type)).toEqual(["paragraph", "paragraph", "text"]);
     expect(result.map(getFlatBlockText)).toEqual(["before", "after\n", "- "]);
     expect(result.map((block) => block.source?.primary.text)).toEqual(["before", "after", "-"]);
   });
@@ -497,11 +501,12 @@ describe("flattenMarkdown row order and provenance", () => {
 describe("table rows", () => {
   test("every row of a table shares the table token and knows its index", () => {
     const blocks = flattenMarkdown("| H |\n| --- |\n| a |\n| b |");
-    const table = expectDefined(blocks[0]).token;
+    const tableRows = tableRowBlocks(blocks);
+    const { table } = expectDefined(tableRows[0]).row;
 
-    expect(blocks.map((block) => block.tableRow?.index)).toEqual([0, 1, 2]);
-    expect(blocks.every((block) => block.token === table)).toBe(true);
-    expect(blocks.every((block) => block.tableRow?.table === table)).toBe(true);
+    expect(tableRows).toHaveLength(blocks.length);
+    expect(tableRows.map((block) => block.row.index)).toEqual([0, 1, 2]);
+    expect(tableRows.every((block) => block.row.table === table)).toBe(true);
     expect(blocks.map(getFlatBlockText)).toEqual(["| H |", "| a |", "| b |"]);
   });
 
@@ -515,7 +520,7 @@ describe("table rows", () => {
   test("a table inside a list item maps each row to its indented source line", () => {
     const md = "- Data:\n\n  | Key | Value |\n  | --- | --- |\n  | Alpha | 100 |\n\n- Next";
     const blocks = flattenMarkdown(md);
-    const tableRows = blocks.filter((block) => block.tableRow !== undefined);
+    const tableRows = tableRowBlocks(blocks);
 
     expect(tableRows.map(getFlatBlockText)).toEqual(["| Key | Value |", "| Alpha | 100 |"]);
     expect(tableRows.map((block) => block.indent)).toEqual([2, 2]);
@@ -538,11 +543,64 @@ describe("table rows", () => {
 describe("getFlatBlockText", () => {
   test("uses token raw for content rows and visible bullet text for synthetic rows", () => {
     const synthetic = flattenMarkdown("1. first\n2.\n   - nested").find(
-      (block) => block.token.raw === ""
+      (block) => block.kind === "list-line" && block.token.raw === ""
     );
 
     // For a bullet-only synthetic row, text falls back to the visible bullet.
     expect(synthetic).toBeDefined();
     expect(getFlatBlockText(expectDefined(synthetic)).length).toBeGreaterThan(0);
+  });
+});
+
+describe("block kinds", () => {
+  test("each block token maps to one kind", () => {
+    const markdown = [
+      "# Title",
+      "",
+      "Para",
+      "",
+      "```ts",
+      "x",
+      "```",
+      "",
+      "> quote",
+      "",
+      "---",
+      "",
+      "- item",
+      "",
+      "| H |",
+      "| --- |",
+      "| a |",
+    ].join("\n");
+
+    expect(flattenMarkdown(markdown).map((block) => block.kind)).toEqual([
+      "heading",
+      "paragraph",
+      "code",
+      "blockquote",
+      "hr",
+      "list-line",
+      "table-row",
+      "table-row",
+    ]);
+  });
+
+  test("only the first inline content of a list item is a list line", () => {
+    const blocks = flattenMarkdown("- first\n\n  second\n- [x] done");
+
+    expect(blocks.map((block) => [block.kind, getFlatBlockText(block).trim()])).toEqual([
+      ["list-line", "first"],
+      ["paragraph", "second"],
+      ["list-line", "[x] done"],
+    ]);
+    expect(blocks[2]).toMatchObject({ bullet: "- ", checked: true, kind: "list-line" });
+  });
+
+  test("block HTML gets no block and does not shift later source anchors", () => {
+    const blocks = flattenMarkdown("<div>hidden</div>\n\nAfter");
+
+    expect(blocks.map((block) => block.kind)).toEqual(["paragraph"]);
+    expect(expectDefined(blocks[0]).source?.primary.start.line).toBe(2);
   });
 });
