@@ -1,6 +1,7 @@
 import { marked } from "marked";
 import type { Token, Tokens } from "marked";
 
+import { narrowToken } from "./markdown/tokens.js";
 import { SourceIndex } from "./source.js";
 import type { DocumentRowSource } from "./source.js";
 
@@ -354,34 +355,33 @@ const flattenListItem = function flattenListItem(
         token,
       });
       bulletUsed = true;
-    } else if (token.type === "list") {
-      if (!bulletUsed) {
-        emitBulletMarker();
-      }
-
-      // SAFETY: Marked creates a List token for the adjacent token.type branch.
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
-      flattenList(token as Tokens.List, indent + bullet.length, out, res, itemEnd);
-    } else if (token.type === "table") {
-      if (!bulletUsed) {
-        emitBulletMarker();
-      }
-
-      // SAFETY: Marked creates a Table token for the adjacent token.type branch.
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
-      flattenTable(token as Tokens.Table, indent + bullet.length, out, res, itemEnd);
-    } else {
-      // Block content (code, table, blockquote, hr, etc.).
-      if (!bulletUsed) {
-        emitBulletMarker();
-      }
-
-      out.push({
-        indent: indent + bullet.length,
-        source: res ? res.resolveRaw(token.raw ?? "", itemEnd) : null,
-        token,
-      });
+      continue;
     }
+
+    // Block content (list, table, code, blockquote, hr, etc.) sits under the bullet.
+    if (!bulletUsed) {
+      emitBulletMarker();
+    }
+
+    const list = narrowToken(token, "list");
+
+    if (list !== null) {
+      flattenList(list, indent + bullet.length, out, res, itemEnd);
+      continue;
+    }
+
+    const table = narrowToken(token, "table");
+
+    if (table !== null) {
+      flattenTable(table, indent + bullet.length, out, res, itemEnd);
+      continue;
+    }
+
+    out.push({
+      indent: indent + bullet.length,
+      source: res ? res.resolveRaw(token.raw ?? "", itemEnd) : null,
+      token,
+    });
   }
 
   // List item had no content tokens — still emit the bullet.
@@ -402,17 +402,21 @@ const flattenWalk = function flattenWalk(
       continue;
     }
 
-    if (token.type === "list") {
-      // SAFETY: Marked creates a List token for the adjacent token.type branch.
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
-      flattenList(token as Tokens.List, indent, out, res, bound);
-    } else if (token.type === "table") {
-      // SAFETY: Marked creates a Table token for the adjacent token.type branch.
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
-      flattenTable(token as Tokens.Table, indent, out, res, bound);
-    } else {
-      out.push({ indent, source: res ? res.resolveRaw(token.raw ?? "", bound) : null, token });
+    const list = narrowToken(token, "list");
+
+    if (list !== null) {
+      flattenList(list, indent, out, res, bound);
+      continue;
     }
+
+    const table = narrowToken(token, "table");
+
+    if (table !== null) {
+      flattenTable(table, indent, out, res, bound);
+      continue;
+    }
+
+    out.push({ indent, source: res ? res.resolveRaw(token.raw ?? "", bound) : null, token });
   }
 };
 

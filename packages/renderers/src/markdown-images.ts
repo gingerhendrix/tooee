@@ -1,6 +1,8 @@
 import path from "node:path";
 
-import type { Token, Tokens } from "marked";
+import type { Token } from "marked";
+
+import { narrowToken } from "./markdown/tokens.js";
 
 const OBSIDIAN_IMAGE_EMBED = /!\[\[(?<target>[^\]|]+)(?:\|(?<display>[^\]]+))?\]\]/gu;
 
@@ -108,10 +110,9 @@ export const splitMarkdownImages = function splitMarkdownImages(
   };
 
   for (const token of tokens) {
-    if (token.type === "image") {
-      // SAFETY: Marked creates an Image token for the adjacent token.type branch.
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
-      const imageToken = token as Tokens.Image;
+    const imageToken = narrowToken(token, "image");
+
+    if (imageToken !== null) {
       flushText();
       result.push({
         alt: imageToken.text === "" ? undefined : imageToken.text,
@@ -121,10 +122,9 @@ export const splitMarkdownImages = function splitMarkdownImages(
       continue;
     }
 
-    if (token.type === "text") {
-      // SAFETY: Marked creates a Text token for the adjacent token.type branch.
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
-      const textToken = token as Tokens.Text;
+    const textToken = narrowToken(token, "text");
+
+    if (textToken !== null) {
       const parts = splitTextToken(textToken.text);
 
       for (const part of parts) {

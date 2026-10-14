@@ -11,6 +11,7 @@ interface KnownTokenByType {
   heading: Tokens.Heading;
   image: Tokens.Image;
   link: Tokens.Link;
+  list: Tokens.List;
   paragraph: Tokens.Paragraph;
   space: Tokens.Space;
   strong: Tokens.Strong;
