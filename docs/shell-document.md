@@ -219,7 +219,7 @@ These values are derived from the current rows and adapter, not a parallel mappi
 const blocks = flattenMarkdown(markdown, { sourceId: "README.md" });
 ```
 
-`flattenMarkdown(source, options?)` lexes, flattens, and maps Markdown in the exact navigation/render order. Each `FlatBlock` has `source: DocumentRowSource | null`. Use `getFlatBlockText(block)` for semantic search/copy text, including synthetic bullet rows:
+`flattenMarkdown(source, options?)` lexes, flattens, and maps Markdown in the exact navigation/render order. Each `FlatBlock` has `source: DocumentRowSource | null`. A table gives one block per header or body row. Those blocks share the parent `table` token and carry `tableRow` (`table`, `index`, `raw`); each row's source span is its own Markdown line, and the delimiter line is not a row. Use `getFlatBlockText(block)` for semantic search/copy text, including synthetic bullet rows:
 
 ```ts
 const markdownAdapter: DocumentRowAdapter<FlatBlock> = {

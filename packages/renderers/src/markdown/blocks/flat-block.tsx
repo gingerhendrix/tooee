@@ -12,7 +12,7 @@ import { HeadingRenderer } from "./heading.js";
 import { HorizontalRule } from "./horizontal-rule.js";
 import { ListLineRenderer } from "./list-line.js";
 import { ParagraphRenderer } from "./paragraph.js";
-import { MarkdownTableRenderer } from "./table.js";
+import { MarkdownTableRenderer, MarkdownTableRowRenderer } from "./table.js";
 
 type CodeBlockRendererRegistry = Record<string, CodeBlockRenderer>;
 
@@ -40,7 +40,20 @@ export const FlatBlockRenderer = function FlatBlockRenderer({
   onLinkActivate?: MarkdownLinkHandler;
   imageBasePath?: string;
 }): ReactNode {
-  const { token, indent, bullet } = block;
+  const { token, indent, bullet, tableRow } = block;
+
+  if (tableRow !== undefined) {
+    return (
+      <MarkdownTableRowRenderer
+        table={tableRow.table}
+        index={tableRow.index}
+        indent={indent}
+        theme={theme}
+        contentWidth={contentWidth}
+        onLinkActivate={onLinkActivate}
+      />
+    );
+  }
 
   if (bullet !== undefined) {
     return <ListLineRenderer block={block} theme={theme} onLinkActivate={onLinkActivate} />;
@@ -107,7 +120,15 @@ export const FlatBlockRenderer = function FlatBlockRenderer({
   const table = narrowToken(token, "table");
 
   if (table !== null) {
-    return <MarkdownTableRenderer token={table} indent={indent} onLinkActivate={onLinkActivate} />;
+    return (
+      <MarkdownTableRenderer
+        token={table}
+        indent={indent}
+        theme={theme}
+        contentWidth={contentWidth}
+        onLinkActivate={onLinkActivate}
+      />
+    );
   }
 
   if (token.type === "hr") {

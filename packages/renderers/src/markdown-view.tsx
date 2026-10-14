@@ -17,7 +17,6 @@ import {
 } from "./row-document-renderable.js";
 import { useGutterPalette } from "./use-gutter-palette.js";
 import "./row-document.js";
-import "./text-table.js";
 
 export { inlineLinkAtPosition } from "./markdown/links.js";
 

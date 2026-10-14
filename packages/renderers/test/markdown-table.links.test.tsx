@@ -7,7 +7,7 @@ import { act } from "react";
 import type { ReactNode } from "react";
 
 import { MarkdownView } from "../src/markdown-view.js";
-import { tableLinkMouseHandler } from "../src/markdown/table-links.js";
+import { tableCellLinkMouseHandler } from "../src/markdown/table-links.js";
 import { useRowMouseBindings } from "./support/bindings.js";
 import type { RowMouseCallbacks } from "./support/bindings.js";
 
@@ -148,7 +148,21 @@ describe("MarkdownView table links", () => {
 
     await click(locate("plain"));
     expect(result.activated).toEqual([]);
-    expect(result.selected).toHaveLength(1);
+    // Row 0 is the header row, so the first body row is row 1.
+    expect(result.selected).toEqual([1]);
+  });
+
+  test("a click on a body row selects that row, not the whole table", async () => {
+    const result = await renderTable(
+      "| Name |\n| --- |\n| first |\n| second |\n| third |",
+      60,
+      handled
+    );
+
+    await click(locate("third"));
+    await click(locate("Name"));
+    await click(locate("second"));
+    expect(result.selected).toEqual([3, 0, 2]);
   });
 
   test("a handler that does not return true keeps the row click", async () => {
@@ -171,9 +185,9 @@ describe("MarkdownView table links", () => {
   });
 });
 
-describe("tableLinkMouseHandler", () => {
+describe("tableCellLinkMouseHandler", () => {
   test("returns no mouse handler when there is no link handler", () => {
-    expect(tableLinkMouseHandler([])).toBeUndefined();
-    expect(tableLinkMouseHandler([], handled)).toBeFunction();
+    expect(tableCellLinkMouseHandler([])).toBeUndefined();
+    expect(tableCellLinkMouseHandler([], handled)).toBeFunction();
   });
 });

@@ -49,8 +49,10 @@ describe("markdown table rendering", () => {
     expect(initial).toContain("Score");
     expect(initial).toContain("Grade");
     expect(initial).toContain("Alice");
-    // Scroll down to see remaining rows
-    await session.type("j".repeat(6));
+    // Each table row is one document row, so the cursor reaches the last
+    // row (Carol) after the heading, two paragraphs, code block, header,
+    // Alice and Bob.
+    await session.type("j".repeat(7));
     await session.waitForText("Carol", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("Bob");

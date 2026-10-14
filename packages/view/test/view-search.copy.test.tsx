@@ -50,6 +50,21 @@ const MARKDOWN: AnyContent = {
   markdown: "First.\n\nSecond.\n\nThird.",
 };
 
+const MARKDOWN_TABLE: AnyContent = {
+  format: "markdown",
+  markdown: [
+    "Intro.",
+    "",
+    "| Name | Role |",
+    "| --- | --- |",
+    "| Alice | dev |",
+    "| Bob | ops |",
+    "| Carol | dev |",
+    "",
+    "Outro.",
+  ].join("\n"),
+};
+
 let testSetup: Awaited<ReturnType<typeof testRender>>;
 
 beforeEach(() => {
@@ -130,6 +145,58 @@ describe("search over migrated subviews", () => {
 
     await typeQuery("Third");
     expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2/u);
+  });
+});
+
+describe("Markdown table rows", () => {
+  test("j moves the cursor one table row at a time", async () => {
+    testSetup = await setup(staticProvider(MARKDOWN_TABLE));
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*0/u);
+
+    const rows = [1, 2, 3, 4, 5];
+
+    for (const row of rows) {
+      // oxlint-disable-next-line no-await-in-loop -- each key must be rendered before the next
+      await press("j");
+      expect(testSetup.captureCharFrame()).toMatch(new RegExp(`Cursor:\\s*${row}\\b`, "u"));
+    }
+
+    // The row after the last table row is the paragraph below the table.
+    await press("y");
+    await press("y");
+    expect(copied).toEqual(["Outro."]);
+  });
+
+  test("search lands on the matching table row", async () => {
+    testSetup = await setup(staticProvider(MARKDOWN_TABLE));
+
+    await typeQuery("Bob");
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*3\b/u);
+
+    await typeQuery("dev");
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*2\b/u);
+    await press("n");
+    expect(testSetup.captureCharFrame()).toMatch(/Cursor:\s*4\b/u);
+  });
+
+  test("yy copies one table row as its Markdown line", async () => {
+    testSetup = await setup(staticProvider(MARKDOWN_TABLE));
+    await typeQuery("Bob");
+    await press("y");
+    await press("y");
+
+    expect(copied).toEqual(["| Bob | ops |"]);
+  });
+
+  test("yv copies a range of table rows as their Markdown lines", async () => {
+    testSetup = await setup(staticProvider(MARKDOWN_TABLE));
+    await typeQuery("Alice");
+    await press("v");
+    await press("j");
+    await press("y");
+    await press("v");
+
+    expect(copied).toEqual(["| Alice | dev |\n| Bob | ops |"]);
   });
 });
 

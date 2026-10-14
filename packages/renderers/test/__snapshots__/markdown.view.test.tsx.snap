@@ -79,12 +79,12 @@ exports[`inline table rendering table snapshot 1`] = `
 2     ┌─────┬───┬──────┐                                    
       │Name │Age│City  │                                    
       ├─────┼───┼──────┤                                    
-      │Alice│30 │London│                                    
+3     │Alice│30 │London│                                    
       ├─────┼───┼──────┤                                    
-      │Bob  │25 │Paris │                                    
+4     │Bob  │25 │Paris │                                    
       └─────┴───┴──────┘                                    
                                                             
-3     Summary text.                                         
+5     Summary text.                                         
                                                             
                                                             
                                                             
@@ -111,12 +111,12 @@ exports[`mixed content rendering mixed content snapshot 1`] = `
 4     ┌──────┬─────┐                                        
       │Metric│Value│                                        
       ├──────┼─────┤                                        
-      │Count │42   │                                        
+5     │Count │42   │                                        
       ├──────┼─────┤                                        
-      │Rate  │99%  │                                        
+6     │Rate  │99%  │                                        
       └──────┴─────┘                                        
                                                             
-5     Done.                                                 
+7     Done.                                                 
                                                             
                                                             
                                                             

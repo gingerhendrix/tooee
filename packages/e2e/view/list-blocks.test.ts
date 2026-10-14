@@ -59,6 +59,8 @@ describe("tables inside list items", () => {
   test("list item after table is visible", async () => {
     session = await launchView("list-blocks.md");
     await session.press(["ctrl", "d"]);
+    // Half a page ends on the last table row; each table row is one document row.
+    await session.type("j");
     await session.waitForText("Analysis complete", { timeout: 5000 });
     const text = await session.text();
     expect(text).toContain("Analysis complete");

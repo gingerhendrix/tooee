@@ -340,20 +340,36 @@ describe("flattenMarkdown row order and provenance", () => {
       },
     ]);
 
+    // One row per table row. The delimiter line is not a row.
     expect(rows("| A | B |\n| --- | --- |\n| 1 | 2 |")).toEqual([
+      {
+        source: {
+          e: 9,
+          ec: 9,
+          el: 0,
+          last: 0,
+          line: "| A | B |",
+          s: 0,
+          sc: 0,
+          sl: 0,
+          t: "| A | B |",
+        },
+        text: "| A | B |",
+        type: "table",
+      },
       {
         source: {
           e: 33,
           ec: 9,
           el: 2,
           last: 2,
-          line: "| A | B |\n| --- | --- |\n| 1 | 2 |",
-          s: 0,
+          line: "| 1 | 2 |",
+          s: 24,
           sc: 0,
-          sl: 0,
-          t: "| A | B |\n| --- | --- |\n| 1 | 2 |",
+          sl: 2,
+          t: "| 1 | 2 |",
         },
-        text: "| A | B |\n| --- | --- |\n| 1 | 2 |",
+        text: "| 1 | 2 |",
         type: "table",
       },
     ]);
@@ -475,6 +491,47 @@ describe("flattenMarkdown row order and provenance", () => {
     const result = flattenMarkdown("# H\n\npara", { sourceId: "doc.md" });
     expect(expectDefined(expectDefined(result[0]).source).primary.sourceId).toBe("doc.md");
     expect(expectDefined(expectDefined(result[1]).source).primary.sourceId).toBe("doc.md");
+  });
+});
+
+describe("table rows", () => {
+  test("every row of a table shares the table token and knows its index", () => {
+    const blocks = flattenMarkdown("| H |\n| --- |\n| a |\n| b |");
+    const table = expectDefined(blocks[0]).token;
+
+    expect(blocks.map((block) => block.tableRow?.index)).toEqual([0, 1, 2]);
+    expect(blocks.every((block) => block.token === table)).toBe(true);
+    expect(blocks.every((block) => block.tableRow?.table === table)).toBe(true);
+    expect(blocks.map(getFlatBlockText)).toEqual(["| H |", "| a |", "| b |"]);
+  });
+
+  test("identical body rows resolve to distinct source lines", () => {
+    const result = rows("| H |\n| --- |\n| same |\n| same |\n\nAfter.");
+
+    expect(result.map((row) => row.source?.sl)).toEqual([0, 2, 3, 5]);
+    expect(result.map((row) => row.text)).toEqual(["| H |", "| same |", "| same |", "After."]);
+  });
+
+  test("a table inside a list item maps each row to its indented source line", () => {
+    const md = "- Data:\n\n  | Key | Value |\n  | --- | --- |\n  | Alpha | 100 |\n\n- Next";
+    const blocks = flattenMarkdown(md);
+    const tableRows = blocks.filter((block) => block.tableRow !== undefined);
+
+    expect(tableRows.map(getFlatBlockText)).toEqual(["| Key | Value |", "| Alpha | 100 |"]);
+    expect(tableRows.map((block) => block.indent)).toEqual([2, 2]);
+    expect(tableRows.map((block) => block.source?.primary.start.line)).toEqual([2, 4]);
+    expect(tableRows.map((block) => block.source?.primary.start.column)).toEqual([2, 2]);
+    expect(getFlatBlockText(expectDefined(blocks.at(-1)))).toBe("Next");
+  });
+
+  test("blocks after a table keep their own source lines", () => {
+    const result = rows("| A |\n| --- |\n| 1 |\n\n# Next");
+
+    expect(result.map((row) => [row.type, row.source?.sl])).toEqual([
+      ["table", 0],
+      ["table", 2],
+      ["heading", 4],
+    ]);
   });
 });
 

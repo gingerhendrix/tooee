@@ -545,6 +545,47 @@ describe("inline table rendering", () => {
     expect(frame).toContain("Value");
   });
 
+  test("each table row has its own gutter number", async () => {
+    const md = "| Name | Score |\n| --- | --- |\n| Alice | 95 |\n| Bob | 87 |\n\nAfter.";
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { height: 20, width: 60 }
+    );
+    await testSetup.renderOnce();
+    const lines = testSetup.captureCharFrame().split("\n");
+
+    expect(lines.find((line) => line.includes("Alice"))).toMatch(/^2\s/u);
+    expect(lines.find((line) => line.includes("Bob"))).toMatch(/^3\s/u);
+    expect(lines.find((line) => line.includes("After."))).toMatch(/^4\s/u);
+  });
+
+  test("every row of a table uses the same column widths", async () => {
+    const md =
+      "| A | B |\n| --- | --- |\n| short | x |\n| a much longer cell | y |\n| z | the widest cell here |";
+
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <MarkdownView content={md} />
+      </ThemeSwitcherProvider>,
+      { height: 20, width: 80 }
+    );
+    await testSetup.renderOnce();
+
+    const gridLines = testSetup
+      .captureCharFrame()
+      .split("\n")
+      .map((line) => line.replace(/^[\d\s▸]*/u, "").trimEnd())
+      .filter((line) => /^[┌├└│]/u.test(line));
+
+    expect(gridLines).toHaveLength(9);
+    expect(new Set(gridLines.map((line) => Bun.stringWidth(line))).size).toBe(1);
+
+    // The column joints line up on every line of the grid.
+    expect(new Set(gridLines.map((line) => line.slice(1).search(/[┬┼┴│]/u))).size).toBe(1);
+  });
+
   test("table snapshot", async () => {
     const md = `# Data
 

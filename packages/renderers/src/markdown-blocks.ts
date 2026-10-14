@@ -19,13 +19,33 @@ const LIST_MARKER = /^(?<indent>\s*)(?:[-*+]|\d+[.)])[ \t]*(?:\[[ xX]\])?/u;
  * sibling blocks with appropriate indentation.
  */
 export interface FlatBlock {
+  /**
+   * The marked token this row renders. Every row of one table shares the
+   * parent `table` token; `tableRow` says which row the block is.
+   */
   token: Token;
   indent: number;
   bullet?: string;
   checked?: boolean;
+  /** Set on table rows. A table is one block per header or body row. */
+  tableRow?: FlatTableRow;
 
   /** Provenance in the Markdown input; `null` only if resolution genuinely failed. */
   source: DocumentRowSource | null;
+}
+
+/**
+ * One row of a Markdown table. The delimiter line (`| --- |`) is not a row.
+ * Rows of the same table share `table`, so a renderer can give every row the
+ * same column widths.
+ */
+export interface FlatTableRow {
+  /** The parent table token, the same object for every row of the table. */
+  table: Tokens.Table;
+  /** `0` is the header row. Body rows start at `1`. */
+  index: number;
+  /** This row's Markdown line, without indent or line ending. */
+  raw: string;
 }
 
 export interface FlattenMarkdownOptions {
@@ -50,12 +70,16 @@ export const checkboxMarker = function checkboxMarker(checked: boolean | undefin
 };
 
 /**
- * The visible/searchable text for a block. Non-synthetic blocks use the token's
- * `raw`; synthetic bullet rows (empty raw) fall back to the visible
+ * The visible/searchable text for a block. A table row uses its own Markdown
+ * line. Other non-synthetic blocks use the token's `raw`; synthetic bullet rows (empty raw) fall back to the visible
  * bullet/checkbox text, then to the resolved source text. This keeps default
  * search and copy in agreement with the source mapping on synthetic rows.
  */
 export const getFlatBlockText = function getFlatBlockText(block: FlatBlock): string {
+  if (block.tableRow !== undefined) {
+    return block.tableRow.raw;
+  }
+
   const { raw } = block.token;
 
   if (raw.length > 0) {
@@ -227,6 +251,37 @@ const bulletFor = function bulletFor(list: Tokens.List, itemIndex: number): stri
     : "- ";
 };
 
+/**
+ * Emit one block per table row: the header, then each body row. Each row
+ * resolves its own source line, so the delimiter line between the header and
+ * the body stays unmapped. Lines are trimmed, because marked strips the list
+ * indent from a table inside a list item but the source keeps it.
+ */
+const flattenTable = function flattenTable(
+  table: Tokens.Table,
+  indent: number,
+  out: FlatBlock[],
+  res: MarkdownResolver | null,
+  bound: number
+): void {
+  const lines = table.raw
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+
+  for (let index = 0; index <= table.rows.length; index += 1) {
+    // Line 1 is the delimiter, so body row `index` is on line `index + 1`.
+    const raw = lines[index === 0 ? 0 : index + 1] ?? "";
+
+    out.push({
+      indent,
+      source: res ? res.resolveRaw(raw, bound) : null,
+      tableRow: { index, raw, table },
+      token: table,
+    });
+  }
+};
+
 const flattenList = function flattenList(
   list: Tokens.List,
   indent: number,
@@ -307,6 +362,14 @@ const flattenListItem = function flattenListItem(
       // SAFETY: Marked creates a List token for the adjacent token.type branch.
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
       flattenList(token as Tokens.List, indent + bullet.length, out, res, itemEnd);
+    } else if (token.type === "table") {
+      if (!bulletUsed) {
+        emitBulletMarker();
+      }
+
+      // SAFETY: Marked creates a Table token for the adjacent token.type branch.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
+      flattenTable(token as Tokens.Table, indent + bullet.length, out, res, itemEnd);
     } else {
       // Block content (code, table, blockquote, hr, etc.).
       if (!bulletUsed) {
@@ -343,6 +406,10 @@ const flattenWalk = function flattenWalk(
       // SAFETY: Marked creates a List token for the adjacent token.type branch.
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
       flattenList(token as Tokens.List, indent, out, res, bound);
+    } else if (token.type === "table") {
+      // SAFETY: Marked creates a Table token for the adjacent token.type branch.
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Marked's broad Token fallback prevents discriminator narrowing
+      flattenTable(token as Tokens.Table, indent, out, res, bound);
     } else {
       out.push({ indent, source: res ? res.resolveRaw(token.raw ?? "", bound) : null, token });
     }
@@ -354,7 +421,8 @@ const flattenWalk = function flattenWalk(
 // ---------------------------------------------------------------------------
 
 /**
- * Lex, flatten, and source-map Markdown in one operation. Every returned block
+ * Lex, flatten, and source-map Markdown in one operation. A table becomes one
+ * block per header or body row (see `FlatBlock.tableRow`). Every returned block
  * carries a `source` anchor (or `null` when a marked edge case leaves a token
  * genuinely unresolvable), in the exact order used for navigation/rendering.
  * Block HTML is not rendered, so it does not occupy a navigation row. Resolve

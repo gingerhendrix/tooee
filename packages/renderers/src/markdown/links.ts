@@ -110,10 +110,40 @@ export const inlineLinkAtPosition = function inlineLinkAtPosition(
   return found;
 };
 
-export const linkMouseHandler = function linkMouseHandler(
-  tokens: readonly Token[],
-  onLinkActivate: MarkdownLinkHandler | undefined,
-  initialColumn = 0
+/**
+ * The source line and column under the pointer in a text renderable, or `null`
+ * when the event did not hit a text buffer line.
+ */
+export const textPositionAt = function textPositionAt(
+  event: MouseEvent
+): InlineLinkPosition | null {
+  const { target } = event;
+
+  if (target === null || target === undefined || !("lineInfo" in target)) {
+    return null;
+  }
+
+  // SAFETY: OpenTUI supplies a renderable target, and the lineInfo guard proves this text-buffer member.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- OpenTUI supplies renderable mouse targets
+  const text = target as TextBufferRenderable;
+  const visualLine = event.y - text.y;
+  const sourceLine = text.lineInfo.lineSources[visualLine];
+  const startColumn = text.lineInfo.lineStartCols[visualLine];
+
+  if (sourceLine === undefined || startColumn === undefined) {
+    return null;
+  }
+
+  return { column: startColumn + event.x - text.x, line: sourceLine };
+};
+
+/**
+ * Primary-click handler that activates the link `hrefAt` finds under the
+ * pointer. It consumes the event only when the host handler returns literal true.
+ */
+export const positionLinkMouseHandler = function positionLinkMouseHandler(
+  hrefAt: (position: InlineLinkPosition) => string | null,
+  onLinkActivate: MarkdownLinkHandler | undefined
 ): ((event: MouseEvent) => void) | undefined {
   if (onLinkActivate === undefined) {
     return undefined;
@@ -124,31 +154,8 @@ export const linkMouseHandler = function linkMouseHandler(
       return;
     }
 
-    const { target } = event;
-
-    if (target === null || target === undefined || !("lineInfo" in target)) {
-      return;
-    }
-
-    // SAFETY: OpenTUI supplies a renderable target, and the lineInfo guard proves this text-buffer member.
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- OpenTUI supplies renderable mouse targets
-    const text = target as TextBufferRenderable;
-    const visualLine = event.y - text.y;
-    const sourceLine = text.lineInfo.lineSources[visualLine];
-    const startColumn = text.lineInfo.lineStartCols[visualLine];
-
-    if (sourceLine === undefined || startColumn === undefined) {
-      return;
-    }
-
-    const href = inlineLinkAtPosition(
-      tokens,
-      {
-        column: startColumn + event.x - text.x,
-        line: sourceLine,
-      },
-      initialColumn
-    );
+    const position = textPositionAt(event);
+    const href = position === null ? null : hrefAt(position);
 
     if (href === null || onLinkActivate(href) !== true) {
       return;
@@ -157,4 +164,15 @@ export const linkMouseHandler = function linkMouseHandler(
     event.preventDefault();
     event.stopPropagation();
   };
+};
+
+export const linkMouseHandler = function linkMouseHandler(
+  tokens: readonly Token[],
+  onLinkActivate: MarkdownLinkHandler | undefined,
+  initialColumn = 0
+): ((event: MouseEvent) => void) | undefined {
+  return positionLinkMouseHandler(
+    (position) => inlineLinkAtPosition(tokens, position, initialColumn),
+    onLinkActivate
+  );
 };
