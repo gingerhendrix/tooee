@@ -13,6 +13,8 @@ import { MessageHistory } from "../message-history.js";
 
 const RENDER_PASSES = 6;
 
+const CURSOR_WAIT_MS = 2000;
+
 // The sign column is first, inside the panel border when there is one.
 const CURSOR_ROW = /^│?▸/u;
 
@@ -121,6 +123,28 @@ const cursorLine = function cursorLine(current: TestSession): string {
   );
 };
 
+/**
+ * Render frames until the cursor line contains `text`, or until the time limit.
+ * The <markdown> element can take more frames than RENDER_PASSES on a slow CI runner.
+ */
+const cursorLineWith = async function cursorLineWith(
+  current: TestSession,
+  text: string
+): Promise<string> {
+  const deadline = Date.now() + CURSOR_WAIT_MS;
+  let line = cursorLine(current);
+
+  while (!line.includes(text) && Date.now() < deadline) {
+    // oxlint-disable-next-line no-await-in-loop -- each frame must finish before the next
+    await current.renderOnce();
+    // oxlint-disable-next-line no-await-in-loop -- give the markdown parser time between frames
+    await Bun.sleep(20);
+    line = cursorLine(current);
+  }
+
+  return line;
+};
+
 beforeEach(() => {
   copied.length = 0;
 });
@@ -141,7 +165,7 @@ describe("MessageHistory", () => {
   test("opens with the cursor on the last row", async () => {
     const current = await setup([user, reply]);
 
-    expect(cursorLine(current)).toContain("Eight lines.");
+    expect(await cursorLineWith(current, "Eight lines.")).toContain("Eight lines.");
   });
 
   test("j and k move the cursor between rows", async () => {
@@ -185,7 +209,7 @@ describe("MessageHistory", () => {
   test("the cursor follows new rows while it is on the last row", async () => {
     const current = await setup([user]);
 
-    expect(cursorLine(current)).toContain("list the files");
+    expect(await cursorLineWith(current, "list the files")).toContain("list the files");
 
     await act(async () => {
       updateTurns?.([user, reply]);
@@ -193,7 +217,7 @@ describe("MessageHistory", () => {
     });
     await settle(current);
 
-    expect(cursorLine(current)).toContain("Eight lines.");
+    expect(await cursorLineWith(current, "Eight lines.")).toContain("Eight lines.");
   });
 
   test("/ opens the search bar in the panel", async () => {
