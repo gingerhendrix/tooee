@@ -1,0 +1,61 @@
+{
+  "name": "@tooee/mermaid-pele",
+  "version": "0.14.0",
+  "description": "Opt-in Mermaid fence renderer for Tooee that draws Pele SVG diagrams as terminal images",
+  "keywords": [
+    "cli",
+    "diagram",
+    "mermaid",
+    "opentui",
+    "pele",
+    "terminal",
+    "tui"
+  ],
+  "homepage": "https://github.com/gingerhendrix/tooee",
+  "bugs": "https://github.com/gingerhendrix/tooee/issues",
+  "license": "MIT",
+  "author": "Gareth Andrew",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gingerhendrix/tooee.git",
+    "directory": "packages/mermaid-pele"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "@tooee/source": "./src/index.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "2.6.2",
+    "@tooee/renderers": "workspace:*",
+    "@tooee/themes": "workspace:*",
+    "pele": "1.6.0"
+  },
+  "devDependencies": {
+    "@opentui/core": "^0.5.12",
+    "@opentui/react": "^0.5.12",
+    "@tooee/test-support": "workspace:*",
+    "@types/bun": "^1.4.2",
+    "@types/react": "^19.3.0",
+    "typescript": "^7.0.2"
+  },
+  "peerDependencies": {
+    "@opentui/core": "^0.5.12",
+    "@opentui/react": "^0.5.12",
+    "react": "^18.0.0 || ^19.0.0"
+  }
+}

@@ -33,6 +33,7 @@ User-facing changes should include a Tegami release note. See [docs/releasing.md
 - Hotkey format: `ctrl+x`, sequences `g g`, leader keys `<leader>n`
 - **Raw `useKeyboard` policy**: app-level `useKeyboard` handlers MUST guard with `useHasOverlay()` (from `@tooee/overlays`) or be ported to `useCommand`. Raw handlers subscribe before the command dispatcher (child effects run first), so modal command surfaces cannot suspend them and `key.preventDefault()` does not protect them — an unguarded handler double-handles keys while an overlay is open. See the `@tooee/commands` README.
 - **Diff rendering**: `@tooee/diff` is the only package allowed to import `hunkdiff` (pinned exactly, pre-1.0). It owns the `diff` content format, the `DiffView` row document, and the ` ```diff `/` ```patch ` Markdown fence renderer — see its README for the row model and known limits.
+- **Mermaid rendering**: `@tooee/renderers` registers the beautiful-mermaid ASCII renderer for ` ```mermaid ` fences by default. `@tooee/mermaid-pele` is an opt-in image renderer (Pele SVG rasterized with resvg) that apps register through `codeBlockRenderers`. No other package may depend on `pele` or `@resvg/resvg-js`, and `@tooee/view` must not register the Pele renderer by default.
 - **Store conventions**: stateful interaction systems use `@xstate/store` event stores with thin React adapters — see [docs/store-conventions.md](docs/store-conventions.md) for when to use a store vs `useState` vs an effect, file layout, testing, and selector discipline.
 
 ## Documentation

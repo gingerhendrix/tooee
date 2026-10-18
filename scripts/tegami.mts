@@ -56,6 +56,7 @@ const paper = tegami({
     "@tooee/fuzzy": { group: "tooee" },
     "@tooee/layout": { group: "tooee" },
     "@tooee/marks": { group: "tooee" },
+    "@tooee/mermaid-pele": { group: "tooee" },
     "@tooee/overlays": { group: "tooee" },
     "@tooee/panels": { group: "tooee" },
     "@tooee/renderers": { group: "tooee" },
