@@ -31,14 +31,18 @@ Do not edit package versions or create release tags by hand.
 
 npm trusted publishing can only be set up for a package that already exists on npm. Before the first Version Packages pull request that contains a new public package merges, create the package and its trusted publisher once from your own machine. `npm trust` needs npm 11.10.0 or newer, and your npm account needs two-factor authentication.
 
+Start only after the push of `main` that adds the package has updated the pull request. Its diff must show the new package.
+
 ```bash
 npm login
 git fetch origin tegami/version-packages
-git worktree add version-packages origin/tegami/version-packages
+git worktree add -B tegami/version-packages version-packages origin/tegami/version-packages
 cd version-packages
 bun install
 bun run tegami npm pretrust --dry-run
 bun run tegami npm pretrust
 ```
+
+If the pull request changes after you create the worktree, run `git pull` and then `bun install` again before you run `pretrust`. The pre-commit hook runs `lint:check` and `check`. When `node_modules` is older than the branch, both fail with errors such as `Cannot find module 'pele'`.
 
 For each new package, `pretrust` publishes `0.0.0-tegami-trusted-publish-setup` under the `temp` dist-tag and runs `npm trust github <package> --repo gingerhendrix/tooee --file publish.yml`. It also writes `npm:mark-latest` entries into `.tegami/publish-lock.yaml`. Commit that change to the Version Packages branch and push it. Then merge the pull request.
