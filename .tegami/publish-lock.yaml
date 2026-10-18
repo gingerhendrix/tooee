@@ -1,23 +1,17 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/renderers\":\n    type: minor\n  \"@tooee/view\":\n    type: patch\n---\n\n## `FlatBlock` is a tagged union\n\n`FlatBlock` from `@tooee/renderers` is now a union of block types. Each block has a `kind` field, plus the `indent` and `source` fields that every block shares:\n\n| `kind`         | Other fields                                                                   |\n| -------------- | ------------------------------------------------------------------------------ |\n| `\"heading\"`    | `token: Tokens.Heading`                                                        |\n| `\"paragraph\"`  | `token: Tokens.Paragraph`                                                      |\n| `\"code\"`       | `token: Tokens.Code`                                                           |\n| `\"blockquote\"` | `token: Tokens.Blockquote`                                                     |\n| `\"hr\"`         | `token: Tokens.Hr`                                                             |\n| `\"list-line\"`  | `token: Tokens.Text \\| Tokens.Paragraph`, `bullet: string`, optional `checked` |\n| `\"table-row\"`  | `row: FlatTableRow` (no `token`)                                               |\n| `\"other\"`      | `token: Token`                                                                 |\n\nCheck `block.kind` to narrow a block. TypeScript then gives you the typed Marked token, so you do not need a type assertion. For example, `block.kind === \"heading\" ? block.token.depth : null`.\n\nTo upgrade:\n\n- Replace `block.bullet !== undefined` with `block.kind === \"list-line\"`. Only the first line of a list item has `bullet` and `checked`.\n- Replace `block.tableRow` with `block.kind === \"table-row\"` and `block.row`.\n- Code that reads `block.token` must narrow first, because a `table-row` block has no `token`.\n\n`source`, `indent`, `flattenMarkdown` and `getFlatBlockText` do not change. Each block type is exported as its own type, such as `FlatHeadingBlock` and `FlatTableRowBlock`, and `FlatBlockKind` is the union of the `kind` values.\n\n`flattenMarkdown` returns the same blocks in the same order as before. Rendering does not change.\n"
-    filename: flatblock-tagged-union.md
-    v: 0.0.0
-  - content: "---\npackages:\n  \"@tooee/renderers\":\n    type: minor\n  \"@tooee/view\":\n    type: patch\n---\n\n## One document row per Markdown table row\n\nIn `MarkdownView` and the Markdown view of `@tooee/view`, each table row is now its own document row. The header row and every body row get their own gutter number, cursor position, selection, mark, search hit and copy text. Before, a whole table was one row.\n\n`flattenMarkdown` now returns one `FlatBlock` for the header row and one for each body row, in place of one block per table. This applies to tables inside list items too. Each row block has:\n\n- `kind`: `\"table-row\"`.\n- `row`: a new `FlatTableRow` with the parent `table`, the row `index` (`0` is the header, body rows start at `1`) and the row's Markdown line as `raw`. All rows of one table share the same `table` object.\n- `source`: a span over that row's line only. The delimiter line (`| --- |`) is not part of any row.\n\n`getFlatBlockText` returns the row's Markdown line, such as `| Bob | ops |`, so search and copy work on one row.\n\nCode that counts blocks or stores block indices sees more blocks for each table, and every index after a table moves. Indices saved by an earlier version, such as comment anchors keyed by rendered row, point at a different block after a table. Re-anchor them by source line where possible. A table row block has no `token`. Use `getFlatBlockText` or `row.raw` for the row's text, and `row.table` for the whole table.\n\nThe table keeps its bordered grid. All rows of a table share one set of column widths. Links in table cells stay clickable and keep their OSC 8 hyperlinks. `MarkdownView` no longer registers OpenTUI's `text-table` element, because Markdown tables now draw each cell as its own text.\n"
-    filename: markdown-table-rows.md
-    v: 0.0.0
-  - content: "---\npackages:\n  \"@tooee/shell\":\n    type: patch\n---\n\n## `Document` gutter uses the theme colours\n\nThe `Document` component in `@tooee/shell` did not give its row document a palette. Its gutter used fixed dark colours (`#0d1117` and `#6e7681`) in every theme. `Document` now uses `useGutterPalette()`, so the gutter takes `backgroundElement` and `textMuted` from the active theme, as `MarkdownView` and `CodeView` do. Pass `palette` to choose other colours.\n"
-    filename: document-theme-gutter.md
+  - content: "---\npackages:\n  \"@tooee/mermaid-pele\":\n    type: minor\n---\n\n## Add `@tooee/mermaid-pele`, an opt-in Pele image renderer for Mermaid fences\n\nThe new package draws ` ```mermaid ` fences as images. It renders each diagram with Pele, applies the Tooee theme colours, and rasterizes it with resvg for the OpenTUI `<image>` element. Pele supports more diagram types than the ASCII renderer, for example pie, quadrant, timeline, and gantt charts.\n\nRegister it with `codeBlockRenderers: { mermaid: createPeleMermaidRenderer() }`. By default, a fence that Pele cannot draw, or a terminal with no pixel image support, falls back to the beautiful-mermaid ASCII renderer. The `strategy` option can put ASCII first or turn the ASCII step off.\n\nThe default Mermaid renderer in `MarkdownView` and `@tooee/view` does not change.\n"
+    filename: mermaid-pele.md
     v: 0.0.0
 core:packages:
   - id: npm:@tooee/cli
     updated: true
-  - id: npm:@tooee/ask
-    updated: true
   - id: npm:@tooee/choose
     updated: true
-  - id: npm:@tooee/clipboard
+  - id: npm:@tooee/ask
     updated: true
   - id: npm:@tooee/commands
+    updated: true
+  - id: npm:@tooee/clipboard
     updated: true
   - id: npm:@tooee/config
     updated: true
@@ -28,46 +22,43 @@ core:packages:
   - id: npm:@tooee/layout
     updated: true
   - id: npm:@tooee/marks
+    updated: true
+  - changelogIds:
+      - mermaid-pele.md
+    id: npm:@tooee/mermaid-pele
     updated: true
   - id: npm:@tooee/overlays
     updated: true
   - id: npm:@tooee/panels
     updated: true
-  - changelogIds:
-      - flatblock-tagged-union.md
-      - markdown-table-rows.md
-    id: npm:@tooee/renderers
+  - id: npm:@tooee/renderers
     updated: true
   - id: npm:@tooee/router
     updated: true
   - id: npm:@tooee/search
     updated: true
-  - changelogIds:
-      - document-theme-gutter.md
-    id: npm:@tooee/shell
+  - id: npm:@tooee/shell
     updated: true
   - id: npm:@tooee/test-support
     updated: false
-  - id: npm:@tooee/toasts
-    updated: true
   - id: npm:@tooee/themes
     updated: true
-  - changelogIds:
-      - flatblock-tagged-union.md
-      - markdown-table-rows.md
-    id: npm:@tooee/view
+  - id: npm:@tooee/toasts
+    updated: true
+  - id: npm:@tooee/view
     updated: true
 npm:packages:
   - id: npm:@tooee/cli
-  - id: npm:@tooee/ask
   - id: npm:@tooee/choose
-  - id: npm:@tooee/clipboard
+  - id: npm:@tooee/ask
   - id: npm:@tooee/commands
+  - id: npm:@tooee/clipboard
   - id: npm:@tooee/config
   - id: npm:@tooee/diff
   - id: npm:@tooee/fuzzy
   - id: npm:@tooee/layout
   - id: npm:@tooee/marks
+  - id: npm:@tooee/mermaid-pele
   - id: npm:@tooee/overlays
   - id: npm:@tooee/panels
   - id: npm:@tooee/renderers
@@ -75,13 +66,13 @@ npm:packages:
   - id: npm:@tooee/search
   - id: npm:@tooee/shell
   - id: npm:@tooee/test-support
-  - id: npm:@tooee/toasts
   - id: npm:@tooee/themes
+  - id: npm:@tooee/toasts
   - id: npm:@tooee/view
   - id: npm:@tooee/example-choose
   - id: npm:@tooee/example-view
-  - id: npm:@tooee/example-panels
   - id: npm:@tooee/example-pi-chat
-  - id: npm:@tooee/example-shell
   - id: npm:@tooee/example-termcn
+  - id: npm:@tooee/example-panels
+  - id: npm:@tooee/example-shell
   - id: npm:@tooee/example-ask

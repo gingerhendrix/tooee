@@ -1,9 +1,6 @@
----
-packages:
-  "@tooee/mermaid-pele": minor
----
+## @tooee/mermaid-pele@0.15.0
 
-## Add `@tooee/mermaid-pele`, an opt-in Pele image renderer for Mermaid fences
+### Add `@tooee/mermaid-pele`, an opt-in Pele image renderer for Mermaid fences
 
 The new package draws ` ```mermaid ` fences as images. It renders each diagram with Pele, applies the Tooee theme colours, and rasterizes it with resvg for the OpenTUI `<image>` element. Pele supports more diagram types than the ASCII renderer, for example pie, quadrant, timeline, and gantt charts.
 
