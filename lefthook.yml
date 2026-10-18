@@ -4,3 +4,20 @@ pre-commit:
       run: bun run lint:staged
     typecheck:
       run: bun run check
+
+# Keep node_modules in step with the checked-out commit. Each hook runs
+# `bun install` only when bun.lock or a package.json changed.
+post-checkout:
+  commands:
+    install-deps:
+      run: scripts/install-if-deps-changed.sh {1} {2}
+
+post-merge:
+  commands:
+    install-deps:
+      run: scripts/install-if-deps-changed.sh ORIG_HEAD HEAD
+
+post-rewrite:
+  commands:
+    install-deps:
+      run: test {1} != rebase || scripts/install-if-deps-changed.sh ORIG_HEAD HEAD

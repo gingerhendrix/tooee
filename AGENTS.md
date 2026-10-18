@@ -11,6 +11,8 @@ bun test             # Run tests
 bun run lint         # Lint with oxlint
 ```
 
+Lefthook (`lefthook.yml`) runs `lint:staged` and `check` before each commit. After a checkout, merge, or rebase changes `bun.lock` or a `package.json`, it runs `bun install` in worktrees that already have `node_modules`. A new worktree needs one `bun install` first.
+
 ## Releases
 
 User-facing changes should include a Tegami release note. See [docs/releasing.md](docs/releasing.md) for the format and release flow; do not edit package versions or tags manually.

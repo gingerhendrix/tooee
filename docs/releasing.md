@@ -43,6 +43,6 @@ bun run tegami npm pretrust --dry-run
 bun run tegami npm pretrust
 ```
 
-If the pull request changes after you create the worktree, run `git pull` and then `bun install` again before you run `pretrust`. The pre-commit hook runs `lint:check` and `check`. When `node_modules` is older than the branch, both fail with errors such as `Cannot find module 'pele'`.
+If the pull request changes after you create the worktree, run `git pull` before you run `pretrust`. The lefthook `post-merge` hook then runs `bun install` when `bun.lock` or a `package.json` changed. If you pulled with hooks turned off, run `bun install` yourself. The pre-commit hook runs `lint:check` and `check`. When `node_modules` is older than the branch, both fail with errors such as `Cannot find module 'pele'`.
 
 For each new package, `pretrust` publishes `0.0.0-tegami-trusted-publish-setup` under the `temp` dist-tag and runs `npm trust github <package> --repo gingerhendrix/tooee --file publish.yml`. It also writes `npm:mark-latest` entries into `.tegami/publish-lock.yaml`. Commit that change to the Version Packages branch and push it. Then merge the pull request.
