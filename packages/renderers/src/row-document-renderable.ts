@@ -175,6 +175,13 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
     this._palette = normalizePalette(options.palette);
     this._layers = normalizeDecorationLayers(options.decorations);
+    // Resize callbacks can scroll in the current layout pass, before paint.
+    this.content.on("resize", () => {
+      this._computeGeometry();
+    });
+    this.viewport.on("resize", () => {
+      this._computeGeometry();
+    });
   }
 
   // -----------------------------------------------------------------------
@@ -417,15 +424,16 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   // Rendering
   // -----------------------------------------------------------------------
 
-  protected renderSelf(buffer: OptimizedBuffer): void {
-    // Let ScrollBox do its own rendering first
-    super.renderSelf(buffer);
-
-    // Recompute geometry every frame (cheap — just iterating children)
-    this._computeGeometry();
-
-    // Apply gutter padding to content area
+  protected onUpdate(deltaTime: number): void {
+    super.onUpdate(deltaTime);
+    // Count logical rows before layout; paint-time padding takes effect one
+    // frame late in OpenTUI 0.6.
     this._applyGutterPadding();
+  }
+
+  protected renderSelf(buffer: OptimizedBuffer): void {
+    super.renderSelf(buffer);
+    this._computeGeometry();
 
     // Paint decorations and gutter on top
     this._paintDecorations(buffer);
@@ -471,8 +479,14 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   private _computeFromChildren(): void {
     const children = this.getChildren();
     const offset = this._rowChildOffset;
-    const contentY = this.content.y;
-    const totalHeight = this.scrollHeight;
+    const totalHeight = this.content.getLayout().height;
+
+    // ScrollBox updates its scroll range in the content resize callback. A
+    // viewport resize can arrive first; do not publish rows until scrolling
+    // can actually reach them.
+    if (this.scrollHeight !== totalHeight) {
+      return;
+    }
 
     if (totalHeight === 0 || children.length <= offset) {
       this._finishGeometry([], [], [], [], 0);
@@ -489,8 +503,9 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
     for (let i = offset; i < children.length; i += 1) {
       const row = i - offset;
       const child = children[i];
-      const childStart = child.y - contentY;
-      const h = Math.max(1, child.height);
+      const layout = child.getLayout();
+      const childStart = layout.top;
+      const h = Math.max(1, layout.height);
 
       rowVirtualStarts[row] = childStart;
       rowVirtualHeights[row] = h;
@@ -611,10 +626,16 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
       return 0;
     }
 
+    const children = this.getChildren();
+    const [provider] = children;
+
     return computeRowDocumentGutterWidth({
       gutterPaddingRight: this._gutterPaddingRight,
       lineNumberStart: this._lineNumberStart,
-      rowCount: this._rowCount,
+      rowCount:
+        this._detectMode() === "provider" && children.length > 0 && isRowContentProvider(provider)
+          ? provider.lineCount
+          : Math.max(0, children.length - this._rowChildOffset),
       rowNumbers: this._rowNumbers,
       showLineNumbers: this._showLineNumbers,
       signColumnWidth: this._signColumnWidth,

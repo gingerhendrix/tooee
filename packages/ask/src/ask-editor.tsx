@@ -51,7 +51,7 @@ export const AskEditor = function AskEditor({ editor }: AskEditorProps): ReactNo
           style={{ flexGrow: 1 }}
         />
         <EditorScrollbar
-          target={editor.textareaRef.current}
+          target={editor.textareaRef}
           revision={editor.scrollRevision}
           color={theme.textMuted}
         />

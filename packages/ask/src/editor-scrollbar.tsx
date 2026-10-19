@@ -1,9 +1,15 @@
-import type { TextareaRenderable, InputRenderable } from "@opentui/core";
+import type {
+  TextareaRenderable,
+  InputRenderable,
+  TextRenderable,
+  BoxRenderable,
+} from "@opentui/core";
+import { useCallback, useLayoutEffect, useRef } from "react";
 import type { ReactNode } from "react";
 
 export interface EditorScrollbarProps {
   /** The editor whose viewport this scrollbar reflects. */
-  target: TextareaRenderable | InputRenderable | null;
+  target: { current: TextareaRenderable | InputRenderable | null };
   /**
    * Bump this whenever the editor viewport may have changed (cursor move,
    * content change, wheel scroll) so the thumb position re-computes.
@@ -27,47 +33,54 @@ const TRACK_CHAR = "░";
  *
  * Renders nothing when content fits within the viewport (no overflow).
  */
-export const EditorScrollbar = function EditorScrollbar({
-  target,
-  color,
-}: EditorScrollbarProps): ReactNode {
-  if (!target) {
-    return null;
-  }
-
-  // Rendered height of the editor in rows (available post-layout).
+const scrollbarContent = function scrollbarContent(
+  target: TextareaRenderable | InputRenderable
+): string {
   const { height } = target;
-
-  if (height <= 0) {
-    return null;
-  }
-
-  // Total virtual (wrapped) line count, not the count currently in view.
   const total = target.editorView.getTotalVirtualLineCount();
 
-  // Content fits, so no scrollbar is needed.
-  if (total <= height) {
-    return null;
+  if (height <= 0 || total <= height) {
+    return "";
   }
 
-  const offsetY = target.scrollY;
   const maxOffset = Math.max(1, total - height);
-  const clampedOffset = Math.min(Math.max(offsetY, 0), maxOffset);
-
+  const clampedOffset = Math.min(Math.max(target.scrollY, 0), maxOffset);
   const thumbSize = Math.max(1, Math.round((height / total) * height));
   const maxThumbTop = Math.max(0, height - thumbSize);
   const thumbTop = Math.round((clampedOffset / maxOffset) * maxThumbTop);
 
-  let content = "";
+  return Array.from({ length: height }, (_, i) =>
+    i >= thumbTop && i < thumbTop + thumbSize ? THUMB_CHAR : TRACK_CHAR
+  ).join("\n");
+};
 
-  for (let i = 0; i < height; i += 1) {
-    const isThumb = i >= thumbTop && i < thumbTop + thumbSize;
-    content += isThumb ? THUMB_CHAR : TRACK_CHAR;
+export const EditorScrollbar = function EditorScrollbar({
+  target,
+  revision,
+  color,
+}: EditorScrollbarProps): ReactNode {
+  const bar = useRef<TextRenderable>(null);
+  const track = useRef<BoxRenderable>(null);
 
-    if (i < height - 1) {
-      content += "\n";
+  const sync = useCallback(() => {
+    if (!target.current || !bar.current || !track.current) {
+      return;
     }
-  }
 
-  return <text content={content} fg={color} selectable={false} />;
+    const content = scrollbarContent(target.current);
+    bar.current.content = content;
+    track.current.width = content === "" ? 0 : 1;
+  }, [target]);
+
+  useLayoutEffect(() => {
+    // Resize hooks run before paint and can participate in the current
+    // layout. Reading height in React render sees the previous frame on 0.6.
+    sync();
+  }, [sync, revision]);
+
+  return (
+    <box ref={track} width={0} height="100%" onSizeChange={sync} flexShrink={0}>
+      <text ref={bar} fg={color} selectable={false} />
+    </box>
+  );
 };

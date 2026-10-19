@@ -1653,3 +1653,19 @@ describe("custom code block renderers", () => {
     expect(after).not.toContain("[Start]");
   });
 });
+
+test("the first frame already has the settled gutter and code-block layout", async () => {
+  testSetup = await testRender(
+    <ThemeSwitcherProvider>
+      <MarkdownView content={"# Title\n\n```js\nconst value = 1\n```\n\nAfter code."} />
+    </ThemeSwitcherProvider>,
+    { height: 20, width: 60 }
+  );
+  await testSetup.renderOnce();
+  const first = testSetup.captureCharFrame();
+  expect(first).toContain("1    # Title");
+  expect(first).toContain("const value = 1");
+  expect(first).toContain("After code.");
+  await testSetup.renderOnce();
+  expect(testSetup.captureCharFrame()).toBe(first);
+});
