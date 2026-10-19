@@ -1,4 +1,5 @@
 import { RGBA, SyntaxStyle } from "@opentui/core";
+import type { NativeResourceOwner } from "@opentui/core";
 
 import type { ResolvedTheme } from "./types.js";
 
@@ -206,6 +207,13 @@ const getSyntaxRules = function getSyntaxRules(resolved: ResolvedTheme) {
   ];
 };
 
-export const buildSyntaxStyle = function buildSyntaxStyle(resolved: ResolvedTheme): SyntaxStyle {
-  return SyntaxStyle.fromTheme(getSyntaxRules(resolved));
+/**
+ * OpenTUI 0.6 binds a SyntaxStyle to one native resource context. Pass the
+ * context of the scene that draws it, usually `renderer.nativeScene`.
+ */
+export const buildSyntaxStyle = function buildSyntaxStyle(
+  resolved: ResolvedTheme,
+  owner: NativeResourceOwner
+): SyntaxStyle {
+  return SyntaxStyle.fromTheme(getSyntaxRules(resolved), owner);
 };

@@ -1,10 +1,8 @@
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import path from "node:path";
 
-import type { SyntaxStyle } from "@opentui/core";
 import type { ColorMode } from "@tooee/config";
 
-import { buildSyntaxStyle } from "./syntax-rules.js";
 import { resolveTheme } from "./types.js";
 import type { ThemeJSON, ResolvedTheme } from "./types.js";
 
@@ -16,7 +14,6 @@ export interface Theme {
   name: string;
   mode: ColorMode;
   colors: ResolvedTheme;
-  syntax: SyntaxStyle;
 }
 
 /** Cache of loaded theme JSONs by name */
@@ -133,7 +130,7 @@ const bundledDefaultThemeJson = JSON.parse(bundledDefaultThemeText) as ThemeJSON
 const buildBundledDefaultTheme = function buildBundledDefaultTheme(mode: ColorMode): Theme {
   const colors = resolveTheme(bundledDefaultThemeJson, mode);
 
-  return { colors, mode, name: DEFAULT_THEME_NAME, syntax: buildSyntaxStyle(colors) };
+  return { colors, mode, name: DEFAULT_THEME_NAME };
 };
 
 export const defaultTheme: Theme = buildBundledDefaultTheme(DEFAULT_MODE);
@@ -149,7 +146,7 @@ export const buildTheme = function buildTheme(name: string, mode: ColorMode): Th
     if (fallbackJson) {
       const resolved = resolveTheme(fallbackJson, mode);
 
-      return { colors: resolved, mode, name, syntax: buildSyntaxStyle(resolved) };
+      return { colors: resolved, mode, name };
     }
 
     return buildBundledDefaultTheme(mode);
@@ -158,7 +155,7 @@ export const buildTheme = function buildTheme(name: string, mode: ColorMode): Th
   try {
     const resolved = resolveTheme(json, mode);
 
-    return { colors: resolved, mode, name, syntax: buildSyntaxStyle(resolved) };
+    return { colors: resolved, mode, name };
   } catch {
     return buildBundledDefaultTheme(mode);
   }

@@ -1,4 +1,5 @@
 import type { SyntaxStyle } from "@opentui/core";
+import { useRenderer } from "@opentui/react";
 import { writeGlobalConfig } from "@tooee/config";
 import type { ColorMode } from "@tooee/config";
 import { createContext, useContext, useState, useCallback, useMemo } from "react";
@@ -12,6 +13,7 @@ import {
   DEFAULT_MODE,
 } from "./loader.js";
 import type { Theme } from "./loader.js";
+import { buildSyntaxStyle } from "./syntax-rules.js";
 import type { ResolvedTheme } from "./types.js";
 
 // ---------------------------------------------------------------------------
@@ -25,12 +27,28 @@ interface ThemeContextValue {
   mode: ColorMode;
 }
 
-const ThemeContext = createContext<ThemeContextValue>({
+/**
+ * The provider value. `syntax` is null only in the default value: a
+ * SyntaxStyle needs the renderer's native context, which does not exist at
+ * module load in OpenTUI 0.6.
+ */
+interface ThemeContextState extends Omit<ThemeContextValue, "syntax"> {
+  syntax: SyntaxStyle | null;
+}
+
+const ThemeContext = createContext<ThemeContextState>({
   mode: defaultTheme.mode,
   name: defaultTheme.name,
-  syntax: defaultTheme.syntax,
+  syntax: null,
   theme: defaultTheme.colors,
 });
+
+/** Builds the theme's SyntaxStyle in the current renderer's native context. */
+const useSyntaxStyle = function useSyntaxStyle(colors: ResolvedTheme): SyntaxStyle {
+  const renderer = useRenderer();
+
+  return useMemo(() => buildSyntaxStyle(colors, renderer.nativeScene), [colors, renderer]);
+};
 
 export interface ThemeProviderProps {
   /** Theme name (e.g. "tokyonight", "catppuccin", "dracula") */
@@ -48,26 +66,29 @@ export const ThemeProvider = function ThemeProvider({
   theme: themeProp,
   children,
 }: ThemeProviderProps): ReactNode {
-  const resolved = useMemo<ThemeContextValue>(() => {
-    if (themeProp) {
-      return {
-        mode: themeProp.mode,
-        name: themeProp.name,
-        syntax: themeProp.syntax,
-        theme: themeProp.colors,
-      };
-    }
+  const base = useMemo<Theme>(
+    () => themeProp ?? buildTheme(name ?? DEFAULT_THEME_NAME, mode ?? DEFAULT_MODE),
+    [themeProp, name, mode]
+  );
 
-    const t = buildTheme(name ?? DEFAULT_THEME_NAME, mode ?? DEFAULT_MODE);
+  const syntax = useSyntaxStyle(base.colors);
 
-    return { mode: t.mode, name: t.name, syntax: t.syntax, theme: t.colors };
-  }, [themeProp, name, mode]);
+  const resolved = useMemo<ThemeContextValue>(
+    () => ({ mode: base.mode, name: base.name, syntax, theme: base.colors }),
+    [base, syntax]
+  );
 
   return <ThemeContext.Provider value={resolved}>{children}</ThemeContext.Provider>;
 };
 
 export const useTheme = function useTheme(): ThemeContextValue {
-  return useContext(ThemeContext);
+  const ctx = useContext(ThemeContext);
+  const renderer = useRenderer();
+
+  return useMemo(
+    () => ({ ...ctx, syntax: ctx.syntax ?? buildSyntaxStyle(ctx.theme, renderer.nativeScene) }),
+    [ctx, renderer]
+  );
 };
 
 // ---------------------------------------------------------------------------
@@ -101,6 +122,7 @@ export const ThemeSwitcherProvider = function ThemeSwitcherProvider({
   const [mode, setMode] = useState<ColorMode>(initialMode ?? DEFAULT_MODE);
 
   const theme = useMemo(() => buildTheme(themeName, mode), [themeName, mode]);
+  const syntax = useSyntaxStyle(theme.colors);
 
   const nextTheme = useCallback(() => {
     const idx = allThemes.indexOf(themeName);
@@ -147,15 +169,15 @@ export const ThemeSwitcherProvider = function ThemeSwitcherProvider({
       prevTheme,
       setMode: setModeByName,
       setTheme: setThemeByName,
-      syntax: theme.syntax,
+      syntax,
       theme: theme.colors,
     }),
-    [theme, mode, nextTheme, prevTheme, setModeByName, setThemeByName, allThemes]
+    [theme, syntax, mode, nextTheme, prevTheme, setModeByName, setThemeByName, allThemes]
   );
 
   const themeValue = useMemo<ThemeContextValue>(
-    () => ({ mode, name: theme.name, syntax: theme.syntax, theme: theme.colors }),
-    [theme, mode]
+    () => ({ mode, name: theme.name, syntax, theme: theme.colors }),
+    [theme, syntax, mode]
   );
 
   return (
