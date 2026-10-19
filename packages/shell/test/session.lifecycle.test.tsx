@@ -21,10 +21,12 @@ let testRenderer: Awaited<ReturnType<typeof createTestRenderer>> | undefined;
 
 let sessionHandle: TooeeSessionHandle | undefined;
 
-afterEach(() => {
+afterEach(async () => {
   sessionHandle?.destroy();
+  await sessionHandle?.closed;
   sessionHandle = undefined;
   testRenderer?.renderer.destroy();
+  await testRenderer?.renderer.closed;
   testRenderer = undefined;
 });
 
@@ -46,7 +48,6 @@ const remoteRendererOptions = function remoteRendererOptions(
     remote: true,
     stdin,
     stdout,
-    useThread: false,
     width: 40,
   };
 };
@@ -236,4 +237,51 @@ test("guardTerminalHealth owns and removes only its listeners", async () => {
   dispose();
   expect(stdin.listenerCount("end")).toBe(beforeEnd);
   expect(stdin.listenerCount("close")).toBe(beforeClose);
+});
+
+test("CLI results wait for pending terminal output before returning", async () => {
+  const firstWrite = Promise.withResolvers<undefined>();
+  const drain = Promise.withResolvers<undefined>();
+
+  const rendererOptions = remoteRendererOptions();
+  const stdout = expectDefined(rendererOptions.stdout);
+  // oxlint-disable-next-line promise/prefer-await-to-callbacks -- Writable requires a completion callback.
+  stdout._write = (_chunk, _encoding, callback) => {
+    firstWrite.resolve();
+    void (async () => {
+      await drain.promise;
+      // oxlint-disable-next-line promise/prefer-await-to-callbacks -- Release the held Writable write after the drain gate opens.
+      callback();
+    })();
+  };
+
+  let controller: CliSessionController<string> | undefined;
+  let returned = false;
+
+  const result = runCliSession<string>(
+    (session): ReactNode => {
+      controller = session;
+
+      return <text>drain before result</text>;
+    },
+    { renderer: rendererOptions, terminalHealth: false }
+  );
+
+  void (async () => {
+    await result;
+    returned = true;
+  })();
+
+  await firstWrite.promise;
+
+  try {
+    expectDefined(controller).resolve("done");
+    await Promise.resolve();
+    expect(returned).toBe(false);
+  } finally {
+    drain.resolve();
+  }
+
+  expect(await result).toBe("done");
+  expect(returned).toBe(true);
 });

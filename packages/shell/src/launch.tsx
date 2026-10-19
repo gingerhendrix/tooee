@@ -50,6 +50,8 @@ export interface TooeeSessionHandle {
   readonly renderer: CliRenderer;
   readonly root: Root;
   readonly ownership: "local";
+  /** Resolves after terminal restoration and owned stream cleanup. */
+  readonly closed: Promise<void>;
   readonly destroyed: boolean;
   /** Unmount the React tree without destroying the renderer. */
   unmount: () => void;
@@ -103,19 +105,22 @@ export const guardTerminalHealth = function guardTerminalHealth(
     handled = true;
     lifecycle.dispose();
 
-    if (options.destroyRenderer ?? true) {
-      try {
-        renderer.destroy();
-      } catch {
-        // A dead PTY may make terminal restoration fail.
+    void (async () => {
+      if (options.destroyRenderer ?? true) {
+        try {
+          renderer.destroy();
+          await renderer.closed;
+        } catch {
+          // A dead PTY may make terminal restoration fail.
+        }
       }
-    }
 
-    options.onTerminalEnd?.();
+      options.onTerminalEnd?.();
 
-    if (options.exitProcess ?? true) {
-      process.exit(0);
-    }
+      if (options.exitProcess ?? true) {
+        process.exit(0);
+      }
+    })();
   };
 
   const dispose = () => {
@@ -265,6 +270,9 @@ export const launchCli = async function launchCli(
   } catch (error) {
     try {
       renderer.destroy();
+      await renderer.closed;
+    } catch {
+      // Preserve the original mount failure if terminal restoration fails.
     } finally {
       ttyInput?.destroy();
       ttyOutput?.destroy();
@@ -286,24 +294,36 @@ export const launchCli = async function launchCli(
   let destroyed = false;
   let removeHealthGuard = noop;
 
-  const releaseOwnedResources = () => {
-    if (destroyed) {
-      return;
-    }
-
+  const onRendererDestroyed = () => {
     destroyed = true;
     removeHealthGuard();
+    // Stop the owned input before yielding to async terminal restoration.
+    // Otherwise Bun can start another /dev/tty read in canonical mode and
+    // keep a piped CLI alive until the user presses Enter again.
+    ttyInput?.destroy();
+  };
+
+  // The destroy event precedes output draining in 0.6. Keep the owned output
+  // open until restoration completes, including renderer-originated shutdowns.
+  const releaseStreams = () => {
     ttyInput?.destroy();
     ttyOutput?.destroy();
   };
 
-  const onRendererDestroyed = () => {
-    releaseOwnedResources();
-  };
+  void (async () => {
+    try {
+      await renderer.closed;
+    } catch {
+      // The owner can observe output failure through handle.closed.
+    } finally {
+      releaseStreams();
+    }
+  })();
 
   renderer.once("destroy", onRendererDestroyed);
 
   const handle: TooeeSessionHandle = {
+    closed: renderer.closed,
     destroy() {
       if (destroyed) {
         return;
@@ -312,11 +332,7 @@ export const launchCli = async function launchCli(
       try {
         mount.unmount();
       } finally {
-        try {
-          renderer.destroy();
-        } finally {
-          releaseOwnedResources();
-        }
+        renderer.destroy();
       }
     },
     get destroyed() {
@@ -330,7 +346,7 @@ export const launchCli = async function launchCli(
 
   if (options.terminalHealth ?? true) {
     removeHealthGuard = guardTerminalHealth(renderer, {
-      onTerminalEnd: releaseOwnedResources,
+      onTerminalEnd: onRendererDestroyed,
     });
   }
 
@@ -382,5 +398,8 @@ export const runCliSession = async function runCliSession<T>(
     handle.current.destroy();
   }
 
-  return await promise;
+  const result = await promise;
+  await handle.current.closed;
+
+  return result;
 };
