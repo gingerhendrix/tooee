@@ -177,3 +177,21 @@ describe("AskOverlay overflow scrolling", () => {
     expect(frame).not.toContain(TRACK);
   });
 });
+
+const trackRows = (frame: string) => frame.split("\n").filter((row) => /[█░]/u.test(row));
+
+test("resizing refreshes the entire scrollbar on the first new frame", async () => {
+  testSetup = await setupAsk(tallValue, 40, 14);
+  expect(trackRows(testSetup.captureCharFrame())).toHaveLength(10);
+
+  act(() => {
+    testSetup.resize(40, 18);
+  });
+  await testSetup.renderOnce();
+  const resized = testSetup.captureCharFrame();
+  expect(trackRows(resized)).toHaveLength(14);
+  expect(trackRows(resized).filter((row) => row.includes(THUMB))).toHaveLength(7);
+  expect(resized).toContain("L30");
+  await testSetup.renderOnce();
+  expect(testSetup.captureCharFrame()).toBe(resized);
+});
