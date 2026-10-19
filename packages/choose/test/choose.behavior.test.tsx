@@ -2,7 +2,7 @@ import { test, expect, afterEach, describe } from "bun:test";
 
 import { MouseButtons } from "@opentui/core/testing";
 import { TooeeProvider } from "@tooee/shell";
-import { testRender } from "@tooee/test-support";
+import { testRender, expectDefined } from "@tooee/test-support";
 import { act } from "react";
 
 import { Choose } from "../src/choose.js";
@@ -550,4 +550,23 @@ describe("Choose emptyMessage", () => {
     expect(frame).toContain("0/0");
     // No crash, just empty list
   });
+});
+
+test("filter cursor edits preserve CJK, emoji and tabs", async () => {
+  testSetup = await setup();
+  await act(async () => {
+    await testSetup.mockInput.pasteBracketedText("漢🙂\tx");
+  });
+  await testSetup.renderOnce();
+  const input = expectDefined(testSetup.renderer.currentFocusedEditor);
+  expect(input.plainText).toBe("漢🙂\tx");
+  await pressArrow(testSetup, "left");
+  act(() => {
+    testSetup.mockInput.pressBackspace();
+  });
+  await testSetup.renderOnce();
+  expect(input.plainText).toBe("漢🙂x");
+  await pressArrow(testSetup, "left");
+  await press(testSetup, "!");
+  expect(input.plainText).toBe("漢!🙂x");
 });

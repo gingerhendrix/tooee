@@ -194,7 +194,7 @@ export const useAskEditor = function useAskEditor(
       return;
     }
 
-    target.cursorOffset = target.plainText.length;
+    target.gotoBufferEnd();
     didPositionInitialCursorRef.current = true;
   }, [defaultValue, multiline]);
 
@@ -258,7 +258,7 @@ export const useAskEditor = function useAskEditor(
       }
 
       const text = target.plainText;
-      const offset = Math.min(target.cursorOffset, text.length);
+      const offset = target.getTextRange(0, target.cursorOffset).length;
       const start = offset === 0 ? 0 : text.lastIndexOf("\n", offset - 1) + 1;
       const nextNewline = text.indexOf("\n", offset);
       const end = nextNewline === -1 ? text.length : nextNewline;
@@ -573,8 +573,8 @@ export const useAskEditor = function useAskEditor(
         const prevOffset = target.cursorOffset;
         target.replaceText(text);
         target.cursorOffset = cursorToEnd
-          ? target.plainText.length
-          : Math.min(prevOffset, target.plainText.length);
+          ? target.editBuffer.measureText(target.plainText)
+          : Math.min(prevOffset, target.editBuffer.measureText(target.plainText));
       } else {
         // Route through React state (the input is controlled) and mirror onto
         // the renderable so the change takes effect before the next render.
@@ -585,8 +585,8 @@ export const useAskEditor = function useAskEditor(
         if (target) {
           target.value = text;
           target.cursorOffset = cursorToEnd
-            ? target.plainText.length
-            : Math.min(prevOffset, target.plainText.length);
+            ? target.editBuffer.measureText(target.plainText)
+            : Math.min(prevOffset, target.editBuffer.measureText(target.plainText));
         }
       }
 
@@ -610,7 +610,7 @@ export const useAskEditor = function useAskEditor(
       return;
     }
 
-    target.cursorOffset = target.plainText.length;
+    target.gotoBufferEnd();
     bumpScroll();
   }, [getTarget, bumpScroll]);
 

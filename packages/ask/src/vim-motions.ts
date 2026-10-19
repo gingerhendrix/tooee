@@ -16,7 +16,7 @@ type EditableMotionTarget = Pick<
 
 export type EditableInsertTarget = Pick<
   InputRenderable | TextareaRenderable,
-  "cursorOffset" | "insertText" | "moveCursorRight" | "plainText"
+  "gotoLineStart" | "gotoLineTextEnd" | "insertText" | "moveCursorRight" | "moveCursorLeft"
 >;
 
 export interface VimMotionState {
@@ -37,20 +37,15 @@ export const openLineAtCursor = function openLineAtCursor(
     return;
   }
 
-  const { plainText: text, cursorOffset } = target;
-  const currentLineStart = text.lastIndexOf("\n", Math.max(0, cursorOffset - 1)) + 1;
-  const currentLineEndIndex = text.indexOf("\n", cursorOffset);
-  const currentLineEnd = currentLineEndIndex === -1 ? text.length : currentLineEndIndex;
-
   if (position === "above") {
-    target.cursorOffset = currentLineStart;
+    target.gotoLineStart();
     target.insertText("\n");
-    target.cursorOffset = currentLineStart;
+    target.moveCursorLeft();
 
     return;
   }
 
-  target.cursorOffset = currentLineEnd;
+  target.gotoLineTextEnd();
   target.insertText("\n");
 };
 

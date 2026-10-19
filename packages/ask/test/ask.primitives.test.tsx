@@ -496,3 +496,76 @@ describe("AskOverlay nested modal surfaces", () => {
     expect(testSetup.captureCharFrame()).toContain("PICKER");
   });
 });
+
+describe("Ask editor display offsets", () => {
+  test.each([false, true])(
+    "initial and controller cursor placement uses buffer offsets (multiline=%s)",
+    async (multiline) => {
+      const controllerRef = createRef<AskEditorController>();
+      const original = "漢字🙂\t文\f";
+      testSetup = await setup(
+        <ControllerHost
+          multiline={multiline}
+          defaultValue={original}
+          controllerRef={controllerRef}
+        />
+      );
+      const controller = expectDefined(controllerRef.current);
+      await typeText("!");
+      expect(controller.getText()).toBe(`${original}!`);
+
+      act(() => {
+        controller.setText("中\t🙂\f");
+      });
+      await typeText("?");
+      expect(controller.getText()).toBe("中\t🙂\f?");
+
+      act(() => {
+        controller.setText("漢漢漢漢", { cursorToEnd: false });
+        controller.setCursorToEnd();
+        controller.insertText("末");
+      });
+      expect(controller.getText()).toBe("漢漢漢漢末");
+    }
+  );
+
+  test("line copy and open-above/below keep Unicode, tabs and control notation intact", async () => {
+    const text = "漢字漢字🙂\t\f\n🙂\t中\nend";
+    testSetup = await setup(<CopyHost multiline defaultValue={text} />);
+    await pressEscape();
+    await press("g");
+    await press("g");
+    await press("j");
+    await press("y");
+    await press("y");
+    expect(copied).toEqual(["🙂\t中"]);
+
+    await press("o");
+    await typeText("below");
+    await pressEscape();
+    await press("o", { shift: true });
+    await typeText("above");
+    expect(expectDefined(findEditable(testSetup.renderer.root)).plainText).toBe(
+      "漢字漢字🙂\t\f\n🙂\t中\nabove\nbelow\nend"
+    );
+  });
+
+  test("horizontal and vertical motions land on whole wide characters and tabs", async () => {
+    testSetup = await setup(<CopyHost multiline defaultValue={"漢🙂\t中\n字🙂\t文"} />);
+    await pressEscape();
+    await press("g");
+    await press("g");
+    const editable = expectDefined(findEditable(testSetup.renderer.root));
+    await press("l");
+    expect(editable.getTextRange(0, editable.cursorOffset)).toBe("漢");
+    await press("l");
+    expect(editable.getTextRange(0, editable.cursorOffset)).toBe("漢🙂");
+    await press("l");
+    expect(editable.getTextRange(0, editable.cursorOffset)).toBe("漢🙂\t");
+    await press("j");
+    expect(editable.getTextRange(0, editable.cursorOffset)).toBe("漢🙂\t中\n字🙂\t");
+    await press("k");
+    await press("h");
+    expect(editable.getTextRange(0, editable.cursorOffset)).toBe("漢🙂");
+  });
+});
