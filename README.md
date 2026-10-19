@@ -1,6 +1,6 @@
 # Tooee
 
-A framework for building TUI apps using OpenTUI and React.
+A framework for building TUI apps using OpenTUI and React. Requires Bun 1.3.14 or newer and OpenTUI 0.6.6 or newer within 0.6.x.
 
 Tooee provides a set of common primitives for building consistent TUI experiences. It can be used as a cli, a typescript library, or a react component library.
 
