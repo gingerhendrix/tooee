@@ -10,10 +10,9 @@ import type { ReactNode } from "react";
 import { initialChatState } from "../chat-state.js";
 import type { ChatState, ChatTurn } from "../chat-state.js";
 import { MessageHistory } from "../message-history.js";
+import { idleFrame, renderUntil } from "./frames.js";
 
 const RENDER_PASSES = 6;
-
-const CURSOR_WAIT_MS = 2000;
 
 // The sign column is first, inside the panel border when there is one.
 const CURSOR_ROW = /^│?▸/u;
@@ -114,13 +113,13 @@ const setup = async function setup(
 };
 
 /** The frame line that holds the cursor sign (the active panel title also has one). */
-const cursorLine = function cursorLine(current: TestSession): string {
-  return (
-    current
-      .captureCharFrame()
-      .split("\n")
-      .find((line) => CURSOR_ROW.test(line)) ?? ""
-  );
+const cursorRow = function cursorRow(frame: string): string {
+  return frame.split("\n").find((line) => CURSOR_ROW.test(line)) ?? "";
+};
+
+/** The cursor line of the current frame, read once the renderer is idle. */
+const cursorLine = async function cursorLine(current: TestSession): Promise<string> {
+  return cursorRow(await idleFrame(current));
 };
 
 /**
@@ -131,18 +130,7 @@ const cursorLineWith = async function cursorLineWith(
   current: TestSession,
   text: string
 ): Promise<string> {
-  const deadline = Date.now() + CURSOR_WAIT_MS;
-  let line = cursorLine(current);
-
-  while (!line.includes(text) && Date.now() < deadline) {
-    // oxlint-disable-next-line no-await-in-loop -- each frame must finish before the next
-    await current.renderOnce();
-    // oxlint-disable-next-line no-await-in-loop -- give the markdown parser time between frames
-    await Bun.sleep(20);
-    line = cursorLine(current);
-  }
-
-  return line;
+  return cursorRow(await renderUntil(current, (frame) => cursorRow(frame).includes(text)));
 };
 
 beforeEach(() => {
@@ -159,7 +147,7 @@ describe("MessageHistory", () => {
   test("shows the empty state before the first turn", async () => {
     const current = await setup([]);
 
-    expect(current.captureCharFrame()).toContain("No messages yet.");
+    expect(await idleFrame(current)).toContain("No messages yet.");
   });
 
   test("opens with the cursor on the last row", async () => {
@@ -172,28 +160,28 @@ describe("MessageHistory", () => {
     const current = await setup([user, reply]);
 
     await press(current, "k");
-    expect(cursorLine(current)).toContain('ls {"path":"."} · done');
+    expect(await cursorLine(current)).toContain('ls {"path":"."} · done');
 
     await press(current, "k");
-    expect(cursorLine(current)).toContain("openrouter/flash");
+    expect(await cursorLine(current)).toContain("openrouter/flash");
 
     await press(current, "j");
-    expect(cursorLine(current)).toContain('ls {"path":"."} · done');
+    expect(await cursorLine(current)).toContain('ls {"path":"."} · done');
   });
 
   test("Enter shows and hides the full output of the block at the cursor", async () => {
     const current = await setup([user, reply]);
 
-    expect(current.captureCharFrame()).not.toContain("line 8");
+    expect(await idleFrame(current)).not.toContain("line 8");
 
     await press(current, "k");
     await pressEnter(current);
     await settle(current);
-    expect(current.captureCharFrame()).toContain("line 8");
+    expect(await idleFrame(current)).toContain("line 8");
 
     await pressEnter(current);
     await settle(current);
-    expect(current.captureCharFrame()).not.toContain("line 8");
+    expect(await idleFrame(current)).not.toContain("line 8");
   });
 
   test("y m copies the text of the turn at the cursor", async () => {
@@ -226,19 +214,19 @@ describe("MessageHistory", () => {
     await press(current, "/");
     await settle(current);
 
-    expect(current.captureCharFrame()).toMatch(/^\s*\/\s*$/mu);
+    expect(await idleFrame(current)).toMatch(/^\s*\/\s*$/mu);
   });
 
   test("in a panel group, Tab still switches panels and history keys stay in the panel", async () => {
     const current = await setup([user, reply], true);
 
     await press(current, "k");
-    expect(cursorLine(current)).toContain('ls {"path":"."} · done');
+    expect(await cursorLine(current)).toContain('ls {"path":"."} · done');
 
     await pressTab(current);
-    expect(current.captureCharFrame()).toContain("active:input");
+    expect(await idleFrame(current)).toContain("active:input");
 
     await press(current, "j");
-    expect(cursorLine(current)).toContain('ls {"path":"."} · done');
+    expect(await cursorLine(current)).toContain('ls {"path":"."} · done');
   });
 });

@@ -9,6 +9,7 @@ import { imagePart } from "../content-parts.js";
 import { HistoryRowView } from "../history-row.js";
 import { historyRows } from "../history-rows.js";
 import { PNG_BASE64 } from "./fixtures.js";
+import { renderUntil } from "./frames.js";
 
 const RENDER_PASSES = 10;
 
@@ -19,7 +20,12 @@ afterEach(() => {
   testSetup = undefined;
 });
 
-const renderTurn = async function renderTurn(turn: ChatTurn, showDetails = false): Promise<string> {
+/** Render `turn` and return the first idle frame that `ready` accepts. */
+const renderTurn = async function renderTurn(
+  turn: ChatTurn,
+  ready: (frame: string) => boolean,
+  showDetails = false
+): Promise<string> {
   testSetup = await testRender(
     <ThemeSwitcherProvider>
       <box flexDirection="column">
@@ -39,7 +45,8 @@ const renderTurn = async function renderTurn(turn: ChatTurn, showDetails = false
     await Bun.sleep(20);
   }
 
-  return testSetup.captureCharFrame();
+  // A loaded runner can need more frames, so keep rendering until the frame is ready.
+  return await renderUntil(testSetup, ready);
 };
 
 const dot = imagePart({ data: PNG_BASE64, mimeType: "image/png", type: "image" });
@@ -81,7 +88,9 @@ const assistantTurn: ChatTurn = {
 
 describe("HistoryRowView", () => {
   test("shows thinking, tool calls with status and results, images, and text", async () => {
-    const frame = await renderTurn(assistantTurn);
+    const frame = await renderTurn(assistantTurn, (current) =>
+      current.includes("The image is blue.")
+    );
 
     expect(frame).toContain("openrouter/flash");
     expect(frame).toContain("Thinking");
@@ -96,20 +105,23 @@ describe("HistoryRowView", () => {
   });
 
   test("details mode shows the whole tool output", async () => {
-    const frame = await renderTurn(assistantTurn, true);
+    const frame = await renderTurn(assistantTurn, (current) => current.includes("line 8"), true);
 
     expect(frame).toContain("line 8");
     expect(frame).not.toContain("more lines");
   });
 
   test("a user turn shows its text and its attached images", async () => {
-    const frame = await renderTurn({
-      aborted: false,
-      id: 1,
-      parts: [{ kind: "text", text: "what is @dot.png" }, dot],
-      role: "user",
-      streaming: false,
-    });
+    const frame = await renderTurn(
+      {
+        aborted: false,
+        id: 1,
+        parts: [{ kind: "text", text: "what is @dot.png" }, dot],
+        role: "user",
+        streaming: false,
+      },
+      (current) => current.includes("what is @dot.png") && current.includes("██")
+    );
 
     const lines = frame.split("\n");
     const caption = lines.findIndex((line) => line.startsWith("[image png · 70 B]"));
@@ -122,13 +134,16 @@ describe("HistoryRowView", () => {
   });
 
   test("an image that cannot be decoded shows its caption and no picture", async () => {
-    const frame = await renderTurn({
-      aborted: false,
-      id: 1,
-      parts: [imagePart({ data: "bm9wZQ==", mimeType: "image/png", type: "image" })],
-      role: "user",
-      streaming: false,
-    });
+    const frame = await renderTurn(
+      {
+        aborted: false,
+        id: 1,
+        parts: [imagePart({ data: "bm9wZQ==", mimeType: "image/png", type: "image" })],
+        role: "user",
+        streaming: false,
+      },
+      (current) => current.includes("cannot be drawn")
+    );
 
     expect(frame).toContain("[image png · 4 B] cannot be drawn");
   });
