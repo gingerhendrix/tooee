@@ -1,58 +1,96 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/mermaid-pele\":\n    type: minor\n---\n\n## Add `@tooee/mermaid-pele`, an opt-in Pele image renderer for Mermaid fences\n\nThe new package draws ` ```mermaid ` fences as images. It renders each diagram with Pele, applies the Tooee theme colours, and rasterizes it with resvg for the OpenTUI `<image>` element. Pele supports more diagram types than the ASCII renderer, for example pie, quadrant, timeline, and gantt charts.\n\nRegister it with `codeBlockRenderers: { mermaid: createPeleMermaidRenderer() }`. By default, a fence that Pele cannot draw, or a terminal with no pixel image support, falls back to the beautiful-mermaid ASCII renderer. The `strategy` option can put ASCII first or turn the ASCII step off.\n\nThe default Mermaid renderer in `MarkdownView` and `@tooee/view` does not change.\n"
-    filename: mermaid-pele.md
+  - content: "---\npackages:\n  group:tooee:\n    type: minor\n---\n\n## Move to OpenTUI 0.6.6\n\nTooee now requires OpenTUI core and React `^0.6.6` and Bun 1.3.14 or newer. Gutters, initial scroll follow and Ask scrollbars are ready on the first frame. Ask cursor placement, line opening and line copy use native editor offsets for wide characters, emoji, tabs and control notation. CLI result promises wait for terminal restoration before returning.\n\n`@tooee/themes` no longer exposes `Theme.syntax`. Use `useTheme().syntax` inside a theme provider, or call `buildSyntaxStyle(theme.colors, renderer.nativeScene)` for imperative rendering. Syntax styles belong to one renderer and must not be shared across renderers.\n\n`hunkdiff` stays pinned at 0.22.0. Its two OpenTUI peer warnings on fresh installs are safe to ignore while its declared peer ranges catch up.\n"
+    filename: opentui-0-6.md
     v: 0.0.0
 core:packages:
-  - id: npm:@tooee/cli
-    updated: true
-  - id: npm:@tooee/choose
-    updated: true
-  - id: npm:@tooee/ask
-    updated: true
-  - id: npm:@tooee/commands
-    updated: true
-  - id: npm:@tooee/clipboard
-    updated: true
-  - id: npm:@tooee/config
-    updated: true
-  - id: npm:@tooee/diff
-    updated: true
-  - id: npm:@tooee/fuzzy
-    updated: true
-  - id: npm:@tooee/layout
-    updated: true
-  - id: npm:@tooee/marks
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/cli
     updated: true
   - changelogIds:
-      - mermaid-pele.md
+      - opentui-0-6.md
+    id: npm:@tooee/ask
+    updated: true
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/choose
+    updated: true
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/clipboard
+    updated: true
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/commands
+    updated: true
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/config
+    updated: true
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/diff
+    updated: true
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/fuzzy
+    updated: true
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/layout
+    updated: true
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/marks
+    updated: true
+  - changelogIds:
+      - opentui-0-6.md
     id: npm:@tooee/mermaid-pele
     updated: true
-  - id: npm:@tooee/overlays
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/overlays
     updated: true
-  - id: npm:@tooee/panels
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/panels
     updated: true
-  - id: npm:@tooee/renderers
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/renderers
     updated: true
-  - id: npm:@tooee/router
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/router
     updated: true
-  - id: npm:@tooee/search
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/search
     updated: true
-  - id: npm:@tooee/shell
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/shell
     updated: true
   - id: npm:@tooee/test-support
     updated: false
-  - id: npm:@tooee/themes
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/themes
     updated: true
-  - id: npm:@tooee/toasts
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/toasts
     updated: true
-  - id: npm:@tooee/view
+  - changelogIds:
+      - opentui-0-6.md
+    id: npm:@tooee/view
     updated: true
 npm:packages:
   - id: npm:@tooee/cli
-  - id: npm:@tooee/choose
   - id: npm:@tooee/ask
-  - id: npm:@tooee/commands
+  - id: npm:@tooee/choose
   - id: npm:@tooee/clipboard
+  - id: npm:@tooee/commands
   - id: npm:@tooee/config
   - id: npm:@tooee/diff
   - id: npm:@tooee/fuzzy
