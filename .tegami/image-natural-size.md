@@ -1,8 +1,8 @@
 ---
 packages:
-  "@tooee/renderers": minor
-  "@tooee/view": minor
-  "@tooee/mermaid-pele": minor
+  "@tooee/renderers": patch
+  "@tooee/view": patch
+  "@tooee/mermaid-pele": patch
 ---
 
 ## Size terminal images from their pixel dimensions
