@@ -4,7 +4,9 @@
  * OpenTUI fits the image inside the box. The box itself must have a fixed
  * row count, because the Markdown layout needs a height before the image
  * loads. The row count comes from the SVG aspect ratio and the cell aspect
- * ratio (cell height over cell width in pixels).
+ * ratio (cell height over cell width in pixels). Only the available columns
+ * limit the box by default. The row count has no cap unless the caller sets
+ * `maxRows`.
  */
 
 export interface CellGeometry {
@@ -48,15 +50,18 @@ export interface ImageBox {
 export interface ImageBoxOptions {
   /** Columns the block may use. */
   maxCols: number;
-  /** Rows a single diagram may use before it shrinks to fit. */
-  maxRows: number;
+  /**
+   * Rows a single diagram may use before it shrinks to fit. Default: no cap,
+   * so a tall diagram keeps its natural height and the view scrolls.
+   */
+  maxRows?: number;
   /** Rows a diagram uses at least, so tiny diagrams stay visible. */
   minRows?: number;
 }
 
 /**
  * Show the SVG at about one CSS pixel per screen pixel, then shrink it to the
- * available columns and the row cap. The ratio of the box always matches the
+ * available columns and, when set, the row cap. The ratio of the box always matches the
  * SVG, so `fit="fit"` fills the box with no letterbox.
  */
 export const imageBoxSize = function imageBoxSize(
@@ -77,7 +82,7 @@ export const imageBoxSize = function imageBoxSize(
   let cols = Math.max(1, Math.min(options.maxCols, naturalCols));
   let rows = Math.ceil(cols / colsPerRow);
 
-  if (rows > options.maxRows) {
+  if (options.maxRows !== undefined && rows > options.maxRows) {
     rows = options.maxRows;
     cols = Math.max(1, Math.min(cols, Math.round(rows * colsPerRow)));
   }

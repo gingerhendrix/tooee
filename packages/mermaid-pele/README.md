@@ -38,7 +38,7 @@ The Pele step cannot draw a fence when Pele rejects the source, when resvg fails
 | --- | --- | --- |
 | `strategy` | `pele-then-ascii` | Renderer order, see above. |
 | `protocol` | `auto` | Image protocol for `<image>`. `auto` uses kitty or sixel when the terminal reports it. When `auto` resolves to `blocks` (no support, or inside tmux), the Pele step is skipped. Pass `blocks` to draw half-block images anyway. |
-| `maxRows` | `40` | Rows one diagram may use before it shrinks to fit. |
+| `maxRows` | no cap | Rows one diagram may use before it shrinks to fit. By default only the block width shrinks a diagram, so a tall diagram keeps its natural height and the view scrolls. |
 | `scale` | `2` | Raster pixel density over the SVG size. |
 | `cacheSize` | `64` | Diagrams kept in this renderer's cache. |
 | `fonts` | detected | `{ files, sansFamily, monoFamily }` for resvg. |

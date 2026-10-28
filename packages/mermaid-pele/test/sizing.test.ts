@@ -37,6 +37,13 @@ describe("imageBoxSize", () => {
     });
   });
 
+  test("keeps a tall diagram at its natural height when no row cap is set", () => {
+    expect(imageBoxSize(400, 2000, geometry, { maxCols: 120 })).toEqual({
+      cols: 40,
+      rows: 100,
+    });
+  });
+
   test("caps a tall diagram at the row limit and narrows it to keep the ratio", () => {
     expect(imageBoxSize(400, 2000, geometry, { maxCols: 120, maxRows: 40 })).toEqual({
       cols: 16,

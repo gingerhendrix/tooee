@@ -41,7 +41,10 @@ export interface PeleMermaidRendererOptions {
    * failed. Pass `blocks` to draw half-block images anyway.
    */
   protocol?: ImageRenderProtocol;
-  /** Rows one diagram may use before it shrinks to fit. Default 40. */
+  /**
+   * Rows one diagram may use before it shrinks to fit. Default: no cap, so a
+   * diagram keeps its natural height and only the block width shrinks it.
+   */
   maxRows?: number;
   /** Raster pixel density over the SVG size. Default 2. */
   scale?: number;
@@ -65,7 +68,7 @@ const PeleImage = function PeleImage({
 }: {
   diagram: PeleDiagram;
   width: number;
-  maxRows: number;
+  maxRows: number | undefined;
   protocol: ImageRenderProtocol;
 }): ReactNode {
   const renderer = useRenderer();
@@ -94,7 +97,7 @@ export const createPeleMermaidRenderer = function createPeleMermaidRenderer(
 ): CodeBlockRenderer {
   const strategy = options.strategy ?? "pele-then-ascii";
   const protocol = options.protocol ?? "auto";
-  const maxRows = options.maxRows ?? 40;
+  const { maxRows } = options;
   const scale = options.scale ?? 2;
   const cache = createPeleRenderCache(options.cacheSize);
 
