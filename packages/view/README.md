@@ -23,7 +23,7 @@ Markdown displays standard images and Obsidian image embeds. Relative paths reso
 ![[images/cover.png|40x12]]
 ```
 
-The Obsidian suffix accepts alternative text, a width, or `widthxheight` cell dimensions. Without a size, an image draws at its pixel size and shrinks only to fit the paragraph width and the terminal height less 4 rows.
+The Obsidian suffix accepts alternative text, a width, or `widthxheight` cell dimensions. Without a size, an image draws at its pixel size and shrinks only to fit the paragraph width and the terminal height less 6 rows.
 
 Part of the [Tooee](https://github.com/gingerhendrix/tooee) monorepo. See the main repo for documentation.
 

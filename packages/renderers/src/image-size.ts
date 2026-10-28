@@ -45,7 +45,7 @@ export const cellGeometry = function cellGeometry(source: PixelResolutionSource)
  * Terminal rows an inline image leaves free, so a full-height image still
  * shows the view chrome and some of the text around it.
  */
-export const IMAGE_WINDOW_PADDING_ROWS = 4;
+export const IMAGE_WINDOW_PADDING_ROWS = 6;
 
 export interface ImageBox {
   cols: number;

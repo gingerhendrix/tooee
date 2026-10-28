@@ -82,8 +82,8 @@ describe("Markdown image size", () => {
     const dir = imageDir({ "tall.png": [180, 1800] });
     const drawn = await renderImage("![tall](tall.png)", dir, { height: 24, width: 80 });
 
-    // 100 natural rows shrink to 24 - 4 rows, and the width follows the ratio.
-    expect(drawn.rows).toBe(20);
+    // 100 natural rows shrink to 24 - 6 rows, and the width follows the ratio.
+    expect(drawn.rows).toBe(18);
     expect(drawn.cols).toBe(4);
   });
 });
