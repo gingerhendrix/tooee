@@ -1,6 +1,6 @@
 {
   "name": "@tooee/mermaid-pele",
-  "version": "0.16.1",
+  "version": "0.16.2",
   "description": "Opt-in Mermaid fence renderer for Tooee that draws Pele SVG diagrams as terminal images",
   "keywords": [
     "cli",
