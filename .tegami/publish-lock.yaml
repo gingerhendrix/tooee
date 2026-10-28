@@ -1,6 +1,6 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/renderers\":\n    type: patch\n  \"@tooee/view\":\n    type: patch\n  \"@tooee/mermaid-pele\":\n    type: patch\n---\n\n## Size terminal images from their pixel dimensions\n\nMarkdown images, image files in View, and Pele Mermaid diagrams now draw at their own pixel size, one image pixel per screen pixel. An image shrinks, keeping its aspect ratio, only when it is wider than the space it has or taller than the terminal less 6 rows. Tooee never enlarges an image.\n\nA Markdown image without a size no longer reserves a fixed 12-row box. It takes no rows until its pixel size is known. An Obsidian `|width` embed now derives its rows from the aspect ratio. A `|widthxheight` embed keeps its box. In View, a `fit` image is centred with one cell of padding.\n\n`@tooee/renderers` exports `naturalImageBox`, `cellGeometry`, `DEFAULT_CELL_GEOMETRY` and `IMAGE_WINDOW_PADDING_ROWS`. `@tooee/mermaid-pele` re-exports the cell geometry helpers from there, and its `maxRows` option now defaults to the terminal height less 6 rows in place of 40.\n"
-    filename: image-natural-size.md
+  - content: "---\npackages:\n  \"@tooee/mermaid-pele\":\n    type: patch\n---\n\n## Draw Pele Mermaid diagrams at 1.5x by default\n\nPele Mermaid diagrams now draw at 1.5 screen pixels per SVG pixel, so 16 px labels show at 24 screen pixels. In 0.16.1 a diagram drew at one SVG pixel per screen pixel, and its labels were smaller than terminal text on a scaled display. The width and row caps still apply, so a diagram that already fills the pane or reaches the row cap draws at the same size as before.\n\nThe new `zoom` option of `createPeleMermaidRenderer` sets the factor. Pass `zoom: 1` to keep the 0.16.1 size. The `scale` option now defaults to the larger of 2 and `zoom`, so the raster is never enlarged on screen. `DEFAULT_MERMAID_ZOOM` is exported.\n"
+    filename: mermaid-zoom.md
     v: 0.0.0
 core:packages:
   - id: npm:@tooee/cli
@@ -9,31 +9,29 @@ core:packages:
     updated: true
   - id: npm:@tooee/choose
     updated: true
-  - id: npm:@tooee/clipboard
-    updated: true
   - id: npm:@tooee/commands
+    updated: true
+  - id: npm:@tooee/clipboard
     updated: true
   - id: npm:@tooee/config
     updated: true
   - id: npm:@tooee/diff
     updated: true
-  - id: npm:@tooee/fuzzy
-    updated: true
   - id: npm:@tooee/layout
+    updated: true
+  - id: npm:@tooee/fuzzy
     updated: true
   - id: npm:@tooee/marks
     updated: true
   - changelogIds:
-      - image-natural-size.md
+      - mermaid-zoom.md
     id: npm:@tooee/mermaid-pele
     updated: true
   - id: npm:@tooee/overlays
     updated: true
   - id: npm:@tooee/panels
     updated: true
-  - changelogIds:
-      - image-natural-size.md
-    id: npm:@tooee/renderers
+  - id: npm:@tooee/renderers
     updated: true
   - id: npm:@tooee/router
     updated: true
@@ -47,20 +45,18 @@ core:packages:
     updated: true
   - id: npm:@tooee/toasts
     updated: true
-  - changelogIds:
-      - image-natural-size.md
-    id: npm:@tooee/view
+  - id: npm:@tooee/view
     updated: true
 npm:packages:
   - id: npm:@tooee/cli
   - id: npm:@tooee/ask
   - id: npm:@tooee/choose
-  - id: npm:@tooee/clipboard
   - id: npm:@tooee/commands
+  - id: npm:@tooee/clipboard
   - id: npm:@tooee/config
   - id: npm:@tooee/diff
-  - id: npm:@tooee/fuzzy
   - id: npm:@tooee/layout
+  - id: npm:@tooee/fuzzy
   - id: npm:@tooee/marks
   - id: npm:@tooee/mermaid-pele
   - id: npm:@tooee/overlays
