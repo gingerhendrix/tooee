@@ -1,88 +1,54 @@
 core:changelogs:
-  - content: "---\npackages:\n  group:tooee:\n    type: minor\n---\n\n## Move to OpenTUI 0.6.6\n\nTooee now requires OpenTUI core and React `^0.6.6` and Bun 1.3.14 or newer. Gutters, initial scroll follow and Ask scrollbars are ready on the first frame. Ask cursor placement, line opening and line copy use native editor offsets for wide characters, emoji, tabs and control notation. CLI result promises wait for terminal restoration before returning.\n\n`@tooee/themes` no longer exposes `Theme.syntax`. Use `useTheme().syntax` inside a theme provider, or call `buildSyntaxStyle(theme.colors, renderer.nativeScene)` for imperative rendering. Syntax styles belong to one renderer and must not be shared across renderers.\n\n`hunkdiff` stays pinned at 0.22.0. Its two OpenTUI peer warnings on fresh installs are safe to ignore while its declared peer ranges catch up.\n"
-    filename: opentui-0-6.md
+  - content: "---\npackages:\n  \"@tooee/renderers\":\n    type: patch\n  \"@tooee/view\":\n    type: patch\n  \"@tooee/mermaid-pele\":\n    type: patch\n---\n\n## Size terminal images from their pixel dimensions\n\nMarkdown images, image files in View, and Pele Mermaid diagrams now draw at their own pixel size, one image pixel per screen pixel. An image shrinks, keeping its aspect ratio, only when it is wider than the space it has or taller than the terminal less 6 rows. Tooee never enlarges an image.\n\nA Markdown image without a size no longer reserves a fixed 12-row box. It takes no rows until its pixel size is known. An Obsidian `|width` embed now derives its rows from the aspect ratio. A `|widthxheight` embed keeps its box. In View, a `fit` image is centred with one cell of padding.\n\n`@tooee/renderers` exports `naturalImageBox`, `cellGeometry`, `DEFAULT_CELL_GEOMETRY` and `IMAGE_WINDOW_PADDING_ROWS`. `@tooee/mermaid-pele` re-exports the cell geometry helpers from there, and its `maxRows` option now defaults to the terminal height less 6 rows in place of 40.\n"
+    filename: image-natural-size.md
     v: 0.0.0
 core:packages:
-  - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/cli
+  - id: npm:@tooee/cli
+    updated: true
+  - id: npm:@tooee/ask
+    updated: true
+  - id: npm:@tooee/choose
+    updated: true
+  - id: npm:@tooee/clipboard
+    updated: true
+  - id: npm:@tooee/commands
+    updated: true
+  - id: npm:@tooee/config
+    updated: true
+  - id: npm:@tooee/diff
+    updated: true
+  - id: npm:@tooee/fuzzy
+    updated: true
+  - id: npm:@tooee/layout
+    updated: true
+  - id: npm:@tooee/marks
     updated: true
   - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/ask
-    updated: true
-  - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/choose
-    updated: true
-  - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/clipboard
-    updated: true
-  - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/commands
-    updated: true
-  - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/config
-    updated: true
-  - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/diff
-    updated: true
-  - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/fuzzy
-    updated: true
-  - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/layout
-    updated: true
-  - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/marks
-    updated: true
-  - changelogIds:
-      - opentui-0-6.md
+      - image-natural-size.md
     id: npm:@tooee/mermaid-pele
     updated: true
-  - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/overlays
+  - id: npm:@tooee/overlays
+    updated: true
+  - id: npm:@tooee/panels
     updated: true
   - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/panels
-    updated: true
-  - changelogIds:
-      - opentui-0-6.md
+      - image-natural-size.md
     id: npm:@tooee/renderers
     updated: true
-  - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/router
+  - id: npm:@tooee/router
     updated: true
-  - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/search
+  - id: npm:@tooee/search
     updated: true
-  - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/shell
+  - id: npm:@tooee/shell
     updated: true
   - id: npm:@tooee/test-support
     updated: false
-  - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/themes
+  - id: npm:@tooee/themes
+    updated: true
+  - id: npm:@tooee/toasts
     updated: true
   - changelogIds:
-      - opentui-0-6.md
-    id: npm:@tooee/toasts
-    updated: true
-  - changelogIds:
-      - opentui-0-6.md
+      - image-natural-size.md
     id: npm:@tooee/view
     updated: true
 npm:packages:
