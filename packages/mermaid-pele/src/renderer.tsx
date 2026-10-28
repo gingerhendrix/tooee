@@ -8,8 +8,12 @@
  */
 
 import type { ImageRenderProtocol } from "@opentui/core";
-import { useRenderer } from "@opentui/react";
-import { CodeBlockChrome, mermaidCodeBlockRenderer } from "@tooee/renderers";
+import { useRenderer, useTerminalDimensions } from "@opentui/react";
+import {
+  CodeBlockChrome,
+  IMAGE_WINDOW_PADDING_ROWS,
+  mermaidCodeBlockRenderer,
+} from "@tooee/renderers";
 import type { CodeBlockRenderer, CodeBlockRendererProps } from "@tooee/renderers";
 import type { ReactNode } from "react";
 
@@ -41,7 +45,10 @@ export interface PeleMermaidRendererOptions {
    * failed. Pass `blocks` to draw half-block images anyway.
    */
   protocol?: ImageRenderProtocol;
-  /** Rows one diagram may use before it shrinks to fit. Default 40. */
+  /**
+   * Rows one diagram may use before it shrinks to fit. Default: the terminal
+   * height less `IMAGE_WINDOW_PADDING_ROWS`.
+   */
   maxRows?: number;
   /** Raster pixel density over the SVG size. Default 2. */
   scale?: number;
@@ -65,14 +72,15 @@ const PeleImage = function PeleImage({
 }: {
   diagram: PeleDiagram;
   width: number;
-  maxRows: number;
+  maxRows: number | undefined;
   protocol: ImageRenderProtocol;
 }): ReactNode {
   const renderer = useRenderer();
+  const { height: terminalHeight } = useTerminalDimensions();
 
   const box = imageBoxSize(diagram.svgWidth, diagram.svgHeight, cellGeometry(renderer), {
     maxCols: width,
-    maxRows,
+    maxRows: maxRows ?? terminalHeight - IMAGE_WINDOW_PADDING_ROWS,
   });
 
   return (
@@ -94,7 +102,7 @@ export const createPeleMermaidRenderer = function createPeleMermaidRenderer(
 ): CodeBlockRenderer {
   const strategy = options.strategy ?? "pele-then-ascii";
   const protocol = options.protocol ?? "auto";
-  const maxRows = options.maxRows ?? 40;
+  const { maxRows } = options;
   const scale = options.scale ?? 2;
   const cache = createPeleRenderCache(options.cacheSize);
 
