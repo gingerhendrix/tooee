@@ -2,6 +2,8 @@ import path from "node:path";
 
 import type { Token } from "marked";
 
+import { naturalImageBox } from "./image-size.js";
+import type { CellGeometry, ImageBox } from "./image-size.js";
 import { narrowToken } from "./markdown/tokens.js";
 
 const OBSIDIAN_IMAGE_EMBED = /!\[\[(?<target>[^\]|]+)(?:\|(?<display>[^\]]+))?\]\]/gu;
@@ -157,4 +159,32 @@ export const resolveMarkdownImageSource = function resolveMarkdownImageSource(
   }
 
   return path.resolve(basePath ?? process.cwd(), source);
+};
+
+/**
+ * Cell box for a Markdown image. An embed with both an explicit width and
+ * height keeps that box. Otherwise the box follows the image pixel size and
+ * shrinks only to fit `maxCols` and `maxRows`. An explicit width alone sets
+ * the columns, and the rows follow the image aspect ratio. Before the image
+ * loads, its pixel size is unknown and the box is empty.
+ */
+export const markdownImageBox = function markdownImageBox(
+  image: MarkdownImageEmbed,
+  pixels: { width: number; height: number } | null,
+  geometry: CellGeometry,
+  limits: { maxCols: number; maxRows: number }
+): ImageBox {
+  if (image.width !== undefined && image.height !== undefined) {
+    return { cols: image.width, rows: image.height };
+  }
+
+  if (pixels === null) {
+    return { cols: 0, rows: 0 };
+  }
+
+  return naturalImageBox(pixels.width, pixels.height, geometry, {
+    cols: image.width,
+    maxCols: limits.maxCols,
+    maxRows: limits.maxRows,
+  });
 };

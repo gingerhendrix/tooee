@@ -38,7 +38,7 @@ A `mermaid` fence draws the diagram with box characters. A diagram falls back to
 
 The first line is standard Markdown. The other three are Obsidian embeds; the text after `|` is either a `width` or a `widthxheight` in terminal cells, or alternative text. A relative path resolves from `imageBasePath` on the content, or from the working directory when it is unset. `createFileProvider` sets `imageBasePath` to the folder of the file. An absolute path or a URL with a scheme is used as it is.
 
-An image is 12 rows tall and as wide as the paragraph unless the embed sets a size. While it loads, the row shows `Loading image:` and the alt text. When it fails, the row shows `Image failed to load:` and the alt text or the path. The protocol is chosen the same way as for the [image format](#image).
+An image draws at its own pixel size, one image pixel per screen pixel. When it is wider than the paragraph or taller than the terminal less 4 rows, it shrinks to fit and keeps its aspect ratio. Tooee never enlarges an image. An embed with a `widthxheight` uses that box. An embed with only a `width` uses that many columns, and the rows follow the aspect ratio. The image takes no rows until its pixel size is known. While it loads, the row shows `Loading image:` and the alt text. When it fails, the row shows `Image failed to load:` and the alt text or the path. The protocol is chosen the same way as for the [image format](#image).
 
 ### Links in markdown
 
@@ -149,12 +149,12 @@ await launch({
 | Field | Values |
 | --- | --- |
 | `src` | A file path, a `URL`, a `Uint8Array`, an `ArrayBuffer`, a `Blob`, or a `Response`. |
-| `fit` | `fit` keeps the aspect ratio inside the area and is the default. `cover` fills the area and crops. `fill` stretches. |
+| `fit` | `fit` is the default. It draws the image at its pixel size and shrinks it, keeping the aspect ratio, only when it does not fit the area. `cover` fills the area and crops. `fill` stretches. |
 | `protocol` | `auto` is the default. `kitty`, `sixel`, and `blocks` force one protocol. |
 
 With `auto`, OpenTUI uses the kitty graphics protocol when the terminal reports it, sixel when the terminal reports it and the cell size in pixels is known, and half-block characters otherwise. Inside tmux it uses blocks. A terminal that does not answer the capability query gets blocks too. `sixel` without a known cell size falls back to `blocks`.
 
-The image fills the content area. The document behind it has one row that holds the path, so `y g` copies the path and the status bar shows `Format: image` alone. A file that cannot be read shows `Image failed to load:` and the path above the empty area. `createFileProvider` picks this format for `.png`, `.jpg`, `.jpeg`, `.gif`, and `.webp`.
+With `fit`, the image is centred in the content area with one cell of padding on each side. With `cover` or `fill`, it fills the content area. The document behind it has one row that holds the path, so `y g` copies the path and the status bar shows `Format: image` alone. A file that cannot be read shows `Image failed to load:` and the path above the empty area. `createFileProvider` picks this format for `.png`, `.jpg`, `.jpeg`, `.gif`, and `.webp`.
 
 ## Next
 

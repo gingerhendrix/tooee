@@ -1,29 +1,52 @@
+import { useRenderer, useTerminalDimensions } from "@opentui/react";
 import type { ResolvedTheme } from "@tooee/themes";
 import type { Tokens } from "marked";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
-import { resolveMarkdownImageSource, splitMarkdownImages } from "../../markdown-images.js";
+import { cellGeometry, IMAGE_WINDOW_PADDING_ROWS } from "../../image-size.js";
+import {
+  markdownImageBox,
+  resolveMarkdownImageSource,
+  splitMarkdownImages,
+} from "../../markdown-images.js";
 import type { MarkdownImageEmbed } from "../../markdown-images.js";
 import { InlineTokens } from "../inline.js";
 import { linkMouseHandler } from "../links.js";
 import type { MarkdownLinkHandler } from "../links.js";
 
+/** Columns of the paragraph margins: one plus the indent on the left, one on the right. */
+const paragraphMarginColumns = function paragraphMarginColumns(indent: number): number {
+  return 1 + indent + 1;
+};
+
 const MarkdownImage = function MarkdownImage({
   image,
   basePath,
   theme,
+  maxCols,
 }: {
   image: MarkdownImageEmbed;
   basePath?: string;
   theme: ResolvedTheme;
+  /** Columns inside the paragraph margins. */
+  maxCols: number;
 }): ReactNode {
+  const renderer = useRenderer();
+  const { height: terminalHeight } = useTerminalDimensions();
   const source = resolveMarkdownImageSource(image.source, basePath);
   const [state, setState] = useState<"loading" | "loaded" | "error">("loading");
+  const [pixels, setPixels] = useState<{ width: number; height: number } | null>(null);
 
   useEffect(() => {
     setState("loading");
+    setPixels(null);
   }, [source]);
+
+  const box = markdownImageBox(image, pixels, cellGeometry(renderer), {
+    maxCols,
+    maxRows: terminalHeight - IMAGE_WINDOW_PADDING_ROWS,
+  });
 
   return (
     <box style={{ flexDirection: "column" }}>
@@ -37,13 +60,14 @@ const MarkdownImage = function MarkdownImage({
         source={source}
         fit="fit"
         protocol="auto"
-        onLoad={() => {
+        onLoad={(loaded) => {
+          setPixels({ height: loaded.height, width: loaded.width });
           setState("loaded");
         }}
         onError={() => {
           setState("error");
         }}
-        style={{ height: image.height ?? 12, width: image.width ?? "100%" }}
+        style={{ height: box.rows, width: box.cols }}
       />
     </box>
   );
@@ -55,12 +79,15 @@ export const ParagraphRenderer = function ParagraphRenderer({
   indent,
   onLinkActivate,
   imageBasePath,
+  contentWidth,
 }: {
   token: Tokens.Paragraph;
   theme: ResolvedTheme;
   indent: number;
   onLinkActivate?: MarkdownLinkHandler;
   imageBasePath?: string;
+  /** Columns the Markdown view gives each block, before margins. */
+  contentWidth: number;
 }): ReactNode {
   const segments = splitMarkdownImages(token.tokens);
 
@@ -75,7 +102,13 @@ export const ParagraphRenderer = function ParagraphRenderer({
     >
       {segments.map((segment, index): ReactNode =>
         segment.type === "image" ? (
-          <MarkdownImage key={index} image={segment} basePath={imageBasePath} theme={theme} />
+          <MarkdownImage
+            key={index}
+            image={segment}
+            basePath={imageBasePath}
+            theme={theme}
+            maxCols={contentWidth - paragraphMarginColumns(indent)}
+          />
         ) : (
           <text
             key={index}

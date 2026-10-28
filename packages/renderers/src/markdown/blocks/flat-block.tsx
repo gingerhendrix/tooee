@@ -109,6 +109,7 @@ export const FlatBlockRenderer = function FlatBlockRenderer({
           indent={indent}
           onLinkActivate={onLinkActivate}
           imageBasePath={imageBasePath}
+          contentWidth={contentWidth}
         />
       );
     }

@@ -11,3 +11,5 @@ export { keyEvent } from "./key-event.js";
 export { ensureTestConfigHome, resetTestConfig } from "./test-config.js";
 
 export { testRender } from "./test-render.js";
+
+export { solidPng } from "./png.js";

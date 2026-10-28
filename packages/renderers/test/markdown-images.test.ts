@@ -4,6 +4,7 @@ import path from "node:path";
 import { marked } from "marked";
 
 import {
+  markdownImageBox,
   parseObsidianImageEmbed,
   resolveMarkdownImageSource,
   splitMarkdownImages,
@@ -69,5 +70,48 @@ describe("Obsidian image embeds", () => {
     expect(resolveMarkdownImageSource("data:image/png;base64,abc", "/vault")).toBe(
       "data:image/png;base64,abc"
     );
+  });
+});
+
+describe("markdownImageBox", () => {
+  const geometry = { aspect: 2, cellWidth: 10 };
+  const limits = { maxCols: 100, maxRows: 30 };
+
+  test("is empty until the image pixel size is known", () => {
+    expect(markdownImageBox({ source: "a.png" }, null, geometry, limits)).toEqual({
+      cols: 0,
+      rows: 0,
+    });
+  });
+
+  test("follows the pixel size and shrinks only to the limits", () => {
+    expect(
+      markdownImageBox({ source: "a.png" }, { height: 100, width: 300 }, geometry, limits)
+    ).toEqual({ cols: 30, rows: 5 });
+    expect(
+      markdownImageBox({ source: "a.png" }, { height: 1200, width: 1600 }, geometry, limits)
+    ).toEqual({ cols: 80, rows: 30 });
+  });
+
+  test("keeps an explicit Obsidian width and height", () => {
+    expect(
+      markdownImageBox(
+        { height: 12, source: "a.png", width: 40 },
+        { height: 100, width: 300 },
+        geometry,
+        limits
+      )
+    ).toEqual({ cols: 40, rows: 12 });
+  });
+
+  test("derives the rows of an explicit Obsidian width from the aspect ratio", () => {
+    expect(
+      markdownImageBox(
+        { source: "a.png", width: 60 },
+        { height: 100, width: 300 },
+        geometry,
+        limits
+      )
+    ).toEqual({ cols: 60, rows: 10 });
   });
 });

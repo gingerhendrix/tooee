@@ -29,6 +29,20 @@ export {
 
 export type { MarkdownImageEmbed, MarkdownInlineSegment } from "./markdown-images.js";
 
+export {
+  cellGeometry,
+  DEFAULT_CELL_GEOMETRY,
+  IMAGE_WINDOW_PADDING_ROWS,
+  naturalImageBox,
+} from "./image-size.js";
+
+export type {
+  CellGeometry,
+  ImageBox,
+  NaturalImageBoxOptions,
+  PixelResolutionSource,
+} from "./image-size.js";
+
 export { sourceLines, sourceLineAdapter, SourceIndex } from "./source.js";
 
 export type {
