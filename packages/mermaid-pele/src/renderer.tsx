@@ -50,7 +50,16 @@ export interface PeleMermaidRendererOptions {
    * height less `IMAGE_WINDOW_PADDING_ROWS`.
    */
   maxRows?: number;
-  /** Raster pixel density over the SVG size. Default 2. */
+  /**
+   * Screen pixels per SVG pixel before the box shrinks to fit. Pele draws
+   * labels at 16 CSS px, which reads small next to terminal text on a
+   * scaled display. Default `DEFAULT_MERMAID_ZOOM` (1.5).
+   */
+  zoom?: number;
+  /**
+   * Raster pixel density over the SVG size. Default: the larger of 2 and
+   * `zoom`, so the PNG is never enlarged on screen.
+   */
   scale?: number;
   /** Rendered diagrams kept in this renderer's cache. Default 64. */
   cacheSize?: number;
@@ -60,6 +69,9 @@ export interface PeleMermaidRendererOptions {
   now?: Date;
 }
 
+/** Default `zoom`: Pele's 16 px labels draw at 24 screen px. */
+export const DEFAULT_MERMAID_ZOOM = 1.5;
+
 const FONT_FAMILY = "sans-serif";
 
 const MONO_FAMILY = "monospace";
@@ -68,20 +80,27 @@ const PeleImage = function PeleImage({
   diagram,
   width,
   maxRows,
+  zoom,
   protocol,
 }: {
   diagram: PeleDiagram;
   width: number;
   maxRows: number | undefined;
+  zoom: number;
   protocol: ImageRenderProtocol;
 }): ReactNode {
   const renderer = useRenderer();
   const { height: terminalHeight } = useTerminalDimensions();
 
-  const box = imageBoxSize(diagram.svgWidth, diagram.svgHeight, cellGeometry(renderer), {
-    maxCols: width,
-    maxRows: maxRows ?? terminalHeight - IMAGE_WINDOW_PADDING_ROWS,
-  });
+  const box = imageBoxSize(
+    diagram.svgWidth * zoom,
+    diagram.svgHeight * zoom,
+    cellGeometry(renderer),
+    {
+      maxCols: width,
+      maxRows: maxRows ?? terminalHeight - IMAGE_WINDOW_PADDING_ROWS,
+    }
+  );
 
   return (
     <image
@@ -103,7 +122,8 @@ export const createPeleMermaidRenderer = function createPeleMermaidRenderer(
   const strategy = options.strategy ?? "pele-then-ascii";
   const protocol = options.protocol ?? "auto";
   const { maxRows } = options;
-  const scale = options.scale ?? 2;
+  const zoom = options.zoom ?? DEFAULT_MERMAID_ZOOM;
+  const scale = options.scale ?? Math.max(2, zoom);
   const cache = createPeleRenderCache(options.cacheSize);
 
   /** Pele image inside the standard chrome, or null when Pele cannot draw it. */
@@ -125,7 +145,13 @@ export const createPeleMermaidRenderer = function createPeleMermaidRenderer(
 
     return (
       <CodeBlockChrome theme={props.theme} indent={props.indent}>
-        <PeleImage diagram={result} width={props.width} maxRows={maxRows} protocol={protocol} />
+        <PeleImage
+          diagram={result}
+          width={props.width}
+          maxRows={maxRows}
+          zoom={zoom}
+          protocol={protocol}
+        />
       </CodeBlockChrome>
     );
   };

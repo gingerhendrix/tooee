@@ -45,6 +45,11 @@ const renderFence = async function renderFence(
   return testSetup.captureCharFrame();
 };
 
+/** Frame rows that hold half-block image glyphs. */
+const imageRows = function imageRows(frame: string): number {
+  return frame.split("\n").filter((line) => BLOCK_GLYPHS.test(line)).length;
+};
+
 describe("createPeleMermaidRenderer", () => {
   test("draws a Pele image by default when images are available", async () => {
     const frame = await renderFence(FLOWCHART, { protocol: "blocks" });
@@ -94,5 +99,22 @@ describe("createPeleMermaidRenderer", () => {
 
     expect(frame).toMatch(BLOCK_GLYPHS);
     expect(frame).not.toContain("pie title");
+  });
+
+  test("draws a diagram larger than its SVG size by default", async () => {
+    const natural = imageRows(await renderFence(FLOWCHART, { protocol: "blocks", zoom: 1 }));
+    testSetup?.renderer.destroy();
+    const zoomed = imageRows(await renderFence(FLOWCHART, { protocol: "blocks" }));
+
+    expect(natural).toBeGreaterThan(0);
+    expect(zoomed).toBeGreaterThan(natural);
+  });
+
+  test("zoom: 2 draws twice the rows of zoom: 1", async () => {
+    const natural = imageRows(await renderFence(FLOWCHART, { protocol: "blocks", zoom: 1 }));
+    testSetup?.renderer.destroy();
+    const doubled = imageRows(await renderFence(FLOWCHART, { protocol: "blocks", zoom: 2 }));
+
+    expect(Math.abs(doubled - natural * 2)).toBeLessThanOrEqual(1);
   });
 });

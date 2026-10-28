@@ -1,4 +1,8 @@
-export { createPeleMermaidRenderer, PELE_MERMAID_STRATEGIES } from "./renderer.js";
+export {
+  createPeleMermaidRenderer,
+  DEFAULT_MERMAID_ZOOM,
+  PELE_MERMAID_STRATEGIES,
+} from "./renderer.js";
 
 export type { PeleMermaidRendererOptions, PeleMermaidStrategy } from "./renderer.js";
 
