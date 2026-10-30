@@ -1,41 +1,43 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/mermaid-pele\":\n    type: patch\n---\n\n## Draw Pele Mermaid diagrams at 1.5x by default\n\nPele Mermaid diagrams now draw at 1.5 screen pixels per SVG pixel, so 16 px labels show at 24 screen pixels. In 0.16.1 a diagram drew at one SVG pixel per screen pixel, and its labels were smaller than terminal text on a scaled display. The width and row caps still apply, so a diagram that already fills the pane or reaches the row cap draws at the same size as before.\n\nThe new `zoom` option of `createPeleMermaidRenderer` sets the factor. Pass `zoom: 1` to keep the 0.16.1 size. The `scale` option now defaults to the larger of 2 and `zoom`, so the raster is never enlarged on screen. `DEFAULT_MERMAID_ZOOM` is exported.\n"
-    filename: mermaid-zoom.md
+  - content: "---\npackages:\n  \"@tooee/layout\":\n    type: patch\n  \"@tooee/ask\":\n    type: patch\n---\n\n## Keep ask and choose overlay content inside the panel border\n\n`OverlayPanel` resolves percentage insets to whole cells of its container. A panel with fractional geometry could put its hint bar on the bottom border, and the multiline ask editor and its scrollbar could draw on or past the border.\n\nThe multiline ask editor no longer takes its height from its content, so a title, prompt or margin above it keeps its row when the content is long. The editor scrollbar always reserves its column, so soft-wrapped text no longer runs under the scrollbar.\n"
+    filename: fix-ask-panel-overflow.md
     v: 0.0.0
 core:packages:
   - id: npm:@tooee/cli
     updated: true
-  - id: npm:@tooee/ask
-    updated: true
   - id: npm:@tooee/choose
     updated: true
-  - id: npm:@tooee/commands
+  - changelogIds:
+      - fix-ask-panel-overflow.md
+    id: npm:@tooee/ask
     updated: true
   - id: npm:@tooee/clipboard
+    updated: true
+  - id: npm:@tooee/commands
     updated: true
   - id: npm:@tooee/config
     updated: true
   - id: npm:@tooee/diff
     updated: true
-  - id: npm:@tooee/layout
-    updated: true
   - id: npm:@tooee/fuzzy
+    updated: true
+  - changelogIds:
+      - fix-ask-panel-overflow.md
+    id: npm:@tooee/layout
     updated: true
   - id: npm:@tooee/marks
     updated: true
-  - changelogIds:
-      - mermaid-zoom.md
-    id: npm:@tooee/mermaid-pele
+  - id: npm:@tooee/mermaid-pele
     updated: true
   - id: npm:@tooee/overlays
     updated: true
   - id: npm:@tooee/panels
     updated: true
-  - id: npm:@tooee/renderers
-    updated: true
   - id: npm:@tooee/router
     updated: true
   - id: npm:@tooee/search
+    updated: true
+  - id: npm:@tooee/renderers
     updated: true
   - id: npm:@tooee/shell
     updated: true
@@ -49,21 +51,21 @@ core:packages:
     updated: true
 npm:packages:
   - id: npm:@tooee/cli
-  - id: npm:@tooee/ask
   - id: npm:@tooee/choose
-  - id: npm:@tooee/commands
+  - id: npm:@tooee/ask
   - id: npm:@tooee/clipboard
+  - id: npm:@tooee/commands
   - id: npm:@tooee/config
   - id: npm:@tooee/diff
-  - id: npm:@tooee/layout
   - id: npm:@tooee/fuzzy
+  - id: npm:@tooee/layout
   - id: npm:@tooee/marks
   - id: npm:@tooee/mermaid-pele
   - id: npm:@tooee/overlays
   - id: npm:@tooee/panels
-  - id: npm:@tooee/renderers
   - id: npm:@tooee/router
   - id: npm:@tooee/search
+  - id: npm:@tooee/renderers
   - id: npm:@tooee/shell
   - id: npm:@tooee/test-support
   - id: npm:@tooee/themes
