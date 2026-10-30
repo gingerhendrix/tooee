@@ -79,7 +79,10 @@ export const AskPanel = function AskPanel({
       inset={inset}
       onMouseDown={onMouseDown}
     >
-      <box flexDirection="column" style={{ flexGrow: 1, paddingLeft: 1, paddingRight: 1 }}>
+      <box
+        flexDirection="column"
+        style={{ flexBasis: 0, flexGrow: 1, minHeight: 0, paddingLeft: 1, paddingRight: 1 }}
+      >
         {children}
       </box>
     </OverlayPanel>

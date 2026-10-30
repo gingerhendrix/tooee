@@ -181,16 +181,19 @@ describe("AskOverlay overflow scrolling", () => {
 const trackRows = (frame: string) => frame.split("\n").filter((row) => /[█░]/u.test(row));
 
 test("resizing refreshes the entire scrollbar on the first new frame", async () => {
+  // 13 scroll rows, less 2 rows of padding, the prompt and its bottom margin.
   testSetup = await setupAsk(tallValue, 40, 14);
-  expect(trackRows(testSetup.captureCharFrame())).toHaveLength(10);
+  const initial = testSetup.captureCharFrame();
+  expect(trackRows(initial)).toHaveLength(9);
+  expect(initial.split("\n")[2]?.trim()).toBe("");
 
   act(() => {
     testSetup.resize(40, 18);
   });
   await testSetup.renderOnce();
   const resized = testSetup.captureCharFrame();
-  expect(trackRows(resized)).toHaveLength(14);
-  expect(trackRows(resized).filter((row) => row.includes(THUMB))).toHaveLength(7);
+  expect(trackRows(resized)).toHaveLength(13);
+  expect(trackRows(resized).filter((row) => row.includes(THUMB))).toHaveLength(6);
   expect(resized).toContain("L30");
   await testSetup.renderOnce();
   expect(testSetup.captureCharFrame()).toBe(resized);

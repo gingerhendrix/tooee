@@ -1,9 +1,4 @@
-import type {
-  TextareaRenderable,
-  InputRenderable,
-  TextRenderable,
-  BoxRenderable,
-} from "@opentui/core";
+import type { TextareaRenderable, InputRenderable, TextRenderable } from "@opentui/core";
 import { useCallback, useLayoutEffect, useRef } from "react";
 import type { ReactNode } from "react";
 
@@ -31,7 +26,10 @@ const TRACK_CHAR = "░";
  * This renders a thumb reflecting `offsetY / totalLines` so the user can see
  * there is more content above/below the box.
  *
- * Renders nothing when content fits within the viewport (no overflow).
+ * Draws an empty column when content fits within the viewport. The column
+ * stays reserved. Growing it from 0 to 1 cell inside a resize hook does not
+ * reflow the textarea, so its last column would sit under the scrollbar and
+ * soft-wrapped words would be cut.
  */
 const scrollbarContent = function scrollbarContent(
   target: TextareaRenderable | InputRenderable
@@ -60,16 +58,13 @@ export const EditorScrollbar = function EditorScrollbar({
   color,
 }: EditorScrollbarProps): ReactNode {
   const bar = useRef<TextRenderable>(null);
-  const track = useRef<BoxRenderable>(null);
 
   const sync = useCallback(() => {
-    if (!target.current || !bar.current || !track.current) {
+    if (!target.current || !bar.current) {
       return;
     }
 
-    const content = scrollbarContent(target.current);
-    bar.current.content = content;
-    track.current.width = content === "" ? 0 : 1;
+    bar.current.content = scrollbarContent(target.current);
   }, [target]);
 
   useLayoutEffect(() => {
@@ -79,7 +74,7 @@ export const EditorScrollbar = function EditorScrollbar({
   }, [sync, revision]);
 
   return (
-    <box ref={track} width={0} height="100%" onSizeChange={sync} flexShrink={0}>
+    <box width={1} height="100%" onSizeChange={sync} flexShrink={0}>
       <text ref={bar} fg={color} selectable={false} />
     </box>
   );

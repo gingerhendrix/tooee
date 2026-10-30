@@ -32,7 +32,11 @@ export const AskEditor = function AskEditor({ editor }: AskEditorProps): ReactNo
 
   if (editor.multiline) {
     return (
-      <box flexDirection="row" style={{ flexGrow: 1 }} onMouseScroll={handleMouseScroll}>
+      <box
+        flexDirection="row"
+        style={{ flexBasis: 0, flexGrow: 1, minHeight: 0, overflow: "hidden" }}
+        onMouseScroll={handleMouseScroll}
+      >
         <textarea
           ref={editor.textareaRef}
           focused={editor.focused}
