@@ -1,19 +1,15 @@
-import type { MouseEvent } from "@opentui/core";
+import type { BoxRenderable, MouseEvent } from "@opentui/core";
 import { useTheme } from "@tooee/themes";
+import { useRef } from "react";
 import type { ReactNode } from "react";
 
 import { CloseButton } from "./close-button.js";
+import { resolvePanelInset, useContainerSize } from "./panel-inset.js";
+import type { PanelInset } from "./panel-inset.js";
 import { decodeReactContent } from "./react-content.js";
 import type { DecodedReactContent } from "./react-content.js";
 
-export type PanelInsetValue = number | "auto" | `${number}%`;
-
-export interface PanelInset {
-  left?: PanelInsetValue;
-  right?: PanelInsetValue;
-  top?: PanelInsetValue;
-  bottom?: PanelInsetValue;
-}
+export type { PanelInset, PanelInsetValue } from "./panel-inset.js";
 
 export interface OverlayPanelProps {
   /** Title bar content. Primitive text uses the active accent color. */
@@ -59,7 +55,7 @@ const renderPrompt = function renderPrompt(
   }
 
   return (
-    <box paddingLeft={1} paddingRight={1}>
+    <box paddingLeft={1} paddingRight={1} flexShrink={0}>
       <text fg={textColor}>
         <strong>{prompt.value}</strong>
       </text>
@@ -85,14 +81,17 @@ export const OverlayPanel = function OverlayPanel({
   const decodedFooter = decodeReactContent(footer);
   const decodedHints = decodeReactContent(hints);
   const decodedStatus = decodeReactContent(statusRight);
+  const panelRef = useRef<BoxRenderable>(null);
+  const edges = resolvePanelInset(inset, useContainerSize(panelRef));
 
   return (
     <box
+      ref={panelRef}
       position="absolute"
-      left={inset?.left ?? "20%"}
-      right={inset?.right ?? "20%"}
-      top={inset?.top ?? "20%"}
-      bottom={inset?.bottom ?? "20%"}
+      left={edges.left}
+      right={edges.right}
+      top={edges.top}
+      bottom={edges.bottom}
       flexDirection="column"
       backgroundColor={theme.backgroundPanel}
       border
