@@ -1,31 +1,36 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/mermaid-pele\":\n    type: patch\n---\n\n## Draw Pele Mermaid diagrams at 1.5x by default\n\nPele Mermaid diagrams now draw at 1.5 screen pixels per SVG pixel, so 16 px labels show at 24 screen pixels. In 0.16.1 a diagram drew at one SVG pixel per screen pixel, and its labels were smaller than terminal text on a scaled display. The width and row caps still apply, so a diagram that already fills the pane or reaches the row cap draws at the same size as before.\n\nThe new `zoom` option of `createPeleMermaidRenderer` sets the factor. Pass `zoom: 1` to keep the 0.16.1 size. The `scale` option now defaults to the larger of 2 and `zoom`, so the raster is never enlarged on screen. `DEFAULT_MERMAID_ZOOM` is exported.\n"
-    filename: mermaid-zoom.md
+  - content: "---\npackages:\n  \"@tooee/layout\":\n    type: patch\n  \"@tooee/ask\":\n    type: patch\n---\n\n## Keep ask and choose overlay content inside the panel border\n\n`OverlayPanel` resolves percentage insets to whole cells of its container. A panel with fractional geometry could put its hint bar on the bottom border, and the multiline ask editor and its scrollbar could draw on or past the border.\n\nThe multiline ask editor no longer takes its height from its content, so a title, prompt or margin above it keeps its row when the content is long. The editor scrollbar always reserves its column, so soft-wrapped text no longer runs under the scrollbar.\n"
+    filename: fix-ask-panel-overflow.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/themes\":\n    type: patch\n---\n\n## Keep selected and highlighted rows visible in every theme\n\n`resolveTheme()` now keeps `backgroundPanel` and `selection` at least 0.05 ΔEOK from `background`, `cursorLine` at least 0.05 from `background`, and `backgroundElement` at least 0.05 from `backgroundPanel`. It moves only Oklab lightness, so each theme keeps its hue. The floor also applies to user and project themes, and it overrides explicit values that sit closer than 0.05. `MIN_SURFACE_SEPARATION` is exported.\n\nA theme without a `selection` colour now gets `primary` at 20% over `background`. Before, `selection` copied `backgroundPanel`, so a selected row looked the same as a panel.\n\n`lucent-orng` keeps its transparent page, but `backgroundPanel` and `backgroundElement` are now opaque colours from `orng`. Overlays cover the content behind them, and the title bar, status bar and gutter draw as opaque strips.\n"
+    filename: theme-surface-separation.md
     v: 0.0.0
 core:packages:
   - id: npm:@tooee/cli
     updated: true
-  - id: npm:@tooee/ask
+  - changelogIds:
+      - fix-ask-panel-overflow.md
+    id: npm:@tooee/ask
     updated: true
   - id: npm:@tooee/choose
     updated: true
   - id: npm:@tooee/commands
     updated: true
-  - id: npm:@tooee/clipboard
-    updated: true
   - id: npm:@tooee/config
     updated: true
-  - id: npm:@tooee/diff
+  - id: npm:@tooee/clipboard
     updated: true
-  - id: npm:@tooee/layout
+  - id: npm:@tooee/diff
     updated: true
   - id: npm:@tooee/fuzzy
     updated: true
   - id: npm:@tooee/marks
     updated: true
   - changelogIds:
-      - mermaid-zoom.md
-    id: npm:@tooee/mermaid-pele
+      - fix-ask-panel-overflow.md
+    id: npm:@tooee/layout
+    updated: true
+  - id: npm:@tooee/mermaid-pele
     updated: true
   - id: npm:@tooee/overlays
     updated: true
@@ -41,7 +46,9 @@ core:packages:
     updated: true
   - id: npm:@tooee/test-support
     updated: false
-  - id: npm:@tooee/themes
+  - changelogIds:
+      - theme-surface-separation.md
+    id: npm:@tooee/themes
     updated: true
   - id: npm:@tooee/toasts
     updated: true
@@ -52,12 +59,12 @@ npm:packages:
   - id: npm:@tooee/ask
   - id: npm:@tooee/choose
   - id: npm:@tooee/commands
-  - id: npm:@tooee/clipboard
   - id: npm:@tooee/config
+  - id: npm:@tooee/clipboard
   - id: npm:@tooee/diff
-  - id: npm:@tooee/layout
   - id: npm:@tooee/fuzzy
   - id: npm:@tooee/marks
+  - id: npm:@tooee/layout
   - id: npm:@tooee/mermaid-pele
   - id: npm:@tooee/overlays
   - id: npm:@tooee/panels
