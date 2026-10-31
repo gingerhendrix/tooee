@@ -1,6 +1,8 @@
 {
   "$schema": "https://opencode.ai/theme.json",
   "defs": {
+    "darkStep2": "#141414",
+    "darkStep3": "#1e1e1e",
     "darkStep6": "#3c3c3c",
     "darkStep11": "#808080",
     "darkStep12": "#eeeeee",
@@ -11,6 +13,8 @@
     "darkBlue": "#6ba1e6",
     "darkCyan": "#56b6c2",
     "darkYellow": "#e5c07b",
+    "lightStep2": "#FFF7F1",
+    "lightStep3": "#f5f0eb",
     "lightStep6": "#d4d4d4",
     "lightStep11": "#8a8a8a",
     "lightStep12": "#1a1a1a",
@@ -64,12 +68,12 @@
       "light": "transparent"
     },
     "backgroundPanel": {
-      "dark": "transparent",
-      "light": "transparent"
+      "dark": "darkStep2",
+      "light": "lightStep2"
     },
     "backgroundElement": {
-      "dark": "transparent",
-      "light": "transparent"
+      "dark": "darkStep3",
+      "light": "lightStep3"
     },
     "border": {
       "dark": "darkOrange",
@@ -222,6 +226,10 @@
     "syntaxPunctuation": {
       "dark": "darkStep12",
       "light": "lightStep12"
+    },
+    "cursorLine": {
+      "dark": "#eeeeee1f",
+      "light": "#1a1a1a1a"
     },
     "searchMatchBg": "#ec5b2b38",
     "searchCurrentMatchBg": "#ec5b2b59",
