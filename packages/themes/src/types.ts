@@ -1,6 +1,7 @@
 import type { ColorMode } from "@tooee/config";
 
 import { mixColors } from "./color-mix.js";
+import { lightnessSide, separateFrom, separateSurfaces } from "./separation.js";
 
 // ---------------------------------------------------------------------------
 // Theme JSON format (OpenCode-compatible)
@@ -167,6 +168,15 @@ const SEARCH_MATCH_TINT = 0.22;
 /** Share of `primary` blended over `background` for a derived `searchCurrentMatchBg`. */
 const SEARCH_CURRENT_MATCH_TINT = 0.35;
 
+/** Share of `primary` blended over `background` for a derived `selection`. */
+const SELECTION_TINT = 0.2;
+
+/**
+ * Minimum ΔEOK between a highlight surface and the surface it sits on. About
+ * 0.02 is one just-noticeable difference.
+ */
+export const MIN_SURFACE_SEPARATION = 0.05;
+
 /** A mode-specific colour pair is an object; a single colour is a string. */
 const isVariant = function isVariant(value: ColorValue): value is Variant {
   return value instanceof Object;
@@ -214,14 +224,29 @@ export const resolveTheme = function resolveTheme(json: ThemeJSON, mode: ColorMo
     }
   }
 
+  // Panels sit on the page and active rows sit on panels: keep each step visible.
+  Object.assign(result, separateSurfaces(result, MIN_SURFACE_SEPARATION));
+
   // Dynamic fallbacks that reference other resolved keys
   if (json.theme.cursorLine === undefined) {
     result.cursorLine = result.backgroundElement;
   }
 
+  // A tinted selection stays apart from panels and toggled rows, which use backgroundPanel.
   if (json.theme.selection === undefined) {
-    result.selection = result.backgroundPanel;
+    result.selection = mixColors(result.background, result.primary, SELECTION_TINT);
   }
+
+  // Selection and cursor rows sit on the page. A selection also stays apart from
+  // toggled rows, moving further from the page when it must move.
+  result.selection = separateFrom(result.selection, result.background, MIN_SURFACE_SEPARATION);
+  result.selection = separateFrom(
+    result.selection,
+    result.backgroundPanel,
+    MIN_SURFACE_SEPARATION,
+    lightnessSide(result.selection, result.background)
+  );
+  result.cursorLine = separateFrom(result.cursorLine, result.background, MIN_SURFACE_SEPARATION);
 
   // Search highlights tint the background, so matched text stays readable.
   if (json.theme.searchMatchBg === undefined) {

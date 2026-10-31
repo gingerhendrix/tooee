@@ -1,6 +1,6 @@
 // Hex colour blending for derived theme tokens.
 
-interface Rgba {
+export interface Rgba {
   r: number;
   g: number;
   b: number;
@@ -11,7 +11,8 @@ const SHORT_HEX = /^#(?<digits>[0-9a-f]{3,4})$/iu;
 
 const LONG_HEX = /^#(?<digits>[0-9a-f]{6}|[0-9a-f]{8})$/iu;
 
-const parseHex = function parseHex(hex: string): Rgba | null {
+/** Parse 3, 4, 6, or 8 digit hex into 0-255 channels, or `null` when it is not hex. */
+export const parseHex = function parseHex(hex: string): Rgba | null {
   const short = SHORT_HEX.exec(hex)?.groups?.digits;
 
   const digits =
@@ -33,7 +34,7 @@ const toHex = function toHex(value: number): string {
   return Math.round(value).toString(16).padStart(2, "0");
 };
 
-const toRgbHex = function toRgbHex(source: Rgba): string {
+export const toRgbHex = function toRgbHex(source: Rgba): string {
   return `#${toHex(source.r)}${toHex(source.g)}${toHex(source.b)}`;
 };
 

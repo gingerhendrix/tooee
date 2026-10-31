@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
-import { FALLBACKS, RESOLVED_KEYS, resolveTheme } from "@tooee/themes";
+import { FALLBACKS, MIN_SURFACE_SEPARATION, RESOLVED_KEYS, resolveTheme } from "@tooee/themes";
 import type { ResolvedTheme, ThemeJSON } from "@tooee/themes";
+
+import { deltaEOK } from "../src/separation.js";
 
 test("RESOLVED_KEYS covers every ResolvedTheme fallback key", () => {
   const keys: readonly (keyof ResolvedTheme)[] = RESOLVED_KEYS;
@@ -123,5 +125,68 @@ describe("search tokens", () => {
     const resolved = resolveTheme(json, "dark");
     expect(resolved.searchMatchBg).toBe("#ff800038");
     expect(resolved.searchCurrentMatchBg).toBe("#0000ff59");
+  });
+});
+
+describe("surface separation", () => {
+  test("keeps explicit surfaces that already separate well", () => {
+    const json: ThemeJSON = {
+      theme: {
+        background: "#000000",
+        backgroundElement: "#505050",
+        backgroundPanel: "#282828",
+        cursorLine: "#303030",
+        selection: "#203060",
+      },
+    };
+
+    const resolved = resolveTheme(json, "dark");
+    expect(resolved.backgroundPanel).toBe("#282828");
+    expect(resolved.backgroundElement).toBe("#505050");
+    expect(resolved.cursorLine).toBe("#303030");
+    expect(resolved.selection).toBe("#203060");
+  });
+
+  test("moves surfaces that equal the background", () => {
+    const json: ThemeJSON = {
+      theme: {
+        background: "#101010",
+        backgroundElement: "#101010",
+        backgroundPanel: "#101010",
+        primary: "#ffc799",
+      },
+    };
+
+    const resolved = resolveTheme(json, "dark");
+
+    const pairs = [
+      [resolved.backgroundPanel, resolved.background],
+      [resolved.backgroundElement, resolved.backgroundPanel],
+      [resolved.selection, resolved.background],
+      [resolved.selection, resolved.backgroundPanel],
+      [resolved.cursorLine, resolved.background],
+    ] as const;
+
+    for (const [highlight, base] of pairs) {
+      expect(deltaEOK(highlight, base)).toBeGreaterThanOrEqual(MIN_SURFACE_SEPARATION);
+    }
+  });
+
+  test("derives a selection tinted with primary, apart from panels", () => {
+    const json: ThemeJSON = {
+      theme: { background: "#000000", backgroundPanel: "#282828", primary: "#0000ff" },
+    };
+
+    const resolved = resolveTheme(json, "dark");
+    expect(resolved.selection).toBe("#000033");
+    expect(resolved.selection).not.toBe(resolved.backgroundPanel);
+  });
+
+  test("derives a translucent selection over a transparent background", () => {
+    const json: ThemeJSON = {
+      theme: { background: "transparent", backgroundPanel: "#141414", primary: "#ec5b2b" },
+    };
+
+    expect(resolveTheme(json, "dark").selection).toBe("#ec5b2b33");
   });
 });

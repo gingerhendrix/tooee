@@ -1,4 +1,4 @@
-export { FALLBACKS, RESOLVED_KEYS, resolveTheme } from "./types.js";
+export { FALLBACKS, MIN_SURFACE_SEPARATION, RESOLVED_KEYS, resolveTheme } from "./types.js";
 
 export type { ThemeJSON, ResolvedTheme } from "./types.js";
 

@@ -1,6 +1,8 @@
 import { expect, test } from "bun:test";
 
-import { loadThemes, resolveTheme } from "@tooee/themes";
+import { loadThemes, MIN_SURFACE_SEPARATION, resolveTheme } from "@tooee/themes";
+
+import { deltaEOK } from "../src/separation.js";
 
 const SEARCH_KEYS = [
   "searchMatchBg",
@@ -11,6 +13,18 @@ const SEARCH_KEYS = [
 
 // Matched rows keep the theme text readable: WCAG contrast of at least 2.5:1.
 const MIN_SEARCH_TEXT_CONTRAST = 2.5;
+
+// [highlight, base]: each highlight surface must stand out from the surface it sits on.
+const SURFACE_PAIRS = [
+  ["backgroundPanel", "background"],
+  ["backgroundElement", "backgroundPanel"],
+  ["selection", "background"],
+  ["selection", "backgroundPanel"],
+  ["cursorLine", "background"],
+] as const;
+
+// Overlays and active rows need opaque surfaces so they cover the content behind them.
+const OPAQUE_SURFACES = ["backgroundPanel", "backgroundElement"] as const;
 
 const luminance = function luminance(hex: string): number {
   const [r = 0, g = 0, b = 0] = [1, 3, 5].map((start) => {
@@ -47,6 +61,37 @@ for (const [name, json] of loadThemes()) {
 
       for (const [key, value] of Object.entries(resolved)) {
         expect(value, `${name}.${key} (${mode})`).toMatch(HEX);
+      }
+    });
+
+    test(`bundled theme "${name}" separates highlight surfaces in ${mode} mode`, () => {
+      const resolved = resolveTheme(json, mode);
+
+      for (const key of OPAQUE_SURFACES) {
+        expect(resolved[key], `${name}.${key} (${mode})`).toMatch(OPAQUE_LONG_HEX);
+      }
+
+      for (const [highlight, base] of SURFACE_PAIRS) {
+        const distance = deltaEOK(resolved[highlight], resolved[base]);
+
+        // Translucent pairs blend over the terminal background, which is unknown here.
+        if (distance !== null) {
+          expect(distance, `${name} ${highlight}/${base} (${mode})`).toBeGreaterThanOrEqual(
+            MIN_SURFACE_SEPARATION
+          );
+        }
+      }
+    });
+
+    test(`bundled theme "${name}" keeps text readable on row highlights in ${mode} mode`, () => {
+      const resolved = resolveTheme(json, mode);
+
+      for (const background of [resolved.selection, resolved.cursorLine]) {
+        if (OPAQUE_LONG_HEX.test(background) && OPAQUE_LONG_HEX.test(resolved.text)) {
+          expect(contrast(resolved.text, background)).toBeGreaterThanOrEqual(
+            MIN_SEARCH_TEXT_CONTRAST
+          );
+        }
       }
     });
 
