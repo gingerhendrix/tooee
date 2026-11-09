@@ -1,6 +1,6 @@
 ---
 packages:
-  "group:tooee": minor
+  "group:tooee": patch
 ---
 
 ## Require OpenTUI 0.8.3
