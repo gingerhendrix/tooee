@@ -1,71 +1,102 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/layout\":\n    type: patch\n  \"@tooee/ask\":\n    type: patch\n---\n\n## Keep ask and choose overlay content inside the panel border\n\n`OverlayPanel` resolves percentage insets to whole cells of its container. A panel with fractional geometry could put its hint bar on the bottom border, and the multiline ask editor and its scrollbar could draw on or past the border.\n\nThe multiline ask editor no longer takes its height from its content, so a title, prompt or margin above it keeps its row when the content is long. The editor scrollbar always reserves its column, so soft-wrapped text no longer runs under the scrollbar.\n"
-    filename: fix-ask-panel-overflow.md
-    v: 0.0.0
-  - content: "---\npackages:\n  \"@tooee/themes\":\n    type: patch\n---\n\n## Keep selected and highlighted rows visible in every theme\n\n`resolveTheme()` now keeps `backgroundPanel` and `selection` at least 0.05 ΔEOK from `background`, `cursorLine` at least 0.05 from `background`, and `backgroundElement` at least 0.05 from `backgroundPanel`. It moves only Oklab lightness, so each theme keeps its hue. The floor also applies to user and project themes, and it overrides explicit values that sit closer than 0.05. `MIN_SURFACE_SEPARATION` is exported.\n\nA theme without a `selection` colour now gets `primary` at 20% over `background`. Before, `selection` copied `backgroundPanel`, so a selected row looked the same as a panel.\n\n`lucent-orng` keeps its transparent page, but `backgroundPanel` and `backgroundElement` are now opaque colours from `orng`. Overlays cover the content behind them, and the title bar, status bar and gutter draw as opaque strips.\n"
-    filename: theme-surface-separation.md
+  - content: "---\npackages:\n  group:tooee:\n    type: patch\n---\n\n## Require OpenTUI 0.8.3\n\nAll Tooee packages now require `@opentui/core` and `@opentui/react` `^0.8.3`. Update both dependencies together when upgrading Tooee. Row documents use the native ScrollBox geometry, and command and theme pickers keep their rows visible with OpenTUI's zero-size layout rule. Long Ask prompts keep an editor row visible.\n\n`RowDocumentRenderable` inherits OpenTUI's ScrollBox facade parts: `content`, `viewport`, `wrapper`, and scrollbars are no longer renderables. Read their geometry properties (for example `content.height`) instead of `getLayout()`.\n"
+    filename: opentui-0-8.md
     v: 0.0.0
 core:packages:
-  - id: npm:@tooee/cli
+  - changelogIds:
+      - opentui-0-8.md
+    id: npm:@tooee/cli
     updated: true
   - changelogIds:
-      - fix-ask-panel-overflow.md
+      - opentui-0-8.md
     id: npm:@tooee/ask
     updated: true
-  - id: npm:@tooee/choose
-    updated: true
-  - id: npm:@tooee/commands
-    updated: true
-  - id: npm:@tooee/config
-    updated: true
-  - id: npm:@tooee/clipboard
-    updated: true
-  - id: npm:@tooee/diff
-    updated: true
-  - id: npm:@tooee/fuzzy
-    updated: true
-  - id: npm:@tooee/marks
+  - changelogIds:
+      - opentui-0-8.md
+    id: npm:@tooee/choose
     updated: true
   - changelogIds:
-      - fix-ask-panel-overflow.md
+      - opentui-0-8.md
+    id: npm:@tooee/clipboard
+    updated: true
+  - changelogIds:
+      - opentui-0-8.md
+    id: npm:@tooee/commands
+    updated: true
+  - changelogIds:
+      - opentui-0-8.md
+    id: npm:@tooee/diff
+    updated: true
+  - changelogIds:
+      - opentui-0-8.md
+    id: npm:@tooee/config
+    updated: true
+  - changelogIds:
+      - opentui-0-8.md
+    id: npm:@tooee/fuzzy
+    updated: true
+  - changelogIds:
+      - opentui-0-8.md
     id: npm:@tooee/layout
     updated: true
-  - id: npm:@tooee/mermaid-pele
+  - changelogIds:
+      - opentui-0-8.md
+    id: npm:@tooee/mermaid-pele
     updated: true
-  - id: npm:@tooee/overlays
+  - changelogIds:
+      - opentui-0-8.md
+    id: npm:@tooee/marks
     updated: true
-  - id: npm:@tooee/panels
+  - changelogIds:
+      - opentui-0-8.md
+    id: npm:@tooee/overlays
     updated: true
-  - id: npm:@tooee/renderers
+  - changelogIds:
+      - opentui-0-8.md
+    id: npm:@tooee/panels
     updated: true
-  - id: npm:@tooee/router
+  - changelogIds:
+      - opentui-0-8.md
+    id: npm:@tooee/renderers
     updated: true
-  - id: npm:@tooee/search
+  - changelogIds:
+      - opentui-0-8.md
+    id: npm:@tooee/router
     updated: true
-  - id: npm:@tooee/shell
+  - changelogIds:
+      - opentui-0-8.md
+    id: npm:@tooee/search
+    updated: true
+  - changelogIds:
+      - opentui-0-8.md
+    id: npm:@tooee/shell
     updated: true
   - id: npm:@tooee/test-support
     updated: false
   - changelogIds:
-      - theme-surface-separation.md
+      - opentui-0-8.md
     id: npm:@tooee/themes
     updated: true
-  - id: npm:@tooee/toasts
+  - changelogIds:
+      - opentui-0-8.md
+    id: npm:@tooee/toasts
     updated: true
-  - id: npm:@tooee/view
+  - changelogIds:
+      - opentui-0-8.md
+    id: npm:@tooee/view
     updated: true
 npm:packages:
   - id: npm:@tooee/cli
   - id: npm:@tooee/ask
   - id: npm:@tooee/choose
-  - id: npm:@tooee/commands
-  - id: npm:@tooee/config
   - id: npm:@tooee/clipboard
+  - id: npm:@tooee/commands
   - id: npm:@tooee/diff
+  - id: npm:@tooee/config
   - id: npm:@tooee/fuzzy
-  - id: npm:@tooee/marks
   - id: npm:@tooee/layout
   - id: npm:@tooee/mermaid-pele
+  - id: npm:@tooee/marks
   - id: npm:@tooee/overlays
   - id: npm:@tooee/panels
   - id: npm:@tooee/renderers
