@@ -2,21 +2,13 @@ import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import mdx from "fumadocs-mdx/vite";
-import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
+// Alchemy v2 injects its Cloudflare Vite integration during `alchemy dev` and
+// `alchemy deploy`. TanStack Start supplies the client and SSR builds.
 const config = defineConfig({
-  // Nitro's SSR environment currently reports itself as development during a
-  // production Vite build. Force the production JSX runtime so the generated
-  // Cloudflare worker does not call React's intentionally undefined jsxDEV.
-  esbuild: { jsxDev: false },
   plugins: [
-    nitro({
-      compatibilityDate: "2026-03-17",
-      preset: "cloudflare_module",
-      rollupConfig: { external: [/^@sentry\//u] },
-    }),
     tsconfigPaths({ projects: ["./tsconfig.json"] }),
     mdx(),
     tailwindcss(),
