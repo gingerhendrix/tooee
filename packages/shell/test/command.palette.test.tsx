@@ -340,7 +340,7 @@ describe("command palette entries", () => {
       .split("\n")
       .find((row) => row.includes("Remappable Command"));
 
-    expect(line?.trimEnd().endsWith(" z")).toBe(true);
-    expect(line?.trimEnd().endsWith(" t")).toBe(false);
+    expect(line).toMatch(/ z\s*│/u);
+    expect(line).not.toMatch(/ t\s*│/u);
   });
 });

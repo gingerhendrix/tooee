@@ -26,16 +26,17 @@ describe("theme switching", () => {
     const initial = extractTheme(await session.text());
     expect(initial).toBeTruthy();
     await session.press("t");
-    await session.waitForText("aura", { timeout: 5000 });
+    await session.waitForText("Filter themes...", { timeout: 5000 });
     const text = await session.text();
-    expect(text).toMatch(/aura/u);
+    expect(text).toContain("Filter themes...");
+    expect(text.split("\n").some((line) => line.includes(`│ ${extractTheme(text)} `))).toBe(true);
   }, 20_000);
 
   test("picking a theme changes the active theme", async () => {
     session = await launchView("sample.md");
     const initial = extractTheme(await session.text());
     await session.press("t");
-    await session.waitForText("aura", { timeout: 10_000 });
+    await session.waitForText("Filter themes...", { timeout: 10_000 });
     await session.press("down");
     await session.press("enter");
     // Wait for theme picker to close and a different previewed theme to apply.
@@ -47,7 +48,7 @@ describe("theme switching", () => {
       const text = await session.text();
       after = extractTheme(text);
 
-      if (after && after !== initial && !text.includes("aura")) {
+      if (after && after !== initial && !text.includes("Filter themes...")) {
         break;
       }
 

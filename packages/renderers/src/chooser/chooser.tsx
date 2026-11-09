@@ -1,3 +1,4 @@
+import { useTerminalDimensions } from "@opentui/react";
 import { useTheme } from "@tooee/themes";
 import type { ReactNode } from "react";
 
@@ -34,6 +35,7 @@ export const Chooser = function Chooser({
   emptyContent,
 }: ChooserProps): ReactNode {
   const { theme } = useTheme();
+  const { height: terminalHeight } = useTerminalDimensions();
 
   const choose = useChoose({
     commandScope,
@@ -57,7 +59,9 @@ export const Chooser = function Chooser({
       left="20%"
       right="20%"
       top={2}
-      maxHeight="60%"
+      // Native scrollboxes do not contribute an intrinsic content height.
+      height={Math.max(1, choose.state.matches.length) + 4}
+      maxHeight={Math.floor(terminalHeight * 0.6)}
       flexDirection="column"
       backgroundColor={theme.backgroundPanel}
       border

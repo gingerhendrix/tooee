@@ -443,10 +443,13 @@ describe("view extension points", () => {
     expect(initialFrame).toContain("context.");
     const initialLines = initialFrame.split("\n");
     const firstRowLine = initialLines.findIndex((line) => line.includes("Command Code Model 01"));
-    const scrollbarThumbLine = initialLines.findIndex((line) => line.includes("▀"));
+    const scrollbarThumbLine = initialLines.findIndex((line) => line.includes("█"));
     expect(firstRowLine).toBeGreaterThan(0);
     expect(scrollbarThumbLine).toBe(firstRowLine);
-    const scrollbarColumn = initialLines[scrollbarThumbLine]?.indexOf("▀") ?? -1;
+    const scrollbarColumn = initialLines[scrollbarThumbLine]?.indexOf("█") ?? -1;
+    expect(
+      initialLines.slice(firstRowLine, firstRowLine + 3).map((line) => line.at(scrollbarColumn))
+    ).toEqual(["█", "█", "▀"]);
     const descriptionLine = initialLines.find((line) => line.includes("description for model 1"));
     expect(scrollbarColumn).toBeGreaterThan(0);
     expect(descriptionLine?.at(scrollbarColumn - 1)).toBe(" ");

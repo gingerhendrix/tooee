@@ -181,7 +181,9 @@ describe("command palette under panels", () => {
     testSetup = await setup();
     await press(testSetup, ":");
     await typeFilter(testSetup, "Panel B Only");
-    expect(testSetup.captureCharFrame()).not.toContain("Panel B Only");
+    const lines = testSetup.captureCharFrame().split("\n");
+    expect(lines.find((line) => line.includes(":Panel B Only"))).toContain("0 ✕");
+    expect(lines.some((line) => /│ Panel B Only/u.test(line))).toBe(false);
   });
 
   test("a programmatically opened insert-panel palette excludes root commands", async () => {

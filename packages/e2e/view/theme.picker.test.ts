@@ -24,16 +24,17 @@ describe("theme picker", () => {
   test("t opens theme picker", async () => {
     session = await launchView("sample.md");
     await session.press("t");
-    await session.waitForText("aura", { timeout: 5000 });
+    await session.waitForText("Filter themes...", { timeout: 5000 });
     const text = await session.text();
-    expect(text).toMatch(/aura/u);
+    expect(text).toContain("Filter themes...");
+    expect(text.split("\n").some((line) => line.includes(`│ ${extractTheme(text)} `))).toBe(true);
   }, 20_000);
 
   test("can confirm a theme with Enter", async () => {
     session = await launchView("sample.md");
     const initial = extractTheme(await session.text());
     await session.press("t");
-    await session.waitForText("aura", { timeout: 10_000 });
+    await session.waitForText("Filter themes...", { timeout: 10_000 });
     await session.press("down");
     await session.press("enter");
     // Wait for theme picker to close and the previewed theme to apply.
@@ -45,7 +46,7 @@ describe("theme picker", () => {
       const text = await session.text();
       after = extractTheme(text);
 
-      if (after && after !== initial && !text.includes("aura")) {
+      if (after && after !== initial && !text.includes("Filter themes...")) {
         break;
       }
 
