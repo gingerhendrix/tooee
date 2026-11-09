@@ -100,9 +100,11 @@ export const Ask = function Ask({
       >
         <box flexDirection="column" width="100%" maxWidth={80} style={{ flexGrow: 1, padding: 1 }}>
           {(prompt?.length ?? 0) > 0 && (
-            <text fg={theme.text} style={{ marginBottom: 1 }}>
-              <strong>{prompt}</strong>
-            </text>
+            <box flexShrink={1} style={{ marginBottom: 1, overflow: "hidden" }}>
+              <text fg={theme.text}>
+                <strong>{prompt}</strong>
+              </text>
+            </box>
           )}
           <AskEditor editor={editor} />
         </box>

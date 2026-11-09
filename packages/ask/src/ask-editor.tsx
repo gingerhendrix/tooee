@@ -34,7 +34,7 @@ export const AskEditor = function AskEditor({ editor }: AskEditorProps): ReactNo
     return (
       <box
         flexDirection="row"
-        style={{ flexBasis: 0, flexGrow: 1, minHeight: 0, overflow: "hidden" }}
+        style={{ flexBasis: 0, flexGrow: 1, minHeight: 1, overflow: "hidden" }}
         onMouseScroll={handleMouseScroll}
       >
         <textarea
