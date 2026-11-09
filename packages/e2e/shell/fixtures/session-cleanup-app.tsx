@@ -26,15 +26,7 @@ const beforeClose = process.stdin.listenerCount("close");
 
 const handle = await launchCli(<SessionCleanupApp />);
 
-const { promise: destroyed, resolve: resolveDestroyed } = Promise.withResolvers<null>();
-
-handle.renderer.once("destroy", () => {
-  resolveDestroyed(null);
-});
-
-await destroyed;
-
-await Bun.sleep(20);
+await handle.closed;
 
 const endListeners = process.stdin.listenerCount("end") - beforeEnd;
 

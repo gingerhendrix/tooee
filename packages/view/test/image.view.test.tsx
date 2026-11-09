@@ -3,6 +3,8 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
+import { ImageRenderable } from "@opentui/core";
+import type { Renderable } from "@opentui/core";
 import { TooeeProvider } from "@tooee/shell";
 import { solidPng, testRender } from "@tooee/test-support";
 import { act } from "react";
@@ -28,6 +30,12 @@ interface CellSize {
 
 const DEFAULT_SIZE: TerminalSize = { height: 60, width: 80 };
 
+const imageLoads = function imageLoads(node: Renderable): Promise<void>[] {
+  const pending = node instanceof ImageRenderable && node.loadPromise ? [node.loadPromise] : [];
+
+  return [...pending, ...node.getChildren().flatMap(imageLoads)];
+};
+
 const renderProvider = async function renderProvider(
   provider: ContentProvider,
   size: TerminalSize = DEFAULT_SIZE
@@ -39,8 +47,11 @@ const renderProvider = async function renderProvider(
     size
   );
   await testSetup.renderOnce();
+  // Decode completion, rather than elapsed time, makes the next paint meaningful.
+  const pending = imageLoads(testSetup.renderer.root);
+  expect(pending.length).toBeGreaterThan(0);
   await act(async () => {
-    await Bun.sleep(50);
+    await Promise.all(pending);
   });
   await testSetup.renderOnce();
 
