@@ -39,8 +39,8 @@
     "prepare": "lefthook install"
   },
   "devDependencies": {
-    "@opentui/core": "^0.6.6",
-    "@opentui/react": "^0.6.6",
+    "@opentui/core": "^0.8.3",
+    "@opentui/react": "^0.8.3",
     "@oxlint/plugins": "1.88.0",
     "@tooee/renderers": "workspace:*",
     "@tooee/shell": "workspace:*",

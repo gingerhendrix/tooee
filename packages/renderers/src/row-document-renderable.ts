@@ -175,7 +175,8 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
     this._palette = normalizePalette(options.palette);
     this._layers = normalizeDecorationLayers(options.decorations);
-    // Resize callbacks can scroll in the current layout pass, before paint.
+    // Facade resize events see one native layout, including the scroll range.
+    // Geometry listeners can scroll in that same pass, before retained paint.
     this.content.on("resize", () => {
       this._computeGeometry();
     });
@@ -299,8 +300,8 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
    *
    * Works for both multi-child mode (row = child index, e.g. a markdown block)
    * and provider mode (row = source line, e.g. a code line): geometry is
-   * recomputed every frame in `renderSelf`, so `_virtualRowToRow` is current by
-   * the time a click is processed.
+   * refreshed by facade resize events and dirty paints, before clicks are
+   * processed. Unchanged frames reuse the retained paint and geometry.
    */
   getRowAtScreenY(screenY: number): number | null {
     const localY = screenY - this.viewport.y;
@@ -426,8 +427,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
   protected onUpdate(deltaTime: number): void {
     super.onUpdate(deltaTime);
-    // Count logical rows before layout; paint-time padding takes effect one
-    // frame late in OpenTUI 0.6.
+    // Reserve gutter cells before the native ScrollBox lays out its content.
     this._applyGutterPadding();
   }
 
@@ -479,14 +479,7 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
   private _computeFromChildren(): void {
     const children = this.getChildren();
     const offset = this._rowChildOffset;
-    const totalHeight = this.content.getLayout().height;
-
-    // ScrollBox updates its scroll range in the content resize callback. A
-    // viewport resize can arrive first; do not publish rows until scrolling
-    // can actually reach them.
-    if (this.scrollHeight !== totalHeight) {
-      return;
-    }
+    const totalHeight = this.content.height;
 
     if (totalHeight === 0 || children.length <= offset) {
       this._finishGeometry([], [], [], [], 0);
@@ -603,8 +596,8 @@ export class RowDocumentRenderable extends ScrollBoxRenderable {
 
     this._contentVirtualEnd = contentVirtualEnd;
 
-    // Change detection via hash
-    const hash = rowVirtualStarts.join(",");
+    // Rewrapping can change a row's height without moving its start.
+    const hash = `${rowVirtualStarts.join(",")};${rowVirtualHeights.join(",")};${virtualRowWraps.join(",")}`;
 
     if (hash !== this._lastGeometryHash) {
       this._rowVirtualStarts = rowVirtualStarts;
