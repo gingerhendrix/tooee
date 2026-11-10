@@ -5,10 +5,12 @@
     "": {
       "name": "tooee-docs",
       "dependencies": {
+        "@fumadocs/changelog": "^0.1.0",
         "@tailwindcss/vite": "^4.1.18",
         "@tanstack/react-router": "1.166.2",
         "@tanstack/react-start": "1.166.2",
         "@tanstack/router-plugin": "1.166.2",
+        "cn": "^0.5.2",
         "fumadocs-core": "^16.18.4",
         "fumadocs-mdx": "^15.0.11",
         "fumadocs-ui": "^16.18.4",
@@ -189,6 +191,8 @@
     "@floating-ui/utils": ["@floating-ui/utils@0.2.11", "", {}, "sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg=="],
 
     "@fuma-translate/react": ["@fuma-translate/react@1.0.2", "", { "peerDependencies": { "@types/react": "*", "react": "^19.2.0", "react-dom": "^19.2.0" }, "optionalPeers": ["@types/react"] }, "sha512-uOiOtBx3nRXR8Nu1GzBf1tApgF1FErDBTHxRIAQeyQdyOoZbrNRN6H4kDCWObY4qyGeGbHydG0DHzgeUgFDMIw=="],
+
+    "@fumadocs/changelog": ["@fumadocs/changelog@0.1.0", "", {}, "sha512-GtfquCcmJYVJHhCDchsKi2LmwxmtkoSuOVB9KfLLlbTqXZC8Ny1oXAc67KmgGNnz/BPnffV8bLDmWZNFcxo8Og=="],
 
     "@fumadocs/tailwind": ["@fumadocs/tailwind@0.1.5", "", { "peerDependencies": { "tailwindcss": "^4.0.0" }, "optionalPeers": ["tailwindcss"] }, "sha512-ohzmuLTfNNRvP6B/Xx31lWJ58xu40NcmI+6mc/jivYeOoofnmdxBKu5gCErTgOE/mUqyVv4GvYeqd9FhoLHphg=="],
 

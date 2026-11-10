@@ -17,10 +17,12 @@
     "destroy": "alchemy destroy --stage prod"
   },
   "dependencies": {
+    "@fumadocs/changelog": "^0.1.0",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-router": "1.166.2",
     "@tanstack/react-start": "1.166.2",
     "@tanstack/router-plugin": "1.166.2",
+    "cn": "^0.5.2",
     "fumadocs-core": "^16.18.4",
     "fumadocs-mdx": "^15.0.11",
     "fumadocs-ui": "^16.18.4",
