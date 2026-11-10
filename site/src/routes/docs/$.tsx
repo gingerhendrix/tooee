@@ -3,11 +3,19 @@ import { createServerFn } from "@tanstack/react-start";
 import browserCollections from "collections/browser";
 import { useFumadocsLoader } from "fumadocs-core/source/client";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
-import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/layouts/docs/page";
+import {
+  DocsBody,
+  DocsDescription,
+  DocsPage,
+  DocsTitle,
+  MarkdownCopyButton,
+  ViewOptionsPopover,
+} from "fumadocs-ui/layouts/docs/page";
 import { Suspense } from "react";
 
 import { getMDXComponents } from "#/components/mdx";
 import { baseOptions } from "#/lib/layout.shared";
+import { getPageMarkdownUrl } from "#/lib/shared";
 import { source } from "#/lib/source";
 
 const throwNotFound = (): never => {
@@ -28,15 +36,26 @@ const serverLoader = createServerFn({
     return {
       pageTree: await source.serializePageTree(source.getPageTree()),
       path: page.path,
+      markdownUrl: getPageMarkdownUrl(page).url,
     };
   });
 
 const clientLoader = browserCollections.docs.createClientLoader({
-  component({ toc, frontmatter, default: MDXContent }, _props: undefined) {
+  component(
+    { toc, frontmatter, default: MDXContent },
+    { markdownUrl, path }: { markdownUrl: string; path: string }
+  ) {
     return (
       <DocsPage toc={toc}>
         <DocsTitle>{frontmatter.title}</DocsTitle>
         <DocsDescription>{frontmatter.description}</DocsDescription>
+        <div className="flex flex-row items-center gap-2 border-b pt-2 pb-6">
+          <MarkdownCopyButton markdownUrl={markdownUrl} />
+          <ViewOptionsPopover
+            markdownUrl={markdownUrl}
+            githubUrl={`https://github.com/gingerhendrix/tooee/blob/main/site/content/docs/${encodeURI(path)}`}
+          />
+        </div>
         <DocsBody>
           <MDXContent components={getMDXComponents()} />
         </DocsBody>
@@ -52,7 +71,7 @@ const Page = () => {
 
   return (
     <DocsLayout {...baseOptions()} tree={data.pageTree}>
-      <Suspense>{clientLoader.useContent(data.path)}</Suspense>
+      <Suspense>{clientLoader.useContent(data.path, data)}</Suspense>
     </DocsLayout>
   );
 };
