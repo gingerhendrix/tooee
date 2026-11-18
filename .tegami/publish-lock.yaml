@@ -57,6 +57,8 @@ core:packages:
       - svg-images.md
     id: npm:@tooee/view
     updated: true
+npm:mark-latest:
+  - id: npm:@tooee/svg
 npm:packages:
   - id: npm:@tooee/cli
   - id: npm:@tooee/ask
