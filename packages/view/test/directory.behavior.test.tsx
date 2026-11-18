@@ -14,6 +14,35 @@ const TEST_DIR = path.resolve(import.meta.dir, "fixtures/test-dir");
 
 // --- Unit tests for listDirectoryFiles ---
 
+describe("listDirectoryFiles with image loaders", () => {
+  test("lists SVG files only when a loader matches them", () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "tooee-directory-svg-"));
+
+    try {
+      for (const name of ["a.md", "b.svg", "c.vec"]) {
+        writeFileSync(path.join(dir, name), "fixture");
+      }
+
+      const svgLoader = {
+        load: async () => {
+          await Promise.resolve();
+
+          throw new Error("not used");
+        },
+        matches: (source: string) => source.endsWith(".svg"),
+        name: "svg",
+      };
+
+      expect(listDirectoryFiles(dir).map((file) => file.name)).toEqual(["a.md"]);
+      expect(
+        listDirectoryFiles(dir, { imageLoaders: [svgLoader] }).map((file) => file.name)
+      ).toEqual(["a.md", "b.svg"]);
+    } finally {
+      rmSync(dir, { force: true, recursive: true });
+    }
+  });
+});
+
 describe("listDirectoryFiles", () => {
   test("lists files sorted alphabetically", () => {
     const files = listDirectoryFiles(TEST_DIR);

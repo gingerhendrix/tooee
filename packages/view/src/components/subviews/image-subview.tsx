@@ -1,7 +1,13 @@
 import { useRenderer } from "@opentui/react";
 import { StatusPriority } from "@tooee/layout";
-import { cellGeometry, naturalImageBox, sourceLineAdapter, sourceLines } from "@tooee/renderers";
-import type { CellGeometry, SourceLineRow } from "@tooee/renderers";
+import {
+  cellGeometry,
+  naturalImageBox,
+  sourceLineAdapter,
+  sourceLines,
+  useImageSource,
+} from "@tooee/renderers";
+import type { CellGeometry, ImageLoader, SourceLineRow } from "@tooee/renderers";
 import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 
@@ -13,6 +19,8 @@ import type { SubviewProps } from "./types.js";
 
 interface ImageSubviewProps extends SubviewProps {
   content: ImageContent;
+  /** Loaders for image formats that OpenTUI cannot decode, such as SVG. */
+  imageLoaders?: readonly ImageLoader[];
 }
 
 /** Cells between the image and the edge of the content area. */
@@ -29,7 +37,9 @@ interface PixelSize {
 }
 
 /**
- * Size limits for the image in `fit` mode: its pixel size in cells. The box
+ * Size limits for the image in `fit` mode: its size in cells. The size is the
+ * loader's intrinsic CSS size when a loader converted the image, otherwise the
+ * decoded pixel size. The box
  * still grows with the content area up to these limits, so a large image
  * shrinks to fit the area and a small one keeps its own size.
  */
@@ -56,6 +66,7 @@ const naturalSizeStyle = function naturalSizeStyle(
 
 export const ImageSubview = function ImageSubview({
   content,
+  imageLoaders,
   decorations,
   actions,
   ...screen
@@ -63,6 +74,7 @@ export const ImageSubview = function ImageSubview({
   const textContent = getTextContent(content);
   const rows = useMemo(() => sourceLines(textContent), [textContent]);
   const renderer = useRenderer();
+  const resolved = useImageSource(content.src, imageLoaders);
   const [error, setError] = useState(false);
   const [pixels, setPixels] = useState<PixelSize | null>(null);
 
@@ -98,24 +110,29 @@ export const ImageSubview = function ImageSubview({
           padding: IMAGE_PADDING,
         }}
       >
-        {error && <text content={`Image failed to load: ${textContent}`} />}
-        <image
-          source={content.src}
-          fit={content.fit ?? "fit"}
-          protocol={content.protocol ?? "auto"}
-          onError={() => {
-            setError(true);
-          }}
-          onLoad={(loaded) => {
-            setError(false);
-            setPixels({ height: loaded.height, width: loaded.width });
-          }}
-          style={{
-            flexGrow: 1,
-            width: "100%",
-            ...naturalSizeStyle(content.fit, pixels, cellGeometry(renderer)),
-          }}
-        />
+        {(error || resolved.status === "error") && (
+          <text content={`Image failed to load: ${textContent}`} />
+        )}
+        {resolved.status === "loading" && <text content={`Loading image: ${textContent}`} />}
+        {resolved.status === "ready" && (
+          <image
+            source={resolved.source}
+            fit={content.fit ?? "fit"}
+            protocol={content.protocol ?? "auto"}
+            onError={() => {
+              setError(true);
+            }}
+            onLoad={(loaded) => {
+              setError(false);
+              setPixels({ height: loaded.height, width: loaded.width });
+            }}
+            style={{
+              flexGrow: 1,
+              width: "100%",
+              ...naturalSizeStyle(content.fit, resolved.size ?? pixels, cellGeometry(renderer)),
+            }}
+          />
+        )}
       </box>
     </ViewScreen>
   );

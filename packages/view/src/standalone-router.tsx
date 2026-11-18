@@ -61,7 +61,9 @@ export const createStandaloneRouter = function createStandaloneRouter(
 
     const provider = useMemo(
       () =>
-        documentPath === undefined ? options.contentProvider : createFileProvider(documentPath),
+        documentPath === undefined
+          ? options.contentProvider
+          : createFileProvider(documentPath, { imageLoaders: options.imageLoaders }),
       [documentPath]
     );
 
@@ -124,6 +126,7 @@ export const createStandaloneRouter = function createStandaloneRouter(
         actions={options.actions}
         codeBlockRenderers={options.codeBlockRenderers}
         contentProvider={provider}
+        imageLoaders={options.imageLoaders}
         onMarkdownLinkActivate={activate}
         outline={options.outline}
         renderers={options.renderers}

@@ -3,7 +3,7 @@ import { useTerminalDimensions } from "@opentui/react";
 import { useBuildCommandContext, useCommand } from "@tooee/commands";
 import { StatusPriority } from "@tooee/layout";
 import { MarkdownView, flattenMarkdown, getFlatBlockText } from "@tooee/renderers";
-import type { CodeBlockRenderer, FlatBlock } from "@tooee/renderers";
+import type { CodeBlockRenderer, FlatBlock, ImageLoader } from "@tooee/renderers";
 import type { DocumentRowAdapter } from "@tooee/shell";
 import { useMemo, useRef } from "react";
 import type { ReactNode } from "react";
@@ -20,6 +20,8 @@ import type { SubviewProps } from "./types.js";
 interface MarkdownSubviewProps extends SubviewProps {
   content: MarkdownContent;
   codeBlockRenderers?: Record<string, CodeBlockRenderer>;
+  /** Loaders for image formats that OpenTUI cannot decode, such as SVG. */
+  imageLoaders?: readonly ImageLoader[];
   onLinkActivate?: MarkdownLinkActivateHandler;
   /** Open the heading outline beside the document at start. */
   outline?: boolean;
@@ -50,6 +52,7 @@ const markdownBlockAdapter = function markdownBlockAdapter(
 export const MarkdownSubview = function MarkdownSubview({
   content,
   codeBlockRenderers,
+  imageLoaders,
   onLinkActivate,
   outline: initialOutline = false,
   decorations,
@@ -155,6 +158,7 @@ export const MarkdownSubview = function MarkdownSubview({
         codeBlockRenderers={codeBlockRenderers}
         onLinkActivate={handleLinkActivate}
         imageBasePath={content.imageBasePath}
+        imageLoaders={imageLoaders}
         width={outline.visible ? terminalWidth - outline.width : undefined}
       />
     </ViewScreen>

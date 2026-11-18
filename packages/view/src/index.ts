@@ -17,7 +17,7 @@ export type { CreateProviderOptions } from "./default-provider.js";
 
 export { listDirectoryFiles } from "./directory-provider.js";
 
-export type { DirectoryEntry } from "./directory-provider.js";
+export type { DirectoryEntry, ListDirectoryOptions } from "./directory-provider.js";
 
 export {
   createViewCommandContext,
@@ -60,7 +60,13 @@ export { getTextContent, isBuiltinContent, isCustomContent } from "./types.js";
 
 export { CodeBlockChrome } from "@tooee/renderers";
 
-export type { CodeBlockRenderer, CodeBlockRendererProps, CodeBlockHScroll } from "@tooee/renderers";
+export type {
+  CodeBlockRenderer,
+  CodeBlockRendererProps,
+  CodeBlockHScroll,
+  ImageLoader,
+  LoadedImage,
+} from "@tooee/renderers";
 
 export { localFileLinkHandler } from "./link-handlers.js";
 

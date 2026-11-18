@@ -167,6 +167,9 @@ export const resolveMarkdownImageSource = function resolveMarkdownImageSource(
  * shrinks only to fit `maxCols` and `maxRows`. An explicit width alone sets
  * the columns, and the rows follow the image aspect ratio. Before the image
  * loads, its pixel size is unknown and the box is empty.
+ *
+ * For an image from an `ImageLoader`, pass the loader's intrinsic CSS size as
+ * `pixels`, not the pixel size of the decoded raster.
  */
 export const markdownImageBox = function markdownImageBox(
   image: MarkdownImageEmbed,

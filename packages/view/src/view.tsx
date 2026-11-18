@@ -1,7 +1,7 @@
 import type { ActionDefinition } from "@tooee/commands";
 import { DIFF_CODE_BLOCK_RENDERERS } from "@tooee/diff";
 import type { MarkSet } from "@tooee/marks";
-import type { CodeBlockRenderer } from "@tooee/renderers";
+import type { CodeBlockRenderer, ImageLoader } from "@tooee/renderers";
 import { useTheme } from "@tooee/themes";
 import { useCallback, useMemo, useState } from "react";
 import type { ReactNode } from "react";
@@ -28,6 +28,8 @@ interface ViewProps {
    * fence type (first word of the fence info string, case-insensitive).
    */
   codeBlockRenderers?: Record<string, CodeBlockRenderer>;
+  /** Loaders for image formats that OpenTUI cannot decode, such as SVG. */
+  imageLoaders?: readonly ImageLoader[];
   /** Handles primary-button activation of inline Markdown links. */
   onMarkdownLinkActivate?: MarkdownLinkActivateHandler;
   /** Open the heading outline beside Markdown content at start. Other formats ignore it. */
@@ -39,6 +41,7 @@ export const View = function View({
   actions,
   renderers,
   codeBlockRenderers,
+  imageLoaders,
   onMarkdownLinkActivate,
   outline,
 }: ViewProps): ReactNode {
@@ -104,6 +107,7 @@ export const View = function View({
         <MarkdownSubview
           content={content}
           codeBlockRenderers={mergedCodeBlockRenderers}
+          imageLoaders={imageLoaders}
           onLinkActivate={onMarkdownLinkActivate}
           outline={outline}
           {...shared}
@@ -117,7 +121,7 @@ export const View = function View({
     }
 
     case "image": {
-      return <ImageSubview content={content} {...shared} />;
+      return <ImageSubview content={content} imageLoaders={imageLoaders} {...shared} />;
     }
 
     case "table": {

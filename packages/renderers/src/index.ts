@@ -43,6 +43,16 @@ export type {
   PixelResolutionSource,
 } from "./image-size.js";
 
+export { findImageLoader, useImageSource } from "./image-loaders.js";
+
+export type {
+  ImageLoader,
+  ImageLoadOptions,
+  ImageSize,
+  ImageSourceState,
+  LoadedImage,
+} from "./image-loaders.js";
+
 export { sourceLines, sourceLineAdapter, SourceIndex } from "./source.js";
 
 export type {

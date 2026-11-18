@@ -5,6 +5,7 @@ import type { ReactNode, RefObject } from "react";
 
 import { CodeBlock } from "../../code-blocks.js";
 import type { CodeBlockRenderer } from "../../code-blocks.js";
+import type { ImageLoader } from "../../image-loaders.js";
 import type { FlatBlock } from "../../markdown-blocks.js";
 import type { MarkdownLinkHandler } from "../links.js";
 import { hasMarkedText } from "../tokens.js";
@@ -56,6 +57,7 @@ export const FlatBlockRenderer = function FlatBlockRenderer({
   codeBlockRenderers,
   onLinkActivate,
   imageBasePath,
+  imageLoaders,
 }: {
   block: FlatBlock;
   blockIndex: number;
@@ -68,6 +70,7 @@ export const FlatBlockRenderer = function FlatBlockRenderer({
   codeBlockRenderers?: CodeBlockRendererRegistry;
   onLinkActivate?: MarkdownLinkHandler;
   imageBasePath?: string;
+  imageLoaders?: readonly ImageLoader[];
 }): ReactNode {
   const { indent } = block;
 
@@ -109,6 +112,7 @@ export const FlatBlockRenderer = function FlatBlockRenderer({
           indent={indent}
           onLinkActivate={onLinkActivate}
           imageBasePath={imageBasePath}
+          imageLoaders={imageLoaders}
           contentWidth={contentWidth}
         />
       );

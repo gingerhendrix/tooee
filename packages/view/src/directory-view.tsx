@@ -1,5 +1,6 @@
 import { useCommand } from "@tooee/commands";
 import type { ActionDefinition } from "@tooee/commands";
+import type { ImageLoader } from "@tooee/renderers";
 import { useState, useMemo } from "react";
 import type { ReactNode } from "react";
 
@@ -13,9 +14,10 @@ import { View } from "./view.js";
 const createDirectoryFileProvider = function createDirectoryFileProvider(
   entry: DirectoryEntry,
   index: number,
-  total: number
+  total: number,
+  imageLoaders: readonly ImageLoader[] | undefined
 ): ContentProvider {
-  const inner = createFileProvider(entry.path);
+  const inner = createFileProvider(entry.path, { imageLoaders });
 
   return {
     async load(): Promise<AnyContent> {
@@ -36,21 +38,28 @@ const createDirectoryFileProvider = function createDirectoryFileProvider(
 interface DirectoryViewProps {
   dirPath: string;
   actions?: ActionDefinition[];
+  /** Loaders for image formats that OpenTUI cannot decode, such as SVG. */
+  imageLoaders?: readonly ImageLoader[];
 }
 
 export const DirectoryView = function DirectoryView({
   dirPath,
   actions,
+  imageLoaders,
 }: DirectoryViewProps): ReactNode {
-  const files = useMemo(() => listDirectoryFiles(dirPath), [dirPath]);
+  const files = useMemo(
+    () => listDirectoryFiles(dirPath, { imageLoaders }),
+    [dirPath, imageLoaders]
+  );
+
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const contentProvider = useMemo(
     () =>
       files.length > 0
-        ? createDirectoryFileProvider(files[currentIndex], currentIndex, files.length)
+        ? createDirectoryFileProvider(files[currentIndex], currentIndex, files.length, imageLoaders)
         : null,
-    [files, currentIndex]
+    [files, currentIndex, imageLoaders]
   );
 
   // File keys use a `g` sequence. `h` and `l` belong to horizontal scroll in
@@ -80,5 +89,5 @@ export const DirectoryView = function DirectoryView({
     return <ViewState message="No viewable files in directory" />;
   }
 
-  return <View contentProvider={contentProvider} actions={actions} />;
+  return <View contentProvider={contentProvider} actions={actions} imageLoaders={imageLoaders} />;
 };

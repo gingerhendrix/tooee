@@ -1,5 +1,5 @@
 import type { ActionDefinition } from "@tooee/commands";
-import type { CodeBlockRenderer } from "@tooee/renderers";
+import type { CodeBlockRenderer, ImageLoader } from "@tooee/renderers";
 import { Outlet, RouterProvider } from "@tooee/router";
 import { launchCli, runCliSession } from "@tooee/shell";
 import type { ReactNode } from "react";
@@ -29,6 +29,13 @@ export interface ViewLaunchOptions {
    * Unmatched types fall back to the default syntax-highlighted code block.
    */
   codeBlockRenderers?: Record<string, CodeBlockRenderer>;
+  /**
+   * Loaders for image formats that OpenTUI cannot decode, such as SVG from
+   * `@tooee/svg`. A file that a loader matches opens as an image, and
+   * Markdown images use the loaders too. Without a loader, an SVG file opens
+   * as text.
+   */
+  imageLoaders?: readonly ImageLoader[];
   /** Open the heading outline beside Markdown content at start. */
   outline?: boolean;
 }
@@ -36,6 +43,8 @@ export interface ViewLaunchOptions {
 export interface DirectoryLaunchOptions {
   dirPath: string;
   actions?: ActionDefinition[];
+  /** Loaders for image formats that OpenTUI cannot decode. See `ViewLaunchOptions`. */
+  imageLoaders?: readonly ImageLoader[];
 }
 
 export const launch = async function launch(options: ViewLaunchOptions): Promise<void> {
@@ -62,7 +71,14 @@ export const launch = async function launch(options: ViewLaunchOptions): Promise
 export const launchDirectory = async function launchDirectory(
   options: DirectoryLaunchOptions
 ): Promise<void> {
-  await launchCli(<DirectoryView dirPath={options.dirPath} actions={options.actions} />, {
-    stdoutPolicy: "tty-if-redirected",
-  });
+  await launchCli(
+    <DirectoryView
+      dirPath={options.dirPath}
+      actions={options.actions}
+      imageLoaders={options.imageLoaders}
+    />,
+    {
+      stdoutPolicy: "tty-if-redirected",
+    }
+  );
 };

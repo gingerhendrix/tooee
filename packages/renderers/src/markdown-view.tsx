@@ -7,6 +7,7 @@ import type { ReactNode, RefObject } from "react";
 import { DEFAULT_CODE_BLOCK_RENDERERS } from "./code-blocks.js";
 import type { CodeBlockRenderer } from "./code-blocks.js";
 import type { DocumentBindings } from "./document-bindings.js";
+import type { ImageLoader } from "./image-loaders.js";
 import { flattenMarkdown } from "./markdown-blocks.js";
 import type { FlatBlock } from "./markdown-blocks.js";
 import { FlatBlockRenderer } from "./markdown/blocks/flat-block.js";
@@ -66,6 +67,12 @@ interface MarkdownViewProps {
   /** Directory used to resolve relative standard Markdown and Obsidian image embeds. */
   imageBasePath?: string;
   /**
+   * Loaders for image formats that OpenTUI cannot decode, such as SVG. The
+   * first loader that matches an image source converts it. Images that no
+   * loader matches go to `<image>` unchanged.
+   */
+  imageLoaders?: readonly ImageLoader[];
+  /**
    * Columns the view may use, when it shares the terminal width with a side
    * panel. Defaults to the terminal width.
    */
@@ -86,6 +93,7 @@ export const MarkdownView = function MarkdownView({
   codeBlockRenderers,
   onLinkActivate,
   imageBasePath,
+  imageLoaders,
   width,
 }: MarkdownViewProps): ReactNode {
   const { theme, syntax } = useTheme();
@@ -134,6 +142,7 @@ export const MarkdownView = function MarkdownView({
           codeBlockRenderers={mergedCodeBlockRenderers}
           onLinkActivate={onLinkActivate}
           imageBasePath={imageBasePath}
+          imageLoaders={imageLoaders}
         />
       )),
     [
@@ -146,6 +155,7 @@ export const MarkdownView = function MarkdownView({
       mergedCodeBlockRenderers,
       onLinkActivate,
       imageBasePath,
+      imageLoaders,
     ]
   );
 

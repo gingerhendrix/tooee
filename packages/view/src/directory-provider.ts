@@ -1,6 +1,9 @@
 import { readdirSync, statSync } from "node:fs";
 import path from "node:path";
 
+import { findImageLoader } from "@tooee/renderers";
+import type { ImageLoader } from "@tooee/renderers";
+
 import { createFileProvider } from "./default-provider.js";
 import type { ContentProvider } from "./types.js";
 
@@ -50,7 +53,29 @@ export interface DirectoryEntry {
   path: string;
 }
 
-export const listDirectoryFiles = function listDirectoryFiles(dirPath: string): DirectoryEntry[] {
+export interface ListDirectoryOptions {
+  /** Also list files that one of these loaders matches, such as SVG files. */
+  imageLoaders?: readonly ImageLoader[];
+}
+
+const isSupportedFile = function isSupportedFile(
+  name: string,
+  fullPath: string,
+  imageLoaders: readonly ImageLoader[] | undefined
+): boolean {
+  const ext = name.split(".").pop()?.toLowerCase();
+
+  if (ext !== undefined && ext !== "" && SUPPORTED_EXTENSIONS.has(ext)) {
+    return true;
+  }
+
+  return findImageLoader(fullPath, imageLoaders) !== undefined;
+};
+
+export const listDirectoryFiles = function listDirectoryFiles(
+  dirPath: string,
+  options: ListDirectoryOptions = {}
+): DirectoryEntry[] {
   const entries = readdirSync(dirPath);
   const files: DirectoryEntry[] = [];
 
@@ -71,9 +96,7 @@ export const listDirectoryFiles = function listDirectoryFiles(dirPath: string): 
       continue;
     }
 
-    const ext = entry.split(".").pop()?.toLowerCase();
-
-    if (ext === undefined || ext === "" || !SUPPORTED_EXTENSIONS.has(ext)) {
+    if (!isSupportedFile(entry, fullPath, options.imageLoaders)) {
       continue;
     }
 

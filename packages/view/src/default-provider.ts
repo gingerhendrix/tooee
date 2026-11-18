@@ -1,12 +1,18 @@
 import path from "node:path";
 
 import { isDiffPatch } from "@tooee/diff";
-import { parseAuto } from "@tooee/renderers";
+import { findImageLoader, parseAuto } from "@tooee/renderers";
+import type { ImageLoader } from "@tooee/renderers";
 
 import type { Content, ContentFormat, ContentProvider } from "./types.js";
 
 export interface CreateProviderOptions {
   renderer?: ContentFormat;
+  /**
+   * Loaders for image formats that OpenTUI cannot decode. A file that a
+   * loader matches opens as an image, and Markdown images use the loaders too.
+   */
+  imageLoaders?: readonly ImageLoader[];
 }
 
 interface DetectedFileFormat {
@@ -14,7 +20,10 @@ interface DetectedFileFormat {
   language?: string;
 }
 
-const detectFormat = function detectFormat(filePath: string): DetectedFileFormat {
+const detectFormat = function detectFormat(
+  filePath: string,
+  imageLoaders: readonly ImageLoader[] | undefined
+): DetectedFileFormat {
   const ext = filePath.split(".").pop()?.toLowerCase();
 
   if (ext === undefined || ext === "") {
@@ -24,6 +33,11 @@ const detectFormat = function detectFormat(filePath: string): DetectedFileFormat
   const imageExts = new Set(["png", "jpg", "jpeg", "gif", "webp"]);
 
   if (imageExts.has(ext)) {
+    return { format: "image" };
+  }
+
+  // With no loader, an SVG stays text, because OpenTUI cannot decode it.
+  if (findImageLoader(path.resolve(filePath), imageLoaders) !== undefined) {
     return { format: "image" };
   }
 
@@ -127,7 +141,7 @@ export const createFileProvider = function createFileProvider(
 ): ContentProvider {
   return {
     async load(): Promise<Content> {
-      const detected = detectFormat(filePath);
+      const detected = detectFormat(filePath, options.imageLoaders);
       const format = options.renderer ?? detected.format;
       const title = path.basename(filePath);
 
