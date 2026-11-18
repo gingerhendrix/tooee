@@ -40,6 +40,23 @@ The first line is standard Markdown. The other three are Obsidian embeds; the te
 
 An image draws at its own pixel size, one image pixel per screen pixel. When it is wider than the paragraph or taller than the terminal less 6 rows, it shrinks to fit and keeps its aspect ratio. Tooee never enlarges an image. An embed with a `widthxheight` uses that box. An embed with only a `width` uses that many columns, and the rows follow the aspect ratio. The image takes no rows until its pixel size is known. While it loads, the row shows `Loading image:` and the alt text. When it fails, the row shows `Image failed to load:` and the alt text or the path. The protocol is chosen the same way as for the [image format](#image).
 
+OpenTUI decodes PNG, JPEG, WebP, and GIF only. To draw other formats, pass `imageLoaders` to `launch`, `View`, `MarkdownView`, or `createFileProvider`. The first loader whose `matches` accepts the resolved path or URL loads it. The loader returns PNG bytes and the image's intrinsic size, and the box follows that size, not the size of the PNG. `createSvgImageLoader()` from `@tooee/svg` handles `.svg` paths, `file:` and `http(s):` URLs that end in `.svg`, and `data:image/svg+xml` URIs:
+
+```ts
+import { createSvgImageLoader } from "@tooee/svg";
+import { createFileProvider, launch } from "@tooee/view";
+
+const imageLoaders = [createSvgImageLoader()];
+
+await launch({
+  contentProvider: createFileProvider("notes.md", { imageLoaders }),
+  filePath: "notes.md",
+  imageLoaders,
+});
+```
+
+The SVG loader draws an SVG at its CSS size and rasterizes it at twice that size for sharpness. A transparent SVG stays transparent, so dark strokes can be hard to see on a dark theme. `@tooee/svg` depends on `@resvg/resvg-js`, a native module, so Tooee does not register the loader by default. The `tooee` CLI registers it.
+
 ### Links in markdown
 
 Link text draws underlined, in table cells too. `launch()` follows links to local files when you pass `filePath`, the path the content came from. A click on a link, or `Enter` on its line, opens the file in the same session, and `Backspace` goes back. [View](/docs/cli/view#follow-local-links) in the CLI section describes the behaviour. Without `filePath`, a link shows `Links need a source file`.
@@ -154,7 +171,7 @@ await launch({
 
 With `auto`, OpenTUI uses the kitty graphics protocol when the terminal reports it, sixel when the terminal reports it and the cell size in pixels is known, and half-block characters otherwise. Inside tmux it uses blocks. A terminal that does not answer the capability query gets blocks too. `sixel` without a known cell size falls back to `blocks`.
 
-With `fit`, the image is centred in the content area with one cell of padding on each side. With `cover` or `fill`, it fills the content area. The document behind it has one row that holds the path, so `y g` copies the path and the status bar shows `Format: image` alone. A file that cannot be read shows `Image failed to load:` and the path above the empty area. `createFileProvider` picks this format for `.png`, `.jpg`, `.jpeg`, `.gif`, and `.webp`.
+With `fit`, the image is centred in the content area with one cell of padding on each side. With `cover` or `fill`, it fills the content area. The document behind it has one row that holds the path, so `y g` copies the path and the status bar shows `Format: image` alone. A file that cannot be read shows `Image failed to load:` and the path above the empty area. `createFileProvider` picks this format for `.png`, `.jpg`, `.jpeg`, `.gif`, and `.webp`, and for any file that one of its `imageLoaders` matches, such as `.svg` with the [SVG loader](#images-in-markdown). Without a matching loader, a `.svg` file opens as text. `View` takes the same `imageLoaders` to draw that content.
 
 ## Next
 

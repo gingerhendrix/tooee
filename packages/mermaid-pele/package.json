@@ -40,8 +40,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@resvg/resvg-js": "2.6.2",
     "@tooee/renderers": "workspace:*",
+    "@tooee/svg": "workspace:*",
     "@tooee/themes": "workspace:*",
     "pele": "1.6.0"
   },

@@ -17,6 +17,9 @@ export interface RasterizedSvg {
   /** Pixel size of the PNG. */
   width: number;
   height: number;
+  /** Size of the SVG in CSS pixels, before `scale`. */
+  svgWidth: number;
+  svgHeight: number;
   /** Wall time of the resvg parse, render, and PNG encode, in milliseconds. */
   ms: number;
 }
@@ -37,6 +40,11 @@ export interface RasterizeOptions {
   background?: string;
   /** Fonts for labels. Default: the first known fonts found on disk. */
   fonts?: RasterFonts;
+  /**
+   * Largest PNG pixel count. When `scale` would exceed it, the scale drops
+   * so the PNG holds at most this many pixels. Default: no limit.
+   */
+  maxPixels?: number;
 }
 
 interface FontCandidate {
@@ -132,17 +140,15 @@ const defaultFonts = function defaultFonts(): RasterFonts {
   return detectedFonts;
 };
 
-/** Rasterize `svg` to PNG. Throws on resvg parse or render errors. */
-export const rasterizeSvg = function rasterizeSvg(
+const createResvg = function createResvg(
   svg: string,
-  options: RasterizeOptions = {}
-): RasterizedSvg {
-  const started = performance.now();
-  const fonts = options.fonts ?? defaultFonts();
-
-  const resvg = new Resvg(svg, {
-    background: options.background,
-    fitTo: { mode: "zoom", value: options.scale ?? 2 },
+  scale: number,
+  fonts: RasterFonts,
+  background: string | undefined
+): Resvg {
+  return new Resvg(svg, {
+    background,
+    fitTo: { mode: "zoom", value: scale },
     font: {
       defaultFontFamily: fonts.sansFamily,
       fontFiles: [...fonts.files],
@@ -152,9 +158,55 @@ export const rasterizeSvg = function rasterizeSvg(
     },
     logLevel: "off",
   });
+};
+
+/**
+ * Largest scale at or below `scale` that keeps a `width` x `height` SVG
+ * within `maxPixels` raster pixels.
+ */
+export const limitRasterScale = function limitRasterScale(
+  width: number,
+  height: number,
+  scale: number,
+  maxPixels?: number
+): number {
+  const area = width * height;
+
+  if (maxPixels === undefined || area <= 0 || area * scale * scale <= maxPixels) {
+    return scale;
+  }
+
+  return Math.sqrt(maxPixels / area);
+};
+
+/** Rasterize `svg` to PNG. Throws on resvg parse or render errors. */
+export const rasterizeSvg = function rasterizeSvg(
+  svg: string,
+  options: RasterizeOptions = {}
+): RasterizedSvg {
+  const started = performance.now();
+  const fonts = options.fonts ?? defaultFonts();
+  const scale = options.scale ?? 2;
+
+  let resvg = createResvg(svg, scale, fonts, options.background);
+  const svgWidth = resvg.width;
+  const svgHeight = resvg.height;
+  const limited = limitRasterScale(svgWidth, svgHeight, scale, options.maxPixels);
+
+  // resvg fixes the zoom when it parses, so a large SVG parses a second time.
+  if (limited !== scale) {
+    resvg = createResvg(svg, limited, fonts, options.background);
+  }
 
   const image = resvg.render();
   const png = new Uint8Array(image.asPng());
 
-  return { height: image.height, ms: performance.now() - started, png, width: image.width };
+  return {
+    height: image.height,
+    ms: performance.now() - started,
+    png,
+    svgHeight,
+    svgWidth,
+    width: image.width,
+  };
 };

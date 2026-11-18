@@ -22,13 +22,15 @@ The extension picks the renderer:
 | `.md`, `.mdx`, `.markdown` | markdown |
 | `.csv`, `.tsv` | table |
 | `.diff`, `.patch` | diff |
-| `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp` | image |
+| `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.svg` | image |
 | `.ts`, `.tsx`, `.js`, `.jsx`, `.json`, `.py`, `.rs`, `.go`, `.rb`, `.java`, `.kt`, `.swift`, `.c`, `.h`, `.cpp`, `.hpp`, `.css`, `.html`, `.sql`, `.sh`, `.bash`, `.zsh`, `.toml`, `.yaml`, `.yml` | code, with syntax colours for `.ts`, `.tsx`, `.js`, `.jsx` |
 | anything else | text |
 
 A file with another extension that contains a unified patch, with `diff --git` or `---` and `+++` headers and at least one `@@` hunk, opens as a diff.
 
-Markdown files resolve relative image paths from the folder of the file. `L` toggles line numbers. When the cursor is on a wide code block inside markdown, `h` and `l` scroll that block sideways.
+The CLI rasterizes `.svg` files with `@tooee/svg`, so they open as images. `--renderer text` shows the SVG source instead. A directory view lists `.svg` files beside the other formats.
+
+Markdown files resolve relative image paths from the folder of the file. SVG images in Markdown draw as images too. `L` toggles line numbers. When the cursor is on a wide code block inside markdown, `h` and `l` scroll that block sideways.
 
 ## Follow local links
 

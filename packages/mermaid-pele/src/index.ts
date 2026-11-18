@@ -16,9 +16,10 @@ export type {
   PeleRenderResult,
 } from "./render.js";
 
-export { findRasterFonts, rasterizeSvg } from "./rasterize.js";
+// Moved to @tooee/svg. Re-exported so existing imports keep working.
+export { findRasterFonts, rasterizeSvg } from "@tooee/svg";
 
-export type { RasterFonts, RasterizedSvg, RasterizeOptions } from "./rasterize.js";
+export type { RasterFonts, RasterizedSvg, RasterizeOptions } from "@tooee/svg";
 
 export { inlineCssVariables, peleVariablesFromTheme } from "./svg-theme.js";
 

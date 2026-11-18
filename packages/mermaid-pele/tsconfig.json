@@ -6,5 +6,5 @@
     "rootDir": "./src"
   },
   "include": ["./src"],
-  "references": [{ "path": "../renderers" }, { "path": "../themes" }]
+  "references": [{ "path": "../renderers" }, { "path": "../svg" }, { "path": "../themes" }]
 }

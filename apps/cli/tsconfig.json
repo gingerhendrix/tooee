@@ -12,6 +12,7 @@
     { "path": "../../packages/clipboard" },
     { "path": "../../packages/layout" },
     { "path": "../../packages/renderers" },
+    { "path": "../../packages/svg" },
     { "path": "../../packages/commands" },
     { "path": "../../packages/shell" },
     { "path": "../../packages/view" },

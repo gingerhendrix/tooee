@@ -5,10 +5,10 @@
  * with `ok: false`, so the caller can fall back to another renderer.
  */
 
+import { rasterizeSvg } from "@tooee/svg";
+import type { RasterFonts } from "@tooee/svg";
 import { PeleError, render } from "pele";
 
-import { rasterizeSvg } from "./rasterize.js";
-import type { RasterFonts } from "./rasterize.js";
 import { inlineCssVariables } from "./svg-theme.js";
 import type { PeleVariables } from "./svg-theme.js";
 

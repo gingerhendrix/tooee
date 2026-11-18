@@ -63,6 +63,7 @@ const paper = tegami({
     "@tooee/router": { group: "tooee" },
     "@tooee/search": { group: "tooee" },
     "@tooee/shell": { group: "tooee" },
+    "@tooee/svg": { group: "tooee" },
     "@tooee/themes": { group: "tooee" },
     "@tooee/toasts": { group: "tooee" },
     "@tooee/view": { group: "tooee" },

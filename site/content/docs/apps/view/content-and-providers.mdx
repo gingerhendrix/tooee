@@ -81,7 +81,7 @@ import { createFileProvider, launch } from "@tooee/view";
 await launch({ contentProvider: createFileProvider("notes.txt", { renderer: "markdown" }) });
 ```
 
-`createFileProvider(path, options)` reads the file when View mounts. It picks the format from the extension with the table in [View](/docs/cli/view#open-a-file) in the CLI section, opens a text file that holds a unified patch as a diff, sets `title` to the file name, and gives markdown an `imageBasePath` of the file's folder. `options.renderer` forces a format.
+`createFileProvider(path, options)` reads the file when View mounts. It picks the format from the extension with the table in [View](/docs/cli/view#open-a-file) in the CLI section, opens a text file that holds a unified patch as a diff, sets `title` to the file name, and gives markdown an `imageBasePath` of the file's folder. `options.renderer` forces a format. `options.imageLoaders` opens files that a loader matches, such as `.svg`, as images; [Images in markdown](/docs/apps/view/formats#images-in-markdown) describes loaders.
 
 `createStdinProvider(options)` reads all of stdin and renders it as markdown, or as a diff when it is a patch. `launch()` from `@tooee/view` reads keys from the controlling terminal while stdin supplies the content. A `View` that you mount yourself with `runCliSession` needs `stdinPolicy: "tty-if-piped"`, as [Run your own session](/docs/apps#run-your-own-session) shows.
 

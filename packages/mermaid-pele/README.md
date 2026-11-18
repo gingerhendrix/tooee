@@ -1,6 +1,6 @@
 # @tooee/mermaid-pele
 
-An opt-in renderer for ` ```mermaid ` Markdown fences. It draws each diagram with [Pele](https://github.com/obsidianmd/pele) as an SVG, applies the Tooee theme colours, rasterizes it with [resvg](https://github.com/thx/resvg-js), and shows the PNG in the OpenTUI `<image>` element.
+An opt-in renderer for ` ```mermaid ` Markdown fences. It draws each diagram with [Pele](https://github.com/obsidianmd/pele) as an SVG, applies the Tooee theme colours, rasterizes it with [resvg](https://github.com/thx/resvg-js) through `@tooee/svg`, and shows the PNG in the OpenTUI `<image>` element.
 
 Part of the [Tooee](https://github.com/gingerhendrix/tooee) monorepo. See the main repo for documentation.
 
@@ -53,7 +53,7 @@ Each `createPeleMermaidRenderer()` call has its own options and its own cache.
 - `peleVariablesFromTheme(theme, font, monoFont)` and `inlineCssVariables(svg, variables)`: map a Tooee theme to Pele's `--pele-*` tokens and inline every `var()` and `color-mix()`, because resvg does not support CSS custom properties.
 - `imageBoxSize` and `cellGeometry`: size the image box in terminal cells from the SVG size and the cell pixel size.
 - `supportsDiagramImages` and `useDiagramImageSupport`: the image support rule above.
-- `findRasterFonts` and `rasterizeSvg`.
+- `findRasterFonts` and `rasterizeSvg`: re-exports from `@tooee/svg`, which owns the resvg dependency.
 
 ## Known limits
 

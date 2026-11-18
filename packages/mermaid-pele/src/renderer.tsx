@@ -15,10 +15,10 @@ import {
   mermaidCodeBlockRenderer,
 } from "@tooee/renderers";
 import type { CodeBlockRenderer, CodeBlockRendererProps } from "@tooee/renderers";
+import type { RasterFonts } from "@tooee/svg";
 import type { ReactNode } from "react";
 
 import { useDiagramImageSupport } from "./image-support.js";
-import type { RasterFonts } from "./rasterize.js";
 import { createPeleRenderCache } from "./render.js";
 import type { PeleDiagram } from "./render.js";
 import { cellGeometry, imageBoxSize } from "./sizing.js";

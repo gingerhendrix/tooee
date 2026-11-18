@@ -3,7 +3,7 @@ title: Packages
 description: The runtime exports of each Tooee package and the guide that explains them.
 ---
 
-Tooee publishes 19 packages to npm under `@tooee/*`: the CLI and 18 libraries. All of them release together with the same version number. The repository holds two more packages that are private.
+Tooee publishes 20 packages to npm under `@tooee/*`: the CLI and 19 libraries. All of them release together with the same version number. The repository holds two more packages that are private.
 
 | Package | For | Main runtime exports | Guide |
 | --- | --- | --- | --- |
@@ -24,6 +24,7 @@ Tooee publishes 19 packages to npm under `@tooee/*`: the CLI and 18 libraries. A
 | `@tooee/router` | A stack router for screens | `createRouter`, `createRoute`, `RouterProvider`, `useNavigate` | [Routing](/docs/build/routing) |
 | `@tooee/search` | Search state, search bindings, and the search bar | `useSearch`, `SearchBar`, `findMatchingLines` | [Search and fuzzy filtering](/docs/build/search-and-fuzzy) |
 | `@tooee/shell` | The provider stack, sessions, documents, and built-in commands | `TooeeProvider`, `launchCli`, `Document`, `useDocumentController` | [Your first Tooee app](/docs/build/first-app), [Documents](/docs/build/documents) |
+| `@tooee/svg` | Opt-in SVG image loader that rasterizes SVG with resvg | `createSvgImageLoader`, `rasterizeSvg` | [View: images in markdown](/docs/apps/view/formats#images-in-markdown) |
 | `@tooee/test-support` | Private. Test helpers for the Tooee repository | `testRender`, `press`, `clipboardStub` | [Testing](/docs/ship/testing) |
 | `@tooee/themes` | Bundled themes and theme state | `ThemeProvider`, `useTheme`, `loadThemes` | [Themes](/docs/customize/themes) |
 | `@tooee/toasts` | Toast notifications | `ToastProvider`, `useToast` | [Overlays, dialogs, and toasts](/docs/build/overlays-dialogs-toasts) |
@@ -172,6 +173,7 @@ Types: `PanelGroupProps`, `PanelProps`, `PanelSwitchKeys`, `PanelState`, `Panels
 | Group | Runtime exports |
 | --- | --- |
 | Markdown | `MarkdownView`, `flattenMarkdown`, `getFlatBlockText`, `getPlainText`, `parseObsidianImageEmbed`, `resolveMarkdownImageSource`, `splitMarkdownImages` |
+| Image loaders | `findImageLoader`, `useImageSource` |
 | Code blocks | `CodeBlockChrome`, `defaultCodeBlockRenderer`, `mermaidCodeBlockRenderer`, `DEFAULT_CODE_BLOCK_RENDERERS`, `getFenceType` |
 | Code | `CodeView` |
 | Tables | `Table`, `computeColumnWidths`, `formatTableCell`, `isNumeric`, `sampleRows`, `parseCSV`, `parseTSV`, `parseJSON`, `parseAuto`, `detectFormat` |
@@ -183,7 +185,7 @@ Types: `PanelGroupProps`, `PanelProps`, `PanelSwitchKeys`, `PanelState`, `Panels
 
 The `@tooee/renderers/row-document` subpath has no exports. Import it for its side effect: it registers the `row-document` JSX element with OpenTUI. `Document` in `@tooee/shell` and `DiffView` in `@tooee/diff` import it for you.
 
-Types: `MarkdownLinkHandler`, `FlatBlock`, `FlattenMarkdownOptions`, `MarkdownImageEmbed`, `MarkdownInlineSegment`, `DocumentRowAnchor`, `DocumentRowSource`, `SourceLineRow`, `SourcePoint`, `SourceSpan`, `CodeBlockRenderer`, `CodeBlockRendererProps`, `CodeBlockHScroll`, `TableProps`, `ColumnWidthOptions`, `ColumnDef`, `TableRow`, `CommandPaletteEntry`, `ChooserProps`, `ChooseFilterProps`, `ChooseHighlightedTextProps`, `ChooseItemRenderContext`, `ChooseListProps`, `ChooseStore`, `ChooseStoreContext`, `ChooseStoreEvents`, `FuzzyMatch`, `ChooseCommandGroup`, `ChooseController`, `ChooseState`, `ChooseViewModel`, `UseChooseOptions`, `UseChooseResult`, `ChooseContentProvider`, `ChooseItem`, `ChooseOptions`, `ChooseResult`, `ChooseSource`, `ContextMenuEntry`, `Format`, `ParsedTable`, `TableData`, `RowDocumentOptions`, `RowDocumentPalette`, `RowScrollAlign`, `VisibleRowRange`, `DecorationLayer`, `RowDecoration`, `DocumentBindings`.
+Types: `MarkdownLinkHandler`, `FlatBlock`, `FlattenMarkdownOptions`, `MarkdownImageEmbed`, `MarkdownInlineSegment`, `ImageLoader`, `ImageLoadOptions`, `ImageSize`, `ImageSourceState`, `LoadedImage`, `DocumentRowAnchor`, `DocumentRowSource`, `SourceLineRow`, `SourcePoint`, `SourceSpan`, `CodeBlockRenderer`, `CodeBlockRendererProps`, `CodeBlockHScroll`, `TableProps`, `ColumnWidthOptions`, `ColumnDef`, `TableRow`, `CommandPaletteEntry`, `ChooserProps`, `ChooseFilterProps`, `ChooseHighlightedTextProps`, `ChooseItemRenderContext`, `ChooseListProps`, `ChooseStore`, `ChooseStoreContext`, `ChooseStoreEvents`, `FuzzyMatch`, `ChooseCommandGroup`, `ChooseController`, `ChooseState`, `ChooseViewModel`, `UseChooseOptions`, `UseChooseResult`, `ChooseContentProvider`, `ChooseItem`, `ChooseOptions`, `ChooseResult`, `ChooseSource`, `ContextMenuEntry`, `Format`, `ParsedTable`, `TableData`, `RowDocumentOptions`, `RowDocumentPalette`, `RowScrollAlign`, `VisibleRowRange`, `DecorationLayer`, `RowDecoration`, `DocumentBindings`.
 
 ## @tooee/router
 
@@ -223,6 +225,18 @@ Types: `NavSearchStore`, `NavSearchContext`, `NavSearchEvents`, `RowKey`, `UseSe
 The README covers [sessions, mounts, and stdin policies](https://github.com/gingerhendrix/tooee/blob/main/packages/shell/README.md).
 
 Types: `ThemeCommandsResult`, `UseCopyCommandOptions`, `UseDebugConsoleCommandOptions`, `UsePasteCommandsOptions`, `UseQuitCommandOptions`, `UseThemeCommandsOptions`, `UseToggleLineNumbersCommandOptions`, `UseNavigationOptions`, `NavigationState`, `UseCopyOptions`, `TooeeProviderProps`, `CliSessionController`, `CliSessionRender`, `CliStdinPolicy`, `CliStdoutPolicy`, `LaunchCliOptions`, `MountTooeeOptions`, `TerminalHealthGuardOptions`, `TooeeMount`, `TooeeProviderOptions`, `TooeeSessionHandle`, `ThemePickerState`, `ThemePickerEntry`, `ContextMenuController`, `DocumentProps`, `RowDocumentProps`, `DocumentScreenProps`, `InteractionDecorationInput`, `DocumentCommandContext`, `ProvideDocumentCommandContextOptions`, `DocumentBindings`, `DocumentContextMenuEvent`, `DocumentContextMenuItems`, `DocumentController`, `DocumentRevealOptions`, `DocumentRowAdapter`, `DocumentRowAnchor`, `DocumentRowEvent`, `DocumentRowSource`, `DocumentSearchOptions`, `SourcePoint`, `SourceSpan`, `UseDocumentControllerOptions`.
+
+## @tooee/svg
+
+| Group     | Runtime exports                                                       |
+| --------- | --------------------------------------------------------------------- |
+| Loader    | `createSvgImageLoader`, `DEFAULT_SVG_SCALE`, `DEFAULT_SVG_MAX_PIXELS` |
+| Rasterize | `rasterizeSvg`, `findRasterFonts`, `limitRasterScale`                 |
+| Sources   | `isSvgSource`, `readSvgSource`, `decodeSvgDataUri`                    |
+
+`@tooee/svg` is the only package that depends on `@resvg/resvg-js`. Tooee does not register its loader by default.
+
+Types: `SvgImageLoaderOptions`, `RasterFonts`, `RasterizedSvg`, `RasterizeOptions`, `ReadSvgOptions`.
 
 ## @tooee/test-support
 
@@ -267,9 +281,9 @@ Types: `ToastLevel`, `ToastOptions`, `ToastEntry`, `ToastController`.
 | Content helpers | `getTextContent`, `isBuiltinContent`, `isCustomContent` |
 | Links | `localFileLinkHandler` |
 
-`CodeBlockChrome` is a re-export from `@tooee/renderers`.
+`CodeBlockChrome` is a re-export from `@tooee/renderers`. The `ImageLoader` and `LoadedImage` types are re-exports from `@tooee/renderers`.
 
-Types: `ViewLaunchOptions`, `CreateProviderOptions`, `DirectoryEntry`, `CreateViewCommandContextOptions`, `ProvideViewCommandContextOptions`, `ViewCommandContext`, `ContentLoaderState`, `ContentCommandsResult`, `AnyContent`, `Content`, `ContentChunk`, `ContentFormat`, `ContentProvider`, `ContentRenderer`, `ContentRendererProps`, `CustomContent`, `DiffContent`, `ImageContent`, `MarkdownContent`, `MarkdownLinkActivateHandler`, `CodeContent`, `TextContent`, `TableContent`, `ViewContent`, `ViewContentProvider`, `ColumnDef`, `TableRow`, `CodeBlockRenderer`, `CodeBlockRendererProps`, `CodeBlockHScroll`, `LinkHandler`, `LinkHandlerContext`, `LinkTarget`.
+Types: `ViewLaunchOptions`, `CreateProviderOptions`, `DirectoryEntry`, `ListDirectoryOptions`, `ImageLoader`, `LoadedImage`, `CreateViewCommandContextOptions`, `ProvideViewCommandContextOptions`, `ViewCommandContext`, `ContentLoaderState`, `ContentCommandsResult`, `AnyContent`, `Content`, `ContentChunk`, `ContentFormat`, `ContentProvider`, `ContentRenderer`, `ContentRendererProps`, `CustomContent`, `DiffContent`, `ImageContent`, `MarkdownContent`, `MarkdownLinkActivateHandler`, `CodeContent`, `TextContent`, `TableContent`, `ViewContent`, `ViewContentProvider`, `ColumnDef`, `TableRow`, `CodeBlockRenderer`, `CodeBlockRendererProps`, `CodeBlockHScroll`, `LinkHandler`, `LinkHandlerContext`, `LinkTarget`.
 
 ## Next
 

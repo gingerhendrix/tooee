@@ -3,6 +3,7 @@ import { statSync } from "node:fs";
 
 import { launch as launchAsk } from "@tooee/ask";
 import { launch as launchChoose, createStdinChooseProvider } from "@tooee/choose";
+import { createSvgImageLoader } from "@tooee/svg";
 import {
   launch as launchView,
   launchDirectory,
@@ -14,6 +15,9 @@ import type { ContentFormat } from "@tooee/view";
 const [command, ...args] = process.argv.slice(2);
 
 const RENDERERS: ContentFormat[] = ["markdown", "code", "text", "table", "diff"];
+
+// SVG files and Markdown SVG images render as terminal images.
+const IMAGE_LOADERS = [createSvgImageLoader()];
 
 interface ViewArgs {
   filePath?: string;
@@ -78,7 +82,7 @@ const printUsage = function printUsage(): void {
   console.log("Usage: tooee <command> [options]");
   console.log("");
   console.log("Commands:");
-  console.log("  view [file]    Display markdown, code, text, diffs, or tables");
+  console.log("  view [file]    Display markdown, code, text, diffs, tables, or images");
   console.log("  ask [prompt]   Gather multiline user input");
   console.log("  choose         Select items from a filterable list (stdin)");
 
@@ -92,6 +96,7 @@ const printUsage = function printUsage(): void {
   console.log("  tooee view README.md");
   console.log("  tooee view --outline README.md");
   console.log("  tooee view --renderer text README.md");
+  console.log("  tooee view diagram.svg");
   console.log("  tooee view --renderer table data.csv");
   console.log("  git diff | tooee view --renderer diff");
   console.log("  cat file.md | tooee view");
@@ -117,7 +122,7 @@ try {
               process.exit(2);
             }
 
-            await launchDirectory({ dirPath: filePath });
+            await launchDirectory({ dirPath: filePath, imageLoaders: IMAGE_LOADERS });
             break;
           }
         } catch {
@@ -127,10 +132,10 @@ try {
 
       const contentProvider =
         filePath !== undefined && filePath !== ""
-          ? createFileProvider(filePath, { renderer })
+          ? createFileProvider(filePath, { imageLoaders: IMAGE_LOADERS, renderer })
           : createStdinProvider({ renderer });
 
-      await launchView({ contentProvider, filePath, outline });
+      await launchView({ contentProvider, filePath, imageLoaders: IMAGE_LOADERS, outline });
       break;
     }
 
