@@ -1,13 +1,6 @@
----
-packages:
-  "@tooee/svg": minor
-  "@tooee/renderers": minor
-  "@tooee/view": minor
-  "@tooee/cli": minor
-  "@tooee/mermaid-pele": patch
----
+## @tooee/svg@0.17.0
 
-## Draw SVG files and SVG images in Markdown
+### Draw SVG files and SVG images in Markdown
 
 `tooee view diagram.svg` now draws the SVG as a terminal image, and so does a directory view. Markdown images such as `![Diagram](diagram.svg)`, `![[diagram.svg]]`, and `data:image/svg+xml` URIs draw as images too. `--renderer text` still shows the SVG source.
 
