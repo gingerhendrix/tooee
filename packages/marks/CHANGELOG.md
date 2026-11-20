@@ -1,3 +1,9 @@
+## @tooee/marks@0.18.0
+
+### Require OpenTUI 0.9.7
+
+Tooee now uses OpenTUI 0.9.7. If your app supplies the OpenTUI peers, update both `@opentui/core` and `@opentui/react` to the same 0.9 release, at least 0.9.7.
+
 ## @tooee/marks@0.16.4
 
 ### Require OpenTUI 0.8.3

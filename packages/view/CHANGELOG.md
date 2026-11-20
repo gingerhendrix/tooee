@@ -1,3 +1,9 @@
+## @tooee/view@0.18.0
+
+### Require OpenTUI 0.9.7
+
+Tooee now uses OpenTUI 0.9.7. If your app supplies the OpenTUI peers, update both `@opentui/core` and `@opentui/react` to the same 0.9 release, at least 0.9.7.
+
 ## @tooee/view@0.17.0
 
 ### Draw SVG files and SVG images in Markdown

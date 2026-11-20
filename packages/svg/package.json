@@ -1,6 +1,6 @@
 {
   "name": "@tooee/svg",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "Opt-in SVG image loader for Tooee that rasterizes SVG with resvg for terminal images",
   "keywords": [
     "cli",
