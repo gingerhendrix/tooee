@@ -7,7 +7,7 @@ import { baseOptions } from "#/lib/layout.shared";
 import { getGitHubReleases } from "#/lib/releases.server";
 
 const getReleases = createServerFn({ method: "GET" })
-  .inputValidator((page: number) => {
+  .validator((page: number) => {
     if (!Number.isSafeInteger(page) || page < 1) throw notFound();
     return page;
   })
