@@ -43,13 +43,13 @@
     "@tooee/renderers": "workspace:*",
     "@tooee/svg": "workspace:*",
     "@tooee/themes": "workspace:*",
-    "pele": "1.6.0"
+    "pele": "1.13.0"
   },
   "devDependencies": {
     "@opentui/core": "^0.9.7",
     "@opentui/react": "^0.9.7",
     "@tooee/test-support": "workspace:*",
-    "@types/bun": "^1.4.2",
+    "@types/bun": "^1.4.5",
     "@types/react": "^19.3.0",
     "typescript": "^7.0.2"
   },

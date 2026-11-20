@@ -53,15 +53,15 @@
     "@tooee/search": "workspace:*",
     "@tooee/shell": "workspace:*",
     "@tooee/themes": "workspace:*",
-    "@xstate/store": "^4.2.3",
-    "@xstate/store-react": "^2",
-    "marked": "^18.0.14"
+    "@xstate/store": "^4.3.0",
+    "@xstate/store-react": "^2.1.0",
+    "marked": "^18.2.1"
   },
   "devDependencies": {
     "@opentui/core": "^0.9.7",
     "@opentui/react": "^0.9.7",
     "@tooee/test-support": "workspace:*",
-    "@types/bun": "^1.4.2",
+    "@types/bun": "^1.4.5",
     "@types/react": "^19.3.0",
     "typescript": "^7.0.2"
   },

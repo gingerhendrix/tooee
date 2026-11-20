@@ -38,10 +38,10 @@
   },
   "dependencies": {
     "@tooee/commands": "workspace:*",
-    "@xstate/store": "^4.2.3"
+    "@xstate/store": "^4.3.0"
   },
   "devDependencies": {
-    "@types/bun": "^1.4.2",
+    "@types/bun": "^1.4.5",
     "@types/react": "^19.3.0",
     "typescript": "^7.0.2"
   },

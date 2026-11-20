@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@opentui/react": "^0.9.7",
-    "@types/bun": "^1.4.2",
+    "@types/bun": "^1.4.5",
     "@types/react": "^19.3.0",
     "typescript": "^7.0.2"
   },

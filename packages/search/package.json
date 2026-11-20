@@ -40,13 +40,13 @@
   "dependencies": {
     "@tooee/commands": "workspace:*",
     "@tooee/themes": "workspace:*",
-    "@xstate/store": "^4.2.3",
-    "@xstate/store-react": "^2"
+    "@xstate/store": "^4.3.0",
+    "@xstate/store-react": "^2.1.0"
   },
   "devDependencies": {
     "@opentui/core": "^0.9.7",
     "@opentui/react": "^0.9.7",
-    "@types/bun": "^1.4.2",
+    "@types/bun": "^1.4.5",
     "@types/react": "^19.3.0",
     "typescript": "^7.0.2"
   },

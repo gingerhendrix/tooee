@@ -9,7 +9,7 @@
     "@tooee/renderers": "workspace:*",
     "@tooee/shell": "workspace:*",
     "@tooee/themes": "workspace:*",
-    "react": "^19.3.0"
+    "react": "^19.3.1"
   },
   "devDependencies": {
     "@types/react": "^19.3.0"
