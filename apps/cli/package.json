@@ -31,8 +31,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@opentui/core": "^0.8.3",
-    "@opentui/react": "^0.8.3",
+    "@opentui/core": "^0.9.7",
+    "@opentui/react": "^0.9.7",
     "@tooee/ask": "workspace:*",
     "@tooee/choose": "workspace:*",
     "@tooee/svg": "workspace:*",
@@ -40,8 +40,8 @@
     "react": "^19.3.0"
   },
   "devDependencies": {
-    "@opentui/core": "^0.8.3",
-    "@opentui/react": "^0.8.3",
+    "@opentui/core": "^0.9.7",
+    "@opentui/react": "^0.9.7",
     "@types/bun": "^1.4.2",
     "@types/react": "^19.3.0",
     "typescript": "^7.0.2"

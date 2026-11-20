@@ -209,6 +209,21 @@ describe("Table component", () => {
     expect(frame).toContain("Bob");
   });
 
+  test("wraps cell text inside the same padding as the header", async () => {
+    const columns = createColumns(["Name"]);
+    testSetup = await testRender(
+      <ThemeSwitcherProvider>
+        <Table columns={columns} rows={createRows(columns, [["Abcd Efgh"]])} maxColumnWidth={6} />
+      </ThemeSwitcherProvider>,
+      { height: 10, width: 20 }
+    );
+    await testSetup.renderOnce();
+    const lines = testSetup.captureCharFrame().split("\n");
+    expect(lines.find((line) => line.includes("Name"))).toMatch(/^ {7}Name /u);
+    expect(lines.find((line) => line.includes("Abcd"))).toMatch(/^ 1 {5}Abcd /u);
+    expect(lines.find((line) => line.includes("Efgh"))).toMatch(/^ {7}Efgh /u);
+  });
+
   test("snapshot", async () => {
     testSetup = await testRender(
       <ThemeSwitcherProvider>

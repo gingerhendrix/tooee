@@ -13,8 +13,8 @@
     }
   },
   "devDependencies": {
-    "@opentui/core": "^0.8.3",
-    "@opentui/react": "^0.8.3",
+    "@opentui/core": "^0.9.7",
+    "@opentui/react": "^0.9.7",
     "@types/bun": "^1.4.2",
     "@types/react": "^19.3.0",
     "react": "^19.3.0",
