@@ -1,8 +1,11 @@
-import { formatStepKey, useCommandRegistry, useCommandSequenceState } from "@tooee/commands";
+import { useTerminalDimensions } from "@opentui/react";
+import { formatStepKey, parseHotkey, useCommandRegistry, useCommandStore } from "@tooee/commands";
 import type { CommandSequenceState } from "@tooee/commands";
+import { truncateCells } from "@tooee/layout";
 import { overlayValue, useOverlay } from "@tooee/overlays";
 import type { OverlayHandle } from "@tooee/overlays";
 import { useTheme } from "@tooee/themes";
+import { useSelector } from "@xstate/store-react";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import type { ReactNode } from "react";
 
@@ -10,6 +13,7 @@ const OVERLAY_ID = "tooee.which-key";
 
 export interface WhichKeyProviderProps {
   children: ReactNode;
+  /** Limit automatic hints to leader sequences. Root hints are still available. */
   leaderOnly?: boolean;
 }
 
@@ -63,15 +67,28 @@ export const WhichKeyOverlay = function WhichKeyOverlay({
   state: CommandSequenceState;
 }): ReactNode {
   const { theme } = useTheme();
+  const { width, height } = useTerminalDimensions();
   const entries = useMemo(() => summarizeCandidates(state), [state]);
-  const prefix = state.prefix.map(formatStepKey).join(" ");
+  const prefix = state.prefix.map(formatStepKey).join(" ") || "root";
+
+  if (width < 16 || height < 7) {
+    return null;
+  }
+
+  // Leave room for the app and reserve a row for the overflow count when needed.
+  const innerWidth = width - 8;
+  const columns = Math.max(1, Math.min(entries.length, Math.floor(innerWidth / 24)));
+  const columnWidth = Math.floor(innerWidth / columns);
+  const rows = Math.max(2, Math.floor(height * 0.6) - 3);
+  const visibleCount = entries.length > rows * columns ? (rows - 1) * columns : entries.length;
+  const hiddenCount = entries.length - visibleCount;
 
   return (
     <box
       position="absolute"
       left={2}
+      right={2}
       bottom={1}
-      width="96%"
       flexDirection="column"
       border
       paddingLeft={1}
@@ -79,16 +96,22 @@ export const WhichKeyOverlay = function WhichKeyOverlay({
       backgroundColor={theme.backgroundPanel}
       borderColor={theme.border}
     >
-      <text fg={theme.textMuted} content={`which-key: ${prefix}`} />
-      <box flexDirection="row" flexWrap="wrap" gap={1}>
-        {entries.map((entry): ReactNode => (
-          <box key={entry.key} flexDirection="row" marginRight={2}>
-            <text fg={theme.accent} content={entry.key} />
-            <text fg={theme.textMuted} content=" → " />
-            <text content={entry.title} />
-          </box>
-        ))}
+      <text fg={theme.textMuted} content={`which-key: ${prefix}`} wrapMode="none" />
+      <box flexDirection="row" flexWrap="wrap">
+        {entries.slice(0, visibleCount).map((entry): ReactNode => {
+          const key = truncateCells(entry.key, columnWidth - 5);
+          const title = truncateCells(entry.title, columnWidth - Bun.stringWidth(key) - 4);
+
+          return (
+            <text key={entry.key} width={columnWidth} height={1} wrapMode="none">
+              <span fg={theme.accent}>{key}</span>
+              <span fg={theme.textMuted}> → </span>
+              {title}
+            </text>
+          );
+        })}
       </box>
+      {hiddenCount > 0 && <text fg={theme.textMuted} content={`… ${hiddenCount} more keys`} />}
     </box>
   );
 };
@@ -97,21 +120,29 @@ export const WhichKeyProvider = function WhichKeyProvider({
   children,
   leaderOnly,
 }: WhichKeyProviderProps): ReactNode {
-  const sequence = useCommandSequenceState();
+  const commandStore = useCommandStore();
+
+  const hints = useSelector(
+    commandStore.store,
+    ({ context }) => context.sequence ?? context.rootKeyHints
+  );
+
   const { leaderKey } = useCommandRegistry();
   const overlay = useOverlay();
   const handleRef = useRef<OverlayHandle<CommandSequenceState> | null>(null);
 
-  const effectiveLeaderOnly = leaderOnly ?? leaderKey !== undefined;
+  const leaderStep = leaderKey === undefined ? undefined : parseHotkey(leaderKey).steps[0];
+  const firstStep = hints?.prefix[0];
 
   const shouldShow =
-    sequence !== null &&
-    sequence.candidates.length > 0 &&
-    (!effectiveLeaderOnly ||
-      leaderKey === undefined ||
-      (sequence.prefix.length > 0 &&
-        sequence.prefix[0] !== undefined &&
-        formatStepKey(sequence.prefix[0]) === leaderKey));
+    hints !== null &&
+    hints.candidates.length > 0 &&
+    (leaderOnly !== true ||
+      leaderStep === undefined ||
+      firstStep === undefined ||
+      formatStepKey(firstStep) === formatStepKey(leaderStep));
+
+  useLayoutEffect(() => commandStore.enableRootKeyHints(), [commandStore]);
 
   useLayoutEffect(() => {
     if (!shouldShow) {
@@ -121,7 +152,7 @@ export const WhichKeyProvider = function WhichKeyProvider({
     }
 
     if (handleRef.current !== null) {
-      handleRef.current.update(overlayValue(sequence));
+      handleRef.current.update(overlayValue(hints));
 
       return;
     }
@@ -129,7 +160,7 @@ export const WhichKeyProvider = function WhichKeyProvider({
     handleRef.current = overlay.open(
       OVERLAY_ID,
       ({ payload }): ReactNode => <WhichKeyOverlay state={payload} />,
-      sequence,
+      hints,
       {
         dismissOnEscape: false,
         onClose: () => {
@@ -139,7 +170,7 @@ export const WhichKeyProvider = function WhichKeyProvider({
         role: "passive",
       }
     );
-  }, [overlay, sequence, shouldShow]);
+  }, [overlay, hints, shouldShow]);
 
   useLayoutEffect(
     () => () => {

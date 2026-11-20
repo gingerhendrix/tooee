@@ -5,10 +5,11 @@
  * This example shows:
  * - Registering named command groups with useCommandGroup()
  * - Configuring actions with group/category/icon metadata
- * - A leader-only which-key overlay that shows groups first, then actions
+ * - Which-key hints that show prefixes first, then actions
  *
  * Run: bun examples/shell/which-key-groups.ts
  * Try:
+ *   ?            — show root commands and prefixes
  *   space        — show top-level leader groups/actions
  *   space s      — drill into Stream actions
  *   space a      — drill into Artifact actions
@@ -36,9 +37,11 @@ const h = function h<Props extends object>(
 
 const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
   const { theme } = useTheme();
-  const [lastAction, setLastAction] = useState("Press space to open the which-key overlay");
+  const [lastAction, setLastAction] = useState("Press ? for root keys or space for leader keys");
 
   useQuitCommand();
+
+  useCommandGroup({ id: "leader", prefix: "space", title: "Leader actions" });
 
   useCommandGroup({
     description: "Open, create, and dispatch stream work",
@@ -221,7 +224,7 @@ const WhichKeyGroupsDemo = function WhichKeyGroupsDemo(): ReactNode {
   const lines = [
     "# Which-key groups demo",
     "",
-    "Press space to show the leader overlay. Named groups should appear as:",
+    "Press ? to see root keys, or space to see the leader groups and actions:",
     "",
     "  s  Stream",
     "  a  Artifact",

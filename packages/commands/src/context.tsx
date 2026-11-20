@@ -201,7 +201,7 @@ const CommandDispatcher = function CommandDispatcher({
       return;
     }
 
-    const result = commandStore.key(event);
+    const result = commandStore.key(event, renderer.currentFocusedEditor !== null);
 
     if (result.handled) {
       event.preventDefault();

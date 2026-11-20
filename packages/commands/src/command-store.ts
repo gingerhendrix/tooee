@@ -59,6 +59,8 @@ export interface CommandStoreContext {
   activePanels: ReadonlyMap<string, string>;
   /** Renderable pending-sequence display state (which-key input). */
   sequence: CommandSequenceState | null;
+  /** Which-key snapshot of the available first steps, with an empty prefix. */
+  rootKeyHints: CommandSequenceState | null;
 }
 
 // --- Selectors ---------------------------------------------------------------
@@ -210,8 +212,7 @@ export const stepsKey = function stepsKey(steps: readonly ParsedStep[]): string 
 // --- Store -------------------------------------------------------------------
 
 /**
- * Sequence-clear rule for surface/activation transitions: a pending chord
- * (display state) is cleared exactly when the transition changes which surface
+ * Which-key hints are cleared when a transition changes which surface
  * record owns keyboard input — where ownership is `selectKeyboardOwnerSurface`
  * (topmost modal → active panel → root). Pushing/popping a passive surface
  * (e.g. which-key) keeps the sequence it is displaying; replacing the active
@@ -219,12 +220,20 @@ export const stepsKey = function stepsKey(steps: readonly ParsedStep[]): string 
  * changes; activating a different panel clears it because the owner record
  * changes.
  */
-const sequenceAfterStackChange = function sequenceAfterStackChange(
+const hintsAfterStackChange = function hintsAfterStackChange(
   before: SurfaceRecord | null,
   after: SurfaceRecord | null,
-  sequence: CommandSequenceState | null
-): CommandSequenceState | null {
-  return before === after ? sequence : null;
+  ctx: CommandStoreContext
+): Pick<CommandStoreContext, "sequence" | "rootKeyHints"> {
+  return before === after
+    ? { rootKeyHints: ctx.rootKeyHints, sequence: ctx.sequence }
+    : { rootKeyHints: null, sequence: null };
+};
+
+const clearKeyHints = function clearKeyHints(ctx: CommandStoreContext): CommandStoreContext {
+  return ctx.sequence === null && ctx.rootKeyHints === null
+    ? ctx
+    : { ...ctx, rootKeyHints: null, sequence: null };
 };
 
 export const createBaseStore = function createBaseStore(initialContext: CommandStoreContext) {
@@ -316,13 +325,10 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
 
         return { ...ctx, groups };
       },
-      modeChanged: (
-        ctx: CommandStoreContext,
-        _event: { surfaceId: string }
-      ): CommandStoreContext =>
+      modeChanged: (ctx: CommandStoreContext, _event: { surfaceId: string }): CommandStoreContext =>
         // A mode change is a transition, not a post-render repair: any pending
         // chord is invalidated (F-08 — including surface-local mode changes).
-        ctx.sequence === null ? ctx : { ...ctx, sequence: null },
+        clearKeyHints(ctx),
       panelActivated: (
         ctx: CommandStoreContext,
         event: { groupId: string; panelId: string }
@@ -343,7 +349,7 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
         return {
           ...ctx,
           activePanels,
-          sequence: sequenceAfterStackChange(before, after, ctx.sequence),
+          ...hintsAfterStackChange(before, after, ctx),
         };
       },
       panelGroupRemoved: (
@@ -362,15 +368,18 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
         return {
           ...ctx,
           activePanels,
-          sequence: sequenceAfterStackChange(before, after, ctx.sequence),
+          ...hintsAfterStackChange(before, after, ctx),
         };
       },
+      rootKeyHintsShown: (
+        ctx: CommandStoreContext,
+        event: { state: CommandSequenceState }
+      ): CommandStoreContext => ({ ...ctx, rootKeyHints: event.state, sequence: null }),
       sequencePending: (
         ctx: CommandStoreContext,
         event: { state: CommandSequenceState }
-      ): CommandStoreContext => ({ ...ctx, sequence: event.state }),
-      sequenceReset: (ctx: CommandStoreContext): CommandStoreContext =>
-        ctx.sequence === null ? ctx : { ...ctx, sequence: null },
+      ): CommandStoreContext => ({ ...ctx, rootKeyHints: null, sequence: event.state }),
+      sequenceReset: clearKeyHints,
       surfacePopped: (
         ctx: CommandStoreContext,
         event: { surface: SurfaceRecord }
@@ -387,7 +396,7 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
 
         return {
           ...ctx,
-          sequence: sequenceAfterStackChange(before, after, ctx.sequence),
+          ...hintsAfterStackChange(before, after, ctx),
           surfaces,
         };
       },
@@ -401,7 +410,7 @@ export const createBaseStore = function createBaseStore(initialContext: CommandS
 
         return {
           ...ctx,
-          sequence: sequenceAfterStackChange(before, after, ctx.sequence),
+          ...hintsAfterStackChange(before, after, ctx),
           surfaces,
         };
       },

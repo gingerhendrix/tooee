@@ -207,6 +207,53 @@ describe("panel surfaces — dispatch precedence", () => {
 });
 
 describe("panel surfaces — fall-through & shadowing", () => {
+  test("root hints use dispatch order, effective bindings, and command availability", () => {
+    const cs = makeStore({ keymap: { "root.remapped": "ctrl+r" } });
+    const root = cs.registryFor(cs.rootRecord);
+    root.register(command("root.shadowed", "g s"));
+    root.register(command("root.hidden-shadowed", "h"));
+    root.register(command("root.remapped", "r"));
+    root.register(command("root.when-false", "j", { when: () => false }));
+    root.register(command("root.insert-only", "k", { modes: ["insert"] }));
+
+    const panel = makePanel("list", "g", 1);
+    const panelRegistry = cs.registryFor(panel);
+    panelRegistry.register(command("panel.prefix", "g f"));
+    panelRegistry.register(command("panel.shadowed-single", "g"));
+    panelRegistry.register(command("panel.hidden", "h", { hidden: true }));
+    cs.pushSurface(panel);
+    cs.activatePanel("g", panel.id);
+
+    expect(cs.key(key("?")).handled).toBe(false);
+    const disableHints = cs.enableRootKeyHints();
+    expect(cs.key(key("?")).handled).toBe(true);
+    expect(
+      ctxOf(cs).rootKeyHints?.candidates.map(({ hotkey, command: cmd }) => [hotkey, cmd.id])
+    ).toEqual([
+      ["g f", "panel.prefix"],
+      ["ctrl+r", "root.remapped"],
+    ]);
+    expect(selectSequence(ctxOf(cs))).toBeNull();
+
+    cs.pushSurface(makeModal("modal", 2));
+    expect(ctxOf(cs).rootKeyHints).toBeNull();
+    expect(cs.key(key("?")).handled).toBe(false);
+    disableHints();
+  });
+
+  test("insert mode on the active panel keeps an unbound question mark available to input", () => {
+    const cs = makeStore();
+    cs.registryFor(cs.rootRecord).register(command("root.a", "a"));
+    const panel = { ...makePanel("editor", "g", 1), getMode: (): Mode => "insert" };
+    cs.pushSurface(panel);
+    cs.activatePanel("g", panel.id);
+    const disableHints = cs.enableRootKeyHints();
+
+    expect(cs.key(key("?")).handled).toBe(false);
+    expect(ctxOf(cs).rootKeyHints).toBeNull();
+    disableHints();
+  });
+
   test("unmatched keys fall through to the enclosing (root) surface", () => {
     const cs = makeStore();
     let quitFired = 0;

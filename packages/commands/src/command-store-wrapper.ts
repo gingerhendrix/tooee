@@ -18,7 +18,9 @@ export interface CreateCommandStoreOptions extends CommandStoreConfig {
 export interface CommandStore {
   store: CommandStoreInstance;
   rootRecord: SurfaceRecord;
-  key: (event: KeyEvent) => KeyDispatchResult;
+  key: (event: KeyEvent, textInputFocused?: boolean) => KeyDispatchResult;
+  /** Enables the idle `?` fallback for the lifetime of a which-key presenter. */
+  enableRootKeyHints: () => () => void;
   reset: () => void;
   dispose: () => void;
   pushSurface: (surface: SurfaceRecord) => () => void;
@@ -54,6 +56,7 @@ export const createCommandStore = function createCommandStore(
     commandsBySurface: new Map(),
     contextSources: new Map(),
     groups: new Map(),
+    rootKeyHints: null,
     sequence: null,
     surfaces: [rootRecord],
   });
@@ -149,6 +152,7 @@ export const createCommandStore = function createCommandStore(
   return {
     activatePanel,
     dispose: dispatcher.dispose,
+    enableRootKeyHints: dispatcher.enableRootKeyHints,
     key: dispatcher.key,
     modeChanged,
     pushSurface,

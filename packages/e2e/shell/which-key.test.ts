@@ -66,12 +66,13 @@ describe("which-key overlay", () => {
     expect(text).not.toContain("which-key:");
   }, 20_000);
 
-  test("non-leader sequences still dispatch without showing which-key", async () => {
+  test("non-leader sequences show which-key and still dispatch", async () => {
     session = await launchShellFixture("which-key-app.tsx");
 
-    const frames = await session.captureFrames(["g", "g"], { frameCount: 6, intervalMs: 50 });
-    expect(frames.join("\n--- frame ---\n")).not.toContain("which-key:");
+    const frames = await session.captureFrames("g", { frameCount: 6, intervalMs: 50 });
+    expect(expectSomeFrame(frames, "which-key: g")).toContain("g → Local go command");
 
+    await session.press("g");
     await session.waitForText("last:local go", { timeout: 5000 });
   }, 20_000);
 });

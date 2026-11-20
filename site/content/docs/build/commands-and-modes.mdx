@@ -184,7 +184,9 @@ await launchCli(<Search />);
 
 ## The which-key bar and the palette
 
-After the first step of a sequence, Tooee opens a bar at the bottom that lists each key that can follow with the title of its command. With a leader set, the bar opens only for sequences that start with the leader, so `t` alone shows nothing in the deploy console. Without a leader it opens for every prefix, as it does after `g` and `y` in View.
+While a key sequence is pending, Tooee opens a bar at the bottom listing the possible next keys and their command titles. Both leader sequences and plain prefixes such as `g` in View show hints. Press `?` at idle to see the available single-key commands and first steps for the active surface and mode. A command key runs the command, a prefix shows its continuations, and `Escape` closes the root list. When space runs out, the bar shortens labels and counts the remaining keys.
+
+An applicable `?` binding takes precedence, and an unbound `?` can still be typed in insert mode or a focused input. Apps composing the providers directly can pass `leaderOnly` to `WhichKeyProvider` to limit automatic hints to sequences that start with the configured leader.
 
 `useCommandGroup({ id, prefix, title })` names a prefix. The deploy console registers `space g` as `Go`, so the bar after `space` reads `g → Go` in place of the first command's title. Commands with `hidden: true` never appear. [which-key-groups.ts](https://github.com/gingerhendrix/tooee/blob/main/examples/shell/which-key-groups.ts) puts actions into groups under the leader with `useCommandGroup` and the `group` field.
 
