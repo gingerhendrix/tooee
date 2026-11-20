@@ -1,3 +1,13 @@
+## @tooee/shell@0.18.0
+
+### Require OpenTUI 0.9.7
+
+Tooee now uses OpenTUI 0.9.7. If your app supplies the OpenTUI peers, update both `@opentui/core` and `@opentui/react` to the same 0.9 release, at least 0.9.7.
+
+### Discover shortcuts with which-key
+
+Press `?` at idle to see the current shortcuts and sequence prefixes. Which-key now shows continuations for plain sequences like `g g` even when the app has a leader key. Press a listed key to use it or `Escape` to close the root hints.
+
 ## @tooee/shell@0.16.4
 
 ### Require OpenTUI 0.8.3

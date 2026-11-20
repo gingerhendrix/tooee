@@ -1,82 +1,116 @@
 core:changelogs:
-  - content: "---\npackages:\n  \"@tooee/svg\":\n    type: minor\n  \"@tooee/renderers\":\n    type: minor\n  \"@tooee/view\":\n    type: minor\n  \"@tooee/cli\":\n    type: minor\n  \"@tooee/mermaid-pele\":\n    type: patch\n---\n\n## Draw SVG files and SVG images in Markdown\n\n`tooee view diagram.svg` now draws the SVG as a terminal image, and so does a directory view. Markdown images such as `![Diagram](diagram.svg)`, `![[diagram.svg]]`, and `data:image/svg+xml` URIs draw as images too. `--renderer text` still shows the SVG source.\n\nThe new `@tooee/svg` package rasterizes SVG with resvg. Its `createSvgImageLoader()` returns an `ImageLoader`, a new hook in `@tooee/renderers` for image formats that OpenTUI cannot decode. Pass loaders as `imageLoaders` to `launch`, `launchDirectory`, `View`, `DirectoryView`, `MarkdownView`, or `createFileProvider`. An image from a loader draws at its intrinsic CSS size, not at the size of its raster. Libraries do not register the SVG loader by default, so apps without it still open `.svg` files as text and do not install resvg.\n\n`@tooee/mermaid-pele` now rasterizes through `@tooee/svg`. It still exports `rasterizeSvg` and `findRasterFonts`.\n"
-    filename: svg-images.md
+  - content: "---\npackages:\n  group:tooee:\n    type: minor\n---\n\n## Require OpenTUI 0.9.7\n\nTooee now uses OpenTUI 0.9.7. If your app supplies the OpenTUI peers, update both `@opentui/core` and `@opentui/react` to the same 0.9 release, at least 0.9.7.\n"
+    filename: opentui-0-9.md
+    v: 0.0.0
+  - content: "---\npackages:\n  \"@tooee/shell\":\n    type: minor\n---\n\n## Discover shortcuts with which-key\n\nPress `?` at idle to see the current shortcuts and sequence prefixes. Which-key now shows continuations for plain sequences like `g g` even when the app has a leader key. Press a listed key to use it or `Escape` to close the root hints.\n"
+    filename: which-key-discovery.md
     v: 0.0.0
 core:packages:
   - changelogIds:
-      - svg-images.md
+      - opentui-0-9.md
     id: npm:@tooee/cli
     updated: true
-  - id: npm:@tooee/ask
-    updated: true
-  - id: npm:@tooee/choose
-    updated: true
-  - id: npm:@tooee/clipboard
-    updated: true
-  - id: npm:@tooee/config
-    updated: true
-  - id: npm:@tooee/commands
-    updated: true
-  - id: npm:@tooee/diff
-    updated: true
-  - id: npm:@tooee/fuzzy
-    updated: true
-  - id: npm:@tooee/layout
+  - changelogIds:
+      - opentui-0-9.md
+    id: npm:@tooee/ask
     updated: true
   - changelogIds:
-      - svg-images.md
+      - opentui-0-9.md
+    id: npm:@tooee/choose
+    updated: true
+  - changelogIds:
+      - opentui-0-9.md
+    id: npm:@tooee/clipboard
+    updated: true
+  - changelogIds:
+      - opentui-0-9.md
+    id: npm:@tooee/commands
+    updated: true
+  - changelogIds:
+      - opentui-0-9.md
+    id: npm:@tooee/config
+    updated: true
+  - changelogIds:
+      - opentui-0-9.md
+    id: npm:@tooee/diff
+    updated: true
+  - changelogIds:
+      - opentui-0-9.md
+    id: npm:@tooee/layout
+    updated: true
+  - changelogIds:
+      - opentui-0-9.md
+    id: npm:@tooee/fuzzy
+    updated: true
+  - changelogIds:
+      - opentui-0-9.md
+    id: npm:@tooee/marks
+    updated: true
+  - changelogIds:
+      - opentui-0-9.md
     id: npm:@tooee/mermaid-pele
     updated: true
-  - id: npm:@tooee/overlays
-    updated: true
-  - id: npm:@tooee/marks
-    updated: true
-  - id: npm:@tooee/router
+  - changelogIds:
+      - opentui-0-9.md
+    id: npm:@tooee/overlays
     updated: true
   - changelogIds:
-      - svg-images.md
+      - opentui-0-9.md
+    id: npm:@tooee/panels
+    updated: true
+  - changelogIds:
+      - opentui-0-9.md
     id: npm:@tooee/renderers
     updated: true
-  - id: npm:@tooee/search
-    updated: true
-  - id: npm:@tooee/panels
-    updated: true
-  - id: npm:@tooee/shell
+  - changelogIds:
+      - opentui-0-9.md
+    id: npm:@tooee/search
     updated: true
   - changelogIds:
-      - svg-images.md
+      - opentui-0-9.md
+      - which-key-discovery.md
+    id: npm:@tooee/shell
+    updated: true
+  - changelogIds:
+      - opentui-0-9.md
+    id: npm:@tooee/router
+    updated: true
+  - changelogIds:
+      - opentui-0-9.md
     id: npm:@tooee/svg
     updated: true
   - id: npm:@tooee/test-support
     updated: false
-  - id: npm:@tooee/themes
-    updated: true
-  - id: npm:@tooee/toasts
+  - changelogIds:
+      - opentui-0-9.md
+    id: npm:@tooee/themes
     updated: true
   - changelogIds:
-      - svg-images.md
+      - opentui-0-9.md
+    id: npm:@tooee/toasts
+    updated: true
+  - changelogIds:
+      - opentui-0-9.md
     id: npm:@tooee/view
     updated: true
-npm:mark-latest:
-  - id: npm:@tooee/svg
 npm:packages:
   - id: npm:@tooee/cli
   - id: npm:@tooee/ask
   - id: npm:@tooee/choose
   - id: npm:@tooee/clipboard
-  - id: npm:@tooee/config
   - id: npm:@tooee/commands
+  - id: npm:@tooee/config
   - id: npm:@tooee/diff
-  - id: npm:@tooee/fuzzy
   - id: npm:@tooee/layout
+  - id: npm:@tooee/fuzzy
+  - id: npm:@tooee/marks
   - id: npm:@tooee/mermaid-pele
   - id: npm:@tooee/overlays
-  - id: npm:@tooee/marks
-  - id: npm:@tooee/router
+  - id: npm:@tooee/panels
   - id: npm:@tooee/renderers
   - id: npm:@tooee/search
-  - id: npm:@tooee/panels
   - id: npm:@tooee/shell
+  - id: npm:@tooee/router
   - id: npm:@tooee/svg
   - id: npm:@tooee/test-support
   - id: npm:@tooee/themes
